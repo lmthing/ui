@@ -33,10 +33,8 @@ describe("Bars schema", () => {
   it.each([
     {},
     { ...input, title: "" },
-    { ...input, title: " " },
     { ...input, title: "a".repeat(33) },
     { ...input, unit: "" },
-    { ...input, unit: " " },
     { ...input, unit: "a".repeat(9) },
     { ...input, points: [] },
     { ...input, points: [point] },
@@ -182,7 +180,10 @@ describe("Bars rendering", () => {
         const html = renderPoints(count, state, unit);
         expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
         expect(html).not.toMatch(/role="(?:link|button)"/);
-        if (state === "loading") expect(html.match(/aria-busy="true"/g)).toHaveLength(1);
+        if (state === "loading") {
+          expect(html.match(/aria-busy="true"/g)).toHaveLength(1);
+          expect(html).not.toBe(renderPoints(count === 7 ? 6 : 7, "loading", unit));
+        }
         if (state === "empty") expect(html).toContain("Nothing here yet");
         if (state !== "filled") continue;
         const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");

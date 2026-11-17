@@ -145,7 +145,7 @@ export function Bars({ title, unit, points }: Props<typeof props, typeof meta>) 
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root" padded>
-        <KitSkeleton shape="headline" lead="none" />
+        <KitSkeleton shape="bars" rows={points.length} lead="none" />
       </KitCard>
     );
   }
