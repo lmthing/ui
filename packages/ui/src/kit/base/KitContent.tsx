@@ -15,17 +15,25 @@ const Text = styled(YStack, { flex: 1 });
 export function KitContent({
   lead,
   lineRole = "heading",
+  leadingAlign = "line",
   children,
 }: {
   lead?: ReactNode;
   /** The text role of the first line, so the lead centres on it. */
   lineRole?: "body" | "heading" | "title";
+  /** `row` centres a thumbnail taller than a line on the whole text (default `line`, for icons). */
+  leadingAlign?: "line" | "row";
   children: ReactNode;
 }) {
   const ks = useKitStyle();
   return (
     <Frame gap={space[ks.density.gap]}>
-      {lead && <Edge height={typography[lineRole].lineHeight}>{lead}</Edge>}
+      {lead &&
+        (leadingAlign === "row" ? (
+          <Edge alignSelf="center">{lead}</Edge>
+        ) : (
+          <Edge height={typography[lineRole].lineHeight}>{lead}</Edge>
+        ))}
       <Text gap={space.xs}>{children}</Text>
     </Frame>
   );
