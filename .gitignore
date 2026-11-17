@@ -5,3 +5,4 @@ coverage/
 apps/gallery/e2e/*.png
 packages/ui/src/entry/*.ts
 test-results/
+packages/ui/shots/

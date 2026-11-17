@@ -1,13 +1,8 @@
-import { build, createServer, type InlineConfig } from "vite";
-import { webResolve } from "./index";
+import { build, createServer } from "vite";
+import { galleryConfig } from "./gallery-config";
 
 export async function gallery() {
-  const config: InlineConfig = {
-    configFile: false,
-    resolve: webResolve,
-    optimizeDeps: { rolldownOptions: { resolve: { extensions: webResolve.extensions } } },
-    server: { host: "127.0.0.1", port: 5173, strictPort: true },
-  };
+  const config = galleryConfig(5173);
   if (process.argv.includes("--build")) {
     await build(config);
   } else {

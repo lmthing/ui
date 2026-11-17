@@ -13,7 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "llm:check": "pnpm --filter @lmthing/ui llm:check",
-    "check": "pnpm format:check && pnpm typecheck && pnpm test && pnpm build:catalog"
+    "check": "pnpm format:check && pnpm typecheck && pnpm test && pnpm build:catalog",
+    "shoot": "pnpm --filter @lmthing/ui shoot"
   },
   "devDependencies": {
     "@types/node": "26.6.6",

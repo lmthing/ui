@@ -88,5 +88,7 @@ report the conflict instead. A `choose` probe whose expected component is not bu
 ## Done means
 
 All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pnpm test`,
-`pnpm build:catalog`, `pnpm llm:check --component <Id>`. Then look at `pnpm gallery` (`?c=<Id>`):
-every preset, mode and state reads well, nothing overflows, empty and loading look intentional.
+`pnpm build:catalog`, `pnpm llm:check --component <Id>`. Then `pnpm shoot --component <Id>` and
+look at every PNG (one per preset and mode, every example and state): text never clipped or
+overflowing, nothing touching an edge, rows aligned, contrast readable, empty and loading look
+intentional in every preset. Fix and re-shoot until they do.

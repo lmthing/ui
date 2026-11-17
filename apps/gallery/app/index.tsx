@@ -16,7 +16,10 @@ import { config } from "../index";
 
 export const galleryParts = createMemoryParts();
 const modes = ["light", "dark"] as const;
-const only = new URLSearchParams(globalThis.location?.search ?? "").get("c");
+const query = new URLSearchParams(globalThis.location?.search ?? "");
+const only = query.get("c");
+const onlyPreset = query.get("preset");
+const onlyMode = query.get("mode");
 
 type Cell = { id: ComponentName; example: unknown; index: number; state: StateName };
 
@@ -62,18 +65,22 @@ export function Gallery() {
               {id}
             </Text>
             <XStack flexWrap="wrap" gap={space.xl}>
-              {presets.flatMap((preset) =>
-                modes.flatMap((mode) =>
-                  cellsOf(id).map((cell) => (
-                    <Preview
-                      key={`${preset.id}_${mode}_${cell.index}_${cell.state}`}
-                      cell={cell}
-                      preset={preset.id}
-                      mode={mode}
-                    />
-                  )),
-                ),
-              )}
+              {presets
+                .filter((preset) => !onlyPreset || preset.id === onlyPreset)
+                .flatMap((preset) =>
+                  modes
+                    .filter((mode) => !onlyMode || mode === onlyMode)
+                    .flatMap((mode) =>
+                      cellsOf(id).map((cell) => (
+                        <Preview
+                          key={`${preset.id}_${mode}_${cell.index}_${cell.state}`}
+                          cell={cell}
+                          preset={preset.id}
+                          mode={mode}
+                        />
+                      )),
+                    ),
+                )}
             </XStack>
           </YStack>
         ))}
