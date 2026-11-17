@@ -9,9 +9,17 @@ export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiu
   return radius[steps[index]!];
 }
 export function surfaceOf(treatment: KitStyle["surface"]) {
-  if (treatment === "hairline") return { backgroundColor: "$surface", borderColor: "$line",
-    borderWidth: component.List.borderWidth } as const;
-  if (treatment === "solid-accent") return { backgroundColor: "$accentSoft", borderColor: "$accent",
-    borderWidth: component.List.borderWidth } as const;
-  return { backgroundColor: "$raised", borderWidth: component.List.hidden } as const;
+  if (treatment === "hairline")
+    return {
+      backgroundColor: "$surface",
+      borderColor: "$line",
+      borderWidth: component.base.borderWidth,
+    } as const;
+  if (treatment === "solid-accent")
+    return {
+      backgroundColor: "$accentSoft",
+      borderColor: "$accent",
+      borderWidth: component.base.borderWidth,
+    } as const;
+  return { backgroundColor: "$raised", borderWidth: component.base.none } as const;
 }

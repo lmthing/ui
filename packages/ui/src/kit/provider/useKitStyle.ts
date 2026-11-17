@@ -1,3 +1,5 @@
 import { useKit } from "./useKit";
 
-export function useKitStyle() { return useKit().style; }
+export function useKitStyle() {
+  return useKit().style;
+}

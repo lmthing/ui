@@ -14,17 +14,30 @@ const Frame = styled(YStack, {
     },
   } as const,
 });
-export function KitCard({ children, style = "inset", part = "root" }: {
-  children: ReactNode; style?: CardStyle; part?: string;
+export function KitCard({
+  children,
+  style = "inset",
+  part = "root",
+}: {
+  children: ReactNode;
+  style?: CardStyle;
+  part?: string;
 }) {
   const ks = useKitStyle();
   const surface = style === "inset" ? surfaceOf(ks.surface) : {};
-  return <CardStyleContext.Provider value={style}>
-    <Frame {...usePart(part)} {...surface} cardStyle={style}
-      borderRadius={shifted("md", ks.radiusShift)}
-      padding={style === "inset" ? space.xs : component.List.hidden}
-      gap={style === "cards" ? space[ks.density.gap] : component.List.hidden} accessibilityRole="list">
-      {children}
-    </Frame>
-  </CardStyleContext.Provider>;
+  return (
+    <CardStyleContext.Provider value={style}>
+      <Frame
+        {...usePart(part)}
+        {...surface}
+        cardStyle={style}
+        borderRadius={shifted("md", ks.radiusShift)}
+        padding={style === "inset" ? space.xs : component.base.none}
+        gap={style === "cards" ? space[ks.density.gap] : component.base.none}
+        accessibilityRole="list"
+      >
+        {children}
+      </Frame>
+    </CardStyleContext.Provider>
+  );
 }

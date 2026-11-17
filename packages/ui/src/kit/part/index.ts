@@ -1,2 +1,2 @@
-export { PartContext, PartScope, usePartContext, useComponentState } from "./part-context";
+export { PartContext, PartScope, usePartContext, useComponentState, useEmptyThing } from "./part-context";
 export { usePart } from "./usePart";

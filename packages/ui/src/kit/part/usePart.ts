@@ -6,8 +6,11 @@ import { usePartContext } from "./part-context";
 
 type Measurable = {
   getBoundingClientRect?: () => { x: number; y: number; width: number; height: number };
-  measureLayout?: (root: unknown, success: (x: number, y: number, width: number, height: number) => void,
-    failure: () => void) => void;
+  measureLayout?: (
+    root: unknown,
+    success: (x: number, y: number, width: number, height: number) => void,
+    failure: () => void,
+  ) => void;
 };
 export function usePart(part = "root") {
   const { screen, component, item, rev } = usePartContext();
@@ -23,18 +26,29 @@ export function usePart(part = "root") {
       const origin = root.current as Measurable | null;
       if (!node || !origin) return;
       if (node.getBoundingClientRect && origin.getBoundingClientRect) {
-        const rect = node.getBoundingClientRect(), base = origin.getBoundingClientRect();
-        parts.register({ screen, rev, address,
-          rect: { x: rect.x - base.x, y: rect.y - base.y, width: rect.width, height: rect.height } });
+        const rect = node.getBoundingClientRect(),
+          base = origin.getBoundingClientRect();
+        parts.register({
+          screen,
+          rev,
+          address,
+          rect: { x: rect.x - base.x, y: rect.y - base.y, width: rect.width, height: rect.height },
+        });
       } else {
-        node.measureLayout?.(root.current, (x, y, width, height) =>
-          parts.register({ screen, rev, address, rect: { x, y, width, height } }), () => {});
+        node.measureLayout?.(
+          root.current,
+          (x, y, width, height) => parts.register({ screen, rev, address, rect: { x, y, width, height } }),
+          () => {},
+        );
       }
     });
   }, [parts, root, screen, rev, address]);
-  useEffect(() => () => {
-    if (frame.current !== null) cancelAnimationFrame(frame.current);
-    parts.unregister({ screen, rev, address });
-  }, [parts, screen, rev, address]);
+  useEffect(
+    () => () => {
+      if (frame.current !== null) cancelAnimationFrame(frame.current);
+      parts.unregister({ screen, rev, address });
+    },
+    [parts, screen, rev, address],
+  );
   return { ref, onLayout, testID: address };
 }

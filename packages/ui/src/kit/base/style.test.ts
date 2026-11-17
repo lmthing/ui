@@ -10,7 +10,9 @@ it("shifts corners by one step and clamps the scale ends", () => {
 });
 it("derives surfaces from roles and tokens, not preset names", () => {
   expect(surfaceOf("hairline")).toEqual({
-    backgroundColor: "$surface", borderColor: "$line", borderWidth: component.List.borderWidth,
+    backgroundColor: "$surface",
+    borderColor: "$line",
+    borderWidth: component.base.borderWidth,
   });
   expect(surfaceOf("solid-accent").backgroundColor).toBe("$accentSoft");
   expect(surfaceOf("flat-tinted").backgroundColor).toBe("$raised");

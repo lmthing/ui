@@ -1,14 +1,27 @@
-import { Dot, Leaf, Droplet, Dog, Calendar, Clock, Check, ChevronRight } from "@tamagui/lucide-icons";
+import * as Lucide from "@tamagui/lucide-icons";
 import { YStack, styled } from "tamagui";
-import { size } from "../../catalog";
+import { iconTable, size, type IconName } from "../../catalog";
 import { usePart } from "../part";
 
 const Frame = styled(YStack, { alignItems: "center", justifyContent: "center" });
-const views = { dot: Dot, leaf: Leaf, drop: Droplet, dog: Dog, calendar: Calendar,
-  clock: Clock, check: Check, chevron_right: ChevronRight };
-export function KitIcon({ name = "dot", part = "icon" }: { name?: string | undefined; part?: string }) {
-  const Icon = views[name as keyof typeof views] ?? Dot;
-  return <Frame {...usePart(part)} accessibilityElementsHidden aria-hidden>
-    <Icon size={size.icon.md} color="$accent" />
-  </Frame>;
+
+export type IconTone = "accent" | "muted" | "text" | "onAccent" | "good" | "warn" | "bad";
+
+export function KitIcon({
+  name = "dot",
+  part = "icon",
+  tone = "accent",
+  scale = "md",
+}: {
+  name?: IconName | undefined;
+  part?: string;
+  tone?: IconTone;
+  scale?: keyof typeof size.icon;
+}) {
+  const Icon = Lucide[iconTable[name]];
+  return (
+    <Frame {...usePart(part)} accessibilityElementsHidden aria-hidden>
+      <Icon size={size.icon[scale]} color={`$${tone}`} />
+    </Frame>
+  );
 }

@@ -1,10 +1,20 @@
 import { YStack, styled } from "tamagui";
-import { component, radius, size, space } from "../../../catalog";
+import { component, loadingLabel, radius, size, space } from "../../../catalog";
 
-const Frame = styled(YStack, {
-  height: size.control.lg, backgroundColor: "$accentSoft", borderRadius: radius.md,
-  margin: space.sm, opacity: component.List.skeletonOpacity,
+const Bar = styled(YStack, {
+  height: size.control.md,
+  backgroundColor: "$accentSoft",
+  borderRadius: radius.md,
+  opacity: component.base.skeletonOpacity,
 });
-export function KitSkeleton() {
-  return <Frame accessibilityLabel="Loading list" />;
+
+/** Loading state: `rows` grey bars in the component's shape. No text. */
+export function KitSkeleton({ rows = 1 }: { rows?: number }) {
+  return (
+    <YStack gap={space.sm} padding={space.sm} accessibilityLabel={loadingLabel}>
+      {Array.from({ length: rows }, (_, index) => (
+        <Bar key={index} />
+      ))}
+    </YStack>
+  );
 }

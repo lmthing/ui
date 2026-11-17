@@ -1,1 +1,1 @@
-export { createCatalogRegistry } from "./create-registry";
+export { registryOf } from "./create-registry";
