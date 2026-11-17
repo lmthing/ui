@@ -1,5 +1,12 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { components, createRegistry, type CastLike, type Props } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  components,
+  createRegistry,
+  stampItemIds,
+  type CastLike,
+  type Props,
+} from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.List;
 
@@ -10,7 +17,7 @@ describe("List schema", () => {
   it("applies defaults and trims text", () => {
     expect(props.parse({ rows: [{ title: "  Fern  " }] })).toEqual({
       style: "inset",
-      rows: [{ title: "Fern", trail: "chevron" }],
+      rows: [{ title: "Fern", trail: "chevron", root: undefined }],
     });
   });
   it.each([
@@ -31,6 +38,7 @@ describe("List schema", () => {
     { style: "grid", rows: [{ title: "Fern" }] },
     { color: "red", rows: [{ title: "Fern" }] },
     { rows: [{ title: "Fern", pixels: 4 }] },
+    { rows: [{ title: "Fern", root: "fern" }] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths, count and reference forms", () => {
     const row = {
@@ -54,6 +62,21 @@ describe("List schema", () => {
 });
 
 describe("List fallback and metadata", () => {
+  it.each(["none", "chevron", "check", "toggle", "value", "badge"] as const)(
+    "offers only drawn actions for a %s trail, with and without navigation",
+    (trail) => {
+      for (const goto of [undefined, "fern", "back", "plant_details"]) {
+        const input = { rows: [{ title: "Fern", trail, value: "Ready", goto }] };
+        const rows = stampItemIds(meta, props.parse(input));
+        expect(affordancesOf(meta, rows, "l1")).toEqual([
+          ...(goto ? [{ address: "l1/r1", part: "root", action: "press", detail: `→${goto}` }] : []),
+          ...(trail === "toggle"
+            ? [{ address: "l1/r1/trail", part: "trail", action: "toggle", detail: "" }]
+            : []),
+        ]);
+      }
+    },
+  );
   it("validates with empty, full, mixed and malformed cast content", () => {
     const casts: CastLike[] = [
       { things: [], items: [] },
