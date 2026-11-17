@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   detailOf,
-  emptyLine,
   placeholderDetail,
   text,
   thingOf,
@@ -10,7 +9,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitBubble, KitCard, KitContent, KitIcon, KitText, useComponentState, useEmptyThing } from "../kit";
+import { KitBubble, KitCard, KitEmpty, KitText, useComponentState } from "../kit";
 
 export const meta = {
   id: "Bubbles",
@@ -83,22 +82,17 @@ export const probes = [
 
 export function Bubbles({ messages, with: person }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   if (state === "empty") {
     return (
-      <KitCard style="inset" part="root" padded>
-        <KitContent lineRole="body" lead={<KitIcon name="message" tone="muted" decorative />}>
-          <KitText role="body" tone="muted" part={null}>
-            {emptyLine(thing)}
-          </KitText>
-        </KitContent>
+      <KitCard style="inset" part="root">
+        <KitEmpty icon="message" />
       </KitCard>
     );
   }
   return (
     <KitCard style="plain" part="root">
       {person && (
-        <KitText role="caption" tone="muted" align="center" part={null}>
+        <KitText role="caption" tone="muted" part={null}>
           {person}
         </KitText>
       )}

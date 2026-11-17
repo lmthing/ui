@@ -194,7 +194,7 @@ describe("Bubbles rendering", () => {
     const html = renderInstance("Bubbles", examples[0], "empty", theme, "entry");
     expect(html).toContain(emptyLine("entry"));
     expect(html).not.toContain(examples[0]!.with);
-    expect(html.match(/data-testid=/g)).toHaveLength(1);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     for (const item of examples[0]!.messages) expect(html).not.toContain(item.text);
   });
 });
