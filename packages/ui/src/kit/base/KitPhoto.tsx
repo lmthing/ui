@@ -15,7 +15,12 @@ const Frame = styled(YStack, {
       wide: { width: "100%", aspectRatio: component.base.wideRatio },
       square: { width: "100%", aspectRatio: 1 },
       tall: { width: "100%", aspectRatio: component.base.tallRatio },
-      avatar: { width: size.avatar.lg, height: size.avatar.lg, borderRadius: radius.pill },
+      avatar: {
+        width: size.avatar.lg,
+        height: size.avatar.lg,
+        borderRadius: radius.pill,
+        alignSelf: "center",
+      },
     },
   } as const,
 });

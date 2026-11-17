@@ -15,6 +15,8 @@ export function KitBlock(props: {
   lineRole?: "body" | "heading" | "title" | "display";
   /** Draws the block as a tinted panel in this tone (a banner). Without it the block has no surface. */
   tone?: SurfaceTone;
+  /** `row` centres a thumbnail or avatar taller than a line on the whole text (default `line`). */
+  leadingAlign?: "line" | "row";
 }) {
   return <Row {...props} role="text" />;
 }

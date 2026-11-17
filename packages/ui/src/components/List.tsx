@@ -146,6 +146,7 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
     <KitCard style={style} part="root">
       {rows.map((row) => (
         <KitRow
+          leadingAlign={row.photo ? "row" : "line"}
           key={row.id}
           item={row.id}
           label={row.title}
