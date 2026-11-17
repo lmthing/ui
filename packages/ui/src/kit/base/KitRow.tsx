@@ -20,6 +20,7 @@ export function Row({
   lineRole = "body",
   role,
   tone,
+  leadingAlign = "line",
 }: {
   children: ReactNode;
   leading?: ReactNode;
@@ -29,6 +30,8 @@ export function Row({
   lineRole?: LineRole;
   role?: "listitem" | "text";
   tone?: SurfaceTone | undefined;
+  /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
+  leadingAlign?: "line" | "row";
 }) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
@@ -47,7 +50,12 @@ export function Row({
       accessibilityLabel={label}
       {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
     >
-      {leading && <Edge height={line}>{leading}</Edge>}
+      {leading &&
+        (leadingAlign === "row" ? (
+          <Edge alignSelf="center">{leading}</Edge>
+        ) : (
+          <Edge height={line}>{leading}</Edge>
+        ))}
       <Body>{children}</Body>
       {trailing && <Edge height={line}>{trailing}</Edge>}
     </Frame>
@@ -65,6 +73,7 @@ export function KitRow({
   goto?: string | undefined;
   /** The text role of the first line (default body), so leading and trailing centre on it. */
   lineRole?: LineRole;
+  leadingAlign?: "line" | "row";
 }) {
   const context = usePartContext();
   return (

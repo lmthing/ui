@@ -12,6 +12,7 @@
 // wrap      text broken into lines of one or two words                       ≥ 2 lines, ≤ 2 words/line
 // small     text smaller than 12 px                                          12 px
 // target    a control smaller than 44×44 (plan rule)                         44 px
+// lead      a photo beside text, taller than a line, not centred on that text  > 4 px off
 export type LookIssue = { kind: string; frame: string; part: string; detail: string };
 
 export function findIssues(): LookIssue[] {
@@ -173,6 +174,25 @@ export function findIssues(): LookIssue[] {
           add("align", frame, frameEl, `${part} tops differ within one row`);
           break;
         }
+      }
+    }
+    // A photo or avatar beside text should centre on the text block when it is taller than one line.
+    for (const img of Array.from(frameEl.querySelectorAll('[role="img"]'))) {
+      const r = img.getBoundingClientRect();
+      const row = img.parentElement?.parentElement;
+      if (!row || !r.height || r.width > 120) continue;
+      const beside = Array.from(row.querySelectorAll("*")).filter((el) => {
+        const own = Array.from(el.childNodes).some((n) => n.nodeType === 3 && n.textContent!.trim());
+        const t = el.getBoundingClientRect();
+        return own && t.left >= r.right && t.top < r.bottom + 24 && t.bottom > r.top - 24;
+      });
+      if (!beside.length) continue;
+      const top = Math.min(...beside.map((el) => el.getBoundingClientRect().top));
+      const bottom = Math.max(...beside.map((el) => el.getBoundingClientRect().bottom));
+      const firstLine = Math.min(...beside.map((el) => el.getBoundingClientRect().height));
+      const off = (r.top + r.bottom) / 2 - (top + bottom) / 2;
+      if (r.height > firstLine * 1.4 && Math.abs(off) > 4) {
+        add("lead", frame, img, `photo centre is ${Math.round(off)}px off the centre of its text`);
       }
     }
     const roots = Array.from(frameEl.querySelectorAll("[data-testid]"))
