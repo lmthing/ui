@@ -23,6 +23,7 @@ export function KitEmpty({
   title,
   sub,
   fill = false,
+  tone = "accent",
 }: {
   icon?: IconName;
   part?: string;
@@ -31,6 +32,8 @@ export function KitEmpty({
   sub?: string;
   /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
   fill?: boolean;
+  /** The badge colour: `accent` (default, calm) or `good` (a success moment). */
+  tone?: "accent" | "good";
 }) {
   const { thing } = usePartContext();
   return (
@@ -41,8 +44,8 @@ export function KitEmpty({
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
-      <Badge>
-        <KitIcon name={icon} tone="accent" scale="lg" part="icon" />
+      <Badge backgroundColor={tone === "good" ? "$goodSoft" : "$accentSoft"}>
+        <KitIcon name={icon} tone={tone} scale="lg" part="icon" />
       </Badge>
       <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
         {title ?? emptyLine(thing)}
