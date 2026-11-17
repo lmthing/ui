@@ -148,8 +148,8 @@ describe("Checklist metadata and probes", () => {
     ]);
     expect(readComponent(components.Checklist, input, "k1")).toEqual([
       "k1 Checklist",
-      `  r1 "First job" [check check:${done ? "done" : "todo"}]`,
-      '  r2 "Second job" · "Later" [check check:todo]',
+      `  r1 "First job" [k1/r1/check check:${done ? "done" : "todo"}]`,
+      '  r2 "Second job" · "Later" [k1/r2/check check:todo]',
     ]);
   });
   it.each(["empty", "loading"] as const)("does not offer hidden item actions in %s", (state) => {
