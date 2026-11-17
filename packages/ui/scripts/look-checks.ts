@@ -160,7 +160,8 @@ export function findIssues(): LookIssue[] {
       for (const r of rects)
         rows.set(Math.round(r.top / 24), [...(rows.get(Math.round(r.top / 24)) ?? []), r.top]);
       const columns = Math.max(...[...rows.values()].map((tops) => tops.length));
-      if (lefts.length > columns && rights.length > columns) {
+      const centres = [...new Set(rects.map((r) => Math.round((r.left + r.right) / 6)))];
+      if (lefts.length > columns && rights.length > columns && centres.length > columns) {
         add(
           "align",
           frame,
