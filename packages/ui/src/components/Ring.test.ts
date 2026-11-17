@@ -73,7 +73,7 @@ describe("Ring schema", () => {
   });
 });
 
-describe("Ring fallback and metadata", () => {
+describe("Ring fallback", () => {
   it("validates with empty, full, mixed and malformed cast content", () => {
     const casts: CastLike[] = [
       { things: [], items: [] },
@@ -108,6 +108,9 @@ describe("Ring fallback and metadata", () => {
     expect(fallback({ cast: casts[4]! }).label).toBe("Item one");
     expect(fallback({ cast: casts[5]! }).label).toBe("Item one");
   });
+});
+
+describe("Ring metadata and probes", () => {
   it("declares only drawn parts, supported states and no actions", () => {
     expect(meta).toMatchObject({
       id: "Ring",
