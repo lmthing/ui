@@ -1,14 +1,23 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { Hero } from "./Hero";
 import {
+  affordancesOf,
   components,
   createRegistry,
   placeholderDetail,
   placeholderTitle,
+  readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Hero;
+const host = vi.hoisted(() => ({ resolvePhoto: vi.fn() }));
+vi.mock("../kit", async (original) => ({
+  ...(await original<typeof import("../kit")>()),
+  useKit: () => host,
+  useComponentState: () => "filled",
+}));
 
 describe("Hero schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -163,5 +172,24 @@ describe("Hero fallback and metadata", () => {
     expect(registry.resolve("HEADLINE")).toBe("Hero");
     expect(registry.resolve("spot-light")).toBe("Hero");
     expect(registry.resolve("unknown")).toBeUndefined();
+  });
+  it("reads the headline and detail without offering actions, including while loading", () => {
+    expect(readComponent(components.Hero, examples[0], "h1")).toEqual([
+      'h1 Hero[number][warn] "2" — "plants need water"',
+    ]);
+    for (const example of examples) {
+      const parsed = props.parse(example);
+      expect(affordancesOf(meta, parsed, "h1")).toEqual([]);
+      expect(readComponent(components.Hero, example, "h1", "loading")).toHaveLength(1);
+      expect(readComponent(components.Hero, example, "h1", "loading")[0]).not.toContain('"');
+    }
+  });
+  it.each([undefined, "local-photo-uri"])("draws wide media only when the host resolves it: %s", (source) => {
+    host.resolvePhoto.mockReturnValue(source);
+    const view = Hero(props.parse(examples[1]));
+    const media = view.props.children[0];
+    expect(Boolean(media)).toBe(Boolean(source));
+    if (source) expect(media.props).toMatchObject({ photo: "lib:dogs", shape: "wide", part: "photo" });
+    expect(host.resolvePhoto).toHaveBeenCalledWith("lib:dogs");
   });
 });
