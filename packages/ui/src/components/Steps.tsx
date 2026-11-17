@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
+import { stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
 import { KitBlock, KitContent, KitStepsTrack, KitText } from "../kit";
 
 export const meta = {
@@ -14,6 +14,11 @@ export const meta = {
   parts: ["root", "track", "label"],
   states: ["filled"],
   aliases: ["stepper", "wizard", "sequence", "onboarding"],
+  read: (input, state) => {
+    if (state !== "filled") return [];
+    const { at, count } = props.parse(input);
+    return [stepLine(at, count)];
+  },
 } as const satisfies Meta;
 
 export const props = z
@@ -23,12 +28,7 @@ export const props = z
     at: z.int().min(1).max(6),
     label: text(32).optional(),
   })
-  .refine(({ count, at }) => at <= count, { path: ["at"], message: "Must not exceed count" })
-  // The default reader and view share the derived label, including when no custom label is supplied.
-  .overwrite(({ label, ...value }) => ({
-    ...value,
-    label: `Step ${value.at} of ${value.count}${label ? ` · ${label}` : ""}`,
-  }));
+  .refine(({ count, at }) => at <= count, { path: ["at"], message: "Must not exceed count" });
 
 export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
   return { count: 3, at: 1 };
@@ -60,12 +60,21 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {
+  const position = stepLine(at, count);
   return (
-    <KitBlock label={label!}>
+    <KitBlock label={label ? `${position} · ${label}` : position}>
       <KitContent>
         <KitStepsTrack style={style} count={count} at={at} part="track" />
-        <KitText role="caption" tone="muted" part="label">
-          {label}
+        <KitText role={label ? "body" : "caption"} tone={label ? "text" : "muted"} part="label">
+          <KitText role="caption" tone="muted" part={null}>
+            {position}
+          </KitText>
+          {label && (
+            <>
+              {"\n"}
+              {label}
+            </>
+          )}
         </KitText>
       </KitContent>
     </KitBlock>

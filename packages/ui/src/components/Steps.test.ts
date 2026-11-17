@@ -15,16 +15,17 @@ describe("Steps schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-  it("applies defaults, trims text and derives a meaningful label", () => {
+  it("applies defaults, trims text and preserves the optional custom label", () => {
     expect(props.parse({ count: 3, at: 1 })).toEqual({
       style: "dots",
       count: 3,
       at: 1,
-      label: "Step 1 of 3",
     });
     expect(props.parse({ count: 3, at: 2, label: "  Add your first plant  " }).label).toBe(
-      "Step 2 of 3 · Add your first plant",
+      "Add your first plant",
     );
+    const input = { count: 6, at: 6, label: "a".repeat(32) };
+    expect(props.parse(props.parse(input))).toEqual(props.parse(input));
   });
   it.each([
     {},
@@ -87,7 +88,8 @@ describe("Steps fallback", () => {
     for (const cast of casts) {
       expect(fallback({ cast })).toEqual({ count: 3, at: 1 });
       expect(props.safeParse(fallback({ cast })).success).toBe(true);
-      expect(props.parse(fallback({ cast })).label).toBe("Step 1 of 3");
+      expect(props.parse(fallback({ cast })).label).toBeUndefined();
+      expect(readComponent(components.Steps, fallback({ cast }), "c1").join("\n")).toContain("Step 1 of 3");
     }
   });
 });
@@ -100,6 +102,8 @@ describe("Steps metadata and probes", () => {
     expect(meta).not.toHaveProperty("actions");
     expect(meta).not.toHaveProperty("items");
     expect(meta.realPath).not.toBe("");
+    expect(meta.read({ count: 3, at: 2 }, "filled")).toEqual(["Step 2 of 3"]);
+    expect(meta.read({ count: 3, at: 2 }, "loading")).toEqual([]);
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Checklist");
     expect(meta.pick).toContain("Ring");
@@ -141,8 +145,11 @@ describe("Steps view and reading", () => {
               accent: "moss",
             });
             expect(read).toContain(`Step ${at} of ${count}`);
-            expect(read).toContain(parsed.label);
-            expect(html).toContain(parsed.label);
+            expect(html).toContain(`Step ${at} of ${count}`);
+            if (label) {
+              expect(read).toContain(parsed.label);
+              expect(html).toContain(parsed.label);
+            }
             expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
             expect(html.match(/data-testid="home\/c1\/label"/g)).toHaveLength(1);
             const track = html.match(/<[^>]*data-testid="home\/c1\/track"[^>]*>/)?.[0];
