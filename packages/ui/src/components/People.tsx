@@ -106,7 +106,7 @@ export function People({ members }: Props<typeof props, typeof meta>) {
     <KitCard part="root">
       {members.map((member) => (
         <KitRow
-          leadingAlign="row"
+          leadingAlign={member.photo ? "row" : "line"}
           key={member.id}
           item={member.id}
           label={member.name}
