@@ -7,6 +7,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.TabBar;
 const tab = { icon: "calendar", label: "Schedule", goto: "schedule" };
@@ -68,6 +69,16 @@ describe("TabBar schema", () => {
     expectTypeOf<ViewProps["at"]>().toEqualTypeOf<number>();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
+  });
+  it.each([2, 3, 4, 5])("renders %i maximum-length tabs at every selection", (count) => {
+    const tabs = Array.from({ length: count }, () => ({ ...tab, label: "a".repeat(12) }));
+    const theme = { preset: "calm", accent: "moss", mode: "light" } as const;
+    for (const at of [undefined, ...tabs.map((_, index) => index)]) {
+      const html = renderInstance("TabBar", { tabs, at }, "filled", theme);
+      const tags = html.match(/<[^>]+role="tab"[^>]*>/g) ?? [];
+      expect(tags).toHaveLength(count);
+      tags.forEach((tag, index) => expect(tag).toContain(`aria-selected="${index === (at ?? 0)}"`));
+    }
   });
 });
 

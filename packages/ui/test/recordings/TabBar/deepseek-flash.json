@@ -1,0 +1,10 @@
+{
+  "3793d03a8779555b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word only (press, toggle, check), never the → or : part.\n\nscreen home\nt1 TabBar\n  r1 \"Plants\" [t1/r1 select]\n  r2 \"Schedule\" [t1/r2 select]\n  r3 \"Settings\" [t1/r3 select]\n\nTask: Open the care schedule\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/r2\", \"action\": \"select\"}"
+  },
+  "ddf4b510443297b3": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word only (press, toggle, check), never the → or : part.\n\nscreen home\nt1 TabBar\n  r1 \"Today\" [t1/r1 select]\n  r2 \"Clients\" [t1/r2 select]\n  r3 \"Earnings\" [t1/r3 select]\n  r4 \"Profile\" [t1/r4 select]\n\nTask: Go to my clients\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/r2\", \"action\": \"select\"}"
+  }
+}
