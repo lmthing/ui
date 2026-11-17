@@ -60,11 +60,11 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
 | `KitTile` | One pressable item tile: icon in a soft round badge over a centred label, one address per item (quick actions) | `item`, `icon`, `label`, `goto` |
 | `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, children |
-| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
-| `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), children |
+| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
+| `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), `leadingAlign` line/row (`row` for a photo thumbnail taller than a line), `inset` md/none (`none` for a cell inside `KitGrid`), children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part`, `decorative` (no address; chevrons only) |
-| `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, for a profile), `part` |
+| `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, centred, for a profile), `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
 | `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part`, `title`/`sub` (standalone), `fill` (full-height, centred), `tone` accent/good (badge colour) |
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
