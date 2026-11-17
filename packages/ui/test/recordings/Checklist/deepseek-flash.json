@@ -13,11 +13,11 @@
   },
   "20814d1a2edb5278": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nChecklist: Things to do, with each job ticked off when done.\nprops: { items: [1..6 { text: text≤36, done?: boolean=false, meta?: text≤24 }] }\nexample: {\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}\n\nBrief: Three plant jobs for today: water the fern, mist the monstera (already done), turn the basil\nReply with only the JSON line, starting with {\"c\":\"Checklist\".",
-    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}",
+    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
     "replies": [
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}",
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Today\"}]}",
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}"
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the basil\",\"done\":false}]}"
     ]
   },
   "22991e1dca632996": {

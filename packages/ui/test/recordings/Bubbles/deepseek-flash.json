@@ -42,8 +42,8 @@
     "reply": "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}",
     "replies": [
       "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}",
-      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}",
-      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works fine.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}"
+      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30 today?\"},{\"from\":\"me\",\"text\":\"Yes, 09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Great, thank you!\"}]}",
+      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover’s walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}"
     ]
   },
   "b6c4a83f607326e7": {

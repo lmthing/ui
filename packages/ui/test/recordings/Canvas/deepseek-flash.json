@@ -49,11 +49,11 @@
   },
   "ded7b2c6f16aea56": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nCanvas: An idea no existing component can express, such as a game or a drawing tool.\nprops: { caption: text≤80 }\nexample: {\"c\":\"Canvas\",\"caption\":\"A drawing pad to sketch where each plant goes\"}\n\nBrief: A game where I guess the dog breed and earn points for correct answers\nReply with only the JSON line, starting with {\"c\":\"Canvas\".",
-    "reply": "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed game - earn points for each correct answer!\"}",
+    "reply": "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed! Earn points for each correct answer.\"}",
     "replies": [
-      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed game - earn points for each correct answer!\"}",
-      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed by photo, earn points for each right answer\"}",
-      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed game - earn points for each correct answer!\"}"
+      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed! Earn points for each correct answer.\"}",
+      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and earn points for each correct answer\"}",
+      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and earn points for each correct answer\"}"
     ]
   },
   "f61470d14c4dced1": {

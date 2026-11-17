@@ -27,7 +27,7 @@
     "replies": [
       "{\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260}",
       "{\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260}",
-      "{\"c\":\"Timer\",\"style\":\"up\",\"label\":\"Walk timer\",\"seconds\":1260}"
+      "{\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260}"
     ]
   },
   "1d6b0049b74f63aa": {
