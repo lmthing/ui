@@ -182,19 +182,19 @@ describe("Card actions and loading", () => {
     expect(read.includes("[c1 press")).toBe(Boolean(goto));
     expect(readComponent(components.Card, input, "c1", "loading")[0]).not.toContain('"');
   });
-  it("uses shape-matched skeletons and removes navigation while loading", () => {
+  it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
     host.state = "loading";
+    host.resolvePhoto.mockReturnValue(source);
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
       const parsed = props.parse(input);
       const view = Card(parsed);
       expect(view.props).toMatchObject({ goto: undefined, padded: false });
-      expect(view.props.children.type).toBe(KitSkeleton);
-      expect(view.props.children.props).toMatchObject({
+      expect(view.props.children.type === KitSkeleton && view.props.children.props).toMatchObject({
         rows: 1,
-        shape: parsed.style === "media" ? "media" : "rows",
-        lead: parsed.icon ? "dot" : parsed.photo ? "box" : "none",
+        shape: parsed.style === "media" && parsed.photo && source ? "media" : "rows",
+        lead: parsed.style === "media" ? "none" : parsed.icon ? "dot" : parsed.photo ? "box" : "none",
+        inset: "none",
       });
     }
-    host.state = "filled";
   });
 });
