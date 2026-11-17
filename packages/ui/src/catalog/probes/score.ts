@@ -39,7 +39,8 @@ const normalAddress = (address: string) => address.replace(/^home\//, "").replac
 export function scoreRead(reply: string, expect: { address: string; action: string }): Score {
   const line = jsonLine(reply) as { address?: unknown; action?: unknown } | undefined;
   if (!line || typeof line.address !== "string") return { pass: false, detail: "no address" };
-  const address = normalAddress(line.address);
+  // Models sometimes paste the action onto the address ("s1/l5 select"): the address is its first word.
+  const address = normalAddress(line.address.trim().split(/\s+/)[0] ?? "");
   const action = String(line.action ?? "").match(/^[a-z]+/)?.[0];
   const pass = address === normalAddress(expect.address) && action === expect.action;
   return { pass, detail: pass ? "acted right" : `did ${String(line.action)} on ${address}` };

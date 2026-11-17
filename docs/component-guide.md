@@ -111,8 +111,10 @@ actions). Rendering is covered by `test/conformance.test.tsx` automatically.
 
 `pnpm llm:check --component <Id>` must print `All required probes pass.` before the component is
 done, and the recordings it writes under `test/recordings/<Id>/` are committed. `pnpm test` replays
-them. If a probe fails, improve this component's `purpose`, `pick`, `aliases` or limits (or the
-example) and run again. Never weaken a probe, and never edit another component to make yours pass;
+them. Each probe is sampled 3 times and passes on a majority (2 of 3); a probe that passes 2 of 3 is
+printed `unstable`. Run it once per change and never re-run for a luckier result. If a probe fails or
+is unstable, improve this component's `purpose`, `pick`, `aliases` or limits (or the example) and run
+again. Never weaken a probe, and never edit another component to make yours pass;
 report the conflict instead. A `choose` probe whose expected component is not built yet is skipped.
 
 ## Done means
