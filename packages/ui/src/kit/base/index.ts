@@ -6,6 +6,7 @@ export { KitBars } from "./KitBars";
 export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";
 export { KitRing } from "./KitRing";
+export { KitSwipeStack } from "./KitSwipeStack";
 export { KitBubble } from "./KitBubble";
 export { KitHours, type HourBlock } from "./KitHours";
 export { KitSlider } from "./KitSlider";

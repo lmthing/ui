@@ -67,6 +67,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitSwipeStack` | A stack: the first card fully on a surface (item root, role button, the swiped one), the next two peeking behind, hidden from reading | `cards` ({id,label,children}) |
 | `KitBubble` | One chat message: `me` right on accent, `them` left on raised, wraps at 80% width; `grouped` sits closer; one item | `item`, `from`, `text`, `grouped` |
 | `KitHours` | A day by the hour: hour rail and blocks placed and sized by start/end, tinted by tone; each block one item (`title`, `time`), link when `goto` | `blocks` ({id,start,end,title,tone,goto}) |
 | `KitSlider` | A themed slider in a 44px touch area (role slider, its value); the part `set` acts on | `value`, `label`, `min`/`max` (default 0..10), `part` (default `field`) |
@@ -115,7 +116,7 @@ All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pn
 `pnpm build:catalog`, `pnpm llm:check --component <Id>` (choose, write and read probes), and
 `pnpm look --component <Id>` prints `No issues.` The reading test (`test/reading.test.tsx`) proves
 the text a model reads matches the screen and that every offered action exists with the right role;
-a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`).
+a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`); `$first: true` matches only the first item.
 
 Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
