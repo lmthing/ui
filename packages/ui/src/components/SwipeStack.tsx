@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   detailOf,
-  emptyLine,
   itemsOf,
   photo,
   placeholderTitle,
@@ -13,15 +12,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitPhoto,
-  KitSwipeStack,
-  KitText,
-  useComponentState,
-  useEmptyThing,
-} from "../kit";
+import { KitCard, KitContent, KitEmpty, KitPhoto, KitSwipeStack, KitText, useComponentState } from "../kit";
 
 export const meta = {
   id: "SwipeStack",
@@ -108,13 +99,10 @@ export const probes = [
 
 export function SwipeStack({ cards }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   if (state === "empty") {
     return (
-      <KitCard style="inset" part="root" padded>
-        <KitText tone="muted" part={null}>
-          {emptyLine(thing)}
-        </KitText>
+      <KitCard style="plain" part="root">
+        <KitEmpty part="title" />
       </KitCard>
     );
   }
@@ -125,21 +113,19 @@ export function SwipeStack({ cards }: Props<typeof props, typeof meta>) {
           id: card.id,
           label: card.title,
           children: (
-            <>
+            <KitCard style="plain" part="title" padded>
               {card.photo && <KitPhoto photo={card.photo} shape="wide" part="photo" label={card.title} />}
-              <KitCard style="plain" part="title" padded>
-                <KitContent>
-                  <KitText role="heading" part={null}>
-                    {card.title}
+              <KitContent>
+                <KitText role="heading" part={null}>
+                  {card.title}
+                </KitText>
+                {card.meta && (
+                  <KitText role="caption" tone="muted" part={null}>
+                    {card.meta}
                   </KitText>
-                  {card.meta && (
-                    <KitText role="caption" tone="muted" part={null}>
-                      {card.meta}
-                    </KitText>
-                  )}
-                </KitContent>
-              </KitCard>
-            </>
+                )}
+              </KitContent>
+            </KitCard>
           ),
         }))}
       />
