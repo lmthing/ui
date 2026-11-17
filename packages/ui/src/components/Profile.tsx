@@ -102,6 +102,7 @@ export function Profile({ style, name, meta: detail, photo }: Props<typeof props
     <KitBlock
       label={name}
       lineRole="heading"
+      leadingAlign={photo ? "row" : "line"}
       leading={
         photo ? (
           <KitPhoto photo={photo} shape="round" part="photo" label={name} />
