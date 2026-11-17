@@ -150,12 +150,29 @@ describe("Chips view and supported action declaration", () => {
     }
     const read = readComponent(components.Chips, example, "c1").join("\n");
     for (const item of parsed.items) expect(read).toContain(item.label);
-    // The shared metadata currently offers both actions, regardless of the component's style.
     expect(affordancesOf(meta, stamped, "c1")).toEqual(
-      parsed.items.flatMap((item, index) => [
-        { address: `c1/r${index + 1}`, part: "root", action: "toggle", detail: item.on ? ":on" : ":off" },
-        { address: `c1/r${index + 1}`, part: "root", action: "select", detail: "" },
-      ]),
+      parsed.items.map((item, index) => ({
+        address: `c1/r${index + 1}`,
+        part: "root",
+        action: parsed.style === "filter" ? "toggle" : "select",
+        detail: parsed.style === "filter" ? (item.on ? ":on" : ":off") : "",
+      })),
     );
+    expect(read).not.toContain(parsed.style === "filter" ? " select" : " toggle");
+  });
+  it.each([undefined, "filter", "choose"] as const)("offers only the action for style %s", (style) => {
+    for (const count of [2, 6])
+      for (const selected of [-1, 0, count - 1]) {
+        const items = Array.from({ length: count }, (_, index) => ({
+          label: "Option",
+          on: index === selected,
+        }));
+        const parsed = props.parse({ style, items });
+        const actions = affordancesOf(meta, stampItemIds(meta, parsed), "c1");
+        expect(actions).toHaveLength(count);
+        expect(actions.map(({ action }) => action)).toEqual(
+          Array(count).fill(style === "choose" ? "select" : "toggle"),
+        );
+      }
   });
 });

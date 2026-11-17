@@ -25,8 +25,10 @@ export const meta = {
   items: { key: "items", parts: ["root", "label"] },
   parts: ["root"],
   states: ["filled"],
-  // The shared action schema cannot choose an item-root action from the component's style.
-  actions: { items: { root: ["toggle", "select"] } },
+  actions: {
+    items: { root: ["toggle", "select"] },
+    when: { "root.toggle": { style: "filter" }, "root.select": { style: "choose" } },
+  },
   aliases: ["pills", "filters", "choices"],
 } as const satisfies Meta;
 

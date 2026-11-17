@@ -26,7 +26,7 @@ import {
 export const meta = {
   id: "Stats",
   group: "data",
-  purpose: "Two to four summary numbers to compare at a glance.",
+  purpose: "Two to four summary numbers, with time periods in labels and only short measurement units.",
   pick: "Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).",
   region: "body",
   weight: 2,
@@ -89,7 +89,7 @@ export const examples = [
     style: "tiles",
     tiles: [
       { label: "Plants", value: "12" },
-      { label: "Watered", value: "3", unit: "today" },
+      { label: "Watered today", value: "3" },
       { label: "Due", value: "2" },
     ],
   },
