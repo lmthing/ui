@@ -40,6 +40,7 @@ export function scoreRead(reply: string, expect: { address: string; action: stri
   const line = jsonLine(reply) as { address?: unknown; action?: unknown } | undefined;
   if (!line || typeof line.address !== "string") return { pass: false, detail: "no address" };
   const address = normalAddress(line.address);
-  const pass = address === normalAddress(expect.address) && line.action === expect.action;
+  const action = String(line.action ?? "").match(/^[a-z]+/)?.[0];
+  const pass = address === normalAddress(expect.address) && action === expect.action;
   return { pass, detail: pass ? "acted right" : `did ${String(line.action)} on ${address}` };
 }

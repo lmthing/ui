@@ -44,9 +44,9 @@ export function readPrompt(def: Definition, screen: number, instance: string, ta
   const lines = readComponent(def, def.examples[screen], instance);
   return [
     "You operate a phone app for a person. You see the screen as text: one line per component,",
-    "items indented. Text in quotes is content. Actions are in square brackets, with the part name",
-    "first when it is not the item or component itself, e.g. [trail toggle:off] or [press→plant].",
-    "An action's address is the path of ids on its line plus the part, e.g. l1/r2/trail or b1.",
+    "items indented. Text in quotes is content. Each action is in square brackets and starts with its",
+    "address: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address",
+    "exactly. The action is the word only (press, toggle, check), never the → or : part.",
     "",
     "screen home",
     ...lines,

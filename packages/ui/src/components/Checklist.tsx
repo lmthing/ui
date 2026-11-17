@@ -23,7 +23,7 @@ export const meta = {
   realPath: "Task completion flags stored in the on-device database.",
   items: { key: "items", parts: ["root", "check", "text", "meta"] },
   states: ["filled", "empty", "loading"],
-  actions: { items: { check: ["toggle"], root: ["toggle"] } },
+  actions: { items: { check: ["check"] } },
   aliases: ["tasks", "todo", "ticks", "checks"],
 } as const satisfies Meta;
 
@@ -84,7 +84,7 @@ export const probes = [
     kind: "read",
     screen: 0,
     task: "Tick off the first job",
-    expect: { address: "k1/r1/check", action: "toggle" },
+    expect: { address: "k1/r1/check", action: "check" },
   },
 ] satisfies Probe[];
 
@@ -107,7 +107,12 @@ export function Checklist({ items }: Props<typeof props, typeof meta>) {
   return (
     <KitCard style="inset" part="root">
       {items.map((it) => (
-        <KitRow key={it.id} item={it.id} label={it.text} leading={<KitCheck done={it.done} part="check" />}>
+        <KitRow
+          key={it.id}
+          item={it.id}
+          label={it.text}
+          leading={<KitCheck done={it.done} part="check" label={it.text} />}
+        >
           <KitText role="body" tone={it.done ? "muted" : "text"} part="text">
             {it.text}
           </KitText>

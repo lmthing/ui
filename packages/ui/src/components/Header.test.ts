@@ -162,8 +162,8 @@ describe("Header view", () => {
         expect(html.includes('data-testid="home/c1/sub"')).toBe(Boolean(parsed.sub));
         expect(html.includes('data-testid="home/c1/action"')).toBe(Boolean(parsed.action));
         expect(html.includes('data-testid="home/c1/back"')).toBe(style === "back");
-        expect(read.includes("[action press")).toBe(Boolean(parsed.action));
-        expect(read.includes("[back press")).toBe(style === "back");
+        expect(read.includes("[c1/action press")).toBe(Boolean(parsed.action));
+        expect(read.includes("[c1/back press")).toBe(style === "back");
         if (parsed.action) expect(html).toContain('aria-label="Add a plant"');
       }
     },

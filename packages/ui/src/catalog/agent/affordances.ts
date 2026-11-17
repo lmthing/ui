@@ -66,7 +66,7 @@ export function affordancesOf(meta: Meta, props: Props, instance: string): Affor
   return [...own, ...itemActions];
 }
 
-export function formatAffordance({ part, action, detail }: Affordance, inItem: boolean): string {
-  const showPart = part !== "root" && (inItem || part !== "root");
-  return `[${showPart ? `${part} ` : ""}${action}${detail}]`;
+/** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
+export function formatAffordance({ address, action, detail }: Affordance): string {
+  return `[${address} ${action}${detail}]`;
 }

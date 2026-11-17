@@ -3,10 +3,12 @@ import {
   components,
   createRegistry,
   placeholderDetail,
+  affordancesOf,
+  readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitCard, KitIcon, KitText } from "@lmthing/ui/kit";
+import { KitIcon, KitRow, KitText } from "@lmthing/ui/kit";
 import { Note } from "./Note";
 
 const { props, meta, examples, fallback, probes } = components.Note;
@@ -153,30 +155,38 @@ describe("Note view", () => {
     (style) => {
       for (const tone of ["neutral", "good", "warn", "bad"] as const) {
         const view = Note(props.parse({ style, tone, text: "Supporting information" }));
-        expect(view.type).toBe(KitCard);
-        expect(view.props).toMatchObject({ style: "plain", part: "root" });
-        const [quote, hint, line] = view.props.children;
+        expect(view.type).toBe(KitRow);
+        expect(view.props).toMatchObject({ item: "", label: "Supporting information" });
+        const line = view.props.children;
         expect(line.type).toBe(KitText);
         expect(line.props).toMatchObject({
           role: style === "quote" ? "heading" : style === "hint" ? "label" : "body",
-          tone: style === "hint" ? "muted" : tone === "neutral" ? "text" : tone,
+          tone: tone === "neutral" ? (style === "hint" ? "muted" : "text") : tone,
           part: "text",
           children: "Supporting information",
         });
-        if (style === "body") expect([quote, hint]).toEqual([false, false]);
-        if (style === "quote") {
-          expect(quote.type).toBe(KitIcon);
-          expect(quote.props).toMatchObject({ name: "quote", tone: "muted", part: "icon" });
-        }
-        if (style === "hint") {
-          expect(hint.type).toBe(KitIcon);
-          expect(hint.props).toMatchObject({ name: "lightbulb", part: "icon" });
+        if (style === "body") expect(view.props.leading).toBeUndefined();
+        else {
+          expect(view.props.leading.type).toBe(KitIcon);
+          expect(view.props.leading.props).toMatchObject({
+            name: style === "quote" ? "quote" : "lightbulb",
+            tone: tone === "neutral" ? "muted" : tone,
+            part: "icon",
+          });
         }
       }
     },
   );
-  it("uses the given hint icon", () => {
-    const view = Note(props.parse({ style: "hint", text: "Details", icon: "info" }));
-    expect(view.props.children[1].props.name).toBe("info");
+  it.each(["body", "quote", "hint"] as const)("uses the given icon in %s", (style) => {
+    const view = Note(props.parse({ style, text: "Details", icon: "info" }));
+    expect(view.props.leading.props.name).toBe("info");
+  });
+  it.each(examples)("reads the shown sentence without offering actions", (example) => {
+    const parsed = props.parse(example);
+    const view = Note(parsed);
+    expect(readComponent(components.Note, parsed, "n1").join("\n")).toContain(
+      `"${view.props.children.props.children}"`,
+    );
+    expect(affordancesOf(meta, parsed, "n1")).toEqual([]);
   });
 });

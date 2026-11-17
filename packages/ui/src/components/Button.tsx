@@ -41,6 +41,8 @@ export const examples = [
   { label: "Log watering", kind: "primary", icon: "drop" },
   { label: "Book a walk", kind: "primary", goto: "book_walk" },
   { label: "Remove plant", kind: "danger" },
+  { label: "View schedule", kind: "secondary", icon: "clock", goto: "watering_schedule" },
+  { label: "Back to walks", kind: "quiet", goto: "back" },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [

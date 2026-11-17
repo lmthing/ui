@@ -61,8 +61,12 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitRow` | One tappable or static row inside a card | `item`, `label`, `goto`, `leading`, `trailing`, children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part` |
-| `KitPhoto` | A photo reference | `photo`, `part` |
-| `KitTrail` | Row end: chevron, check, toggle, value, badge | `kind`, `value`, `part` |
+| `KitPhoto` | A photo reference | `photo`, `shape` thumb/round/wide, `part` |
+| `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
+| `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part` |
+| `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
+| `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
+| `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
 | `KitSkeleton` | Loading bars | `rows` |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
