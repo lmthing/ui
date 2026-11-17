@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vite/
+coverage/
+apps/gallery/e2e/*.png
+packages/ui/src/entry/*.ts
+test-results/

@@ -1,0 +1,8 @@
+node_modules
+dist
+.vite
+coverage
+pnpm-lock.yaml
+packages/ui/src/entry/*.ts
+packages/ui/test/recordings
+*.md
