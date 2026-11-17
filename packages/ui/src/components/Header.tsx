@@ -24,16 +24,19 @@ export const meta = {
   realPath: "The screen's title and navigation links in the on-device app.",
   parts: ["root", "title", "sub", "action", "back"],
   states: ["filled"],
-  actions: { parts: { action: ["press"], back: ["press"] } },
+  actions: { parts: { action: ["press"], back: ["press"] }, when: { back: { style: "back" } } },
   aliases: ["heading", "topbar", "navbar", "screenheading"],
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  style: z.enum(["large", "inline", "back"]).default("large"),
-  title: text(28),
-  sub: text(40).optional(),
-  action: z.strictObject({ icon, label: text(16), goto: screenId.optional() }).optional(),
-});
+export const props = z
+  .strictObject({
+    style: z.enum(["large", "inline", "back"]).default("large"),
+    title: text(28),
+    sub: text(40).optional(),
+    action: z.strictObject({ icon, label: text(16), goto: screenId.optional() }).optional(),
+  })
+  // The shared reader distinguishes an absent optional part by its explicit undefined value.
+  .overwrite((value) => ({ ...value, action: value.action }));
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const type = thingOf(cast)?.type.replace(/_/g, " ").trim();

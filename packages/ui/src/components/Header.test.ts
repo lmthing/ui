@@ -1,7 +1,13 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { components, createRegistry, type CastLike, type Props } from "@lmthing/ui/catalog";
-import { KitAction, KitRow, KitText } from "@lmthing/ui/kit";
-import { Header } from "./Header";
+import {
+  affordancesOf,
+  components,
+  createRegistry,
+  readComponent,
+  type CastLike,
+  type Props,
+} from "@lmthing/ui/catalog";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Header;
 
@@ -95,7 +101,10 @@ describe("Header fallback and metadata", () => {
     expect(meta).toMatchObject({ id: "Header", group: "structure", region: "top", weight: 1, tier: "phone" });
     expect(meta.parts).toEqual(["root", "title", "sub", "action", "back"]);
     expect(meta.states).toEqual(["filled"]);
-    expect(meta.actions).toEqual({ parts: { action: ["press"], back: ["press"] } });
+    expect(meta.actions).toEqual({
+      parts: { action: ["press"], back: ["press"] },
+      when: { back: { style: "back" } },
+    });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("SectionTitle");
@@ -122,47 +131,41 @@ describe("Header fallback and metadata", () => {
 
 describe("Header view", () => {
   it.each(["large", "inline", "back"] as const)(
-    "composes the %s title, subtitle and icon-only actions",
+    "offers only rendered buttons for %s with and without optional props",
     (style) => {
-      const row = Header(
-        props.parse({
-          style,
-          title: "Fern",
-          sub: "Bathroom",
-          action: { icon: "plus", label: "Add a plant", goto: "new_plant" },
-        }),
-      );
-      const content = row.props as Parameters<typeof KitRow>[0];
-      expect(row.type).toBe(KitRow);
-      expect(content.item).toBe("");
-      expect(content.children).toEqual([
-        expect.objectContaining({
-          type: KitText,
-          props: { role: style === "large" ? "title" : "heading", part: "title", children: "Fern" },
-        }),
-        expect.objectContaining({
-          type: KitText,
-          props: { role: "caption", tone: "muted", part: "sub", children: "Bathroom" },
-        }),
-      ]);
-      expect(content.trailing).toMatchObject({
-        type: KitAction,
-        props: { kind: "quiet", icon: "plus", part: "action", a11y: "Add a plant", goto: "new_plant" },
-      });
-      if (style === "back")
-        expect(content.leading).toMatchObject({
-          type: KitAction,
-          props: { kind: "quiet", icon: "chevron_left", part: "back", a11y: "Fern", goto: "back" },
+      for (const optional of [
+        {},
+        { action: undefined },
+        { action: { icon: "plus", label: "Add a plant" } },
+        { sub: "Bathroom", action: { icon: "plus", label: "Add a plant", goto: "new_plant" } },
+      ]) {
+        const input = { style, title: "Fern", ...optional };
+        const parsed = props.parse(input);
+        const html = renderInstance("Header", input, "filled", {
+          preset: "calm",
+          mode: "light",
+          accent: "moss",
         });
-      else expect(content.leading).toBeUndefined();
+        const read = readComponent(components.Header, input, "c1").join("\n");
+        const offered = affordancesOf(meta, parsed, "c1");
+        expect(offered.map(({ part }) => part)).toEqual([
+          ...(parsed.action ? ["action"] : []),
+          ...(style === "back" ? ["back"] : []),
+        ]);
+        for (const { address, action } of offered) {
+          expect(action).toBe("press");
+          const tag = html.match(new RegExp(`<[^>]*data-testid="home/${address}"[^>]*>`))?.[0];
+          expect(tag).toContain('role="button"');
+        }
+        expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+        expect(html).toContain('data-testid="home/c1/title"');
+        expect(html.includes('data-testid="home/c1/sub"')).toBe(Boolean(parsed.sub));
+        expect(html.includes('data-testid="home/c1/action"')).toBe(Boolean(parsed.action));
+        expect(html.includes('data-testid="home/c1/back"')).toBe(style === "back");
+        expect(read.includes("[action press")).toBe(Boolean(parsed.action));
+        expect(read.includes("[back press")).toBe(style === "back");
+        if (parsed.action) expect(html).toContain('aria-label="Add a plant"');
+      }
     },
   );
-  it("omits the optional subtitle and action", () => {
-    const content = Header(props.parse({ title: "Plants" })).props as Parameters<typeof KitRow>[0];
-    expect(content.trailing).toBeUndefined();
-    expect(content.children).toEqual([
-      expect.objectContaining({ props: expect.objectContaining({ part: "title" }) }),
-      undefined,
-    ]);
-  });
 });
