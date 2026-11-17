@@ -72,7 +72,7 @@ export const examples = [
   {
     items: [
       { icon: "leaf", label: "My plants", goto: "plants" },
-      { icon: "calendar", label: "Watering history", goto: "watering_history" },
+      { icon: "calendar", label: "Water history", goto: "watering_history" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -99,7 +99,7 @@ export const probes = [
 
 export function Actions({ items }: Props<typeof props, typeof meta>) {
   return (
-    <KitCard padded part="root">
+    <KitCard part="root">
       <KitGrid columns={items.length === 3 ? 3 : 2}>
         {items.map((item) => (
           <KitTile key={item.id} item={item.id} icon={item.icon} label={item.label} goto={item.goto} />
