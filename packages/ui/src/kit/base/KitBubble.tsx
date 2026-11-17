@@ -17,6 +17,7 @@ function Bubble({ from, text, grouped }: { from: "me" | "them"; text: string; gr
       {...(me ? { borderBottomRightRadius: radius.sm } : { borderBottomLeftRadius: radius.sm })}
       backgroundColor={me ? "$accent" : "$raised"}
       accessibilityRole="text"
+      {...({ "data-look-twoedge": true } as object)}
     >
       <KitText role="body" tone={me ? "onAccent" : "text"} part="text">
         {text}

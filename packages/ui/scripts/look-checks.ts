@@ -169,6 +169,8 @@ export function findIssues(): LookIssue[] {
     for (const el of Array.from(frameEl.querySelectorAll("[data-testid]"))) {
       const m = el.getAttribute("data-testid")!.match(/\/r\d+\/([a-z_]+)$/);
       const rect = el.getBoundingClientRect();
+      // Chat bubbles align to two sides on purpose (theirs left, mine right): no column check.
+      if (el.closest("[data-look-twoedge]")) continue;
       if (m && m[1] !== "root" && rect.width) byPart.set(m[1]!, [...(byPart.get(m[1]!) ?? []), rect]);
     }
     for (const [part, rects] of byPart) {
