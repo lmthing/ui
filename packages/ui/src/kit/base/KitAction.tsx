@@ -66,7 +66,7 @@ export function KitAction({
       {...address}
       kind={kind}
       iconOnly={!label}
-      borderRadius={label ? shifted("lg", ks.radiusShift) : radius.pill}
+      borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
       {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
       accessibilityRole="button"
       accessibilityLabel={label ?? a11y}

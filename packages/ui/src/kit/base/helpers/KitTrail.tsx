@@ -72,7 +72,7 @@ export function KitTrail({
   }
   if (kind === "value" || kind === "badge") {
     const text = (
-      <KitText role="label" tone="accent">
+      <KitText role={kind === "badge" ? "label" : "body"} tone={kind === "badge" ? "accent" : "text"}>
         {value ?? ""}
       </KitText>
     );

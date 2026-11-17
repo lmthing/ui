@@ -14,6 +14,7 @@ import {
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config } from "../index";
 import { galleryParts } from "./parts";
+import { resolvePhoto } from "./photos";
 
 type Cell = { example: unknown; index: number; state: StateName };
 
@@ -48,7 +49,11 @@ function Screen({
   return (
     <YStack gap={space.xs}>
       <Text fontSize={12} data-look-label>{`${preset} · ${cell.state} ${cell.index + 1}`}</Text>
-      <KitProvider theme={{ preset, mode, accent: accents[0]!.id } as never} parts={galleryParts}>
+      <KitProvider
+        theme={{ preset, mode, accent: accents[0]!.id } as never}
+        parts={galleryParts}
+        resolvePhoto={resolvePhoto}
+      >
         <YStack
           width={width}
           backgroundColor="$bg"
@@ -56,7 +61,7 @@ function Screen({
           paddingVertical={space.lg}
           data-look-frame={screen}
         >
-          <PartScope screen={screen} component="c1" rev={1} state={cell.state} thing="walk">
+          <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
             <View {...props} />
           </PartScope>
         </YStack>

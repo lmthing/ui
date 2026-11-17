@@ -15,6 +15,7 @@ import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config } from "../index";
 
 import { galleryParts } from "./parts";
+import { resolvePhoto } from "./photos";
 import { Screens } from "./Screens";
 const modes = ["light", "dark"] as const;
 const query = new URLSearchParams(globalThis.location?.search ?? "");
@@ -45,7 +46,7 @@ function Preview({ cell, preset, mode }: { cell: Cell; preset: string; mode: (ty
   return (
     <YStack width={component.Gallery.cardWidth} gap={space.sm} testID={`preview_${screen}`}>
       <Text fontWeight="bold">{`${cell.id} · ${preset} / ${mode} · ${cell.state} ${cell.index + 1}`}</Text>
-      <KitProvider theme={theme} parts={galleryParts}>
+      <KitProvider theme={theme} parts={galleryParts} resolvePhoto={resolvePhoto}>
         <YStack padding={space.lg} minHeight={component.Gallery.previewHeight}>
           <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
             <View {...props} />

@@ -10,7 +10,7 @@ export type IconTone = "accent" | "muted" | "text" | "onAccent" | "good" | "warn
 export function KitIcon({
   name = "dot",
   part = "icon",
-  tone = "accent",
+  tone = "muted",
   scale = "md",
 }: {
   name?: IconName | undefined;

@@ -7,25 +7,26 @@ import { CardStyleContext, shifted, surfaceOf } from "./style";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Body = styled(YStack, { flex: component.base.bodyFlex });
-// Leading icons and photos sit on the title's first line, not the middle of the text stack.
-const Lead = styled(YStack, {
-  alignSelf: "flex-start",
-  minHeight: typography.body.lineHeight,
-  justifyContent: "center",
-});
+// Leading and trailing items centre on the title's first line, not on the middle of the text stack.
+// Taller items (a 44px touch target) overflow the line equally above and below.
+const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
+type LineRole = "body" | "heading" | "title" | "display";
 function Row({
   children,
   leading,
   trailing,
   goto,
   label,
+  lineRole = "body",
 }: {
   children: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
   goto?: string | undefined;
   label: string;
+  lineRole?: LineRole;
 }) {
+  const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
     kit = useKit(),
     style = useContext(CardStyleContext);
@@ -42,9 +43,9 @@ function Row({
       accessibilityLabel={label}
       {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
     >
-      {leading && <Lead>{leading}</Lead>}
+      {leading && <Edge height={line}>{leading}</Edge>}
       <Body>{children}</Body>
-      {trailing}
+      {trailing && <Edge height={line}>{trailing}</Edge>}
     </Frame>
   );
 }
@@ -58,6 +59,8 @@ export function KitRow({
   leading?: ReactNode;
   trailing?: ReactNode;
   goto?: string | undefined;
+  /** The text role of the first line (default body), so leading and trailing centre on it. */
+  lineRole?: LineRole;
 }) {
   const context = usePartContext();
   return (
