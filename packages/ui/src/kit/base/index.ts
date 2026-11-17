@@ -1,4 +1,5 @@
 export { KitCard } from "./KitCard";
+export { KitChip, KitTrack } from "./KitChip";
 export { KitTile } from "./KitTile";
 export { KitContent } from "./KitContent";
 export { KitBlock } from "./KitBlock";
