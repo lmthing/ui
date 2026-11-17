@@ -185,13 +185,16 @@ describe("Gallery view", () => {
       if (caption) expect(caption.props).toMatchObject({ role: "caption", tone: "muted", part: "caption" });
     }
   });
-  it.each(["empty", "loading"])("hides filled content in %s state", (state) => {
-    host.state = state;
-    const view = Gallery(viewProps(examples[0]));
-    expect(view.type).toBe(KitCard);
-    expect(view.props.children.type).toBe(state === "empty" ? KitEmpty : KitSkeleton);
-    if (state === "loading")
-      expect(view.props.children.props).toMatchObject({ shape: "media", lead: "none" });
+  it.each(examples)("keeps the layout while loading and hides content when empty", (example) => {
+    host.state = "loading";
+    const view = Gallery(viewProps(example));
+    expect(view.props.children.type).toBe(example.style === "strip" ? KitStrip : KitGrid);
+    for (const cell of view.props.children.props.children) {
+      expect(cell.type).toBe(KitSkeleton);
+      expect(cell.props).toMatchObject({ shape: "media", lead: "none" });
+    }
+    host.state = "empty";
+    expect(Gallery(viewProps(example)).props.children.type).toBe(KitEmpty);
     host.state = "filled";
   });
 });

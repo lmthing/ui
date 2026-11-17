@@ -142,13 +142,6 @@ function GalleryItem({ entry, index }: { entry: Entry; index: number }) {
 
 export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  if (state === "loading") {
-    return (
-      <KitCard style="plain" part="root">
-        <KitSkeleton shape="media" lead="none" />
-      </KitCard>
-    );
-  }
   if (state === "empty") {
     return (
       <KitCard style="plain" part="root">
@@ -156,9 +149,15 @@ export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
       </KitCard>
     );
   }
-  const cells = photos.map((entry, index) => <GalleryItem key={entry.id} entry={entry} index={index} />);
+  const cells = photos.map((entry, index) =>
+    state === "loading" ? (
+      <KitSkeleton key={entry.id} shape="media" lead="none" />
+    ) : (
+      <GalleryItem key={entry.id} entry={entry} index={index} />
+    ),
+  );
   return (
-    <KitCard style="plain" part="root" padded>
+    <KitCard style="plain" part="root" padded={state !== "loading"}>
       {style === "strip" ? (
         <KitStrip>{cells}</KitStrip>
       ) : (
