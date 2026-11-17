@@ -23,11 +23,26 @@ export function KitSkeleton({
   rows?: number;
   lead?: "dot" | "box" | "none";
   /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
-  shape?: "rows" | "pairs" | "headline" | "media" | "ring" | "trend";
+  shape?: "rows" | "pairs" | "headline" | "media" | "ring" | "trend" | "bars";
   /** `ring` only: the ring size, matching `KitRing scale`. */
   ring?: "md" | "lg";
 }) {
   const ks = useKitStyle();
+  if (shape === "bars") {
+    const heights = [0.45, 0.7, 0.55, 0.9, 0.6, 0.35, 0.75];
+    return (
+      <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.md} padding={space.md}>
+        <Bar height={space.md} width="45%" />
+        <XStack gap={space.xs} height={component.base.barsHeight} alignItems="flex-end">
+          {heights.slice(0, rows > 1 ? rows : 7).map((h, index) => (
+            <YStack key={index} flex={1} alignItems="center">
+              <Bar width="70%" height={component.base.barsHeight * h} />
+            </YStack>
+          ))}
+        </XStack>
+      </YStack>
+    );
+  }
   if (shape === "trend") {
     return (
       <XStack
