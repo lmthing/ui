@@ -18,7 +18,7 @@ export const component = {
     hourHeight: 56,
     stackPeek: 8,
     stackFade: 0.25,
-    blockMinHeight: 44,
+    blockMinHeight: 60,
     sparkHeight: 48,
     emptyMinHeight: 280,
   },

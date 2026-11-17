@@ -27,8 +27,8 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
       left={0}
       right={0}
       height={height}
-      paddingHorizontal={space.sm}
-      paddingVertical={space.xs}
+      paddingHorizontal={space.md}
+      paddingVertical={space.sm}
       borderRadius={radius.sm}
       borderLeftWidth={component.base.strongBorder * 2}
       borderLeftColor={edge[tone]}
@@ -38,7 +38,7 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
       accessibilityLabel={`${block.start} to ${block.end}, ${block.title}`}
       {...(kit.interactive && block.goto ? { onPress: () => kit.onLink?.(block.goto!, part.testID) } : {})}
     >
-      <KitText role="label" part="title" lines={1}>
+      <KitText role="body" part="title" lines={1}>
         {block.title}
       </KitText>
       <KitText role="caption" tone="muted" part="time" tabular lines={1}>
@@ -63,15 +63,19 @@ export function KitHours({ blocks }: { blocks: readonly HourBlock[] }): ReactNod
   return (
     <XStack gap={space.sm}>
       <YStack width={component.base.timeWidth} aria-hidden>
-        {hours.map((h) => (
-          <YStack key={h} height={hour}>
+        {hours.map((h, i) => (
+          <YStack key={h} height={i === hours.length - 1 ? undefined : hour}>
             <KitText role="caption" tone="muted" part={null} tabular>
               {`${String(h).padStart(2, "0")}:00`}
             </KitText>
           </YStack>
         ))}
       </YStack>
-      <YStack flex={1} height={(hours.length - 1) * hour + hour / 2}>
+      <YStack
+        flex={1}
+        height={(hours.length - 1) * hour + space.lg}
+        {...({ "data-look-timed": true } as object)}
+      >
         {hours.map((h, i) => (
           <YStack
             key={h}

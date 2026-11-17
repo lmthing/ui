@@ -224,8 +224,10 @@ export function findIssues(): LookIssue[] {
         add("lead", frame, img, `photo centre is ${Math.round(off)}px off the centre of its text`);
       }
     }
+    // Items placed by time (a day by the hour) have gaps that mean something: no rhythm check.
     const roots = Array.from(frameEl.querySelectorAll("[data-testid]"))
       .filter((el) => /\/r\d+\/root$/.test(el.getAttribute("data-testid")!))
+      .filter((el) => !el.closest("[data-look-timed]"))
       .map((el) => el.getBoundingClientRect())
       .sort((a, b) => a.top - b.top);
     const gaps = roots
