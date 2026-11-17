@@ -98,7 +98,7 @@ export function Bubbles({ messages, with: person }: Props<typeof props, typeof m
   return (
     <KitCard style="plain" part="root">
       {person && (
-        <KitText role="caption" tone="muted" part={null}>
+        <KitText role="caption" tone="muted" align="center" part={null}>
           {person}
         </KitText>
       )}

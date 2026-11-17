@@ -15,6 +15,7 @@ import { renderInstance } from "../../test/render";
 const { props, meta, examples, fallback, probes } = components.Bubbles;
 const message = { from: "them", text: "More details" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+
 describe("Bubbles schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -105,8 +106,7 @@ describe("Bubbles fallback", () => {
     ];
     casts.forEach((cast, index) => {
       const result = fallback({ cast });
-      expect(props.safeParse(result).success).toBe(true);
-      expect(result).toEqual({ messages: [{ from: "them", text: expected[index] }] });
+      expect(props.parse(result)).toEqual({ messages: [{ from: "them", text: expected[index] }] });
     });
   });
   it("clips the detail on a word boundary using the first item's own thing", () => {
