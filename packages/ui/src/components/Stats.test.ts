@@ -1,4 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
+import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   components,
@@ -64,13 +68,12 @@ describe("Stats schema", () => {
 
 describe("Stats fallback and metadata", () => {
   it("validates with empty, full, mixed and malformed cast content", () => {
+    const seed = { id: "first", type: "record", sample: true };
     const casts: CastLike[] = [
       { things: [], items: [] },
       {
         things: [{ type: "record", fields: ["name", "totalCount", "due_today"] }],
-        items: [
-          { id: "first", type: "record", sample: true, name: "First", totalCount: 12, due_today: " 3 " },
-        ],
+        items: [{ ...seed, name: "First", totalCount: 12, due_today: " 3 " }],
       },
       {
         things: [],
@@ -86,17 +89,7 @@ describe("Stats fallback and metadata", () => {
       },
       {
         things: [{ type: "record", fields: ["bad", "count", "date", "blank"] }],
-        items: [
-          {
-            id: "first",
-            type: "record",
-            sample: true,
-            bad: Number.NaN,
-            count: {},
-            date: "2026-11-17",
-            blank: " ",
-          },
-        ],
+        items: [{ ...seed, bad: Number.NaN, count: {}, date: "2026-11-17", blank: " " }],
       },
       { things: [], items: [{ id: "first", type: "record", sample: true, count: 0 }] },
       { things: [], items: [{ id: "first", type: "record", sample: true, count: Infinity }] },
@@ -154,5 +147,53 @@ describe("Stats fallback and metadata", () => {
     expect(registry.schema("Stats")).toBe(props);
     expect(registry.resolve("TOTALS")).toBe("Stats");
     expect(registry.resolve("met-rics")).toBe("Stats");
+  });
+});
+
+const config = createTamagui({
+  tokens: createTokens(kitTokens),
+  fonts: kitFonts,
+  themes: kitThemes,
+  defaultFont: "humanist",
+});
+function renderTiles(style: "tiles" | "inline", count: number, state: "filled" | "empty" | "loading") {
+  const input = props.parse({
+    style,
+    tiles: Array.from({ length: count }, (_, index) => ({
+      label: "a".repeat(20),
+      value: "1".repeat(8),
+      ...(index % 2 ? {} : { unit: "a".repeat(8) }),
+      trend: (["up", "down", "flat", undefined] as const)[index],
+    })),
+  });
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "c1",
+    rev: 1,
+    state,
+    children: createElement(renderers.Stats, stampItemIds(meta, input) as Props<typeof props, typeof meta>),
+  });
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+  );
+}
+describe.each(["tiles", "inline"] as const)("Stats rendering in %s", (style) => {
+  it.each([2, 3, 4])("renders %i tiles in every state", (count) => {
+    for (const state of ["filled", "empty", "loading"] as const) {
+      const html = renderTiles(style, count, state);
+      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+      expect(html).not.toMatch(/role="(?:link|button)"/);
+      if (state === "loading")
+        expect(html.match(/aria-busy="true"/g)).toHaveLength(style === "tiles" ? count : 1);
+      if (state === "empty") expect(html).toContain("Nothing here yet");
+      if (state !== "filled") continue;
+      for (let index = 1; index <= count; index++) {
+        for (const part of ["root", "label", "value"])
+          expect(html.match(new RegExp(`data-testid="home/c1/r${index}/${part}"`, "g"))).toHaveLength(1);
+        expect(html.includes(`data-testid="home/c1/r${index}/unit"`)).toBe(index % 2 === 1);
+        expect(html.includes(`data-testid="home/c1/r${index}/trend"`)).toBe(index <= 3);
+      }
+    }
   });
 });

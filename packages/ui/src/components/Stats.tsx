@@ -11,7 +11,17 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitEmpty, KitGrid, KitIcon, KitRow, KitSkeleton, KitText, useComponentState } from "../kit";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+} from "../kit";
 
 export const meta = {
   id: "Stats",
@@ -79,14 +89,14 @@ export const examples = [
     style: "tiles",
     tiles: [
       { label: "Plants", value: "12" },
-      { label: "Watered today", value: "3" },
+      { label: "Watered", value: "3", unit: "today" },
       { label: "Due", value: "2" },
     ],
   },
   {
     style: "inline",
     tiles: [
-      { label: "Walks this week", value: "9" },
+      { label: "Walks this week", value: "9", trend: "flat" },
       { label: "Earned", value: "180", unit: "EUR", trend: "up" },
     ],
   },
@@ -135,14 +145,16 @@ function TileRow({ tile, style }: { tile: Tile; style: "tiles" | "inline" }) {
     <KitRow
       item={tile.id}
       label={tile.label}
-      lineRole="display"
-      trailing={style === "inline" ? <TileValue tile={tile} align="end" /> : trend}
+      lineRole="number"
+      inset={style === "tiles" ? "none" : "md"}
+      trailing={style === "inline" ? <TileValue tile={tile} align="end" /> : undefined}
     >
       {style === "tiles" && <TileValue tile={tile} />}
-      <KitText role="label" tone="muted" part="label">
-        {tile.label}
-      </KitText>
-      {style === "inline" && trend}
+      <KitContent lead={trend} lineRole="body">
+        <KitText role="body" tone="muted" part="label">
+          {tile.label}
+        </KitText>
+      </KitContent>
     </KitRow>
   );
 }
@@ -152,7 +164,7 @@ export function Stats({ style, tiles }: Props<typeof props, typeof meta>) {
   const columns = tiles.length === 3 ? 3 : 2;
   if (state === "loading") {
     return (
-      <KitCard style="inset" part="root">
+      <KitCard style="inset" part="root" padded={style === "tiles"}>
         {style === "tiles" ? (
           <KitGrid columns={columns}>
             {tiles.map((tile) => (
@@ -173,7 +185,7 @@ export function Stats({ style, tiles }: Props<typeof props, typeof meta>) {
     );
   }
   return (
-    <KitCard style="inset" part="root">
+    <KitCard style="inset" part="root" padded={style === "tiles"}>
       {style === "tiles" ? (
         <KitGrid columns={columns}>
           {tiles.map((tile) => (
