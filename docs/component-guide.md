@@ -49,7 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
      a part carries `part="<name>"` from `meta.parts` / `meta.items.parts`; each item is wrapped by a
      base taking `item={row.id}`.
    - States: `const state = useComponentState()`. `loading` → `<KitSkeleton rows={n} />` in the
-     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"). A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
+     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
