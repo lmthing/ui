@@ -108,7 +108,7 @@ export function KitSkeleton({
           minHeight={size.control.md}
           gap={space[ks.density.gap]}
           paddingVertical={space[ks.density.rowPad]}
-          paddingHorizontal={inset === "none" ? 0 : space.md}
+          paddingHorizontal={inset === "none" ? component.base.none : space.md}
         >
           {lead !== "none" && (
             <Line height={first}>
