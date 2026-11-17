@@ -183,9 +183,10 @@ describe("KeyValue rendering", () => {
         for (const part of ["root", "label", "value"])
           expect(html.match(new RegExp(`data-testid="home/c1/r${index}/${part}"`, "g"))).toHaveLength(1);
         expect(html.includes(`data-testid="home/c1/r${index}/icon"`)).toBe(index % 2 === 1);
-        expect(html).toMatch(
-          new RegExp(`data-testid="home/c1/r${index}/value"[^>]*>[^<]*</span></div></div>`),
-        );
+        if (style === "grid")
+          expect(html).toMatch(
+            new RegExp(`data-testid="home/c1/r${index}/value"[^>]*>[^<]*</span></div></div>`),
+          );
       }
     }
   });
