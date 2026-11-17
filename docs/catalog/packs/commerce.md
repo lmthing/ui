@@ -45,7 +45,7 @@ bottom of the screen.
 Products as a two-column grid of photo cards with name, price, a sale badge and a quick add; or as menu rows
 (name, a line, price, photo on the right) for food.
 - Pick: browsing several things for sale. Not pictures without prices (`Gallery`), not services (booking
-  `ServiceMenu`), not things the person owns (inventory `Items`).
+  `ServiceMenu`), not things the person owns (inventory `Things`).
 - Writes: `items` of `name` text(28), `price` number, `was` number optional, `photo`, `badge` text(12)
   optional, `sub` text(48) optional (`menu`), `goto`, 1–8; `style`.
 - Styles: `grid` (default), `menu`.
@@ -58,7 +58,7 @@ the price difference per option.
 - Pick: choosing a size, colour or kind of one product. Not filtering many products (`Chips`), not a plan
   (`Choice`).
 - Writes: `label` text(16), `options` of `label` text(16), `swatch` (from the `swatch` vocabulary; style
-  `swatch` only), `available` boolean, `extra` number optional, 2–8; `at`; `style`.
+  `swatch` only), `available` boolean, `extra` number optional, 2–6; `at`; `style`.
 - Styles: `named` (default), `size`, `swatch`.
 - Parts → actions: items `root select` (available only). · States: filled.
 - Real path: variants stored with the product. · Aliases: variants, variantpicker, sizes, colours.

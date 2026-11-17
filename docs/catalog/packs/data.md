@@ -93,7 +93,7 @@ Who changed what and when: rows with an avatar, a sentence ("Ana marked order 10
 a link to the record.
 - Pick: an audit of changes by several people. Not one client's history (customers `ClientHistory`), not
   shift notes (team `Handover`), not a plan in time order (`Timeline`).
-- Writes: `entries` of `who` text(20), `photo`, `text` text(80), `time` text(12), `goto`, 1–10.
+- Writes: `entries` of `who` text(20), `photo`, `text` text(80), `time` text(12), `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: a change log kept by a shared app. · Aliases: activity, auditlog, changelog.
 

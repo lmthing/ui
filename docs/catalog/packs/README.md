@@ -64,8 +64,21 @@ Total: 147 pack components and 65 archetypes, all `planned`.
   `openinghours`). Each word has one owner.
 - **Money is numbers.** A model writes amounts as numbers and never a currency: the app's currency is set
   once in the brief, and only core `Amount` may override it. Formatting is core `moneyLine`.
-- **Code computes what can be computed.** Totals, counts, shares, balances, statuses that follow from dates
-  (overdue), and anything the basket or the records already hold are never model-written props.
+- **Code computes what can be computed.** A model writes seed content, including values a real app would
+  store on a record (a post's likes, an item's quantity, a lesson's state). It never writes a value that
+  follows from other props or from the host's state: totals and subtotals, shares, balances and settle-ups,
+  statuses that follow from dates or ranges (overdue, open now, out of range), basket counts, distances from
+  the person's location, or anything a later prop would contradict.
+- **Counts and text follow plan 4.5.** A list of rows holds at most 6 items and shows a quiet "and N more"
+  line beyond that; a row title is at most text(32) and row meta text(36), as in the built `Timeline` and
+  `List`. Components whose job is density are exempt and say so with `meta.dense` and their own limits:
+  grids and matrices (`Slots`, `Roster`, `MealPlan`, `Timetable`, `HabitGrid`, `Table`, `Board`, `Bracket`,
+  `Standings`, `Seating`, `FindDate`), documents of lines (`Invoice`, `OrderSummary`, `Cart`, `Timesheet`),
+  sequences shown one step at a time (`CookSteps`), recipes' and schedules' own lists (`Ingredients`,
+  `GroceryList`, `Medication`, `Agenda`, `BabyLog`, `Workout`, `ServiceMenu`, `ChapterList`, `GuestList`),
+  and tile grids (`ProductGrid`, `Library`, `Achievements`, `Factors`, `Feelings`, `SymptomLog`, `Stories`,
+  `Path`, `Things`). A dense component counts as weight 3. Chart points and keypad digits are values, not
+  rows.
 - **Tiers per part.** A component's tier is what its main use needs; a part that needs more (send, call,
   pay) is marked in `meta.partTiers` and reads with its own risk mark, as core `Composer` does.
 - **Destructive parts confirm.** A part that cancels, removes, declines or deletes is listed in

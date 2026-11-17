@@ -45,7 +45,7 @@ per kind and an amount where money moved.
 - Pick: the history of one client across kinds of event. Not a plan in time order (`Timeline`), not the
   person's own bank transactions (money `Transactions`), not changes by staff (data `ActivityLog`).
 - Writes: `entries` of `date`, `kind` (`visit`, `order`, `payment`, `note`, `message`), `title` text(32),
-  `amount` number optional, `goto`, 1–8.
+  `amount` number optional, `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: records linked to one client on the device. · Aliases: clienthistory, visits, clientlog.
 

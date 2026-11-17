@@ -45,7 +45,7 @@ category and the signed amount, income in `good`.
 - Pick: where money went, entry by entry. Not a client's history (customers `ClientHistory`), not a summary
   by category (`Bars` style `share`).
 - Writes: `entries` of `date`, `payee` text(28), `category` text(16), `icon`, `amount` number (signed),
-  `goto`, 1–10.
+  `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: entries added by the person or imported from a bank file on the device.
 - Aliases: transactions, payments, moneyin, moneyout.
@@ -56,7 +56,7 @@ tick, and the month's total at the foot.
 - Pick: recurring or upcoming payments to keep on top of. Not a business invoicing a client (customers
   `Invoice`), not past spending (`Transactions`).
 - Writes: `bills` of `name` text(24), `amount` number, `due` date optional, `repeat` (`never`, `weekly`,
-  `monthly`, `yearly`), `paid` boolean, `icon`, 1–8; `style`. Totals and "overdue" are computed by code.
+  `monthly`, `yearly`), `paid` boolean, `icon`, 1–6; `style`. Totals and "overdue" are computed by code.
 - Styles: `due` (default: by due date, overdue in `bad`), `subscriptions` (by cost, with the yearly total).
 - Parts → actions: items `paid check`, items `root press`. · States: filled, empty.
 - Real path: bills typed in by the person; reminders before a due date need notifications (`ok`).
@@ -67,8 +67,8 @@ Shared costs among a group: each person's balance (owed or owing) and the fewest
 ("Sam pays Ana €24"), with the expenses under it.
 - Pick: who owes whom in a group. Not one person's bills (`Bills`), not a business's unpaid clients
   (customers `PaymentStatus`).
-- Writes: `people` of `name` text(20), `photo`, 2–8; `expenses` of `title` text(28), `amount`, `by` index,
-  `split` (`equal`, `shares`), 0–8; `goto` (the add-expense screen). Balances and settle-ups are computed.
+- Writes: `people` of `name` text(20), `photo`, 2–6; `expenses` of `title` text(28), `amount`, `by` index,
+  `split` (`equal`, `shares`), 0–6; `goto` (the add-expense screen). Balances and settle-ups are computed.
 - Parts → actions: `add press` (goes to `goto`), settle-up items `settle press` (`partTiers`: `people`).
 - States: filled, empty, success (settled). · Real path: shared expenses in a shared app.
 - Aliases: split, splitbill, sharedexpenses, iou, settleup.
