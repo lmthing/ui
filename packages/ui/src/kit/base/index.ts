@@ -1,4 +1,6 @@
 export { KitCard } from "./KitCard";
+export { KitBars } from "./KitBars";
+export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";
 export { KitRing } from "./KitRing";
 export { KitInput } from "./KitInput";
