@@ -28,7 +28,7 @@ describe("agent access", () => {
     const { agent, store } = access();
     expect(agent.act({ address: "home/l1/r1/trail", action: "toggle" })).toMatchObject({ ok: true });
     expect(store.get("home/l1/r1/trail")).toBe(true);
-    expect(agent.read()).toContain("[trail toggle:on]");
+    expect(agent.read()).toContain("[l1/r1/trail toggle:on]");
   });
   it("follows links on press", () => {
     const { agent, links } = access();

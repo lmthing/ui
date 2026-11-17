@@ -648,16 +648,16 @@ Screen-level actions: `back`, `tab(sectionId)`, `scroll` (to the top, the bottom
 screen home "Today" · calm/moss/light · rev 4 · ready
 h1 Hero[accent] "3 plants are thirsty" — "Fern, Monstera and Basil"
 l1 List
-  r1 "Fern" · "Bathroom" [press→plant] [toggle:off]
-  r2 "Monstera" · "Living room" [press→plant] [toggle:on]
-f1 Field[date] "Next watering" = "2026-11-19" [type:date]
-b1 Button[primary] "Add a plant" [press→new_plant]
+  r1 "Fern" · "Bathroom" [l1/r1 press→plant] [l1/r1/trail toggle:off]
+  r2 "Monstera" · "Living room" [l1/r2 press→plant] [l1/r2/trail toggle:on]
+f1 Field[date] "Next watering" = "2026-11-19" [f1 type:date]
+b1 Button[primary] "Add a plant" [b1 press→new_plant]
 ```
 
 - Every line starts with its address relative to the screen (`l1`, `r1`). The full address for an action is the screen id plus that path (`home/l1/r1`).
 - Text written by a model or a person is always in double quotes, with inner quotes escaped, so structure and content never mix. Agents treat quoted text as data.
 - Style or kind in brackets after the component name only when not the default; tone only when not `plain`; state in parentheses only when not `filled` (`l1 List (loading)`).
-- Affordances in square brackets: `[press→target]`, `[toggle:on|off]`, `[check:done|todo]`, `[select:2/4]`, `[type:date]`, `[set:1-5]`, `[disabled]`.
+- Affordances in square brackets, each starting with its own address so a model copies it and never assembles one (measured: DeepSeek Flash picked the wrong part when the address had to be inferred): `[l1/r1 press→target]`, `[l1/r1/trail toggle:on|off]`, `[k1/r1/check check:done|todo]`, `[select:2/4]`, `[type:date]`, `[set:1-5]`, `[disabled]`.
 - Field values follow `=`. Interactive values come from the kit's interaction state when a host passes it (5.9).
 - **Risk marks.** An action on a component whose tier is not `phone` ends with its tier: `[press→pay !needs-ok]`, `!needs-people`, `!needs-service`. A real app would gate these; an agent knows before it acts.
 - **Secrets.** A value made with the `secret(max)` prop helper (a password or a code in `Field`) always reads as `(secret)`; the text never reaches a model.

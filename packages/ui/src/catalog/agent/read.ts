@@ -81,7 +81,7 @@ export function readComponent(
     props,
   );
   const ownAff = affordances.filter((a) => !a.address.startsWith(`${instance}/r`) || !key);
-  const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a, false))].filter(Boolean);
+  const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   const itemSchema = key ? schema.properties?.[key]?.items : undefined;
   return [
@@ -92,7 +92,7 @@ export function readComponent(
       return `  ${[
         String(item.id),
         textsOf(itemSchema, item).join(" · "),
-        ...mine.map((a) => formatAffordance(a, true)),
+        ...mine.map((a) => formatAffordance(a)),
       ]
         .filter(Boolean)
         .join(" ")}`;
