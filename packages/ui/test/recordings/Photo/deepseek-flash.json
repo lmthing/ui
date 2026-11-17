@@ -37,7 +37,7 @@
     "reply": "{\"c\":\"Photo\",\"style\":\"wide\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
     "replies": [
       "{\"c\":\"Photo\",\"style\":\"wide\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
-      "{\"c\":\"Photo\",\"style\":\"wide\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
+      "{\"c\":\"Photo\",\"style\":\"wide\",\"photo\":\"local:fern\",\"caption\":\"Fern in morning light\"}",
       "{\"c\":\"Photo\",\"style\":\"wide\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}"
     ]
   },

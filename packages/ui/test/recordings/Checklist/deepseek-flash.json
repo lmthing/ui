@@ -13,11 +13,11 @@
   },
   "20814d1a2edb5278": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nChecklist: Things to do, with each job ticked off when done.\nprops: { items: [1..6 { text: text≤36, done?: boolean=false, meta?: text≤24 }] }\nexample: {\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}\n\nBrief: Three plant jobs for today: water the fern, mist the monstera (already done), turn the basil\nReply with only the JSON line, starting with {\"c\":\"Checklist\".",
-    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Today\"}]}",
+    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}",
     "replies": [
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}",
       "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Today\"}]}",
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Already done\"},{\"text\":\"Turn the basil\",\"done\":false}]}",
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}"
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false}]}"
     ]
   },
   "22991e1dca632996": {
@@ -48,6 +48,15 @@
       "Checklist",
       "Checklist",
       "Checklist"
+    ]
+  },
+  "3f5b747b22d65034": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nk1 Checklist\n  r1 \"Water the bathroom fern\" · \"Today · Ledge\" [k1/r1/check check:todo]\n  r2 \"Mist the monstera\" · \"Living room\" [k1/r2/check check:done]\n  r3 \"Turn the kitchen basil\" [k1/r3/check check:todo]\n\nTask: Tick off the first job\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"k1/r1/check\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"k1/r1/check\", \"action\": \"check\"}",
+      "{\"address\": \"k1/r1/check\", \"action\": \"check\"}",
+      "{\"address\": \"k1/r1/check\", \"action\": \"check\"}"
     ]
   },
   "448abc116672a0b1": {

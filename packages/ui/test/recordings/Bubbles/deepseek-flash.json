@@ -39,11 +39,11 @@
   },
   "a0adff66f4930b86": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nBubbles: A conversation between you and someone else, with each person's messages kept distinct.\nprops: { messages: [1..6 { from: me|them, text: text≤120 }], with?: text≤24 }\nexample: {\"c\":\"Bubbles\",\"with\":\"Maya\",\"messages\":[{\"from\":\"them\",\"text\":\"Have you watered the fern today?\"},{\"from\":\"them\",\"text\":\"The soil felt dry this morning.\"},{\"from\":\"me\",\"text\":\"Yes, I watered it after breakfast.\"},{\"from\":\"me\",\"text\":\"I'll check the basil tomorrow.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}\n\nBrief: Show an exchange with Anna: she asks if Clover's walk can start at 09:30, I say 09:30 works, and she thanks me\nReply with only the JSON line, starting with {\"c\":\"Bubbles\".",
-    "reply": "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}",
+    "reply": "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}",
     "replies": [
+      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}",
       "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}",
-      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover’s walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works for me.\"},{\"from\":\"them\",\"text\":\"Perfect, thank you!\"}]}",
-      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover’s walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}"
+      "{\"c\":\"Bubbles\",\"with\":\"Anna\",\"messages\":[{\"from\":\"them\",\"text\":\"Can Clover's walk start at 09:30?\"},{\"from\":\"me\",\"text\":\"09:30 works fine.\"},{\"from\":\"them\",\"text\":\"Thanks!\"}]}"
     ]
   },
   "b6c4a83f607326e7": {
