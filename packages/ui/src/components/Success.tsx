@@ -15,7 +15,7 @@ import { KitCard, KitEmpty } from "../kit";
 export const meta = {
   id: "Success",
   group: "action",
-  purpose: "Proof that the action you just took worked.",
+  purpose: "Know an action worked, with its result and the saved item's details.",
   pick: "A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).",
   region: "body",
   weight: 2,
@@ -39,7 +39,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 }
 
 export const examples = [
-  { title: "Fern watered", icon: "leaf" },
+  { title: "Fern watered", sub: "Bathroom, just now", icon: "circle_check" },
   { title: "Walk booked", sub: "Clover, tomorrow at 09:00" },
 ] satisfies z.input<typeof props>[];
 

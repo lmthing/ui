@@ -153,6 +153,18 @@ describe("Success metadata and probes", () => {
 });
 
 describe("Success view", () => {
+  it("omits absent detail and preserves the default or a custom icon", () => {
+    for (const icon of [undefined, "leaf"] as const) {
+      const parsed = props.parse({ title: "Saved", icon });
+      const view = Success(parsed);
+      expect(view.props.children.props).toEqual({
+        title: "Saved",
+        icon: icon ?? "circle_check",
+        fill: true,
+        tone: "good",
+      });
+    }
+  });
   it.each(examples)("draws the centred good-toned kit state with a root address", (example) => {
     const parsed = props.parse(example);
     const view = Success(parsed);
