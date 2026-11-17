@@ -145,7 +145,9 @@ describe("Route metadata", () => {
   it("has two choose probes including a named near miss and one write probe", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Route")).toBeDefined();
-    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toBeDefined();
+    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toMatchObject({
+      need: expect.stringMatching(/^Show past .+ events in date order:/),
+    });
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Route" });
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     expect(meta.pick).toContain("Timeline");

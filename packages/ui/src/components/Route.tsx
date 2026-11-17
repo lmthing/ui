@@ -73,7 +73,7 @@ export const probes = [
   },
   {
     kind: "choose",
-    need: "Show today's appointments in time order: plant watering at 09:00, lunch at 12:30, misting at 17:00",
+    need: "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9",
     expect: "Timeline",
   },
   {
