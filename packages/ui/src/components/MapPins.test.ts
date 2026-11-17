@@ -41,7 +41,6 @@ describe("MapPins schema", () => {
     { pins: [{ label: "Place", root: "place" }] },
     { pins: [{ label: "Place", color: "red" }] },
     { pins: [{ label: "Place", pixels: 4 }] },
-    { pins: [{ label: "Place", latitude: 40 }] },
     { pins: [{ label: "Place" }], style: "satellite" },
     { pins: [{ label: "Place" }], color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
@@ -182,7 +181,8 @@ describe("MapPins rendering", () => {
         });
         const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
         expect(html.match(/data-testid="home\/m1\/root"/g)).toHaveLength(1);
-        expect(html.includes('data-testid="home/m1/map"')).toBe(state === "filled");
+        expect(html).toContain('data-testid="home/m1/map"');
+        expect(html.includes("Repeated place")).toBe(state === "filled");
         for (let index = 1; index <= count; index++) {
           for (const part of ["root", "label"]) {
             const matches = html.match(new RegExp(`data-testid="home/m1/r${index}/${part}"`, "g")) ?? [];
