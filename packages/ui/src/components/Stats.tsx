@@ -89,7 +89,7 @@ export const examples = [
     style: "tiles",
     tiles: [
       { label: "Plants", value: "12" },
-      { label: "Watered today", value: "3" },
+      { label: "Watered", value: "3" },
       { label: "Due", value: "2" },
     ],
   },
@@ -168,7 +168,7 @@ export function Stats({ style, tiles }: Props<typeof props, typeof meta>) {
         {style === "tiles" ? (
           <KitGrid columns={columns}>
             {tiles.map((tile) => (
-              <KitSkeleton key={tile.id} rows={1} lead="none" shape="pairs" />
+              <KitSkeleton key={tile.id} rows={1} lead="none" shape="headline" inset="none" />
             ))}
           </KitGrid>
         ) : (

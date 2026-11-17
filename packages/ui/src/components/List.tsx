@@ -131,7 +131,7 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
   if (state === "loading") {
     return (
       <KitCard style={style}>
-        <KitSkeleton rows={3} />
+        <KitSkeleton rows={rows.length} lead={rows[0]?.photo ? "box" : "dot"} />
       </KitCard>
     );
   }

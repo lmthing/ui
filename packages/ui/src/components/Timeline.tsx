@@ -93,7 +93,7 @@ export function Timeline({ style, items }: Props<typeof props, typeof meta>) {
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root">
-        <KitSkeleton rows={3} />
+        <KitSkeleton rows={items.length} lead="box" />
       </KitCard>
     );
   }
