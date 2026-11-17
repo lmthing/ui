@@ -64,12 +64,13 @@ Every action name below is new to the vocabulary in plan 4.12 (each is a minor c
 | Action | Value | Used by |
 | --- | --- | --- |
 | `dismiss` | None | `Sheet`, `Success` toast |
-| `play`, `pause` | None | `Player`, `MiniPlayer`, `Breathe`, `CookSteps` step timers |
+| `play`, `pause` | None | Media and paced loops: `Player`, `MiniPlayer`, `Breathe`, `Soundscape` |
 | `seek` | Seconds | `Player` |
 | `flip` | None | `Flashcard` |
 | `move` | A column label | data `Board` |
 | `send` | None | `Composer` (reply) |
 | `scan` | None | events `Door` (returns a code; tier `ok`) |
 
-Everything else uses the existing `press`, `toggle`, `check`, `select`, `type`, `set`, `increment`,
+Countdowns in packs (`KitchenTimers`, `CookSteps` step timers, `BabyLog` feed and sleep timers) use the
+existing `start` and `stop`, like core `Timer`. Everything else uses the existing `press`, `toggle`, `check`, `select`, `type`, `set`, `increment`,
 `decrement`, `swipe`, `start` and `stop`.

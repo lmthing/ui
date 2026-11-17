@@ -105,9 +105,9 @@ winners carried to the next round, the person's team highlighted.
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `club` | Our next match | `next` | Header, Fixtures[next], Squad, Button |
-| `match` | One match | `live`, `lineup` | `live`: Header[back], Scoreboard, MatchFeed · `lineup`: Header[back], Lineup |
+| `match` | One match | `live`, `lineup` | `live`: Header[back], Scoreboard, MatchFeed · `lineup`: Header[back], Scoreboard, Lineup |
 | `league` | The season | `table`, `results` | `table`: Header, Segmented, Standings · `results`: Header, Fixtures, List[ranked] |
-| `cup` | A tournament | `bracket` | Header, Bracket |
+| `cup` | A tournament | `bracket` | Header, Bracket, Fixtures |
 
 ## Worked example: Sunday Kickers
 

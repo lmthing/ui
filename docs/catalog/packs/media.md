@@ -109,7 +109,7 @@ each opening the source at that spot.
 | --- | --- | --- | --- |
 | `library` | My things to read or hear | `covers`, `home` | `covers`: Header, Segmented, Library · `home`: Header, Stats, SectionTitle, List[shelf], SectionTitle, List[shelf] |
 | `collection` | One show, album or book | `episodes` | Header[back], Collection, Playlist |
-| `reader` | Reading, playing, saved | `article`, `listen`, `highlights` | `article`: Header[back], Article · `listen`: Header[back], Player, ChapterList · `highlights`: Header, Search, Highlights |
+| `reader` | Reading, playing, saved | `article`, `listen`, `highlights` | `article`: Header[back], Article, SectionTitle, List[shelf] · `listen`: Header[back], Player, ChapterList · `highlights`: Header, Search, Highlights |
 
 ## Worked example: Pew
 

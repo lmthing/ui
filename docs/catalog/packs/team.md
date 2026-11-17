@@ -97,8 +97,8 @@ Notes passed from one shift to the next, newest first: who wrote it, when, the n
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `team` | My shift today | `today` | Header, TimeClock, Shift, Handover, Checklist |
-| `rota` | The week's shifts | `week`, `open` | `week`: Header, Segmented, Roster, People[stack] · `open`: Header, OpenShift |
-| `approvals` | Requests and hours | `requests`, `hours`, `request` | `requests`: Header, Approval · `hours`: Header, Timesheet, Bars · `request`: Header, Choice, Field[date], Field[date], Composer[entry], Button |
+| `rota` | The week's shifts | `week`, `open` | `week`: Header, Segmented, Roster, People[stack] · `open`: Header, Banner, OpenShift |
+| `approvals` | Requests and hours | `requests`, `hours`, `request` | `requests`: Header, Segmented, Approval · `hours`: Header, Timesheet, Bars · `request`: Header, Choice, Field[date], Field[date], Composer[entry], Button |
 
 ## Worked example: Grind
 

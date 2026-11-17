@@ -90,7 +90,7 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 | --- | --- | --- | --- |
 | `places` | Places near me | `map`, `list` | `map`: Header, Search, Chips, MapList · `list`: Header, Search, Chips, List |
 | `place` | One place | `venue`, `walk` | `venue`: Header[back], Gallery[carousel], PlaceCard, Hours, Address, Button · `walk`: Header[back], Route, List |
-| `tracking` | Something on its way | `delivery`, `departures` | `delivery`: Header, DeliveryTracker, KeyValue · `departures`: Header, Departures |
+| `tracking` | Something on its way | `delivery`, `departures` | `delivery`: Header, DeliveryTracker, KeyValue · `departures`: Header, Search, Departures |
 
 ## Worked example: Sniff
 

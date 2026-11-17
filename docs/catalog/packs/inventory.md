@@ -115,7 +115,7 @@ next due, the deposit held, and the renewal date flagged as it nears.
 | --- | --- | --- | --- |
 | `things` | Everything I have | `grid`, `low` | `grid`: Header, Search, Chips, Things, Button · `low`: Header, Banner, Things |
 | `thing` | One thing | `detail` | Header[back], Gallery, KeyValue, Amount, Warranties |
-| `storage` | Where things are | `browse`, `loans`, `wants` | `browse`: Header, Locations · `loans`: Header, Segmented, Loans · `wants`: Header, Wishlist |
+| `storage` | Where things are | `browse`, `loans`, `wants` | `browse`: Header, Search, Locations · `loans`: Header, Segmented, Loans · `wants`: Header, Chips, Wishlist |
 | `rentals` | My rental places | `listing`, `lease`, `repairs` | `listing`: Header[back], Gallery[carousel], Listing · `lease`: Header[back], Lease, Timeline[history] · `repairs`: Header, Request, Button |
 
 ## Worked example: Boxes

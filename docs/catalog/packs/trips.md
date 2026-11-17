@@ -105,8 +105,8 @@ night there.
 | --- | --- | --- | --- |
 | `trip` | One trip at a glance | `overview` | Header, Timer[until], Weather, Itinerary, Button |
 | `day` | One day of the trip | `today` | Header[back], Timeline[day], MapPins, Reservation |
-| `bookings` | Confirmations and documents | `list`, `pass` | `list`: Header, Segmented, Reservation, TravelDocs · `pass`: Header[back], Reservation[pass] |
-| `prep` | Getting ready | `packing`, `tools` | `packing`: Header, PackingList · `tools`: Header, Converter, Clocks |
+| `bookings` | Confirmations and documents | `list`, `pass` | `list`: Header, Segmented, Reservation, TravelDocs · `pass`: Header[back], Reservation[pass], KeyValue |
+| `prep` | Getting ready | `packing`, `tools` | `packing`: Header, Timer[until], PackingList · `tools`: Header, Converter, Clocks |
 
 ## Worked example: Wander
 

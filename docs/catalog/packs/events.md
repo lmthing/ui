@@ -112,9 +112,9 @@ highlighted with its count.
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `gathering` | The event at a glance | `overview` | Header, Timer[until], Stats, Checklist, Button |
-| `guests` | Who is coming and where they sit | `list`, `seating`, `reply` | `list`: Header, Chips, GuestList · `seating`: Header, Seating · `reply`: Hero[photo], RSVP |
-| `suppliers` | Who supplies what | `vendors`, `gifts` | `vendors`: Header, Amount, Vendors · `gifts`: Header, Registry |
-| `on_the_day` | Running it | `door`, `ticket`, `date` | `door`: Header, Door · `ticket`: Header[back], Ticket · `date`: Header, FindDate, Button |
+| `guests` | Who is coming and where they sit | `list`, `seating`, `reply` | `list`: Header, Chips, GuestList · `seating`: Header, Stats, Seating · `reply`: Hero[photo], KeyValue, RSVP |
+| `suppliers` | Who supplies what | `vendors`, `gifts` | `vendors`: Header, Amount, Vendors · `gifts`: Header, Note, Registry |
+| `on_the_day` | Running it | `door`, `ticket`, `date` | `door`: Header, Door, Note · `ticket`: Header[back], Ticket, MapPins · `date`: Header, FindDate, Button |
 
 ## Worked example: Vows
 

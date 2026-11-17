@@ -112,8 +112,8 @@ do, handed in, graded) and the grade.
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `course` | Where I am | `path`, `list` | Header, Streak, Path \| List, Button |
-| `lesson` | Learn then practise | `teach`, `quiz`, `cards` | `teach`: Steps, Lesson · `quiz`: Steps, Quiz · `cards`: Header, Flashcard |
-| `results` | How it went | `result`, `badges`, `class` | `result`: Result, Button · `badges`: Header, Achievements, List[ranked] · `class`: Header, People, Progress, List[ranked] |
+| `lesson` | Learn then practise | `teach`, `quiz`, `cards` | `teach`: Header, Steps, Lesson · `quiz`: Header, Steps, Quiz · `cards`: Header, Streak, Flashcard |
+| `results` | How it went | `result`, `badges`, `class` | `result`: Result, Streak, Button · `badges`: Header, Achievements, List[ranked] · `class`: Header, People, Progress, List[ranked] |
 | `planner` | My classes and homework | `week` | Header, Timetable, SectionTitle, Assignments |
 
 ## Worked example: Kanji Drop

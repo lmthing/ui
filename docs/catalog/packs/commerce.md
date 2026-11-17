@@ -132,7 +132,7 @@ optional photo.
 | `shop` | Browse what is for sale | `grid`, `menu` | Header, Search, Chips, Promo, ProductGrid, CartBar |
 | `product` | One product | `simple`, `variants` | Header[back], Gallery[carousel], Product, VariantPicker, Scale[readonly] (the add bar stays pinned) |
 | `cart` | The basket | `simple` | Header, Cart, Button |
-| `checkout` | Finish and follow an order | `pay`, `status` | `pay`: Header, Checkout · `status`: Header, OrderStatus, OrderSummary |
+| `checkout` | Finish and follow an order | `pay`, `status` | `pay`: Header, Checkout, Note · `status`: Header, OrderStatus, OrderSummary |
 | `orders` | Seller: orders coming in | `today`, `order` | `today`: Header, Segmented, Stats, List · `order`: Header[back], OrderStatus (seller), OrderSummary |
 | `product_edit` | Seller: add or change a product | `form` | Header, Field[photo], Field ×3, Composer[entry], Button |
 

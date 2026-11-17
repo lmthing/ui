@@ -20,15 +20,15 @@ There are **18 packs**: the ten from the first plan (one renamed, all revised) a
 | [places](places.md) | revised | Where things are and getting there: venues, addresses, deliveries, departures. Not planning a trip (`trips`) | 6 | 3 |
 | [health](health.md) | **new** | The body: workouts, medication, measurements, symptoms, cycles. Not the mind (`mind`), not food (`kitchen`) | 9 | 4 |
 | [mind](mind.md) | **new** | The mind: mood, journaling, feelings, breathing, sleep. Not the body (`health`) | 7 | 4 |
-| [kitchen](kitchen.md) | **new** | Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (`commerce`) | 7 | 4 |
-| [home](home.md) | **new** | Running a household: chores, family, pets, plants, cars, the house itself. Not a business team (`team`) | 7 | 4 |
+| [kitchen](kitchen.md) | **new** | Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (`commerce`) | 7 | 5 |
+| [home](home.md) | **new** | Running a household: chores, family, pets, plants, cars, the house itself. Not a business team (`team`) | 7 | 5 |
 | [trips](trips.md) | **new** | Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (`events`) | 7 | 4 |
 | [events](events.md) | **new**, additional | Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts. Not travel (`trips`) | 8 | 4 |
 | [inventory](inventory.md) | **new** | Keeping track of things owned: stock, collections, storage, loans, warranties, rentals. Not selling them (`commerce`) | 8 | 4 |
 | [sports](sports.md) | **new**, additional | A sports team or league: fixtures, scores, standings, lineups, availability. Not a workout (`health`) | 7 | 4 |
 
-Total: 131 pack components and 72 pack archetypes, all `planned`. With the 44 core components and 17 core
-archetypes, the catalog plans 175 components and 89 archetypes. An app sees at most the core plus three
+Total: 131 pack components and 74 pack archetypes, all `planned`. With the 44 core components and 17 core
+archetypes, the catalog plans 175 components and 91 archetypes. An app sees at most the core plus three
 packs: 44 plus at most 26 components.
 
 `events` and `sports` are the packs added beyond the first plan's ten and the five the research suggested
@@ -84,7 +84,8 @@ mood and sleep apart from workouts and medicine.
   `GroceryList`, `Medication`, `Agenda`, `BabyLog`, `Workout`, `ServiceMenu`, `ChapterList`, `GuestList`,
   `Itinerary`, `PackingList`, `Registry`, `Squad`, `Lineup`, `MatchFeed`),
   and tile grids (`ProductGrid`, `Library`, `Achievements`, `Factors`, `Feelings`, `SymptomLog`, `Stories`,
-  `Path`, `Things`). A dense component counts as weight 3. Chart points and keypad digits are values, not
+  `Path`, `Things`, `CareSchedule`, `Pantry`, `FoodLog`, `Devices`), and feeds of posts or entries whose
+  items are not rows (`Feed`, `Comments`, `Entries`). A dense component counts as weight 3. Chart points and keypad digits are values, not
   rows.
 - **Tiers per part.** A component's tier is what its main use needs; a part that needs more (send, call,
   pay) is marked in `meta.partTiers` and reads with its own risk mark, as core `Composer` does.

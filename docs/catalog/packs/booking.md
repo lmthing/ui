@@ -100,7 +100,7 @@ A full session's join-the-waitlist panel: the place in line, how many are ahead,
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `book` | Choose a service and a time | `service`, `time`, `confirm` | `service`: Header, ServiceMenu · `time`: Header, StaffPicker, Calendar[week], Slots, Button · `confirm`: Header, Appointment[summary], Field[repeat], Button |
+| `book` | Choose a service and a time | `service`, `time`, `confirm` | `service`: Header, ServiceMenu, Note · `time`: Header, StaffPicker, Calendar[week], Slots, Button · `confirm`: Header, Appointment[summary], Field[repeat], Button |
 | `appointments` | My upcoming and past bookings | `upcoming`, `history` | `upcoming`: Header, Segmented, Appointment, List · `history`: Header, Segmented, Timeline[history] |
 | `schedule` | The provider's day | `day`, `class` | `day`: Header, Calendar[week], Timeline[hours], Stats · `class`: Header[back], KeyValue, Progress[compact], People[stack], Waitlist |
 | `hours` | When I take bookings | `simple` | Header, Availability, Button |

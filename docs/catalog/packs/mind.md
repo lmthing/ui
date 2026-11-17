@@ -59,20 +59,21 @@ then up to three precise words within it.
 A breathing exercise: a soft circle that grows on the in-breath, holds, and shrinks on the out-breath, the
 phase word inside it, rounds left under it, and start and pause.
 - Pick: a paced breathing exercise. Not timing an activity (`Timer`), not playing a recording (`Player`).
-- Writes: `pattern` (`box` 4-4-4-4, `calm` 4-7-8, `even` 5-5, `custom`), `inhale`, `hold`, `exhale`,
-  `rest` seconds 0–10 (custom only), `rounds` 1–20.
+- Writes: `pattern` (`box` 4-4-4-4, `calm` 4-7-8, `even` 5-5, `custom`), `rounds` 1–20; with `custom`
+  only, `inhale`, `hold`, `exhale` and `rest` seconds 0–10.
 - Parts → actions: `circle play`, `circle pause`. · States: filled, success (done).
 - Real path: a paced animation on the device, with optional gentle haptics.
 - Kit: `KitBreath`. · Aliases: breathe, breathing, breathwork, boxbreathing.
 
 ### `SleepLog` · planned · data · phone
 Last night's sleep: bedtime and wake time, the hours slept large, a bar across the night showing awake and
-asleep (or stages when known), a quality face, and the week's average.
+asleep, a quality face, and the week's average.
 - Pick: how one night or week of sleep went. Not a day's plan by the hour (`Timeline`), not a level alone
   (`Scale`).
 - Writes: `bed` HH:MM, `wake` HH:MM, `awake` minutes optional, `quality` 1–5 optional, `week` exactly 7
-  numbers optional (hours per night). Hours and the average are computed.
-- Parts → actions: `edit press`. · States: filled, empty.
+  numbers optional (hours per night, seed values), `goto` (the sleep entry screen). Hours and the average
+  are computed.
+- Parts → actions: `edit press` (goes to `goto`). · States: filled, empty.
 - Real path: times typed in, or read from the phone's sleep data (`ok`). · Aliases: sleep, sleeplog, bedtime.
 
 ### `Soundscape` · planned · input · phone
@@ -86,10 +87,11 @@ a play button and a sleep timer.
 
 ### `Patterns` · planned · data · phone
 What tends to go with good and bad days: up to four findings as short sentences ("Mood is higher on days
-with exercise"), each with a pair of small bars comparing days with and without it.
+with exercise"), each with a pair of small bars comparing days with and without it. Code finds the
+findings, writes the sentences from copy and computes the bars; a model only chooses which factors to show.
 - Pick: links between what the person logs and how they feel. Not one trend (`Stats` style `trend`), not
   a general chart (`Bars`).
-- Writes: `findings` of `with` text(20), `label` text(60), `withValue` number, `withoutValue` number, 1–4.
+- Writes: `factors` text(14) each, 1–4 (labels from the screen's `Factors`), `minDays` 7–60 (default 14).
 - States: filled, empty (too few days logged). · Real path: averages computed on the device from entries.
 - Aliases: patterns, insights, correlations.
 
@@ -98,14 +100,17 @@ with exercise"), each with a pair of small bars comparing days with and without 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `checkin` | How I am today | `quick`, `full` | `quick`: Header, Scale[mood], Factors, Button · `full`: Header, Scale[mood], Feelings, Factors, Composer[entry], Button |
-| `journal_feed` | My entries | `feed`, `month` | `feed`: Header, Streak, Entries, Button · `month`: Header, Calendar[month], Entries |
-| `calm` | Settle down now | `breathe`, `sounds` | `breathe`: Header, Breathe, Note · `sounds`: Header, Soundscape |
-| `insights` | What I have learned | `week` | Header, SleepLog, Patterns, Bars |
+| `settle` | Settle down now | `breathe`, `sounds` | `breathe`: Header, Breathe, Note · `sounds`: Header, Soundscape, Note |
+| `insights` | What I have learned | `week` | Header, SleepLog, Patterns, Stats |
+| `sleep` | Log a night | `log` | Header, Field[time], Field[time], Scale, Button |
+
+With `mind` loaded, the core `journal` archetype uses `Entries` in place of `Card` (`entries`: Header,
+Streak, Entries, Button) and gains `month`: Header, Calendar[month], Entries.
 
 ## Worked example: Tide
 
 A mood and sleep journal. Each evening `checkin/full` asks for a mood face, two feeling words and what
-shaped the day; `journal_feed` shows a 9-day `Streak` and the entries; `calm/breathe` runs box breathing
+shaped the day; the core `journal` shows a 9-day `Streak` and the entries; `settle/breathe` runs box breathing
 before bed; after two weeks `insights` shows "Mood is higher on days outdoors". Signature: `streak_flame`.
 
 ## Aliases that shadow the core

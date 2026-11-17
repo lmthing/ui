@@ -42,7 +42,7 @@ step has a time, and next and back; the screen stays awake.
 - Pick: following a recipe step by step while cooking. Not a lesson (learning `Lesson`), not a flow
   through screens (`Steps`), not chapters of a recording (media `ChapterList`).
 - Writes: `steps` of `text` text(200), `uses` text(20) each 0–4, `minutes` number optional, 1–20; `at`.
-- Parts → actions: `next press`, `back press`, `timer play`, `timer pause`. · States: filled, success (done).
+- Parts → actions: `next press`, `back press`, `timer start`, `timer stop`. · States: filled, success (done).
 - Real path: steps on the device; the screen is kept awake while cooking. · Aliases: cookmode, method, cooksteps.
 
 ### `MealPlan` · planned · input · phone
@@ -56,7 +56,7 @@ small photo or an add button, today highlighted.
 - Real path: plans stored on the device; sharing with a household needs a shared app.
 - Kit: `KitWeekMatrix`. · Aliases: mealplan, mealplanner, weekmenu.
 
-### `GroceryList` · planned · input · people
+### `GroceryList` · planned · input · phone
 The shopping list grouped by aisle (produce, dairy, bakery…), each item with a quantity, ticked items
 sliding to the bottom, and who added it when shared.
 - Pick: what to buy, ticked off in the shop. Not a basket in an online shop (commerce `Cart`), not a
@@ -64,7 +64,9 @@ sliding to the bottom, and who added it when shared.
 - Writes: `aisles` of `label` text(16), `items` of `name` text(28), `qty` text(12) optional, `got`
   boolean, `by` text(12) optional, 1–12, 1–8.
 - Parts → actions: items `got check`, `add type`. · States: filled, empty, success (all got).
-- Real path: the list on the device; a shared list needs the household on a shared app.
+- Signature: `check_burst` (the same moment as core `Checklist`).
+- Real path: the list on the device; a shared list needs the household on a shared app (`by` and others'
+  additions are `people`).
 - Aliases: grocerylist, shoppinglist, groceries.
 
 ### `Pantry` · planned · data · phone
@@ -73,9 +75,9 @@ items expiring soon at the top in `warn` and expired ones in `bad`.
 - Pick: food at home and when it goes off. Not things owned in general (inventory `Things`), not a
   shopping list (`GroceryList`).
 - Writes: `items` of `name` text(24), `qty` text(12), `place` (`cupboard`, `fridge`, `freezer`), `useBy`
-  date optional, 1–6. The order and tones are computed from `useBy`.
-- Parts → actions: items `root press`, items `used press`. · States: filled, empty.
-- Real path: items typed in or scanned with `Camera` style `scan`; dates on the device.
+  date optional, `goto`, 1–20. The order and tones are computed from `useBy`. · Dense.
+- Parts → actions: items `root press`, items `used press` (in `confirmParts`: it removes the item). · States: filled, empty.
+- Real path: items typed in or scanned with `Camera` kind `scan`; dates on the device.
 - Aliases: pantry, fridge, cupboard, useby.
 
 ### `FoodLog` · planned · input · phone
@@ -84,8 +86,9 @@ against the target at the top.
 - Pick: logging what was eaten. Not a plan for the week (`MealPlan`), not money spent (money
   `Transactions`).
 - Writes: `meals` of `meal` (`breakfast`, `lunch`, `dinner`, `snack`), `items` of `name` text(28),
-  `kcal` number, `amount` text(12) optional, 0–6, 1–4; `target` number optional. Totals are computed.
-- Parts → actions: meals `add press`, items `root press`. · States: filled, empty.
+  `kcal` number, `amount` text(12) optional, 0–6, 1–4; `target` number optional; `goto` (the add-food
+  screen). Calorie totals are computed; macros belong in a `Progress` above it. · Dense.
+- Parts → actions: meals `add press` (goes to `goto`), items `root press`. · States: filled, empty.
 - Real path: entries on the device; a food database to look items up is a `service`.
 - Aliases: foodlog, fooddiary, calories, mealslog.
 
@@ -95,17 +98,18 @@ add a minute, the one finishing soonest first.
 - Pick: two or more timers at once while cooking. Not one timer (`Timer`), not a step's timer inside cooking
   mode (`CookSteps`).
 - Writes: `timers` of `label` text(16), `seconds` 1–14400, 1–6.
-- Parts → actions: timers `root play`, timers `root pause`, timers `more press`. · States: filled, empty.
+- Parts → actions: timers `root start`, timers `root stop`, timers `more press` (adds a minute). · States: filled, empty.
 - Real path: timers on the device with an alarm (notifications, `ok`). · Aliases: kitchentimers, timers.
 
-## Archetypes (4)
+## Archetypes (5)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `recipe` | One recipe | `overview`, `cook` | `overview`: Header[back], Hero[photo], KeyValue[grid], Ingredients, Button · `cook`: Header[back], CookSteps, KitchenTimers |
 | `mealweek` | The week's meals | `week` | Header, MealPlan, Button |
-| `groceries` | Buying food | `list`, `pantry` | `list`: Header, GroceryList · `pantry`: Header, Segmented, Pantry, Button |
-| `food` | What I ate | `day` | Header, Progress, FoodLog |
+| `groceries` | Buying food | `list`, `pantry` | `list`: Header, GroceryList, Button · `pantry`: Header, Segmented, Pantry, Button |
+| `food` | What I ate | `day`, `add` | `day`: Header, Progress, FoodLog · `add`: Header, Search, List, Button |
+| `recipes` | My recipe box | `browse` | Header, Search, Chips, List[cards] |
 
 ## Worked example: Supper
 
