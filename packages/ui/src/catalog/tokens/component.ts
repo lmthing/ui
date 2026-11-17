@@ -24,7 +24,7 @@ export const component = {
     stackFade: 0.25,
     blockMinHeight: 60,
     sparkHeight: 48,
-    emptyMinHeight: 280,
+    emptyMinHeight: 200,
   },
   Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },
 } as const;

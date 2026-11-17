@@ -50,14 +50,16 @@ export function KitEmpty({
       <Badge backgroundColor={tone === "good" ? "$goodSoft" : "$accentSoft"}>
         <KitIcon name={icon} tone={tone} scale="lg" part="icon" decorative={decorativeIcon} />
       </Badge>
-      <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
-        {title ?? emptyLine(thing)}
-      </KitText>
-      {sub && (
-        <KitText role="body" tone="muted" align="center" part="sub">
-          {sub}
+      <YStack gap={space.xs} alignItems="center">
+        <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
+          {title ?? emptyLine(thing)}
         </KitText>
-      )}
+        {sub && (
+          <KitText role="body" tone="muted" align="center" part="sub">
+            {sub}
+          </KitText>
+        )}
+      </YStack>
     </YStack>
   );
 }

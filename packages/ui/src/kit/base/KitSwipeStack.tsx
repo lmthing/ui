@@ -11,7 +11,7 @@ function Front({ label, children }: { label: string; children: ReactNode }) {
     <YStack
       {...usePart()}
       {...surfaceOf(ks.surface === "hairline" ? "hairline" : "soft")}
-      borderRadius={shifted("lg", ks.radiusShift)}
+      borderRadius={shifted("md", ks.radiusShift)}
       overflow="hidden"
       accessibilityRole="button"
       aria-roledescription="swipe card"
@@ -52,7 +52,7 @@ export function KitSwipeStack({
             {...surfaceOf(ks.surface === "hairline" ? "hairline" : "soft")}
             backgroundColor="$raised"
             opacity={1 - depth * component.base.stackFade}
-            borderRadius={shifted("lg", ks.radiusShift)}
+            borderRadius={shifted("md", ks.radiusShift)}
             aria-hidden
             accessibilityElementsHidden
           />

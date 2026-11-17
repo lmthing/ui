@@ -85,7 +85,7 @@ export function KitDayMark({ done }: { done: boolean }) {
       height={size.icon.lg}
       borderRadius={radius.pill}
       borderWidth={component.base.strongBorder}
-      borderColor={done ? "$accent" : "$line"}
+      borderColor={done ? "$accent" : "$muted"}
       backgroundColor={done ? "$accent" : "transparent"}
       aria-hidden
     />

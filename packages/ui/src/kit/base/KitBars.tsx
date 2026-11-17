@@ -1,16 +1,32 @@
 import { XStack, YStack } from "tamagui";
-import { component, radius, space } from "../../catalog";
+import { component, radius, space, type as typography } from "../../catalog";
 import { PartContext, usePart, usePartContext } from "../part";
 import { KitText } from "./KitText";
 
 function Bar({ label, value, max, high }: { label: string; value: number; max: number; high: boolean }) {
   const share = max > 0 ? Math.max(0, value) / max : 0;
   return (
-    <YStack {...usePart()} flex={1} alignItems="center" gap={space.xs}>
-      <YStack height={component.base.barsHeight} width="100%" justifyContent="flex-end" alignItems="center">
+    <YStack
+      {...usePart()}
+      flex={1}
+      flexBasis={component.base.none}
+      minWidth={component.base.none}
+      alignItems="center"
+      gap={space.xs}
+    >
+      <YStack
+        height={component.base.barsHeight + typography.caption.lineHeight + space.xs}
+        width="100%"
+        justifyContent="flex-end"
+        alignItems="center"
+        gap={space.xs}
+      >
+        <KitText role="caption" tone={high ? "text" : "muted"} part={null} tabular>
+          {String(value)}
+        </KitText>
         <YStack
           width="70%"
-          height={`${Math.max(share * 100, 2)}%`}
+          height={Math.max(share * component.base.barsHeight, space.xs)}
           borderTopLeftRadius={radius.sm}
           borderTopRightRadius={radius.sm}
           backgroundColor={high ? "$accent" : "$line"}

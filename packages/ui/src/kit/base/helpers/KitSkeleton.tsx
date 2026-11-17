@@ -111,10 +111,13 @@ export function KitSkeleton({
           paddingHorizontal={inset === "none" ? component.base.none : space.md}
         >
           {lead !== "none" && (
-            <Line height={first}>
+            <Line
+              height={first}
+              {...(lead === "box" ? { width: size.control.md, alignItems: "center" } : {})}
+            >
               <Bar
-                width={size.icon.md}
-                height={size.icon.md}
+                width={lead === "box" ? size.icon.lg : size.icon.md}
+                height={lead === "box" ? size.icon.lg : size.icon.md}
                 borderRadius={lead === "dot" ? size.icon.md : radius.sm}
               />
             </Line>

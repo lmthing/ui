@@ -1,8 +1,10 @@
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, useThemeName } from "tamagui";
 import { component, radius, size, space } from "../../catalog";
 import { useKit } from "../provider";
 import { usePart } from "../part";
 import { KitText } from "./KitText";
+import { shifted } from "./style";
+import { useKitStyle } from "../provider";
 
 function Corner({ top, left }: { top: boolean; left: boolean }) {
   const edge = component.base.strongBorder * 1.5;
@@ -37,14 +39,16 @@ export function KitViewfinder({
   hintPart?: string;
 }) {
   const third = (index: number) => `${(index * 100) / 3}%` as const;
+  // A viewfinder is dark in both modes: the text colour in light mode, the screen background in dark.
+  const dark = useThemeName().includes("dark");
   return (
     <YStack
       {...usePart(part)}
       width="100%"
       aspectRatio={component.base.tallRatio}
-      borderRadius={radius.lg}
+      borderRadius={shifted("md", useKitStyle().radiusShift)}
       overflow="hidden"
-      backgroundColor="$text"
+      backgroundColor={dark ? "$bg" : "$text"}
       alignItems="center"
       justifyContent="center"
     >
