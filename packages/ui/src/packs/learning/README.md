@@ -1,15 +1,15 @@
 # packs/learning
 
-Pack `learning`: Teaching and practising.
+Pack `learning`: Teaching and practising: lessons, quizzes, flashcards, classes and homework.
 
-Built in step U7 (drafts in U3). Read plan 4.4 first.
+Built in step U7 (drafts in U3), wave 3 of the catalog plan. Read `docs/catalog/packs/learning.md` (every component, archetype and the worked example) and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Lesson.tsx` `Quiz.tsx` `Flashcard.tsx` `Path.tsx` `Score.tsx`
-- `archetypes/`: `lesson.ts` `quiz.ts` `course.ts`
+- `components/`: `Lesson.tsx` `Quiz.tsx` `Flashcard.tsx` `Path.tsx` `Result.tsx` `Achievements.tsx` `Timetable.tsx` `Assignments.tsx`
+- `archetypes/`: `course.ts` `lesson.ts` `results.ts` `planner.ts`
 
 Rules:
-- Component list is a proposal, finalised in U3. Component ids are PascalCase and equal the file names.
-- Tiers: payments and sending to customers are `service`, a customer's view is `people`. Every component needs a `realPath`.
-- Each component ships with two examples, renderers in its own file, and an entry in the worked example.
+- Each component's purpose, pick, props with limits, parts, actions, states and tier are in the catalog plan.
+- Ids are PascalCase and equal the file names, unique across core and packs. Follow the pack rules in `docs/catalog/packs/README.md`.
+- Each component ships with two examples, its renderer in its own file, and a part in the worked example.

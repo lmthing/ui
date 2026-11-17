@@ -2,12 +2,14 @@
 
 Archetype data files of the `social` pack.
 
-Built in step U3 (drafts), then U7. Read plan 4.4 first.
+Built in step U3 (drafts), then U7. Read `docs/catalog/packs/social.md` and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `feed.ts`
 - `post.ts`
 - `event.ts`
+- `members.ts`
+- `swap.ts`
 
 Rules:
 - Data only, `satisfies ArchetypeMeta`. Defaults must pass `checkScreen`. At least 2 archetypes per pack.

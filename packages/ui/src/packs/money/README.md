@@ -1,15 +1,15 @@
 # packs/money
 
-Pack `money`: Budgets, bills and splitting costs.
+Pack `money`: The person's own money: balances, budgets, bills, splitting costs.
 
-Built in step U7 (drafts in U3). Read plan 4.4 first.
+Built in step U7 (drafts in U3), wave 2 of the catalog plan. Read `docs/catalog/packs/money.md` (every component, archetype and the worked example) and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Balance.tsx` `Transactions.tsx` `Budget.tsx` `Split.tsx` `Bill.tsx`
-- `archetypes/`: `wallet.ts` `budget.ts`
+- `components/`: `AccountCard.tsx` `Transactions.tsx` `Bills.tsx` `Split.tsx` `AmountPad.tsx` `PriceChart.tsx`
+- `archetypes/`: `wallet.ts` `budget.ts` `entry.ts` `split.ts` `invest.ts`
 
 Rules:
-- Component list is a proposal, finalised in U3. Component ids are PascalCase and equal the file names.
-- Tiers: payments and sending to customers are `service`, a customer's view is `people`. Every component needs a `realPath`.
-- Each component ships with two examples, renderers in its own file, and an entry in the worked example.
+- Each component's purpose, pick, props with limits, parts, actions, states and tier are in the catalog plan.
+- Ids are PascalCase and equal the file names, unique across core and packs. Follow the pack rules in `docs/catalog/packs/README.md`.
+- Each component ships with two examples, its renderer in its own file, and a part in the worked example.
