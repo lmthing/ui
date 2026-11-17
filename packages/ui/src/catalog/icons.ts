@@ -143,6 +143,12 @@ export const iconTable = {
   bath: "Bath",
   sofa: "Sofa",
   lamp: "Lamp",
+  chevron_left: "ChevronLeft",
+  arrow_left: "ArrowLeft",
+  more: "MoreHorizontal",
+  external_link: "ExternalLink",
+  quote: "Quote",
+  circle_check: "CircleCheck",
 } as const;
 export type IconName = keyof typeof iconTable;
 export const icons = Object.keys(iconTable) as [IconName, ...IconName[]];

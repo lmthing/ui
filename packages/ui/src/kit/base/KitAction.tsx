@@ -19,7 +19,11 @@ const Frame = styled(XStack, {
       primary: { backgroundColor: "$accent" },
       secondary: { backgroundColor: "$accentSoft" },
       quiet: { backgroundColor: "transparent" },
-      danger: { backgroundColor: "transparent", borderColor: "$bad", borderWidth: component.base.borderWidth },
+      danger: {
+        backgroundColor: "transparent",
+        borderColor: "$bad",
+        borderWidth: component.base.borderWidth,
+      },
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
   } as const,
