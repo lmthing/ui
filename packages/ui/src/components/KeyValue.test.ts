@@ -138,7 +138,7 @@ describe("KeyValue field labels and metadata", () => {
     expect(registry.ids).toContain("KeyValue");
     expect(registry.schema("KeyValue")).toBe(props);
     expect(registry.resolve("key-value")).toBe("KeyValue");
-    expect(registry.resolve("FACTS")).toBe("KeyValue");
+    expect(registry.resolve("ATTRIBUTES")).toBe("KeyValue");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
