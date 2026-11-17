@@ -13,6 +13,14 @@ const Frame = styled(YStack, {
       thumb: { width: size.avatar.md, height: size.avatar.md },
       round: { width: size.avatar.md, height: size.avatar.md, borderRadius: radius.pill },
       wide: { width: "100%", aspectRatio: component.base.wideRatio },
+      square: { width: "100%", aspectRatio: 1 },
+      tall: { width: "100%", aspectRatio: component.base.tallRatio },
+      avatar: {
+        width: size.avatar.lg,
+        height: size.avatar.lg,
+        borderRadius: radius.pill,
+        alignSelf: "center",
+      },
     },
   } as const,
 });
@@ -28,7 +36,7 @@ export function KitPhoto({
   label,
 }: {
   photo: string;
-  shape?: "thumb" | "round" | "wide";
+  shape?: "thumb" | "round" | "wide" | "square" | "tall" | "avatar";
   part?: string;
   label?: string;
 }) {
@@ -38,9 +46,9 @@ export function KitPhoto({
     <Frame
       {...usePart(part)}
       shape={shape}
-      {...(shape === "round"
+      {...(shape === "round" || shape === "avatar"
         ? {}
-        : { borderRadius: shifted(shape === "wide" ? "lg" : "sm", ks.radiusShift) })}
+        : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
       accessibilityRole="image"
       accessibilityLabel={label ?? photo.replace(/^lib:/, "").replace(/_/g, " ")}
     >
