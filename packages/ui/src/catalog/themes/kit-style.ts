@@ -6,6 +6,7 @@ export type KitStyle = {
   fonts: { text: FontName; heading: FontName; number: FontName };
   density: { gap: SpaceToken; rowPad: SpaceToken; cardPad: SpaceToken };
   surface: PresetMeta["surface"];
+  strong: boolean;
 };
 const densities = {
   compact: { gap: "sm", rowPad: "sm", cardPad: "md" },
@@ -24,5 +25,6 @@ export function kitStyleOf(preset: PresetMeta): KitStyle {
     },
     density: densities[preset.density],
     surface: preset.surface,
+    strong: preset.weight === "strong",
   };
 }

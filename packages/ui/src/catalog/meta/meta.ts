@@ -29,6 +29,8 @@ export type PresetMeta = {
   mood: string;
   font: "humanist" | "grotesk" | "rounded" | "serif";
   numbers: "regular" | "condensed";
+  /** `strong` sets every text role one step heavier (bold preset). */
+  weight: "regular" | "strong";
   shape: "sharp" | "soft" | "round";
   density: "compact" | "regular" | "airy";
   surface: "soft" | "solid" | "hairline";

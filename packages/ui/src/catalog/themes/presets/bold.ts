@@ -5,6 +5,7 @@ export const bold = {
   mood: "High contrast, big type",
   font: "grotesk",
   numbers: "regular",
+  weight: "strong",
   shape: "sharp",
   density: "compact",
   surface: "solid",

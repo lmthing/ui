@@ -1,12 +1,18 @@
 import { useContext, type ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
-import { component, size, space } from "../../catalog";
+import { component, size, space, type as typography } from "../../catalog";
 import { useKit, useKitStyle } from "../provider";
 import { PartContext, usePart, usePartContext } from "../part";
 import { CardStyleContext, shifted, surfaceOf } from "./style";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Body = styled(YStack, { flex: component.base.bodyFlex });
+// Leading icons and photos sit on the title's first line, not the middle of the text stack.
+const Lead = styled(YStack, {
+  alignSelf: "flex-start",
+  minHeight: typography.body.lineHeight,
+  justifyContent: "center",
+});
 function Row({
   children,
   leading,
@@ -28,14 +34,15 @@ function Row({
     <Frame
       {...part}
       {...(style === "cards" ? surfaceOf(ks.surface) : {})}
-      padding={space[ks.density.rowPad]}
+      paddingVertical={space[ks.density.rowPad]}
+      paddingHorizontal={space.md}
       gap={space[ks.density.gap]}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={goto ? "link" : "listitem"}
       accessibilityLabel={label}
       {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
     >
-      {leading}
+      {leading && <Lead>{leading}</Lead>}
       <Body>{children}</Body>
       {trailing}
     </Frame>

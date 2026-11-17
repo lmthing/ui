@@ -37,6 +37,17 @@ const Frame = styled(Text, {
 });
 
 export type TextRole = keyof typeof typography;
+
+// One step heavier for presets with strong type (bold).
+const strongWeights: Record<TextRole, "500" | "600" | "700" | "800"> = {
+  display: "800",
+  title: "800",
+  heading: "700",
+  body: "500",
+  label: "600",
+  caption: "500",
+  number: "800",
+};
 export type TextTone = "text" | "muted" | "accent" | "onAccent" | "good" | "warn" | "bad";
 
 /** All visible text. Role picks the type scale and the preset's font family; tone picks a colour role. */
@@ -56,6 +67,7 @@ export function KitText({
   lines?: number;
 }) {
   const style = useKitStyle();
+  const heavier = style.strong ? strongWeights[role] : undefined;
   const family =
     role === "display" || role === "title" || role === "heading"
       ? style.fonts.heading
@@ -69,6 +81,7 @@ export function KitText({
       tone={tone}
       align={align}
       fontFamily={fontFamilies[family]}
+      {...(heavier ? { fontWeight: heavier } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
     >
       {children}

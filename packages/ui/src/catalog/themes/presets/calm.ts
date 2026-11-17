@@ -5,6 +5,7 @@ export const calm = {
   mood: "Quiet and airy",
   font: "humanist",
   numbers: "regular",
+  weight: "regular",
   shape: "soft",
   density: "airy",
   surface: "soft",

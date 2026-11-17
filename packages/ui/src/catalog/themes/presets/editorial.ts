@@ -5,6 +5,7 @@ export const editorial = {
   mood: "Like a magazine",
   font: "serif",
   numbers: "regular",
+  weight: "regular",
   shape: "sharp",
   density: "airy",
   surface: "hairline",
