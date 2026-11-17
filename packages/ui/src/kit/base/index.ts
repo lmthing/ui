@@ -1,4 +1,5 @@
 export { KitCard } from "./KitCard";
+export { KitScaleTrack } from "./KitScaleTrack";
 export { KitBars } from "./KitBars";
 export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";

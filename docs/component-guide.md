@@ -58,6 +58,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | Base | Use | Key props |
 | --- | --- | --- |
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
+| `KitScaleTrack` | Five equal 44px radio targets, parts `l1`..`l5`: stars/dots fill to `value`, mood shows five faces with the chosen one in accent | `style` mood/stars/dots, `value` 0..5, `labels` (five) |
 | `KitBars` | Columns for amounts, scaled to the largest; the largest (or `highlight`) in accent; label under each; each point an item | `points` ({id,label,value}), `highlight` |
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
