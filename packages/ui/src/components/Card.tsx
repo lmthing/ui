@@ -82,7 +82,7 @@ export const examples = [
     icon: "dog",
     tone: "good",
   },
-  { style: "plain", title: "Monstera", body: "Living room · water Friday", photo: "lib:plants" },
+  { style: "plain", title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
   {
     style: "outlined",
     title: "Basil",
