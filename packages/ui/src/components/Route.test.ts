@@ -160,39 +160,37 @@ describe("Route metadata", () => {
 });
 
 describe("Route rendering", () => {
-  it("draws every allowed count with mixed metadata, optional distance and repeated labels", () => {
-    for (let count = 2; count <= 6; count++) {
-      for (const distance of [undefined, "3.2 km"]) {
-        const input = {
-          stops: Array.from({ length: count }, (_, i) => ({
-            label: "Repeated stop",
-            ...(i % 2 === 0 ? { meta: "Collect parcel" } : {}),
-          })),
-          ...(distance ? { distance } : {}),
-        };
-        const viewProps = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
-        const children = createElement(PartScope, {
-          screen: "home",
-          component: "c1",
-          rev: 1,
-          state: "filled",
-          children: createElement(renderers.Route, viewProps),
-        });
-        const kit = createElement(KitProvider, {
-          theme: { preset: "calm", mode: "light", accent: "moss" },
-          children,
-        });
-        const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
-        expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-        expect(html.match(/<svg\b/g)).toHaveLength(1);
-        expect(html.includes('data-testid="home/c1/distance"')).toBe(Boolean(distance));
-        expect(html.match(/Collect parcel/g)).toHaveLength(Math.ceil(count / 2));
-        for (let i = 1; i <= count; i++) {
-          for (const part of ["root", "label"]) {
-            expect(html.match(new RegExp(`data-testid="home/c1/r${i}/${part}"`, "g"))).toHaveLength(1);
-          }
-          expect(html).not.toContain(`data-testid="home/c1/r${i}/meta"`);
+  it.each([2, 3, 4, 5, 6])("draws %i stops with mixed metadata and every distance form", (count) => {
+    for (const distance of [undefined, "3.2 km", "0 km", "10 mi", "3", "On foot", "a".repeat(12)]) {
+      const input = {
+        stops: Array.from({ length: count }, (_, i) => ({
+          label: "Repeated stop",
+          ...(i % 2 === 0 ? { meta: "Collect parcel" } : {}),
+        })),
+        ...(distance ? { distance } : {}),
+      };
+      const viewProps = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
+      const children = createElement(PartScope, {
+        screen: "home",
+        component: "c1",
+        rev: 1,
+        state: "filled",
+        children: createElement(renderers.Route, viewProps),
+      });
+      const kit = createElement(KitProvider, {
+        theme: { preset: "calm", mode: "light", accent: "moss" },
+        children,
+      });
+      const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
+      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+      expect(html.match(/<svg\b/g)).toHaveLength(1);
+      expect(html.includes('data-testid="home/c1/distance"')).toBe(Boolean(distance));
+      expect(html.match(/Collect parcel/g)).toHaveLength(Math.ceil(count / 2));
+      for (let i = 1; i <= count; i++) {
+        for (const part of ["root", "label"]) {
+          expect(html.match(new RegExp(`data-testid="home/c1/r${i}/${part}"`, "g"))).toHaveLength(1);
         }
+        expect(html).not.toContain(`data-testid="home/c1/r${i}/meta"`);
       }
     }
   });

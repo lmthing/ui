@@ -11,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitRouteStop, KitText } from "../kit";
+import { KitCard, KitContent, KitGrid, KitRouteStop, KitText } from "../kit";
 
 export const meta = {
   id: "Route",
@@ -85,32 +85,55 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Route({ stops, distance }: Props<typeof props, typeof meta>) {
+  const measure = distance?.match(/^(\d+(?:[.,]\d+)?)(\s+.*)?$/);
   return (
     <KitCard style="inset" part="root">
-      {distance && (
-        <KitCard style="plain" padded part="distance">
-          <KitText role="caption" tone="muted" align="end" tabular part={null}>
-            {distance}
-          </KitText>
-        </KitCard>
-      )}
-      {stops.map((stop, index) => (
-        <KitRouteStop
-          key={stop.id}
-          item={stop.id}
-          label={stop.label}
-          position={index === 0 ? "start" : index === stops.length - 1 ? "end" : "middle"}
-        >
-          <KitText role="body" part="label">
-            {stop.label}
-          </KitText>
-          {stop.meta && (
-            <KitText role="caption" tone="muted" part={null}>
-              {stop.meta}
+      {stops.map((stop, index) => {
+        const header = index === 0 && distance;
+        const content = (
+          <KitContent lineRole="body">
+            <KitText role="body" part="label">
+              {stop.label}
             </KitText>
-          )}
-        </KitRouteStop>
-      ))}
+            {stop.meta && (
+              <KitText role="caption" tone="muted" part={null}>
+                {stop.meta}
+              </KitText>
+            )}
+          </KitContent>
+        );
+        const row = (
+          <KitRouteStop
+            key={stop.id}
+            item={stop.id}
+            label={stop.label}
+            position={index === 0 ? "start" : index === stops.length - 1 ? "end" : "middle"}
+          >
+            {header ? (
+              <KitGrid columns={2}>
+                {content}
+                <KitText role={measure ? "number" : "body"} align="end" tabular part={null}>
+                  {measure ? measure[1] : distance}
+                  {measure?.[2] && (
+                    <KitText role="caption" tone="muted" part={null}>
+                      {measure[2]}
+                    </KitText>
+                  )}
+                </KitText>
+              </KitGrid>
+            ) : (
+              content
+            )}
+          </KitRouteStop>
+        );
+        return header ? (
+          <KitCard key={stop.id} style="plain" part="distance" label={distance}>
+            {row}
+          </KitCard>
+        ) : (
+          row
+        );
+      })}
     </KitCard>
   );
 }
