@@ -69,7 +69,7 @@ Every action name below is new to the vocabulary in plan 4.12 (each is a minor c
 | `flip` | None | `Flashcard` |
 | `move` | A column label | data `Board` |
 | `send` | None | `Composer` (reply) |
-| `scan` | None | `ScanInput` (returns a code; tier `ok`) |
+| `scan` | None | events `Door` (returns a code; tier `ok`) |
 
 Everything else uses the existing `press`, `toggle`, `check`, `select`, `type`, `set`, `increment`,
 `decrement`, `swipe`, `start` and `stop`.

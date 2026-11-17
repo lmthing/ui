@@ -103,15 +103,15 @@ add a minute, the one finishing soonest first.
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `recipe` | One recipe | `overview`, `cook` | `overview`: Header[back], Hero[photo], KeyValue[grid], Ingredients, Button · `cook`: Header[back], CookSteps, KitchenTimers |
-| `plan` | The week's meals | `week` | Header, MealPlan, Button |
-| `shop` | Buying food | `list`, `pantry` | `list`: Header, GroceryList · `pantry`: Header, Segmented, Pantry, Button |
+| `mealweek` | The week's meals | `week` | Header, MealPlan, Button |
+| `groceries` | Buying food | `list`, `pantry` | `list`: Header, GroceryList · `pantry`: Header, Segmented, Pantry, Button |
 | `food` | What I ate | `day` | Header, Progress, FoodLog |
 
 ## Worked example: Supper
 
 A family recipe box and planner. `recipe/overview` shows Nonna's lasagne with servings scaled from 6 to 4;
-`recipe/cook` steps through it with the béchamel and oven timers running together; `plan` puts it on
-Thursday; `shop/list` adds the missing ingredients by aisle; `shop/pantry` warns that the ricotta goes off
+`recipe/cook` steps through it with the béchamel and oven timers running together; `mealweek` puts it on
+Thursday; `groceries/list` adds the missing ingredients by aisle; `groceries/pantry` warns that the ricotta goes off
 tomorrow. Signature: `check_burst` on the grocery list.
 
 ## Aliases that shadow the core
