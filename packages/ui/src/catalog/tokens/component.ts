@@ -8,6 +8,7 @@ export const component = {
     bodyFlex: 1,
     skeletonOpacity: 0.4,
     wideRatio: 16 / 9,
+    tallRatio: 3 / 4,
     emptyMinHeight: 280,
   },
   Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },

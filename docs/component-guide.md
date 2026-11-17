@@ -63,7 +63,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part`, `decorative` (no address; chevrons only) |
-| `KitPhoto` | A photo reference | `photo`, `shape` thumb/round/wide, `part` |
+| `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, for a profile), `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
 | `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part`, `title`/`sub` (standalone), `fill` (full-height, centred) |
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
