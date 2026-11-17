@@ -57,8 +57,8 @@ export const examples = [
   },
   {
     style: "statement",
-    title: "A good day starts with a walk",
-    sub: "Your next walk is at the riverside with Clover",
+    title: "Riverside walk",
+    sub: "Clover's next walk starts at 09:00",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -84,14 +84,14 @@ export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typ
   const state = useComponentState();
   if (state === "loading") {
     return (
-      <KitCard style="plain" part="root">
-        <KitSkeleton rows={2} />
+      <KitCard style="cards" part="root">
+        <KitSkeleton rows={1} />
       </KitCard>
     );
   }
   return (
-    <KitCard style="plain" part="root">
-      {style === "photo" && photo && <KitPhoto photo={photo} part="photo" />}
+    <KitCard style="cards" part="root">
+      {style === "photo" && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
       <KitText
         role={style === "number" ? "number" : style === "photo" ? "title" : "display"}
         tone={style === "number" ? (tone === "neutral" ? "accent" : tone) : "text"}

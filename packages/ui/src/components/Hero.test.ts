@@ -1,9 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  affordancesOf,
   components,
   createRegistry,
   placeholderDetail,
   placeholderTitle,
+  readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
@@ -163,5 +165,16 @@ describe("Hero fallback and metadata", () => {
     expect(registry.resolve("HEADLINE")).toBe("Hero");
     expect(registry.resolve("spot-light")).toBe("Hero");
     expect(registry.resolve("unknown")).toBeUndefined();
+  });
+  it("reads the headline and detail without offering actions, including while loading", () => {
+    expect(readComponent(components.Hero, examples[0], "h1")).toEqual([
+      'h1 Hero[number][warn] "2" — "plants need water"',
+    ]);
+    for (const example of examples) {
+      const parsed = props.parse(example);
+      expect(affordancesOf(meta, parsed, "h1")).toEqual([]);
+      expect(readComponent(components.Hero, example, "h1", "loading")).toHaveLength(1);
+      expect(readComponent(components.Hero, example, "h1", "loading")[0]).not.toContain('"');
+    }
   });
 });
