@@ -143,6 +143,11 @@ function FieldControl({ kind, label, value, options }: Props<typeof props, typeo
     const number = Number(value ?? placeholderValue);
     return (
       <>
+        {value && (
+          <KitText role="number" tabular part={null}>
+            {value}
+          </KitText>
+        )}
         <KitSlider
           value={number}
           label={label}
@@ -150,11 +155,6 @@ function FieldControl({ kind, label, value, options }: Props<typeof props, typeo
           max={Math.max(10, number)}
           part="field"
         />
-        {value && (
-          <KitText role="body" part={null}>
-            {value}
-          </KitText>
-        )}
       </>
     );
   }
