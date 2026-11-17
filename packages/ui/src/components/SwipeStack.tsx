@@ -59,7 +59,7 @@ export const examples = [
     cards: [
       { title: "Fern", photo: "lib:plants", meta: "Soft indirect light" },
       { title: "Monstera", photo: "lib:plants", meta: "Room to grow" },
-      { title: "Basil", meta: "A sunny kitchen" },
+      { title: "Basil" },
     ],
   },
   {

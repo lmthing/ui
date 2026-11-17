@@ -23,6 +23,13 @@ describe("SwipeStack schema", () => {
     });
     expect(props.parse({ cards: pair })).toEqual({ cards: pair });
   });
+  it("shows how to omit optional detail in the model's first example", () => {
+    const cards = props.parse(examples[0]).cards;
+    expect(cards[0]).toHaveProperty("meta");
+    expect(cards[1]).toHaveProperty("meta");
+    expect(cards[2]).toEqual({ title: "Basil" });
+    expect(props.safeParse({ cards: [{ title: "Basil", meta: "   " }, card] }).success).toBe(false);
+  });
   it.each([
     {},
     { cards: [] },

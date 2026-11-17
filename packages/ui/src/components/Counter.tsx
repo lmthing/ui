@@ -15,8 +15,8 @@ import { KitAction, KitCard, KitGrid, KitText } from "../kit";
 export const meta = {
   id: "Counter",
   group: "data",
-  purpose: "Keep one running count, adding or removing a fixed amount with each tap.",
-  pick: "One count the person nudges up or down with plus and minus buttons. Not several read-only summary numbers (Stats) or a number entered in a form (Field).",
+  purpose: "Increase or decrease one running count by a fixed step with each tap.",
+  pick: "One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).",
   region: "body",
   weight: 2,
   tier: "phone",
@@ -28,7 +28,11 @@ export const meta = {
   read: (input, state) => {
     if (state !== "filled") return [];
     const { value, unit } = props.parse(input);
-    return [unit ? `${value} ${unit}` : String(value)];
+    return [
+      unit ? `${value} ${unit}` : String(value),
+      `"${stepLabels.less}" (decrement)`,
+      `"${stepLabels.more}" (increment)`,
+    ];
   },
 } as const satisfies Meta;
 

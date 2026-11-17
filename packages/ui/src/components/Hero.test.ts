@@ -157,6 +157,10 @@ describe("Hero fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Note");
     expect(meta.pick).toContain("Stats");
+    expect(meta.pick).toContain("Banner");
+    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toMatchObject({
+      need: "Make the main message of my plant screen that two plants need water today",
+    });
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Note")).toBeDefined();

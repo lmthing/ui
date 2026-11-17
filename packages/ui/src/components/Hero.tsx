@@ -18,8 +18,8 @@ import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState, useKit } fr
 export const meta = {
   id: "Hero",
   group: "content",
-  purpose: "The one headline fact or message this screen says.",
-  pick: "One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).",
+  purpose: "The screen's main statement or headline number, including what needs attention today.",
+  pick: "The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note) or several numbers (Stats).",
   region: "body",
   weight: 3,
   tier: "phone",
