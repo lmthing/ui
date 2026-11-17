@@ -54,7 +54,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   { label: "How healthy does it look?", style: "mood", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4 },
-  { label: "How did it go?", style: "dots", value: 0 },
+  { label: "How did it go? 1 low, 5 high", style: "dots", value: 0 },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
