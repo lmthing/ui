@@ -15,6 +15,8 @@ export const component = {
     timeWidth: 64,
     barsHeight: 120,
     dayMinWidth: 40,
+    hourHeight: 56,
+    blockMinHeight: 44,
     sparkHeight: 48,
     emptyMinHeight: 280,
   },

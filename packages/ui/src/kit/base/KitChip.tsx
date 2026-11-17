@@ -30,15 +30,18 @@ function Chip({
   role,
   icon,
   look,
+  stamped,
 }: {
   label: string;
   on: boolean;
   role: "checkbox" | "radio" | "tab";
   icon?: IconName | undefined;
   look: "pill" | "segment";
+  stamped: boolean;
 }) {
   const ks = useKitStyle();
-  const part = usePart();
+  const address = usePart();
+  const part = stamped ? address : {};
   const segment = look === "segment";
   return (
     <Hit
@@ -59,14 +62,14 @@ function Chip({
           backgroundColor={on ? "$surface" : "transparent"}
           {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
         >
-          <KitText role="label" tone={on ? "text" : "muted"} part="label" lines={1}>
+          <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? "label" : null} lines={1}>
             {label}
           </KitText>
         </XStack>
       ) : (
         <Pill on={on}>
           {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
-          <KitText role="label" tone={on ? "onAccent" : "text"} part="label" lines={1}>
+          <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? "label" : null} lines={1}>
             {label}
           </KitText>
         </Pill>
@@ -84,7 +87,8 @@ export function KitChip({
   look = "pill",
   ...props
 }: {
-  item: string;
+  /** The item id; `null` inside a track that is itself the control (no per-chip address). */
+  item: string | null;
   label: string;
   on: boolean;
   role: "checkbox" | "radio" | "tab";
@@ -92,28 +96,51 @@ export function KitChip({
   look?: "pill" | "segment";
 }) {
   const context = usePartContext();
+  if (item === null) return <Chip {...props} look={look} stamped={false} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
-      <Chip {...props} look={look} />
+      <Chip {...props} look={look} stamped />
     </PartContext.Provider>
   );
 }
 
 /** A row of chips that wraps (`pills`), or a tinted track of equal segments (`segments`). */
-export function KitTrack({ look = "pills", children }: { look?: "pills" | "segments"; children: ReactNode }) {
+export function KitTrack({
+  look = "pills",
+  part = "root",
+  role,
+  label,
+  children,
+}: {
+  look?: "pills" | "segments";
+  /** The track's own part: `root` (default), or `field` when the whole track is one choice control. */
+  part?: string;
+  /** `radiogroup` when the track itself is the selectable control (a Field of kind choice). */
+  role?: "radiogroup";
+  label?: string;
+  children: ReactNode;
+}) {
   const ks = useKitStyle();
+  const address = usePart(part);
   return look === "segments" ? (
     <XStack
-      {...usePart()}
+      {...address}
       backgroundColor="$raised"
       borderRadius={shifted("md", ks.radiusShift)}
       paddingHorizontal={space.xs}
-      accessibilityRole="tablist"
+      {...({ role: role ?? "tablist" } as object)}
+      {...(label ? { "aria-label": label } : {})}
     >
       {children}
     </XStack>
   ) : (
-    <XStack {...usePart()} flexWrap="wrap" columnGap={space.sm} accessibilityRole="list">
+    <XStack
+      {...address}
+      flexWrap="wrap"
+      columnGap={space.sm}
+      {...({ role: role ?? "list" } as object)}
+      {...(label ? { "aria-label": label } : {})}
+    >
       {children}
     </XStack>
   );

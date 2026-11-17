@@ -49,7 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
      a part carries `part="<name>"` from `meta.parts` / `meta.items.parts`; each item is wrapped by a
      base taking `item={row.id}`.
    - States: `const state = useComponentState()`. `loading` → `<KitSkeleton rows={n} />` in the
-     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
+     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines), `photoLabels` (add, take, scan). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
@@ -67,11 +67,14 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitBubble` | One chat message: `me` right on accent, `them` left on raised, wraps at 80% width; `grouped` sits closer; one item | `item`, `from`, `text`, `grouped` |
+| `KitHours` | A day by the hour: hour rail and blocks placed and sized by start/end, tinted by tone; each block one item (`title`, `time`), link when `goto` | `blocks` ({id,start,end,title,tone,goto}) |
+| `KitSlider` | A themed slider in a 44px touch area (role slider, its value); the part `set` acts on | `value`, `label`, `min`/`max` (default 0..10), `part` (default `field`) |
 | `KitInput` | A one-line text box (role textbox, or searchbox for `kind="search"`), optional leading icon, hint as placeholder; the box is the part `type` acts on | `hint`, `value`, `kind` text/search, `icon`, `part` (default `field`), `label` |
 | `KitStrip` | A sideways-scrolling strip; each child cell about 40% wide so the next peeks in; no scrollbar | children |
 | `KitStepsTrack` | The drawn track of a step sequence (dots, bar, numbered); decorative, hidden from reading | `style`, `count`, `at`, `part` |
-| `KitChip` | One selectable item: a `pill` (Chips) or a `segment` (Segmented); 44px touch area is the item root with the given role | `item`, `label`, `on`, `role` checkbox/radio/tab, `icon`, `look` pill/segment |
-| `KitTrack` | The component root for chips: wrapping row (`pills`) or a tinted track of equal segments (`segments`, role tablist) | `look`, children |
+| `KitChip` | One selectable item: a `pill` (Chips) or a `segment` (Segmented); 44px touch area is the item root with the given role | `item` (`null` inside a track that is itself the control), `label`, `on`, `role` checkbox/radio/tab, `icon`, `look` pill/segment |
+| `KitTrack` | The component root for chips: wrapping row (`pills`) or a tinted track of equal segments (`segments`, role tablist) | `look`, `part` (default root; `field` for a Field choice), `role` radiogroup (the track is the control), `label`, children |
 | `KitTile` | One pressable item tile: icon in a soft round badge over a centred label, one address per item (quick actions) | `item`, `icon`, `label`, `goto` |
 | `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, `leadingAlign` line/row (`row` for a thumbnail), children |
 | `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `inset` md/none, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
@@ -84,7 +87,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
-| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg)/trend (label and value bars left, a chart band right) |
+| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg)/trend (label and value bars left, a chart band right)/bars (a title bar over `rows` columns, default 7, at chart height) |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it

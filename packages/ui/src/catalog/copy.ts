@@ -63,3 +63,6 @@ export function streakLine(count: number, days: readonly boolean[]): string[] {
     done.length ? `done ${done.join(", ")}` : "none done this week",
   ];
 }
+
+/** Photo actions: add one to a field, take one, scan a code. */
+export const photoLabels = { add: "Add photo", take: "Take photo", scan: "Scan" } as const;
