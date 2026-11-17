@@ -4,7 +4,12 @@ type Score = { pass: boolean; detail: string };
 
 /** The first known component id in the reply. */
 export function scoreChoose(reply: string, ids: readonly string[], expect: string): Score {
-  const named = reply.match(/[A-Z][A-Za-z0-9]+/g)?.find((word) => ids.includes(word));
+  // Any case: "gallery" names Gallery.
+  const byWord = new Map(ids.map((id) => [id.toLowerCase(), id]));
+  const named = reply
+    .match(/[A-Za-z][A-Za-z0-9]+/g)
+    ?.map((word) => byWord.get(word.toLowerCase()))
+    .find(Boolean);
   return named === expect
     ? { pass: true, detail: expect }
     : { pass: false, detail: `chose ${named ?? `nothing (${reply.trim().slice(0, 40)})`}` };
