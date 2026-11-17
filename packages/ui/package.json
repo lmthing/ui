@@ -1,0 +1,44 @@
+{
+  "name": "@lmthing/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./catalog": {
+      "types": "./dist/catalog.d.ts",
+      "import": "./dist/catalog.js"
+    },
+    "./kit": {
+      "source": "./src/entry/kit.ts",
+      "types": "./dist/kit.d.ts",
+      "import": "./dist/kit.js"
+    }
+  },
+  "scripts": {
+    "build": "pnpm build:catalog && tsx scripts/build-kit.ts",
+    "build:entries": "tsx scripts/build-entries.ts",
+    "kit:themes": "tsx scripts/build-themes.ts",
+    "build:catalog": "pnpm build:entries && tsx scripts/bundle-check.ts && pnpm kit:themes",
+    "catalog:bundle-check": "tsx scripts/bundle-check.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "tsx scripts/check.ts"
+  },
+  "dependencies": { "zod": "4.6.7" },
+  "peerDependencies": {
+    "@tamagui/core": "1.144.4",
+    "@tamagui/lucide-icons": "1.144.4",
+    "react": "19.3.1",
+    "react-native-web": "0.21.4",
+    "react-native-svg": "15.15.3",
+    "tamagui": "1.144.4"
+  },
+  "devDependencies": {
+    "@tamagui/core": "1.144.4",
+    "@tamagui/lucide-icons": "1.144.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-native-web": "0.21.4",
+    "react-native-svg": "15.15.3",
+    "tamagui": "1.144.4"
+  }
+}

@@ -4,6 +4,20 @@ This repository holds the component system as one package, `@lmthing/ui`, with t
 
 The product context lives in the lmthing build spec (`docs/spec.md` in the lmthing repo). This plan covers only what is built here, how it is built, and how it is consumed. Where the two disagree on something inside this repo, this plan wins.
 
+**List proof slice.** Before the full U0–U2 gates, build only List with a standalone pnpm workspace,
+strict TypeScript and Vitest, calm/bold/editorial presets, moss/sky accents, the real entry/theme
+generators and data-only catalog build. The slice gallery uses Vite and React Native Web, not Expo.
+ESLint, Changesets, CI, live probes, other components and complete host interaction are deferred.
+List includes the template's photo/goto props and filled/empty/loading states. A minimal registry
+supports Node bundle validation. Address parsing uses the `r<number>` item convention to distinguish
+three-segment item addresses from component parts. The slice may add adjacent unit tests, folder
+doors, package/tsconfig files, `scripts/gallery.ts`, `scripts/build-kit.ts`, Vite configuration and
+gallery entry files; all other scaffold files wait. `part-context.tsx` holds the slice's PartScope.
+Gallery dimensions live in catalog component tokens. Initial font mappings use system fallbacks;
+bundled OFL fonts wait for U2. Build scripts use esbuild (also used by Vite) rather than tsup for
+this proof; catalog declarations are emitted from the data half with view imports/exports removed.
+Pinned dependencies and alternatives are recorded in `dependencies.md`.
+
 ## 1. Scope
 
 | In this repo | Not in this repo |

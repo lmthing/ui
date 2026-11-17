@@ -5,7 +5,11 @@ The component system used by lmthing, as one package, `@lmthing/ui`, with two en
 - **`@lmthing/ui/catalog`**: the component system as data. Tokens, presets, accents, components, domain packs, archetypes, surfaces, screen rules, the part address grammar, prompt entries and readers. TypeScript and Zod only, no React.
 - **`@lmthing/ui/kit`**: the Tamagui views for every catalog component, the screen layout, states, surfaces and signature motion.
 
-Each component is ONE file holding its data and its view. lmthing loads this repo as a git submodule at `packages/ui`. Nothing is built yet.
+Each component is ONE file holding its data and its view. lmthing loads this repo as a git submodule at `packages/ui`.
+
+The first proof slice implements List with calm, bold and editorial presets and moss/sky accents.
+Run `pnpm install`, `pnpm build:catalog`, `pnpm -r typecheck`, `pnpm -r test`, then `pnpm gallery`.
+The gallery is a standalone Vite + React Native Web host. Full U0–U2 tooling comes later.
 
 ## How to implement (for the agent that builds this)
 
