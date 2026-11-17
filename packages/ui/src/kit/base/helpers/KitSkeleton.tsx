@@ -18,13 +18,38 @@ export function KitSkeleton({
   rows = 1,
   lead = "dot",
   shape = "rows",
+  ring = "md",
 }: {
   rows?: number;
   lead?: "dot" | "box" | "none";
   /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
-  shape?: "rows" | "pairs" | "headline" | "media";
+  shape?: "rows" | "pairs" | "headline" | "media" | "ring";
+  /** `ring` only: the ring size, matching `KitRing scale`. */
+  ring?: "md" | "lg";
 }) {
   const ks = useKitStyle();
+  if (shape === "ring") {
+    const box = ring === "lg" ? component.base.ringLg : component.base.ringMd;
+    return (
+      <YStack
+        accessibilityLabel={loadingLabel}
+        aria-busy
+        alignItems="center"
+        gap={space.sm}
+        padding={space.md}
+      >
+        <YStack
+          width={box}
+          height={box}
+          borderRadius={radius.pill}
+          borderWidth={ring === "lg" ? space.md : space.sm + space.xs / 2}
+          borderColor="$line"
+        />
+        <Bar height={space.md} width="40%" />
+        <Bar height={space.sm + space.xs / 2} width="28%" />
+      </YStack>
+    );
+  }
   if (shape === "media") {
     return (
       <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={space.md}>
