@@ -85,8 +85,8 @@ export function Sparkline({ label, value, points, tone }: Props<typeof props, ty
   const state = useComponentState();
   if (state === "loading") {
     return (
-      <KitCard style="inset" padded part="root">
-        <KitSkeleton rows={1} lead="none" />
+      <KitCard style="inset" part="root">
+        <KitSkeleton rows={1} lead="none" shape="trend" />
       </KitCard>
     );
   }

@@ -1,4 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
+import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   components,
@@ -65,6 +69,42 @@ describe("Sparkline schema", () => {
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
+  });
+});
+
+const config = createTamagui({
+  tokens: createTokens(kitTokens),
+  fonts: kitFonts,
+  themes: kitThemes,
+  defaultFont: "humanist",
+});
+
+function renderSparkline(state: "filled" | "loading") {
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "c1",
+    rev: 1,
+    state,
+    children: createElement(renderers.Sparkline, props.parse(input)),
+  });
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+  );
+}
+
+describe("Sparkline rendering", () => {
+  it.each(["filled", "loading"] as const)("renders the %s state without duplicate parts", (state) => {
+    const html = renderSparkline(state);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(html).not.toMatch(/role="(?:link|button)"/);
+    if (state === "loading") {
+      expect(html.match(/aria-busy="true"/g)).toHaveLength(1);
+      expect(html).toContain('aria-label="Loading"');
+      expect(html).not.toContain(input.label);
+    }
+    for (const part of ["label", "value", "line"])
+      expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(state === "filled");
   });
 });
 
