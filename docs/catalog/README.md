@@ -67,7 +67,7 @@ Every action name below is new to the vocabulary in plan 4.12 (each is a minor c
 | `play`, `pause` | None | Media and paced loops: `Player`, `MiniPlayer`, `Breathe`, `Soundscape` |
 | `seek` | Seconds | `Player` |
 | `flip` | None | `Flashcard` |
-| `move` | A column label | data `Board` |
+| `move` | A column or table label | data `Board`, events `Seating` |
 | `send` | None | `Composer` (reply) |
 | `scan` | None | events `Door` (returns a code; tier `ok`) |
 

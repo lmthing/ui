@@ -209,6 +209,13 @@ repeated wrong pick. If both stay stable, keep both ids and close this section w
 Migrations under `catalog/migrations/` rewrite old lines; recordings of the old ids retire in the same
 commit.
 
+### Alias clean-up
+
+An alias has one owner and never equals another component's id. Two built aliases break that and change in
+step C1: `choices` is on both `Chips` and `SwipeStack` (it stays with `Chips`; `SwipeStack` takes `keepskip`),
+and `progress` on `Ring` equals the new `Progress` id (it moves off `Ring`). Pack aliases that shadow a core
+alias on purpose are listed in each pack file.
+
 ## 4. The full core
 
 ### Structure (4)
@@ -342,7 +349,8 @@ Two to four numbers as tiles or one inline row, each with a label, unit and an o
 A ring filling toward one goal with the amount written inside.
 - Pick: how far toward one main goal. Not several targets (`Progress`), not a sequence (`Steps`).
 - Writes: `value`, `of`, `label` text(24), `sub` text(48). · Styles: `md`, `lg`. · States: filled, loading.
-- Signature: `ring_fill`. · Aliases: progress, goal, completion.
+- Signature: `ring_fill`. · Aliases: goal, completion (**change:** `progress` moves off `Ring` when the
+  `Progress` component is built, since an alias may not equal another component's id).
 
 ### `Bars` · changed · data · phone · body · weight 2
 Two to seven columns comparing amounts across days or categories under a title, the largest in accent; or

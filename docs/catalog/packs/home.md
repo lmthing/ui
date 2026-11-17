@@ -127,7 +127,8 @@ turn it is to mist. Signature: `check_burst` when today's care is done.
 
 ## Aliases that shadow the core
 
-No alias here matches a core alias; the core alias `household` stays with `People`.
+With `home`: `agenda` → `Agenda` (otherwise `Timeline`; `Agenda`'s id equals that core alias on purpose).
+The core alias `household` stays with `People`.
 
 ## Tiers
 

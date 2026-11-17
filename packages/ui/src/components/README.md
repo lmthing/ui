@@ -13,3 +13,4 @@ Header SectionTitle Steps TabBar Hero Card List KeyValue Note Photo Gallery Prof
 - A component is done only when `pnpm llm:check --component <Id>` passes on every required model.
 - Entries, renderers, conformance tests and the gallery find new files automatically.
 - Built: U1 data of 6, U2 views, U3 drafts of the rest, U4 and U6 final.
+- Planned: 6 new, 2 merges and new options on 13: `docs/catalog/core.md` (steps C1 to C4).

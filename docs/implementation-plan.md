@@ -334,8 +334,8 @@ export function kitStyleOf(preset: PresetMeta): KitStyle;
 
 ### 4.4 Components, packs and archetypes
 
-- **Core:** the 40 components and 15 archetypes listed below. One file each (a component file holds its view too).
-- **Packs:** the ten packs listed below. Each pack folder holds `pack.ts`, its component files, its archetype files, and a worked example app.
+- **Core:** the 40 components and 15 archetypes listed below, as built. One file each (a component file holds its view too). The planned core of 44 components and 17 archetypes (six new, two merges, new options on thirteen) is in [catalog/core.md](catalog/core.md), which wins where the two differ.
+- **Packs:** the 18 packs in [catalog/packs/](catalog/packs/README.md), every component described there; the table under Domain packs below is the first proposal and is superseded. Each pack folder holds `pack.ts`, its component files, its archetype files, and a worked example app.
 - **Ids** are unique across core and packs. A pack component's id never equals a core alias, unless the core alias is meant to resolve to it when the pack is active (see 4.6).
 
 Component file template (one per component, under 200 lines like every file):
@@ -399,6 +399,8 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
 ```
 
 #### The 40 core components
+
+> The built 40. Planned changes (`Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player`, merges and new options) are in [catalog/core.md](catalog/core.md).
 
 Every app can use these. All are tier "phone" (lives on your phone) unless noted. Domain packs add more, under Domain packs below.
 
@@ -484,6 +486,8 @@ A recipe names required slots and what may fill them, such as `home/focus: Heade
 
 
 #### Domain packs
+
+> Superseded: the revised and new packs, with every component, archetype and worked example, are in [catalog/packs/](catalog/packs/README.md). The table below is the first proposal, kept for history.
 
 A general builder needs more than 40 components, but a cheap model chooses badly from 100 at once. So the core stays in every prompt, and each domain adds a pack of about 5 to 10 components and 2 to 4 archetypes. The Director picks up to 3 packs from a one-line-per-pack index and writes them in the brief. Every later call for that app (Writers, edits, Critic) sees the core plus those packs only. Packs follow every core rule: flat screens, the shared prop vocabulary, limits, parts, states, a tier and a `realPath` per component, and one renderer per id in the kit.
 

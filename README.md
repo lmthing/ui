@@ -28,12 +28,12 @@ Each component is ONE file holding its data and its view. lmthing loads this rep
 ## Exact structure
 
 ```text
-docs/                          implementation-plan.md, dependencies.md
+docs/                          implementation-plan.md, dependencies.md, catalog/ (core and pack plans)
 packages/ui/                   @lmthing/ui
   src/catalog/                 meta props types tokens themes(presets) archetypes rules address lookup
                                prompt agent registry migrations, icons.ts photos.ts signatures.ts version.ts
-  src/components/              one file per core component (40), PascalCase
-  src/packs/<pack>/            pack.ts example.jsonl components/ archetypes/   (10 packs)
+  src/components/              one file per core component (40 built, 44 planned), PascalCase
+  src/packs/<pack>/            pack.ts example.jsonl components/ archetypes/   (18 planned)
   src/surfaces/                LockScreen.tsx Widget.tsx Message.tsx
   src/kit/                     provider tamagui base(helpers) part archetypes signature screen report registry interact
   src/entry/                   generated: catalog.ts renderers.ts kit.ts

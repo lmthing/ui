@@ -45,11 +45,12 @@ with times, the reference code large, seat or room, and for passes a scannable c
   of goods (commerce `OrderSummary`).
 - Writes: `kind` (`flight`, `train`, `bus`, `ferry`, `stay`, `car`, `ticket`), `title` text(32), `from`
   text(20) optional, `to` text(20) optional, `start` date and HH:MM, `end` date and HH:MM optional, `ref`
-  text(12), `seat` text(12) optional, `code` boolean (show a scannable pass), `style`.
+  text(12), `seat` text(12) optional, `code` boolean (show a scannable pass), `style`. Live flight status
+  would be a `service` and waits for misses.
 - Styles: `card` (default), `pass` (full-width pass with the code, for the gate or the door).
 - Parts → actions: `ref press` (copies), `root press`. · States: filled, loading.
 - Real path: details typed in or pasted from a confirmation email on the device; live flight status would be
-  a `service`. · Kit: `KitTicket`. · Aliases: reservation, boardingpass, confirmation, ticketpass.
+  a `service`. · Kit: `KitTicket`. · Aliases: reservation, boardingpass, bookingref, ticketpass.
 
 ### `PackingList` · planned · input · phone
 What to pack, grouped by category (clothes, toiletries, documents, tech) or by person, with a count per
@@ -66,8 +67,9 @@ The forecast for the trip's place: today large with an icon and the high and low
 days, with rain chance in `warn` when high.
 - Pick: the weather where the person is going or is. Not numbers of their own (`Stats`), not a trend
   (`Stats` style `trend`).
-- Writes: `place` text(24). The forecast comes from a weather service; the model writes nothing else.
-- States: filled, loading. · Real path: a weather service. · Aliases: weather, forecast.
+- Writes: `place` text(24), `from` and `to` dates optional (the trip's days; beyond the forecast range it
+  shows typical weather for the month). The forecast comes from a weather service.
+- States: filled, loading, error and offline (drawn like core `Empty` kinds). · Real path: a weather service. · Aliases: weather, forecast.
 
 ### `TravelDocs` · planned · data · phone
 The documents for the trip: passport, visa, insurance, licence, vaccination; each with whose it is, its
@@ -85,8 +87,8 @@ Two amounts in two currencies, one above the other; typing in either updates the
 button and the rate's date.
 - Pick: converting money between the home and local currency. Not entering an expense (money `AmountPad`),
   not one sum (`Amount`).
-- Writes: `from` and `to` (currency codes from the catalog `currency` enum), `value` number optional. The
-  rate comes from a rates service.
+- Writes: `value` number optional. The two currencies are the brief's home currency and the trip's local
+  currency; the rate comes from a rates service.
 - Parts → actions: `from type`, `to type`, `swap press`. · States: filled, loading.
 - Real path: exchange rates from a rates service, cached on the device for offline use.
 - Aliases: converter, exchange, currencyconverter.
@@ -99,13 +101,14 @@ night there.
   Times and differences are computed.
 - States: filled. · Real path: the device's clock and time zone data. · Aliases: clocks, timezones, worldclock.
 
-## Archetypes (4)
+## Archetypes (5)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
+| `trips_all` | All my trips | `list` | Header, List[cards], Button |
 | `trip` | One trip at a glance | `overview` | Header, Timer[until], Weather, Itinerary, Button |
 | `day` | One day of the trip | `today` | Header[back], Timeline[day], MapPins, Reservation |
-| `bookings` | Confirmations and documents | `list`, `pass` | `list`: Header, Segmented, Reservation, TravelDocs · `pass`: Header[back], Reservation[pass], KeyValue |
+| `bookings` | Confirmations and documents | `list`, `docs`, `pass` | `list`: Header, Segmented (Bookings, Documents), List · `docs`: Header, Segmented, TravelDocs · `pass`: Header[back], Reservation[pass], KeyValue |
 | `prep` | Getting ready | `packing`, `tools` | `packing`: Header, Timer[until], PackingList · `tools`: Header, Converter, Clocks |
 
 ## Worked example: Wander
