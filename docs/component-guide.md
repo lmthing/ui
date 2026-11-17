@@ -88,7 +88,11 @@ report the conflict instead. A `choose` probe whose expected component is not bu
 ## Done means
 
 All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pnpm test`,
-`pnpm build:catalog`, `pnpm llm:check --component <Id>`. Then `pnpm shoot --component <Id>` and
-look at every PNG (one per preset and mode, every example and state): text never clipped or
-overflowing, nothing touching an edge, rows aligned, contrast readable, empty and loading look
-intentional in every preset. Fix and re-shoot until they do.
+`pnpm build:catalog`, `pnpm llm:check --component <Id>` (choose, write and read probes), and
+`pnpm look --component <Id>` prints `No issues.` The reading test (`test/reading.test.tsx`) proves
+the text a model reads matches the screen and that every offered action exists with the right role;
+a part that exists only for some prop values declares it in `actions.when`.
+
+Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
+`ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
+repeat until it answers `APPROVED` (at most 3 rounds). A person approves the final screenshots once.
