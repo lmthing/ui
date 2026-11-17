@@ -59,6 +59,18 @@ export function findIssues(): LookIssue[] {
     issues.push({ kind, frame, part: partOf(el).split("/").slice(2).join("/") || "root", detail });
   const label = (el: Element) => `"${(el.textContent ?? "").trim().slice(0, 24)}"`;
 
+  // The part of an element a person can see: its box cut by every ancestor that clips or scrolls
+  // sideways (a photo strip's last photo runs past the edge on purpose).
+  const visibleX = (el: Element, rect: DOMRect) => {
+    let [left, right] = [rect.left, rect.right];
+    for (let node = el.parentElement; node && !node.hasAttribute("data-look-frame"); node = node.parentElement) {
+      if (getComputedStyle(node).overflowX === "visible") continue;
+      const clip = node.getBoundingClientRect();
+      [left, right] = [Math.max(left, clip.left), Math.min(right, clip.right)];
+    }
+    return { left, right };
+  };
+
   for (const frameEl of Array.from(document.querySelectorAll("[data-look-frame]"))) {
     const frame = frameEl.getAttribute("data-look-frame")!;
     const box = frameEl.getBoundingClientRect();
@@ -67,7 +79,8 @@ export function findIssues(): LookIssue[] {
       const rect = el.getBoundingClientRect();
       if (!rect.width || !rect.height) continue;
       const style = getComputedStyle(el);
-      if (rect.left < box.left - 1 || rect.right > box.right + 1) {
+      const seen = visibleX(el, rect);
+      if (seen.right > seen.left && (seen.left < box.left - 1 || seen.right > box.right + 1)) {
         add(
           "outside",
           frame,
