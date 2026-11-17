@@ -1,6 +1,6 @@
 import type { AccentMeta, PresetMeta } from "../meta";
 
-const toneShare = { light: 0.12, dark: 0.22 } as const;
+const toneShare = { light: 0.12, dark: 0.13 } as const;
 const channel = (hex: string, at: number) => parseInt(hex.slice(at, at + 2), 16);
 
 function mix(tone: string, base: string, share: number): string {
