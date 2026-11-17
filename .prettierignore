@@ -6,3 +6,4 @@ pnpm-lock.yaml
 packages/ui/src/entry/*.ts
 packages/ui/test/recordings
 *.md
+packages/ui/src/kit/tamagui/themes.generated.ts

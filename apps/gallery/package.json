@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx ../../packages/ui/scripts/gallery.ts",
     "build": "tsx ../../packages/ui/scripts/gallery.ts --build",
-    "typecheck": "tsc -p tsconfig.json",
+    "typecheck": "pnpm --filter @lmthing/ui build:entries && tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
