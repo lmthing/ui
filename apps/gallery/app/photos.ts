@@ -18,5 +18,5 @@ function hash(text: string): number {
 export function resolvePhoto(ref: string): string {
   const [from, to] = palettes[hash(ref) % palettes.length]!;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs><rect width="160" height="90" fill="url(#g)"/><circle cx="118" cy="30" r="14" fill="#fff" fill-opacity=".35"/><path d="M0 90 L52 46 L86 72 L112 54 L160 90 Z" fill="#000" fill-opacity=".12"/></svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return `data:image/svg+xml;base64,${btoa(svg)}`;
 }

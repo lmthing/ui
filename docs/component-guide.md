@@ -58,6 +58,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | Base | Use | Key props |
 | --- | --- | --- |
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
+| `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, children |
 | `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
@@ -68,7 +69,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
-| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline |
+| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines) |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it

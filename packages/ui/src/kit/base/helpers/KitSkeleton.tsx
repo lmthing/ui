@@ -1,5 +1,5 @@
 import { XStack, YStack, styled } from "tamagui";
-import { loadingLabel, radius, size, space, type as typography } from "../../../catalog";
+import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 
 const Bar = styled(YStack, { backgroundColor: "$line", borderRadius: radius.sm });
@@ -22,9 +22,19 @@ export function KitSkeleton({
   rows?: number;
   lead?: "dot" | "box" | "none";
   /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
-  shape?: "rows" | "pairs" | "headline";
+  shape?: "rows" | "pairs" | "headline" | "media";
 }) {
   const ks = useKitStyle();
+  if (shape === "media") {
+    return (
+      <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={space.md}>
+        <Bar width="100%" aspectRatio={component.base.wideRatio} borderRadius={radius.lg} />
+        <Bar height={space.md} width="56%" />
+        <Bar height={space.sm + space.xs / 2} width="82%" />
+        <Bar height={space.sm + space.xs / 2} width="34%" />
+      </YStack>
+    );
+  }
   const first = shape === "headline" ? typography.display.lineHeight : typography.body.lineHeight;
   const bar = shape === "headline" ? typography.display.size * 0.7 : space.md;
   return (

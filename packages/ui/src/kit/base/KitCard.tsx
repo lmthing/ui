@@ -66,7 +66,7 @@ export function KitCard({
         cardStyle={style}
         borderRadius={shifted("md", ks.radiusShift)}
         padding={padded ? space.md : style === "inset" ? space.xs : component.base.none}
-        gap={style === "cards" ? space[ks.density.gap] : component.base.none}
+        gap={style === "cards" ? space[ks.density.gap] : padded ? space.sm : component.base.none}
         {...(clip ? { overflow: "hidden" as const } : {})}
         accessibilityRole={goto ? "link" : "list"}
         {...(label ? { accessibilityLabel: label } : {})}

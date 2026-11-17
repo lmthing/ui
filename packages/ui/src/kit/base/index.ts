@@ -1,4 +1,5 @@
 export { KitCard } from "./KitCard";
+export { KitContent } from "./KitContent";
 export { KitBlock } from "./KitBlock";
 export { KitRow } from "./KitRow";
 export { KitText, type TextRole, type TextTone } from "./KitText";

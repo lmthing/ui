@@ -55,7 +55,10 @@ export async function look(id: string, widths: number[]) {
         page.on("pageerror", (e) => errors.push(e.message));
         await page.goto(`${base}?c=${id}&w=${width}&mode=${mode}`, { waitUntil: "networkidle" });
         await page.waitForSelector("[data-look-frame]", { timeout: 15000 });
-        await page.evaluate(() => document.fonts.ready);
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await Promise.all(Array.from(document.images).map((img) => img.decode().catch(() => undefined)));
+        });
         await page.screenshot({ path: `${out}${width}-${mode}.png`, fullPage: true });
         const found = await page.evaluate(findIssues);
         if (width === 390) {
