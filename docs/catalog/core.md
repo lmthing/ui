@@ -11,7 +11,7 @@ and tier names: [README](README.md). Limits and aliases of built components are 
 | --- | --- | --- |
 | **New** (6) | `Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player` | Gaps found by at least three of the four research passes that no option on a built component can close |
 | **Merged** (2) | `Sparkline` → `Stats` style `trend`; `DayTimeline` → `Timeline` style `hours` | Near neighbours a model may confuse; each is a different drawing of the same data. Gated by evidence (section 3) |
-| **Changed** (12) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Stats`, `Timeline` | Shelves, accordions, carousels, badges, toasts, ratings, countdowns, repeats, avatar stacks and confirmations become options, so the model has no new ids to tell apart |
+| **Changed** (12) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Stats`, `Timeline` | Shelves, accordions, leaderboards, carousels, badges, toasts, ratings, countdowns, repeats, avatar stacks and confirmations become options, so the model has no new ids to tell apart |
 | **Kept** (26) | Everything else (`TabBar` gains count badges from code only) | Already covers its need with a clear `pick` |
 
 **Sections and groups.** The headings in section 4 follow the plan's table (4.4): structure 4, content 11,
@@ -49,6 +49,7 @@ data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each 
 | Accordion, FAQ | `List` style `expand` |
 | Carousel | `List` style `shelf` (cards with titles), `Gallery` style `carousel` (photos) |
 | Rating display | `Scale` style `stars` with `readonly` |
+| Leaderboard | `List` style `ranked`: four packs need it, so it is a core option, not a pack component |
 | Overflow menu | `Sheet` style `menu`, opened from the `Header` action |
 | Countdown to a date | `Timer` style `until` |
 | Repeat or reminder picker | `Field` kind `repeat` |
@@ -262,12 +263,16 @@ or badge), each tappable.
 - Pick: several things of one kind to scan and tap. Not one featured thing (`Card`), facts about one thing
   (`KeyValue`), jobs to tick off (`Checklist`).
 - Writes: `rows` of `title` text(28), `meta` text(36), `icon`, `photo`, `trail`, `value` text(10), `goto`,
-  1–6; **new** `body` text(200) per row, in style `expand` only.
+  1–6; **new** `body` text(200) per row, in style `expand` only; **new** `me` boolean per row, in style
+  `ranked` only (at most one).
 - Styles: `plain`, `inset`, `cards`, **new** `shelf` (a sideways rail of 2–6 photo cards with the next one
   peeking, named by a `SectionTitle` above it: "Popular", "Continue", "Near you"), **new** `expand` (each row
-  opens in place to show its `body`: FAQs, instructions).
+  opens in place to show its `body`: FAQs, instructions), **new** `ranked` (rows numbered 1 to n in order,
+  the top three marked, the `me` row tinted, `value` as the score: leaderboards for social, learning, health
+  and sports).
 - Parts → actions: items `root press` (`root toggle` in `expand`), `trail toggle`.
-- States: filled, empty, loading. · Aliases: listview, table, rows, items, **new** shelf, rail, accordion, faq.
+- States: filled, empty, loading. · Aliases: listview, table, rows, items, **new** shelf, rail, accordion, faq,
+  leaderboard, ranking.
 
 ### `KeyValue` · built · content · phone · body · weight 2
 Labelled facts about one thing in rows or a two-column grid.
@@ -547,7 +552,7 @@ Fifteen built archetypes stay. Three change their recipe, two are new (17 in all
 
 | Step | Builds | Gate |
 | --- | --- | --- |
-| C1, options (1 week) | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf and expand, `Card` badge, `Success` toast, `Empty` kinds | Each changed component re-passes `pnpm llm:check --component <Id>` with probes for the new option; examples cover every new value |
+| C1, options (1 week) | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf, expand and ranked, `Card` badge, `Success` toast, `Empty` kinds | Each changed component re-passes `pnpm llm:check --component <Id>` with probes for the new option; examples cover every new value |
 | C2, simple new (1.5 weeks) | `Progress`, `Amount`, `Choice`, `Composer` with `KitProgressBar`, `moneyLine`, `currency`, `KitOption`, `KitTextArea`, `meta.partTiers` | Gate per component; near-miss probes against `Ring`, `Stats`, `Chips`, `Field` pass |
 | C3, overlays and media (1.5 weeks) | `Sheet` with the `overlay` region and `dismiss`, `goto: sheet`, `Button` confirm; `Player` with the `media` helper, the host media adapter and `play`, `pause`, `seek` | Agent end-to-end: open, pick and dismiss a sheet, and confirm a danger button, through `window.__lmthingUI.act`; play and seek a fixture recording |
 | C4, merges (0.5 week) | `Sparkline` and `DayTimeline` folded, with `meta.weightByStyle` and per-style limits, if section 3's evidence says so | Migrations rewrite every fixture; no recording refers to the old ids |
