@@ -13,6 +13,8 @@ export const component = {
     ringMd: 120,
     ringLg: 168,
     timeWidth: 64,
+    barsHeight: 120,
+    sparkHeight: 48,
     emptyMinHeight: 280,
   },
   Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },

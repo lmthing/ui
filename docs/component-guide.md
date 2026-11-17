@@ -49,7 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
      a part carries `part="<name>"` from `meta.parts` / `meta.items.parts`; each item is wrapped by a
      base taking `item={row.id}`.
    - States: `const state = useComponentState()`. `loading` → `<KitSkeleton rows={n} />` in the
-     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"). A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
+     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
@@ -58,6 +58,9 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | Base | Use | Key props |
 | --- | --- | --- |
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
+| `KitScaleTrack` | Five equal 44px radio targets, parts `l1`..`l5`: stars/dots fill to `value`, mood shows five faces with the chosen one in accent | `style` mood/stars/dots, `value` 0..5, `labels` (five) |
+| `KitBars` | Columns for amounts, scaled to the largest; the largest (or `highlight`) in accent; label under each; each point an item | `points` ({id,label,value}), `highlight` |
+| `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
 | `KitInput` | A one-line text box (role textbox, or searchbox for `kind="search"`), optional leading icon, hint as placeholder; the box is the part `type` acts on | `hint`, `value`, `kind` text/search, `icon`, `part` (default `field`), `label` |
@@ -77,7 +80,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
-| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines) |
+| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg) |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
@@ -105,7 +108,7 @@ All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pn
 `pnpm build:catalog`, `pnpm llm:check --component <Id>` (choose, write and read probes), and
 `pnpm look --component <Id>` prints `No issues.` The reading test (`test/reading.test.tsx`) proves
 the text a model reads matches the screen and that every offered action exists with the right role;
-a part that exists only for some prop values declares it in `actions.when`.
+a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`).
 
 Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and

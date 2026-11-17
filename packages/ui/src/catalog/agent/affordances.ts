@@ -17,10 +17,17 @@ function detailOf(action: string, holder: Props): string {
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
 
+/** A rule matches when every key equals its value, read from the item first, then the component. */
+function matches(rule: Record<string, string | boolean> | undefined, holder: Props, outer: Props): boolean {
+  return (
+    !rule ||
+    Object.entries(rule).every(([key, value]) => (key in holder ? holder[key] : outer[key]) === value)
+  );
+}
+
 /** A part exists when its `when` matches and, if named like an optional prop, that prop is set. */
-function present(part: string, holder: Props, when: When): boolean {
-  const rule = when?.[part];
-  if (rule && Object.entries(rule).some(([key, value]) => holder[key] !== value)) return false;
+function present(part: string, holder: Props, when: When, outer: Props): boolean {
+  if (!matches(when?.[part], holder, outer)) return false;
   return !(part in holder) || holder[part] !== undefined;
 }
 
@@ -29,19 +36,22 @@ function partsOf(
   holder: Props,
   base: string,
   when: When,
+  outer: Props,
 ) {
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    present(part, holder, when)
-      ? actions.map((action) => {
-          const target = (holder[part] as Props | undefined) ?? holder;
-          const nested = typeof target === "object" && target !== holder ? target : holder;
-          return {
-            address: part === "root" ? base : `${base}/${part}`,
-            part,
-            action,
-            detail: detailOf(action, nested),
-          };
-        })
+    present(part, holder, when, outer)
+      ? actions
+          .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
+          .map((action) => {
+            const target = (holder[part] as Props | undefined) ?? holder;
+            const nested = typeof target === "object" && target !== holder ? target : holder;
+            return {
+              address: part === "root" ? base : `${base}/${part}`,
+              part,
+              action,
+              detail: detailOf(action, nested),
+            };
+          })
       : [],
   );
 }
@@ -52,7 +62,7 @@ function partsOf(
  */
 export function affordancesOf(meta: Meta, props: Props, instance: string): Affordance[] {
   const when = meta.actions?.when as When;
-  const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when);
+  const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   const itemActions = items.flatMap((item) =>
@@ -61,6 +71,7 @@ export function affordancesOf(meta: Meta, props: Props, instance: string): Affor
       item,
       `${instance}/${String(item.id)}`,
       when,
+      props,
     ),
   );
   return [...own, ...itemActions];

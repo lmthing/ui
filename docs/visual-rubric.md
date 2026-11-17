@@ -19,7 +19,9 @@ reviewer judges what they cannot.
 ## Alignment and spacing
 
 4. Every text in a component starts on one of at most two left edges (content edge, and after a
-   leading icon). Icons centre on the first line of their text.
+   leading icon). Icons centre on the first line of their text; a thumbnail taller than a line
+   centres on its whole text. A centred layout (Empty, Success, Ring, a centred Profile) instead
+   shares one centre axis for all its text and drawing.
 5. Spacing follows the 4px scale and repeats: equal things have equal gaps; gaps between groups are
    larger than gaps inside a group.
 6. Nothing touches a card or screen edge: at least 12px inside cards, the screen gutter outside.
