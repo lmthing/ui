@@ -55,7 +55,7 @@ export const probes = [
 
 export function Search({ hint }: Props<typeof props, typeof meta>) {
   return (
-    <KitBlock label={hint}>
+    <KitBlock label={hint} inset="none">
       <KitInput kind="search" hint={hint} part="field" />
     </KitBlock>
   );

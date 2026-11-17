@@ -8,6 +8,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../test/render";
+import { Search } from "./Search";
 
 const { props, meta, examples, fallback, probes } = components.Search;
 
@@ -121,6 +122,12 @@ describe("Search fallback and metadata", () => {
 });
 
 describe("Search view", () => {
+  it("keeps the surface-free root flush with the screen gutter", () => {
+    expect(Search({ hint: "Search records" }).props).toMatchObject({
+      label: "Search records",
+      inset: "none",
+    });
+  });
   it.each([...examples, { hint: "a".repeat(40) }])(
     "offers type only on the rendered search field",
     (input) => {
