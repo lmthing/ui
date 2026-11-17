@@ -1,4 +1,6 @@
 export { KitCard } from "./KitCard";
+export { KitDay, KitDayMark } from "./KitDay";
+export { KitWeekGrid, KitWeekStrip } from "./KitWeek";
 export { KitScaleTrack } from "./KitScaleTrack";
 export { KitBars } from "./KitBars";
 export { KitSpark } from "./KitSpark";

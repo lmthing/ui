@@ -40,6 +40,7 @@ describe("Stats schema", () => {
     { tiles: [{ ...tile, value: 12 }, tile] },
     { tiles: [{ ...tile, unit: "" }, tile] },
     { tiles: [{ ...tile, unit: "a".repeat(9) }, tile] },
+    { tiles: [{ ...tile, unit: "this week" }, tile] },
     { tiles: [{ ...tile, trend: "rising" }, tile] },
     { tiles: [{ ...tile, pixels: 4 }, tile] },
     { tiles: [{ ...tile, id: "r1" }, tile] },

@@ -30,7 +30,7 @@ export const meta = {
   id: "List",
   group: "content",
   purpose: "Several things of the same kind, each one tappable.",
-  pick: "Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).",
+  pick: "Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).",
   region: "body",
   weight: 2,
   tier: "phone",

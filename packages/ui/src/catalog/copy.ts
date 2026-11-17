@@ -38,3 +38,28 @@ export function trendWord(points: readonly number[]): "rising" | "falling" | "st
 
 /** Accessible names for the two buttons of a counter. */
 export const stepLabels = { less: "One less", more: "One more" } as const;
+
+/** A duration as a clock: "4:05", "21:00", "1:02:03". */
+export function clockLine(seconds: number): string {
+  const s = Math.max(0, Math.floor(seconds));
+  const [h, m, r] = [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60];
+  const two = (n: number) => String(n).padStart(2, "0");
+  return h > 0 ? `${h}:${two(m)}:${two(r)}` : `${m}:${two(r)}`;
+}
+
+/** Weekday initials, Monday first. */
+export const weekdayInitials = ["M", "T", "W", "T", "F", "S", "S"] as const;
+
+/** The two buttons of a timer. */
+export const timerLabels = { start: "Start", stop: "Stop" } as const;
+
+const weekdayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
+
+/** A streak as read text: ["12 days", "done Mon, Tue, Wed"] (or "none done this week"). */
+export function streakLine(count: number, days: readonly boolean[]): string[] {
+  const done = weekdayNames.filter((_, index) => days[index]).map((name) => name.slice(0, 3));
+  return [
+    `${count} ${count === 1 ? "day" : "days"}`,
+    done.length ? `done ${done.join(", ")}` : "none done this week",
+  ];
+}

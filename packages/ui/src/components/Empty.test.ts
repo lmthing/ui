@@ -115,6 +115,7 @@ describe("Empty metadata and probes", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Hero");
+    expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Note");
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();

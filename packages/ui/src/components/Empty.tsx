@@ -17,7 +17,7 @@ export const meta = {
   id: "Empty",
   group: "content",
   purpose: "A calm message on a screen that has no content yet.",
-  pick: "A screen with nothing yet, explaining the absence of content. Not a main message about existing content (Hero) or a supporting sentence (Note).",
+  pick: "Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).",
   region: "body",
   weight: 2,
   tier: "phone",

@@ -111,7 +111,8 @@ export function findIssues(): LookIssue[] {
       if (
         role &&
         ["button", "link", "checkbox", "switch", "tab"].includes(role) &&
-        (rect.height < 43.5 || rect.width < 43.5)
+        // A calendar day (data-dense) may be 40px wide so a week fits a 320px phone; it stays 44px tall.
+        (rect.height < 43.5 || rect.width < (el.hasAttribute("data-dense") ? 39.5 : 43.5))
       ) {
         add(
           "target",

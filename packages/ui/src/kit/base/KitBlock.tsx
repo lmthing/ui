@@ -12,7 +12,7 @@ export function KitBlock(props: {
   leading?: ReactNode;
   trailing?: ReactNode;
   goto?: string | undefined;
-  lineRole?: "body" | "heading" | "title" | "display";
+  lineRole?: "body" | "heading" | "title" | "display" | "number";
   /** Draws the block as a tinted panel in this tone (a banner). Without it the block has no surface. */
   tone?: SurfaceTone;
   /** `row` centres a thumbnail or avatar taller than a line on the whole text (default `line`). */

@@ -14,6 +14,7 @@ export const component = {
     ringLg: 168,
     timeWidth: 64,
     barsHeight: 120,
+    dayMinWidth: 40,
     sparkHeight: 48,
     emptyMinHeight: 280,
   },
