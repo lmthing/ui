@@ -63,7 +63,7 @@ export const examples = [
   {
     style: "filter",
     items: [
-      { label: "All rooms", on: true, icon: "leaf" },
+      { label: "All rooms", on: true },
       { label: "Bathroom" },
       { label: "Kitchen" },
       { label: "Living room" },
