@@ -17,7 +17,7 @@ import { KitBars, KitCard, KitEmpty, KitGrid, KitSkeleton, KitText, useComponent
 export const meta = {
   id: "Bars",
   group: "data",
-  purpose: "Compare amounts across days or categories.",
+  purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
   pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats) or a trend with its latest value (Sparkline).",
   region: "body",
   weight: 2,
@@ -107,7 +107,7 @@ export const probes = [
   },
   {
     kind: "write",
-    brief: "Show this week's walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1",
+    brief: "Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1",
     expect: "Bars",
   },
 ] satisfies Probe[];
