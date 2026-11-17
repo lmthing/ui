@@ -67,6 +67,9 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitMapTile` | A stylised map: soft streets and numbered accent pins 1..count at stable spots; decorative, part `map` | `count` (1..5), `part` |
+| `KitViewfinder` | A dark rounded camera frame (photo grid or scan corners) with the hint over its bottom edge | `kind` photo/scan, `hint`, `part` (default `viewfinder`), `hintPart` (default `hint`) |
+| `KitShutter` | A large round centred shutter button (role button) | `label`, `part` (default `shutter`) |
 | `KitRouteStop` | One stop on a route with `KitRow` insets: start ring, dot, end pin on the first line, joined by a vertical connector; static item | `item`, `label`, `position` start/middle/end, children |
 | `KitSwipeStack` | A stack: the first card fully on a surface (item root, role button, the swiped one), the next two peeking behind, hidden from reading | `cards` ({id,label,children}) |
 | `KitBubble` | One chat message: `me` right on accent, `them` left on raised, wraps at 80% width; `grouped` sits closer; one item | `item`, `from`, `text`, `grouped` |
@@ -85,7 +88,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part`, `decorative` (no address; chevrons only) |
 | `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, centred, for a profile), `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
-| `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part`, `title`/`sub` (standalone), `fill` (full-height, centred), `tone` accent/good (badge colour) |
+| `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part`, `title`/`sub` (standalone), `fill` (full-height, centred), `tone` accent/good (badge colour), `decorativeIcon` (no `icon` address) |
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |

@@ -24,6 +24,7 @@ export function KitEmpty({
   sub,
   fill = false,
   tone = "accent",
+  decorativeIcon = false,
 }: {
   icon?: IconName;
   part?: string;
@@ -34,6 +35,8 @@ export function KitEmpty({
   fill?: boolean;
   /** The badge colour: `accent` (default, calm) or `good` (a success moment). */
   tone?: "accent" | "good";
+  /** Draw the icon without an address (when the component declares no `icon` part). */
+  decorativeIcon?: boolean;
 }) {
   const { thing } = usePartContext();
   return (
@@ -45,7 +48,7 @@ export function KitEmpty({
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
       <Badge backgroundColor={tone === "good" ? "$goodSoft" : "$accentSoft"}>
-        <KitIcon name={icon} tone={tone} scale="lg" part="icon" />
+        <KitIcon name={icon} tone={tone} scale="lg" part="icon" decorative={decorativeIcon} />
       </Badge>
       <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
         {title ?? emptyLine(thing)}
