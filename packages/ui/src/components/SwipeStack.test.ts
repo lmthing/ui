@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -41,6 +42,7 @@ describe("SwipeStack schema", () => {
     { cards: [{ title: "Fern", root: true }, card] },
     { cards: [{ title: "Fern", $first: true }, card] },
     { cards: pair, style: "grid" },
+    { cards: pair, visible: "first" },
     { cards: pair, color: "#fff" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact limits, both photo forms and the minimum count", () => {
@@ -59,6 +61,28 @@ describe("SwipeStack schema", () => {
 });
 
 describe("SwipeStack fallback and metadata", () => {
+  it.each([2, 3, 4, 5, 6])("reads only the first of %i cards and counts the rest", (count) => {
+    const cards = Array.from({ length: count }, (_, index) => ({
+      title: `Choice ${index}`,
+      photo: "lib:plants",
+      meta: `Detail ${index}`,
+    }));
+    expect(readComponent(components.SwipeStack, { cards }, "s1")).toEqual([
+      "s1 SwipeStack",
+      '  r1 "Choice 0" · photo:plants · "Detail 0" [s1/r1 swipe]',
+      `  +${count - 1} more`,
+    ]);
+  });
+  it("reads the new top card after a reorder and no cards when empty", () => {
+    expect(readComponent(components.SwipeStack, { cards: [...pair].reverse() }, "s1")).toEqual([
+      "s1 SwipeStack",
+      '  r1 "Basil" [s1/r1 swipe]',
+      "  +1 more",
+    ]);
+    expect(readComponent(components.SwipeStack, { cards: pair }, "s1", "empty")).toEqual([
+      "s1 SwipeStack (empty)",
+    ]);
+  });
   it.each([2, 3, 6])("offers swipe only on the first of %i cards", (count) => {
     const cards = Array.from({ length: count }, (_, index) => ({ title: `Choice ${index}` }));
     const value = stampItemIds(meta, props.parse({ cards }));
@@ -121,7 +145,7 @@ describe("SwipeStack fallback and metadata", () => {
       region: "body",
       weight: 3,
       tier: "phone",
-      items: { key: "cards", parts: ["root", "photo", "title"] },
+      items: { key: "cards", parts: ["root", "photo", "title"], visible: "first" },
       parts: ["root"],
       states: ["filled", "empty"],
       actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },

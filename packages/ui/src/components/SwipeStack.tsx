@@ -18,12 +18,12 @@ export const meta = {
   id: "SwipeStack",
   group: "content",
   purpose: "Choose between things one at a time, swiping the current one to keep or skip.",
-  pick: "Choices presented one at a time, with the next choices peeking behind; swipe the current one to keep or skip it. Not several pictures to browse together (Gallery) or one featured preview to open (Card).",
+  pick: "Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).",
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "An ordered set of on-device records with a keep or skip decision stored for each.",
-  items: { key: "cards", parts: ["root", "photo", "title"] },
+  items: { key: "cards", parts: ["root", "photo", "title"], visible: "first" },
   parts: ["root"],
   states: ["filled", "empty"],
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
@@ -101,7 +101,7 @@ export function SwipeStack({ cards }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   if (state === "empty") {
     return (
-      <KitCard style="plain" part="root">
+      <KitCard style="inset" part="root">
         <KitEmpty part="title" />
       </KitCard>
     );
