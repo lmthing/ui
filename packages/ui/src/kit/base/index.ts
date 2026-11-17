@@ -6,6 +6,7 @@ export { KitBars } from "./KitBars";
 export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";
 export { KitRing } from "./KitRing";
+export { KitSlider } from "./KitSlider";
 export { KitInput } from "./KitInput";
 export { KitStrip } from "./KitStrip";
 export { KitStepsTrack } from "./KitStepsTrack";

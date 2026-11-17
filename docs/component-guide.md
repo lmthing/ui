@@ -49,7 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
      a part carries `part="<name>"` from `meta.parts` / `meta.items.parts`; each item is wrapped by a
      base taking `item={row.id}`.
    - States: `const state = useComponentState()`. `loading` → `<KitSkeleton rows={n} />` in the
-     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
+     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines), `photoLabels` (add, take, scan). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
@@ -67,6 +67,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitSlider` | A themed slider in a 44px touch area (role slider, its value); the part `set` acts on | `value`, `label`, `min`/`max` (default 0..10), `part` (default `field`) |
 | `KitInput` | A one-line text box (role textbox, or searchbox for `kind="search"`), optional leading icon, hint as placeholder; the box is the part `type` acts on | `hint`, `value`, `kind` text/search, `icon`, `part` (default `field`), `label` |
 | `KitStrip` | A sideways-scrolling strip; each child cell about 40% wide so the next peeks in; no scrollbar | children |
 | `KitStepsTrack` | The drawn track of a step sequence (dots, bar, numbered); decorative, hidden from reading | `style`, `count`, `at`, `part` |
