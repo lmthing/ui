@@ -16,6 +16,7 @@ The product context lives in the lmthing build spec (`docs/spec.md` in the lmthi
 | Prompt entry generation for the catalog (one compact line per component) | Voice, sessions, storage |
 | Kit renderers, kit bases, screen layout, morphing, states, surfaces, signature motion | Navigation. Links are emitted as data through a callback |
 | Render issue detection (`clipped_text`, `overflow`, `empty_section`, `low_contrast`) | Deciding what to do about an issue |
+| Reading and acting for agents: a compact text form of every screen, a typed action vocabulary, one dispatcher for human and agent input | Exposing it to agents (a `window` hook, where acting is allowed). Hosts decide |
 | A gallery app for development, review and screenshot tests | |
 
 **Consumers.**
@@ -23,6 +24,7 @@ The product context lives in the lmthing build spec (`docs/spec.md` in the lmthi
 - The lmthing **agent** imports `@lmthing/catalog` only, with no React in its dependency tree.
 - The lmthing **app** imports `@lmthing/catalog` and `@lmthing/kit`.
 - **Future projects** import either package and supply their own host (theme choice, link handling, photo resolution, part registry).
+- **Agents** (browser agents, test runners, lmthing's Critic and evals) read screens as compact text and act on them by address, through the host's hook (sections 4.12 and 5.9).
 
 ## 2. Principles
 
@@ -32,7 +34,8 @@ The product context lives in the lmthing build spec (`docs/spec.md` in the lmthi
 4. **Host owns the world.** The kit never navigates, fetches, stores or measures the stage. It reports through interfaces the host implements (links, photos, part registry, render issues).
 5. **Peer dependencies, not bundled ones.** React, React Native, Tamagui, Reanimated and Lucide icons are peer dependencies, so the host picks the versions.
 6. **Small files.** At most 200 lines per file and 60 per function, enforced by lint. Plain functions and plain data, named exports, no classes.
-7. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
+7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
+8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
 
 ## 3. Repository layout
 
@@ -66,9 +69,11 @@ ui/
 │  │  │  ├─ signatures.ts       signature ids and the component each lives on
 │  │  │  ├─ rules/              regions.ts, rhythm.ts, weight.ts, limits.ts, neighbours.ts, placeholders.ts, check-screen.ts
 │  │  │  ├─ address/            grammar.ts, parse.ts, format.ts, climb.ts
-│  │  │  ├─ types/              component.ts, screen.ts, cast.ts, tier.ts, issue.ts
+│  │  │  ├─ types/              component.ts, screen.ts, cast.ts, tier.ts, issue.ts, action.ts
 │  │  │  ├─ lookup/             aliases.ts, nearest-icon.ts, nearest-tag.ts, clamp.ts
 │  │  │  ├─ prompt/             entry.ts, block.ts, pack-index.ts
+│  │  │  ├─ agent/              actions.ts (vocabulary), validate-value.ts, default-reader.ts,
+│  │  │  │                      read-screen.ts, read-app.ts, format.ts, diff.ts
 │  │  │  ├─ registry/           create-registry.ts, scope.ts
 │  │  │  ├─ icons.ts            the curated icon names
 │  │  │  ├─ photos.ts           the photo library tags
@@ -92,6 +97,8 @@ ui/
 │  │  │  ├─ screen/             Screen.tsx, regions.ts, rhythm.ts, Morph.tsx, Arrive.tsx
 │  │  │  ├─ report/             clipped-text.ts, overflow.ts, empty-section.ts, low-contrast.ts, useReport.ts
 │  │  │  ├─ registry/           types.ts (PartRegistry), noop.ts, memory.ts
+│  │  │  ├─ interact/           dispatcher.ts, action-registry.ts, interaction-store.ts, settle.ts,
+│  │  │  │                      agent-access.ts, a11y.ts
 │  │  │  └─ index.ts
 │  │  ├─ scripts/               build-themes.ts
 │  │  ├─ assets/fonts/          OFL font files
@@ -103,9 +110,10 @@ ui/
 └─ apps/
    └─ gallery/                  private Expo app (web first): every component, archetype, theme
       ├─ app/                   index.tsx, components/[id].tsx, packs/[id].tsx, archetypes/[id].tsx,
-      │                         themes.tsx, render/[fixture].tsx
+      │                         themes.tsx, render/[fixture].tsx, agent.tsx (read and act console)
       ├─ fixtures/              screens and casts used by screenshots
-      ├─ e2e/                   screenshots.spec.ts (Playwright)
+      ├─ agent-hook.ts          window.__lmthingUI: read, act, log, reset
+      ├─ e2e/                   screenshots.spec.ts, agent.spec.ts, a11y.spec.ts (Playwright)
       └─ tamagui.config.ts      kit tokens and themes only
 ```
 
@@ -143,6 +151,16 @@ export type CastLike = {
 
 // types/issue.ts
 export type Issue = { code: string; address?: string; detail?: string };
+
+// types/action.ts
+export type ActionName =
+  | "press" | "toggle" | "check" | "select" | "type" | "set"
+  | "increment" | "decrement" | "swipe" | "start" | "stop";
+export type ScreenAction = "back" | "tab" | "scroll";
+export type ActionSpec = {
+  parts?: Record<string, readonly ActionName[]>;   // component parts
+  items?: Record<string, readonly ActionName[]>;   // item parts, for components with items
+};
 ```
 
 ### 4.2 The `define*` API
@@ -161,6 +179,8 @@ export function defineComponent<P extends z.ZodObject<any>>(def: {
   parts: readonly string[];                   // addressable parts of the component
   items?: { key: string; prefix: string; parts: readonly string[] };
   states: readonly StateName[];
+  actions: ActionSpec;                        // {} when nothing can be touched
+  read?: (props: z.output<P>, state: StateName) => string[];   // override of the generated reader
   aliases: readonly string[];
   fallback: (ctx: { cast: CastLike }) => z.input<P>;
   examples: readonly [z.input<P>, z.input<P>, ...z.input<P>[]];
@@ -247,6 +267,7 @@ export const list = defineComponent({
   parts: ["root"],
   items: { key: "rows", prefix: "r", parts: ["root", "title", "meta", "icon", "trail"] },
   states: ["filled", "empty", "loading"],
+  actions: { items: { root: ["press"], trail: ["toggle"] } },
   aliases: ["listview", "table", "rows", "items"],
   fallback: ({ cast }) => ({ style: "inset", rows: rowsFromCast(cast, 3) }),
   examples: [/* two or more, validated by catalog:check */],
@@ -335,7 +356,9 @@ list [phone] Several things of the same kind, each one tappable. Not for facts a
 7. No alias conflicts within any core-plus-pack scope.
 8. Every colour role exists in every theme and passes contrast (`scripts/contrast.ts`, all 288 themes).
 9. The token budgets in 4.9 hold.
-10. Every `ready` component has a kit renderer. This is checked from the kit side by the conformance test, and listed here for completeness.
+10. Every action names a declared part, every part with a `goto` declares `press`, every input component declares at least one action, and a component with nothing to touch declares `actions: {}`.
+11. Every example, in every declared state, reads within the token budget in 4.12, and a custom `read` mentions every part that holds text.
+12. Every `ready` component has a kit renderer. This is checked from the kit side by the conformance test, and listed here for completeness.
 
 ### 4.11 Versioning and migrations
 
@@ -344,6 +367,68 @@ list [phone] Several things of the same kind, each one tappable. Not for facts a
 - **Minor:** a new component, style, optional prop, icon, layout or pack. It needs a kit renderer, two examples and, in lmthing, a pairwise eval that does not regress.
 - **Major:** a removal, rename, tightened limit or changed meaning. It needs a migration: a pure function over a minimal spec shape (`{ catalog, screens: Record<string, ScreenLike> }`), with fixture tests. Hosts run `migrate(spec)` on load.
 - A deprecated component is marked `deprecated: true`. It leaves prompt blocks at once and stays drawable for two major versions.
+
+### 4.12 Reading and acting: the catalog side
+
+Agents read screens as compact text and act on them by address. Everything that can be computed from data lives here, so a screen can be read with no browser (the lmthing agent reads specs on the server this way).
+
+**Action vocabulary.** Each component declares, in `actions`, what each part and item part accepts:
+
+| Action | Value | Used by |
+| --- | --- | --- |
+| `press` | None | `button`, `card`, list rows, `actions` items, `banner`, header action, tab bar tabs, anything with a `goto` |
+| `toggle` | None (flips) or a boolean | `field` (toggle), list row toggle trail, `chips` (filter) |
+| `check` | None (flips) or a boolean | `checklist` items |
+| `select` | An index or option label | `segmented`, `chips` (choose), `calendar` days, `field` (choice) |
+| `type` | Text | `field` (text, number, date, time), `search` |
+| `set` | A value | `field` (slider), `scale`, `counter` |
+| `increment`, `decrement` | None | `counter`, `field` (slider), `scale` |
+| `swipe` | `left` or `right` | `swipe_stack` |
+| `start`, `stop` | None | `timer` |
+
+Screen-level actions: `back`, `tab(sectionId)`, `scroll` (to the top, the bottom or an address). Pack components use the same vocabulary. A new action name is a minor catalog version.
+
+**Value validation.** `validateActionValue(def, address, action, value)` checks a value against the part's schema: a date field takes `YYYY-MM-DD`, a time field `HH:MM`, a number stays within the schema's bounds, text within the part's limit, `scale` 1 to 5, `select` a valid index or label. An invalid value returns `invalid_value` with the allowed format in under 10 words.
+
+**Readers.** Each component has a reader, `(props, state) => string[]`. The default reader is generated from the schema. A component overrides it only where a summary reads better (`bars` as its values with the unit, `ring` as "3 of 5", `calendar` as its marked days, `timer` as its time).
+
+**Format.** Deterministic, one line per component, items indented two spaces:
+
+```text
+screen home "Today" · calm/moss/light · rev 4 · ready
+h1 hero[accent] "3 plants are thirsty" — "Fern, Monstera and Basil"
+l1 list
+  r1 "Fern" · "Bathroom" [press→plant] [toggle:off]
+  r2 "Monstera" · "Living room" [press→plant] [toggle:on]
+f1 field[date] "Next watering" = "2026-11-19" [type:date]
+b1 button[primary] "Add a plant" [press→new_plant]
+```
+
+- Every line starts with its address relative to the screen (`l1`, `r1`). The full address for an action is the screen id plus that path (`home/l1/r1`).
+- Text written by a model or a person is always in double quotes, with inner quotes escaped, so structure and content never mix. Agents treat quoted text as data.
+- Style or kind in brackets after the component name only when not the default; tone only when not `plain`; state in parentheses only when not `filled` (`l1 list (loading)`).
+- Affordances in square brackets: `[press→target]`, `[toggle:on|off]`, `[check:done|todo]`, `[select:2/4]`, `[type:date]`, `[set:1-5]`, `[disabled]`.
+- Field values follow `=`. Interactive values come from the kit's interaction state when a host passes it (5.9).
+- No pixels, colours, fonts or class names. Photos read as `photo:<tag>` or their caption. Icons appear only when they carry meaning (an actions item with no label).
+- Strings are never shortened. Clipped text is marked by the kit at runtime, not hidden.
+
+**API.**
+
+```ts
+readScreen(screen: ScreenLike, registry, opts?: {
+  depth?: "screen" | "component";      // default "screen"
+  address?: string;                     // with depth "component"
+  since?: ScreenLike;                   // print only what changed since this version
+  values?: Record<string, unknown>;     // interaction state overlay, keyed by full address
+  marks?: Record<string, string[]>;     // runtime marks per address (clipped, offscreen)
+}): string;
+
+readApp(app: { name: string; sections: SectionLike[]; screens: ScreenLike[] }): string;
+// outline: one line per area, one line per screen title, no components
+```
+
+- **Deltas.** With `since`, a changed or new component is printed whole, a removed one as `- l2`, and an unchanged screen prints only its header line.
+- **Budgets.** A typical screen (9 components with a 6-row list) reads in at most 300 tokens. An outline costs at most 15 tokens per screen. Both are checked in CI over every gallery fixture, with the tokenizer used for prompt budgets.
 
 ## 5. Package: `@lmthing/kit`
 
@@ -382,6 +467,8 @@ export default createTamagui({
   resolvePhoto={(ref) => source}      // lib:<tag> and local:<n> to an image source
   reduceMotion={false}
   interactive={false}                 // false = presses are ignored (a stage), true = Try it style
+  interaction={interactionStore}      // values people and agents change, keyed by address (5.9)
+  agentMode={false}                   // true = no arrive, morph or signature animation, so acts settle at once
 >
   <Screen screen={screenLike} onReport={(issues) => {}} />
 </KitProvider>
@@ -436,8 +523,8 @@ export const list = defineRenderer("list", ({ props, part, item }) => (
 ```
 
 - `defineRenderer(id, render)` infers `props` from the catalog schema for `id`. An id the catalog does not know is a type error.
-- `part(name)` and `item(itemId, name)` return `{ ref, onLayout }`. On layout, the part measures itself relative to the screen root (`measureLayout`), batched per frame, and calls `PartRegistry.register` with its address (`screen/component[/item]/part`). Unmount unregisters.
-- Renderers are pure. They read props, the state name, the theme and `KitStyle`. They hold no state, timers or fetches. Links are data passed to `KitAction`.
+- `part(name)` and `item(itemId, name)` return `{ ref, onLayout, testID }` plus the part's accessibility props (5.9). `testID` is the full address. On layout, the part measures itself relative to the screen root (`measureLayout`), batched per frame, and calls `PartRegistry.register` with its address (`screen/component[/item]/part`). Unmount unregisters.
+- Renderers are pure. They read props, the state name, the theme and `KitStyle`. They hold no state, timers or fetches. Links are data passed to `KitAction`. Interactive values come from `value(part)`, which returns the interaction store's value or the prop, and every input goes through the dispatcher (5.9).
 - Every renderer draws every state its component declares: `filled` (default), `empty` (copy from the component's empty fallback), `loading` (`KitSkeleton` in the component's shape), `success` (the success treatment and, where the component has one, its signature end state), `error` (tone `bad` and a short line).
 - `define/renderers.ts` is the map from id to renderer. It is generated from the folder listing by a script, so adding a file is enough.
 
@@ -473,6 +560,72 @@ export const list = defineRenderer("list", ({ props, part, item }) => (
 
 Each issue carries the part address. Hosts decide what to do (lmthing feeds them to its R5 repair step).
 
+### 5.9 Reading and acting: the kit side
+
+One rule shapes everything here: an agent action runs exactly the code a human touch runs. Agents that know the API use `read` and `act`. Agents that do not (browser agents clicking through the accessibility tree) get a clean accessibility tree with stable ids.
+
+**Addresses on elements.** Every part's element carries `testID` set to its full address (`home/l1/r1/title`). React Native Web renders it as `data-testid`, so Playwright and browser agents can target any part, and Maestro uses the same ids on phones. Addresses never contain generated or random parts.
+
+**Accessibility tree.** Built in `interact/a11y.ts` and applied through `part()` and `item()`:
+
+- Every interactive part has a role (`button`, `link` when it has a `goto`, `checkbox`, `switch`, `tab`, `adjustable`, `search`), a label from its visible text, and its state (`checked`, `selected`, `disabled`, current value).
+- Headers are `header`, lists are `list` and `listitem`, photos are `img` labelled by caption or tag.
+- Decorative elements (an icon beside a label, backgrounds, dividers) are hidden from the tree. Chart drawings (`bars`, `sparkline`, `ring`) are hidden and replaced by a label holding their values, so no SVG path data reaches an agent.
+- The element that carries the role receives the press, never a wrapper. Touch targets are at least 44 points.
+- Adjustable controls (`counter`, slider fields, `scale`) declare the increment and decrement accessibility actions, handled by the dispatcher.
+
+**Interaction state.** What people and agents change in an interactive screen (toggles, ticks, typed text, selections, counters, swipes, timers) lives in an interaction store keyed by full address. Renderers stay pure and read it through `value(part)`.
+
+```ts
+export type InteractionStore = {
+  get(address: string): unknown;
+  set(address: string, value: unknown): void;
+  reset(screen?: string): void;
+  snapshot(screen?: string): Record<string, unknown>;
+  subscribe(listener: () => void): () => void;
+};
+export function createInteractionStore(initial?: Record<string, unknown>): InteractionStore;
+```
+
+The default store lives in memory. Hosts decide whether to keep it (lmthing never keeps a share link's state).
+
+**Action registry and dispatcher.**
+
+- When an interactive part mounts, it registers `{ screen, rev, address, actions, enabled }` in the action registry, next to its part registry entry. Unmount unregisters.
+- `dispatch(address, action, value?)` looks the part up, validates the value with `validateActionValue`, then applies the effect: state changes go to the interaction store; `press` on a part with a `goto` calls `onLink(goto, address)`; `swipe`, `start` and `stop` update the store, and the renderer animates from it.
+- Human input goes through the same call. `KitAction`, the kit's text input, switch, slider and swipe handlers call `dispatch` and never set state themselves. A lint rule forbids `onPress` and `onChange` props in `components/` and `packs/` except on kit bases.
+- With `interactive={false}` (a stage), handlers are not attached and `dispatch` refuses with `not_interactive`.
+
+**Agent access.**
+
+```ts
+const agent = createAgentAccess({ registry, store, dispatcher, current: () => screenLike, scrollTo });
+
+agent.read(opts?: { depth?: "screen" | "component"; address?: string; sinceRev?: number }): string;
+agent.act(step: ActStep | ActStep[]): Promise<ActResult>;
+agent.log(): ActLogEntry[];
+agent.reset(): void;
+
+type ActStep = { address: string; action: ActionName | ScreenAction; value?: unknown; expectRev?: number };
+type ActResult =
+  | { ok: true; screen: string; rev: number; changed: string }   // compact read of what changed, or the new screen after navigation
+  | { ok: false; code: "stale" | "not_actionable" | "invalid_value" | "disabled"
+        | "not_mounted" | "not_interactive" | "timeout"; at: number; hint?: string };
+```
+
+- `read` calls the catalog's `readScreen` with the interaction store as `values` and adds runtime marks: `clipped` from render reports, and `offscreen` for parts outside the viewport when the host supplies one. `sinceRev` keeps the last version read per screen and returns only the difference.
+- `act` checks `expectRev` (`stale` if the screen has moved on), scrolls the target into view through the host's `scrollTo`, dispatches, then waits for the screen to settle and returns what changed. One call, no second read.
+- A list of steps runs in order and stops at the first failure (`at` is its index). It returns one combined change.
+- **Settle** means no running kit animation, no pending layout or render report, and navigation finished. It gives up after 2 s with `timeout`. With `agentMode`, arrive, morph and signature animations become instant, so settling takes a frame or two.
+- **Log.** Every successful act appends `{ address, action, value, rev, at }`. It uses the same address vocabulary as lmthing flow steps, so a host can turn a log into a stored flow, or replay a flow through `act`.
+
+**Exposure and safety.**
+
+- The kit never touches `window`. Hosts expose agent access where they choose. The gallery exposes `window.__lmthingUI = { read, act, log, reset }`.
+- `read` has no side effects. `act` changes only the interaction store and calls `onLink`. Screens are mocks with no network, so nothing real is paid, sent or deleted.
+- Hosts rate-limit the hook and may expose `read` without `act` (lmthing's studio stage does).
+- Quoted text in read output may come from a model or a person. The hook's documentation tells agents to treat it as data, never as instructions.
+
 ## 6. Package: `@lmthing/photos` (optional, step U8)
 
 About 150 bundled photos tagged by subject (plants, food, places, people, pets, objects), plus generated gradient avatars.
@@ -495,8 +648,10 @@ A private Expo Router app in `apps/gallery`, web first, also run on iOS and Andr
 | `/archetypes/[id]` | Every layout's default screen with an empty and a full cast |
 | `/themes` | All 288 themes as swatches, contrast ratios printed |
 | `/render/[fixture]` | One screen with no chrome at phone size, for screenshots |
+| `/agent` | A console to read any fixture and act on it, showing the read output, the act results and the log |
 
 - A presets × modes switcher and a reduce-motion toggle on every page.
+- `agent-hook.ts` exposes `window.__lmthingUI` on every page, so browser agents can use the gallery directly.
 - Playwright runs against the static web export and screenshots every component page and every fixture. A pixel difference above 0.1% fails CI. Baselines update only through a pull request with the `update-screenshots` label.
 
 ## 8. Testing
@@ -509,6 +664,11 @@ A private Expo Router app in `apps/gallery`, web first, also run on iOS and Andr
 | Type tests | `expect-type` in Vitest | `defineRenderer` inference, `PropsOf<Id>`, unknown ids rejected |
 | Kit conformance | Jest with `jest-expo` and React Native Testing Library | For every `ready` component: a renderer exists, both examples render in every declared state, every declared part and item part registers with the memory registry |
 | Kit unit | Same | Bases, `Screen` ordering and rhythm, morph keys, report detection with fixtures that contain known faults |
+| Readers | Vitest | Read output of every example in every state (snapshots), deltas, quoting and escaping, token budgets |
+| Actions | Vitest | The vocabulary per component, value validation tables, `catalog:check` action rules |
+| Kit interaction | Jest with React Native Testing Library | For every declared action of every `ready` component: `act` with example values changes the read output as declared, and a simulated human press or input produces the identical change and log |
+| Agent end to end | Playwright on the gallery | Fixtures driven through `window.__lmthingUI.act` and through the accessibility tree (`getByRole`) reach the same read output. `stale`, `invalid_value` and `not_interactive` paths |
+| Accessibility | Playwright with axe-core | No violations. Every interactive part has a role and a label. No chart path data in the accessibility tree |
 | Visual | Playwright on the gallery web export | Screenshots, section 7 |
 | Performance | Script on reference devices before each release | Mount time and frame rate, section 9 |
 
@@ -524,6 +684,9 @@ Targets until measured on the reference phones (a mid-range Android and an iPhon
 | Report after the last layout | 150 ms typical, 300 ms at most |
 | Kit plus themes in a web build | Under 250 KB compressed (288 themes); compact mode if over |
 | Catalog import in Node | Under 50 ms, no top-level work |
+| Read a typical screen | At most 300 tokens, under 5 ms |
+| Read an app outline | At most 15 tokens per screen |
+| Act to settled result, agent mode, web | Under 100 ms, or 300 ms when it navigates |
 
 ## 10. Tooling
 
@@ -586,7 +749,7 @@ Targets until measured on the reference phones (a mid-range Android and an iPhon
 | Kit theme build script | `@lmthing/kit` (`scripts/build-themes.ts`) |
 | The kit's part of the app gallery | The gallery here. The app keeps a gallery for its own shell primitives |
 
-The app keeps THING's interface (shell tokens and primitives), the stage (which implements `PartRegistry`), Try it mode (which passes an `onLink` that navigates), the photo resolver (`local:n` from its own storage, `lib:` from `@lmthing/photos`), and `tamagui.config.ts` (which merges kit and shell pieces). We suggest renaming the app's shell folder from `src/ui` to `src/studio`, so "ui" means one thing.
+The app keeps THING's interface (shell tokens and primitives), the stage (which implements `PartRegistry`), Try it mode (which passes an `onLink` that navigates), the photo resolver (`local:n` from its own storage, `lib:` from `@lmthing/photos`), `tamagui.config.ts` (which merges kit and shell pieces), and the agent hook: `read` and `act` in Try it mode, share links and eval render routes, `read` only on the studio stage. We suggest renaming the app's shell folder from `src/ui` to `src/studio`, so "ui" means one thing.
 
 ### 12.3 Workflow for a change
 
@@ -603,12 +766,12 @@ Each step ends at its gate. The mapping to lmthing phases shows when lmthing nee
 | Step | Builds | Gate | lmthing needs it for |
 | --- | --- | --- | --- |
 | **U0. Bootstrap**, 0.5 week | Workspace, TypeScript, ESLint with boundaries and size rules, Prettier, Vitest, Jest, Changesets, `ci.yml`, `docs/decisions/0001-baseline.md`, empty packages and gallery | CI green. A test fixture proves lint rejects a React import in `catalog` and a 201-line file | Phase 0 |
-| **U1. Catalog foundations**, 1 week | `define*` API, prop helpers, types, tokens, draft presets and accents, theme names, `KitStyle` data, address grammar, screen rules, registry with alias scope, lookups, `check.ts` and `contrast.ts`, the first six components (`header`, `hero`, `list`, `button`, `ring`, `checklist`) and the `home` archetype | `catalog:check` green for what exists. Contrast results for all 288 themes listed (draft values may still fail). Address property tests pass | Phase 0: the protocol and the Ledge fixture |
-| **U2. Kit foundations**, 1 to 1.5 weeks | Tamagui tokens, fonts, springs, generated themes, `KitProvider`, `KitStyle`, the six bases and helpers, `defineRenderer`, parts and registries, the six renderers, `Screen` with regions, rhythm, arrive and morph, `defaultLines` for `home`, gallery skeleton, conformance test, a 288-theme load test | The gallery shows the six components in 3 presets, light and dark, on web, iOS and Android. Conformance passes. The web size of kit plus themes is measured | Phase 0: the app replays the Ledge fixture |
-| **U3. Prompt entries for everything**, 1 week | Draft definitions (`status: "draft"`) for every remaining core component and every pack component and archetype: purpose, pick, schema with limits, parts, states, aliases, tier, `realPath`, fallback, two examples. `buildEntry`, `buildBlock`, `buildPackIndex`, token counting, prompt snapshots | Token budgets hold. Every draft passes `catalog:check` except the renderer rule. lmthing's bake-off builds real prompts from `createRegistry({ includeDrafts: true })` | Phase 0: the 100-idea bake-off |
-| **U4. Core 24**, 2 weeks | Final definitions and renderers for the core 24: `header`, `section_title`, `steps`, `tabbar`, `hero`, `card`, `list`, `keyvalue`, `note`, `photo`, `gallery`, `profile`, `banner`, `empty`, `field`, `chips`, `segmented`, `checklist`, `search`, `button`, `actions`, `success`, `stats`, `ring`. Every state. The core archetypes whose recipes use only these | All 24 `ready`, conformance and screenshots pass, ten hand-written screens across very different apps validate with zero issues and look finished in every preset | Phase 1 |
+| **U1. Catalog foundations**, 1 week | `define*` API, prop helpers, types, tokens, draft presets and accents, theme names, `KitStyle` data, address grammar, screen rules, registry with alias scope, lookups, the action vocabulary and value validation, the default reader, `readScreen` and `readApp`, `check.ts` and `contrast.ts`, the first six components (`header`, `hero`, `list`, `button`, `ring`, `checklist`) and the `home` archetype | `catalog:check` green for what exists. Contrast results for all 288 themes listed (draft values may still fail). Address property tests pass. The six components read within budget, and their actions validate | Phase 0: the protocol and the Ledge fixture |
+| **U2. Kit foundations**, 1 to 1.5 weeks | Tamagui tokens, fonts, springs, generated themes, `KitProvider`, `KitStyle`, the six bases and helpers, `defineRenderer`, parts and registries, `testID`s and accessibility props, the interaction store, action registry, dispatcher and agent access with settle and agent mode, the six renderers, `Screen` with regions, rhythm, arrive and morph, `defaultLines` for `home`, gallery skeleton, conformance test, a 288-theme load test | The gallery shows the six components in 3 presets, light and dark, on web, iOS and Android. Conformance passes. The web size of kit plus themes is measured. In the gallery, every action on the six components works through `window.__lmthingUI.act` and through the accessibility tree with identical results, and axe-core reports no violations | Phase 0: the app replays the Ledge fixture |
+| **U3. Prompt entries for everything**, 1 week | Draft definitions (`status: "draft"`) for every remaining core component and every pack component and archetype: purpose, pick, schema with limits, parts, states, actions, aliases, tier, `realPath`, fallback, two examples, and a reader override where needed. `buildEntry`, `buildBlock`, `buildPackIndex`, token counting, prompt snapshots | Token budgets hold. Every draft passes `catalog:check` except the renderer rule. lmthing's bake-off builds real prompts from `createRegistry({ includeDrafts: true })` | Phase 0: the 100-idea bake-off |
+| **U4. Core 24**, 2 weeks | Final definitions and renderers for the core 24: `header`, `section_title`, `steps`, `tabbar`, `hero`, `card`, `list`, `keyvalue`, `note`, `photo`, `gallery`, `profile`, `banner`, `empty`, `field`, `chips`, `segmented`, `checklist`, `search`, `button`, `actions`, `success`, `stats`, `ring`. Every state. The core archetypes whose recipes use only these | All 24 `ready`, conformance, interaction and screenshot tests pass, ten hand-written screens across very different apps validate with zero issues and look finished in every preset | Phase 1 |
 | **U5. Booking and customers packs**, 1 week | Both packs complete: components, renderers, archetypes, worked examples (Trot) | Both packs `ready`, Trot's worked example renders without issues in 3 presets | Phase 1: Trot |
-| **U6. Rest of the core**, 1.5 weeks | `scale`, `bars`, `sparkline`, `timeline`, `calendar`, `counter`, `timer`, `camera`, `map`, `bubbles`, `people`, `swipe_stack`, `day_timeline`, `streak`, `route`, `canvas`. The three surfaces. All ten signatures, hand-tuned. Render reports. Every core archetype | All 40 core `ready`. Signatures judged against the reference mock on a real phone. Report fixtures with known faults produce exactly the expected issues | Phase 1 end, Phase 2 (render reports, R5) |
+| **U6. Rest of the core**, 1.5 weeks | `scale`, `bars`, `sparkline`, `timeline`, `calendar`, `counter`, `timer`, `camera`, `map`, `bubbles`, `people`, `swipe_stack`, `day_timeline`, `streak`, `route`, `canvas`. The three surfaces. All ten signatures, hand-tuned. Render reports. Every core archetype | All 40 core `ready`, with every action passing the interaction and agent end-to-end tests. Signatures judged against the reference mock on a real phone. Report fixtures with known faults produce exactly the expected issues | Phase 1 end, Phase 2 (render reports, R5) |
 | **U7. Remaining packs**, ongoing | `commerce`, `data`, `social`, `content`, `learning`, `money`, `places`, `team`, in the order lmthing's off-pack codes and `canvas` misses ask for | Each pack `ready` with its worked example before it enters live prompts | Phases 3 and 4, then ongoing |
 | **U8. Release readiness**, 1 week, when a second consumer appears | `dist` builds verified in a blank Expo app and a blank web app, `@lmthing/photos`, per-package README with the public API, licence, `release.yml` enabled, first tagged release | A blank project installs both packages from the registry and renders a screen with no lmthing code | Another project |
 
@@ -624,4 +787,7 @@ U0 to U3 together take about 3.5 to 4 weeks for one developer and run alongside 
 - [ ] **Gallery tool?** Default: a plain Expo Router app (fewer dependencies than Storybook, and the same renderer path as lmthing).
 - [ ] **Compact themes from the start?** Default: no. 288 themes unless the U2 size measurement exceeds the budget.
 - [ ] **Should tiers and `realPath` stay required for every consumer?** Default: yes. They are cheap and say what a part depends on.
+- [ ] **Name of the agent hook?** Default: `window.__lmthingUI`, with `read`, `act`, `log` and `reset`.
+- [ ] **Should share-link visitors' agents be able to act?** Default: yes, in Try it mode, with state never kept and notes going through the host's note path.
+- [ ] **Agent mode on by default for agents?** Default: hosts turn it on whenever the hook is used, and off when a person touches the screen.
 - [ ] **Rename lmthing's `src/ui` to `src/studio`?** Default: yes, decided in the lmthing repo.
