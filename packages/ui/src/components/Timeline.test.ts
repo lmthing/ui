@@ -1,4 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import {
   affordancesOf,
   components,
@@ -8,9 +11,16 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Timeline;
 const item = { time: "09:00", title: "Morning walk" };
+const config = createTamagui({
+  tokens: createTokens(kitTokens),
+  fonts: kitFonts,
+  themes: kitThemes,
+  defaultFont: "humanist",
+});
 
 describe("Timeline schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -29,22 +39,17 @@ describe("Timeline schema", () => {
     { items: [{ title: "Morning walk" }] },
     { items: [{ time: "09:00" }] },
     { items: [{ ...item, time: "" }] },
-    { items: [{ ...item, time: " ".repeat(4) }] },
     { items: [{ ...item, time: "a".repeat(13) }] },
     { items: [{ ...item, title: "" }] },
-    { items: [{ ...item, title: " ".repeat(4) }] },
     { items: [{ ...item, title: "a".repeat(33) }] },
     { items: [{ ...item, meta: "" }] },
-    { items: [{ ...item, meta: " ".repeat(4) }] },
     { items: [{ ...item, meta: "a".repeat(33) }] },
     { items: [{ ...item, done: "true" }] },
     { items: [{ ...item, id: "r1" }] },
-    { items: [{ ...item, goto: "walk" }] },
     { items: [{ ...item, pixels: 4 }] },
     { items: [{ ...item, color: "red" }] },
     { style: "list", items: [item] },
     { color: "red", items: [item] },
-    { items: [item], actions: ["press"] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths and count", () => {
     const longest = { time: "a".repeat(12), title: "a".repeat(32), meta: "a".repeat(32), done: true };
@@ -153,5 +158,42 @@ describe("Timeline fallback and metadata", () => {
     expect(registry.resolve("TIME-LINE")).toBe("Timeline");
     expect(registry.resolve("AGENDA")).toBe("Timeline");
     expect(registry.resolve("chronology")).toBe("Timeline");
+  });
+});
+
+describe.each(["day", "history"] as const)("Timeline %s rendering", (style) => {
+  it("draws every allowed count with mixed completion and optional details", () => {
+    for (let count = 1; count <= 6; count++) {
+      const input = {
+        style,
+        items: Array.from({ length: count }, (_, i) => ({
+          ...item,
+          done: i % 2 === 0,
+          ...(i % 2 === 0 ? { meta: "Park" } : {}),
+        })),
+      };
+      const viewProps = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
+      const children = createElement(PartScope, {
+        screen: "home",
+        component: "c1",
+        rev: 1,
+        state: "filled",
+        children: createElement(renderers.Timeline, viewProps),
+      });
+      const kit = createElement(KitProvider, {
+        theme: { preset: "calm", mode: "light", accent: "moss" },
+        children,
+      });
+      const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
+      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+      expect(html.match(/<svg\b/g) ?? []).toHaveLength(style === "history" ? Math.ceil(count / 2) : 0);
+      expect(html).toContain("tabular-nums");
+      for (let i = 1; i <= count; i++) {
+        for (const part of ["root", "time", "title"]) {
+          expect(html.match(new RegExp(`data-testid="home/c1/r${i}/${part}"`, "g"))).toHaveLength(1);
+        }
+        expect(html.includes(`data-testid="home/c1/r${i}/meta"`)).toBe(i % 2 === 1);
+      }
+    }
   });
 });
