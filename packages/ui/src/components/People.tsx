@@ -77,7 +77,7 @@ export const probes = [
   },
   {
     kind: "choose",
-    need: "At the top of Anna's page, show her portrait and name so I know whose page this is",
+    need: "At the top of Anna's page, show her picture and name so I know whose page this is",
     expect: "Profile",
   },
   {
