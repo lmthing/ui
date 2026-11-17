@@ -130,6 +130,18 @@ describe("Empty metadata and probes", () => {
     expect(examples.some((example) => "icon" in example)).toBe(true);
     expect(examples.some((example) => "sub" in example)).toBe(true);
   });
+  it("keeps the near miss about one main number with supporting text", () => {
+    const nearMiss = probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero");
+    expect(nearMiss).toMatchObject({
+      kind: "choose",
+      need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+      expect: "Hero",
+    });
+    if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");
+    for (const component of [components.Empty, components.Hero, components.Banner])
+      for (const name of [component.meta.id, ...component.meta.aliases])
+        expect(nearMiss.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
+  });
   it("builds a data-only registry with case and separator tolerant aliases", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Empty");
