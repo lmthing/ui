@@ -58,6 +58,7 @@ export function KitText({
   align = "start",
   part = "root",
   lines,
+  tabular = false,
 }: {
   children: ReactNode;
   role?: TextRole;
@@ -65,6 +66,8 @@ export function KitText({
   align?: "start" | "center" | "end";
   part?: string;
   lines?: number;
+  /** Equal-width digits, so times and amounts line up in a column. */
+  tabular?: boolean;
 }) {
   const style = useKitStyle();
   const heavier = style.strong ? strongWeights[role] : undefined;
@@ -83,6 +86,7 @@ export function KitText({
       fontFamily={fontFamilies[family]}
       {...(heavier ? { fontWeight: heavier } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
+      {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
     >
       {children}
     </Frame>

@@ -12,6 +12,7 @@ export const component = {
     stripShare: 0.4,
     ringMd: 120,
     ringLg: 168,
+    timeWidth: 64,
     emptyMinHeight: 280,
   },
   Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },

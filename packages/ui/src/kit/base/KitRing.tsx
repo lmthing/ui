@@ -31,7 +31,14 @@ export function KitRing({
   const length = 2 * Math.PI * r;
   const share = of > 0 ? Math.min(1, Math.max(0, value / of)) : 0;
   return (
-    <YStack {...usePart(part)} width={box} height={box} alignItems="center" justifyContent="center">
+    <YStack
+      {...usePart(part)}
+      width={box}
+      height={box}
+      alignSelf="center"
+      alignItems="center"
+      justifyContent="center"
+    >
       <YStack position="absolute" top={0} left={0} aria-hidden accessibilityElementsHidden>
         <Svg width={box} height={box}>
           <Circle cx={box / 2} cy={box / 2} r={r} stroke={theme.line?.val} strokeWidth={stroke} fill="none" />
