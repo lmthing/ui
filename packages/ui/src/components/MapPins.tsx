@@ -11,7 +11,16 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitContent, KitMapTile, KitRow, KitSkeleton, KitText, useComponentState } from "../kit";
+import {
+  KitCard,
+  KitContent,
+  KitIcon,
+  KitMapTile,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+} from "../kit";
 
 export const meta = {
   id: "MapPins",
@@ -113,7 +122,9 @@ export function MapPins({ pins }: Props<typeof props, typeof meta>) {
             label={pin.label}
             goto={pin.goto}
             inset="none"
+            lineRole="number"
             leadingAlign="row"
+            trailing={pin.goto ? <KitIcon name="chevron_right" decorative /> : undefined}
             leading={
               <KitText role="number" tabular part={null}>
                 {index + 1}

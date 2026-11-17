@@ -155,7 +155,6 @@ describe("MapPins metadata", () => {
     expect(registry.resolve("NEAR-BY")).toBe("MapPins");
   });
 });
-
 describe("MapPins rendering", () => {
   it.each([1, 2, 3, 4, 5])(
     "draws %i distinct row roots with matching numbers and mixed navigation",
@@ -183,6 +182,7 @@ describe("MapPins rendering", () => {
         expect(html.match(/data-testid="home\/m1\/root"/g)).toHaveLength(1);
         expect(html).toContain('data-testid="home/m1/map"');
         expect(html.includes("Repeated place")).toBe(state === "filled");
+        expect(html.match(/<svg\b/g) ?? []).toHaveLength(state === "filled" ? Math.ceil(count / 2) : 0);
         for (let index = 1; index <= count; index++) {
           for (const part of ["root", "label"]) {
             const matches = html.match(new RegExp(`data-testid="home/m1/r${index}/${part}"`, "g")) ?? [];
