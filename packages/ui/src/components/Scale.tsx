@@ -27,7 +27,7 @@ export const meta = {
   actions: {
     parts: { l1: ["select"], l2: ["select"], l3: ["select"], l4: ["select"], l5: ["select"] },
   },
-  aliases: ["rating", "mood", "stars", "level"],
+  aliases: ["rating", "mood", "score", "level"],
   read: (input: unknown) => {
     const { value } = props.parse(input);
     return [`${value} ${goalLine(5)}`];

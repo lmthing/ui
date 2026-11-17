@@ -167,7 +167,7 @@ describe("Scale fallback and metadata", () => {
     expect(registry.ids).toContain("Scale");
     expect(registry.schema("Scale")).toBe(props);
     expect(registry.resolve("RATING")).toBe("Scale");
-    expect(registry.resolve("s-t-a-r-s")).toBe("Scale");
+    expect(registry.resolve("s-c-o-r-e")).toBe("Scale");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
