@@ -22,14 +22,18 @@ function Day({
   return (
     <YStack
       {...usePart()}
-      width={size.control.md}
+      flex={1}
+      minWidth={component.base.dayMinWidth}
+      maxWidth={size.control.md}
       height={size.control.md}
+      alignSelf="center"
       alignItems="center"
       justifyContent="center"
       borderRadius={radius.pill}
       borderWidth={component.base.strongBorder}
       borderColor={selected ? "$accent" : "transparent"}
       accessibilityRole="button"
+      {...({ "data-dense": true } as object)}
       aria-pressed={selected}
       accessibilityLabel={name}
       {...(kit.interactive ? { cursor: "pointer" } : {})}
@@ -51,7 +55,8 @@ function Day({
 }
 
 /**
- * One selectable day of a calendar: a 44px round target (role button, `select`), its number, an accent
+ * One selectable day of a calendar: a 44px tall round target (at least 40px wide, so a week fits a 320px
+ * phone) (role button, `select`), its number, an accent
  * ring when selected and a small dot in the mark's tone. It is the item `item` (`<item>/root`).
  */
 export function KitDay({

@@ -49,3 +49,17 @@ export function clockLine(seconds: number): string {
 
 /** Weekday initials, Monday first. */
 export const weekdayInitials = ["M", "T", "W", "T", "F", "S", "S"] as const;
+
+/** The two buttons of a timer. */
+export const timerLabels = { start: "Start", stop: "Stop" } as const;
+
+const weekdayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
+
+/** A streak as read text: ["12 days", "done Mon, Tue, Wed"] (or "none done this week"). */
+export function streakLine(count: number, days: readonly boolean[]): string[] {
+  const done = weekdayNames.filter((_, index) => days[index]).map((name) => name.slice(0, 3));
+  return [
+    `${count} ${count === 1 ? "day" : "days"}`,
+    done.length ? `done ${done.join(", ")}` : "none done this week",
+  ];
+}
