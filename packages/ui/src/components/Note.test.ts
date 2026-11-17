@@ -8,7 +8,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitIcon, KitRow, KitText } from "@lmthing/ui/kit";
+import { KitIcon, KitBlock, KitText } from "@lmthing/ui/kit";
 import { Note } from "./Note";
 
 const { props, meta, examples, fallback, probes } = components.Note;
@@ -155,7 +155,7 @@ describe("Note view", () => {
     (style) => {
       for (const tone of ["neutral", "good", "warn", "bad"] as const) {
         const view = Note(props.parse({ style, tone, text: "Supporting information" }));
-        expect(view.type).toBe(KitRow);
+        expect(view.type).toBe(KitBlock);
         expect(view.props).toMatchObject({ item: "", label: "Supporting information" });
         const line = view.props.children;
         expect(line.type).toBe(KitText);

@@ -11,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitRow, KitText } from "../kit";
+import { KitAction, KitBlock, KitText } from "../kit";
 
 export const meta = {
   id: "Header",
@@ -84,8 +84,7 @@ export const probes = [
 
 export function Header({ style, title, sub, action }: Props<typeof props, typeof meta>) {
   return (
-    <KitRow
-      item=""
+    <KitBlock
       label={title}
       leading={
         style === "back" ? (
@@ -106,6 +105,6 @@ export function Header({ style, title, sub, action }: Props<typeof props, typeof
           {sub}
         </KitText>
       )}
-    </KitRow>
+    </KitBlock>
   );
 }

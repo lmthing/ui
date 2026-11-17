@@ -11,13 +11,14 @@ const Body = styled(YStack, { flex: component.base.bodyFlex });
 // Taller items (a 44px touch target) overflow the line equally above and below.
 const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
 type LineRole = "body" | "heading" | "title" | "display";
-function Row({
+export function Row({
   children,
   leading,
   trailing,
   goto,
   label,
   lineRole = "body",
+  role,
 }: {
   children: ReactNode;
   leading?: ReactNode;
@@ -25,6 +26,7 @@ function Row({
   goto?: string | undefined;
   label: string;
   lineRole?: LineRole;
+  role?: "listitem" | "text";
 }) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
@@ -39,7 +41,7 @@ function Row({
       paddingHorizontal={space.md}
       gap={space[ks.density.gap]}
       borderRadius={shifted("md", ks.radiusShift)}
-      accessibilityRole={goto ? "link" : "listitem"}
+      accessibilityRole={goto ? "link" : (role ?? "listitem")}
       accessibilityLabel={label}
       {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
     >

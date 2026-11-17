@@ -11,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitIcon, KitRow, KitText } from "../kit";
+import { KitIcon, KitBlock, KitText } from "../kit";
 
 export const meta = {
   id: "Note",
@@ -82,14 +82,13 @@ export function Note({ style, text, tone, icon }: Props<typeof props, typeof met
   const textTone = tone === "neutral" ? (style === "hint" ? "muted" : "text") : tone;
   const name = icon ?? (style === "quote" ? "quote" : style === "hint" ? "lightbulb" : undefined);
   return (
-    <KitRow
-      item=""
+    <KitBlock
       label={text}
       leading={name && <KitIcon name={name} tone={tone === "neutral" ? "muted" : tone} part="icon" />}
     >
       <KitText role={role} tone={textTone} part="text">
         {text}
       </KitText>
-    </KitRow>
+    </KitBlock>
   );
 }
