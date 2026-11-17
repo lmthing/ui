@@ -11,15 +11,17 @@ import {
   type ComponentName,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, createMemoryParts, renderers } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config } from "../index";
 
-export const galleryParts = createMemoryParts();
+import { galleryParts } from "./parts";
+import { Screens } from "./Screens";
 const modes = ["light", "dark"] as const;
 const query = new URLSearchParams(globalThis.location?.search ?? "");
 const only = query.get("c");
 const onlyPreset = query.get("preset");
 const onlyMode = query.get("mode");
+const width = Number(query.get("w")) || 0;
 
 type Cell = { id: ComponentName; example: unknown; index: number; state: StateName };
 
@@ -55,6 +57,9 @@ function Preview({ cell, preset, mode }: { cell: Cell; preset: string; mode: (ty
 }
 
 export function Gallery() {
+  if (only && width) {
+    return <Screens id={only as ComponentName} width={width} mode={onlyMode === "dark" ? "dark" : "light"} />;
+  }
   const ids = (Object.keys(renderers) as ComponentName[]).filter((id) => !only || id === only);
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">

@@ -10,3 +10,4 @@ export * from "./themes";
 export * from "./registry";
 export * from "./probes";
 export * from "./lines";
+export * from "./agent";

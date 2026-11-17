@@ -32,3 +32,14 @@ export function scoreWrite(reply: string, def: Definition): Score {
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
   return { pass: false, detail: issues.slice(0, 3).join("; ") };
 }
+
+const normalAddress = (address: string) => address.replace(/^home\//, "").replace(/\/root$/, "");
+
+/** Acted right: the address (ignoring the screen id and a trailing /root) and the action match. */
+export function scoreRead(reply: string, expect: { address: string; action: string }): Score {
+  const line = jsonLine(reply) as { address?: unknown; action?: unknown } | undefined;
+  if (!line || typeof line.address !== "string") return { pass: false, detail: "no address" };
+  const address = normalAddress(line.address);
+  const pass = address === normalAddress(expect.address) && line.action === expect.action;
+  return { pass, detail: pass ? "acted right" : `did ${String(line.action)} on ${address}` };
+}

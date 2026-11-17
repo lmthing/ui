@@ -1,5 +1,5 @@
-import { choosePrompt, writePrompt } from "./prompts";
-import { scoreChoose, scoreWrite } from "./score";
+import { choosePrompt, readPrompt, writePrompt } from "./prompts";
+import { scoreChoose, scoreRead, scoreWrite } from "./score";
 import type { CallModel, Definition, Probe, ProbeResult } from "./types";
 
 async function runOne(
@@ -11,7 +11,11 @@ async function runOne(
   const base = { component: def.meta.id, probe, prompt: "", reply: "" };
   const ids = defs.map((entry) => entry.meta.id);
   if (probe.kind === "read") {
-    return { ...base, status: "skipped", detail: "read probes need readScreen (not built yet)" };
+    const instance = probe.expect.address.split("/")[0]!;
+    const prompt = readPrompt(def, probe.screen, instance, probe.task);
+    const reply = await callModel(prompt);
+    const { pass, detail } = scoreRead(reply, probe.expect);
+    return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
   }
   if (!ids.includes(probe.expect)) {
     return { ...base, status: "skipped", detail: `${probe.expect} is not in the catalog yet` };

@@ -1,0 +1,2 @@
+- Rows without `goto` are offered `[press]` but render as `listitem`: press only when the row has `goto` (a row with goto renders as `link`).
+- `[trail toggle]` is offered on every row but only `trail: "toggle"` draws a toggle: add `when: { trail: { trail: "toggle" } }`; the toggle must render with role `switch`.

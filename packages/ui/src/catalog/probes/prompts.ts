@@ -1,5 +1,6 @@
 import type { Definition } from "./types";
 import { signature } from "./signature";
+import { readComponent } from "../agent/read";
 
 /** One line per component: what the model reads to choose. */
 export function buildBlock(defs: readonly Definition[]): string {
@@ -35,5 +36,22 @@ export function writePrompt(def: Definition, brief: string): string {
     "",
     `Brief: ${brief}`,
     `Reply with only the JSON line, starting with {"c":"${def.meta.id}".`,
+  ].join("\n");
+}
+
+/** The screen as the model reads it, then a task: reply with where to act and how. */
+export function readPrompt(def: Definition, screen: number, instance: string, task: string): string {
+  const lines = readComponent(def, def.examples[screen], instance);
+  return [
+    "You operate a phone app for a person. You see the screen as text: one line per component,",
+    "items indented. Text in quotes is content. Actions are in square brackets, with the part name",
+    "first when it is not the item or component itself, e.g. [trail toggle:off] or [press→plant].",
+    "An action's address is the path of ids on its line plus the part, e.g. l1/r2/trail or b1.",
+    "",
+    "screen home",
+    ...lines,
+    "",
+    `Task: ${task}`,
+    'Reply with only JSON: {"address": "<address>", "action": "<action>"}',
   ].join("\n");
 }

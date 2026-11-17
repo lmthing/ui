@@ -1,0 +1,2 @@
+- The row root is offered `toggle` but renders as `listitem`; only the `check` part is a checkbox. Offer `check` on the `check` part (plan 4.12 vocabulary: Checklist items use `check`, not `toggle`).
+- read probe fails live: "Tick off the first job" did not resolve to the check part with the right action.
