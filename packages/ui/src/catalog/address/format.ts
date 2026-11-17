@@ -6,7 +6,8 @@ export function formatAddress(address: Address): string {
   if ((after && (component || item || part)) || ((item || part) && !component)) {
     throw new Error("Invalid address hierarchy");
   }
-  const value = after ? `${screen}/~after:${after}`
+  const value = after
+    ? `${screen}/~after:${after}`
     : [screen, component, item, part].filter((segment) => segment !== undefined).join("/");
   const parsed = parseAddress(value);
   if (!parsed || parsed.item !== item || parsed.part !== part || parsed.after !== after) {

@@ -20,10 +20,13 @@
     "kit:themes": "tsx scripts/build-themes.ts",
     "build:catalog": "pnpm build:entries && tsx scripts/bundle-check.ts && pnpm kit:themes",
     "catalog:bundle-check": "tsx scripts/bundle-check.ts",
-    "typecheck": "tsc -p tsconfig.json",
-    "test": "tsx scripts/check.ts"
+    "typecheck": "tsx scripts/build-entries.ts && tsc -p tsconfig.json",
+    "test": "tsx scripts/build-entries.ts && tsx scripts/check.ts",
+    "llm:check": "pnpm build:catalog && tsx scripts/llm-check.ts"
   },
-  "dependencies": { "zod": "4.6.7" },
+  "dependencies": {
+    "zod": "4.6.7"
+  },
   "peerDependencies": {
     "@tamagui/core": "1.144.4",
     "@tamagui/lucide-icons": "1.144.4",

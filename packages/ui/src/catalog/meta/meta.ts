@@ -20,7 +20,8 @@ export type Meta = {
 };
 
 export type BaseRoles = Record<
-  "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad", string
+  "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
+  string
 >;
 export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
 export type PresetMeta = {

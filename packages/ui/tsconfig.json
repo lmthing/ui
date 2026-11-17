@@ -1,4 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@lmthing/ui/catalog": ["./src/entry/catalog.ts"],
+      "@lmthing/ui/kit": ["./src/entry/kit.ts"]
+    }
+  },
   "include": ["src", "scripts", "test"]
 }
