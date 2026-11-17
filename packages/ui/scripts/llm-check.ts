@@ -16,7 +16,21 @@ function arg(name: string) {
   return index >= 0 ? process.argv[index + 1] : undefined;
 }
 
+// Transport failures (network, rate limit, server error) are not model answers: retry them with backoff.
 async function azure(model: ProbeModel, prompt: string): Promise<string> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await azureOnce(model, prompt);
+    } catch (error) {
+      const message = (error as Error).message;
+      const transient = /fetch failed|ECONN|ETIMEDOUT|429|5\d\d|high demand|unavailable/i.test(message);
+      if (!transient || attempt >= 4) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 2000 * 2 ** attempt));
+    }
+  }
+}
+
+async function azureOnce(model: ProbeModel, prompt: string): Promise<string> {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT?.replace(/\/$/, "");
   const key = process.env.AZURE_OPENAI_API_KEY;
   if (!endpoint || !key) throw new Error("AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set");
@@ -33,7 +47,8 @@ async function azure(model: ProbeModel, prompt: string): Promise<string> {
     choices?: { message?: { content?: string } }[];
     error?: { message?: string };
   };
-  if (!response.ok) throw new Error(`unavailable: ${body.error?.message?.slice(0, 80) ?? response.status}`);
+  if (!response.ok)
+    throw new Error(`unavailable ${response.status}: ${body.error?.message?.slice(0, 80) ?? ""}`);
   return body.choices?.[0]?.message?.content ?? "";
 }
 
