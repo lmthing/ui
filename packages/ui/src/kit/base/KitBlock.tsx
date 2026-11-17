@@ -17,6 +17,8 @@ export function KitBlock(props: {
   tone?: SurfaceTone;
   /** `row` centres a thumbnail or avatar taller than a line on the whole text (default `line`). */
   leadingAlign?: "line" | "row";
+  /** Horizontal inset: `md` (default) or `none` (the block sits flush, e.g. a search box on the screen). */
+  inset?: "md" | "none";
 }) {
   return <Row {...props} role="text" />;
 }

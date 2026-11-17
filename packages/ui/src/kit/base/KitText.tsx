@@ -64,12 +64,14 @@ export function KitText({
   role?: TextRole;
   tone?: TextTone;
   align?: "start" | "center" | "end";
-  part?: string;
+  /** The address part; `null` draws text that is not addressed (inside a decorative drawing). */
+  part?: string | null;
   lines?: number;
   /** Equal-width digits, so times and amounts line up in a column. */
   tabular?: boolean;
 }) {
   const style = useKitStyle();
+  const address = usePart(part ?? "root");
   const heavier = style.strong ? strongWeights[role] : undefined;
   const family =
     role === "display" || role === "title" || role === "heading"
@@ -79,7 +81,7 @@ export function KitText({
         : style.fonts.text;
   return (
     <Frame
-      {...usePart(part)}
+      {...(part === null ? {} : address)}
       textRole={role}
       tone={tone}
       align={align}
