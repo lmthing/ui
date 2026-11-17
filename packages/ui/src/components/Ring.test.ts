@@ -5,6 +5,7 @@ import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
+  component,
   components,
   createRegistry,
   readComponent,
@@ -180,6 +181,8 @@ describe.each(["md", "lg"] as const)("Ring rendering in %s", (style) => {
         expect(html).not.toMatch(/role="(?:link|button)"/);
         if (state === "loading") {
           expect(html).toContain('aria-busy="true"');
+          const box = component.base[style === "lg" ? "ringLg" : "ringMd"];
+          expect(html.split('aria-busy="true"')[1]).toContain(String(box));
           expect(html).not.toContain('data-testid="home/c1/ring"');
           continue;
         }

@@ -74,8 +74,8 @@ export function Ring({ style, value, of, label, sub }: Props<typeof props, typeo
   const state = useComponentState();
   if (state === "loading") {
     return (
-      <KitCard style="inset" part="root" padded>
-        <KitSkeleton shape="headline" lead="none" />
+      <KitCard style="inset" part="root">
+        <KitSkeleton shape="ring" ring={style} lead="none" />
       </KitCard>
     );
   }
