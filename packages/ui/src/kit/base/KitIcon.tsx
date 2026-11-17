@@ -12,15 +12,19 @@ export function KitIcon({
   part = "icon",
   tone = "muted",
   scale = "md",
+  decorative = false,
 }: {
   name?: IconName | undefined;
   part?: string;
   tone?: IconTone;
   scale?: keyof typeof size.icon;
+  /** Pure decoration (a chevron): no address, hidden from reading and acting. */
+  decorative?: boolean;
 }) {
+  const address = usePart(part);
   const Icon = Lucide[iconTable[name]];
   return (
-    <Frame {...usePart(part)} accessibilityElementsHidden aria-hidden>
+    <Frame {...(decorative ? {} : address)} accessibilityElementsHidden aria-hidden>
       <Icon size={size.icon[scale]} color={`$${tone}`} />
     </Frame>
   );
