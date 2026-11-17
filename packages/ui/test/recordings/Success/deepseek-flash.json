@@ -45,11 +45,11 @@
   },
   "6fa0475959de4011": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nSuccess: Know an action worked, with its result and the saved item's details.\nprops: { title: text≤40, sub?: text≤100, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check=\"circle_check\" }\nexample: {\"c\":\"Success\",\"title\":\"Fern watered\",\"sub\":\"Bathroom, just now\",\"icon\":\"circle_check\"}\n\nBrief: I just booked a walk for Clover tomorrow at 09:00. Show that the booking worked, with a check symbol and the dog and time underneath.\nReply with only the JSON line, starting with {\"c\":\"Success\".",
-    "reply": "{\"c\":\"Success\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"circle_check\"}",
+    "reply": "{\"c\":\"Success\",\"title\":\"Walk booked\",\"sub\":\"Clover, tomorrow at 09:00\",\"icon\":\"circle_check\"}",
     "replies": [
-      "{\"c\":\"Success\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"circle_check\"}",
+      "{\"c\":\"Success\",\"title\":\"Walk booked\",\"sub\":\"Clover, tomorrow at 09:00\",\"icon\":\"circle_check\"}",
       "{\"c\":\"Success\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\"}",
-      "{\"c\":\"Success\",\"title\":\"Walk booked\",\"sub\":\"Clover · Tomorrow 09:00\",\"icon\":\"circle_check\"}"
+      "{\"c\":\"Success\",\"title\":\"Walk booked\",\"sub\":\"Clover, tomorrow 09:00\",\"icon\":\"check\"}"
     ]
   },
   "7416b9824578be0e": {

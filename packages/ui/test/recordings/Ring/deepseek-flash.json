@@ -75,7 +75,7 @@
     "reply": "{\"c\":\"Ring\",\"style\":\"md\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}",
     "replies": [
       "{\"c\":\"Ring\",\"style\":\"md\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}",
-      "{\"c\":\"Ring\",\"style\":\"md\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}",
+      "{\"c\":\"Ring\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}",
       "{\"c\":\"Ring\",\"style\":\"md\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}"
     ]
   },
