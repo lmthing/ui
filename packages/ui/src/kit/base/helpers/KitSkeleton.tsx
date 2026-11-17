@@ -19,6 +19,7 @@ export function KitSkeleton({
   lead = "dot",
   shape = "rows",
   ring = "md",
+  inset = "md",
 }: {
   rows?: number;
   lead?: "dot" | "box" | "none";
@@ -26,6 +27,8 @@ export function KitSkeleton({
   shape?: "rows" | "pairs" | "headline" | "media" | "ring" | "trend" | "bars";
   /** `ring` only: the ring size, matching `KitRing scale`. */
   ring?: "md" | "lg";
+  /** `rows` only: `none` drops the side inset (rows inside a padded card). */
+  inset?: "md" | "none";
 }) {
   const ks = useKitStyle();
   if (shape === "bars") {
@@ -105,7 +108,7 @@ export function KitSkeleton({
           minHeight={size.control.md}
           gap={space[ks.density.gap]}
           paddingVertical={space[ks.density.rowPad]}
-          paddingHorizontal={space.md}
+          paddingHorizontal={inset === "none" ? 0 : space.md}
         >
           {lead !== "none" && (
             <Line height={first}>
