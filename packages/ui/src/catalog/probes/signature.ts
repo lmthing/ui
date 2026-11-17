@@ -13,9 +13,12 @@ type Json = {
   maximum?: number;
   default?: unknown;
   pattern?: string;
+  kind?: string;
 };
 
 function scalar(node: Json): string {
+  // A photo is a library tag or a local photo number, never a file name or a URL.
+  if (node.kind === "photo") return "photo lib:<tag>|local:<n>";
   if (node.enum) return node.enum.join("|");
   if (node.type === "string") return node.pattern ? "id" : `text≤${node.maxLength ?? "?"}`;
   if (node.type === "number" || node.type === "integer") {
