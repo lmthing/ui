@@ -5,7 +5,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 
 const root = fileURLToPath(new URL("../test/recordings/", import.meta.url));
-type Book = Record<string, { prompt: string; reply: string }>;
+/** `reply` is the first sample; `replies` holds every sample when a probe is run more than once. */
+type Book = Record<string, { prompt: string; reply: string; replies?: string[] }>;
 
 export const keyOf = (model: string, prompt: string) =>
   createHash("sha256").update(`${model}\n${prompt}`).digest("hex").slice(0, 16);
@@ -30,12 +31,13 @@ export function writeBook(component: string, model: string, book: Book) {
 /** A callModel that only replays; throws when a prompt was never recorded. */
 export function replayCall(component: string, model: string) {
   const book = readBook(component, model);
-  return async (prompt: string) => {
+  return async (prompt: string, sample = 0) => {
     const hit = book[keyOf(model, prompt)];
-    if (!hit)
+    const reply = hit?.replies?.[sample] ?? (sample === 0 ? hit?.reply : undefined);
+    if (reply === undefined)
       throw new Error(
         `No recording for ${component} on ${model}. Run: pnpm llm:check --component ${component}`,
       );
-    return hit.reply;
+    return reply;
   };
 }

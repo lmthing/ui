@@ -34,6 +34,31 @@ async function runOne(
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
 
+/** Run one probe `samples` times; it passes when a majority pass. Reports the first failing sample. */
+async function sampled(
+  def: Definition,
+  probe: Probe,
+  defs: readonly Definition[],
+  callModel: CallModel,
+  samples: number,
+): Promise<ProbeResult> {
+  const runs: ProbeResult[] = [];
+  for (let sample = 0; sample < samples; sample++) {
+    const run = await runOne(def, probe, defs, (prompt) => callModel(prompt, sample));
+    if (run.status === "skipped") return run;
+    runs.push(run);
+  }
+  const passed = runs.filter((run) => run.status === "pass").length;
+  const shown = runs.find((run) => run.status === "fail") ?? runs[0]!;
+  const status = passed * 2 > samples ? "pass" : "fail";
+  return {
+    ...shown,
+    status,
+    score: `${passed}/${samples}`,
+    detail: status === "pass" && passed < samples ? `unstable: ${shown.detail}` : shown.detail,
+  };
+}
+
 /**
  * Run the probes of the selected components against one model. Pure: the model call is injected.
  * Choose probes see the whole catalog, so adding a component can change another component's result.
@@ -42,12 +67,14 @@ export async function runProbes(options: {
   defs: readonly Definition[];
   callModel: CallModel;
   only?: readonly string[];
+  /** Calls per probe; a probe passes when a majority of its samples pass (2 of 3). */
+  samples?: number;
 }): Promise<ProbeResult[]> {
-  const { defs, callModel, only } = options;
+  const { defs, callModel, only, samples = 1 } = options;
   const selected = defs.filter((def) => !only?.length || only.includes(def.meta.id));
   const results: ProbeResult[] = [];
   for (const def of selected) {
-    for (const probe of def.probes) results.push(await runOne(def, probe, defs, callModel));
+    for (const probe of def.probes) results.push(await sampled(def, probe, defs, callModel, samples));
   }
   return results;
 }

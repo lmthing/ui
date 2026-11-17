@@ -14,7 +14,12 @@ const required = probeModels.filter((model) => model.required);
 describe.each(required)("probes on $id", (model) => {
   it.each(registry.ids)("%s passes its probes", async (id) => {
     if (known(id)) return; // open problem in test/known/<Id>.md: llm:check shows it, the fixer clears it
-    const results = await runProbes({ defs: registry.defs, callModel: replayCall(id, model.id), only: [id] });
+    const results = await runProbes({
+      defs: registry.defs,
+      callModel: replayCall(id, model.id),
+      only: [id],
+      samples: model.samples,
+    });
     const failures = results.filter((result) => result.status === "fail");
     expect(failures.map((f) => `${f.probe.kind}: ${f.detail}`)).toEqual([]);
     expect(results.some((result) => result.status === "pass")).toBe(true);

@@ -21,7 +21,8 @@ export type Definition = {
   probes: readonly Probe[];
 };
 
-export type CallModel = (prompt: string) => Promise<string>;
+/** One model call. `sample` numbers repeated calls with the same prompt (0, 1, 2, …). */
+export type CallModel = (prompt: string, sample?: number) => Promise<string>;
 
 export type ProbeResult = {
   component: string;
@@ -30,4 +31,6 @@ export type ProbeResult = {
   prompt: string;
   reply: string;
   detail: string;
+  /** How many samples passed, of how many ran ("2/3"). */
+  score?: string;
 };

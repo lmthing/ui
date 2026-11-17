@@ -42,9 +42,9 @@ function print(model: ProbeModel, results: ProbeResult[]) {
     const what =
       r.probe.kind === "read" ? r.probe.task : r.probe.kind === "choose" ? r.probe.need : r.probe.brief;
     console.log(
-      `${r.status.toUpperCase().padEnd(7)} ${model.id.padEnd(16)} ${r.component} ${r.probe.kind}: ${what}`,
+      `${r.status.toUpperCase().padEnd(7)} ${(r.score ?? "").padEnd(4)} ${model.id.padEnd(16)} ${r.component} ${r.probe.kind}: ${what}`,
     );
-    if (r.status === "fail")
+    if (r.status === "fail" || r.detail.startsWith("unstable"))
       console.log(`        ${r.detail}\n        reply: ${r.reply.trim().slice(0, 300)}`);
   }
 }
@@ -55,9 +55,12 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean) {
   let failed = 0;
   for (const id of ids) {
     const book = readBook(id, model.id);
-    const live = async (prompt: string) => {
+    const live = async (prompt: string, sample = 0) => {
       const reply = await azure(model, prompt);
-      book[keyOf(model.id, prompt)] = { prompt, reply };
+      const key = keyOf(model.id, prompt);
+      const replies = [...(sample === 0 ? [] : (book[key]?.replies ?? []))];
+      replies[sample] = reply;
+      book[key] = { prompt, reply: replies[0] ?? reply, replies };
       return reply;
     };
     try {
@@ -65,6 +68,7 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean) {
         defs: registry.defs,
         callModel: replay ? replayCall(id, model.id) : live,
         only: [id],
+        samples: model.samples,
       });
       if (!replay) writeBook(id, model.id, book);
       print(model, results);
