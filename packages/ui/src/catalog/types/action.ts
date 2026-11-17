@@ -18,7 +18,8 @@ export type ActionSpec = {
    * A part that exists only for some prop values: `{ back: { style: "back" }, trail: { trail: "toggle" } }`.
    * Read against the component's props for `parts`, against each item for `items` (a key the item
    * lacks is read from the component's props). A key `part.action` limits one action:
-   * `{ "root.toggle": { style: "filter" }, "root.select": { style: "choose" } }`.
+   * `{ "root.toggle": { style: "filter" }, "root.select": { style: "choose" } }`. `$first: true`
+   * matches only the first item.
    */
   when?: Record<string, Record<string, string | boolean>>;
 };
