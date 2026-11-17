@@ -18,8 +18,8 @@ import { KitCard, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useE
 export const meta = {
   id: "KeyValue",
   group: "content",
-  purpose: "The labelled facts about one thing.",
-  pick: "Read the attributes of one thing. Not several things to choose among (List) or summary numbers (Stats).",
+  purpose: "Label and value details of one single thing, like its room or schedule.",
+  pick: "Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).",
   region: "body",
   weight: 2,
   tier: "phone",

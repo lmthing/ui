@@ -31,7 +31,7 @@ export const meta = {
   id: "List",
   group: "content",
   purpose: "Several things of the same kind, each one tappable.",
-  pick: "Scan or choose among things. Not facts about one thing (KeyValue) or things to tick off (Checklist).",
+  pick: "Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).",
   region: "body",
   weight: 2,
   tier: "phone",

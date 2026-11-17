@@ -7,7 +7,7 @@
     "kit:themes": "pnpm --filter @lmthing/ui kit:themes",
     "build:catalog": "pnpm --filter @lmthing/ui build:catalog",
     "catalog:bundle-check": "pnpm --filter @lmthing/ui catalog:bundle-check",
-    "gallery": "pnpm build:catalog && pnpm --filter @lmthing/gallery dev",
+    "gallery": "pnpm build:entries && pnpm --filter @lmthing/gallery dev",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "format": "prettier --write .",
