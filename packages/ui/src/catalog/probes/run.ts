@@ -9,7 +9,9 @@ async function runOne(
   callModel: CallModel,
 ): Promise<ProbeResult> {
   const base = { component: def.meta.id, probe, prompt: "", reply: "" };
-  const ids = defs.map((entry) => entry.meta.id);
+  // The model never sees code-owned components (TabBar) as choices.
+  const offered = defs.filter((entry) => !entry.meta.codeOwned);
+  const ids = offered.map((entry) => entry.meta.id);
   if (probe.kind === "read") {
     const instance = probe.expect.address.split("/")[0]!;
     const prompt = readPrompt(def, probe.screen, instance, probe.task);
@@ -21,7 +23,7 @@ async function runOne(
     return { ...base, status: "skipped", detail: `${probe.expect} is not in the catalog yet` };
   }
   if (probe.kind === "choose") {
-    const prompt = choosePrompt(defs, probe.need);
+    const prompt = choosePrompt(offered, probe.need);
     const reply = await callModel(prompt);
     const { pass, detail } = scoreChoose(reply, ids, probe.expect);
     return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };

@@ -6,6 +6,7 @@ export { KitBars } from "./KitBars";
 export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";
 export { KitRing } from "./KitRing";
+export { KitTabBar } from "./KitTabBar";
 export { KitMapTile } from "./KitMapTile";
 export { KitViewfinder, KitShutter } from "./KitCamera";
 export { KitRouteStop } from "./KitRouteStop";

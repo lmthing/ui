@@ -67,6 +67,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitTabBar` | Bottom navigation: 2 to 5 equal tabs under a top rule, icon over label, selected in accent; each tab an item (role tab, goes to its `goto`) | `tabs` ({id,icon,label,goto}), `at` |
 | `KitMapTile` | A stylised map: soft streets and numbered accent pins 1..count at stable spots; decorative, part `map` | `count` (1..5), `part` |
 | `KitViewfinder` | A dark rounded camera frame (photo grid or scan corners) with the hint over its bottom edge | `kind` photo/scan, `hint`, `part` (default `viewfinder`), `hintPart` (default `hint`) |
 | `KitShutter` | A large round centred shutter button (role button) | `label`, `part` (default `shutter`) |
@@ -103,7 +104,7 @@ inside the component file. A new base is themed only through tokens, roles and `
 Copy `List.test.ts` and keep its four blocks: every example parses; invalid inputs are rejected
 (over-long text, too many or too few items, unknown enum values, unknown keys, raw colours); the
 fallback validates with an empty cast, a cast with matching things and a malformed cast, and uses
-placeholders when empty; probes are well-formed (≥2 choose with a near miss, 1 write, read if
+placeholders when empty; probes are well-formed (a `codeOwned` component, built by code and never by the model, has only `read` probes; otherwise ≥2 choose with a near miss, 1 write, read if
 actions). Rendering is covered by `test/conformance.test.tsx` automatically.
 
 ## The model gate

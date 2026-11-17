@@ -21,6 +21,12 @@ export type Meta = {
   read?: (props: unknown, state: StateName) => string[];
   signature?: string;
   status?: "draft" | "ready";
+  /**
+   * Built by code, never chosen or written by the model (TabBar from the sections marked nav). It
+   * stays in the catalog and is read like any component, but choose and write prompts leave it out
+   * and it has only `read` probes.
+   */
+  codeOwned?: boolean;
 };
 
 export type BaseRoles = Record<
