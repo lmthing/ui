@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  emptyLine,
   itemsOf,
   placeholderTitle,
   screenId,
@@ -12,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitHours, KitText, useComponentState, useEmptyThing } from "../kit";
+import { KitCard, KitEmpty, KitHours, useComponentState } from "../kit";
 
 export const meta = {
   id: "DayTimeline",
@@ -107,16 +106,9 @@ export const probes = [
 
 export function DayTimeline({ blocks }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   return (
-    <KitCard style="inset" part="root" padded>
-      {state === "empty" ? (
-        <KitText role="body" tone="muted">
-          {emptyLine(thing)}
-        </KitText>
-      ) : (
-        <KitHours blocks={blocks} />
-      )}
+    <KitCard style="inset" part="root" padded={state !== "empty"}>
+      {state === "empty" ? <KitEmpty part="title" /> : <KitHours blocks={blocks} />}
     </KitCard>
   );
 }
