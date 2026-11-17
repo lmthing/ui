@@ -7,6 +7,15 @@ describe("Button schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
+  it("exercises every kind and optional field in the examples", () => {
+    const parsed = examples.map((example) => props.parse(example));
+    expect(new Set(parsed.map((example) => example.kind))).toEqual(
+      new Set(["primary", "secondary", "quiet", "danger"]),
+    );
+    expect(parsed.some((example) => example.icon)).toBe(true);
+    expect(parsed.some((example) => example.goto && example.goto !== "back")).toBe(true);
+    expect(parsed.some((example) => example.goto === "back")).toBe(true);
+  });
   it("applies defaults and trims text", () => {
     expect(props.parse({ label: "  Continue  " })).toEqual({
       label: "Continue",
