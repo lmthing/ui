@@ -117,9 +117,9 @@ describe("Sparkline fallback and metadata", () => {
   it.each([
     { points: [1, 2, 3], direction: "rising" },
     { points: [3, 2, 1], direction: "falling" },
-    { points: [3, 9, 3], direction: "flat" },
+    { points: [3, 9, 3], direction: "steady" },
     { points: [-3, -8, -1], direction: "rising" },
-    { points: [0, 0, 0], direction: "flat" },
+    { points: [0, 0, 0], direction: "steady" },
   ])("reads $direction from the first and last point", ({ points, direction }) => {
     const parsed = props.parse({ ...input, points });
     expect(meta.read(parsed, "filled")).toEqual([direction]);

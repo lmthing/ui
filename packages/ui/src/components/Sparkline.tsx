@@ -5,6 +5,7 @@ import {
   placeholderValue,
   text,
   thingOf,
+  trendWord,
   type CastLike,
   type Meta,
   type Probe,
@@ -27,9 +28,7 @@ export const meta = {
   read: (input, state) => {
     if (state === "loading") return [];
     const { points } = input as z.output<typeof props>;
-    const first = points[0]!;
-    const last = points[points.length - 1]!;
-    return [last > first ? "rising" : last < first ? "falling" : "flat"];
+    return [trendWord(points)];
   },
 } as const satisfies Meta;
 
