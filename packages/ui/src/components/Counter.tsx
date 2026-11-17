@@ -10,7 +10,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitContent, KitGrid, KitText } from "../kit";
+import { KitAction, KitCard, KitGrid, KitText } from "../kit";
 
 export const meta = {
   id: "Counter",
@@ -81,16 +81,15 @@ export function Counter({ label, value, unit }: Props<typeof props, typeof meta>
       </KitText>
       <KitGrid columns={3}>
         <KitAction kind="secondary" icon="minus" a11y={stepLabels.less} part="minus" full />
-        <KitContent>
-          <KitText role="number" align="center" tabular part="value">
-            {value}
-          </KitText>
+        <KitText role="number" align="center" tabular part="value">
+          {value}
           {unit && (
-            <KitText role="caption" tone="muted" align="center" part={null}>
+            <KitText role="caption" tone="muted" part={null}>
+              {" "}
               {unit}
             </KitText>
           )}
-        </KitContent>
+        </KitText>
         <KitAction kind="secondary" icon="plus" a11y={stepLabels.more} part="plus" full />
       </KitGrid>
     </KitCard>
