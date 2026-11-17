@@ -37,7 +37,10 @@ export const meta = {
   realPath: "A query over one thing in the on-device database.",
   items: { key: "rows", parts: ["root", "title", "meta", "icon", "trail"] },
   states: ["filled", "empty", "loading"],
-  actions: { items: { root: ["press"], trail: ["toggle"] } },
+  actions: {
+    items: { root: ["press"], trail: ["toggle"] },
+    when: { trail: { trail: "toggle" } },
+  },
   aliases: ["listview", "table", "rows", "items"],
 } as const satisfies Meta;
 
@@ -56,7 +59,9 @@ export const props = z.strictObject({
       }),
     )
     .min(1)
-    .max(6),
+    .max(6)
+    // The shared reader checks optional part presence; only linked rows expose a root action.
+    .transform((rows) => rows.map((row) => ({ ...row, root: row.goto }))),
 });
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
@@ -86,11 +91,24 @@ export const examples = [
     rows: [
       { title: "Morning park walk", meta: "09:00 · two dogs", icon: "dog", trail: "value", value: "£18" },
       {
-        title: "Riverside afternoon",
+        title: "River walk",
         meta: "14:30 · one dog",
         icon: "clock",
         trail: "badge",
         value: "Booked",
+      },
+    ],
+  },
+  {
+    style: "plain",
+    rows: [
+      { title: "Aloe", meta: "Bedroom · water Friday", photo: "lib:plants", trail: "none" },
+      {
+        title: "Pothos",
+        meta: "Hall · due Sunday",
+        photo: "lib:plants",
+        trail: "chevron",
+        goto: "pothos",
       },
     ],
   },
