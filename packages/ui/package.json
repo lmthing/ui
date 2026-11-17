@@ -22,10 +22,10 @@
     "build:catalog": "pnpm build:entries && tsx scripts/bundle-check.ts && pnpm kit:themes",
     "catalog:bundle-check": "tsx scripts/bundle-check.ts",
     "typecheck": "tsx scripts/build-entries.ts && tsc -p tsconfig.json",
-    "test": "tsx scripts/build-entries.ts && tsx scripts/check.ts",
+    "test": "tsx scripts/build-entries.ts && tsx scripts/build-themes.ts && tsx scripts/check.ts",
     "llm:check": "pnpm build:catalog && tsx scripts/llm-check.ts",
     "shoot": "tsx scripts/build-entries.ts && tsx scripts/shoot.ts",
-    "look": "tsx scripts/build-entries.ts && tsx scripts/look.ts"
+    "look": "tsx scripts/build-entries.ts && tsx scripts/build-themes.ts && tsx scripts/look.ts"
   },
   "dependencies": {
     "zod": "4.6.7"

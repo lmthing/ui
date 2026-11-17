@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  emptyLine,
   itemsOf,
   placeholderTitle,
   text,
@@ -11,7 +10,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, useEmptyThing } from "../kit";
+import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty } from "../kit";
 
 export const meta = {
   id: "Checklist",
@@ -91,7 +90,6 @@ export const probes = [
 
 export function Checklist({ items }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root">
@@ -102,9 +100,7 @@ export function Checklist({ items }: Props<typeof props, typeof meta>) {
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitText role="body" tone="muted" part="text">
-          {emptyLine(thing)}
-        </KitText>
+        <KitEmpty part="text" />
       </KitCard>
     );
   }

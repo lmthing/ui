@@ -1,3 +1,4 @@
+import "./app/fonts";
 import { createRoot } from "react-dom/client";
 import { Gallery } from "./app";
 

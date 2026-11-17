@@ -9,8 +9,8 @@ export type KitStyle = {
 };
 const densities = {
   compact: { gap: "sm", rowPad: "sm", cardPad: "md" },
-  regular: { gap: "md", rowPad: "md", cardPad: "lg" },
-  airy: { gap: "lg", rowPad: "lg", cardPad: "xl" },
+  regular: { gap: "sm", rowPad: "md", cardPad: "lg" },
+  airy: { gap: "md", rowPad: "md", cardPad: "xl" },
 } as const;
 const shifts = { sharp: -1, soft: 0, round: 1 } as const;
 

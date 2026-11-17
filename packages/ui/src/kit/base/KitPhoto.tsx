@@ -1,20 +1,49 @@
 import { Image, YStack, styled } from "tamagui";
-import { radius, size } from "../../catalog";
-import { useKit } from "../provider";
+import { component, radius, size } from "../../catalog";
+import { useKit, useKitStyle } from "../provider";
 import { usePart } from "../part";
+import { shifted } from "./style";
 
 const Frame = styled(YStack, {
-  width: size.avatar.md,
-  height: size.avatar.md,
-  borderRadius: radius.sm,
   overflow: "hidden",
   backgroundColor: "$accentSoft",
+  variants: {
+    shape: {
+      thumb: { width: size.avatar.md, height: size.avatar.md },
+      round: { width: size.avatar.md, height: size.avatar.md, borderRadius: radius.pill },
+      wide: { width: "100%", aspectRatio: component.base.wideRatio },
+    },
+  } as const,
 });
-export function KitPhoto({ photo, part = "icon" }: { photo: string; part?: string }) {
+
+/**
+ * A photo by reference (`lib:<tag>` or `local:<n>`), resolved by the host. `thumb` and `round` sit
+ * beside text; `wide` fills the width at 16:9 for a hero or card image. A tinted block until loaded.
+ */
+export function KitPhoto({
+  photo,
+  shape = "thumb",
+  part = "icon",
+  label,
+}: {
+  photo: string;
+  shape?: "thumb" | "round" | "wide";
+  part?: string;
+  label?: string;
+}) {
   const source = useKit().resolvePhoto?.(photo);
+  const ks = useKitStyle();
   return (
-    <Frame {...usePart(part)} accessibilityRole="image" accessibilityLabel={photo}>
-      {source && <Image source={{ uri: source }} width={size.avatar.md} height={size.avatar.md} />}
+    <Frame
+      {...usePart(part)}
+      shape={shape}
+      {...(shape === "round"
+        ? {}
+        : { borderRadius: shifted(shape === "wide" ? "lg" : "sm", ks.radiusShift) })}
+      accessibilityRole="image"
+      accessibilityLabel={label ?? photo.replace(/^lib:/, "").replace(/_/g, " ")}
+    >
+      {source && <Image source={{ uri: source }} width="100%" height="100%" objectFit="cover" />}
     </Frame>
   );
 }

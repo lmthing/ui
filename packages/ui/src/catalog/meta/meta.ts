@@ -31,7 +31,7 @@ export type PresetMeta = {
   numbers: "regular" | "condensed";
   shape: "sharp" | "soft" | "round";
   density: "compact" | "regular" | "airy";
-  surface: "flat-tinted" | "hairline" | "cream" | "solid-accent";
+  surface: "soft" | "solid" | "hairline";
   roles: { light: BaseRoles; dark: BaseRoles };
 };
 export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };

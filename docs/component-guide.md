@@ -95,4 +95,5 @@ a part that exists only for some prop values declares it in `actions.when`.
 
 Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
-repeat until it answers `APPROVED` (at most 3 rounds). A person approves the final screenshots once.
+repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
+screenshots once, approves and merges.

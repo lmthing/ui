@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   detailOf,
-  emptyLine,
   icon,
   itemsOf,
   photo,
@@ -24,7 +23,7 @@ import {
   KitText,
   KitTrail,
   useComponentState,
-  useEmptyThing,
+  KitEmpty,
 } from "../kit";
 
 export const meta = {
@@ -111,7 +110,6 @@ export const probes = [
 
 export function List({ style, rows }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   if (state === "loading") {
     return (
       <KitCard style={style}>
@@ -122,9 +120,7 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
   if (state === "empty") {
     return (
       <KitCard style={style}>
-        <KitText role="body" tone="muted" part="title">
-          {emptyLine(thing)}
-        </KitText>
+        <KitEmpty part="title" />
       </KitCard>
     );
   }

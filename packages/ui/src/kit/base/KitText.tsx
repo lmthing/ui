@@ -8,6 +8,7 @@ const roleOf = (role: keyof typeof typography) => ({
   fontSize: typography[role].size,
   lineHeight: typography[role].lineHeight,
   fontWeight: typography[role].weight,
+  letterSpacing: typography[role].tracking,
 });
 
 const Frame = styled(Text, {

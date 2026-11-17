@@ -104,9 +104,10 @@ export function findIssues(): LookIssue[] {
       }
       if (el.getAttribute("aria-label") === "Loading") {
         const behind = backgroundOf(el.parentElement);
-        for (const bar of Array.from(el.children)) {
-          const fill = ownBackground(bar);
-          const shown = fill ? ratio(fill, behind) : 1;
+        const bars = Array.from(el.querySelectorAll("*")).filter((node) => ownBackground(node));
+        if (!bars.length) add("faint", frame, el, "loading state draws nothing visible");
+        for (const bar of bars.slice(0, 3)) {
+          const shown = ratio(ownBackground(bar)!, behind);
           if (shown < 1.25) add("faint", frame, bar, `loading bar ${shown.toFixed(2)}:1 against its card`);
         }
       }
@@ -128,19 +129,14 @@ export function findIssues(): LookIssue[] {
       const holder = boxOf(el);
       if (holder) {
         const h = holder.getBoundingClientRect();
-        const gap = Math.min(
-          rect.left - h.left,
-          h.right - rect.right,
-          rect.top - h.top,
-          h.bottom - rect.bottom,
-        );
-        if (gap < 7.5)
-          add(
-            "cramped",
-            frame,
-            el,
-            `${label(el)} is ${Math.max(0, Math.round(gap))}px from the edge of its box`,
-          );
+        const side = Math.min(rect.left - h.left, h.right - rect.right);
+        const end = Math.min(rect.top - h.top, h.bottom - rect.bottom);
+        // Pills (badges, chips) may be tight above and below; boxes need room on every side.
+        const pill = parseFloat(getComputedStyle(holder).borderTopLeftRadius) >= h.height / 2 - 1;
+        if (side < 7.5 || end < (pill ? 2.5 : 7.5)) {
+          const where = `${Math.max(0, Math.round(side))}px at the sides, ${Math.max(0, Math.round(end))}px above/below`;
+          add("cramped", frame, el, `${label(el)} has ${where} inside its ${pill ? "pill" : "box"}`);
+        }
       }
       const lineHeight = parseFloat(style.lineHeight) || size * 1.3;
       const lines = Math.round(rect.height / lineHeight);
@@ -158,11 +154,12 @@ export function findIssues(): LookIssue[] {
     }
     for (const [part, rects] of byPart) {
       const lefts = [...new Set(rects.map((r) => Math.round(r.left / 3)))];
+      const rights = [...new Set(rects.map((r) => Math.round(r.right / 3)))];
       const rows = new Map<number, number[]>();
       for (const r of rects)
         rows.set(Math.round(r.top / 24), [...(rows.get(Math.round(r.top / 24)) ?? []), r.top]);
       const columns = Math.max(...[...rows.values()].map((tops) => tops.length));
-      if (lefts.length > columns) {
+      if (lefts.length > columns && rights.length > columns) {
         add(
           "align",
           frame,

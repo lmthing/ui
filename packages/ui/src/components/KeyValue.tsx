@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   clip,
-  emptyLine,
   icon,
   itemsOf,
   placeholderTitle,
@@ -13,7 +12,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useEmptyThing } from "../kit";
+import { KitCard, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty } from "../kit";
 
 export const meta = {
   id: "KeyValue",
@@ -118,7 +117,6 @@ function PairRow({ pair, next }: { pair: Pair; next?: Pair | undefined }) {
 
 export function KeyValue({ style, pairs }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   if (state === "loading") {
     return (
       <KitCard style="inset">
@@ -129,9 +127,7 @@ export function KeyValue({ style, pairs }: Props<typeof props, typeof meta>) {
   if (state === "empty") {
     return (
       <KitCard style="inset">
-        <KitText role="body" tone="muted" part="label">
-          {emptyLine(thing)}
-        </KitText>
+        <KitEmpty part="label" />
       </KitCard>
     );
   }

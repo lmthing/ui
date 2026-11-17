@@ -1,3 +1,4 @@
-export { KitTrail } from "./KitTrail";
+export { KitTrail, type TrailKind } from "./KitTrail";
 export { KitSkeleton } from "./KitSkeleton";
 export { KitCheck } from "./KitCheck";
+export { KitEmpty } from "./KitEmpty";

@@ -68,7 +68,7 @@ function Screen({
 export function Screens({ id, width, mode }: { id: ComponentName; width: number; mode: "light" | "dark" }) {
   return (
     <TamaguiProvider config={config} defaultTheme={`kit_calm_${mode}_moss`}>
-      <XStack padding={space.lg} gap={space.xl} alignItems="flex-start">
+      <XStack padding={space.lg} gap={space.xl} alignItems="flex-start" backgroundColor="$bg">
         {presets.map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
             {cellsOf(id).map((cell) => (

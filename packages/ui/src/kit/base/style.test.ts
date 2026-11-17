@@ -14,6 +14,6 @@ it("derives surfaces from roles and tokens, not preset names", () => {
     borderColor: "$line",
     borderWidth: component.base.borderWidth,
   });
-  expect(surfaceOf("solid-accent").backgroundColor).toBe("$accentSoft");
-  expect(surfaceOf("flat-tinted").backgroundColor).toBe("$raised");
+  expect(surfaceOf("solid")).toEqual({ backgroundColor: "$surface", borderWidth: component.base.none });
+  expect(surfaceOf("soft")).toMatchObject({ backgroundColor: "$surface", shadowColor: "$text" });
 });

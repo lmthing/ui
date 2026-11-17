@@ -5,9 +5,9 @@ describe("kit styles and theme names", () => {
   it("derives shapes, density and font pairing from metadata", () => {
     expect(kitStyleOf(presets[0])).toMatchObject({
       radiusShift: 0,
-      density: { rowPad: "lg" },
+      density: { rowPad: "md" },
       fonts: { text: "humanist" },
-      surface: "flat-tinted",
+      surface: "soft",
     });
     expect(kitStyleOf(presets[1])).toMatchObject({ radiusShift: -1, density: { rowPad: "sm" } });
     expect(kitStyleOf(presets[2])).toMatchObject({
