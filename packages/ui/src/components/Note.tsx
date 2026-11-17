@@ -11,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitIcon, KitText } from "../kit";
+import { KitIcon, KitRow, KitText } from "../kit";
 
 export const meta = {
   id: "Note",
@@ -44,18 +44,18 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   {
     style: "hint",
-    text: "Keep your fern in bright, indirect light.",
+    text: "Keep your fern in indirect light.",
+    tone: "neutral",
     icon: "sun",
   },
   {
     style: "body",
-    text: "Keep Clover on a short lead near the road.",
+    text: "Keep Clover on a short lead.",
     tone: "warn",
   },
   {
     style: "quote",
-    text: "Clover walks calmly when we give her time to sniff.",
-    tone: "good",
+    text: "Clover loves a slow walk.",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -79,14 +79,17 @@ export const probes = [
 
 export function Note({ style, text, tone, icon }: Props<typeof props, typeof meta>) {
   const role = style === "quote" ? "heading" : style === "hint" ? "label" : "body";
-  const textTone = style === "hint" ? "muted" : tone === "neutral" ? "text" : tone;
+  const textTone = tone === "neutral" ? (style === "hint" ? "muted" : "text") : tone;
+  const name = icon ?? (style === "quote" ? "quote" : style === "hint" ? "lightbulb" : undefined);
   return (
-    <KitCard style="plain" part="root">
-      {style === "quote" && <KitIcon name="quote" tone="muted" part="icon" />}
-      {style === "hint" && <KitIcon name={icon ?? "lightbulb"} part="icon" />}
+    <KitRow
+      item=""
+      label={text}
+      leading={name && <KitIcon name={name} tone={tone === "neutral" ? "muted" : tone} part="icon" />}
+    >
       <KitText role={role} tone={textTone} part="text">
         {text}
       </KitText>
-    </KitCard>
+    </KitRow>
   );
 }
