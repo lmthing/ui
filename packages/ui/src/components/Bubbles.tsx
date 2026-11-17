@@ -9,7 +9,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitBubble, KitCard, KitEmpty, KitText, useComponentState } from "../kit";
+import { KitBubble, KitCard, KitContent, KitEmpty, KitText, useComponentState } from "../kit";
 
 export const meta = {
   id: "Bubbles",
@@ -92,9 +92,11 @@ export function Bubbles({ messages, with: person }: Props<typeof props, typeof m
   return (
     <KitCard style="plain" part="root">
       {person && (
-        <KitText role="caption" tone="muted" part={null}>
-          {person}
-        </KitText>
+        <KitContent inset="md">
+          <KitText role="caption" tone="muted" part={null}>
+            {person}
+          </KitText>
+        </KitContent>
       )}
       {messages.map((message, index) => (
         <KitBubble
