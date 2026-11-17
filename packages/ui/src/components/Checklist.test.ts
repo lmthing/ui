@@ -1,5 +1,13 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { components, createRegistry, type CastLike, type Props } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  components,
+  createRegistry,
+  readComponent,
+  stampItemIds,
+  type CastLike,
+  type Props,
+} from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Checklist;
 
@@ -111,7 +119,7 @@ describe("Checklist metadata and probes", () => {
       tier: "phone",
       items: { key: "items", parts: ["root", "check", "text", "meta"] },
       states: ["filled", "empty", "loading"],
-      actions: { items: { check: ["toggle"], root: ["toggle"] } },
+      actions: { items: { check: ["check"] } },
     });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -123,8 +131,31 @@ describe("Checklist metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
       task: "Tick off the first job",
-      expect: { address: "k1/r1/check", action: "toggle" },
+      expect: { address: "k1/r1/check", action: "check" },
     });
+  });
+  it.each([false, true])("offers only the checkbox action when done is %s", (done) => {
+    const input = {
+      items: [
+        { text: "First job", done },
+        { text: "Second job", meta: "Later" },
+      ],
+    };
+    const viewProps = stampItemIds(meta, props.parse(input));
+    expect(affordancesOf(meta, viewProps, "k1")).toEqual([
+      { address: "k1/r1/check", part: "check", action: "check", detail: done ? ":done" : ":todo" },
+      { address: "k1/r2/check", part: "check", action: "check", detail: ":todo" },
+    ]);
+    expect(readComponent(components.Checklist, input, "k1")).toEqual([
+      "k1 Checklist",
+      `  r1 "First job" [check check:${done ? "done" : "todo"}]`,
+      '  r2 "Second job" · "Later" [check check:todo]',
+    ]);
+  });
+  it.each(["empty", "loading"] as const)("does not offer hidden item actions in %s", (state) => {
+    expect(readComponent(components.Checklist, examples[0], "k1", state)).toEqual([
+      `k1 Checklist (${state})`,
+    ]);
   });
   it("builds a data-only registry with case and separator tolerant aliases", () => {
     const registry = createRegistry();
