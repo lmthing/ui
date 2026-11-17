@@ -59,6 +59,7 @@ export function KitText({
   part = "root",
   lines,
   tabular = false,
+  numberScale = "display",
 }: {
   children: ReactNode;
   role?: TextRole;
@@ -69,6 +70,8 @@ export function KitText({
   lines?: number;
   /** Equal-width digits, so times and amounts line up in a column. */
   tabular?: boolean;
+  /** `number` role only: `compact` keeps the number font and weight at body size (a list index). */
+  numberScale?: "display" | "compact";
 }) {
   const style = useKitStyle();
   const address = usePart(part ?? "root");
@@ -89,6 +92,9 @@ export function KitText({
       {...(heavier ? { fontWeight: heavier } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
+      {...(role === "number" && numberScale === "compact"
+        ? { fontSize: typography.body.size, lineHeight: typography.body.lineHeight, letterSpacing: 0 }
+        : {})}
     >
       {children}
     </Frame>

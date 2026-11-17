@@ -52,8 +52,8 @@ export function KitMapTile({ count, part = "map" }: { count: number; part?: stri
             <SvgText
               key={`t${index}`}
               x={x * width}
-              y={y * height + pin / 2.6}
-              fontSize={pin}
+              y={y * height + component.base.pinText / 2.8}
+              fontSize={component.base.pinText}
               fontWeight="700"
               textAnchor="middle"
               fill={c("onAccent")}

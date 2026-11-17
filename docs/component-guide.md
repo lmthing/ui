@@ -85,7 +85,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, `leadingAlign` line/row (`row` for a thumbnail), `inset` none/md, children |
 | `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `inset` md/none, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), `leadingAlign` line/row (`row` for a photo thumbnail taller than a line), `inset` md/none (`none` for a cell inside `KitGrid`), children |
-| `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `tabular` (equal-width digits), `part` (`null`: not addressed, inside a decorative drawing) |
+| `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `tabular` (equal-width digits), `numberScale` display/compact (number role at body size), `part` (`null`: not addressed, inside a decorative drawing) |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part`, `decorative` (no address; chevrons only) |
 | `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, centred, for a profile), `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
@@ -93,7 +93,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
-| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg)/trend (label and value bars left, a chart band right)/bars (a title bar over `rows` columns, default 7, at chart height) |
+| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `inset` md/none (rows), `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg)/trend (label and value bars left, a chart band right)/bars (a title bar over `rows` columns, default 7, at chart height) |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
