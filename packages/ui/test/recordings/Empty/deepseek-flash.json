@@ -1,11 +1,11 @@
 {
   "0217919b4a13b0cb": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nEmpty: A calm message on a screen that has no content yet.\nprops: { title: text≤40, sub?: text≤100, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }\nexample: {\"c\":\"Empty\",\"title\":\"No plants yet\",\"icon\":\"leaf\"}\n\nBrief: My plant collection has no plants yet. Say so with a leaf symbol and explain that added plants will appear here.\nReply with only the JSON line, starting with {\"c\":\"Empty\".",
-    "reply": "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"sub\":\"Plants you add will appear here\",\"icon\":\"leaf\"}",
+    "reply": "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"icon\":\"leaf\",\"sub\":\"Plants you add will appear here.\"}",
     "replies": [
-      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"sub\":\"Plants you add will appear here\",\"icon\":\"leaf\"}",
-      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\"}",
-      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"sub\":\"Plants you add will appear here\",\"icon\":\"leaf\"}"
+      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"icon\":\"leaf\",\"sub\":\"Plants you add will appear here.\"}",
+      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"icon\":\"leaf\",\"sub\":\"Plants you add will appear here.\"}",
+      "{\"c\":\"Empty\",\"title\":\"No plants yet\",\"icon\":\"leaf\",\"sub\":\"Plants you add will appear here.\"}"
     ]
   },
   "04807c3f9be7433f": {

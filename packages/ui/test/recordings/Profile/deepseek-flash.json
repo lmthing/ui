@@ -66,11 +66,11 @@
   },
   "7ade7baff4d9ab6b": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nProfile: Identify the person, pet or plant whose screen this is.\nprops: { style?: row|centered=\"row\", name: text≤32, meta?: text≤48, photo?: photo lib:<tag>|local:<n> }\nexample: {\"c\":\"Profile\",\"style\":\"row\",\"name\":\"Monstera\",\"meta\":\"Living room\",\"photo\":\"lib:plants\"}\n\nBrief: Introduce Clover at the top of her page with her picture above her name and Beagle · 4 years underneath\nReply with only the JSON line, starting with {\"c\":\"Profile\".",
-    "reply": "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:dog\"}",
+    "reply": "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:pets\"}",
     "replies": [
-      "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:dog\"}",
-      "{\"c\":\"Profile\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:beagle\"}",
-      "{\"c\":\"Profile\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:dogs\"}"
+      "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:pets\"}",
+      "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:beagle\"}",
+      "{\"c\":\"Profile\",\"style\":\"centered\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:animals\"}"
     ]
   },
   "82e50d0a296ee394": {

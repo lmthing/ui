@@ -19,11 +19,11 @@
   },
   "313e5565eefe5c6c": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nCamera: Aim at something and take a new picture or scan its code.\nprops: { kind?: photo|scan=\"photo\", hint: text≤48 }\nexample: {\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}\n\nBrief: Let me aim at my plant's leaves and take a new shot, with a short instruction\nReply with only the JSON line, starting with {\"c\":\"Camera\".",
-    "reply": "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at your plant’s leaves\"}",
+    "reply": "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at leaves and snap a photo\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at your plant’s leaves\"}",
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at the leaves and tap to shoot\"}",
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at leaves and shoot\"}"
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at leaves and snap a photo\"}",
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at your plant's leaves\"}",
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}"
     ]
   },
   "4d16583ff1675540": {

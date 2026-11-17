@@ -79,7 +79,7 @@
     "reply": "{\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"09:00\",\"title\":\"Morning park walk\",\"done\":true},{\"time\":\"12:30\",\"title\":\"Lunch walk\"},{\"time\":\"17:00\",\"title\":\"River walk\"}]}",
     "replies": [
       "{\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"09:00\",\"title\":\"Morning park walk\",\"done\":true},{\"time\":\"12:30\",\"title\":\"Lunch walk\"},{\"time\":\"17:00\",\"title\":\"River walk\"}]}",
-      "{\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"09:00\",\"title\":\"Morning park walk\",\"meta\":\"Park\",\"done\":true},{\"time\":\"12:30\",\"title\":\"Lunch walk\",\"meta\":\"\"},{\"time\":\"17:00\",\"title\":\"River walk\",\"meta\":\"River\"}]}",
+      "{\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"09:00\",\"title\":\"Morning park walk\",\"done\":true},{\"time\":\"12:30\",\"title\":\"Lunch walk\"},{\"time\":\"17:00\",\"title\":\"River walk\"}]}",
       "{\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"09:00\",\"title\":\"Morning park walk\",\"done\":true},{\"time\":\"12:30\",\"title\":\"Lunch walk\"},{\"time\":\"17:00\",\"title\":\"River walk\"}]}"
     ]
   },

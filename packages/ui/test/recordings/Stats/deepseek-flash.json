@@ -61,11 +61,11 @@
   },
   "39b96bb6bf200eb3": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nStats: Two to four summary numbers, with time periods in labels and only short measurement units.\nprops: { style?: tiles|inline=\"tiles\", tiles: [2..4 { label: text≤20, value: text≤8, unit?: text≤8, trend?: up|down|flat }] }\nexample: {\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Plants\",\"value\":\"12\"},{\"label\":\"Watered\",\"value\":\"3\"},{\"label\":\"Due\",\"value\":\"2\"}]}\n\nBrief: Show nine walks this week and 180 EUR earned, with earnings trending up\nReply with only the JSON line, starting with {\"c\":\"Stats\".",
-    "reply": "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks\",\"value\":\"9\",\"unit\":\"this wk\"},{\"label\":\"Earnings\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
+    "reply": "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earned\",\"value\":\"€180\",\"trend\":\"up\"}]}",
     "replies": [
-      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks\",\"value\":\"9\",\"unit\":\"this wk\"},{\"label\":\"Earnings\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
-      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earnings\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
-      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earned (EUR)\",\"value\":\"180\",\"trend\":\"up\"}]}"
+      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earned\",\"value\":\"€180\",\"trend\":\"up\"}]}",
+      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earnings\",\"value\":\"180 EUR\",\"trend\":\"up\"}]}",
+      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\"},{\"label\":\"Earned\",\"value\":\"€180\",\"trend\":\"up\"}]}"
     ]
   },
   "3e0f6302b9b0b99b": {

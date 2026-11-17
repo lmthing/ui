@@ -41,7 +41,7 @@
     "reply": "{\"c\":\"Steps\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
     "replies": [
       "{\"c\":\"Steps\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
-      "{\"c\":\"Steps\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+      "{\"c\":\"Steps\",\"style\":\"bar\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
       "{\"c\":\"Steps\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
     ]
   },

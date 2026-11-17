@@ -72,8 +72,8 @@
     "reply": "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}",
     "replies": [
       "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}",
-      "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Light\",\"value\":\"Bright indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}",
-      "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}"
+      "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}",
+      "{\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Light\",\"value\":\"Bright indirect\",\"icon\":\"sun\"},{\"label\":\"Water\",\"value\":\"Every 7 days\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}"
     ]
   },
   "6e19017549cb9cb8": {
