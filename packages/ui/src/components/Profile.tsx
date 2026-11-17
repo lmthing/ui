@@ -77,8 +77,9 @@ export function Profile({ style, name, meta: detail, photo }: Props<typeof props
       <KitCard style="plain" padded={style === "centered"} part="root">
         <KitSkeleton
           rows={1}
-          lead={style === "row" ? "dot" : "none"}
+          lead={style === "row" && photo ? "box" : style === "row" ? "dot" : "none"}
           shape={style === "row" ? "rows" : "headline"}
+          inset={style === "row" ? "md" : "none"}
         />
       </KitCard>
     );

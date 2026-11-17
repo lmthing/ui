@@ -86,7 +86,12 @@ export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typ
   if (state === "loading") {
     return (
       <KitCard style="cards" part="root">
-        <KitSkeleton rows={1} lead="none" shape="headline" />
+        <KitSkeleton
+          rows={1}
+          lead="none"
+          shape={style === "photo" && photo && resolvePhoto?.(photo) ? "media" : "headline"}
+          inset="none"
+        />
       </KitCard>
     );
   }

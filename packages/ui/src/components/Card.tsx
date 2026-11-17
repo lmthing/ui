@@ -143,7 +143,12 @@ export function Card({
       label={title}
     >
       {state === "loading" ? (
-        <KitSkeleton rows={1} shape={media ? "media" : "rows"} lead={icon ? "dot" : photo ? "box" : "none"} />
+        <KitSkeleton
+          rows={1}
+          shape={hasPhoto ? "media" : "rows"}
+          lead={media ? "none" : icon ? "dot" : photo ? "box" : "none"}
+          inset="none"
+        />
       ) : (
         <>
           {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
