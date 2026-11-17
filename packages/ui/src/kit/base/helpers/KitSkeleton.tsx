@@ -14,9 +14,19 @@ const details = ["44%", "36%", "40%", "30%", "38%", "34%"] as const;
  * first-line height, two text lines), so the card keeps its size when content arrives. `lead` is the
  * placeholder for the row's leading item: a round icon, a square tick box, or nothing.
  */
-export function KitSkeleton({ rows = 1, lead = "dot" }: { rows?: number; lead?: "dot" | "box" | "none" }) {
+export function KitSkeleton({
+  rows = 1,
+  lead = "dot",
+  shape = "rows",
+}: {
+  rows?: number;
+  lead?: "dot" | "box" | "none";
+  /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
+  shape?: "rows" | "pairs" | "headline";
+}) {
   const ks = useKitStyle();
-  const first = typography.body.lineHeight;
+  const first = shape === "headline" ? typography.display.lineHeight : typography.body.lineHeight;
+  const bar = shape === "headline" ? typography.display.size * 0.7 : space.md;
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy padding={space.xs}>
       {Array.from({ length: rows }, (_, index) => (
@@ -39,10 +49,13 @@ export function KitSkeleton({ rows = 1, lead = "dot" }: { rows?: number; lead?: 
           )}
           <YStack flex={1}>
             <Line height={first}>
-              <Bar height={space.md} width={titles[index % titles.length]} />
+              <Bar height={bar} width={shape === "pairs" ? "30%" : titles[index % titles.length]} />
             </Line>
             <Line height={typography.caption.lineHeight}>
-              <Bar height={space.sm + space.xs / 2} width={details[index % details.length]} />
+              <Bar
+                height={space.sm + space.xs / 2}
+                width={shape === "pairs" ? "55%" : details[index % details.length]}
+              />
             </Line>
           </YStack>
         </XStack>

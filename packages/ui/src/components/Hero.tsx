@@ -86,7 +86,7 @@ export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typ
   if (state === "loading") {
     return (
       <KitCard style="cards" part="root">
-        <KitSkeleton rows={1} />
+        <KitSkeleton rows={1} lead="none" shape="headline" />
       </KitCard>
     );
   }

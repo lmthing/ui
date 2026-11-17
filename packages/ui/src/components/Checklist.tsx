@@ -93,7 +93,7 @@ export function Checklist({ items }: Props<typeof props, typeof meta>) {
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root">
-        <KitSkeleton rows={3} />
+        <KitSkeleton rows={3} lead="box" />
       </KitCard>
     );
   }

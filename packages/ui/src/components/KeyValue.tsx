@@ -140,11 +140,11 @@ export function KeyValue({ style, pairs }: Props<typeof props, typeof meta>) {
         {style === "grid" ? (
           <KitGrid>
             {pairs.map((pair) => (
-              <KitSkeleton key={pair.id} rows={1} />
+              <KitSkeleton key={pair.id} rows={1} shape="pairs" />
             ))}
           </KitGrid>
         ) : (
-          <KitSkeleton rows={pairs.length} />
+          <KitSkeleton rows={pairs.length} shape="pairs" />
         )}
       </KitCard>
     );
