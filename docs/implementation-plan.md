@@ -659,6 +659,8 @@ b1 Button[primary] "Add a plant" [press→new_plant]
 - Style or kind in brackets after the component name only when not the default; tone only when not `plain`; state in parentheses only when not `filled` (`l1 List (loading)`).
 - Affordances in square brackets: `[press→target]`, `[toggle:on|off]`, `[check:done|todo]`, `[select:2/4]`, `[type:date]`, `[set:1-5]`, `[disabled]`.
 - Field values follow `=`. Interactive values come from the kit's interaction state when a host passes it (5.9).
+- **Risk marks.** An action on a component whose tier is not `phone` ends with its tier: `[press→pay !needs-ok]`, `!needs-people`, `!needs-service`. A real app would gate these; an agent knows before it acts.
+- **Secrets.** A value made with the `secret(max)` prop helper (a password or a code in `Field`) always reads as `(secret)`; the text never reaches a model.
 - No pixels, colours, fonts or class names. Photos read as `photo:<tag>` or their caption. Icons appear only when they carry meaning (an actions item with no label).
 - Strings are never shortened. Clipped text is marked by the kit at runtime, not hidden.
 
@@ -950,6 +952,7 @@ type ActResult =
 ```
 
 - `read` calls the catalog's `readScreen` with the interaction store as `values` and adds runtime marks: `clipped` from render reports, and `offscreen` for parts outside the viewport when the host supplies one. `sinceRev` keeps the last version read per screen and returns only the difference.
+- **Atomic, with a dry run.** `act(steps, { dryRun? })` plans every step first with the catalog's pure `planAct(screen, defs, values, steps)`: each step must name an offered action with a valid value. Nothing changes unless every step passes; the first bad step returns its index. With `dryRun` it returns what would change and changes nothing. A failed batch never leaves a half-applied screen.
 - `act` checks `expectRev` (`stale` if the screen has moved on), scrolls the target into view through the host's `scrollTo`, dispatches, then waits for the screen to settle and returns what changed. One call, no second read.
 - A list of steps runs in order and stops at the first failure (`at` is its index). It returns one combined change.
 - **Settle** means no running kit animation, no pending layout or render report, and navigation finished. It gives up after 2 s with `timeout`. With `agentMode`, arrive, morph and signature animations become instant, so settling takes a frame or two.
@@ -1010,6 +1013,8 @@ Nothing here needs the lmthing app or harness. The gallery is the host: it imple
 | Prompt snapshots | Vitest | Every block and the pack index |
 | Contrast | Script | All 288 themes |
 | Type tests | `expect-type` in Vitest | `Props<typeof props, typeof meta>` inference, the validator-stamped item ids, a prop outside the schema rejected |
+| Look | `pnpm look --component <Id>` (Playwright on system Chrome) | Phone screens at 320/390/430 in every preset and mode. Automated checks: clipping, overflow, overlap, text and graphic contrast, faint loading, cramped text, awkward wraps, small text, touch targets, alignment, rhythm, console errors. At 390 it also writes a Set-of-Mark screenshot: every actionable part and item row stamped with its address, so reviewers and models name exact parts |
+| Reading and acting | Vitest, every ready component and example | Visible text and read text match; every offered action exists at its address with a role that accepts it |
 | Model probes | Vitest in replay mode, `scripts/llm-check.ts` live | `choose`, `write` and `read` probes for every component, `compose` probes for every archetype layout and `pack` probes for every pack, against a small model, with a confusion table and the gates in 4.13 |
 | Catalog bundle | `scripts/bundle-check.ts` | The built catalog has no React, React Native or Tamagui and builds a registry in plain Node |
 | Kit conformance | Jest with `jest-expo` and React Native Testing Library | For every `ready` component file: a view exists, both examples render in every declared state, every declared part and item part registers with the memory registry |

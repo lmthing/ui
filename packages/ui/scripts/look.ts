@@ -10,7 +10,7 @@ import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { createServer } from "vite";
 import { galleryConfig } from "./gallery-config";
-import { findIssues, type LookIssue } from "./look-checks";
+import { drawMarks, findIssues, type LookIssue } from "./look-checks";
 
 const chromes = [
   process.env.CHROME,
@@ -58,6 +58,10 @@ export async function look(id: string, widths: number[]) {
         await page.evaluate(() => document.fonts.ready);
         await page.screenshot({ path: `${out}${width}-${mode}.png`, fullPage: true });
         const found = await page.evaluate(findIssues);
+        if (width === 390) {
+          await page.evaluate(drawMarks);
+          await page.screenshot({ path: `${out}${width}-${mode}-marks.png`, fullPage: true });
+        }
         for (const issue of found) issues.push({ ...issue, width, mode });
         for (const error of errors)
           issues.push({ kind: "console", frame: "page", part: "-", detail: error, width, mode });
