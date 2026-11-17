@@ -58,6 +58,8 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | Base | Use | Key props |
 | --- | --- | --- |
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
+| `KitStrip` | A sideways-scrolling strip; each child cell about 40% wide so the next peeks in; no scrollbar | children |
+| `KitStepsTrack` | The drawn track of a step sequence (dots, bar, numbered); decorative, hidden from reading | `style`, `count`, `at`, `part` |
 | `KitChip` | One selectable item: a `pill` (Chips) or a `segment` (Segmented); 44px touch area is the item root with the given role | `item`, `label`, `on`, `role` checkbox/radio/tab, `icon`, `look` pill/segment |
 | `KitTrack` | The component root for chips: wrapping row (`pills`) or a tinted track of equal segments (`segments`, role tablist) | `look`, children |
 | `KitTile` | One pressable item tile: icon in a soft round badge over a centred label, one address per item (quick actions) | `item`, `icon`, `label`, `goto` |
