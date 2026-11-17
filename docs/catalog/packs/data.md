@@ -11,114 +11,112 @@ person using it is working, not browsing.
 
 ## Apps it serves
 
-Shop stock and orders admin (with `inventory`, `commerce`), club membership records, small CRM reports
-(with `customers`), content calendar, bug or request tracker, school club register, survey results,
-personal kanban for a project.
+Shop stock and orders admin (with `inventory`, `commerce`), club membership records, leads by stage (with
+`customers`), content calendar, request or bug tracker, school club register, survey results, a personal
+kanban for a project.
 
 ## What the core already covers
 
-- A short list of records: `List`; facts about one record: `KeyValue`; one record's edit form: `Field`s
-  and `Button`.
+- A short list of records: `List`; facts about one record: `KeyValue`; editing a record: `Field`s and
+  `Button`.
 - Two to four headline numbers: `Stats` (the first plan's `Kpi` is dropped as its duplicate).
-- Amounts across up to seven categories: `Bars`; progress against targets: `Progress`.
-- A filter of a few chips: `Chips`; switching views: `Segmented`; finding by name: `Search`.
+- Amounts across up to seven categories: `Bars`; shares of a whole: `Bars` style `share` (the first plan's
+  `Donut` is dropped for it); progress against targets: `Progress`.
+- A few one-word filters: `Chips`; switching views: `Segmented`; finding by name: `Search`.
 
-## Components (8)
+## Components (7)
 
 ### `Table` · planned · data · phone
-Rows and columns for many records: a sticky first column, sortable headers, numbers right-aligned, a status
-cell as a pill, and the row count at the foot; scrolls sideways when wider than the phone.
+Rows and columns for many records: a sticky first column, sortable headers, numbers right-aligned, status
+cells as pills, a tick box per row when rows can be selected, and the row count at the foot; scrolls
+sideways when wider than the phone.
 - Pick: many records compared across several fields. Not a few things to scan (`List`), not one record's
   facts (`KeyValue`), not a league table (sports `Standings`).
-- Writes: `columns` of `label` text(14), `kind` (`text`, `number`, `money`, `date`, `status`), 2–6;
-  `rows` of `cells` (text(24) each, matching columns), `goto` optional, 1–20; `sort` column index optional.
-- Parts → actions: `header select` (sort), rows `root press`. · States: filled, empty, loading.
-- Real path: a query over records on the device. · Kit: `KitTable`.
-- Aliases: table, grid, spreadsheet, records, data table.
+- Writes: `columns` of `label` text(14), `kind` (`text`, `number`, `money`, `date`, `status`), 2–6; `rows`
+  of `cells` (text(24) for text and status, numbers for number and money, dates for date; one per column),
+  `goto` optional, 1–20; `sort` column index optional; `selectable` boolean.
+- Parts → actions: `header select` (sort), rows `root press`, rows `pick check` (with `selectable`).
+- States: filled, empty, loading. · Real path: a query over records on the device. · Kit: `KitTable`.
+- Aliases: grid, spreadsheet, records, datatable.
 
 ### `Board` · planned · data · phone
-Columns of cards (To do, Doing, Done or any stages), each card with a title, a tag and a person, the count
-on each column, cards movable between columns.
-- Pick: things moving through stages. Not leads to clients (customers `Pipeline`), not one list of jobs
-  (`Checklist`).
+Columns of cards for stages (To do, Doing, Done; New, Quoted, Won), each card with a title, a tag, a person
+and an optional value, a count and value total per column, cards movable between columns.
+- Pick: things moving through stages, including leads becoming clients. Not one list of jobs
+  (`Checklist`), not a week of shifts (team `Roster`).
 - Writes: `columns` of `label` text(14), 2–5; `cards` of `title` text(32), `column` index, `tag` text(12)
-  optional, `who` text(16) optional, `goto`, 1–16.
+  optional, `who` text(16) optional, `value` number optional, `goto`, 1–16. Column totals are computed.
 - Parts → actions: cards `root press`, cards `root move` (to a column label). · States: filled, empty.
 - Real path: records with a stage field on the device. · Kit: `KitColumns`.
-- Aliases: kanban, board, columns, stages.
+- Aliases: kanban, board, stages, pipeline, deals.
 
 ### `FilterBar` · planned · input · phone
-The controls above a table or board: a search box, up to four filter buttons that open a picker, an active
-filter count, sort order and a clear action.
+The controls above a table or board: a search box, up to four filter buttons each opening its own small
+picker, the active filter count, the sort order and a clear action.
 - Pick: narrowing many records by several fields. Not a few one-word filters (`Chips`), not switching views
   (`Segmented`).
-- Writes: `hint` text(40), `filters` of `label` text(14), `value` text(16) optional, 1–4; `sort` text(20)
-  optional.
-- Parts → actions: `field type`, filters `root press` (opens a `Sheet` picker), `clear press`.
-- States: filled. · Real path: a query built on the device. · Aliases: filters, sort, filter bar, refine.
+- Writes: `hint` text(40), `filters` of `label` text(14), `options` text(16) each, 2–8, `value` optional,
+  1–4; `sort` text(20) optional. The pickers are drawn by `FilterBar` itself, not a `Sheet`.
+- Parts → actions: `field type`, filters `root select` (an option label), `clear press`.
+- States: filled. · Real path: a query built on the device. · Aliases: filterbar, refine, sortby.
 
 ### `LineChart` · planned · data · phone
-One to three series over time as lines, with labelled axes, the latest values, and a tap to read a point.
+One to three series over time as lines with labelled axes and the latest values; tapping reads a point.
 - Pick: how numbers changed over many points. Not up to seven amounts compared (`Bars`), not a small trend
-  under a number (`Stats` style `trend`), not a price with ranges (money `PriceChart`).
+  under a number (`Stats` style `trend`), not a holding's price (money `PriceChart`).
 - Writes: `title` text(32), `unit` text(8) optional, `labels` text(6) each, 4–31; `series` of `label`
-  text(16), `values` numbers matching labels, 1–3.
+  text(16), `values` numbers matching `labels`, 1–3.
 - Parts → actions: points `root select` (reads the value). · States: filled, empty, loading.
-- Real path: values aggregated from records on the device. · Aliases: line chart, trend chart, graph, over time.
-
-### `Donut` · planned · data · phone
-Shares of a whole as a donut with the total in the middle and a legend with values and percentages.
-- Pick: how a whole splits into parts, for a business report. Not the person's own spending (money
-  `Spending`), not targets (`Progress`).
-- Writes: `title` text(32), `slices` of `label` text(16), `value` number, 2–6; `unit` text(8) optional.
-- Parts → actions: slices `root press`. · States: filled, empty, loading.
-- Real path: counts or sums grouped on the device. · Aliases: pie, donut, share, breakdown chart.
+- Real path: values aggregated from records on the device. · Aliases: linechart, graph, overtime.
 
 ### `Heatmap` · planned · data · phone
-A grid of cells shaded by value: days of the year (contribution style), or hours by weekday (busy times),
-with a scale legend.
-- Pick: patterns across many days or hours. Not which days have something on (`Calendar`), not habits in a
+A grid of cells shaded by value, as weeks of days (contribution style) or weekdays by two-hour blocks (busy
+times), with a scale legend.
+- Pick: patterns across many days or hours. Not which days have something (`Calendar`), not habits this
   week (health `HabitGrid`).
-- Writes: `title` text(32), `kind` (`year`, `week_hours`), `values` numbers (365 or 7×24), `unit` text(8).
-- States: filled, loading. · Real path: counts per day or hour from records on the device.
-- Aliases: heatmap, busy times, contribution graph, activity grid.
+- Writes: `title` text(32), `unit` text(8), `style`; `weeks` of exactly 7 numbers, 4–26 (`weeks`); `days`
+  of exactly 12 numbers, exactly 7 (`hours`).
+- Styles: `weeks` (default), `hours`. · States: filled, loading.
+- Real path: counts per day or block from records on the device. · Aliases: heatmap, busytimes, contributions.
 
 ### `BulkActions` · planned · action · phone
-A bar that appears when rows are selected: the count selected, select all, and two to four actions such as
-archive, tag, export or delete (delete with a confirm).
+A bar that appears when rows of a `Table` are ticked: the count selected, select all, and two to four
+actions such as archive, tag or export; delete asks first.
 - Pick: doing one thing to many records at once. Not shortcuts (`Actions`), not one main action (`Button`).
-- Writes: `selected` number, `items` of icon, label text(14), `danger` boolean, 2–4.
-- Parts → actions: items `root press`, `all press`. · States: filled, empty (hidden). · Region: bottom.
-- Real path: the action applied to the selected records on the device.
-- Aliases: bulk actions, selection bar, batch, multi-select.
+- Writes: `items` of icon, label text(14), `danger` boolean, 2–4. The count comes from the ticked rows.
+- Parts → actions: items `root press` (danger ones in `confirmParts`), `all press`.
+- States: filled, empty (hidden while nothing is ticked). · Region: bottom.
+- Real path: the action applied to the selected records on the device. · Aliases: bulkactions, batch, multiselect.
 
 ### `ActivityLog` · planned · data · people
-Who changed what and when: rows with an avatar, a sentence ("Ana marked order #1042 as shipped"), the time
-and a link to the record.
+Who changed what and when: rows with an avatar, a sentence ("Ana marked order 1042 as shipped"), the time and
+a link to the record.
 - Pick: an audit of changes by several people. Not one client's history (customers `ClientHistory`), not
-  shift notes (team `Handover`), not a timeline of plans (`Timeline`).
+  shift notes (team `Handover`), not a plan in time order (`Timeline`).
 - Writes: `entries` of `who` text(20), `photo`, `text` text(80), `time` text(12), `goto`, 1–10.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: a change log kept by a shared app. · Aliases: activity, audit log, changes, history log.
+- Real path: a change log kept by a shared app. · Aliases: activity, auditlog, changelog.
 
 ## Archetypes (3)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `admin_list` | All records of one kind | `table`, `cards` | Header, FilterBar, Table \| List, BulkActions |
-| `report` | How it is going | `charts`, `patterns` | Header, Segmented, Stats, LineChart, Donut \| Heatmap |
+| `admin_list` | All records of one kind | `table`, `cards` | `table`: Header, FilterBar, Table, BulkActions · `cards`: Header, FilterBar, List |
+| `report` | How it is going | `charts`, `patterns` | `charts`: Header, Segmented, Stats, LineChart, Bars[share] · `patterns`: Header, Heatmap, Bars |
 | `board` | Work by stage | `kanban` | Header, FilterBar, Board |
 
 ## Worked example: Stockroom
 
 A shop's back office (with `inventory`). `admin_list` shows 20 products in a `Table` sorted by stock, a
-`FilterBar` for "low stock" and "supplier", and `BulkActions` to reorder. `report` shows weekly sales as a
-`LineChart` and sales by category as a `Donut`, with busy hours as a `Heatmap`. Signature: `bars_grow`.
+`FilterBar` for "low stock" and "supplier", and `BulkActions` to reorder the ticked rows. `report` shows
+weekly sales as a `LineChart` and sales by category as `Bars[share]`, with busy hours as a `Heatmap`.
+Signature: `bars_grow`.
 
 ## Aliases that shadow the core
 
-With `data`: `table` → `Table` (otherwise `List`); `linechart`, `graph` → `LineChart` (otherwise `Stats`
-trend); `kanban`, `board` → `Board`; `filters` → `FilterBar` (otherwise `Chips`).
+With `data`: `linechart` → `LineChart` (otherwise `Stats` trend, after the merge; `Sparkline` before);
+`kanban`, `board` → `Board`. The core alias `table` stays with `List` and also resolves to `Table` while
+`data` is loaded (plan 4.6).
 
 ## Tiers
 
@@ -126,7 +124,7 @@ trend); `kanban`, `board` → `Board`; `filters` → `FilterBar` (otherwise `Chi
 
 ## Build notes
 
-- Order: `Table`, `FilterBar`, `LineChart`, `Board`, `Donut`, `BulkActions`, `Heatmap`, `ActivityLog`.
+- Order: `Table`, `FilterBar`, `LineChart`, `Board`, `BulkActions`, `Heatmap`, `ActivityLog`.
 - `Table` and `Board` read compactly: a header line and one line per row, cells separated by `·`.
 - Charts are drawn by kit bases; the model writes values only, never axes, ticks or colours.
 

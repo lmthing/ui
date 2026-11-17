@@ -33,7 +33,7 @@ in `good` or `warn`.
   optional, `price` 1–4 optional, `open` (`open`, `closing_soon`, `closed`) optional, `goto`; `style`.
 - Styles: `card` (default), `row`. · Parts → actions: `root press`. · States: filled, loading.
 - Real path: place details stored with the app; distance needs location (`ok`).
-- Aliases: place, venue, spot, location card.
+- Aliases: place, venue, spot, locationcard.
 
 ### `Address` · planned · content · service
 An address on two or three lines with a small map tile, and copy, directions and call buttons.
@@ -80,7 +80,7 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 - Writes: `stop` text(32), `rows` of `line` text(6), `to` text(28), `minutes` number, `delay` number
   optional, 1–8.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: live times from a transit data service. · Aliases: departures, timetable, nextbus, transit.
+- Real path: live times from a transit data service. · Aliases: departures, nextbus, transit, livetimes.
 
 ## Archetypes (3)
 

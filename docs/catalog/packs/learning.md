@@ -54,7 +54,7 @@ schedule its next review; the cards left today show at the top.
 - Writes: `front` text(80), `back` text(160), `hint` text(60) optional, `photo` optional, `left` number.
 - Parts → actions: `card flip`, `again press`, `hard press`, `good press`, `easy press`.
 - States: filled, empty (nothing due), success (done for today). · Real path: cards and their review dates on
-  the device. · Kit: `KitFlip`. · Aliases: flashcard, card, recall, spacedrepetition, deck.
+  the device. · Kit: `KitFlip`. · Aliases: flashcard, recall, spacedrepetition, deck.
 
 ### `Path` · planned · data · phone
 A winding path of units as round nodes: done ones filled, the current one large and pulsing with a start
@@ -64,7 +64,7 @@ button, locked ones dim, with a chest or trophy at milestones.
 - Writes: `units` of `title` text(24), `state` (`done`, `current`, `locked`), `icon`, 3–12; `milestones`
   indexes optional.
 - Parts → actions: items `root press` (done and current only). · States: filled, loading.
-- Real path: progress per unit stored on the device. · Aliases: path, course map, units, journey, roadmap.
+- Real path: progress per unit stored on the device. · Aliases: path, coursemap, units, roadmap.
 
 ### `Score` · planned · data · phone
 The result of a practice: the score large, right and wrong counts, time taken, points earned, and a review

@@ -1,7 +1,7 @@
 # Core components plan
 
 The core is the set of components every app can use and every prompt carries. It goes from **40 to 44**:
-six new components, two built ones folded into others, and new options on twelve built ones. Entry format
+six new components, two built ones folded into others, and new options on thirteen built ones. Entry format
 and tier names: [README](README.md). Limits and aliases of built components are copied from
 `packages/ui/src/components/*.tsx` as of 2026-11-17; the files win if they change.
 
@@ -11,8 +11,8 @@ and tier names: [README](README.md). Limits and aliases of built components are 
 | --- | --- | --- |
 | **New** (6) | `Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player` | Gaps found by at least three of the four research passes that no option on a built component can close |
 | **Merged** (2) | `Sparkline` → `Stats` style `trend`; `DayTimeline` → `Timeline` style `hours` | Near neighbours a model may confuse; each is a different drawing of the same data. Gated by evidence (section 3) |
-| **Changed** (12) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Stats`, `Timeline` | Shelves, accordions, leaderboards, carousels, badges, toasts, ratings, countdowns, repeats, avatar stacks and confirmations become options, so the model has no new ids to tell apart |
-| **Kept** (26) | Everything else (`TabBar` gains count badges from code only) | Already covers its need with a clear `pick` |
+| **Changed** (13) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Stats`, `Timeline`, `Bars` | Shelves, accordions, leaderboards, shares of a whole, carousels, badges, toasts, ratings, countdowns, repeats, avatar stacks and confirmations become options, so the model has no new ids to tell apart |
+| **Kept** (25) | Everything else (`TabBar` gains count badges from code only) | Already covers its need with a clear `pick` |
 
 **Sections and groups.** The headings in section 4 follow the plan's table (4.4): structure 4, content 11,
 data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each entry's header gives the
@@ -41,6 +41,7 @@ data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each 
 | --- | --- |
 | In-page tabs | `Segmented` already switches 2 to 4 views of the same screen |
 | Table | `data` pack (`Table`); on a phone `List` and `KeyValue` cover most uses |
+| Donut, pie, share of a whole | `Bars` style `share`: money and data both need it, and one drawing serves both |
 | Line chart over many points | Up to 7 values: `Bars`; up to 12 as a small trend: `Stats` style `trend`; longer series: data `LineChart`, health `Measurements` |
 | Avatar, avatar group | `Profile`, and `People` style `stack` |
 | Badge | `List` trail `badge` (built), new `badge` on `Card`, counts on `TabBar` from code |
@@ -343,12 +344,18 @@ A ring filling toward one goal with the amount written inside.
 - Writes: `value`, `of`, `label` text(24), `sub` text(48). · Styles: `md`, `lg`. · States: filled, loading.
 - Signature: `ring_fill`. · Aliases: progress, goal, completion.
 
-### `Bars` · built · data · phone · body · weight 2
-Two to seven columns comparing amounts across days or categories under a title, the largest in accent.
-- Pick: compare amounts with each other. Not progress toward targets (`Progress`), not a trend (`Stats`
-  style `trend`).
-- Writes: `title` text(32), `unit` text(8), `points` of label text(4), value ≥ 0, 2–7.
-- States: filled, empty, loading. · Signature: `bars_grow`. · Aliases: columns, histogram, barchart.
+### `Bars` · changed · data · phone · body · weight 2
+Two to seven columns comparing amounts across days or categories under a title, the largest in accent; or
+one bar split into shares of a whole with a legend.
+- Pick: compare amounts with each other, or show how a whole splits into parts. Not progress toward targets
+  (`Progress`), not a trend (`Stats` style `trend`).
+- Writes: `title` text(32), `unit` text(8), `points` of label text(4), value ≥ 0, 2–7; **new** in style
+  `share`: labels up to text(16), 2–6 points, an `icon` per point; shares and the total are computed by code.
+- Styles: **new** `columns` (default, as built), **new** `share` (one stacked bar the full width, the
+  total above it, and a legend of label, value and percent, largest first: spending by category, time by
+  project, votes by option; replaces the first plan's money `Spending` and data `Donut`).
+- Parts → actions: **new** `share` legend items `root press`. · States: filled, empty, loading.
+- Signature: `bars_grow`. · Aliases: columns, histogram, barchart, **new** breakdown, share, pie, donut.
 
 ### `Progress` · new · data · phone · body · weight 2
 See section 2.
@@ -552,7 +559,7 @@ Fifteen built archetypes stay. Three change their recipe, two are new (17 in all
 
 | Step | Builds | Gate |
 | --- | --- | --- |
-| C1, options (1 week) | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf, expand and ranked, `Card` badge, `Success` toast, `Empty` kinds | Each changed component re-passes `pnpm llm:check --component <Id>` with probes for the new option; examples cover every new value |
+| C1, options (1 week) | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf, expand and ranked, `Bars` share, `Card` badge, `Success` toast, `Empty` kinds | Each changed component re-passes `pnpm llm:check --component <Id>` with probes for the new option; examples cover every new value |
 | C2, simple new (1.5 weeks) | `Progress`, `Amount`, `Choice`, `Composer` with `KitProgressBar`, `moneyLine`, `currency`, `KitOption`, `KitTextArea`, `meta.partTiers` | Gate per component; near-miss probes against `Ring`, `Stats`, `Chips`, `Field` pass |
 | C3, overlays and media (1.5 weeks) | `Sheet` with the `overlay` region and `dismiss`, `goto: sheet`, `Button` confirm; `Player` with the `media` helper, the host media adapter and `play`, `pause`, `seek` | Agent end-to-end: open, pick and dismiss a sheet, and confirm a danger button, through `window.__lmthingUI.act`; play and seek a fixture recording |
 | C4, merges (0.5 week) | `Sparkline` and `DayTimeline` folded, with `meta.weightByStyle` and per-style limits, if section 3's evidence says so | Migrations rewrite every fixture; no recording refers to the old ids |

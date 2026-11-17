@@ -45,7 +45,7 @@ and a badge for new episodes.
 - Writes: `items` of `title` text(32), `by` text(24) optional, `photo`, `progress` 0–1 optional, `badge`
   text(8) optional, `goto`, 1–12; `style`.
 - Styles: `covers` (default, grid), `rows`. · Parts → actions: items `root press`.
-- States: filled, empty, loading. · Real path: saved items on the device. · Aliases: library, bookshelf, saved, collection.
+- States: filled, empty, loading. · Real path: saved items on the device. · Aliases: library, bookshelf, saved.
 
 ### `Collection` · planned · content · phone
 The head of a show, album, book or course: large artwork, title, author, a line about it, counts (12
@@ -55,7 +55,7 @@ episodes · 5 h), and play-all and follow buttons.
 - Writes: `title` text(40), `by` text(32), `photo`, `about` text(200) optional, `count` text(24) optional,
   `followed` boolean.
 - Parts → actions: `play press`, `follow toggle`. · States: filled, loading.
-- Real path: collection details stored with the app's media. · Aliases: show, album, podcast, series, course header.
+- Real path: collection details stored with the app's media. · Aliases: show, album, podcast, series, courseheader.
 
 ### `Playlist` · planned · content · phone
 Tracks or episodes in order: number or artwork, title, date, length, a played bar, and a download or done
@@ -74,7 +74,7 @@ Chapters of one recording or book with start times and titles; the current one m
   recipe (kitchen `CookSteps`).
 - Writes: `chapters` of `title` text(40), `at` seconds, 2–16; `current` index optional.
 - Parts → actions: items `root press` (seeks the screen's `Player`). · States: filled.
-- Real path: chapter marks stored with the file. · Aliases: chapters, sections, contents, table of contents.
+- Real path: chapter marks stored with the file. · Aliases: chapters, sections, contents, tableofcontents.
 
 ### `MiniPlayer` · planned · action · phone
 A slim bar above the tab bar while something plays: artwork, title, a thin progress line, and play or pause,
@@ -93,7 +93,7 @@ note, each opening the source at that spot.
 - Writes: `items` of `text` text(240), `from` text(40), `at` text(12) optional, `note` text(120)
   optional, `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty.
-- Real path: highlights stored on the device. · Aliases: highlights, quotes, bookmarks, clips, notes.
+- Real path: highlights stored on the device. · Aliases: highlights, quotes, bookmarks, clips.
 
 ## Archetypes (3)
 

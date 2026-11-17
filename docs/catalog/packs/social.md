@@ -33,7 +33,7 @@ and like and comment counts, each opening the post.
 - Writes: `posts` of `name` text(24), `photo` (avatar), `time` text(12), `text` text(280), `image`
   optional, `likes` number, `comments` number, `liked` boolean, `goto`, 1–6.
 - Parts → actions: items `root press`, items `like toggle`. · States: filled, empty, loading.
-- Real path: posts in a shared app. · Aliases: feed, timeline, wall, posts, newsfeed.
+- Real path: posts in a shared app. · Aliases: feed, wall, posts, newsfeed.
 
 ### `Post` · planned · content · people
 One post in full: author with avatar and time, the whole text, photos as a carousel, and a reaction bar
@@ -62,7 +62,7 @@ bar with the person's choice ticked, and the vote count and closing time under i
 - Writes: `question` text(80), `options` of `label` text(32), `votes` number, 2–5; `voted` index optional;
   `closes` text(20) optional.
 - Parts → actions: items `root select`. · States: filled, success (voted).
-- Real path: votes counted in a shared app. · Aliases: poll, vote, survey, question.
+- Real path: votes counted in a shared app. · Aliases: poll, vote, survey.
 
 ### `Stories` · planned · content · people
 A row of round avatars with a ring for unseen stories, the person's own first with an add button.
@@ -70,7 +70,7 @@ A row of round avatars with a ring for unseen stories, the person's own first wi
   (`Gallery`).
 - Writes: `people` of `name` text(12), `photo`, `seen` boolean, 1–10; `mine` boolean.
 - Parts → actions: items `root press`, `add press`. · States: filled, empty.
-- Real path: stories in a shared app, gone after a day. · Aliases: stories, status ring, moments.
+- Real path: stories in a shared app, gone after a day. · Aliases: stories, statusring, moments.
 
 ### `EventCard` · planned · content · people
 A community event as a card: date block (day and month), title, time and place, a photo, who is going as an
@@ -90,7 +90,7 @@ person's own part, and the top three.
 - Writes: `title` text(40), `goal` number, `unit` text(8), `total` number, `mine` number, `ends` date,
   `top` of `name` text(20), `value` number, 0–3; `joined` boolean.
 - Parts → actions: `join press`, `log press`. · States: filled, success (goal reached).
-- Real path: entries from members summed in a shared app. · Aliases: challenge, group goal, competition.
+- Real path: entries from members summed in a shared app. · Aliases: challenge, groupgoal, competition.
 
 ### `Invite` · planned · action · people
 Bringing others in: an invite code or link with copy and share, a QR code, and who has joined from it.
@@ -99,7 +99,7 @@ Bringing others in: an invite code or link with copy and share, a QR code, and w
 - Writes: `title` text(32), `code` text(12), `joined` number optional, `qr` boolean.
 - Parts → actions: `copy press`, `share press`. · States: filled.
 - Real path: an invite code made by a shared app; sharing uses the phone's share sheet.
-- Aliases: invite, share link, referral, invite code.
+- Aliases: invite, sharelink, referral, invitecode.
 
 ## Archetypes (3)
 

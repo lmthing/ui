@@ -58,7 +58,21 @@ Total: 147 pack components and 65 archetypes, all `planned`.
 - **Core first.** A pack component exists only where a core component plus an option cannot say it.
   Each pack file lists what the core already covers for that domain.
 - **Aliases scope to the app's packs** (plan 4.6): with `data` loaded `table` resolves to `Table`, without it
-  to `List`. Each pack file lists its aliases that shadow core aliases.
+  to `List`. Each pack file lists every alias that shadows a core alias; any other alias is unique across
+  the core and all packs.
+- **Aliases are single lowercase words** with no spaces, as in the built files (`quickactions`,
+  `openinghours`). Each word has one owner.
+- **Money is numbers.** A model writes amounts as numbers and never a currency: the app's currency is set
+  once in the brief, and only core `Amount` may override it. Formatting is core `moneyLine`.
+- **Code computes what can be computed.** Totals, counts, shares, balances, statuses that follow from dates
+  (overdue), and anything the basket or the records already hold are never model-written props.
+- **Tiers per part.** A component's tier is what its main use needs; a part that needs more (send, call,
+  pay) is marked in `meta.partTiers` and reads with its own risk mark, as core `Composer` does.
+- **Destructive parts confirm.** A part that cancels, removes, declines or deletes is listed in
+  `meta.confirmParts`; the kit shows the standard confirm sheet (core `Button` `confirm`) before it acts.
+- **Visual variants are one `style` enum**, never a `kind` that only changes the drawing. Product colours
+  use the closed `swatch` vocabulary (black, white, grey, navy, blue, green, olive, red, pink, purple,
+  yellow, orange, brown, beige), mapped to fixed tokens in `tokens/component.ts`, never theme accents.
 - **Every component** has a tier and a `realPath`, two examples in its domain, probes, and a renderer from
   kit bases only. Every pack ships a worked example app (`example.jsonl`) that renders in three presets.
 - **Signatures.** An app still has exactly one signature moment. A pack may propose one new signature for a
@@ -84,7 +98,7 @@ Several packs need the same drawing. These are built once in `src/kit/base/` the
 | Base | Draws | First needed by |
 | --- | --- | --- |
 | `KitSlotGrid` | A grid of time chips, taken ones disabled | booking `Slots` |
-| `KitColumns` | Two to four columns of cards that scroll sideways, with a count per column | data `Board`, team `TaskBoard` |
+| `KitColumns` | Two to five columns of cards that scroll sideways, with a count per column | data `Board` |
 | `KitTable` | A compact table with a sticky first column | data `Table`, sports `Standings` |
 | `KitSetRow` | A row of small number boxes (sets, reps, weight) with a done tick | health `WorkoutLog` |
 | `KitWeekMatrix` | Rows of things by seven day columns with a mark per cell | health `HabitGrid`, kitchen `MealPlan` |
