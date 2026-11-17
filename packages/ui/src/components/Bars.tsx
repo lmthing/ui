@@ -12,7 +12,16 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitBars, KitCard, KitEmpty, KitGrid, KitSkeleton, KitText, useComponentState } from "../kit";
+import {
+  KitBars,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+} from "../kit";
 
 export const meta = {
   id: "Bars",
@@ -112,6 +121,25 @@ export const probes = [
   },
 ] satisfies Probe[];
 
+function Total({ value, unit }: { value: number; unit?: string | undefined }) {
+  const label = totalLine(value).slice(0, -String(value).length).trim();
+  return (
+    <KitContent>
+      <KitText role="caption" tone="muted" align="end" part={null}>
+        {label}
+      </KitText>
+      <KitText role="number" tone="muted" align="end" part="total">
+        {value}
+        {unit && (
+          <KitText role="caption" tone="muted" part={null}>
+            {` ${unit}`}
+          </KitText>
+        )}
+      </KitText>
+    </KitContent>
+  );
+}
+
 export function Bars({ title, unit, points }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   if (state === "loading") {
@@ -134,12 +162,7 @@ export function Bars({ title, unit, points }: Props<typeof props, typeof meta>) 
         <KitText role="heading" part="title">
           {title}
         </KitText>
-        <KitText role="caption" tone="muted" align="end" tabular part="total">
-          {totalLine(
-            points.reduce((total, point) => total + point.value, 0),
-            unit,
-          )}
-        </KitText>
+        <Total value={points.reduce((total, point) => total + point.value, 0)} unit={unit} />
       </KitGrid>
       <KitBars points={points} />
     </KitCard>

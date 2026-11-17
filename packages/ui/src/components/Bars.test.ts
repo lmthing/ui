@@ -185,7 +185,8 @@ describe("Bars rendering", () => {
         if (state === "loading") expect(html.match(/aria-busy="true"/g)).toHaveLength(1);
         if (state === "empty") expect(html).toContain("Nothing here yet");
         if (state !== "filled") continue;
-        expect(html).toContain(unit ? "Total 0 walks" : "Total 0");
+        const text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+        expect(text).toContain(unit ? "Total 0 walks" : "Total 0");
         for (const part of ["title", "total"])
           expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
         for (let index = 1; index <= count; index++)
