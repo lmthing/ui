@@ -50,7 +50,7 @@ export const meta = {
   read: (input, state) => {
     const { kind, options } = input as z.output<typeof props>;
     if (state !== "filled") return [];
-    return kind === "choice" ? (options ?? []) : kind === "photo" ? [photoLabels.add] : [];
+    return kind === "choice" ? (options ?? []) : kind === "photo" ? [photoLabels.add] : [kind];
   },
 } as const satisfies Meta;
 

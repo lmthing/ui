@@ -134,7 +134,8 @@ describe("Field fallback and metadata", () => {
       ]);
     }
   });
-  it("reads choice options and the shared photo action", () => {
+  it("reads the input kind, choice options and shared photo action", () => {
+    expect(readComponent(components.Field, examples[0], "f1").join("\n")).toContain("Field text");
     expect(readComponent(components.Field, examples[4], "f1").join("\n")).toContain("45 min");
     expect(readComponent(components.Field, examples[7], "f1").join("\n")).toContain("Add photo");
   });
