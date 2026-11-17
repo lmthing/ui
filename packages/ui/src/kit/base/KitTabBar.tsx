@@ -19,7 +19,7 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       alignItems="center"
       justifyContent="center"
       gap={space.xs}
-      paddingVertical={space.xs}
+      paddingVertical={space.md}
       accessibilityRole="tab"
       aria-selected={on}
       accessibilityLabel={tab.label}
