@@ -22,9 +22,10 @@ const Circle = styled(YStack, {
   justifyContent: "center",
   borderWidth: component.base.strongBorder,
   variants: {
-    reached: {
-      true: { backgroundColor: "$accent", borderColor: "$accent" },
-      false: { backgroundColor: "transparent", borderColor: "$line" },
+    state: {
+      done: { backgroundColor: "$accent", borderColor: "$accent" },
+      current: { backgroundColor: "$accentSoft", borderColor: "$accent" },
+      todo: { backgroundColor: "transparent", borderColor: "$line" },
     },
   } as const,
 });
@@ -32,7 +33,7 @@ const Joint = styled(YStack, { flex: 1, height: component.base.strongBorder });
 
 /**
  * The drawn track of a step sequence: `dots` (done and current in accent, the current a pill), `bar`
- * (a thin track filled to at/count) or `numbered` (circles joined by lines). Decorative: the track is
+ * (a thin track filled to at/count) or `numbered` (circles joined by lines: done filled, current outlined on a soft tint, the rest a rule). Decorative: the track is
  * a part for layout and taps, hidden from reading and assistive tech; a label carries the meaning.
  */
 export function KitStepsTrack({
@@ -74,8 +75,12 @@ export function KitStepsTrack({
     <XStack {...frame} alignItems="center">
       {steps.map((step) => (
         <XStack key={step} alignItems="center" flex={step < count ? 1 : undefined}>
-          <Circle reached={step <= at}>
-            <KitText role="caption" tone={step <= at ? "onAccent" : "muted"}>
+          <Circle state={step < at ? "done" : step === at ? "current" : "todo"}>
+            <KitText
+              role="caption"
+              tone={step < at ? "onAccent" : step === at ? "accent" : "muted"}
+              part={null}
+            >
               {String(step)}
             </KitText>
           </Circle>

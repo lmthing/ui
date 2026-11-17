@@ -14,3 +14,13 @@ export function emptyLine(thingType?: string): string {
 
 /** Accessibility label for a component drawn in its loading state. */
 export const loadingLabel = "Loading";
+
+/** The goal under a progress number: "of 5". */
+export function goalLine(of: number): string {
+  return `of ${of}`;
+}
+
+/** Place in a sequence: "Step 2 of 3". */
+export function stepLine(at: number, count: number): string {
+  return `Step ${at} of ${count}`;
+}
