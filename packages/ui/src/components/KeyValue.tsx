@@ -12,7 +12,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty } from "../kit";
+import { KitCard, KitGrid, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, KitEmpty } from "../kit";
 
 export const meta = {
   id: "KeyValue",
@@ -65,9 +65,9 @@ export const examples = [
     style: "rows",
     pairs: [
       { label: "Room", value: "Bathroom", icon: "home" },
-      { label: "Light", value: "Bright, indirect", icon: "sun" },
-      { label: "Water every", value: "7 days", icon: "drop" },
-      { label: "Last watered", value: "Monday, 16 November", icon: "calendar" },
+      { label: "Bright light", value: "Indirect", icon: "sun" },
+      { label: "Water (days)", value: "7", icon: "drop" },
+      { label: "Last watered", value: "Mon, 16 Nov", icon: "calendar" },
     ],
   },
   {
@@ -75,8 +75,8 @@ export const examples = [
     pairs: [
       { label: "Breed", value: "Labrador", icon: "dog" },
       { label: "Walks a week", value: "5" },
-      { label: "Owner", value: "Alex Morgan", icon: "user" },
-      { label: "Notes", value: "Prefers quiet park paths" },
+      { label: "Owner", value: "Alex", icon: "user" },
+      { label: "Notes", value: "Quiet parks" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -97,20 +97,37 @@ export const probes = [
 
 type Pair = Props<typeof props, typeof meta>["pairs"][number];
 
-function PairRow({ pair, next }: { pair: Pair; next?: Pair | undefined }) {
+function PairRow({ pair, style }: { pair: Pair; style: "rows" | "grid" }) {
+  const label = (
+    <KitText role="caption" tone="muted" part="label">
+      {pair.label}
+    </KitText>
+  );
+  const value = (
+    <KitText
+      role={/^\d+(?:\s+\p{L}+)?$/u.test(pair.value) && pair.value.length <= 6 ? "number" : "body"}
+      part="value"
+    >
+      {pair.value}
+    </KitText>
+  );
   return (
     <KitRow
       item={pair.id}
       label={pair.label}
-      leading={pair.icon ? <KitIcon name={pair.icon} part="icon" /> : undefined}
-      trailing={next ? <PairRow pair={next} /> : undefined}
+      leading={pair.icon ? <KitIcon name={pair.icon} tone="muted" part="icon" /> : undefined}
     >
-      <KitText role="caption" tone="muted" part="label">
-        {pair.label}
-      </KitText>
-      <KitText role="body" part="value">
-        {pair.value}
-      </KitText>
+      {style === "rows" ? (
+        <KitGrid>
+          {label}
+          {value}
+        </KitGrid>
+      ) : (
+        <>
+          {label}
+          {value}
+        </>
+      )}
     </KitRow>
   );
 }
@@ -120,7 +137,15 @@ export function KeyValue({ style, pairs }: Props<typeof props, typeof meta>) {
   if (state === "loading") {
     return (
       <KitCard style="inset">
-        <KitSkeleton rows={style === "grid" ? 2 : 4} />
+        {style === "grid" ? (
+          <KitGrid>
+            {pairs.map((pair) => (
+              <KitSkeleton key={pair.id} rows={1} />
+            ))}
+          </KitGrid>
+        ) : (
+          <KitSkeleton rows={pairs.length} />
+        )}
       </KitCard>
     );
   }
@@ -133,10 +158,14 @@ export function KeyValue({ style, pairs }: Props<typeof props, typeof meta>) {
   }
   return (
     <KitCard style="inset" part="root">
-      {pairs.map((pair, index) =>
-        style === "grid" && index % 2 ? null : (
-          <PairRow key={pair.id} pair={pair} next={style === "grid" ? pairs[index + 1] : undefined} />
-        ),
+      {style === "grid" ? (
+        <KitGrid>
+          {pairs.map((pair) => (
+            <PairRow key={pair.id} pair={pair} style={style} />
+          ))}
+        </KitGrid>
+      ) : (
+        pairs.map((pair) => <PairRow key={pair.id} pair={pair} style={style} />)
       )}
     </KitCard>
   );
