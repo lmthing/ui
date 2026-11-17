@@ -65,8 +65,8 @@ export const examples = [
     style: "rows",
     pairs: [
       { label: "Room", value: "Bathroom", icon: "home" },
-      { label: "Light", value: "Bright, indirect", icon: "sun" },
-      { label: "Water", value: "7 days", icon: "drop" },
+      { label: "Bright light", value: "Indirect", icon: "sun" },
+      { label: "Water (days)", value: "7", icon: "drop" },
       { label: "Last watered", value: "Mon, 16 Nov", icon: "calendar" },
     ],
   },
@@ -98,10 +98,14 @@ export const probes = [
 type Pair = Props<typeof props, typeof meta>["pairs"][number];
 
 function PairRow({ pair, style }: { pair: Pair; style: "rows" | "grid" }) {
+  const label = (
+    <KitText role="caption" tone="muted" part="label">
+      {pair.label}
+    </KitText>
+  );
   const value = (
     <KitText
       role={/^\d+(?:\s+\p{L}+)?$/u.test(pair.value) && pair.value.length <= 6 ? "number" : "body"}
-      align={style === "rows" ? "end" : "start"}
       part="value"
     >
       {pair.value}
@@ -112,12 +116,18 @@ function PairRow({ pair, style }: { pair: Pair; style: "rows" | "grid" }) {
       item={pair.id}
       label={pair.label}
       leading={pair.icon ? <KitIcon name={pair.icon} tone="muted" part="icon" /> : undefined}
-      trailing={style === "rows" ? value : undefined}
     >
-      <KitText role="caption" tone="muted" part="label">
-        {pair.label}
-      </KitText>
-      {style === "grid" && value}
+      {style === "rows" ? (
+        <KitGrid>
+          {label}
+          {value}
+        </KitGrid>
+      ) : (
+        <>
+          {label}
+          {value}
+        </>
+      )}
     </KitRow>
   );
 }
