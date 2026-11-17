@@ -63,7 +63,11 @@ export function findIssues(): LookIssue[] {
   // sideways (a photo strip's last photo runs past the edge on purpose).
   const visibleX = (el: Element, rect: DOMRect) => {
     let [left, right] = [rect.left, rect.right];
-    for (let node = el.parentElement; node && !node.hasAttribute("data-look-frame"); node = node.parentElement) {
+    for (
+      let node = el.parentElement;
+      node && !node.hasAttribute("data-look-frame");
+      node = node.parentElement
+    ) {
       if (getComputedStyle(node).overflowX === "visible") continue;
       const clip = node.getBoundingClientRect();
       [left, right] = [Math.max(left, clip.left), Math.min(right, clip.right)];
