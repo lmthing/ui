@@ -58,7 +58,7 @@ export const probes = [
 
 export function Canvas({ caption }: Props<typeof props, typeof meta>) {
   return (
-    <KitCard look="outlined" part="root">
+    <KitCard look="outlined" part="root" padded>
       <KitEmpty title={caption} part="caption" icon="palette" fill decorativeIcon />
     </KitCard>
   );

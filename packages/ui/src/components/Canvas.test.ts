@@ -146,7 +146,7 @@ describe("Canvas view and reading", () => {
   it.each(examples)("draws a tall outlined placeholder with a decorative soft icon", (example) => {
     const view = Canvas(props.parse(example));
     expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ look: "outlined", part: "root" });
+    expect(view.props).toMatchObject({ look: "outlined", part: "root", padded: true });
     expect(view.props.children.type).toBe(KitEmpty);
     expect(view.props.children.props).toEqual({
       title: example.caption,
