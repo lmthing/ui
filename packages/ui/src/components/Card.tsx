@@ -147,7 +147,7 @@ export function Card({
       ) : (
         <>
           {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
-          <KitContent lead={lead} lineRole="heading">
+          <KitContent lead={lead} lineRole="heading" leadingAlign={photo && !media ? "row" : "line"}>
             <KitText role="heading" part="title">
               {title}
             </KitText>

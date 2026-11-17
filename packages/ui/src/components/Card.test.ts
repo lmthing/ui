@@ -154,6 +154,7 @@ describe("Card view and actions", () => {
     });
     const content = view.props.children.props.children[1];
     expect(content.type).toBe(KitContent);
+    expect(content.props.leadingAlign).toBe(example.style === "plain" ? "row" : "line");
     expect(content.props.children[0].type).toBe(KitText);
     expect(content.props.children[0].props).toMatchObject({ role: "heading", part: "title" });
     if (example.style === "plain")
@@ -186,8 +187,7 @@ describe("Card actions and loading", () => {
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
       const parsed = props.parse(input);
       const view = Card(parsed);
-      expect(view.props.goto).toBeUndefined();
-      expect(view.props.padded).toBe(false);
+      expect(view.props).toMatchObject({ goto: undefined, padded: false });
       expect(view.props.children.type).toBe(KitSkeleton);
       expect(view.props.children.props).toMatchObject({
         rows: 1,
