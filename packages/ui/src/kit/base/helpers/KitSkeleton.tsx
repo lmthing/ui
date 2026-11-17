@@ -23,11 +23,30 @@ export function KitSkeleton({
   rows?: number;
   lead?: "dot" | "box" | "none";
   /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
-  shape?: "rows" | "pairs" | "headline" | "media" | "ring";
+  shape?: "rows" | "pairs" | "headline" | "media" | "ring" | "trend";
   /** `ring` only: the ring size, matching `KitRing scale`. */
   ring?: "md" | "lg";
 }) {
   const ks = useKitStyle();
+  if (shape === "trend") {
+    return (
+      <XStack
+        accessibilityLabel={loadingLabel}
+        aria-busy
+        alignItems="center"
+        gap={space.md}
+        padding={space.md}
+      >
+        <YStack flex={1} gap={space.sm}>
+          <Bar height={space.sm + space.xs / 2} width="60%" />
+          <Bar height={space.lg} width="45%" />
+        </YStack>
+        <YStack flex={1} height={component.base.sparkHeight} justifyContent="flex-end">
+          <Bar height={space.sm} width="100%" />
+        </YStack>
+      </XStack>
+    );
+  }
   if (shape === "ring") {
     const box = ring === "lg" ? component.base.ringLg : component.base.ringMd;
     return (
