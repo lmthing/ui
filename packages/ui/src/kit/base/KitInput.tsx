@@ -1,5 +1,5 @@
 import { Input, XStack } from "tamagui";
-import { component, size, space, type as typography, type IconName } from "../../catalog";
+import { component, fontFamilies, size, space, type as typography, type IconName } from "../../catalog";
 import { useKit, useKitStyle } from "../provider";
 import { usePart } from "../part";
 import { KitIcon } from "./KitIcon";
@@ -50,6 +50,7 @@ export function KitInput({
         placeholder={hint}
         placeholderTextColor="$muted"
         color="$text"
+        fontFamily={fontFamilies[ks.fonts.text]}
         fontSize={typography.body.size}
         lineHeight={typography.body.lineHeight}
         minHeight={size.control.md}

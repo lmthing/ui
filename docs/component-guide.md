@@ -67,6 +67,8 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitSpark` | A small trend line with a dot on the latest value, in a tone; decorative (write the value as text) | `points`, `tone` accent/good/warn/bad, `part` (default `line`) |
 | `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
 | `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
+| `KitRouteStop` | One stop on a route with `KitRow` insets: start ring, dot, end pin on the first line, joined by a vertical connector; static item | `item`, `label`, `position` start/middle/end, children |
+| `KitSwipeStack` | A stack: the first card fully on a surface (item root, role button, the swiped one), the next two peeking behind, hidden from reading | `cards` ({id,label,children}) |
 | `KitBubble` | One chat message: `me` right on accent, `them` left on raised, wraps at 80% width; `grouped` sits closer; one item | `item`, `from`, `text`, `grouped` |
 | `KitHours` | A day by the hour: hour rail and blocks placed and sized by start/end, tinted by tone; each block one item (`title`, `time`), link when `goto` | `blocks` ({id,start,end,title,tone,goto}) |
 | `KitSlider` | A themed slider in a 44px touch area (role slider, its value); the part `set` acts on | `value`, `label`, `min`/`max` (default 0..10), `part` (default `field`) |
@@ -76,7 +78,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitChip` | One selectable item: a `pill` (Chips) or a `segment` (Segmented); 44px touch area is the item root with the given role | `item` (`null` inside a track that is itself the control), `label`, `on`, `role` checkbox/radio/tab, `icon`, `look` pill/segment |
 | `KitTrack` | The component root for chips: wrapping row (`pills`) or a tinted track of equal segments (`segments`, role tablist) | `look`, `part` (default root; `field` for a Field choice), `role` radiogroup (the track is the control), `label`, children |
 | `KitTile` | One pressable item tile: icon in a soft round badge over a centred label, one address per item (quick actions) | `item`, `icon`, `label`, `goto` |
-| `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, `leadingAlign` line/row (`row` for a thumbnail), children |
+| `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, `leadingAlign` line/row (`row` for a thumbnail), `inset` none/md, children |
 | `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `inset` md/none, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), `leadingAlign` line/row (`row` for a photo thumbnail taller than a line), `inset` md/none (`none` for a cell inside `KitGrid`), children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `tabular` (equal-width digits), `part` (`null`: not addressed, inside a decorative drawing) |
@@ -115,7 +117,7 @@ All of these pass from the repo root: `pnpm format:check`, `pnpm typecheck`, `pn
 `pnpm build:catalog`, `pnpm llm:check --component <Id>` (choose, write and read probes), and
 `pnpm look --component <Id>` prints `No issues.` The reading test (`test/reading.test.tsx`) proves
 the text a model reads matches the screen and that every offered action exists with the right role;
-a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`).
+a part that exists only for some prop values declares it in `actions.when`. An item rule reads the item first, then the component's props; a key `part.action` limits one action (`"root.toggle": { style: "filter" }`); `$first: true` matches only the first item. A component that draws only its first item (a card stack) sets `items.visible: "first"`: the reader reads it and adds "+N more", and conformance expects only `r1` on screen.
 
 Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, then get the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and

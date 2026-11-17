@@ -179,7 +179,17 @@ export function findIssues(): LookIssue[] {
         rows.set(Math.round(r.top / 24), [...(rows.get(Math.round(r.top / 24)) ?? []), r.top]);
       const columns = Math.max(...[...rows.values()].map((tops) => tops.length));
       const centres = [...new Set(rects.map((r) => Math.round((r.left + r.right) / 6)))];
-      if (lefts.length > columns && rights.length > columns && centres.length > columns) {
+      // A conversation aligns each item to one of two edges (theirs left, mine right): fine when every
+      // item sits on a left or right edge it shares with another item.
+      const shared = (key: (r: DOMRect) => number) => {
+        const counts = new Map<number, number>();
+        for (const r of rects) counts.set(key(r), (counts.get(key(r)) ?? 0) + 1);
+        return (r: DOMRect) => (counts.get(key(r)) ?? 0) > 1;
+      };
+      const onLeft = shared((r) => Math.round(r.left / 3));
+      const onRight = shared((r) => Math.round(r.right / 3));
+      const twoEdged = rects.length > 2 && rects.every((r) => onLeft(r) || onRight(r));
+      if (!twoEdged && lefts.length > columns && rights.length > columns && centres.length > columns) {
         add(
           "align",
           frame,
@@ -252,8 +262,9 @@ export function drawMarks(): void {
   const layer = document.createElement("div");
   layer.style.cssText = "position:absolute;left:0;top:0;pointer-events:none;z-index:2147483647";
   const marked = ["button", "link", "checkbox", "switch", "tab", "listitem"];
-  for (const el of Array.from(document.querySelectorAll("[data-look-frame] [data-testid][role]"))) {
-    if (!marked.includes(el.getAttribute("role")!)) continue;
+  for (const el of Array.from(document.querySelectorAll("[data-look-frame] [data-testid]"))) {
+    const itemRoot = /\/r\d+\/root$/.test(el.getAttribute("data-testid")!);
+    if (!marked.includes(el.getAttribute("role")!) && !itemRoot) continue;
     const rect = el.getBoundingClientRect();
     if (!rect.width || !rect.height) continue;
     const address = el

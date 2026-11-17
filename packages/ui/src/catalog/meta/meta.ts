@@ -9,7 +9,11 @@ export type Meta = {
   weight: 1 | 2 | 3;
   tier: Tier;
   realPath: string;
-  items?: { key: string; parts: readonly string[]; prefix?: string };
+  /**
+   * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
+   * counts the rest ("+2 more"), and conformance expects only the first item on screen.
+   */
+  items?: { key: string; parts: readonly string[]; prefix?: string; visible?: "all" | "first" };
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

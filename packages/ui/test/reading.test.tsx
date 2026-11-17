@@ -19,6 +19,7 @@ const roles: Record<string, string[]> = {
   toggle: ["switch", "checkbox", "button"],
   check: ["checkbox"],
   select: ["radio", "tab", "button", "option", "radiogroup"],
+  swipe: ["button"],
   type: ["textbox", "searchbox"],
   set: ["slider", "spinbutton"],
 };
@@ -44,6 +45,9 @@ function visibleTexts(html: string): string[] {
       if (text && hidden === 0) texts.push(text);
       continue;
     }
+    // A text box shows its value: <input value="Fern"> is text on screen.
+    const value = /^<input\b/i.test(token) ? token.match(/\bvalue="([^"]*)"/)?.[1] : undefined;
+    if (value && hidden === 0) texts.push(decode(value).trim());
     const closing = token.startsWith("</");
     const selfClosing = token.endsWith("/>") || voidTags.test(token);
     if (hidden > 0) hidden += closing ? -1 : selfClosing ? 0 : 1;
