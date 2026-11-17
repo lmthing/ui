@@ -105,13 +105,17 @@ describe("Counter fallback and metadata", () => {
     expect(meta.parts).toEqual(["root", "value", "label", "minus", "plus"]);
     expect(meta.states).toEqual(["filled"]);
   });
-  it("reads the actual value with its optional unit only when filled", () => {
-    expect(meta.read({ label: "Water" }, "filled")).toEqual(["0"]);
-    expect(meta.read(examples[0], "filled")).toEqual(["2"]);
-    expect(meta.read(examples[1], "filled")).toEqual(["3 dogs"]);
+  it("reads the value, optional unit and drawn button labels with their step actions", () => {
+    const buttons = ['"One less" (decrement)', '"One more" (increment)'];
+    expect(meta.read({ label: "Water" }, "filled")).toEqual(["0", ...buttons]);
+    expect(meta.read(examples[0], "filled")).toEqual(["2", ...buttons]);
+    expect(meta.read(examples[1], "filled")).toEqual(["3 dogs", ...buttons]);
     expect(meta.read(examples[1], "empty")).toEqual([]);
     expect(meta.read(examples[1], "loading")).toEqual([]);
     expect(readComponent(components.Counter, examples[1], "c1").join("\n")).toContain("3 dogs");
+    expect(readComponent(components.Counter, examples[0], "c1")).toEqual([
+      'c1 Counter 2 — "One less" (decrement) — "One more" (increment) — "Water glasses for fern" [c1/minus decrement] [c1/plus increment]',
+    ]);
   });
   it("has the required metadata and choose, write and read probe blocks", () => {
     expect(meta).toMatchObject({ tier: "phone", group: "data", region: "body", weight: 2 });
