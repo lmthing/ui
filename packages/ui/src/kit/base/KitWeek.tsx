@@ -6,7 +6,7 @@ import { KitDayMark } from "./KitDay";
 import { KitText } from "./KitText";
 
 const Column = ({ children }: { children?: ReactNode }) => (
-  <YStack flex={1} alignItems="center" minWidth={component.base.none}>
+  <YStack flex={1} flexBasis={component.base.none} alignItems="center" minWidth={component.base.none}>
     {children}
   </YStack>
 );

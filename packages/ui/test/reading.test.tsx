@@ -18,7 +18,7 @@ const roles: Record<string, string[]> = {
   press: ["button", "link"],
   toggle: ["switch", "checkbox", "button"],
   check: ["checkbox"],
-  select: ["radio", "tab", "button", "option"],
+  select: ["radio", "tab", "button", "option", "radiogroup"],
   type: ["textbox", "searchbox"],
   set: ["slider", "spinbutton"],
 };
