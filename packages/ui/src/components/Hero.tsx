@@ -1,0 +1,109 @@
+import { z } from "zod";
+import {
+  detailOf,
+  itemsOf,
+  photo,
+  placeholderDetail,
+  placeholderTitle,
+  text,
+  thingOf,
+  titleOf,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
+import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+
+export const meta = {
+  id: "Hero",
+  group: "content",
+  purpose: "The one headline fact or message this screen says.",
+  pick: "One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).",
+  region: "body",
+  weight: 3,
+  tier: "phone",
+  realPath: "A headline derived from content or a query in the on-device database.",
+  parts: ["root", "title", "sub", "photo"],
+  states: ["filled", "loading"],
+  aliases: ["headline", "intro", "spotlight"],
+} as const satisfies Meta;
+
+export const props = z.strictObject({
+  style: z.enum(["statement", "photo", "number"]).default("statement"),
+  title: text(40),
+  sub: text(80).optional(),
+  photo: photo.optional(),
+  tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
+});
+
+export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+  const item = itemsOf(cast, 1, cast.items[0]?.type)[0];
+  const thing = thingOf(cast, item?.type);
+  return {
+    style: "statement",
+    title: (item && titleOf(item, 40, thing)) || placeholderTitle(0),
+    sub: (item && detailOf(item, 80, thing)) || placeholderDetail,
+  };
+}
+
+export const examples = [
+  { style: "number", title: "2", sub: "plants need water", tone: "warn" },
+  {
+    style: "photo",
+    title: "Fresh air, happy dogs",
+    sub: "Clover and Pip are ready for their morning park walk",
+    photo: "lib:dogs",
+  },
+  {
+    style: "statement",
+    title: "A good day starts with a walk",
+    sub: "Your next walk is at the riverside with Clover",
+  },
+] satisfies z.input<typeof props>[];
+
+export const probes = [
+  {
+    kind: "choose",
+    need: "Make the main message of my plant screen that two plants need water today",
+    expect: "Hero",
+  },
+  {
+    kind: "choose",
+    need: "Add a small supporting sentence below my plants reminding me not to overwater",
+    expect: "Note",
+  },
+  {
+    kind: "write",
+    brief: "Make the main number two, with plants need water underneath and a warning tone",
+    expect: "Hero",
+  },
+] satisfies Probe[];
+
+export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  if (state === "loading") {
+    return (
+      <KitCard style="plain" part="root">
+        <KitSkeleton rows={2} />
+      </KitCard>
+    );
+  }
+  return (
+    <KitCard style="plain" part="root">
+      {style === "photo" && photo && <KitPhoto photo={photo} part="photo" />}
+      <KitText
+        role={style === "number" ? "number" : style === "photo" ? "title" : "display"}
+        tone={style === "number" ? (tone === "neutral" ? "accent" : tone) : "text"}
+        part="title"
+      >
+        {title}
+      </KitText>
+      {sub && (
+        <KitText role={style === "number" ? "label" : "body"} tone="muted" part="sub">
+          {sub}
+        </KitText>
+      )}
+    </KitCard>
+  );
+}
