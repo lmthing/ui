@@ -143,7 +143,7 @@ describe("KeyValue field labels and metadata", () => {
   });
 });
 
-function renderPairs(style: "rows" | "grid", count: number) {
+function renderPairs(style: "rows" | "grid", count: number, loading = false) {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   const config = createTamagui({
     tokens: createTokens(kitTokens),
@@ -164,7 +164,7 @@ function renderPairs(style: "rows" | "grid", count: number) {
     screen: "home",
     component: "c1",
     rev: 1,
-    state: "filled",
+    state: loading ? "loading" : "filled",
     children: createElement(renderers.KeyValue, view),
   });
   return renderToStaticMarkup(
@@ -183,7 +183,17 @@ describe("KeyValue rendering", () => {
         for (const part of ["root", "label", "value"])
           expect(html.match(new RegExp(`data-testid="home/c1/r${index}/${part}"`, "g"))).toHaveLength(1);
         expect(html.includes(`data-testid="home/c1/r${index}/icon"`)).toBe(index % 2 === 1);
+        expect(html).toMatch(
+          new RegExp(`data-testid="home/c1/r${index}/value"[^>]*>[^<]*</span></div></div>`),
+        );
       }
+    }
+  });
+  it.each(["rows", "grid"] as const)("loads one placeholder per pair in %s at every count", (style) => {
+    for (let count = 1; count <= 6; count++) {
+      const html = renderPairs(style, count, true);
+      expect(html.match(/aria-busy="true"/g)).toHaveLength(style === "grid" ? count : 1);
+      expect(html).not.toContain('data-testid="home/c1/r1/label"');
     }
   });
 });
