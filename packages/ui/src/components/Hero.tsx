@@ -13,7 +13,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
+import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState, useKit } from "../kit";
 
 export const meta = {
   id: "Hero",
@@ -82,6 +82,7 @@ export const probes = [
 
 export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const { resolvePhoto } = useKit();
   if (state === "loading") {
     return (
       <KitCard style="cards" part="root">
@@ -89,9 +90,10 @@ export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typ
       </KitCard>
     );
   }
+  const hasPhoto = style === "photo" && Boolean(photo && resolvePhoto?.(photo));
   return (
     <KitCard style="cards" part="root">
-      {style === "photo" && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
+      {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
       <KitText
         role={style === "number" ? "number" : style === "photo" ? "title" : "display"}
         tone={style === "number" ? (tone === "neutral" ? "accent" : tone) : "text"}
