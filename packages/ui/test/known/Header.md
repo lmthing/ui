@@ -1,3 +1,0 @@
-- `back` is offered (`[back press]`) in `large` and `inline` styles where no back button is drawn: add `actions.when: { back: { style: "back" } }`.
-- `action` is offered but no element with address `<screen>/<instance>/action` is rendered with a button role.
-- read probe fails live: "Add a plant" did not resolve to `h1/action` press (the action is not drawn as a button at that address).
