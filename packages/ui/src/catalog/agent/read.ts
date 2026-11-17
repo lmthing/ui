@@ -87,7 +87,10 @@ export function readComponent(
   ];
   const ownAff = affordances.filter((a) => !a.address.startsWith(`${instance}/r`) || !key);
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
-  const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
+  const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
+  // A stack shows only its first item; the rest are counted, not read.
+  const firstOnly = def.meta.items?.visible === "first";
+  const items = firstOnly ? all.slice(0, 1) : all;
   const itemSchema = key ? schema.properties?.[key]?.items : undefined;
   return [
     line.join(" "),
@@ -102,6 +105,7 @@ export function readComponent(
         .filter(Boolean)
         .join(" ")}`;
     }),
+    ...(firstOnly && all.length > 1 ? [`  +${all.length - 1} more`] : []),
   ];
 }
 

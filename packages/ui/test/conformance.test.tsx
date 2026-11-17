@@ -36,7 +36,7 @@ describe("themes", () => {
 describe.each(ready)("%s conformance", (id) => {
   const { meta, examples } = components[id];
   const states = (meta as { states?: readonly string[] }).states ?? ["filled"];
-  const items = (meta as { items?: { key: string } }).items;
+  const items = (meta as { items?: { key: string; visible?: "all" | "first" } }).items;
 
   it.each(presets.flatMap((preset) => modes.map((mode) => ({ preset: preset.id, mode }))))(
     "renders every example and state in $preset $mode",
@@ -52,7 +52,8 @@ describe.each(ready)("%s conformance", (id) => {
             const count = (components[id].props.parse(example) as unknown as Record<string, unknown[]>)[
               items.key
             ]!.length;
-            for (let index = 1; index <= count; index++) {
+            if (items.visible === "first") expect(html).not.toContain('data-testid="home/c1/r2/root"');
+            for (let index = 1; index <= (items.visible === "first" ? 1 : count); index++) {
               expect(html).toContain(`data-testid="home/c1/r${index}/root"`);
             }
           }

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
-import { space, type as typography } from "../../catalog";
+import { component, space, type as typography } from "../../catalog";
 import { useKitStyle } from "../provider";
 
 const Frame = styled(XStack, { alignItems: "flex-start" });
@@ -16,6 +16,7 @@ export function KitContent({
   lead,
   lineRole = "heading",
   leadingAlign = "line",
+  inset = "none",
   children,
 }: {
   lead?: ReactNode;
@@ -23,11 +24,13 @@ export function KitContent({
   lineRole?: "body" | "heading" | "title";
   /** `row` centres a thumbnail taller than a line on the whole text (default `line`, for icons). */
   leadingAlign?: "line" | "row";
+  /** `md` insets the content by a row's side padding, without stamping an address. */
+  inset?: "none" | "md";
   children: ReactNode;
 }) {
   const ks = useKitStyle();
   return (
-    <Frame gap={space[ks.density.gap]}>
+    <Frame gap={space[ks.density.gap]} paddingHorizontal={inset === "md" ? space.md : component.base.none}>
       {lead &&
         (leadingAlign === "row" ? (
           <Edge alignSelf="center">{lead}</Edge>

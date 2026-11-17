@@ -65,13 +65,14 @@ export function affordancesOf(meta: Meta, props: Props, instance: string): Affor
   const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
-  const itemActions = items.flatMap((item) =>
+  // `$first` in a rule is true only for the first item (the top card of a stack).
+  const itemActions = items.flatMap((item, index) =>
     partsOf(
       meta.actions?.items as Record<string, readonly string[]>,
       item,
       `${instance}/${String(item.id)}`,
       when,
-      props,
+      { ...props, $first: index === 0 },
     ),
   );
   return [...own, ...itemActions];

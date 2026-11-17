@@ -9,9 +9,9 @@ function Bubble({ from, text, grouped }: { from: "me" | "them"; text: string; gr
     <YStack
       {...usePart()}
       alignSelf={me ? "flex-end" : "flex-start"}
-      maxWidth="80%"
+      maxWidth="85%"
       marginTop={grouped ? space.xs : space.sm}
-      paddingVertical={space.sm}
+      paddingVertical={space.md}
       paddingHorizontal={space.md}
       borderRadius={radius.lg}
       {...(me ? { borderBottomRightRadius: radius.sm } : { borderBottomLeftRadius: radius.sm })}
