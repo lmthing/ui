@@ -57,14 +57,14 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 
 | Base | Use | Key props |
 | --- | --- | --- |
-| `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `part` |
-| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, children |
+| `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `part` |
+| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), children |
 | `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part` |
 | `KitPhoto` | A photo reference | `photo`, `shape` thumb/round/wide, `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
-| `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part` |
+| `KitEmpty` | The empty state (icon badge and shared line) | `icon`, `part`, `title`/`sub` (standalone), `fill` (full-height, centred) |
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |

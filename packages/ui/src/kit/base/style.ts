@@ -2,6 +2,23 @@ import { createContext } from "react";
 import { component, elevation, radius, type KitStyle } from "../../catalog";
 
 export type CardStyle = "plain" | "inset" | "cards";
+export type SurfaceTone = "neutral" | "good" | "warn" | "bad";
+/** Fill and border for a surface that carries a tone: a soft tint of the tone, or the accent tint when neutral. */
+export function tintOf(tone: SurfaceTone) {
+  const fill = { neutral: "$accentSoft", good: "$goodSoft", warn: "$warnSoft", bad: "$badSoft" } as const;
+  const edge = { neutral: "$accent", good: "$good", warn: "$warn", bad: "$bad" } as const;
+  return {
+    backgroundColor: fill[tone],
+    borderColor: edge[tone],
+    borderWidth: component.base.borderWidth,
+  } as const;
+}
+/** An outlined surface: no fill, a visible rule. */
+export const outlined = {
+  backgroundColor: "transparent",
+  borderColor: "$line",
+  borderWidth: component.base.strongBorder,
+} as const;
 export const CardStyleContext = createContext<CardStyle>("inset");
 export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiusShift"]) {
   const steps = ["sm", "md", "lg", "xl"] as const;

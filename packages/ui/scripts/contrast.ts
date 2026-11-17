@@ -1,4 +1,4 @@
-import { accents, presets, themeName } from "../src/catalog";
+import { accents, presets, themeName, themeRoles } from "../src/catalog";
 
 function luminance(color: string) {
   const channels = [1, 3, 5].map((offset) => {
@@ -15,14 +15,27 @@ export function checkContrast() {
   const scores = presets.flatMap((preset) =>
     (["light", "dark"] as const).flatMap((mode) =>
       accents.map((accent) => {
-        const theme = { ...preset.roles[mode], ...accent[mode] };
+        const theme = themeRoles(preset, accent, mode);
         const score = {
           name: themeName({ preset: preset.id, mode, accent: accent.id }),
           text: contrast(theme.text, theme.bg),
           muted: contrast(theme.muted, theme.bg),
           onAccent: contrast(theme.onAccent, theme.accent),
+          // Body text and each tone's icon or border on that tone's soft tint.
+          tintText: Math.min(
+            ...(["good", "warn", "bad"] as const).map((t) => contrast(theme.text, theme[`${t}Soft`])),
+          ),
+          tintTone: Math.min(
+            ...(["good", "warn", "bad"] as const).map((t) => contrast(theme[t], theme[`${t}Soft`])),
+          ),
         };
-        if (score.text < 7 || score.muted < 4.5 || score.onAccent < 4.5) {
+        if (
+          score.text < 7 ||
+          score.muted < 4.5 ||
+          score.onAccent < 4.5 ||
+          score.tintText < 7 ||
+          score.tintTone < 4.5
+        ) {
           throw new Error(`Contrast failed: ${JSON.stringify(score)}`);
         }
         return score;

@@ -3,7 +3,7 @@ import { XStack, YStack, styled } from "tamagui";
 import { component, size, space, type as typography } from "../../catalog";
 import { useKit, useKitStyle } from "../provider";
 import { PartContext, usePart, usePartContext } from "../part";
-import { CardStyleContext, shifted, surfaceOf } from "./style";
+import { CardStyleContext, shifted, surfaceOf, tintOf, type SurfaceTone } from "./style";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Body = styled(YStack, { flex: component.base.bodyFlex });
@@ -19,6 +19,7 @@ export function Row({
   label,
   lineRole = "body",
   role,
+  tone,
 }: {
   children: ReactNode;
   leading?: ReactNode;
@@ -27,6 +28,7 @@ export function Row({
   label: string;
   lineRole?: LineRole;
   role?: "listitem" | "text";
+  tone?: SurfaceTone | undefined;
 }) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
@@ -36,7 +38,7 @@ export function Row({
   return (
     <Frame
       {...part}
-      {...(style === "cards" ? surfaceOf(ks.surface) : {})}
+      {...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(ks.surface) : {})}
       paddingVertical={space[ks.density.rowPad]}
       paddingHorizontal={space.md}
       gap={space[ks.density.gap]}

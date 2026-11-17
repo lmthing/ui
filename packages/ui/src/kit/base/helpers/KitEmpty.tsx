@@ -1,5 +1,5 @@
 import { YStack, styled } from "tamagui";
-import { emptyLine, size, space, type IconName } from "../../../catalog";
+import { component, emptyLine, size, space, type IconName } from "../../../catalog";
 import { KitIcon } from "../KitIcon";
 import { KitText } from "../KitText";
 import { usePartContext } from "../../part";
@@ -17,16 +17,41 @@ const Badge = styled(YStack, {
  * The empty state every component uses: a soft icon badge and one calm line ("No walks yet"),
  * centred with room around it. The line comes from shared copy and the thing type the host passes.
  */
-export function KitEmpty({ icon = "sparkles", part = "title" }: { icon?: IconName; part?: string }) {
+export function KitEmpty({
+  icon = "sparkles",
+  part = "title",
+  title,
+  sub,
+  fill = false,
+}: {
+  icon?: IconName;
+  part?: string;
+  /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
+  title?: string;
+  sub?: string;
+  /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
+  fill?: boolean;
+}) {
   const { thing } = usePartContext();
   return (
-    <YStack alignItems="center" gap={space.md} paddingVertical={space.xl} paddingHorizontal={space.lg}>
+    <YStack
+      alignItems="center"
+      gap={space.md}
+      paddingVertical={space.xl}
+      paddingHorizontal={space.lg}
+      {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
+    >
       <Badge>
         <KitIcon name={icon} tone="accent" scale="lg" part="icon" />
       </Badge>
-      <KitText role="body" tone="muted" align="center" part={part}>
-        {emptyLine(thing)}
+      <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
+        {title ?? emptyLine(thing)}
       </KitText>
+      {sub && (
+        <KitText role="body" tone="muted" align="center" part="sub">
+          {sub}
+        </KitText>
+      )}
     </YStack>
   );
 }

@@ -1,16 +1,13 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { URL } from "node:url";
-import { accents, presets, themeName } from "../src/catalog";
+import { accents, presets, themeName, themeRoles } from "../src/catalog";
 
 export async function buildThemes() {
   const entries = presets.flatMap((preset) =>
     (["light", "dark"] as const).flatMap((mode) =>
       accents.map(
         (accent) =>
-          `  ${themeName({ preset: preset.id, accent: accent.id, mode })}: ${JSON.stringify({
-            ...preset.roles[mode],
-            ...accent[mode],
-          })},`,
+          `  ${themeName({ preset: preset.id, accent: accent.id, mode })}: ${JSON.stringify(themeRoles(preset, accent, mode))},`,
       ),
     ),
   );

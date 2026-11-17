@@ -11,4 +11,7 @@ export const roles = [
   "good",
   "warn",
   "bad",
+  "goodSoft",
+  "warnSoft",
+  "badSoft",
 ] as const;

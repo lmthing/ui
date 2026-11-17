@@ -8,6 +8,7 @@ import {
   loadingLabel,
   presets,
   themeName,
+  themeRoles,
   type ComponentName,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
@@ -25,10 +26,9 @@ describe("themes", () => {
     for (const preset of presets)
       for (const mode of modes)
         for (const accent of accents) {
-          expect(kitThemes[themeName({ preset: preset.id, mode, accent: accent.id })]).toEqual({
-            ...preset.roles[mode],
-            ...accent[mode],
-          });
+          expect(kitThemes[themeName({ preset: preset.id, mode, accent: accent.id })]).toEqual(
+            themeRoles(preset, accent, mode),
+          );
         }
   });
 });
