@@ -76,10 +76,15 @@ export function readComponent(
     risks[def.meta.tier] ?? "",
   );
   const key = def.meta.items?.key;
-  const own = textsOf(
-    { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
-    props,
-  );
+  // A component whose meaning lives in numbers (Ring "3 of 5", Steps "step 2 of 3") adds it with
+  // `meta.read`; its lines come before the quoted texts.
+  const own = [
+    ...(def.meta.read?.(props, state) ?? []),
+    ...textsOf(
+      { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
+      props,
+    ),
+  ];
   const ownAff = affordances.filter((a) => !a.address.startsWith(`${instance}/r`) || !key);
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];

@@ -49,7 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
      a part carries `part="<name>"` from `meta.parts` / `meta.items.parts`; each item is wrapped by a
      base taking `item={row.id}`.
    - States: `const state = useComponentState()`. `loading` → `<KitSkeleton rows={n} />` in the
-     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`.
+     component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"). A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
@@ -58,6 +58,8 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | Base | Use | Key props |
 | --- | --- | --- |
 | `KitCard` | A surface holding the component (also gives list a11y role) | `style` plain/inset/cards, `look` surface/tinted/outlined (inset only), `tone` neutral/good/warn/bad (for tinted), `clip` (round a photo at the top), `goto`+`label` (whole card is one link), `padded` (inset content), `part` |
+| `KitTime` | A time or short date in a fixed-width muted column with tabular digits (a `KitRow` leading item) | `value`, `part` (default `time`) |
+| `KitRing` | Progress ring: `$line` track and `$accent` arc to value/of from twelve o'clock; children centred inside; drawing hidden from assistive tech; centres itself | `value`, `of`, `scale` md/lg, `part` (default `ring`), children |
 | `KitInput` | A one-line text box (role textbox, or searchbox for `kind="search"`), optional leading icon, hint as placeholder; the box is the part `type` acts on | `hint`, `value`, `kind` text/search, `icon`, `part` (default `field`), `label` |
 | `KitStrip` | A sideways-scrolling strip; each child cell about 40% wide so the next peeks in; no scrollbar | children |
 | `KitStepsTrack` | The drawn track of a step sequence (dots, bar, numbered); decorative, hidden from reading | `style`, `count`, `at`, `part` |
@@ -65,9 +67,9 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitTrack` | The component root for chips: wrapping row (`pills`) or a tinted track of equal segments (`segments`, role tablist) | `look`, children |
 | `KitTile` | One pressable item tile: icon in a soft round badge over a centred label, one address per item (quick actions) | `item`, `icon`, `label`, `goto` |
 | `KitContent` | Text of a card with one root address (padded `KitCard`): optional leading icon or thumbnail centred on the first line, text lines with a small gap; stamps no address | `lead`, `lineRole`, `leadingAlign` line/row (`row` for a thumbnail), children |
-| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
+| `KitBlock` | One static block (no item id, not a list item) for single-statement components; same geometry as `KitRow` | `label`, `goto`, `leading`, `trailing`, `lineRole`, `leadingAlign`, `inset` md/none, `tone` (draws a tinted panel; the theme has `goodSoft`/`warnSoft`/`badSoft`), children |
 | `KitRow` | One tappable or static row inside a card; leading and trailing centre on the first line | `item`, `label`, `goto`, `leading`, `trailing`, `lineRole` (first line's text role), `leadingAlign` line/row (`row` for a photo thumbnail taller than a line), `inset` md/none (`none` for a cell inside `KitGrid`), children |
-| `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `part` |
+| `KitText` | All text | `role` display/title/heading/body/label/caption/number, `tone`, `align`, `lines`, `tabular` (equal-width digits), `part` (`null`: not addressed, inside a decorative drawing) |
 | `KitIcon` | An icon from the catalog set | `name`, `tone`, `scale` sm/md/lg, `part`, `decorative` (no address; chevrons only) |
 | `KitPhoto` | A photo reference | `photo`, `shape` thumb/round (beside text), wide/square/tall (full width), avatar (large round, centred, for a profile), `part` |
 | `KitGrid` | Equal-width columns with aligned tops (facts, stats, tiles) | `columns` 2/3, children = cells |
