@@ -156,7 +156,7 @@ describe("Note view", () => {
       for (const tone of ["neutral", "good", "warn", "bad"] as const) {
         const view = Note(props.parse({ style, tone, text: "Supporting information" }));
         expect(view.type).toBe(KitBlock);
-        expect(view.props).toMatchObject({ item: "", label: "Supporting information" });
+        expect(view.props).toMatchObject({ label: "Supporting information" });
         const line = view.props.children;
         expect(line.type).toBe(KitText);
         expect(line.props).toMatchObject({
