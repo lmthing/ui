@@ -80,7 +80,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 | `KitAction` | A button, or an icon-only button | `label`, `icon`, `kind`, `goto`, `a11y`, `full`, `part` |
 | `KitCheck` | A tick box with a 44px target | `done`, `label`, `part` |
 | `KitTrail` | Row end: chevron, check, switch, value, badge | `kind`, `value`, `on`, `part` |
-| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines) |
+| `KitSkeleton` | Loading rows shaped like filled `KitRow`s | `rows`, `lead` dot/box/none, `shape` rows/pairs/headline/media (a wide photo and three lines)/ring (a ring outline and two centred bars; `ring` md/lg)/trend (label and value bars left, a chart band right) |
 
 If the view needs something no base does (a pressable button, a progress ring, a checkbox), the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
