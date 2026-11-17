@@ -53,7 +53,7 @@ export const probes = [
   },
   {
     kind: "choose",
-    need: "Make the main message on my plant screen say that two plants need water today",
+    need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
     expect: "Hero",
   },
   {
