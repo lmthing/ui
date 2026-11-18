@@ -97,14 +97,27 @@ describe("Loyalty fallback", () => {
 });
 
 describe("Loyalty states and parts", () => {
-  it.each(["filled", "success"] as const)("draws %s without overriding the stored count", (state) => {
+  it("draws filled progress without overriding the stored count", () => {
     for (const stamps of [0, 3, 4]) {
-      const html = draw({ ...seed, stamps }, state);
+      const html = draw({ ...seed, stamps });
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       for (const part of ["stamps", "of", "reward", stamps === 4 ? "redeem" : "stamp"])
         expect(elementAt(html, `home/c1/${part}`).attributes).toContain("data-testid");
       expect(html.includes('data-testid="home/c1/earned"')).toBe(stamps === 4);
       expect(html).not.toContain('data-testid="home/c1/name"');
+    }
+  });
+  it("shows the earned reward in success without inventing a count or offering actions", () => {
+    for (const stamps of [0, 3, 4]) {
+      const input = { ...seed, stamps };
+      const html = draw(input, "success");
+      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+      for (const part of ["earned", "reward"])
+        expect(elementAt(html, `home/c1/${part}`).attributes).toContain("data-testid");
+      for (const part of ["stamps", "of", "stamp", "redeem"])
+        expect(html).not.toContain(`data-testid="home/c1/${part}"`);
+      expect(html).toContain("Reward earned");
+      expect(readComponent(components.Loyalty, input, "l1", "success")).toEqual(["l1 Loyalty (success)"]);
     }
   });
   it("draws an optional name and bounded reward without clipping props", () => {
@@ -116,12 +129,18 @@ describe("Loyalty states and parts", () => {
 });
 
 describe("Loyalty read/act and core-first probes", () => {
-  it("offers exactly the drawn phone-tier button at every count and target", () => {
-    for (let of = 4; of <= 12; of++)
+  it.each(examples)("reads exactly the reward text drawn on screen", (example) => {
+    expect(draw(example)).toContain(example.reward);
+    expect(readComponent(components.Loyalty, example, "l1").join("\n")).toContain(example.reward);
+  });
+  it.each(Array.from({ length: 9 }, (_, index) => index + 4))(
+    "offers exactly the drawn phone-tier button at every count toward %s",
+    (of) => {
       for (let stamps = 0; stamps <= of; stamps++) {
         const input = { ...seed, of, stamps };
         const part = stamps === of ? "redeem" : "stamp";
         const html = draw(input);
+        expect(html.match(/aria-hidden="true"/g)).toHaveLength(of);
         expect(affordancesOf(meta, props.parse(input), "l1")).toEqual([
           { address: `l1/${part}`, part, action: "press", detail: "" },
         ]);
@@ -130,11 +149,13 @@ describe("Loyalty read/act and core-first probes", () => {
         const reading = readComponent(components.Loyalty, input, "l1").join("\n");
         expect(reading).toContain(`${stamps} of ${of}`);
         expect(reading).toContain(`[l1/${part} press]`);
+        expect(reading).toContain(stamps === of ? "Redeem reward" : "Add stamp");
         expect(reading.includes("Reward earned")).toBe(stamps === of);
       }
-    expect(meta.tier).toBe("phone");
-    expect(meta.weight).toBe(2);
-  });
+      expect(meta.tier).toBe("phone");
+      expect(meta.weight).toBe(2);
+    },
+  );
   it("keeps core-first probes and the incomplete-pack readiness gate", () => {
     expect(meta.status).toBe("ready");
     expect(meta.states).toEqual(["filled", "success"]);

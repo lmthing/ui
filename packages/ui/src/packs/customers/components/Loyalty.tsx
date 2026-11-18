@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  balancedLine,
   detailOf,
   goalLine,
   itemsOf,
@@ -17,7 +16,15 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitDayMark, KitGrid, KitText } from "../../../kit";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitDayMark,
+  KitGrid,
+  KitText,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: Streak/default cannot keep client reward stamps or redeem a completed business reward.
 export const meta = {
@@ -42,7 +49,10 @@ export const meta = {
   read: (input, state) => {
     if (state !== "filled") return [];
     const { stamps, of } = input as z.output<typeof props>;
-    return [stampLine(stamps, of), ...(stamps === of ? [loyaltyLabels.earned] : [])];
+    return [
+      stampLine(stamps, of),
+      ...(stamps === of ? [loyaltyLabels.earned, loyaltyLabels.redeem] : [loyaltyLabels.stamp]),
+    ];
   },
 } as const satisfies Meta;
 export const props = z
@@ -80,6 +90,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Loyalty({ stamps, of, reward, name }: Props<typeof props, typeof meta>) {
+  const success = useComponentState() === "success";
   const stamp = stamps < of,
     redeem = stamps === of;
   return (
@@ -90,34 +101,42 @@ export function Loyalty({ stamps, of, reward, name }: Props<typeof props, typeof
             {name}
           </KitText>
         )}
-        <KitText role="number" part="stamps" tabular>
-          {stamps}{" "}
-          <KitText role="caption" tone="muted" part="of">
-            {goalLine(of)}
+        {success ? (
+          <KitText role="heading" tone="good" part="earned">
+            {loyaltyLabels.earned}
           </KitText>
-        </KitText>
+        ) : (
+          <KitText role="number" part="stamps" tabular>
+            {stamps}{" "}
+            <KitText role="caption" tone="muted" part="of">
+              {goalLine(of)}
+            </KitText>
+          </KitText>
+        )}
       </KitContent>
-      <KitGrid columns={3}>
-        {Array.from({ length: Math.ceil(of / 2) }, (_, pair) => (
-          <KitGrid key={pair} columns={2}>
-            {Array.from({ length: Math.min(2, of - pair * 2) }, (_, index) => (
-              <KitDayMark key={index} done={pair * 2 + index < stamps} />
-            ))}
-          </KitGrid>
-        ))}
-      </KitGrid>
+      {!success && (
+        <KitGrid columns={3}>
+          {Array.from({ length: Math.ceil(of / 2) }, (_, pair) => (
+            <KitGrid key={pair} columns={2}>
+              {Array.from({ length: Math.min(2, of - pair * 2) }, (_, index) => (
+                <KitDayMark key={index} done={pair * 2 + index < stamps} />
+              ))}
+            </KitGrid>
+          ))}
+        </KitGrid>
+      )}
       <KitContent>
         <KitText role="label" part="reward">
-          {balancedLine(reward)}
+          {reward}
         </KitText>
-        {redeem && (
+        {!success && redeem && (
           <KitText role="caption" tone="good" part="earned">
             {loyaltyLabels.earned}
           </KitText>
         )}
       </KitContent>
-      {stamp && <KitAction part="stamp" label={loyaltyLabels.stamp} full />}
-      {redeem && <KitAction part="redeem" label={loyaltyLabels.redeem} full />}
+      {!success && stamp && <KitAction part="stamp" label={loyaltyLabels.stamp} full />}
+      {!success && redeem && <KitAction part="redeem" label={loyaltyLabels.redeem} full />}
     </KitCard>
   );
 }
