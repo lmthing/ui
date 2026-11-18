@@ -1,8 +1,10 @@
 # packs/customers/copy
 
-Pure copy and formatting owned by customers pack components.
+Pure copy and formatting owned by customers pack components, one file per component.
 Use `index.ts` as the folder's door.
 
+- `ClientCard.ts`: client summary, contact labels and reading.
 - `PaymentStatus.ts`: payment labels, dates, settlement, reading and fallback.
-- Tests live in `../tests/PaymentStatus.copy.test.ts`.
+- `Review.ts`: review labels, counts, stars and reading.
+- Tests live in `../tests/copy/<Id>.test.ts`.
 - Shared currencies and money formatting stay in `catalog/copy`.

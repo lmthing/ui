@@ -12,12 +12,25 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import { clientReading, contactLabels, sinceLine, nextLine, tagsLine } from "../copy";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitPhoto,
+  KitSkeleton,
+  KitText,
+  type TextRole,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
   id: "ClientCard",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Recognise one business client, their next visit and how to contact them.",
   pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
@@ -32,6 +45,7 @@ export const meta = {
     parts: { call: ["press"], message: ["press"], directions: ["press"] },
     when: { call: { phone: true }, directions: { address: true } },
   },
+  read: (input, state) => (state === "filled" ? clientReading(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
 export const props = z.strictObject({
   name: text(28),
@@ -82,3 +96,58 @@ export const probes = [
   ),
   read("Call Anna", { address: "c1/call", action: "press" }),
 ] satisfies Probe[];
+
+function ClientText({ value, part, role = "label" }: { value: string; part: string; role?: TextRole }) {
+  if (useComponentState() === "loading")
+    return <KitSkeleton shape="figure" inset="none" centered content={[[role, value]]} />;
+  return (
+    <KitText role={role} tone={part === "name" ? "text" : "muted"} align="center" part={part}>
+      {value}
+    </KitText>
+  );
+}
+
+function ContactAction({ part }: { part: keyof typeof contactLabels }) {
+  const kind = part === "message" ? "primary" : "secondary";
+  if (useComponentState() === "loading")
+    return <KitSkeleton shape="control" kind={kind} label={contactLabels[part]} full />;
+  return <KitAction part={part} label={contactLabels[part]} kind={kind} full />;
+}
+
+export function ClientCard({
+  name,
+  photo,
+  since,
+  next,
+  tags,
+  phone,
+  address,
+}: Props<typeof props, typeof meta>) {
+  const loading = useComponentState() === "loading";
+  return (
+    <KitCard padded part="root">
+      {loading ? (
+        <KitSkeleton shape="media" aspect="avatar" inset="none" lines={[]} />
+      ) : (
+        <KitPhoto photo={photo} shape="avatar" part="photo" label={name} />
+      )}
+      <KitContent>
+        <ClientText value={name} role="heading" part="name" />
+        {since && <ClientText value={sinceLine(since)} role="label" part="since" />}
+      </KitContent>
+      {next && <ClientText value={nextLine(next)} part="next" />}
+      {tags.length > 0 && <ClientText value={tagsLine(tags)} role="label" part="tags" />}
+      <ContactAction part="message" />
+      {phone && address ? (
+        <KitGrid columns={2}>
+          <ContactAction part="call" />
+          <ContactAction part="directions" />
+        </KitGrid>
+      ) : phone ? (
+        <ContactAction part="call" />
+      ) : address ? (
+        <ContactAction part="directions" />
+      ) : null}
+    </KitCard>
+  );
+}
