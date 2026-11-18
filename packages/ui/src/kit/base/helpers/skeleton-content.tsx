@@ -17,8 +17,10 @@ export type SkeletonItem = {
 };
 export type ShapeProps = {
   rows?: number;
+  lead?: "dot" | "box" | "time" | "none";
   title?: string;
   share?: boolean;
+  points?: { value: number }[];
   ring?: "md" | "lg";
   inset?: "md" | "none" | "card";
   aspect?: "wide" | "square" | "tall" | "none" | "avatar";
@@ -59,7 +61,15 @@ export function SkeletonText({ text, role, align = "start" }: SkeletonLine) {
           position="absolute"
           top={index * line + (line - height) / 2}
           height={height}
-          width={index % 2 ? "58%" : "72%"}
+          width={
+            role === "caption"
+              ? "44%"
+              : role === "label" || role === "number"
+                ? "48%"
+                : index % 2
+                  ? "58%"
+                  : "72%"
+          }
           alignSelf={align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"}
           backgroundColor="$line"
           borderRadius={radius.sm}

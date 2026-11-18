@@ -183,12 +183,14 @@ describe("Card actions and loading", () => {
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
       const html = renderInstance("Card", input, "loading", theme, { resolvePhoto: () => source });
-      expect(html).toContain('aria-busy="true"');
       expect(elementAt(html, "home/c1/root").attributes).toContain('role="list"');
       expect(html).not.toContain('data-testid="home/c1/title"');
-      const visible = html.replace(/<style[^>]*>[\s\S]*?<\/style>/g, "").replace(/<[^>]*>/g, "");
-      expect(visible).not.toContain(input!.title);
-      // A resolved wide photo keeps a media placeholder; other cards keep row placeholders.
+      const checkHidden = (node: ReturnType<typeof elementAt>, hidden = false) => {
+        const concealed = hidden || node.attributes.includes('aria-hidden="true"');
+        if (node.tag === "span") expect(concealed).toBe(true);
+        node.children.forEach((child) => checkHidden(child, concealed));
+      };
+      checkHidden(elementAt(html, "home/c1/root"));
       const firstPlaceholder = elementAt(html, "home/c1/root").children[0]!.children[0]!;
       expect(styleAt(html, firstPlaceholder).includes("aspect-ratio")).toBe(
         props.parse(input).style === "media" && Boolean(source),

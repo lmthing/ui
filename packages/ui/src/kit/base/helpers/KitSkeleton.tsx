@@ -1,6 +1,7 @@
 import { XStack, YStack, styled } from "tamagui";
 import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
 import { useKitStyle } from "../../provider";
+import { KitContent } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, linesOf, type ShapeProps } from "./skeleton-content";
 import { SkeletonOptions } from "./skeleton-options";
 
@@ -76,7 +77,10 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
           </YStack>
           {((items?.[index]?.trail && items[index]?.trail !== "none") || items?.[index]?.done) && (
             <Line height={first}>
-              <Bar width={size.icon.md} height={space.sm} />
+              <Bar
+                width={typeof items?.[index]?.trail === "string" ? size.control.md : size.icon.md}
+                height={space.sm}
+              />
             </Line>
           )}
         </XStack>
@@ -85,7 +89,7 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
   );
 }
 
-function SkeletonFigure({ lines, centered, split, inset }: ShapeProps) {
+function SkeletonFigure({ lines, centered, split, inset, lead = "none" }: ShapeProps) {
   const aligned = lines?.map((line) => ({ ...line, align: centered ? ("center" as const) : line.align }));
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy padding={skeletonInset(inset)}>
@@ -99,7 +103,15 @@ function SkeletonFigure({ lines, centered, split, inset }: ShapeProps) {
           </YStack>
         </XStack>
       ) : (
-        <SkeletonContent lines={aligned} />
+        <KitContent
+          lead={
+            lead === "none" ? undefined : <SkeletonLead lead={lead} first={typography.heading.lineHeight} />
+          }
+        >
+          {aligned?.map((line, index) => (
+            <SkeletonText key={index} {...line} />
+          ))}
+        </KitContent>
       )}
     </YStack>
   );
@@ -120,8 +132,8 @@ const shapes = {
 /** Loading shapes retain each filled component's geometry and public props. */
 export function KitSkeleton({
   rows = 1,
-  lead = "dot",
   shape = "rows",
+  lead = shape === "figure" ? "none" : "dot",
   ring = "md",
   inset = shape === "bars" ? "none" : "md",
   content,

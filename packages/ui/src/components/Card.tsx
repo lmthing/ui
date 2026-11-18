@@ -150,18 +150,9 @@ export function Card(input: Props<typeof props, typeof meta>) {
       {state === "loading" ? (
         <KitSkeleton
           rows={1}
-          shape={hasPhoto ? "media" : "rows"}
+          shape={hasPhoto ? "media" : "figure"}
           lead={media ? "none" : icon ? "dot" : photo ? "box" : "none"}
           inset="card"
-          items={[
-            {
-              lines: [
-                { text: title, role: "heading" },
-                ...(input.body ? [{ text: input.body, role: "body" as const }] : []),
-                ...(input.meta ? [{ text: input.meta, role: "caption" as const }] : []),
-              ],
-            },
-          ]}
           aspect="wide"
           lines={[
             { text: title, role: "heading" },
