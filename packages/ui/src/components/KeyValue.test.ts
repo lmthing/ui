@@ -1,10 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { components, createRegistry, stampItemIds, type CastLike, type Props } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
+import { components, createRegistry, type CastLike, type Props } from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.KeyValue;
 
@@ -145,25 +141,18 @@ describe("KeyValue field labels and metadata", () => {
 });
 
 function renderPairs(style: "rows" | "grid", count: number, loading = false) {
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  const input = props.parse({
-    style,
-    pairs: Array.from({ length: count }, (_, index) => ({
-      label: `Fact ${index}`,
-      value: "a".repeat(28),
-      ...(index % 2 ? {} : { icon: "leaf" }),
-    })),
-  });
-  const view = stampItemIds(meta, input) as Props<typeof props, typeof meta>;
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
-    state: loading ? "loading" : "filled",
-    children: createElement(renderers.KeyValue, view),
-  });
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+  return renderInstance(
+    "KeyValue",
+    {
+      style,
+      pairs: Array.from({ length: count }, (_, index) => ({
+        label: `Fact ${index}`,
+        value: "a".repeat(28),
+        ...(index % 2 ? {} : { icon: "leaf" }),
+      })),
+    },
+    loading ? "loading" : "filled",
+    { preset: "calm", mode: "light", accent: "moss" },
   );
 }
 

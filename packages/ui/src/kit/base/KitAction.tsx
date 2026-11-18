@@ -48,6 +48,7 @@ export function KitAction({
   part = "root",
   a11y,
   full = false,
+  action,
 }: {
   label?: string | undefined;
   icon?: IconName | undefined;
@@ -56,6 +57,7 @@ export function KitAction({
   part?: string;
   a11y?: string;
   full?: boolean;
+  action?: "press" | "dismiss" | "play" | "pause";
 }) {
   const kit = useKit();
   const ks = useKitStyle();
@@ -70,7 +72,16 @@ export function KitAction({
       {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
       accessibilityRole="button"
       accessibilityLabel={label ?? a11y}
-      {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, address.testID) } : {})}
+      {...(kit.interactive && kit.controller
+        ? {
+            onPress: () =>
+              action
+                ? kit.controller!.act({ address: address.testID, action })
+                : kit.controller!.press(address.testID),
+          }
+        : kit.interactive && goto
+          ? { onPress: () => kit.onLink?.(goto, address.testID) }
+          : {})}
     >
       {icon && <KitIcon name={icon} tone={tone} scale={label ? "sm" : "md"} part={`${part}_icon`} />}
       {label && (

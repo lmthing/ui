@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
   components,
@@ -8,14 +8,9 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitCard, KitPhoto, KitSkeleton, KitText } from "@lmthing/ui/kit";
-import { Photo } from "./Photo";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Photo;
-const host = vi.hoisted(() => ({ state: "filled" }));
-vi.mock("../kit", async (original) => ({
-  ...(await original<typeof import("../kit")>()),
-  useComponentState: () => host.state,
-}));
 
 describe("Photo schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -167,34 +162,21 @@ describe("Photo metadata and probes", () => {
 });
 
 describe("Photo view", () => {
-  it.each(examples)("draws one image and only the supplied caption", (example) => {
-    host.state = "filled";
-    const view = Photo(props.parse(example));
-    expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ style: "plain", part: "root", padded: true });
-    const [image, caption] = view.props.children;
-    expect(image.type).toBe(KitPhoto);
-    expect(image.props).toMatchObject({ photo: example.photo, shape: example.style, part: "photo" });
-    expect(Boolean(caption)).toBe(Boolean(example.caption));
-    if (caption) {
-      expect(caption.type).toBe(KitText);
-      expect(caption.props).toMatchObject({
-        role: "caption",
-        tone: "muted",
-        part: "caption",
-        children: example.caption,
-      });
-    }
+  it.each(examples)("draws one themed image and only the supplied caption", (example) => {
+    const html = renderInstance("Photo", example, "filled", theme);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(elementAt(html, "home/c1/photo").attributes).toContain('role="img"');
+    const ratio = example.style === "wide" ? 16 / 9 : example.style === "tall" ? 3 / 4 : 1;
+    expect(styleAt(html, "home/c1/photo")).toContain(`aspect-ratio:${ratio}`);
+    expect(html.includes('data-testid="home/c1/caption"')).toBe(Boolean(example.caption));
+    if (example.caption) expect(html).toContain(example.caption);
     expect(affordancesOf(meta, props.parse(example), "p1")).toEqual([]);
   });
   it.each(examples)("draws the media skeleton without exposing filled content", (example) => {
-    host.state = "loading";
-    const view = Photo(props.parse(example));
-    expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ style: "plain", part: "root" });
-    expect(view.props.children.type).toBe(KitSkeleton);
-    expect(view.props.children.props).toMatchObject({ shape: "media", lead: "none" });
+    const html = renderInstance("Photo", example, "loading", theme);
+    expect(html).toContain('aria-busy="true"');
+    expect(html).not.toContain('data-testid="home/c1/photo"');
+    expect(html).not.toContain('data-testid="home/c1/caption"');
     expect(readComponent(components.Photo, example, "p1", "loading")[0]).toContain("(loading)");
-    host.state = "filled";
   });
 });

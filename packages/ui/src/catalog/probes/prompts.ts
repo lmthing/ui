@@ -13,6 +13,7 @@ export function buildEntry(def: Definition): string {
   return [
     `${meta.id}: ${meta.purpose}`,
     `props: ${signature(props)}`,
+    ...(meta.writeHints ?? []).map((hint) => `Rule: ${hint}`),
     `example: ${JSON.stringify({ c: meta.id, ...(examples[0] as object) })}`,
   ].join("\n");
 }

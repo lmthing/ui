@@ -1,9 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   component,
@@ -154,17 +150,11 @@ describe("Ring metadata and probes", () => {
 });
 
 function renderRing(style: "md" | "lg", value: number, state: "filled" | "loading", sub?: string) {
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
-    state,
-    children: createElement(renderers.Ring, props.parse({ ...input, style, value, sub })),
+  return renderInstance("Ring", { ...input, style, value, sub }, state, {
+    preset: "calm",
+    mode: "light",
+    accent: "moss",
   });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
-  );
 }
 
 describe.each(["md", "lg"] as const)("Ring rendering in %s", (style) => {

@@ -17,12 +17,19 @@ export function createAgentAccess(options: {
   store: InteractionStore;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
+  runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 }) {
   const { defs, store, current, onLink } = options;
   const log: ActLogEntry[] = [];
   return {
-    read: () => readScreen(current(), defs, store.snapshot(current().id)),
+    read: () => options.runtime?.read() ?? readScreen(current(), defs, store.snapshot(current().id)),
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
+      if (options.runtime) {
+        const reply = options.runtime.act(steps, opts);
+        if (reply.ok && !opts.dryRun)
+          for (const step of Array.isArray(steps) ? steps : [steps]) log.push({ ...step, at: Date.now() });
+        return reply;
+      }
       const screen = current();
       const list = Array.isArray(steps) ? steps : [steps];
       const plan = planAct(screen, defs, store.snapshot(screen.id), list);
@@ -36,7 +43,8 @@ export function createAgentAccess(options: {
     },
     log: () => [...log],
     reset: () => {
-      store.reset(current().id);
+      if (options.runtime) options.runtime.reset();
+      else store.reset(current().id);
       log.length = 0;
     },
   };

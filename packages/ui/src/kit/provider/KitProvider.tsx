@@ -9,6 +9,7 @@ type KitProviderProps = {
   theme: ThemeChoice;
   parts?: PartRegistry;
   interactive?: boolean;
+  controller?: KitContextValue["controller"];
   onLink?: KitContextValue["onLink"];
   resolvePhoto?: KitContextValue["resolvePhoto"];
 };
@@ -17,6 +18,7 @@ export function KitProvider({
   theme,
   parts = noopParts,
   interactive = false,
+  controller,
   onLink,
   resolvePhoto,
 }: KitProviderProps) {
@@ -28,15 +30,24 @@ export function KitProvider({
       parts,
       root,
       interactive,
-      ...(onLink ? { onLink } : {}),
+      ...(controller ? { controller } : {}),
+      ...(controller
+        ? {
+            onLink: (_goto: string, address: string) => {
+              controller.press(address);
+            },
+          }
+        : onLink
+          ? { onLink }
+          : {}),
       ...(resolvePhoto ? { resolvePhoto } : {}),
     }),
-    [preset, parts, interactive, onLink, resolvePhoto],
+    [preset, parts, interactive, controller, onLink, resolvePhoto],
   );
   return (
     <Theme name={themeName(theme)}>
       <KitContext.Provider value={value}>
-        <YStack ref={root} backgroundColor="$bg">
+        <YStack ref={root} backgroundColor="$bg" {...(controller ? { height: "100%" as const } : {})}>
           {children}
         </YStack>
       </KitContext.Provider>

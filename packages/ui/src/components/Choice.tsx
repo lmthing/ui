@@ -59,18 +59,19 @@ export const props = z
     message: "Must index an available option",
   })
   .refine(({ multi, at }) => !multi || at === undefined, { path: ["at"], message: "Several choices use on" })
-  .refine(({ multi, options }) => multi || options.every((option) => option.on === undefined), {
-    path: ["options"],
-    message: "On is for several choices",
-  })
-  // `on` is derived for a single choice from `at`, so every option says whether it is chosen.
-  .overwrite((value) => ({
-    ...value,
-    options: value.options.map((option, index) => ({
-      ...option,
-      on: value.multi ? (option.on ?? false) : index === value.at,
-    })),
-  }));
+  // In a single choice the chosen option is `at`, or the first option written with `on`; `on` is then
+  // derived for every option so each one says whether it is chosen.
+  .overwrite((value) => {
+    const first = value.options.findIndex((option) => option.on);
+    const at = value.multi ? undefined : (value.at ?? (first >= 0 ? first : undefined));
+    return {
+      ...value,
+      options: value.options.map((option, index) => ({
+        ...option,
+        on: value.multi ? (option.on ?? false) : index === at,
+      })),
+    };
+  });
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);

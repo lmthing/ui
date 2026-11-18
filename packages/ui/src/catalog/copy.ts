@@ -176,3 +176,21 @@ export function charLine(used: number, max: number): string {
 
 /** The send button of a reply. */
 export const sendLabel = "Send";
+
+/** The button that closes a sheet or a toast. */
+export const closeLabel = "Close";
+
+/** The controls of a player, and what is left of a recording: "-4:05". */
+export const mediaLabels = {
+  play: "Play",
+  pause: "Pause",
+  back: "Back 15 seconds",
+  forward: "Forward 15 seconds",
+} as const;
+export const remainingLine = (seconds: number): string => `-${clockLine(seconds)}`;
+
+/** The note a read gives a button that asks before it acts. */
+export const confirmNote = "asks first";
+export const confirmLabel = "Confirm";
+export const cancelLabel = "Cancel";
+export const mediaUnavailable = "Recording unavailable";

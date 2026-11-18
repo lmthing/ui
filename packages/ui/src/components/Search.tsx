@@ -6,7 +6,7 @@ export const meta = {
   id: "Search",
   group: "input",
   purpose: "Find one thing among many by typing words from its name.",
-  pick: "Type a query above a list to find matching things. Not a few fixed filters (Chips) or entering one piece of information (Field).",
+  pick: "Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).",
   region: "top",
   weight: 1,
   tier: "phone",

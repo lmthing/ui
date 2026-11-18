@@ -1,9 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -182,35 +178,18 @@ describe("Bars metadata and reading", () => {
 });
 
 function renderInput(input: unknown) {
-  const value = props.parse(input);
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
-    state: "filled",
-    children: createElement(renderers.Bars, stampItemIds(meta, value) as Props<typeof props, typeof meta>),
-  });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
-  );
+  return renderInstance("Bars", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
 }
 function renderPoints(count: number, state: "filled" | "empty" | "loading", unit?: string) {
-  const value = props.parse({
-    title: "a".repeat(32),
-    ...(unit ? { unit } : {}),
-    points: Array.from({ length: count }, () => ({ label: "abcd", value: 0 })),
-  });
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
+  return renderInstance(
+    "Bars",
+    {
+      title: "a".repeat(32),
+      ...(unit ? { unit } : {}),
+      points: Array.from({ length: count }, () => ({ label: "abcd", value: 0 })),
+    },
     state,
-    children: createElement(renderers.Bars, stampItemIds(meta, value) as Props<typeof props, typeof meta>),
-  });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+    { preset: "calm", mode: "light", accent: "moss" },
   );
 }
 describe("Bars rendering", () => {

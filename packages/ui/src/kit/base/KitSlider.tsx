@@ -1,3 +1,4 @@
+import { useKit } from "../provider";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../catalog";
 import { usePart } from "../part";
@@ -20,12 +21,55 @@ export function KitSlider({
   max?: number;
   part?: string;
 }) {
+  const kit = useKit();
+  const address = usePart(part);
+  const dispatch = (next: number) =>
+    kit.controller?.act({
+      address: address.testID,
+      action: part === "scrubber" ? "seek" : "set",
+      value: Math.min(max, Math.max(min, next)),
+    });
   const clamped = Math.min(max, Math.max(min, value));
   const share = max > min ? (clamped - min) / (max - min) : 0;
   const thumb = size.icon.lg;
   return (
     <YStack
-      {...usePart(part)}
+      {...address}
+      {...(kit.interactive && kit.controller
+        ? ({
+            tabIndex: 0,
+            onKeyDown: (event: KeyboardEvent) => {
+              const next =
+                event.key === "Home"
+                  ? min
+                  : event.key === "End"
+                    ? max
+                    : event.key === "ArrowRight" || event.key === "ArrowUp"
+                      ? value + 1
+                      : event.key === "ArrowLeft" || event.key === "ArrowDown"
+                        ? value - 1
+                        : undefined;
+              if (next !== undefined) {
+                event.preventDefault();
+                dispatch(next);
+              }
+            },
+            onPointerDown: (event: PointerEvent) => {
+              const node = event.currentTarget as HTMLElement;
+              const rect = node.getBoundingClientRect();
+              const position = (x: number) =>
+                Math.round(min + ((x - rect.left - thumb / 2) / (rect.width - thumb)) * (max - min));
+              dispatch(position(event.clientX));
+              const move = (next: PointerEvent) => dispatch(position(next.clientX));
+              const up = () => {
+                document.removeEventListener("pointermove", move);
+                document.removeEventListener("pointerup", up);
+              };
+              document.addEventListener("pointermove", move);
+              document.addEventListener("pointerup", up, { once: true });
+            },
+          } as object)
+        : {})}
       height={size.control.md}
       justifyContent="center"
       paddingHorizontal={thumb / 2}

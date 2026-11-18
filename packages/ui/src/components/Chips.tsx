@@ -17,7 +17,7 @@ export const meta = {
   id: "Chips",
   group: "input",
   purpose: "Filter things or pick one value from a few short options.",
-  pick: "Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).",
+  pick: "Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).",
   region: "body",
   weight: 1,
   tier: "phone",

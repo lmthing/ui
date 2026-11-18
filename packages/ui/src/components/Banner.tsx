@@ -18,7 +18,7 @@ export const meta = {
   id: "Banner",
   group: "content",
   purpose: "Something important to notice now, with an optional link to act.",
-  pick: "An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).",
+  pick: "An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).",
   region: "top",
   weight: 2,
   tier: "phone",

@@ -1,5 +1,4 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import { Hero } from "./Hero";
 import {
   affordancesOf,
   components,
@@ -11,13 +10,9 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 
+import { elementAt, renderInstance, styleAt } from "../../test/render";
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Hero;
-const host = vi.hoisted(() => ({ resolvePhoto: vi.fn() }));
-vi.mock("../kit", async (original) => ({
-  ...(await original<typeof import("../kit")>()),
-  useKit: () => host,
-  useComponentState: () => "filled",
-}));
 
 describe("Hero schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -189,11 +184,11 @@ describe("Hero fallback and metadata", () => {
     }
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when the host resolves it: %s", (source) => {
-    host.resolvePhoto.mockReturnValue(source);
-    const view = Hero(props.parse(examples[1]));
-    const media = view.props.children[0];
-    expect(Boolean(media)).toBe(Boolean(source));
-    if (source) expect(media.props).toMatchObject({ photo: "lib:dogs", shape: "wide", part: "photo" });
-    expect(host.resolvePhoto).toHaveBeenCalledWith("lib:dogs");
+    const resolvePhoto = vi.fn(() => source);
+    const html = renderInstance("Hero", examples[1], "filled", theme, { resolvePhoto });
+    expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
+    if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    expect(elementAt(html, "home/c1/title").attributes).toContain('data-testid="home/c1/title"');
+    expect(resolvePhoto).toHaveBeenCalledWith("lib:dogs");
   });
 });

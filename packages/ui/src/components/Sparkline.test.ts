@@ -1,9 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -74,17 +70,7 @@ describe("Sparkline schema", () => {
 });
 
 function renderSparkline(state: "filled" | "loading") {
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
-    state,
-    children: createElement(renderers.Sparkline, props.parse(input)),
-  });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
-  );
+  return renderInstance("Sparkline", input, state, { preset: "calm", mode: "light", accent: "moss" });
 }
 
 describe("Sparkline rendering", () => {

@@ -55,7 +55,11 @@ export function Row({
       accessibilityRole={goto ? "link" : (role ?? "listitem")}
       accessibilityLabel={label}
       {...(expanded === undefined ? {} : { "aria-expanded": expanded })}
-      {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
+      {...(kit.interactive && kit.controller
+        ? { onPress: () => kit.controller!.press(part.testID) }
+        : kit.interactive && goto
+          ? { onPress: () => kit.onLink?.(goto, part.testID) }
+          : {})}
     >
       {leading &&
         (leadingAlign === "row" ? (
@@ -75,6 +79,8 @@ export function KitRow({
   item: string;
   label: string;
   children: ReactNode;
+  role?: "listitem" | "text" | "button";
+  expanded?: boolean;
   leading?: ReactNode;
   trailing?: ReactNode;
   goto?: string | undefined;

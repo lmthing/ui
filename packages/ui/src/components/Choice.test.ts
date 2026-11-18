@@ -35,6 +35,15 @@ describe("Choice schema", () => {
         .options.map((o) => o.on),
     ).toEqual([true, false]);
   });
+  it("takes the first option written with on as the chosen one of a single choice", () => {
+    const parsed = props.parse({
+      options: [{ title: "A" }, { title: "B", on: true }, { title: "C", on: true }],
+    });
+    expect(parsed.options.map((option) => option.on)).toEqual([false, true, false]);
+    expect(
+      props.parse({ at: 0, options: [{ title: "A" }, { title: "B", on: true }] }).options.map((o) => o.on),
+    ).toEqual([true, false]);
+  });
   it.each([
     {},
     { options: [] },
@@ -50,7 +59,6 @@ describe("Choice schema", () => {
     { options: two, at: 2 },
     { options: two, at: -1 },
     { options: two, multi: true, at: 0 },
-    { options: [{ title: "A", on: true }, { title: "B" }] },
     { options: two, style: "grid" },
     { options: [{ title: "A", goto: "x" }, { title: "B" }] },
     { options: two, color: "red" },

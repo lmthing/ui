@@ -70,7 +70,11 @@ export function KitCard({
         {...(clip ? { overflow: "hidden" as const } : {})}
         accessibilityRole={goto ? "link" : "list"}
         {...(label ? { accessibilityLabel: label } : {})}
-        {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, root.testID) } : {})}
+        {...(kit.interactive && kit.controller && goto
+          ? { onPress: () => kit.controller!.press(root.testID) }
+          : kit.interactive && goto
+            ? { onPress: () => kit.onLink?.(goto, root.testID) }
+            : {})}
       >
         {children}
       </Frame>

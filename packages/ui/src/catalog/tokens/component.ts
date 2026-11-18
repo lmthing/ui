@@ -12,6 +12,7 @@ export const component = {
     stripShare: 0.4,
     pageShare: 0.9,
     dot: 8,
+    grabberWidth: 40,
     meter: 8,
     meterSlim: 4,
     shareStep: 0.18,

@@ -13,4 +13,6 @@ Rules:
 - Fixtures are data. Fallbacks must validate with the empty and the full cast.
 - Pure code has a `name.test.ts` beside it in `src/`. This folder is only for shared fixtures and cross-cutting tests.
 - Kit tests use Jest with `jest-expo` and React Native Testing Library. Catalog tests use Vitest.
-- Tests that render use `config` and `renderInstance` from `render.tsx`; never call `createTamagui` in a test.
+- Component tests render through `renderInstance` from `render.tsx`; never call `createTamagui` or rebuild provider wrappers in a test. Pass `RenderOptions` for a custom component address or photo resolver. `elementAt` and `styleAt` inspect the rendered tree and its actual shared CSS.
+
+- `runtime.test.ts` drives the interactive gallery in Chrome: real local playback, sheet lifecycle, and confirmation through taps and the agent API. Set `CHROME` if the executable is not `/usr/bin/google-chrome`.

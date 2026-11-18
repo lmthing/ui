@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
   components,
@@ -8,15 +8,10 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitCard, KitEmpty, KitGrid, KitSkeleton, KitStrip } from "@lmthing/ui/kit";
-import { Gallery } from "./Gallery";
 
+import { elementAt, renderInstance, styleAt } from "../../test/render";
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Gallery;
-const host = vi.hoisted(() => ({ state: "filled" }));
-vi.mock("../kit", async (original) => ({
-  ...(await original<typeof import("../kit")>()),
-  useComponentState: () => host.state,
-}));
 const pair = [{ photo: "lib:entry" }, { photo: "local:1" }];
 const viewProps = (input: unknown) =>
   stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
@@ -164,40 +159,41 @@ describe("Gallery metadata and probes", () => {
 });
 
 describe("Gallery view", () => {
-  it.each([2, 3, 4, 5, 6])("uses the required grid columns for %i photos", (count) => {
-    host.state = "filled";
-    const view = Gallery(viewProps({ photos: Array.from({ length: count }, () => pair[0]) }));
-    expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ style: "plain", part: "root", padded: true });
-    expect(view.props.children.type).toBe(KitGrid);
-    expect(view.props.children.props.columns).toBe(count === 3 || count === 6 ? 3 : 2);
-    expect(view.props.children.props.children).toHaveLength(count);
+  it.each([2, 3, 4, 5, 6])("renders %i photos in the required grid columns", (count) => {
+    const html = renderInstance(
+      "Gallery",
+      { photos: Array.from({ length: count }, () => pair[0]) },
+      "filled",
+      theme,
+    );
+    const grid = elementAt(html, "home/c1/root").children[0]!;
+    const columns = count === 3 || count === 6 ? 3 : 2;
+    expect(grid.children).toHaveLength(Math.ceil(count / columns));
+    for (const row of grid.children) expect(row.children).toHaveLength(columns);
+    for (let index = 1; index <= count; index++)
+      expect(html).toContain(`data-testid="home/c1/r${index}/photo"`);
   });
-  it.each(examples)("draws photos in the requested layout", (example) => {
-    host.state = "filled";
-    const view = Gallery(viewProps(example));
-    expect(view.props.children.type).toBe(example.style === "grid" ? KitGrid : KitStrip);
-    for (const cell of view.props.children.props.children) {
-      const row = cell.type(cell.props);
-      const [image, caption] = row.props.children.props.children;
-      expect(image.props).toMatchObject({
-        shape: example.style === "carousel" ? "wide" : "square",
-        part: "photo",
-      });
-      expect(Boolean(caption)).toBe(Boolean(cell.props.entry.caption));
-      if (caption) expect(caption.props).toMatchObject({ role: "caption", tone: "muted", part: "caption" });
+  it.each(examples)("draws themed photos and captions in the requested layout", (example) => {
+    const html = renderInstance("Gallery", example, "filled", theme);
+    for (const [index, entry] of example.photos.entries()) {
+      const base = `home/c1/r${index + 1}`;
+      expect(elementAt(html, `${base}/photo`).attributes).toContain('role="img"');
+      expect(styleAt(html, `${base}/photo`)).toContain(
+        `aspect-ratio:${example.style === "carousel" ? 16 / 9 : 1}`,
+      );
+      expect(html.includes(`data-testid="${base}/caption"`)).toBe(Boolean(entry.caption));
+      if (entry.caption) expect(html).toContain(entry.caption);
     }
   });
-  it.each(examples)("keeps the layout while loading and hides content when empty", (example) => {
-    host.state = "loading";
-    const view = Gallery(viewProps(example));
-    expect(view.props.children.type).toBe(example.style === "grid" ? KitGrid : KitStrip);
-    for (const cell of view.props.children.props.children) {
-      expect(cell.type).toBe(KitSkeleton);
-      expect(cell.props).toMatchObject({ shape: "media", lead: "none" });
-    }
-    host.state = "empty";
-    expect(Gallery(viewProps(example)).props.children.type).toBe(KitEmpty);
-    host.state = "filled";
+  it.each(examples)("keeps the loading layout and hides content when empty", (example) => {
+    const html = renderInstance("Gallery", example, "loading", theme);
+    expect(html.match(/aria-busy="true"/g)).toHaveLength(example.photos.length);
+    expect(html).not.toContain('data-testid="home/c1/r1/photo"');
+    const filled = renderInstance("Gallery", example, "filled", theme);
+    const layout = elementAt(html, "home/c1/root").children[0]!;
+    expect(layout.children.length).toBe(elementAt(filled, "home/c1/root").children[0]!.children.length);
+    const empty = renderInstance("Gallery", example, "empty", theme);
+    expect(empty).toContain("Nothing here yet");
+    expect(empty).not.toContain('data-testid="home/c1/r1/root"');
   });
 });

@@ -8,15 +8,9 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitCard, KitContent, KitSkeleton, KitText } from "@lmthing/ui/kit";
-import { Card } from "./Card";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Card;
-const host = vi.hoisted(() => ({ resolvePhoto: vi.fn(), state: "filled" }));
-vi.mock("../kit", async (original) => ({
-  ...(await original<typeof import("../kit")>()),
-  useKit: () => host,
-  useComponentState: () => host.state,
-}));
 describe("Card schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -148,63 +142,57 @@ describe("Card metadata and probes", () => {
   });
 });
 describe("Card view and actions", () => {
-  it.each(examples)("draws one card surface and a heading-led content group", (example) => {
-    host.state = "filled";
-    host.resolvePhoto.mockReturnValue("local-photo-uri");
-    const view = Card(props.parse(example));
-    expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({
-      style: "inset",
-      look: ["tinted", "outlined"].includes(example.style) ? example.style : "surface",
-      tone: example.style === "tinted" ? "good" : "neutral",
-      clip: example.style === "media",
-      padded: true,
-      label: example.title,
-    });
-    const content = view.props.children.props.children[1];
-    expect(content.type).toBe(KitContent);
-    const parsed = props.parse(example);
-    expect(content.props.leadingAlign).toBe(parsed.photo && example.style !== "media" ? "row" : "line");
-    const heading = [content.props.children].flat().find((child) => child && child.type === KitText);
-    expect(heading.props).toMatchObject({ role: "heading", part: "title" });
-    if (example.style === "plain" && parsed.photo)
-      expect(content.props.lead.props).toMatchObject({ photo: "lib:plants", part: "photo" });
+  it.each(examples)("draws one themed card with its heading and optional content", (example) => {
+    const html = renderInstance("Card", example, "filled", theme, { resolvePhoto: () => "local-photo-uri" });
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${example.goto ? "link" : "list"}"`);
+    for (const part of ["title", "body", "meta", "badge", "icon", "photo"] as const) {
+      expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(
+        Boolean(example[part as keyof typeof example]),
+      );
+    }
+    expect(html).toContain(example.title);
+    if (example.style === "media") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    if (example.style === "tinted") expect(styleAt(html, "home/c1/root")).toContain("--goodSoft");
+    if (example.style === "outlined") expect(styleAt(html, "home/c1/root")).toMatch(/border[^;]*:/);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {
-    host.state = "filled";
-    host.resolvePhoto.mockReturnValue(source);
-    const media = Card(props.parse(examples[0])).props.children.props.children[0];
-    expect(Boolean(media)).toBe(Boolean(source));
-    if (source) expect(media.props).toMatchObject({ photo: "lib:plants", shape: "wide", part: "photo" });
+    const resolvePhoto = vi.fn(() => source);
+    const html = renderInstance("Card", examples[0], "filled", theme, { resolvePhoto });
+    expect(html.includes('data-testid="home/c1/photo"')).toBe(Boolean(source));
+    if (source) expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    expect(resolvePhoto).toHaveBeenCalledWith("lib:plants");
   });
 });
 describe("Card actions and loading", () => {
   it.each([undefined, "fern", "back", "plant_details"])("links only with goto %s", (goto) => {
-    host.state = "filled";
     const input = { title: "Fern", body: "Bathroom", meta: "Today", goto };
-    const parsed = props.parse(input);
-    expect(Card(parsed).props.goto).toBe(goto);
-    expect(affordancesOf(meta, parsed, "c1")).toEqual(
+    const html = renderInstance("Card", input, "filled", theme);
+    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${goto ? "link" : "list"}"`);
+    expect(affordancesOf(meta, props.parse(input), "c1")).toEqual(
       goto ? [{ address: "c1", part: "root", action: "press", detail: `→${goto}` }] : [],
     );
     const read = readComponent(components.Card, input, "c1").join("\n");
-    for (const text of ["Fern", "Bathroom", "Today"]) expect(read).toContain(text);
+    for (const text of ["Fern", "Bathroom", "Today"]) {
+      expect(read).toContain(text);
+      expect(html).toContain(text);
+    }
     expect(read.includes("[c1 press")).toBe(Boolean(goto));
     expect(readComponent(components.Card, input, "c1", "loading")[0]).not.toContain('"');
   });
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
-    host.state = "loading";
-    host.resolvePhoto.mockReturnValue(source);
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
-      const parsed = props.parse(input);
-      const view = Card(parsed);
-      expect(view.props).toMatchObject({ goto: undefined, padded: false });
-      expect(view.props.children.type === KitSkeleton && view.props.children.props).toMatchObject({
-        rows: 1,
-        shape: parsed.style === "media" && parsed.photo && source ? "media" : "rows",
-        lead: parsed.style === "media" ? "none" : parsed.icon ? "dot" : parsed.photo ? "box" : "none",
-        inset: "none",
-      });
+      const html = renderInstance("Card", input, "loading", theme, { resolvePhoto: () => source });
+      expect(html).toContain('aria-busy="true"');
+      expect(elementAt(html, "home/c1/root").attributes).toContain('role="list"');
+      expect(html).not.toContain('data-testid="home/c1/title"');
+      const visible = html.replace(/<style[^>]*>[\s\S]*?<\/style>/g, "").replace(/<[^>]*>/g, "");
+      expect(visible).not.toContain(input!.title);
+      // A resolved wide photo keeps a media placeholder; other cards keep row placeholders.
+      const firstPlaceholder = elementAt(html, "home/c1/root").children[0]!.children[0]!;
+      expect(styleAt(html, firstPlaceholder).includes("aspect-ratio")).toBe(
+        props.parse(input).style === "media" && Boolean(source),
+      );
     }
   });
 });

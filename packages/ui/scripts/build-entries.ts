@@ -78,7 +78,19 @@ export async function buildEntries() {
     "",
     `export const renderers = { ${ready.map((def) => def.name).join(", ")} };`,
   ];
-  const kit = [header, `export * from "../kit";`, `export { renderers } from "./renderers";`];
+  const kit = [
+    header,
+    `import { createElement } from "react";`,
+    `import { PhoneScreen as BasePhoneScreen, type PhoneScreenProps as BasePhoneScreenProps } from "../kit/screen/PhoneScreen";`,
+    `import { components } from "./catalog";`,
+    `import { renderers } from "./renderers";`,
+    `export * from "../kit";`,
+    `export { renderers };`,
+    `export type PhoneScreenProps = Omit<BasePhoneScreenProps, "defs" | "renderers">;`,
+    `export function PhoneScreen(props: PhoneScreenProps) {`,
+    `  return createElement(BasePhoneScreen, { ...props, defs: components, renderers });`,
+    `}`,
+  ];
   await writeFile(join(entryDir, "catalog.ts"), `${catalog.join("\n")}\n`);
   await writeFile(join(entryDir, "renderers.ts"), `${renderers.join("\n")}\n`);
   await writeFile(join(entryDir, "kit.ts"), `${kit.join("\n")}\n`);

@@ -17,7 +17,7 @@ export const meta = {
   id: "Note",
   group: "content",
   purpose: "One short sentence of supporting information.",
-  pick: "Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).",
+  pick: "Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).",
   region: "body",
   weight: 1,
   tier: "phone",

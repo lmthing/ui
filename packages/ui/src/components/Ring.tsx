@@ -16,7 +16,7 @@ export const meta = {
   id: "Ring",
   group: "data",
   purpose: "How far you are toward one goal.",
-  pick: "One amount completed toward a target. Not several summary numbers (Stats) or ordered stages of a process (Steps).",
+  pick: "One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).",
   region: "body",
   weight: 2,
   tier: "phone",

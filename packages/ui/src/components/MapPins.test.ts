@@ -1,8 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -12,7 +9,6 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.MapPins;
 
@@ -160,20 +156,14 @@ describe("MapPins rendering", () => {
           ...(index % 2 === 0 ? { goto: "place" } : {}),
         })),
       };
-      const viewProps = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
       for (const state of ["filled", "loading"] as const) {
-        const children = createElement(PartScope, {
-          screen: "home",
-          component: "m1",
-          rev: 1,
+        const html = renderInstance(
+          "MapPins",
+          input,
           state,
-          children: createElement(renderers.MapPins, viewProps),
-        });
-        const kit = createElement(KitProvider, {
-          theme: { preset: "calm", mode: "light", accent: "moss" },
-          children,
-        });
-        const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
+          { preset: "calm", mode: "light", accent: "moss" },
+          { component: "m1" },
+        );
         expect(html.match(/data-testid="home\/m1\/root"/g)).toHaveLength(1);
         expect(html).toContain('data-testid="home/m1/map"');
         expect(html.includes("Repeated place")).toBe(state === "filled");

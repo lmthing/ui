@@ -80,7 +80,8 @@ export const probes = [
   },
   {
     kind: "write",
-    brief: "My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings",
+    brief:
+      "My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings",
     expect: "Amount",
   },
   {

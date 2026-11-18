@@ -1,5 +1,12 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { components, createRegistry, placeholderLabel, type CastLike, type Props } from "@lmthing/ui/catalog";
+import {
+  components,
+  createRegistry,
+  placeholderLabel,
+  readComponent,
+  type CastLike,
+  type Props,
+} from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.Button;
 
@@ -108,7 +115,7 @@ describe("Button fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Button")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Actions")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Button" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -123,5 +130,17 @@ describe("Button fallback and metadata", () => {
     expect(registry.resolve("C-T-A")).toBe("Button");
     expect(registry.resolve("SUBMIT")).toBe("Button");
     expect(registry.resolve("unknown")).toBeUndefined();
+  });
+});
+
+describe("Button confirm", () => {
+  it("takes a short sentence and asks first without drawing it", () => {
+    expect(props.safeParse({ label: "Remove", kind: "danger", confirm: "Remove it?" }).success).toBe(true);
+    for (const confirm of ["", "   ", "a".repeat(61), 4])
+      expect(props.safeParse({ label: "Remove", confirm }).success).toBe(false);
+    const line = readComponent(components.Button, { label: "Remove", confirm: "Remove it?" }, "b1").join(" ");
+    expect(line).toContain("asks first");
+    expect(line).not.toContain("Remove it?");
+    expect(readComponent(components.Button, { label: "Remove" }, "b1").join(" ")).not.toContain("asks first");
   });
 });

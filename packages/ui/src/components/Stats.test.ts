@@ -1,9 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -153,25 +149,19 @@ describe("Stats fallback and metadata", () => {
 });
 
 function renderTiles(style: "tiles" | "inline", count: number, state: "filled" | "empty" | "loading") {
-  const input = props.parse({
-    style,
-    tiles: Array.from({ length: count }, (_, index) => ({
-      label: "a".repeat(20),
-      value: "1".repeat(8),
-      ...(index % 2 ? {} : { unit: "a".repeat(8) }),
-      trend: (["up", "down", "flat", undefined] as const)[index],
-    })),
-  });
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "c1",
-    rev: 1,
+  return renderInstance(
+    "Stats",
+    {
+      style,
+      tiles: Array.from({ length: count }, (_, index) => ({
+        label: "a".repeat(20),
+        value: "1".repeat(8),
+        ...(index % 2 ? {} : { unit: "a".repeat(8) }),
+        trend: (["up", "down", "flat", undefined] as const)[index],
+      })),
+    },
     state,
-    children: createElement(renderers.Stats, stampItemIds(meta, input) as Props<typeof props, typeof meta>),
-  });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+    { preset: "calm", mode: "light", accent: "moss" },
   );
 }
 describe.each(["tiles", "inline"] as const)("Stats rendering in %s", (style) => {

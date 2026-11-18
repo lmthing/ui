@@ -3,8 +3,6 @@ import {
   clip,
   photoLabels,
   placeholderDetail,
-  placeholderTitle,
-  placeholderValue,
   repeatLabels,
   repeatOptions,
   text,
@@ -14,24 +12,17 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitAction,
-  KitCard,
-  KitChip,
-  KitContent,
-  KitInput,
-  KitPhoto,
-  KitSlider,
-  KitText,
-  KitTrack,
-  KitTrail,
-} from "../kit";
+import { KitCard, KitFieldControl, KitText } from "../kit";
 
 export const meta = {
   id: "Field",
   group: "input",
   purpose: "Enter or change one labelled piece of information on a form.",
-  pick: "Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), or standalone collection filters and quick choices (Chips).",
+  pick: "Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).",
+  writeHints: [
+    'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
+    'Example recurring input: {"kind":"repeat","label":"Water it","repeat":"weekly"}.',
+  ],
   region: "body",
   weight: 1,
   tier: "phone",
@@ -134,75 +125,21 @@ export const probes = [
   { kind: "read", screen: 0, task: "Name the plant Basil", expect: { address: "f1/field", action: "type" } },
 ] satisfies Probe[];
 
-function FieldControl({ kind, label, value, options, repeat: every }: Props<typeof props, typeof meta>) {
-  if (kind === "choice" || kind === "repeat") {
-    const repeat = kind === "repeat";
-    const choices = repeat ? repeatOptions.map((option) => repeatLabels[option]) : (options ?? []);
-    return (
-      <KitTrack look={repeat ? "pills" : "segments"} part="field" role="radiogroup" label={label}>
-        {choices.map((option) => (
-          <KitChip
-            key={option}
-            item={null}
-            label={option}
-            role="radio"
-            look={repeat ? "pill" : "segment"}
-            on={option === (repeat ? every && repeatLabels[every] : value)}
-          />
-        ))}
-      </KitTrack>
-    );
-  }
-  if (kind === "toggle") {
-    return (
-      <KitContent lineRole="body" lead={<KitTrail kind="toggle" on={value === "on"} part="field" />}>
-        {value && (
-          <KitText role="body" part={null}>
-            {value}
-          </KitText>
-        )}
-      </KitContent>
-    );
-  }
-  if (kind === "slider") {
-    const number = Number(value ?? placeholderValue);
-    return (
-      <>
-        {value && (
-          <KitText role="number" tabular part={null}>
-            {value}
-          </KitText>
-        )}
-        <KitSlider
-          value={number}
-          label={label}
-          min={Math.min(0, number)}
-          max={Math.max(10, number)}
-          part="field"
-        />
-      </>
-    );
-  }
-  if (kind === "photo") {
-    const photo = value ?? `lib:${placeholderTitle(0).toLowerCase().replace(/ /g, "_")}`;
-    return (
-      <>
-        <KitPhoto photo={photo} label={value ?? label} shape="wide" part="photo" />
-        <KitAction label={photoLabels.add} icon="camera" kind="secondary" part="field" full />
-      </>
-    );
-  }
-  const icon = kind === "date" ? "calendar" : kind === "time" ? "clock" : undefined;
-  return <KitInput label={label} hint={label} value={value} icon={icon} part="field" />;
-}
-
 export function Field(input: Props<typeof props, typeof meta>) {
   return (
     <KitCard style="plain" part="root" padded>
       <KitText role="label" part="label">
         {input.label}
       </KitText>
-      <FieldControl {...input} />
+      <KitFieldControl
+        kind={input.kind}
+        label={input.label}
+        value={input.value}
+        choices={
+          input.kind === "repeat" ? repeatOptions.map((option) => repeatLabels[option]) : input.options
+        }
+        chosen={input.kind === "repeat" && input.repeat ? repeatLabels[input.repeat] : input.value}
+      />
       {input.hint && (
         <KitText role="caption" tone="muted" part="hint">
           {input.hint}

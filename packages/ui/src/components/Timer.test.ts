@@ -1,9 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -186,16 +182,12 @@ describe("Timer metadata and probes", () => {
 });
 
 function renderTimer(style: "down" | "up", seconds: number) {
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "t1",
-    rev: 1,
-    state: "filled",
-    children: createElement(renderers.Timer, props.parse({ ...input, style, seconds })),
-  });
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  return renderToStaticMarkup(
-    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+  return renderInstance(
+    "Timer",
+    { ...input, style, seconds },
+    "filled",
+    { preset: "calm", mode: "light", accent: "moss" },
+    { component: "t1" },
   );
 }
 

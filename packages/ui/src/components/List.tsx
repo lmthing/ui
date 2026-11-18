@@ -14,26 +14,19 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitIcon,
-  KitPhoto,
-  KitRank,
-  KitRow,
-  KitSkeleton,
-  KitStrip,
-  KitText,
-  KitTrail,
-  useComponentState,
-  KitEmpty,
-} from "../kit";
+import { KitCard, KitEmpty, KitListItem, KitSkeleton, KitStrip, useComponentState } from "../kit";
 
 export const meta = {
   id: "List",
   group: "content",
   purpose: "Several things of the same kind, each one tappable.",
   pick: "Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).",
+  writeHints: [
+    'For questions that open in place, use style: "expand" and a body on every row. Do not add goto or meta saying tap for an answer.',
+    'Photo values are references like "lib:plants" or "local:1". Never put the word photo or a space inside the value.',
+    'Icons are optional; omit them when not needed. The water icon is "drop", never "droplet".',
+    'A sideways photo rail uses style: "shelf" and photo on every row; a ranking uses style: "ranked" with each score in value.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
@@ -79,18 +72,16 @@ export const props = z
       .min(1)
       .max(6),
   })
-  .refine(({ style, rows }) => style !== "shelf" || (rows.length >= 2 && rows.every((row) => row.photo)), {
-    path: ["rows"],
-    message: "A shelf takes at least two rows, each with a photo",
-  })
-  .refine(({ style, rows }) => style !== "expand" || rows.every((row) => row.body), {
-    path: ["rows"],
-    message: "An expanding row needs its body",
-  })
-  .refine(({ rows }) => rows.filter((row) => row.me).length <= 1, {
-    path: ["rows"],
-    message: "Only one row is you",
-  })
+  .refine(
+    ({ style, rows }) =>
+      (style !== "shelf" || (rows.length >= 2 && rows.every((row) => row.photo))) &&
+      (style !== "expand" || rows.every((row) => row.body)) &&
+      rows.filter((row) => row.me).length <= 1,
+    {
+      path: ["rows"],
+      message: "A shelf needs two or more photo rows, an expand needs bodies, one row is you",
+    },
+  )
   // The shared reader checks optional part presence; `root` says what a row does: press links, toggle opens.
   // A body means the rows open in place, and a `me` row means a ranking, whatever style was written.
   .overwrite((value) => {
@@ -161,7 +152,6 @@ export const examples = [
     style: "shelf",
     rows: [
       { title: "Fern", meta: "Bathroom", photo: "lib:plants", goto: "fern" },
-      { title: "Monstera", meta: "Living room", photo: "lib:plants", goto: "monstera" },
       { title: "Basil", meta: "Kitchen", photo: "lib:plants" },
     ],
   },
@@ -169,7 +159,7 @@ export const examples = [
     style: "expand",
     rows: [
       { title: "How often do I water?", body: "Every week in summer, every two weeks in winter." },
-      { title: "Can walks be moved?", body: "Yes, up to two hours before the start." },
+      { title: "Can walks move?", body: "Yes, up to two hours before the start." },
     ],
   },
   {
@@ -210,103 +200,27 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-type Row = Props<typeof props, typeof meta>["rows"][number];
-
-function ShelfCard({ row }: { row: Row }) {
-  return (
-    <KitRow item={row.id} label={row.title} goto={row.goto} inset="none">
-      <KitContent lineRole="body">
-        {row.photo && <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />}
-        <KitText role="body" part="title">
-          {row.title}
-        </KitText>
-        {row.meta && (
-          <KitText role="caption" tone="muted" part="meta">
-            {row.meta}
-          </KitText>
-        )}
-      </KitContent>
-    </KitRow>
-  );
-}
-
 const surfaceOf = (style: Props<typeof props, typeof meta>["style"]) =>
   style === "shelf" ? "plain" : style === "expand" || style === "ranked" ? "inset" : style;
 
 export function List({ style, rows }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const surface = surfaceOf(style);
-  if (state === "loading") {
+  if (state === "loading" || state === "empty") {
     return (
       <KitCard style={surface}>
-        <KitSkeleton rows={rows.length} lead={rows[0]?.photo ? "box" : "dot"} />
+        {state === "loading" ? (
+          <KitSkeleton rows={rows.length} lead={rows[0]?.photo ? "box" : "dot"} />
+        ) : (
+          <KitEmpty part="title" />
+        )}
       </KitCard>
     );
   }
-  if (state === "empty") {
-    return (
-      <KitCard style={surface}>
-        <KitEmpty part="title" />
-      </KitCard>
-    );
-  }
-  if (style === "shelf") {
-    return (
-      <KitCard style="plain" part="root" padded>
-        <KitStrip>
-          {rows.map((row) => (
-            <ShelfCard key={row.id} row={row} />
-          ))}
-        </KitStrip>
-      </KitCard>
-    );
-  }
-  const ranked = style === "ranked";
-  const expand = style === "expand";
+  const items = rows.map((row, index) => <KitListItem key={row.id} row={row} style={style} index={index} />);
   return (
-    <KitCard style={surface} part="root">
-      {rows.map((row, index) => (
-        <KitRow
-          leadingAlign={row.photo ? "row" : "line"}
-          key={row.id}
-          item={row.id}
-          label={row.title}
-          goto={expand ? undefined : row.goto}
-          {...(expand ? { role: "button" as const, expanded: true } : {})}
-          leading={
-            ranked ? (
-              <KitRank place={index + 1} />
-            ) : row.photo ? (
-              <KitPhoto photo={row.photo} part="icon" />
-            ) : (
-              <KitIcon name={row.icon} part="icon" />
-            )
-          }
-          trailing={
-            expand ? undefined : ranked ? (
-              row.value ? (
-                <KitTrail kind="value" value={row.value} part="trail" />
-              ) : undefined
-            ) : (
-              <KitTrail kind={row.trail} value={row.value} part="trail" />
-            )
-          }
-        >
-          <KitText role="body" tone={row.me ? "accent" : "text"} part="title">
-            {row.title}
-          </KitText>
-          {row.meta && (
-            <KitText role="caption" tone="muted" part="meta">
-              {row.meta}
-            </KitText>
-          )}
-          {expand && row.body && (
-            <KitText role="body" tone="muted" part="body">
-              {row.body}
-            </KitText>
-          )}
-        </KitRow>
-      ))}
+    <KitCard style={surface} part="root" padded={style === "shelf"}>
+      {style === "shelf" ? <KitStrip>{items}</KitStrip> : items}
     </KitCard>
   );
 }

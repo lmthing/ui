@@ -4,6 +4,7 @@ import { TamaguiProvider, createTamagui, createTokens } from "tamagui";
 import {
   components,
   stampItemIds,
+  themeName,
   type ComponentName,
   type StateName,
   type ThemeChoice,
@@ -24,24 +25,85 @@ export const config = createTamagui({
 });
 
 export type Theme = ThemeChoice;
+export type RenderOptions = {
+  thing?: string;
+  component?: string;
+  resolvePhoto?: (reference: string) => string | undefined;
+};
 
 export function renderInstance(
   id: ComponentName,
   input: unknown,
   state: StateName,
   theme: Theme,
-  thing?: string,
+  options: string | RenderOptions = {},
 ): string {
+  const {
+    thing,
+    component = "c1",
+    resolvePhoto,
+  } = typeof options === "string" ? { thing: options } : options;
   const def = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
   const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
   return renderToStaticMarkup(
-    <TamaguiProvider config={config}>
-      <KitProvider theme={theme}>
-        <PartScope screen="home" component="c1" rev={1} state={state} {...(thing ? { thing } : {})}>
+    <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
+      <KitProvider theme={theme} {...(resolvePhoto ? { resolvePhoto } : {})}>
+        <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
           <View {...props} />
         </PartScope>
       </KitProvider>
     </TamaguiProvider>,
   );
+}
+
+/** Inspect rendered markup without depending on React element trees or mocked kit hooks. */
+export type RenderedElement = { tag: string; attributes: string; children: RenderedElement[] };
+export function elementAt(html: string, address: string): RenderedElement {
+  const stack: RenderedElement[] = [];
+  let found: RenderedElement | undefined;
+  const voids = new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ]);
+  for (const match of html.matchAll(/<\/?([a-z][a-z0-9-]*)\b[^>]*>/gi)) {
+    const attributes = match[0],
+      tag = match[1]!.toLowerCase();
+    if (attributes.startsWith("</")) {
+      stack.pop();
+      continue;
+    }
+    const node: RenderedElement = { tag, attributes, children: [] };
+    stack.at(-1)?.children.push(node);
+    if (attributes.includes(`data-testid="${address}"`)) found = node;
+    if (!voids.has(tag) && !attributes.endsWith("/>")) stack.push(node);
+  }
+  if (!found) throw new Error(`No rendered part at ${address}`);
+  return found;
+}
+export function styleAt(html: string, address: string | RenderedElement): string {
+  const { attributes } = typeof address === "string" ? elementAt(html, address) : address;
+  const inline = attributes.match(/style="([^"]*)"/)?.[1] ?? "";
+  const classes = (attributes.match(/class="([^"]*)"/)?.[1] ?? "")
+    .split(/\s+/)
+    .filter((name) => /^[a-z0-9_-]+$/i.test(name));
+  const css = config.getCSS();
+  return [
+    inline,
+    ...classes.flatMap((name) =>
+      Array.from(css.matchAll(new RegExp("\\." + name + "\\s*\\{([^}]*)\\}", "g")), (match) => match[1]),
+    ),
+  ].join(";");
 }

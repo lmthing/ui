@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  confirmNote,
   icon,
   placeholderLabel,
   screenId,
@@ -24,6 +25,8 @@ export const meta = {
   states: ["filled"],
   actions: { parts: { root: ["press"] } },
   aliases: ["button", "cta", "submit", "action"],
+  // Pressing asks first when a confirm sentence is written (a sheet the host draws).
+  read: (input) => ((input as { confirm?: string }).confirm ? [confirmNote] : []),
 } as const satisfies Meta;
 
 export const props = z.strictObject({
@@ -31,6 +34,8 @@ export const props = z.strictObject({
   kind: z.enum(["primary", "secondary", "quiet", "danger"]).default("primary"),
   icon: icon.optional(),
   goto: screenId.optional(),
+  // The sentence a standard confirm sheet shows before the press runs. Not drawn on the button itself.
+  confirm: z.string().trim().min(1).max(60).optional(),
 });
 
 export function fallback(_context: { cast: CastLike }): z.input<typeof props> {
@@ -40,7 +45,7 @@ export function fallback(_context: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   { label: "Log watering", kind: "primary", icon: "drop" },
   { label: "Book a walk", kind: "primary", goto: "book_walk" },
-  { label: "Remove plant", kind: "danger" },
+  { label: "Remove plant", kind: "danger", confirm: "Remove this plant and its history?" },
   { label: "View schedule", kind: "secondary", icon: "clock", goto: "watering_schedule" },
   { label: "Back to walks", kind: "quiet", goto: "back" },
 ] satisfies z.input<typeof props>[];
@@ -53,6 +58,11 @@ export const probes = [
     expect: "Actions",
   },
   { kind: "write", brief: "Let me book a dog walk and open the booking screen", expect: "Button" },
+  {
+    kind: "write",
+    brief: "A Remove plant button that, before it does anything, asks Remove this plant and its history?",
+    expect: "Button",
+  },
   {
     kind: "read",
     screen: 0,

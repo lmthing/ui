@@ -32,7 +32,7 @@ docs/                          implementation-plan.md, dependencies.md, catalog/
 packages/ui/                   @lmthing/ui
   src/catalog/                 meta props types tokens themes(presets) archetypes rules address lookup
                                prompt agent registry migrations, icons.ts photos.ts signatures.ts version.ts
-  src/components/              one file per core component (40 built, 44 planned), PascalCase
+  src/components/              one file per core component (46 built; 44 once the C4 merges land), PascalCase
   src/packs/<pack>/            pack.ts example.jsonl components/ archetypes/   (18 planned)
   src/surfaces/                LockScreen.tsx Widget.tsx Message.tsx
   src/kit/                     provider tamagui base(helpers) part archetypes signature screen report registry interact

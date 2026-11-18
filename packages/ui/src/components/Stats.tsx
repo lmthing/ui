@@ -27,7 +27,7 @@ export const meta = {
   id: "Stats",
   group: "data",
   purpose: "Two to four summary numbers, with time periods in labels and only short measurement units.",
-  pick: "Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).",
+  pick: "Several totals, counts or amounts together. Not the details of one record (KeyValue), one headline number (Hero) or one sum of money (Amount).",
   region: "body",
   weight: 2,
   tier: "phone",

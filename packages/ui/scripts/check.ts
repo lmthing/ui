@@ -5,7 +5,7 @@ import { webResolve } from "./index";
 export async function check() {
   const runner = await startVitest(
     "test",
-    [],
+    process.argv.slice(2),
     {
       config: false,
       run: true,

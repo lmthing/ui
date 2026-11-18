@@ -19,6 +19,7 @@ type Json = {
 function scalar(node: Json): string {
   // A photo is a library tag or a local photo number, never a file name or a URL.
   if (node.kind === "photo") return "photo lib:<tag>|local:<n>";
+  if (node.kind === "media") return "media lib:<tag>|local:<n>";
   if (node.kind === "date") return "date YYYY-MM-DD";
   if (node.kind === "time") return "time HH:MM";
   if (node.enum) return node.enum.join("|");

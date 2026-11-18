@@ -24,6 +24,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the plan's table (
 2. **`meta`**: a plain object, `as const satisfies Meta`.
    - `purpose` ≤ 16 words, about the person's need, not the widget.
    - `pick`: when to choose it, then "Not …" naming the nearest wrong component(s) by id.
+   - Optional `writeHints` explain cross-field rules that the compact schema signature omits, using valid examples.
    - `region`, `weight`, `tier`, `realPath` (one sentence) from the plan row.
    - `items` (only if it repeats): `{ key, parts }`. `parts`, `states`, `actions` list exactly what
      the view draws and what a person can do. `aliases`: 3 to 5 lowercase words a model might write.

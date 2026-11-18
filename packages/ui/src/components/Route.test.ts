@@ -1,8 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
-import { config } from "../../test/render";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -12,7 +9,6 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Route;
 const pair = [{ label: "First stop" }, { label: "Last stop" }];
@@ -166,19 +162,11 @@ describe("Route rendering", () => {
         })),
         ...(distance ? { distance } : {}),
       };
-      const viewProps = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
-      const children = createElement(PartScope, {
-        screen: "home",
-        component: "c1",
-        rev: 1,
-        state: "filled",
-        children: createElement(renderers.Route, viewProps),
+      const html = renderInstance("Route", input, "filled", {
+        preset: "calm",
+        mode: "light",
+        accent: "moss",
       });
-      const kit = createElement(KitProvider, {
-        theme: { preset: "calm", mode: "light", accent: "moss" },
-        children,
-      });
-      const html = renderToStaticMarkup(createElement(TamaguiProvider, { config }, kit));
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       expect(html.match(/<svg\b/g)).toHaveLength(1);
       expect(html.includes('data-testid="home/c1/distance"')).toBe(Boolean(distance));

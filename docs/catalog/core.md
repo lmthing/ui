@@ -5,6 +5,55 @@ six new components, two built ones folded into others, and new options on thirte
 and tier names: [README](README.md). Limits and aliases of built components are copied from
 `packages/ui/src/components/*.tsx` as of 2026-11-17; the files win if they change.
 
+## Status
+
+Schemas and views built on 2026-11-18 (steps C1 to C3): the six new components, the options on `Scale`, `Timer`, `Field`, `Card`,
+`Empty`, `Success`, `People`, `Gallery`, `Bars`, `List` and `Button`. `Header` shortcuts and `Actions` links
+can open the shared `Sheet` menu. The catalog holds **46** components; the two C4 merges are evidence-gated
+(44 after), and `TabBar` count badges and the integrations listed below remain to be built.
+
+Differences from the plan below, decided while building:
+
+| Plan | Built | Why |
+| --- | --- | --- |
+| `Empty` takes a `goto` | No `goto`; a `Button` below it carries the next step | Keeps `Empty` to one job, and screens already place a `Button` |
+| `Success` toast dismisses at its root | An icon `close` part carries `dismiss` | A card root has the role list; a button is the accessible target |
+| `Success` `undo` needs `style: toast` | `undo: true` makes it a toast | The cheap model wrote `undo` alone two times in three |
+| `People` stack rejects a `goto` | A stack drops `goto`; `more` makes it a stack | Same reason: the model mixed `rows` with `more` |
+| `List` `body` and `me` only in their styles | A `body` makes it `expand`, a `me` row makes it `ranked` | Same reason |
+| `Amount` `currency` defaults from the app | Defaults to `USD` in the catalog; the screen writes it | A kit default would make the reader and the view disagree |
+| `Sheet` has `pairs`, `options` and `items` | One `items` array for all three styles | One schema the model can learn; counts are checked per style |
+| `Sheet` picker is 6 to 12 | 6 to 12, and no `at` for the other styles | As planned |
+| `Player` has `kind` and `style` | `style` only | One enum, as the component guide asks |
+| `Button` `confirm` draws a kit sheet | `PhoneScreen` draws the standard sheet; taps and agent actions share its dispatcher | Confirm and cancel are addressed separately, and the original action waits for confirmation |
+| `Scale` `readonly` is in halves for any style | Stars only | Faces and dots have no half |
+| `Composer` `reply` `send` is `people` | Built through the new `meta.partTiers` | As planned |
+
+Known overage: `List.tsx` exceeds 200 lines (the cap is 200) because its examples and probes now cover six styles.
+
+### C3 runtime
+
+`PhoneScreen` now mounts pinned top and bottom regions, a scrolling body, and an overlay. `goto: sheet`
+opens the screen's single sheet; picker selection stays visible until dismissal, while a menu action
+closes the sheet. The public agent access is `window.__lmthingUI`, with the same dispatcher used by taps.
+A standard confirmation exposes `confirm/confirm press` and `confirm/cancel dismiss`; background controls
+are unavailable while a sheet or confirmation is open. The overlay contains keyboard focus, supports
+Escape and backdrop dismissal, and restores focus to its opener.
+
+A host supplies `resolveMedia` for browser recordings, or a `MediaAdapter` for its device player.
+Playback, pause, fifteen-second skips, and seeking update the reading and the controls. The adapter is
+released when the screen leaves. The gallery's `?runtime=1` page provides a local WAV fixture.
+`test/runtime.test.ts` exercises these paths in Chrome through taps and `window.__lmthingUI.act`.
+
+### Remaining core work
+
+- **C4 is conditional:** fold `Sparkline` into `Stats[trend]` and `DayTimeline` into `Timeline[hours]` only if the near-miss probes or repeated Critic mistakes justify it. The style-specific schemas, weight metadata and migrations are not built. If the pairs remain stable, keep both ids.
+- **Navigation:** add host-owned count badges to `TabBar`. `Header` shortcuts and `Actions` can already open the shared `Sheet`; their extra actions are represented by its menu.
+- **Screen rules:** the rule folder is still a scaffold. Add the component limits, `Composer[reply]` ordering, `Amount[large]`/`Hero[number]` exclusion and missing-danger-confirm issue from section 6, along with the base layout rules. The runtime currently enforces sheet visibility and modal action blocking.
+- **Archetypes:** the archetype folder is still a scaffold. Build the base recipes and the `chat`, `journal`, `onboarding`, `plans` and `browse` changes in section 5.
+- **Existing controls:** connect `Choice` selection, `Composer` text/count/send, form inputs, expanding lists and other older controls to live render state and host persistence. Their schema, drawing and recorded probes do not yet prove these interactions.
+- **Native and motion gates:** verify the runtime on iOS and Android, keyboard/safe-area behavior, swipe-to-dismiss and the planned transitions/signature motion. Current runtime end-to-end tests use Chrome and a local audio fixture.
+
 ## 1. Summary of changes
 
 | Change | Components | Why |
@@ -543,7 +592,7 @@ logged as a miss and feeds the catalog review.
 
 ## 5. Archetypes
 
-Fifteen built archetypes stay. Three change their recipe, two are new (17 in all).
+The plan calls for fifteen base archetypes, three recipe changes and two new ones (17 in all). The catalog archetype folder currently contains only its README.
 
 | Archetype | Change | Recipe |
 | --- | --- | --- |
