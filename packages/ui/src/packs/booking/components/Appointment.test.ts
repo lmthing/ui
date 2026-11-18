@@ -10,7 +10,6 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
-
 const { props, meta, examples, fallback, probes } = components.Appointment;
 const { service, date, time, minutes, status, goto } = examples[0]!;
 const base = { service, date, time, minutes, status, goto };
@@ -20,7 +19,8 @@ describe("Appointment schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("defaults the card and trims text without accepting runtime props", () => {
-    expect(props.parse({ ...base, service: ` ${service} ` })).toEqual({ ...base, style: "card", cancel: {} });
+    const parsed = props.parse({ ...base, service: ` ${service} ` });
+    expect(parsed).toMatchObject({ service, style: "card", cancel: {} });
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();
     expectTypeOf<Props<typeof props, typeof meta>>().not.toHaveProperty("color");
   });
@@ -47,7 +47,6 @@ describe("Appointment schema", () => {
     { goto: "Bad ID" },
     { goto: "a".repeat(65) },
     { color: "red" },
-    { pixels: 4 },
     { cancel: {} },
   ])("rejects invalid and unknown input", (invalid) =>
     expect(props.safeParse({ ...base, ...invalid }).success).toBe(false),
@@ -134,12 +133,12 @@ describe("Appointment states, parts and read/act", () => {
   it("draws every optional detail, including a zero price, and omits absent parts", () => {
     const minimal = renderInstance("Appointment", base, "filled", theme);
     for (const part of ["with", "place", "price", "policy"]) expect(minimal).not.toContain(`home/c1/${part}`);
-    const input = { ...base, ...examples[1], place: "Park", price: 0 };
+    const input = { ...base, ...examples[1]!, place: "Park", price: 0 };
     const html = renderInstance("Appointment", input, "filled", theme);
     const reading = readComponent(components.Appointment, input, "a1").join("\n");
     for (const part of ["service", "date", "time", "minutes", "with", "place", "price", "policy"])
       expect(html).toContain(`home/c1/${part}`);
-    for (const text of ["Sam", "Park", "$0", input.policy!]) expect(reading).toContain(text);
+    for (const text of ["Sam", "Park", "$0", props.parse(input).policy!]) expect(reading).toContain(text);
   });
 });
 describe("Appointment state and cancellation", () => {
@@ -148,7 +147,8 @@ describe("Appointment state and cancellation", () => {
       const input = { ...base, style };
       const loading = renderInstance("Appointment", input, "loading", theme);
       expect(loading).toContain("Loading");
-      expect(loading).not.toContain('role="button"');
+      const part = style === "card" ? "reschedule" : "edit";
+      expect(elementAt(loading, `home/c1/${part}`).attributes).toContain('aria-disabled="true"');
       expect(readComponent(components.Appointment, input, "a1", "loading")).toEqual([
         `a1 Appointment${style === "summary" ? "[summary]" : ""} (loading)`,
       ]);

@@ -1,12 +1,14 @@
 import { z } from "zod";
 import {
   appointmentDate,
+  appointmentDetails,
   appointmentLabels,
+  appointmentReading,
+  balancedLine,
   cancelLabel,
   clock,
-  compactMoneyLine,
   isoDate,
-  minutesLine,
+  loadingLabel,
   placeholderTitle,
   probesFor,
   screenId,
@@ -61,19 +63,7 @@ export const meta = {
     parts: { root: ["press"], reschedule: ["press"], cancel: ["press"], edit: ["press"] },
     when: { reschedule: { style: "card" }, cancel: { style: "card" }, edit: { style: "summary" } },
   },
-  read: (input) => {
-    const value = input as z.output<typeof props>;
-    return [
-      appointmentDate(value.date),
-      value.date,
-      value.time,
-      ...detailLines(value).map((line) => line.text),
-      ...(value.price !== undefined ? [String(value.price)] : []),
-      ...(value.style === "card"
-        ? [appointmentLabels[value.status], appointmentLabels.reschedule, cancelLabel]
-        : [appointmentLabels.edit]),
-    ];
-  },
+  read: (input) => appointmentReading(input as z.output<typeof props>),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -91,7 +81,11 @@ export const props = z
   })
   .refine(({ policy, style }) => !policy || style === "summary", { path: ["policy"] })
   // Cancel is an action, never a link to the reschedule target. This holder is code-owned.
-  .overwrite((value) => ({ ...value, cancel: {} }));
+  .overwrite((value) => ({
+    ...value,
+    policy: value.policy ? balancedLine(value.policy) : undefined,
+    cancel: {},
+  }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const item = cast.items[0];
   return {
@@ -140,60 +134,65 @@ export const probes = [
     screen: 1,
   },
 ] satisfies Probe[];
-function detailLines(input: z.output<typeof props>) {
-  return Object.entries({
-    with: input.with,
-    minutes: minutesLine(input.minutes),
-    place: input.place,
-    price: input.price !== undefined ? compactMoneyLine(input.price) : undefined,
-    policy: input.policy,
-  }).flatMap(([part, text]) => (text ? [{ part, text }] : []));
+function AppointmentLine({ value, part, loading }: { value: string; part: string; loading: boolean }) {
+  const number = ["time", "price", "minutes"].includes(part);
+  if (loading)
+    return (
+      <KitSkeleton shape="figure" inset="none" content={[[part === "time" ? "number" : "label", value]]} />
+    );
+  return (
+    <KitText
+      role={number ? "number" : "label"}
+      numberScale={part === "time" ? "display" : "compact"}
+      tone={["date", "time", "service", "price", "minutes"].includes(part) ? "text" : "muted"}
+      tabular={number}
+      part={part}
+    >
+      {value}
+    </KitText>
+  );
 }
 export function Appointment(input: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const loading = state === "loading";
   const card = input.style === "card";
   const date = appointmentDate(input.date);
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const change = card ? "reschedule" : "edit";
   return (
     <KitCard padded part="root" goto={state === "filled" ? input.goto : undefined} label={input.service}>
-      {state === "loading" ? (
-        <KitSkeleton
-          shape="figure"
-          inset="none"
-          content={[
-            ["heading", date],
-            ["number", input.time],
-            ["heading", input.service],
-            ...detailLines(input).map(({ text }) => ["label", text] as const),
-            ["label", appointmentLabels.reschedule],
-            ["label", cancelLabel],
-          ]}
-        />
-      ) : (
-        <>
-          <KitText role="heading" part="date">
-            {date}
-          </KitText>
-          <KitGrid fitLast>
-            <KitText role="number" tabular part="time">
-              {input.time}
-            </KitText>
-            {card && <KitTrail kind="badge" part="status" value={badge} />}
-          </KitGrid>
-          <KitContent>
-            <KitText role="heading" part="service">
-              {input.service}
-            </KitText>
-            {detailLines(input).map(({ part, text }) => (
-              <KitText key={part} role="label" tone="muted" tabular={part === "price"} part={part}>
-                {text}
-              </KitText>
-            ))}
+      <AppointmentLine value={date} part="date" loading={loading} />
+      <KitGrid>
+        <AppointmentLine value={input.time} part="time" loading={loading} />
+        {card && (
+          <KitContent
+            lead={<KitTrail kind="badge" part="status" value={loading ? loadingLabel : badge} />}
+            leadingAlign="row"
+          >
+            {null}
           </KitContent>
-          <KitAction label={appointmentLabels[change]} part={change} goto={input.goto} full />
-          {card && <KitAction label={cancelLabel} kind="quiet" part="cancel" full />}
-        </>
+        )}
+      </KitGrid>
+      <KitContent>
+        <AppointmentLine value={input.service} part="service" loading={loading} />
+        <KitGrid>
+          {appointmentDetails(input)
+            .filter(({ part }) => part !== "policy")
+            .map(({ part, text }) => (
+              <AppointmentLine key={part} value={text} part={part} loading={loading} />
+            ))}
+        </KitGrid>
+        {input.policy && <AppointmentLine value={input.policy} part="policy" loading={loading} />}
+      </KitContent>
+      <KitAction
+        label={appointmentLabels[change]}
+        part={change}
+        goto={input.goto}
+        disabled={state !== "filled"}
+        full
+      />
+      {card && (
+        <KitAction label={cancelLabel} kind="quiet" part="cancel" disabled={state !== "filled"} full />
       )}
     </KitCard>
   );
