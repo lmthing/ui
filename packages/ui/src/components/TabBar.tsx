@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   clip,
+  badgeLine,
   icon,
   placeholderTitle,
   screenId,
@@ -23,17 +24,23 @@ export const meta = {
   tier: "phone",
   realPath: "The host builds linked tabs from sections marked nav and tracks the current screen.",
   codeOwned: true,
-  items: { key: "tabs", parts: ["root", "icon", "label"] },
+  items: { key: "tabs", parts: ["root", "icon", "label", "badge"] },
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
+  read: (input) =>
+    (input as { tabs: { label: string; count?: number }[] }).tabs
+      .filter((tab) => Boolean(tab.count))
+      .map((tab) => `${tab.label}: ${badgeLine(tab.count!)}`),
   aliases: ["bottomnav", "navigation", "maintabs", "navtabs"],
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
     tabs: z
-      .array(z.strictObject({ icon, label: text(12), goto: screenId }))
+      .array(
+        z.strictObject({ icon, label: text(12), goto: screenId, count: z.int().min(0).max(9999).optional() }),
+      )
       .min(2)
       .max(5),
     at: z.int().min(0).default(0),
@@ -77,6 +84,14 @@ export const examples = [
       { icon: "user", label: "Profile", goto: "profile" },
     ],
     at: 3,
+  },
+  {
+    tabs: [
+      { icon: "message", label: "Messages", goto: "messages", count: 3 },
+      { icon: "calendar", label: "Schedule", goto: "schedule", count: 120 },
+      { icon: "settings", label: "Settings", goto: "settings", count: 0 },
+    ],
+    at: 0,
   },
 ] satisfies z.input<typeof props>[];
 

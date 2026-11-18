@@ -15,6 +15,7 @@ import { KitCard, KitContent, KitGrid, KitRouteStop, KitText } from "../kit";
 
 export const meta = {
   id: "Route",
+  signature: "route_draw",
   group: "data",
   purpose: "Follow a path between places, from the first stop to the last.",
   pick: "Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).",

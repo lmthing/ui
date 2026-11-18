@@ -1,3 +1,4 @@
+import { useSignatureProgress } from "../motion";
 import type { ReactNode } from "react";
 import { Svg, Circle } from "react-native-svg";
 import { YStack, useTheme } from "tamagui";
@@ -25,6 +26,7 @@ export function KitRing({
   children?: ReactNode;
 }) {
   const theme = useTheme();
+  const progress = useSignatureProgress("ring_fill");
   const box = sizes[scale];
   const stroke = scale === "lg" ? space.md : space.sm + space.xs / 2;
   const r = (box - stroke) / 2;
@@ -50,7 +52,7 @@ export function KitRing({
             strokeWidth={stroke}
             fill="none"
             strokeLinecap="round"
-            strokeDasharray={`${length * share} ${length}`}
+            strokeDasharray={`${length * share * progress} ${length}`}
             transform={`rotate(-90 ${box / 2} ${box / 2})`}
           />
         </Svg>

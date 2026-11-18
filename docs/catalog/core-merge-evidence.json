@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-11-18T09:19:19.666Z",
+  "evidence": [
+    {
+      "pair": "day_timeline",
+      "model": "deepseek-flash",
+      "decision": "merge",
+      "results": [
+        {
+          "need": "Show activities as rectangles whose heights match their duration, from eight in the morning to six at night, with visible free gaps",
+          "expected": "DayTimeline",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["DayTimeline", "DayTimeline", "DayTimeline"]
+        },
+        {
+          "need": "Put three appointments beside a rail of hours, using their start and end times to show occupied time and gaps",
+          "expected": "DayTimeline",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["DayTimeline", "DayTimeline", "DayTimeline"]
+        },
+        {
+          "need": "Show completed walks from last week with dates and times beside each",
+          "expected": "Timeline",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["Timeline", "Timeline", "Timeline"]
+        },
+        {
+          "need": "Show morning park walk at 09:00, lunch walk at 12:00 and river walk at 17:00 as events in order",
+          "expected": "Timeline",
+          "score": "2/3",
+          "status": "pass",
+          "replies": ["Timeline", "Timeline", "DayTimeline"]
+        }
+      ]
+    },
+    {
+      "pair": "sparkline_stats",
+      "model": "deepseek-flash",
+      "decision": "retain",
+      "results": [
+        {
+          "need": "Show my latest resting pulse, 62 beats a minute, with a small line tracing the last seven mornings",
+          "expected": "Sparkline",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["Sparkline", "Sparkline", "Sparkline"]
+        },
+        {
+          "need": "Show how my plant's height changed over the last six weeks, with its latest height prominent",
+          "expected": "Sparkline",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["Sparkline", "Sparkline", "Sparkline"]
+        },
+        {
+          "need": "Show walks booked, dogs walked and earnings beside each other",
+          "expected": "Stats",
+          "score": "3/3",
+          "status": "pass",
+          "replies": ["Stats", "Stats", "Stats"]
+        },
+        {
+          "need": "Show this week's walks and earnings beside each other, with an arrow on each number indicating whether it rose or fell",
+          "expected": "Stats",
+          "score": "0/3",
+          "status": "fail",
+          "replies": ["Bars", "Bars", "Bars"]
+        }
+      ]
+    }
+  ]
+}

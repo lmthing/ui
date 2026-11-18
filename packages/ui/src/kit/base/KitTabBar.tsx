@@ -1,11 +1,11 @@
 import { XStack, YStack } from "tamagui";
-import { component, size, space, type IconName } from "../../catalog";
+import { badgeLine, component, radius, size, space, type IconName } from "../../catalog";
 import { useKit } from "../provider";
 import { PartContext, usePart, usePartContext } from "../part";
 import { KitIcon } from "./KitIcon";
 import { KitText } from "./KitText";
 
-type Tab = { id: string; icon: IconName; label: string; goto: string };
+type Tab = { id: string; icon: IconName; label: string; goto: string; count?: number | undefined };
 
 function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
   const kit = useKit();
@@ -22,10 +22,27 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       paddingVertical={space.md}
       accessibilityRole="tab"
       aria-selected={on}
-      accessibilityLabel={tab.label}
+      accessibilityLabel={tab.count ? `${tab.label}, ${badgeLine(tab.count)}` : tab.label}
       {...(kit.interactive ? { onPress: () => kit.onLink?.(tab.goto, part.testID) } : {})}
     >
-      <KitIcon name={tab.icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />
+      <YStack position="relative">
+        <KitIcon name={tab.icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />
+        {Boolean(tab.count) && (
+          <YStack
+            position="absolute"
+            top={-space.xs}
+            right={-space.sm}
+            minWidth={size.icon.sm}
+            paddingHorizontal={space.xs}
+            borderRadius={radius.pill}
+            backgroundColor="$accent"
+          >
+            <KitText role="caption" tone="onAccent" align="center" part="badge">
+              {badgeLine(tab.count!)}
+            </KitText>
+          </YStack>
+        )}
+      </YStack>
       <KitText role="caption" tone={on ? "accent" : "muted"} part="label" lines={1}>
         {tab.label}
       </KitText>

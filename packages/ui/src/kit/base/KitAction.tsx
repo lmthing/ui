@@ -1,4 +1,7 @@
-import { XStack, styled } from "tamagui";
+import { useState } from "react";
+import { useAnimatedValue } from "../motion";
+import { motion } from "../../catalog";
+import { XStack, styled, isWeb } from "tamagui";
 import { component, radius, size, space, type IconName } from "../../catalog";
 import { useKit, useKitStyle } from "../provider";
 import { usePart } from "../part";
@@ -49,6 +52,7 @@ export function KitAction({
   a11y,
   full = false,
   action,
+  disabled = false,
 }: {
   label?: string | undefined;
   icon?: IconName | undefined;
@@ -58,28 +62,41 @@ export function KitAction({
   a11y?: string;
   full?: boolean;
   action?: "press" | "dismiss" | "play" | "pause";
+  disabled?: boolean;
 }) {
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
   const tone = toneOf[kind];
+  const [pressed, setPressed] = useState(false);
+  const pressScale = useAnimatedValue(
+    pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
+    kit.environment.reduceMotion || kit.environment.agentMode,
+  );
+  const inactive =
+    disabled || Boolean(kit.interactive && kit.controller && !kit.controller.canPress(address.testID));
   return (
     <Frame
       {...address}
       kind={kind}
+      scale={pressScale}
+      {...(kit.interactive ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) } : {})}
       iconOnly={!label}
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
       {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
       accessibilityRole="button"
+      {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
+      aria-disabled={inactive || undefined}
+      {...(inactive ? { opacity: component.base.disabledOpacity, tabIndex: -1 } : {})}
       accessibilityLabel={label ?? a11y}
-      {...(kit.interactive && kit.controller
+      {...(kit.interactive && !inactive && kit.controller
         ? {
             onPress: () =>
               action
                 ? kit.controller!.act({ address: address.testID, action })
                 : kit.controller!.press(address.testID),
           }
-        : kit.interactive && goto
+        : kit.interactive && !inactive && goto
           ? { onPress: () => kit.onLink?.(goto, address.testID) }
           : {})}
     >

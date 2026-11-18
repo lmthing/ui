@@ -16,6 +16,7 @@ import { KitCard, KitContent, KitEmpty, KitPhoto, KitSwipeStack, KitText, useCom
 
 export const meta = {
   id: "SwipeStack",
+  signature: "card_swipe",
   group: "content",
   purpose: "Choose between things one at a time, swiping the current one to keep or skip.",
   pick: "Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).",

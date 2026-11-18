@@ -1,7 +1,7 @@
 import { planAct, readScreen, type ActStep, type Definition, type ScreenLike } from "../../catalog";
 import type { InteractionStore } from "./store";
 
-export type ActOptions = { dryRun?: boolean };
+export type ActOptions = { dryRun?: boolean; agent?: boolean };
 export type ActReply =
   | { ok: true; screen: string; changed: string; dryRun: boolean }
   | { ok: false; code: string; at: number; hint?: string };
@@ -25,7 +25,7 @@ export function createAgentAccess(options: {
     read: () => options.runtime?.read() ?? readScreen(current(), defs, store.snapshot(current().id)),
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
       if (options.runtime) {
-        const reply = options.runtime.act(steps, opts);
+        const reply = options.runtime.act(steps, { ...opts, agent: true });
         if (reply.ok && !opts.dryRun)
           for (const step of Array.isArray(steps) ? steps : [steps]) log.push({ ...step, at: Date.now() });
         return reply;

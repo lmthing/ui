@@ -18,9 +18,15 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
   decrement: [none, "decrement takes no value"],
   toggle: [(v) => none(v) || typeof v === "boolean", "toggle takes nothing or true/false"],
   check: [(v) => none(v) || typeof v === "boolean", "check takes nothing or true/false"],
-  select: [(v) => typeof v === "number" || typeof v === "string", "select takes an index or a label"],
+  select: [
+    (v) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && v.length > 0),
+    "select takes an index or a label",
+  ],
   type: [(v) => typeof v === "string", "type takes text"],
-  set: [(v) => typeof v === "number" || typeof v === "string", "set takes a value"],
+  set: [
+    (v) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && v.length > 0),
+    "set takes a value",
+  ],
   swipe: [(v) => v === "left" || v === "right", "swipe takes left or right"],
 };
 

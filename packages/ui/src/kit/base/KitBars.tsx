@@ -1,9 +1,11 @@
+import { useSignatureProgress } from "../motion";
 import { XStack, YStack } from "tamagui";
 import { component, radius, space, type as typography } from "../../catalog";
 import { PartContext, usePart, usePartContext } from "../part";
 import { KitText } from "./KitText";
 
 function Bar({ label, value, max, high }: { label: string; value: number; max: number; high: boolean }) {
+  const progress = useSignatureProgress("bars_grow");
   const share = max > 0 ? Math.max(0, value) / max : 0;
   return (
     <YStack
@@ -26,7 +28,7 @@ function Bar({ label, value, max, high }: { label: string; value: number; max: n
         </KitText>
         <YStack
           width="70%"
-          height={Math.max(share * component.base.barsHeight, space.xs)}
+          height={Math.max(share * component.base.barsHeight * progress, space.xs)}
           borderTopLeftRadius={radius.sm}
           borderTopRightRadius={radius.sm}
           backgroundColor={high ? "$accent" : "$line"}

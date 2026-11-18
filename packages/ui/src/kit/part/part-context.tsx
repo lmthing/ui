@@ -7,6 +7,8 @@ type PartContextValue = {
   item?: string;
   rev: number;
   state: StateName;
+  signature?: string;
+  cue?: number;
   /** The thing type this component shows (from the cast), used for empty-state copy. */
   thing?: string;
 };

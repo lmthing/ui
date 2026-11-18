@@ -5,3 +5,4 @@ export * from "./registry";
 export * from "./tamagui";
 export * from "./interact";
 export * from "./screen";
+export * from "./motion";

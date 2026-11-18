@@ -25,9 +25,10 @@ import {
 
 export const meta = {
   id: "Stats",
+  signature: "count_up",
   group: "data",
-  purpose: "Two to four summary numbers, with time periods in labels and only short measurement units.",
-  pick: "Several totals, counts or amounts together. Not the details of one record (KeyValue), one headline number (Hero) or one sum of money (Amount).",
+  purpose: "Two to four independent summary numbers, with labels, units and optional change arrows.",
+  pick: "Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).",
   region: "body",
   weight: 2,
   tier: "phone",

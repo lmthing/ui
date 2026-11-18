@@ -1,3 +1,5 @@
+import { useControlValue } from "../interact/use-control";
+import { useState } from "react";
 import { TextArea, YStack } from "tamagui";
 import { component, fontFamilies, size, space, type as typography } from "../../catalog";
 import { useKit, useKitStyle } from "../provider";
@@ -14,15 +16,20 @@ export function KitTextArea({
   lines = 4,
   part = "field",
   label,
+  maxLength,
 }: {
   hint: string;
   value?: string | undefined;
   lines?: number;
   part?: string;
   label?: string;
+  maxLength?: number;
 }) {
   const ks = useKitStyle();
   const kit = useKit();
+  const address = usePart(part);
+  const current = useControlValue(address.testID, value ?? "");
+  const [height, setHeight] = useState<number | undefined>();
   return (
     <YStack
       minHeight={size.control.md + typography.body.lineHeight * (lines - 1)}
@@ -34,14 +41,29 @@ export function KitTextArea({
       borderColor="$line"
     >
       <TextArea
-        {...(usePart(part) as Record<string, unknown>)}
+        {...(address as Record<string, unknown>)}
         unstyled
         flex={1}
         role={"textbox" as never}
         aria-multiline
         aria-label={label ?? hint}
         placeholder={hint}
-        {...(value === undefined ? {} : { value })}
+        {...(kit.interactive && kit.controller
+          ? {
+              value: current,
+              onChangeText: (text: string) => {
+                kit.controller!.act({ address: address.testID, action: "type", value: text });
+              },
+              onContentSizeChange: (event: { nativeEvent: { contentSize: { height: number } } }) =>
+                setHeight(Math.min(typography.body.lineHeight * 8, event.nativeEvent.contentSize.height)),
+            }
+          : value === undefined
+            ? {}
+            : { value })}
+        {...(height ? { height } : {})}
+        maxLength={maxLength}
+        editable={kit.interactive}
+        onFocus={() => kit.nativeHost?.ensureVisible?.(address.ref.current)}
         readOnly={!kit.interactive}
         color="$text"
         placeholderTextColor="$muted"

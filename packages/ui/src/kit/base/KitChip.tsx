@@ -1,3 +1,5 @@
+import { createContext, useContext } from "react";
+import { useKit } from "../provider";
 import type { ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
 import { component, radius, size, space, type IconName } from "../../catalog";
@@ -24,6 +26,8 @@ const Pill = styled(XStack, {
   } as const,
 });
 
+const ChoiceTarget = createContext<string | undefined>(undefined);
+
 function Chip({
   label,
   on,
@@ -40,7 +44,10 @@ function Chip({
   stamped: boolean;
 }) {
   const ks = useKitStyle();
-  const address = usePart();
+  const address = usePart("root", stamped);
+  const kit = useKit();
+  const parent = useContext(ChoiceTarget);
+  const target = stamped ? address.testID : parent;
   const part = stamped ? address : {};
   const segment = look === "segment";
   return (
@@ -48,6 +55,14 @@ function Chip({
       {...part}
       {...(segment ? { flex: 1 } : {})}
       accessibilityRole={role}
+      {...(kit.interactive && kit.controller && target
+        ? {
+            onPress: () =>
+              stamped
+                ? kit.controller!.press(target)
+                : kit.controller!.act({ address: target, action: "select", value: label }),
+          }
+        : {})}
       aria-checked={role === "tab" ? undefined : on}
       aria-selected={role === "tab" ? on : undefined}
       accessibilityLabel={label}
@@ -131,7 +146,7 @@ export function KitTrack({
       {...({ role: role ?? "tablist" } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
-      {children}
+      <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
     </XStack>
   ) : (
     <XStack
@@ -141,7 +156,7 @@ export function KitTrack({
       {...({ role: role ?? "list" } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
-      {children}
+      <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
     </XStack>
   );
 }

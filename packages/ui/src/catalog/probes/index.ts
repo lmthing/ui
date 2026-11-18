@@ -3,3 +3,10 @@ export { signature } from "./signature";
 export { buildBlock, buildEntry, choosePrompt, readPrompt, writePrompt } from "./prompts";
 export { scoreChoose, scoreRead, scoreWrite } from "./score";
 export { runProbes } from "./run";
+export {
+  runComposeProbes,
+  composePrompt,
+  scoreComposition,
+  compositionRubricPrompt,
+  type ComposeResult,
+} from "./compose";

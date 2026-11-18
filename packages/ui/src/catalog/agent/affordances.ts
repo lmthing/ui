@@ -6,7 +6,9 @@ type Props = Record<string, unknown>;
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
 
 function detailOf(action: string, holder: Props): string {
-  if (action === "press" && typeof holder.goto === "string") return `→${holder.goto}`;
+  if ((action === "press" || action === "select") && typeof holder.goto === "string")
+    return `→${holder.goto}`;
+  if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
   if (action === "toggle" || action === "check") {
     const on = firstBoolean(holder);
     if (on !== undefined) return action === "check" ? `:${on ? "done" : "todo"}` : `:${on ? "on" : "off"}`;

@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useKit } from "../provider";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../catalog";
@@ -23,6 +24,8 @@ export function KitSlider({
 }) {
   const kit = useKit();
   const address = usePart(part);
+  const width = useRef(0);
+  const cleanup = useRef<(() => void) | undefined>(undefined);
   const dispatch = (next: number) =>
     kit.controller?.act({
       address: address.testID,
@@ -35,7 +38,31 @@ export function KitSlider({
   return (
     <YStack
       {...address}
+      onLayout={(event) => {
+        width.current = event.nativeEvent.layout.width;
+        address.onLayout();
+      }}
+      {...(kit.interactive && kit.controller && typeof document === "undefined"
+        ? ({
+            onStartShouldSetResponder: () => true,
+            onResponderGrant: (event: { nativeEvent: { locationX: number } }) =>
+              dispatch(
+                Math.round(min + (event.nativeEvent.locationX / Math.max(1, width.current)) * (max - min)),
+              ),
+            onResponderMove: (event: { nativeEvent: { locationX: number } }) =>
+              dispatch(
+                Math.round(min + (event.nativeEvent.locationX / Math.max(1, width.current)) * (max - min)),
+              ),
+          } as object)
+        : {})}
       {...(kit.interactive && kit.controller
+        ? ({
+            accessibilityActions: [{ name: "increment" }, { name: "decrement" }],
+            onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) =>
+              dispatch(value + (event.nativeEvent.actionName === "increment" ? 1 : -1)),
+          } as object)
+        : {})}
+      {...(kit.interactive && kit.controller && typeof document !== "undefined"
         ? ({
             tabIndex: 0,
             onKeyDown: (event: KeyboardEvent) => {

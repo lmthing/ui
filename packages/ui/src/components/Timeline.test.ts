@@ -97,7 +97,7 @@ describe("Timeline fallback and metadata", () => {
     ]);
     expect(props.parse(fallback({ cast: casts[0]! })).items.every((row) => !row.done)).toBe(true);
   });
-  it("declares exactly its static parts, states and tier without actions", () => {
+  it("declares static event parts and limits actions to hours", () => {
     expect(meta).toMatchObject({
       id: "Timeline",
       group: "data",
@@ -116,7 +116,7 @@ describe("Timeline fallback and metadata", () => {
         expect(affordancesOf(meta, parsed, "t1")).toEqual([]);
       }
     }
-    expect(meta).not.toHaveProperty("actions");
+    expect(meta.actions.items.root).toEqual(["press"]);
   });
   it("reads the visible times, titles and details in input order", () => {
     const read = readComponent(
@@ -133,12 +133,15 @@ describe("Timeline fallback and metadata", () => {
     for (const text of ["09:00", "Morning walk", "Park", "Mon", "Visit"]) expect(read).toContain(text);
     expect(read.indexOf("Morning walk")).toBeLessThan(read.indexOf("Visit"));
   });
-  it("has two choose probes with a near miss and one write, with no action probe", () => {
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
+  it("has choose probes for event/range needs and a read probe for linked hours", () => {
+    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(4);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "List")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Timeline" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      screen: 2,
+      expect: { address: "t1/r1", action: "press" },
+    });
     expect(meta.pick).toContain("List");
     expect(meta.pick).toContain("Checklist");
   });

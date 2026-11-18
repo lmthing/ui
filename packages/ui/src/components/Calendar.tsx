@@ -4,6 +4,7 @@ import { KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
 
 export const meta = {
   id: "Calendar",
+  signature: "calendar_sweep",
   group: "data",
   purpose: "See which dates have something planned and open a day.",
   pick: "Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).",

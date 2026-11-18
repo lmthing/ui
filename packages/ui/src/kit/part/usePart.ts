@@ -12,13 +12,14 @@ type Measurable = {
     failure: () => void,
   ) => void;
 };
-export function usePart(part = "root") {
+export function usePart(part = "root", enabled = true) {
   const { screen, component, item, rev } = usePartContext();
-  const { parts, root } = useKit();
+  const { parts, root, controller } = useKit();
   const ref = useRef<TamaguiElement>(null);
   const frame = useRef<number | null>(null);
   const address = formatAddress({ screen, component, ...(item ? { item } : {}), part });
   const onLayout = useCallback(() => {
+    if (!enabled) return;
     if (frame.current !== null) cancelAnimationFrame(frame.current);
     frame.current = requestAnimationFrame(() => {
       frame.current = null;
@@ -42,13 +43,14 @@ export function usePart(part = "root") {
         );
       }
     });
-  }, [parts, root, screen, rev, address]);
+  }, [parts, root, screen, rev, address, enabled]);
   useEffect(
     () => () => {
       if (frame.current !== null) cancelAnimationFrame(frame.current);
-      parts.unregister({ screen, rev, address });
+      if (enabled) parts.unregister({ screen, rev, address });
     },
-    [parts, screen, rev, address],
+    [parts, screen, rev, address, enabled],
   );
+  useEffect(() => (enabled ? controller?.registerPart(address) : undefined), [controller, address, enabled]);
   return { ref, onLayout, testID: address };
 }

@@ -18,6 +18,7 @@ import { KitAction, KitCard, KitContent, KitText } from "../kit";
 
 export const meta = {
   id: "Timer",
+  signature: "timer_spin",
   group: "data",
   purpose: "Measure time remaining or elapsed, with controls to start and stop.",
   pick: "Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).",

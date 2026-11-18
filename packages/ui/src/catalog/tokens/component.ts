@@ -7,6 +7,7 @@ export const component = {
     none: 0,
     bodyFlex: 1,
     skeletonOpacity: 0.4,
+    disabledOpacity: 0.5,
     wideRatio: 16 / 9,
     tallRatio: 3 / 4,
     stripShare: 0.4,

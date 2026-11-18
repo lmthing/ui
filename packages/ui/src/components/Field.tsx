@@ -1,6 +1,9 @@
 import { z } from "zod";
 import {
   clip,
+  clock,
+  isoDate,
+  photo,
   photoLabels,
   placeholderDetail,
   repeatLabels,
@@ -21,6 +24,7 @@ export const meta = {
   pick: "Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).",
   writeHints: [
     'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
+    "Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.",
     'Example recurring input: {"kind":"repeat","label":"Water it","repeat":"weekly"}.',
   ],
   region: "body",
@@ -57,7 +61,13 @@ export const meta = {
 const fits = (kind: string, value: string) =>
   kind === "toggle"
     ? ["on", "off"].includes(value)
-    : !["number", "slider"].includes(kind) || Number.isFinite(Number(value));
+    : kind === "date"
+      ? isoDate.safeParse(value).success
+      : kind === "time"
+        ? clock.safeParse(value).success
+        : kind === "photo"
+          ? photo.safeParse(value).success
+          : !["number", "slider"].includes(kind) || Number.isFinite(Number(value));
 
 export const props = z
   .strictObject({
@@ -65,7 +75,9 @@ export const props = z
       .enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo"])
       .default("text"),
     label: text(24),
-    value: text(40).optional(),
+    value: text(40)
+      .refine((value) => !/[\r\n]/.test(value), "A field is one line")
+      .optional(),
     repeat: z.enum(repeatOptions).optional(),
     hint: text(60).optional(),
     options: z.array(text(16)).min(2).max(4).optional(),
@@ -86,6 +98,10 @@ export const props = z
   .refine(({ kind, value }) => value === undefined || fits(kind, value), {
     path: ["value"],
     message: "Value must fit the kind: on or off, or a finite number",
+  })
+  .refine(({ kind, value }) => kind !== "repeat" || value === undefined, {
+    path: ["value"],
+    message: "A repeat uses repeat, not value",
   })
   .refine(({ kind, repeat }) => repeat === undefined || kind === "repeat", {
     path: ["repeat"],

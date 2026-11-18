@@ -1,3 +1,4 @@
+import { liveProps } from "./live-props";
 import { z } from "zod";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
@@ -13,7 +14,7 @@ type Json = {
 };
 type Props = Record<string, unknown>;
 
-const quote = (value: string) => `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+const quote = (value: string) => JSON.stringify(value);
 const variantKeys = ["style", "kind", "tone"];
 
 function textsOf(schema: Json | undefined, value: Props): string[] {
@@ -50,7 +51,7 @@ function withValues(
 ) {
   return affordances.map((a) => {
     const risk = risks[partTiers[a.part] ?? tier] ?? "";
-    const value = values[a.address];
+    const value = values[`${a.address}/$draft`] ?? values[a.address];
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
@@ -72,7 +73,8 @@ export function readComponent(
   state: StateName = "filled",
   values: Record<string, unknown> = {},
 ): string[] {
-  const props = stampItemIds(def.meta, def.props.parse(input) as Props);
+  const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
+  const props = liveProps(def.meta, validated, instance, values);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   if (state !== "filled") return [head];
@@ -86,7 +88,7 @@ export function readComponent(
   // A component whose meaning lives in numbers (Ring "3 of 5", Steps "step 2 of 3") adds it with
   // `meta.read`; its lines come before the quoted texts.
   const own = [
-    ...(def.meta.read?.(props, state) ?? []),
+    ...(def.meta.read?.(validated, state) ?? []),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,

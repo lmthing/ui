@@ -10,6 +10,8 @@ export type Meta = {
   /** `overlay`: over the screen, outside its flow (a sheet); it has no weight. */
   region: "top" | "body" | "bottom" | "overlay";
   weight: 0 | 1 | 2 | 3;
+  weightByStyle?: Readonly<Record<string, 0 | 1 | 2 | 3>>;
+  signatureByStyle?: Readonly<Record<string, string>>;
   tier: Tier;
   /** A part that needs more than the component does (a reply that reaches other people) carries its own tier. */
   partTiers?: Readonly<Record<string, Tier>>;

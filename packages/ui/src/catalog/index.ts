@@ -11,3 +11,7 @@ export * from "./registry";
 export * from "./probes";
 export * from "./lines";
 export * from "./agent";
+export * from "./rules";
+export * from "./archetypes";
+export * from "./migrations";
+export * from "./signatures";

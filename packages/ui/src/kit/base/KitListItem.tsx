@@ -1,3 +1,6 @@
+import { useKit } from "../provider";
+import { usePartContext } from "../part";
+import { useControlValue } from "../interact/use-control";
 import type { IconName } from "../../catalog";
 import { KitContent } from "./KitContent";
 import { KitIcon } from "./KitIcon";
@@ -34,6 +37,9 @@ export function KitListItem({
   style: "plain" | "inset" | "cards" | "shelf" | "expand" | "ranked";
   index: number;
 }) {
+  const kit = useKit();
+  const context = usePartContext();
+  const open = useControlValue(`${context.screen}/${context.component}/${row.id}`, !kit.controller);
   const title = (
     <KitText role="body" tone={row.me ? "accent" : "text"} part="title">
       {row.title}
@@ -77,13 +83,13 @@ export function KitListItem({
       item={row.id}
       label={row.title}
       goto={expand ? undefined : row.goto}
-      {...(expand ? { role: "button" as const, expanded: true } : {})}
+      {...(expand ? { role: "button" as const, expanded: open } : {})}
       leading={leading}
       trailing={trailing}
     >
       {title}
       {meta}
-      {expand && row.body && (
+      {expand && open && row.body && (
         <KitText role="body" tone="muted" part="body">
           {row.body}
         </KitText>

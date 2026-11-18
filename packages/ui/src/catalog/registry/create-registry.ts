@@ -1,3 +1,6 @@
+import { legacyTarget } from "../migrations/aliases";
+import { archetypes, defaultLines, type ArchetypeName } from "../archetypes";
+import type { CastLike } from "../types";
 import type { Definition } from "../probes";
 
 const normal = (name: string) => name.replace(/[\s_-]/g, "").toLowerCase();
@@ -14,6 +17,9 @@ export function registryOf<D extends Record<string, Definition>>(
     (id) => options.includeDrafts || components[id]!.meta.status !== "draft",
   );
   return {
+    archetypes,
+    defaultLines: (id: ArchetypeName, layout: string, cast: CastLike) =>
+      defaultLines(archetypes[id].meta, layout, cast, components),
     ids,
     defs: ids.map((id) => components[id]!),
     get: <Id extends keyof D>(id: Id) => components[id],
@@ -23,7 +29,8 @@ export function registryOf<D extends Record<string, Definition>>(
       return (
         ids.find((id) => id === name) ??
         ids.find((id) => normal(id) === wanted) ??
-        ids.find((id) => components[id]!.meta.aliases.some((alias) => normal(alias) === wanted))
+        ids.find((id) => components[id]!.meta.aliases.some((alias) => normal(alias) === wanted)) ??
+        ids.find((id) => id === legacyTarget(name))
       );
     },
   };

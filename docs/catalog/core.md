@@ -7,10 +7,19 @@ and tier names: [README](README.md). Limits and aliases of built components are 
 
 ## Status
 
-Schemas and views built on 2026-11-18 (steps C1 to C3): the six new components, the options on `Scale`, `Timer`, `Field`, `Card`,
-`Empty`, `Success`, `People`, `Gallery`, `Bars`, `List` and `Button`. `Header` shortcuts and `Actions` links
-can open the shared `Sheet` menu. The catalog holds **46** components; the two C4 merges are evidence-gated
-(44 after), and `TabBar` count badges and the integrations listed below remain to be built.
+Built on 2026-11-18: **45** core component schemas/views, live control state, navigation count badges,
+screen validation rules, and **17 archetypes with 35 validated layouts**. `DayTimeline` is folded into
+`Timeline[hours]` with a three-point style weight, stable component ids, legacy aliases and a JSON Lines
+migration. The recorded near-miss showed the pair becoming unstable; `Sparkline` stays separate.
+
+The shared runtime handles text and recurrence fields, choices, switches, checklists, counters, timers,
+calendars, tabs, filters, expanding rows, swipes, replies, sheets, confirmation and local media. Hosts can
+persist its snapshots or supply a shared interaction store. Browser tests cover taps, keyboard controls
+and `act()`.
+
+Native host hooks provide keyboard height, safe-area insets, reduced-motion preferences, modal/back
+handling and focused-input scrolling. Native device acceptance is **not verified**: no iOS/Android host
+or device setup is available in this session. Composition and motion/visual gates are tracked below.
 
 Differences from the plan below, decided while building:
 
@@ -29,7 +38,7 @@ Differences from the plan below, decided while building:
 | `Scale` `readonly` is in halves for any style | Stars only | Faces and dots have no half |
 | `Composer` `reply` `send` is `people` | Built through the new `meta.partTiers` | As planned |
 
-Known overage: `List.tsx` exceeds 200 lines (the cap is 200) because its examples and probes now cover six styles.
+Component size cleanup is still needed where metadata, examples and probes push a file beyond the 200-line guide.
 
 ### C3 runtime
 
@@ -45,14 +54,13 @@ Playback, pause, fifteen-second skips, and seeking update the reading and the co
 released when the screen leaves. The gallery's `?runtime=1` page provides a local WAV fixture.
 `test/runtime.test.ts` exercises these paths in Chrome through taps and `window.__lmthingUI.act`.
 
-### Remaining core work
+### Verification and remaining acceptance
 
-- **C4 is conditional:** fold `Sparkline` into `Stats[trend]` and `DayTimeline` into `Timeline[hours]` only if the near-miss probes or repeated Critic mistakes justify it. The style-specific schemas, weight metadata and migrations are not built. If the pairs remain stable, keep both ids.
-- **Navigation:** add host-owned count badges to `TabBar`. `Header` shortcuts and `Actions` can already open the shared `Sheet`; their extra actions are represented by its menu.
-- **Screen rules:** the rule folder is still a scaffold. Add the component limits, `Composer[reply]` ordering, `Amount[large]`/`Hero[number]` exclusion and missing-danger-confirm issue from section 6, along with the base layout rules. The runtime currently enforces sheet visibility and modal action blocking.
-- **Archetypes:** the archetype folder is still a scaffold. Build the base recipes and the `chat`, `journal`, `onboarding`, `plans` and `browse` changes in section 5.
-- **Existing controls:** connect `Choice` selection, `Composer` text/count/send, form inputs, expanding lists and other older controls to live render state and host persistence. Their schema, drawing and recorded probes do not yet prove these interactions.
-- **Native and motion gates:** verify the runtime on iOS and Android, keyboard/safe-area behavior, swipe-to-dismiss and the planned transitions/signature motion. Current runtime end-to-end tests use Chrome and a local audio fixture.
+- Core component probes: the live 45-component run passes every required majority gate. Some samples remain unstable, recorded rather than retried for luck.
+- Merge evidence: `docs/catalog/core-merge-evidence.json`. `DayTimeline`/`Timeline` had a 2/3 near miss and was merged. `Sparkline` cases were 3/3. The extra Stats-arrow case consistently chose Bars; that is an out-of-pair classification conflict, not evidence to remove Sparkline.
+- Rule, archetype default, migration, state and browser regression tests pass. The standard project check currently passes 2,210 tests.
+- The first live archetype compose/rubric run passed 25 of 35 layouts. Ten layouts need writing guidance or content improvements; the recorded failures remain visible. Visual motion acceptance is in progress.
+- iOS/Android acceptance remains pending a real host/device setup. Browser contract checks cannot establish native rendering or performance.
 
 ## 1. Summary of changes
 
@@ -592,7 +600,7 @@ logged as a miss and feeds the catalog review.
 
 ## 5. Archetypes
 
-The plan calls for fifteen base archetypes, three recipe changes and two new ones (17 in all). The catalog archetype folder currently contains only its README.
+All seventeen core archetypes are implemented as data. `defaultLines` validates every layout, and `runComposeProbes` scores required slots, screen rules and the text-first rubric.
 
 | Archetype | Change | Recipe |
 | --- | --- | --- |

@@ -14,6 +14,7 @@ import { KitCard, KitRing, KitSkeleton, KitText, useComponentState } from "../ki
 
 export const meta = {
   id: "Ring",
+  signature: "ring_fill",
   group: "data",
   purpose: "How far you are toward one goal.",
   pick: "One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).",

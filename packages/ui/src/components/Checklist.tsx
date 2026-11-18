@@ -14,6 +14,7 @@ import { KitCard, KitCheck, KitRow, KitSkeleton, KitText, useComponentState, Kit
 
 export const meta = {
   id: "Checklist",
+  signature: "check_burst",
   group: "input",
   purpose: "Things to do, with each job ticked off when done.",
   pick: "Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).",

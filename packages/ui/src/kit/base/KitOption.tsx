@@ -1,6 +1,6 @@
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type IconName } from "../../catalog";
-import { useKitStyle } from "../provider";
+import { useKit, useKitStyle } from "../provider";
 import { PartContext, usePart, usePartContext } from "../part";
 import { KitIcon } from "./KitIcon";
 import { KitText } from "./KitText";
@@ -27,6 +27,7 @@ function Option({
 }) {
   const ks = useKitStyle();
   const address = usePart();
+  const kit = useKit();
   const card = look === "cards";
   return (
     <XStack
@@ -45,6 +46,7 @@ function Option({
           }
         : {})}
       accessibilityRole={multi ? "checkbox" : "radio"}
+      {...(kit.interactive && kit.controller ? { onPress: () => kit.controller!.press(address.testID) } : {})}
       aria-checked={on}
       accessibilityLabel={title}
     >

@@ -1,6 +1,9 @@
+import { useKit } from "../provider";
+import { usePartContext } from "../part";
+import { useSwipe } from "../interact/use-swipe";
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { component, elevation, radius, space } from "../../catalog";
+import { component, elevation, radius, space, size } from "../../catalog";
 import { usePart } from "../part";
 import { KitAction } from "./KitAction";
 import { KitText } from "./KitText";
@@ -21,15 +24,21 @@ export function KitSheet({
   closeLabel: string;
   children: ReactNode;
 }) {
+  const kit = useKit();
+  const context = usePartContext();
+  const swipe = useSwipe("vertical", Boolean(kit.interactive && kit.controller), (direction) => {
+    if (direction === "down") kit.controller?.press(`${context.screen}/${context.component}/close`);
+  });
   return (
     <YStack
+      y={swipe.offset}
       {...usePart("root")}
       backgroundColor="$raised"
       borderTopLeftRadius={radius.xl}
       borderTopRightRadius={radius.xl}
       paddingHorizontal={space.lg}
       paddingTop={space.sm}
-      paddingBottom={space.xl}
+      paddingBottom={Math.max(space.xl, kit.environment.insets.bottom)}
       gap={space.md}
       shadowRadius={elevation.sheet.shadowRadius}
       shadowOpacity={elevation.sheet.shadowOpacity}
@@ -38,12 +47,21 @@ export function KitSheet({
     >
       <YStack
         alignSelf="center"
-        width={component.base.grabberWidth}
-        height={space.xs}
-        borderRadius={radius.pill}
-        backgroundColor="$line"
-        aria-hidden
-      />
+        minHeight={size.control.md}
+        minWidth={size.control.md}
+        justifyContent="center"
+        alignItems="center"
+        {...(swipe.handlers as object)}
+      >
+        <YStack
+          alignSelf="center"
+          width={component.base.grabberWidth}
+          height={space.xs}
+          borderRadius={radius.pill}
+          backgroundColor="$line"
+          aria-hidden
+        />
+      </YStack>
       <XStack alignItems="center" justifyContent="space-between" gap={space.md}>
         <KitText role="heading" part="title">
           {title}

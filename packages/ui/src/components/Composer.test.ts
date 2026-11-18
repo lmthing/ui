@@ -18,7 +18,12 @@ describe("Composer schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("applies defaults and trims text", () => {
-    expect(props.parse({ hint: " Write here " })).toEqual({ style: "entry", hint: "Write here", max: 600 });
+    expect(props.parse({ hint: " Write here " })).toEqual({
+      style: "entry",
+      hint: "Write here",
+      max: 600,
+      sendable: false,
+    });
   });
   it.each([
     {},

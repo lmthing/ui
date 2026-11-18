@@ -1,3 +1,5 @@
+import { useSignatureProgress, countText } from "../motion";
+import { motion } from "../../catalog";
 import { Text, styled } from "tamagui";
 import type { ReactNode } from "react";
 import { fontFamilies, type as typography } from "../../catalog";
@@ -77,7 +79,9 @@ export function KitText({
   strike?: boolean;
 }) {
   const style = useKitStyle();
-  const address = usePart(part ?? "root");
+  const count = useSignatureProgress("count_up");
+  const spin = useSignatureProgress("timer_spin");
+  const address = usePart(part ?? "root", part !== null);
   const heavier = style.strong ? strongWeights[role] : undefined;
   const family =
     role === "display" || role === "title" || role === "heading"
@@ -89,6 +93,7 @@ export function KitText({
     <Frame
       {...(part === null ? {} : address)}
       textRole={role}
+      {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       tone={tone}
       align={align}
       fontFamily={fontFamilies[family]}
@@ -100,7 +105,7 @@ export function KitText({
         ? { fontSize: typography.body.size, lineHeight: typography.body.lineHeight, letterSpacing: 0 }
         : {})}
     >
-      {children}
+      {role === "number" && typeof children === "string" ? countText(children, count) : children}
     </Frame>
   );
 }

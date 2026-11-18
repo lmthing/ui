@@ -1,3 +1,5 @@
+import { checkCoreComposition } from "./core-compose";
+import { checkCoreMerges } from "./core-merges";
 // pnpm llm:check [--component List,Header] [--replay]
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
@@ -99,6 +101,21 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean) {
 const only = (arg("--component") ?? "").split(",").filter(Boolean);
 const replay = process.argv.includes("--replay");
 let failed = 0;
-for (const model of probeModels) failed += await runModel(model, only, replay);
+if (process.argv.includes("--compose")) {
+  for (const model of probeModels) {
+    const failures = await checkCoreComposition(model, (prompt) => azure(model, prompt), replay);
+    if (model.required) failed += failures;
+  }
+} else if (process.argv.includes("--merges")) {
+  const result = await checkCoreMerges(
+    createRegistry({ includeDrafts: true }).defs,
+    probeModels,
+    azure,
+    replay,
+  );
+  failed = result.failures;
+} else {
+  for (const model of probeModels) failed += await runModel(model, only, replay);
+}
 console.log(failed ? `\n${failed} failure(s) on required models.` : "\nAll required probes pass.");
 process.exit(failed ? 1 : 0);

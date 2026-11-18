@@ -18,6 +18,7 @@ import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
 import { Screens } from "./Screens";
 import { Runtime } from "./Runtime";
+import { Controls } from "./Controls";
 const modes = ["light", "dark"] as const;
 const query = new URLSearchParams(globalThis.location?.search ?? "");
 const only = query.get("c");
@@ -59,6 +60,7 @@ function Preview({ cell, preset, mode }: { cell: Cell; preset: string; mode: (ty
 }
 
 export function Gallery() {
+  if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} />;
   if (query.has("runtime")) return <Runtime />;
   if (only && width) {
     return <Screens id={only as ComponentName} width={width} mode={onlyMode === "dark" ? "dark" : "light"} />;

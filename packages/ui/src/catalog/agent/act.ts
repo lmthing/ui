@@ -1,3 +1,4 @@
+import { liveProps } from "./live-props";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
@@ -13,11 +14,18 @@ export type ActResult =
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
 
-function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>): Affordance[] {
+function affordancesOfScreen(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+): Affordance[] {
+  const local = Object.fromEntries(
+    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
+  );
   return screen.components.flatMap(({ id, c, state: _state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = stampItemIds(def.meta, def.props.parse(input) as Values);
+    const props = liveProps(def.meta, stampItemIds(def.meta, def.props.parse(input) as Values), id, local);
     return affordancesOf(def.meta, props, id);
   });
 }
@@ -37,7 +45,7 @@ export function planAct(
   values: Values,
   steps: ActStep[],
 ): ActResult {
-  const offered = affordancesOfScreen(screen, defs);
+  const offered = affordancesOfScreen(screen, defs, values);
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];
@@ -57,8 +65,9 @@ export function planAct(
       next[key] = (step.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
       next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
-    } else if (step.action === "press") {
+    } else if (step.action === "press" || step.action === "select") {
       if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
+      if (step.action === "select") next[key] = step.value;
     } else {
       next[key] = step.value;
     }

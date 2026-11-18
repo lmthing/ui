@@ -194,3 +194,6 @@ export const confirmNote = "asks first";
 export const confirmLabel = "Confirm";
 export const cancelLabel = "Cancel";
 export const mediaUnavailable = "Recording unavailable";
+
+export const swipeLabels = { left: "Skip", right: "Keep" } as const;
+export const badgeLine = (count: number): string => (count > 99 ? "99+" : String(count));

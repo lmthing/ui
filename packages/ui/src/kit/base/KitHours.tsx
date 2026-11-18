@@ -1,3 +1,4 @@
+import { useSignatureProgress } from "../motion";
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, space } from "../../catalog";
@@ -19,6 +20,7 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
   const kit = useKit();
   const part = usePart();
   const tone = block.tone ?? "neutral";
+  const progress = useSignatureProgress("day_unfold");
   return (
     <YStack
       {...part}
@@ -27,6 +29,8 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
       left={0}
       right={0}
       height={height}
+      opacity={progress}
+      scaleY={progress}
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
       borderRadius={radius.sm}

@@ -1,3 +1,4 @@
+import { useSignatureProgress } from "../motion";
 import { YStack } from "tamagui";
 import { component, radius, size, space } from "../../catalog";
 import { useKit } from "../provider";
@@ -19,9 +20,11 @@ function Day({
   name: string;
 }) {
   const kit = useKit();
+  const progress = useSignatureProgress("calendar_sweep");
+  const address = usePart();
   return (
     <YStack
-      {...usePart()}
+      {...address}
       flex={1}
       minWidth={component.base.dayMinWidth}
       maxWidth={size.control.md}
@@ -36,7 +39,9 @@ function Day({
       {...({ "data-dense": true } as object)}
       aria-pressed={selected}
       accessibilityLabel={name}
-      {...(kit.interactive ? { cursor: "pointer" } : {})}
+      {...(kit.interactive && kit.controller
+        ? { cursor: "pointer", onPress: () => kit.controller!.press(address.testID) }
+        : {})}
     >
       <KitText role="body" tone={selected ? "accent" : "text"} part="label" tabular>
         {label}
@@ -48,6 +53,7 @@ function Day({
         height={space.xs + space.xs / 2}
         borderRadius={radius.pill}
         backgroundColor={mark ? dot[mark] : "transparent"}
+        opacity={progress >= Number(label) / 31 ? 1 : 0}
         aria-hidden
       />
     </YStack>

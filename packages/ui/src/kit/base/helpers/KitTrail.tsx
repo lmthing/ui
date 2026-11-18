@@ -1,3 +1,5 @@
+import { useKit } from "../../provider";
+import { useControlValue } from "../../interact/use-control";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, styled } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
@@ -59,13 +61,29 @@ export function KitTrail({
   on?: boolean;
   part?: string;
 }) {
-  const address = usePart(part);
+  const address = usePart(part, kind !== "none");
+  const kit = useKit();
+  const stored = useControlValue<unknown>(address.testID, on);
+  const active =
+    typeof stored === "boolean" ? stored : stored === "on" ? true : stored === "off" ? false : on;
   if (kind === "none") return null;
   if (kind === "toggle") {
     return (
-      <Frame {...address} accessibilityRole="switch" aria-checked={on}>
-        <Track on={on}>
-          <Knob on={on} />
+      <Frame
+        {...address}
+        accessibilityRole="switch"
+        aria-checked={active}
+        {...(kit.interactive && kit.controller
+          ? {
+              onPress: (event: { stopPropagation?(): void }) => {
+                event.stopPropagation?.();
+                kit.controller!.press(address.testID);
+              },
+            }
+          : {})}
+      >
+        <Track on={active}>
+          <Knob on={active} />
         </Track>
       </Frame>
     );

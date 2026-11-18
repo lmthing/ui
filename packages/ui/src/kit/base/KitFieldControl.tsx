@@ -81,11 +81,11 @@ export function KitFieldControl({
     const photo = value ?? `lib:${placeholderTitle(0).toLowerCase().replace(/ /g, "_")}`;
     return (
       <>
-        <KitPhoto photo={photo} label={value ?? label} shape="wide" part="photo" />
+        <KitPhoto photo={photo} label={label} shape="wide" part="photo" />
         <KitAction label={photoLabels.add} icon="camera" kind="secondary" part="field" full />
       </>
     );
   }
   const icon = kind === "date" ? "calendar" : kind === "time" ? "clock" : undefined;
-  return <KitInput label={label} hint={label} value={value} icon={icon} part="field" />;
+  return <KitInput label={label} hint={label} value={value} kind={kind} icon={icon} part="field" />;
 }

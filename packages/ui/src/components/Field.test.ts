@@ -123,7 +123,13 @@ describe("Field fallback and metadata", () => {
           ? "A"
           : kind === "slider" || kind === "number"
             ? "3"
-            : "Sample",
+            : kind === "date"
+              ? "2026-11-18"
+              : kind === "time"
+                ? "09:00"
+                : kind === "photo"
+                  ? "lib:plants"
+                  : "Sample",
     ]) {
       const input = props.parse({
         kind,
@@ -132,7 +138,7 @@ describe("Field fallback and metadata", () => {
         ...(kind === "choice" ? { options: ["A", "B"] } : {}),
       });
       expect(affordancesOf(meta, input, "f1")).toEqual([
-        { address: "f1/field", part: "field", action, detail: "" },
+        { address: "f1/field", part: "field", action, detail: kind === "toggle" && value ? `:${value}` : "" },
       ]);
     }
   });

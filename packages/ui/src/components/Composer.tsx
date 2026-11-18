@@ -29,7 +29,7 @@ export const meta = {
   states: ["filled"],
   actions: {
     parts: { field: ["type"], send: ["send"] },
-    when: { send: { style: "reply" } },
+    when: { send: { style: "reply", sendable: true } },
   },
   aliases: ["textarea", "editor", "notes", "messagebox", "multiline"],
   read: (input, state) => {
@@ -45,12 +45,13 @@ export const props = z
     label: text(24).optional(),
     hint: text(60),
     max: z.int().min(80).max(2000).default(600),
-    value: text(2000).optional(),
+    value: z.string().min(1).max(2000).meta({ kind: "text", max: 2000 }).optional(),
   })
   .refine(({ value, max }) => value === undefined || value.length <= max, {
     path: ["value"],
     message: "Text must fit the limit",
-  });
+  })
+  .overwrite((value) => ({ ...value, sendable: value.style === "reply" && Boolean(value.value?.trim()) }));
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return { style: "entry", hint: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 60) };
@@ -94,9 +95,9 @@ export function Composer({ style, label, hint, max, value }: Props<typeof props,
           {label}
         </KitText>
       )}
-      <KitTextArea hint={hint} value={value} lines={reply ? 2 : 6} />
+      <KitTextArea hint={hint} value={value} maxLength={max} lines={reply ? 2 : 6} />
       {reply ? (
-        <KitAction label={sendLabel} icon="send" kind="primary" part="send" full />
+        <KitAction label={sendLabel} icon="send" kind="primary" part="send" full disabled={!value?.trim()} />
       ) : (
         <KitText role="caption" tone="muted" align="end" tabular part="count">
           {charLine(value?.length ?? 0, max)}

@@ -1,3 +1,4 @@
+import { useKit } from "../provider";
 import { Angry, Frown, Laugh, Meh, Smile, Star } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size } from "../../catalog";
@@ -34,10 +35,28 @@ function Level({
   const filled = style === "mood" ? level === value : level <= value;
   const tone = filled ? "$accent" : "$muted";
   const Face = faces[level - 1]!;
-  const target = usePart(`l${level}`);
+  const target = usePart(`l${level}`, !readonly);
+  const kit = useKit();
   return (
     <YStack
       {...(readonly ? {} : target)}
+      {...(!readonly && kit.interactive && kit.controller
+        ? ({
+            onPress: () => kit.controller!.press(target.testID),
+            accessibilityActions: [{ name: "increment" }, { name: "decrement" }],
+            onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
+              const next = Math.min(
+                5,
+                Math.max(1, value + (event.nativeEvent.actionName === "increment" ? 1 : -1)),
+              );
+              kit.controller!.act({
+                address: target.testID.replace(/l[1-5]$/, `l${next}`),
+                action: "select",
+                value: next,
+              });
+            },
+          } as object)
+        : {})}
       flex={1}
       minWidth={size.control.md}
       height={size.control.md}

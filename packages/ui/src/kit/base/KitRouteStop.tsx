@@ -1,3 +1,4 @@
+import { useSignatureProgress } from "../motion";
 import type { ReactNode } from "react";
 import { MapPin } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
@@ -25,6 +26,7 @@ function Mark({ position }: { position: Position }) {
 
 function Stop({ label, position, children }: { label: string; position: Position; children: ReactNode }) {
   const ks = useKitStyle();
+  const progress = useSignatureProgress("route_draw");
   const line = typography.body.lineHeight;
   const pad = space[ks.density.rowPad];
   return (
@@ -43,7 +45,9 @@ function Stop({ label, position, children }: { label: string; position: Position
           bottom={position === "end" ? undefined : 0}
           height={position === "end" ? pad + line / 2 : undefined}
           width={component.base.strongBorder}
-          backgroundColor="$line"
+          backgroundColor="$accent"
+          opacity={progress}
+          scaleY={progress}
         />
         <YStack height={line} marginTop={pad} justifyContent="center" alignItems="center">
           <Mark position={position} />

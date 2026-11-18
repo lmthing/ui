@@ -27,6 +27,7 @@ import {
 
 export const meta = {
   id: "Bars",
+  signature: "bars_grow",
   group: "data",
   purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
   pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).",

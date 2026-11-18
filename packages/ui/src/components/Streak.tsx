@@ -14,6 +14,7 @@ import { KitCard, KitContent, KitIcon, KitText, KitWeekStrip } from "../kit";
 
 export const meta = {
   id: "Streak",
+  signature: "streak_flame",
   group: "data",
   purpose: "How many days in a row you kept a habit, with this week's completed days.",
   pick: "Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).",

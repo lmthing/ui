@@ -141,11 +141,11 @@ describe("TabBar metadata and probes", () => {
     for (const example of examples) {
       const parsed = stampItemIds(meta, props.parse(example));
       expect(affordancesOf(meta, parsed, "t1")).toEqual(
-        example.tabs.map((_, index) => ({
+        example.tabs.map((tab, index) => ({
           address: `t1/r${index + 1}`,
           part: "root",
           action: "select",
-          detail: "",
+          detail: `→${tab.goto}`,
         })),
       );
     }
@@ -158,7 +158,7 @@ describe("TabBar metadata and probes", () => {
       weight: 1,
       tier: "phone",
       codeOwned: true,
-      items: { key: "tabs", parts: ["root", "icon", "label"] },
+      items: { key: "tabs", parts: ["root", "icon", "label", "badge"] },
       parts: ["root"],
       states: ["filled"],
       actions: { items: { root: ["select"] } },
@@ -180,7 +180,7 @@ describe("TabBar metadata and probes", () => {
       expect(affordancesOf(meta, parsed, "t1")).toContainEqual({
         ...probe.expect,
         part: "root",
-        detail: "",
+        detail: `→${example.tabs[Number(probe.expect.address.split("/r")[1]) - 1]!.goto}`,
       });
     }
   });
