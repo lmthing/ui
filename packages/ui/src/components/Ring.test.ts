@@ -1,8 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import { TamaguiProvider } from "tamagui";
+import { config } from "../../test/render";
+import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   component,
@@ -139,7 +140,7 @@ describe("Ring metadata and probes", () => {
     expect(registry.ids).toContain("Ring");
     expect(registry.schema("Ring")).toBe(props);
     expect(registry.resolve("GOAL")).toBe("Ring");
-    expect(registry.resolve("pro-gress")).toBe("Ring");
+    expect(registry.resolve("comple-tion")).toBe("Ring");
   });
   it("reads the actual value and goal without clamping or leaking loading values", () => {
     expect(readComponent(components.Ring, examples[0], "c1")).toEqual(['c1 Ring 3 of 5 — "Watered today"']);
@@ -152,12 +153,6 @@ describe("Ring metadata and probes", () => {
   });
 });
 
-const config = createTamagui({
-  tokens: createTokens(kitTokens),
-  fonts: kitFonts,
-  themes: kitThemes,
-  defaultFont: "humanist",
-});
 function renderRing(style: "md" | "lg", value: number, state: "filled" | "loading", sub?: string) {
   const scope = createElement(PartScope, {
     screen: "home",

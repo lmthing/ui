@@ -1,8 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import { TamaguiProvider } from "tamagui";
+import { config } from "../../test/render";
+import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   components,
@@ -70,13 +71,6 @@ describe("Sparkline schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
   });
-});
-
-const config = createTamagui({
-  tokens: createTokens(kitTokens),
-  fonts: kitFonts,
-  themes: kitThemes,
-  defaultFont: "humanist",
 });
 
 function renderSparkline(state: "filled" | "loading") {

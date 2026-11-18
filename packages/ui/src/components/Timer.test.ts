@@ -1,8 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import { TamaguiProvider } from "tamagui";
+import { config } from "../../test/render";
+import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import {
   affordancesOf,
   components,
@@ -184,12 +185,6 @@ describe("Timer metadata and probes", () => {
   });
 });
 
-const config = createTamagui({
-  tokens: createTokens(kitTokens),
-  fonts: kitFonts,
-  themes: kitThemes,
-  defaultFont: "humanist",
-});
 function renderTimer(style: "down" | "up", seconds: number) {
   const scope = createElement(PartScope, {
     screen: "home",

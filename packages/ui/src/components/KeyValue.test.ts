@@ -1,9 +1,10 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
+import { TamaguiProvider } from "tamagui";
+import { config } from "../../test/render";
 import { components, createRegistry, stampItemIds, type CastLike, type Props } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.KeyValue;
 
@@ -145,12 +146,6 @@ describe("KeyValue field labels and metadata", () => {
 
 function renderPairs(style: "rows" | "grid", count: number, loading = false) {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  const config = createTamagui({
-    tokens: createTokens(kitTokens),
-    fonts: kitFonts,
-    themes: kitThemes,
-    defaultFont: "humanist",
-  });
   const input = props.parse({
     style,
     pairs: Array.from({ length: count }, (_, index) => ({

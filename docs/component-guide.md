@@ -106,6 +106,7 @@ Copy `List.test.ts` and keep its four blocks: every example parses; invalid inpu
 fallback validates with an empty cast, a cast with matching things and a malformed cast, and uses
 placeholders when empty; probes are well-formed (a `codeOwned` component, built by code and never by the model, has only `read` probes; otherwise ≥2 choose with a near miss, 1 write, read if
 actions). Rendering is covered by `test/conformance.test.tsx` automatically.
+A test that renders a component uses the shared `config` and `renderInstance` from `test/render.tsx` and never calls `createTamagui` itself: it registers a global config, so two copies clash ("Missing theme").
 
 ## The model gate
 
