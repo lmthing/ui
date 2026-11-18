@@ -115,6 +115,8 @@ describe("PaymentStatus states, parts and reading", () => {
     const reading = readComponent(components.PaymentStatus, input, "p1").join("\n");
     expect(reading).toContain(status);
     expect(reading.includes("!needs-service")).toBe(actionable);
+    expect(reading.includes("Mark as paid")).toBe(actionable);
+    expect(reading.includes("Remind")).toBe(actionable);
     expect(reading).toContain("Date 18 Nov 2026");
   });
   it("shows each optional part, including zero paid, and omits absent details", () => {
@@ -123,8 +125,10 @@ describe("PaymentStatus states, parts and reading", () => {
     const input = { ...base, paid: 0, due: "9999-12-31", method: "Bank transfer" };
     const html = renderInstance("PaymentStatus", input, "filled", theme);
     const reading = readComponent(components.PaymentStatus, input, "p1").join("\n");
-    for (const part of meta.parts) expect(html).toContain(`home/c1/${part}`);
-    for (const text of ["$60", "Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
+    for (const part of meta.parts.filter((part) => part !== "confirmation"))
+      expect(html).toContain(`home/c1/${part}`);
+    expect(html).not.toContain("home/c1/confirmation");
+    for (const text of ["Total $60", "Received $0", "Due 31 Dec 9999", "Bank transfer"]) {
       expect(html).toContain(text);
       expect(reading).toContain(text);
     }
@@ -133,9 +137,9 @@ describe("PaymentStatus states, parts and reading", () => {
     for (const input of [base, { ...base, paid: 60 }]) {
       const html = renderInstance("PaymentStatus", input, "success", theme);
       expect(html).toContain(input === base ? "Due" : "Paid");
-      if (input === base)
-        for (const part of ["mark", "remind"])
-          expect(elementAt(html, `home/c1/${part}`).attributes).toContain('aria-disabled="true"');
+      expect(html).toContain("Update complete");
+      expect(html).toContain("home/c1/confirmation");
+      for (const part of ["mark", "remind"]) expect(html).not.toContain(`home/c1/${part}`);
       expect(readComponent(components.PaymentStatus, input, "p1", "success")).toHaveLength(1);
     }
   });

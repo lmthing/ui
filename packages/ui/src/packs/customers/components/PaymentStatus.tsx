@@ -1,6 +1,6 @@
 import { z } from "zod";
 import {
-  compactMoneyLine,
+  paymentAmountLine,
   isoDate,
   paymentDetails,
   paymentFallback,
@@ -30,7 +30,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A payment flag stored on the device; card payments need a payment service.",
-  parts: ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind"],
+  parts: ["root", "status", "amount", "paid", "date", "due", "method", "mark", "remind", "confirmation"],
   partTiers: { remind: "service" },
   states: ["filled", "success"],
   actions: {
@@ -78,7 +78,7 @@ export function PaymentStatus(input: Props<typeof props, typeof meta>) {
           {paymentLabels[status]}
         </KitText>
         <KitText role="number" numberScale="compact" tabular part="amount">
-          {compactMoneyLine(input.amount)}
+          {paymentAmountLine(input.amount)}
         </KitText>
       </KitContent>
       <KitContent>
@@ -88,7 +88,11 @@ export function PaymentStatus(input: Props<typeof props, typeof meta>) {
           </KitText>
         ))}
       </KitContent>
-      {(input.paid ?? 0) < input.amount && (
+      {state === "success" ? (
+        <KitText role="label" tone="good" part="confirmation">
+          {paymentLabels.updated}
+        </KitText>
+      ) : (input.paid ?? 0) < input.amount ? (
         <>
           <KitAction label={paymentLabels.mark} part="mark" disabled={state !== "filled"} full />
           <KitAction
@@ -99,7 +103,7 @@ export function PaymentStatus(input: Props<typeof props, typeof meta>) {
             full
           />
         </>
-      )}
+      ) : null}
     </KitCard>
   );
 }

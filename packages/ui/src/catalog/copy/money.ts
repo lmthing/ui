@@ -89,6 +89,7 @@ export const paymentLabels = {
   partial: "Part paid",
   mark: "Mark as paid",
   remind: "Remind",
+  updated: "Update complete",
 } as const;
 type Payment = {
   amount: number;
@@ -99,6 +100,8 @@ type Payment = {
 };
 
 export const paymentToday = (): string => new Date().toISOString().slice(0, 10);
+export const paymentAmountLine = (amount: number): string =>
+  `${moneyLabels.total} ${compactMoneyLine(amount)}`;
 
 /** Settlement wins; any unpaid amount past its due date is overdue, including part payments. */
 export function paymentStatus(
@@ -123,12 +126,13 @@ export function paymentDetails(input: Payment): { part: string; text: string }[]
 export function paymentReading(input: Payment): string[] {
   return [
     paymentLabels[paymentStatus(input)],
-    compactMoneyLine(input.amount),
+    paymentAmountLine(input.amount),
     String(input.amount),
     ...paymentDetails(input).map((line) => line.text),
     ...(input.paid === undefined ? [] : [String(input.paid)]),
     input.date,
     ...(input.due ? [input.due] : []),
+    ...((input.paid ?? 0) < input.amount ? [paymentLabels.mark, paymentLabels.remind] : []),
   ];
 }
 

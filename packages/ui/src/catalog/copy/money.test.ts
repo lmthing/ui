@@ -60,7 +60,7 @@ it("shares labelled payment details, with exact values and dates preserved for r
   ]);
   expect(paymentReading(input)).toEqual([
     "Due",
-    "$1.8E308",
+    "Total $1.8E308",
     String(Number.MAX_VALUE),
     "Received $0",
     "Date 29 Feb 2024",
@@ -69,10 +69,13 @@ it("shares labelled payment details, with exact values and dates preserved for r
     "0",
     "2024-02-29",
     "9999-12-31",
+    "Mark as paid",
+    "Remind",
   ]);
   expect(paymentDetails({ amount: 0, date: "2026-11-18" })).toEqual([
     { part: "date", text: "Date 18 Nov 2026" },
   ]);
   expect(paymentLabels.mark).toBe("Mark as paid");
   expect(paymentLabels.remind).toBe("Remind");
+  expect(paymentLabels.updated).toBe("Update complete");
 });
