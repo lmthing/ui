@@ -1,5 +1,5 @@
 import { XStack, YStack } from "tamagui";
-import { component, radius, size, space, type IconName } from "../../../catalog";
+import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
@@ -13,6 +13,8 @@ type OptionProps = {
   on: boolean;
   multi: boolean;
   look: "cards" | "list";
+  /** Reserve the leading icon column across all options when any option has an icon. */
+  reserveIcon?: boolean;
 };
 function OptionMark({ multi, on }: Pick<OptionProps, "multi" | "on">) {
   const ks = useKitStyle();
@@ -32,45 +34,51 @@ function OptionMark({ multi, on }: Pick<OptionProps, "multi" | "on">) {
     </YStack>
   );
 }
-function OptionText({ title, badge, sub }: Pick<OptionProps, "title" | "badge" | "sub">) {
+function OptionHeader({ title, icon, value, on, multi, look, reserveIcon }: OptionProps) {
   return (
-    <YStack flex={1} gap={space.xs}>
-      <XStack gap={space.sm} alignItems="center" flexWrap="wrap">
+    <XStack gap={space.md} alignItems="flex-start">
+      {(reserveIcon || icon) && (
+        <YStack width={size.icon.lg} height={typography.heading.lineHeight} justifyContent="center">
+          {icon && <KitIcon name={icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />}
+        </YStack>
+      )}
+      <YStack flex={1}>
         <KitText role="heading" part="title">
           {title}
         </KitText>
-        {badge && (
-          <KitText role="caption" tone="accent" part="badge">
-            {badge}
+      </YStack>
+      <XStack gap={space.sm} height={typography.heading.lineHeight} alignItems="center">
+        {value && (
+          <KitText role="number" numberScale="compact" tabular part="value" lines={1}>
+            {value}
           </KitText>
         )}
+        {look === "list" ? (
+          <OptionMark multi={multi} on={on} />
+        ) : on ? (
+          <KitIcon name="check" tone="accent" scale="md" decorative />
+        ) : null}
       </XStack>
-      {sub && (
-        <KitText role="body" tone="muted" part="sub">
-          {sub}
-        </KitText>
-      )}
-    </YStack>
+    </XStack>
   );
 }
 function Option(props: OptionProps) {
-  const { title, icon, value, on, multi, look } = props;
+  const { title, icon, badge, sub, on, multi, look, reserveIcon } = props;
   const ks = useKitStyle();
   const address = usePart();
   const kit = useKit();
   const card = look === "cards";
   return (
-    <XStack
+    <YStack
       {...address}
-      alignItems="center"
-      gap={space.md}
+      gap={space.xs}
       minHeight={size.control.lg}
       paddingVertical={space.md}
       paddingHorizontal={space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       {...(card
         ? {
-            borderWidth: on ? component.base.strongBorder : component.base.borderWidth,
+            borderWidth: component.base.strongBorder,
             borderColor: on ? "$accent" : "$line",
             backgroundColor: on ? "$accentSoft" : "$surface",
           }
@@ -80,16 +88,25 @@ function Option(props: OptionProps) {
       aria-checked={on}
       accessibilityLabel={title}
     >
-      {!card && <OptionMark multi={multi} on={on} />}
-      {icon && <KitIcon name={icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />}
-      <OptionText {...props} />
-      {value && (
-        <KitText role="number" numberScale="compact" tabular part="value">
-          {value}
-        </KitText>
+      <OptionHeader {...props} />
+      {(badge || sub) && (
+        <YStack
+          gap={space.xs}
+          paddingLeft={reserveIcon || icon ? component.base.optionLead : component.base.none}
+        >
+          {badge && (
+            <KitText role="caption" tone="accent" part="badge">
+              {badge}
+            </KitText>
+          )}
+          {sub && (
+            <KitText role="body" tone="muted" part="sub">
+              {sub}
+            </KitText>
+          )}
+        </YStack>
       )}
-      {card && on && <KitIcon name="check" tone="accent" scale="md" decorative />}
-    </XStack>
+    </YStack>
   );
 }
 

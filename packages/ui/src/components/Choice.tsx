@@ -156,6 +156,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
           on={option.on === true}
           multi={multi}
           look={style}
+          reserveIcon={options.some((entry) => entry.icon !== undefined)}
         />
       ))}
     </KitCard>

@@ -120,7 +120,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 }
 export const examples = [
   { kind: "text", label: "Plant name", value: "Fern" },
-  { kind: "date", label: "Walk date" },
+  { kind: "date", label: "Walk date", value: "2026-11-19" },
   { kind: "number", label: "Water every", value: "7", hint: "days" },
   { kind: "time", label: "Walk time", value: "09:00" },
   { kind: "choice", label: "Walk length", options: ["30 min", "45 min", "60 min"], value: "30 min" },
@@ -140,7 +140,7 @@ export const probes = [
 
 export function Field(input: Props<typeof props, typeof meta>) {
   return (
-    <KitCard style="plain" part="root" padded>
+    <KitCard style="plain" part="root" padded inset="none">
       <KitText role="label" part="label">
         {input.label}
       </KitText>
