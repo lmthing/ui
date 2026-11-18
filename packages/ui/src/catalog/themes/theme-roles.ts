@@ -1,6 +1,6 @@
 import type { AccentMeta, PresetMeta } from "../meta";
 
-const toneShare = { light: 0.12, dark: 0.13 } as const;
+const toneShare = { light: 0.12, dark: 0.4 } as const;
 const channel = (hex: string, at: number) => parseInt(hex.slice(at, at + 2), 16);
 
 function mix(tone: string, base: string, share: number): string {
@@ -18,11 +18,13 @@ function mix(tone: string, base: string, share: number): string {
 export function themeRoles(preset: PresetMeta, accent: AccentMeta, mode: "light" | "dark") {
   const base = preset.roles[mode];
   const share = toneShare[mode];
+  // Saturated daytime tones keep dark tints distinct instead of mixing pale semantic foregrounds.
+  const tones = preset.roles.light;
   return {
     ...base,
     ...accent[mode],
-    goodSoft: mix(base.good, base.surface, share),
-    warnSoft: mix(base.warn, base.surface, share),
-    badSoft: mix(base.bad, base.surface, share),
+    goodSoft: mix(tones.good, base.surface, share),
+    warnSoft: mix(tones.warn, base.surface, share),
+    badSoft: mix(tones.bad, base.surface, share),
   };
 }

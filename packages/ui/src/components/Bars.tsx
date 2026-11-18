@@ -148,7 +148,7 @@ function Total({ value, unit, compact = false }: TotalProps) {
   const label = totalLine(value).slice(0, -String(value).length).trim();
   return (
     <KitContent>
-      <KitText role={compact ? "label" : "caption"} tone="muted" align="end" part={null}>
+      <KitText role={compact ? "body" : "caption"} tone="muted" align="end" part={null}>
         {label}
       </KitText>
       <KitText
@@ -160,7 +160,7 @@ function Total({ value, unit, compact = false }: TotalProps) {
       >
         {value}
         {unit && (
-          <KitText role={compact ? "label" : "caption"} tone="muted" part={null}>
+          <KitText role={compact ? "body" : "caption"} tone="muted" part={null}>
             {` ${unit}`}
           </KitText>
         )}

@@ -8,7 +8,7 @@ const Badge = styled(YStack, {
   width: size.avatar.md,
   height: size.avatar.md,
   borderRadius: size.avatar.md,
-  backgroundColor: "$accentSoft",
+  backgroundColor: "$raised",
   alignItems: "center",
   justifyContent: "center",
 });
@@ -23,7 +23,7 @@ export function KitEmpty({
   title,
   sub,
   fill = false,
-  tone = "accent",
+  tone = "neutral",
   decorativeIcon = false,
 }: {
   icon?: IconName;
@@ -33,8 +33,8 @@ export function KitEmpty({
   sub?: string;
   /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
   fill?: boolean;
-  /** The badge colour: `accent` (default, calm) or `good` (a success moment). */
-  tone?: "accent" | "good";
+  /** The badge colour: neutral by default, accent explicitly, or good for a success moment. */
+  tone?: "neutral" | "accent" | "good";
   /** Draw the icon without an address (when the component declares no `icon` part). */
   decorativeIcon?: boolean;
 }) {
@@ -47,8 +47,14 @@ export function KitEmpty({
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
-      <Badge backgroundColor={tone === "good" ? "$goodSoft" : "$accentSoft"}>
-        <KitIcon name={icon} tone={tone} scale="lg" part="icon" decorative={decorativeIcon} />
+      <Badge backgroundColor={tone === "good" ? "$goodSoft" : tone === "accent" ? "$accentSoft" : "$raised"}>
+        <KitIcon
+          name={icon}
+          tone={tone === "neutral" ? "muted" : tone}
+          scale="lg"
+          part="icon"
+          decorative={decorativeIcon}
+        />
       </Badge>
       <YStack gap={space.xs} alignItems="center">
         <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>

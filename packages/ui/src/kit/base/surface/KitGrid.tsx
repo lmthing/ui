@@ -7,21 +7,31 @@ import { useKitStyle } from "../../provider";
  * Cells in equal-width columns (default 2). Cells in one row share a top edge; columns share left
  * edges; rows are spaced evenly. Wrap each cell's content in its own part (`KitRow` or `KitText`).
  */
-export function KitGrid({ columns = 2, children }: { columns?: 2 | 3; children: ReactNode }) {
+export function KitGrid({
+  columns = 2,
+  fitLast = false,
+  children,
+}: {
+  columns?: 2 | 3;
+  /** Let the final column fit a short label, leaving the remaining width to the main content. */
+  fitLast?: boolean;
+  children: ReactNode;
+}) {
   const ks = useKitStyle();
   const cells = Children.toArray(children);
   const rows = Array.from({ length: Math.ceil(cells.length / columns) }, (_, row) =>
     cells.slice(row * columns, row * columns + columns),
   );
   return (
-    <YStack gap={space[ks.density.gap]} paddingVertical={space.xs}>
+    <YStack width="100%" gap={space[ks.density.gap]}>
       {rows.map((row, index) => (
-        <XStack key={index} alignItems="flex-start" gap={space.md}>
+        <XStack key={index} alignItems={fitLast ? "center" : "flex-start"} gap={space.md}>
           {Array.from({ length: columns }, (_, column) => (
             <YStack
               key={column}
-              flex={component.base.bodyFlex}
-              flexBasis={component.base.none}
+              {...(fitLast && column === columns - 1
+                ? { flexShrink: component.base.none }
+                : { flex: component.base.bodyFlex, flexBasis: component.base.none })}
               minWidth={component.base.none}
             >
               {row[column] ?? null}

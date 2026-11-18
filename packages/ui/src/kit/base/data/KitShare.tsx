@@ -31,10 +31,10 @@ function Entry({
         {label}
       </KitText>
       <YStack flex={1} />
-      <KitText role="body" tone="muted" tabular part={null}>
+      <KitText role="number" numberScale="compact" tabular part={null}>
         {`${value}`}
       </KitText>
-      <KitText role="label" tone="muted" tabular part={null}>
+      <KitText role="body" tone="muted" tabular part={null}>
         {percent}
       </KitText>
     </XStack>

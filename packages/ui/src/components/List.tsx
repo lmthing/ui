@@ -177,7 +177,7 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
   }
   const items = rows.map((row, index) => <KitListItem key={row.id} row={row} style={style} index={index} />);
   return (
-    <KitCard style={surface} part="root" padded={style === "shelf"}>
+    <KitCard style={surface} part="root">
       {style !== "shelf" ? (
         items
       ) : rows.length === 2 ? (
