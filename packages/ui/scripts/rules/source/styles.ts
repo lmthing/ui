@@ -5,6 +5,13 @@ import { styleExemptions, type Violation } from "../config";
 const hexColour = /#[\da-f]{8}\b|#[\da-f]{6}\b|#[\da-f]{4}\b|#[\da-f]{3}\b/gi;
 function numeric(node: ts.Node): boolean {
   if (ts.isNumericLiteral(node)) return true;
+  if (
+    ts.isParenthesizedExpression(node) ||
+    ts.isAsExpression(node) ||
+    ts.isTypeAssertionExpression(node) ||
+    ts.isSatisfiesExpression(node)
+  )
+    return numeric(node.expression);
   return ts.isPrefixUnaryExpression(node) && numeric(node.operand);
 }
 function isNumericZIndex(node: ts.Node) {
@@ -47,8 +54,10 @@ export function checkStyles(root: string, file: string, node: ts.Node, line: num
     ts.isTemplateMiddle(node) ||
     ts.isTemplateTail(node)
   ) {
-    for (const match of node.text.matchAll(hexColour))
-      violations.push({ rule: "hex-colours", file, line, detail: `raw hex colour ${match[0]}` });
+    for (const match of node.getText().matchAll(hexColour)) {
+      const at = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart() + match.index!).line + 1;
+      violations.push({ rule: "hex-colours", file, line: at, detail: `raw hex colour ${match[0]}` });
+    }
   }
   if (isNumericZIndex(node))
     violations.push({ rule: "numeric-zIndex", file, line, detail: "raw numeric zIndex" });

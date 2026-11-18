@@ -26,3 +26,9 @@ it("allows references and exempts only token/theme descendants", () => {
     ).toEqual([]);
   expect(issues("const style = { zIndex: 1 };", "/ui/src/catalog/themes-other/a.ts")).toHaveLength(1);
 });
+it("reports wrapped numeric literals and each multiline colour's physical line", () => {
+  expect(issues("const style = { zIndex: (1 as const) };").map(({ rule }) => rule)).toEqual([
+    "numeric-zIndex",
+  ]);
+  expect(issues(`const colors = \`\n${hash}fff\n${hash}abcd\n\`;`).map(({ line }) => line)).toEqual([2, 3]);
+});
