@@ -42,7 +42,7 @@ export function Preview({
           {...(responsive ? { fontFamily: "$humanist" } : {})}
         >{`${cell.id} · ${preset} / ${mode} · ${cell.state} ${cell.index + 1}`}</Text>
       )}
-      <KitProvider theme={theme} parts={galleryParts} resolvePhoto={resolvePhoto}>
+      <KitProvider theme={theme} parts={galleryParts} resolvePhoto={(ref) => resolvePhoto(ref, theme)}>
         <YStack
           padding={space.lg}
           minHeight={responsive ? component.base.none : component.Gallery.previewHeight}

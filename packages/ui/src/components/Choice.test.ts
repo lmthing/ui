@@ -116,6 +116,9 @@ describe("Choice fallback, metadata and actions", () => {
     const line = readComponent(components.Choice, examples[1]!, "c1").join("\n");
     for (const text of ["Single walk", "Weekly pack", "Most popular", "£65"]) expect(line).toContain(text);
   });
+});
+
+describe("Choice fallback, metadata and actions", () => {
   it("has well-formed probes naming the nearest neighbour", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     for (const near of ["Chips", "Field", "Segmented", "SwipeStack"]) expect(meta.pick).toContain(near);

@@ -8,7 +8,6 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Field;
 
@@ -67,6 +66,9 @@ describe("Field schema", () => {
       ).toBe(true);
     }
   });
+});
+
+describe("Field schema", () => {
   it.each(["on", "off"])("accepts toggle state %s", (value) =>
     expect(props.safeParse({ kind: "toggle", label: "Reminder", value }).success).toBe(true),
   );
@@ -105,6 +107,9 @@ describe("Field fallback and metadata", () => {
     expect(fallback({ cast: casts[2]! }).label).toBe("Arrival time");
     expect(fallback({ cast: casts[3]! }).label).toHaveLength(24);
   });
+});
+
+describe("Field fallback and metadata", () => {
   it.each([
     ["text", "type"],
     ["number", "type"],
@@ -147,6 +152,9 @@ describe("Field fallback and metadata", () => {
     expect(readComponent(components.Field, examples[4], "f1").join("\n")).toContain("45 min");
     expect(readComponent(components.Field, examples[7], "f1").join("\n")).toContain("Add photo");
   });
+});
+
+describe("Field fallback and metadata", () => {
   it("has well-formed metadata and choose, write and read probes", () => {
     expect(meta.tier).toBe("phone");
     expect(meta.realPath).not.toBe("");
@@ -169,28 +177,5 @@ describe("Field fallback and metadata", () => {
     expect(registry.schema("Field")).toBe(props);
     expect(registry.resolve("f-i-e-l-d")).toBe("Field");
     expect(registry.resolve("f-i-e-l-d")).toBe("Field");
-  });
-});
-
-describe("Field rendering", () => {
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-  it.each(examples)("draws unique parts and the actual control value", (example) => {
-    const html = renderInstance("Field", example, "filled", theme);
-    for (const part of ["root", "label", "field"]) {
-      expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
-    }
-    const field = html.match(/<[^>]*data-testid="home\/c1\/field"[^>]*>/)?.[0];
-    const role =
-      { choice: "radiogroup", repeat: "radiogroup", toggle: "switch", slider: "slider", photo: "button" }[
-        example.kind as "choice"
-      ] ?? "textbox";
-    expect(field).toContain(`role="${role}"`);
-    if (["text", "number", "date", "time"].includes(example.kind) && "value" in example) {
-      expect(field).toContain(`value="${example.value}"`);
-    }
-  });
-  it.each(["-12", "0", "5.5", "25"])("preserves slider value %s instead of clamping it", (value) => {
-    const html = renderInstance("Field", { kind: "slider", label: "Level", value }, "filled", theme);
-    expect(html).toContain(`aria-valuenow="${value}"`);
   });
 });

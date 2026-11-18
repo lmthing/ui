@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import type { PackMeta } from "../meta";
+import type { PackMeta } from "../../meta";
 import { runPackProbes } from "./index";
 
 it("skips an empty pack index without calling a model", async () => {

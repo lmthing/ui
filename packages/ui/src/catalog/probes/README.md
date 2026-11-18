@@ -8,10 +8,9 @@ Files (exactly these):
 
 - `run.ts` `runProbes(probes, block, callModel)`: builds prompts, collects replies
 - `score.ts` scores `choose`, `write` and `read` replies
-- `compose.ts` builds and scores whole-screen probes with `checkScreen`
-- `compose-format.ts`, `compose-format.test.ts` constrain screen lines to recipe-scoped Writer ids
-- `run-pack-probes.ts`, `run-pack-probes.test.ts`: Director prompt and sampled pack runs
-- `score-pack.ts`, `score-pack.test.ts`: exact pack sets, at most three ids
+- `composition/` builds/scores screens and constrains lines to recipe-scoped Writer ids
+- `packs/` Director prompt, sampled runs and exact-set scoring (at most three ids)
+- `fixtures/` component probe builders and shared example data
 - `index.ts`
 
 Rules:

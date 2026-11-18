@@ -1,9 +1,9 @@
-import type { CastLike } from "../types";
-import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../archetypes";
-import { checkScreen } from "../rules";
-import { readScreen, type ScreenLike } from "../agent";
-import { buildEntry } from "../prompt";
-import type { CallModel, Definition } from "./types";
+import type { CastLike } from "../../types";
+import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
+import { checkScreen } from "../../rules";
+import { readScreen, type ScreenLike } from "../../agent";
+import { buildEntry } from "../../prompt";
+import type { CallModel, Definition } from "../types";
 import { composeFormat, compositionInput } from "./compose-format";
 export type ComposeResult = {
   archetype: string;

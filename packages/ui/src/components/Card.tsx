@@ -104,17 +104,29 @@ export const probes = [
   read("Open the fern card", { address: "c1", action: "press" }),
 ] satisfies Probe[];
 
-export function Card({
-  style,
-  title,
-  body,
-  meta: detail,
-  badge,
-  icon,
-  photo,
-  tone,
-  goto,
-}: Props<typeof props, typeof meta>) {
+function CardText({ title, body, meta: detail, badge }: Props<typeof props, typeof meta>) {
+  return (
+    <>
+      {badge && <KitTrail kind="badge" value={badge} part="badge" />}
+      <KitText role="heading" part="title">
+        {title}
+      </KitText>
+      {body && (
+        <KitText role="body" tone="muted" part="body">
+          {body}
+        </KitText>
+      )}
+      {detail && (
+        <KitText role="caption" tone="muted" part="meta">
+          {detail}
+        </KitText>
+      )}
+    </>
+  );
+}
+
+export function Card(input: Props<typeof props, typeof meta>) {
+  const { style, title, icon, photo, tone, goto } = input;
   const state = useComponentState();
   const { resolvePhoto } = useKit();
   const media = style === "media";
@@ -146,20 +158,7 @@ export function Card({
         <>
           {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
           <KitContent lead={lead} lineRole="heading" leadingAlign={photo && !media ? "row" : "line"}>
-            {badge && <KitTrail kind="badge" value={badge} part="badge" />}
-            <KitText role="heading" part="title">
-              {title}
-            </KitText>
-            {body && (
-              <KitText role="body" tone="muted" part="body">
-                {body}
-              </KitText>
-            )}
-            {detail && (
-              <KitText role="caption" tone="muted" part="meta">
-                {detail}
-              </KitText>
-            )}
+            <CardText {...input} />
           </KitContent>
         </>
       )}

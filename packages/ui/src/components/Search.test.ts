@@ -85,6 +85,9 @@ describe("Search fallback and metadata", () => {
       hint: `Search ${plural}`,
     });
   });
+});
+
+describe("Search fallback and metadata", () => {
   it("has the required parts, tier, real path and well-formed probes", () => {
     expect(meta).toMatchObject({
       id: "Search",

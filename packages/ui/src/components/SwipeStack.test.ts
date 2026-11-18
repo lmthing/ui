@@ -110,6 +110,9 @@ describe("SwipeStack fallback and metadata", () => {
     }
     expect(affordancesOf(meta, { cards: [] }, "s1")).toEqual([]);
   });
+});
+
+describe("SwipeStack fallback and metadata", () => {
   it("validates empty, matching, mixed, overlong and malformed casts", () => {
     const casts: CastLike[] = [
       { things: [], items: [] },
@@ -146,6 +149,9 @@ describe("SwipeStack fallback and metadata", () => {
     expect(fallback({ cast: casts[3]! }).cards).toHaveLength(6);
     expect(fallback({ cast: casts[4]! }).cards).toEqual(fallback({ cast: casts[0]! }).cards);
   });
+});
+
+describe("SwipeStack fallback and metadata", () => {
   it("has the specified parts, states, tier and well-formed probes", () => {
     expect(meta).toMatchObject({
       group: "content",

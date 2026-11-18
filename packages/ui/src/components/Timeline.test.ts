@@ -97,6 +97,9 @@ describe("Timeline fallback and metadata", () => {
     ]);
     expect(props.parse(fallback({ cast: casts[0]! })).items.every((row) => !row.done)).toBe(true);
   });
+});
+
+describe("Timeline fallback and metadata", () => {
   it("declares static event parts and limits actions to hours", () => {
     expect(meta).toMatchObject({
       id: "Timeline",
@@ -145,6 +148,9 @@ describe("Timeline fallback and metadata", () => {
     expect(meta.pick).toContain("List");
     expect(meta.pick).toContain("Checklist");
   });
+});
+
+describe("Timeline fallback and metadata", () => {
   it("is found automatically with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timeline");

@@ -1,4 +1,4 @@
-import type { ChooseProbe, ReadProbe, WriteProbe } from "./types";
+import type { ChooseProbe, ReadProbe, WriteProbe } from "../types";
 
 /** Probe data in the same property order as the component declarations. */
 export function probesFor(component: string) {

@@ -1,6 +1,35 @@
 import type { ScreenLike } from "../agent";
 import type { Definition } from "../probes";
 import { at, resolveDefinition, type Issue } from "./types";
+function containsSheetLink(value: unknown): boolean {
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    Object.entries(value).some(
+      ([key, child]) => (key === "goto" && child === "sheet") || containsSheetLink(child),
+    ),
+  );
+}
+
+function checkSheetLinks(screen: ScreenLike, flowOpensSheet: boolean): Issue[] {
+  const issues: Issue[] = [];
+  const sheets = screen.components.filter((entry) => entry.c === "Sheet");
+  const linked = screen.components.some(containsSheetLink);
+  if (sheets.length && !linked && !flowOpensSheet)
+    issues.push({
+      code: "S.sheet_without_trigger",
+      address: at(screen, sheets[0]),
+      message: "A Sheet needs a link or a flow step to open it",
+    });
+  if (linked && sheets.length !== 1)
+    issues.push({
+      code: "S.sheet_target",
+      address: screen.id,
+      message: "A sheet link needs exactly one Sheet",
+    });
+  return issues;
+}
+
 export function checkCore(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -16,28 +45,7 @@ export function checkCore(
         message: `At most one ${c} is allowed`,
       });
   }
-  const containsSheetLink = (value: unknown): boolean =>
-    Boolean(
-      value &&
-      typeof value === "object" &&
-      Object.entries(value).some(
-        ([key, child]) => (key === "goto" && child === "sheet") || containsSheetLink(child),
-      ),
-    );
-  const sheets = screen.components.filter((entry) => entry.c === "Sheet");
-  const linked = screen.components.some(containsSheetLink);
-  if (sheets.length && !linked && !flowOpensSheet)
-    issues.push({
-      code: "S.sheet_without_trigger",
-      address: at(screen, sheets[0]),
-      message: "A Sheet needs a link or a flow step to open it",
-    });
-  if (linked && sheets.length !== 1)
-    issues.push({
-      code: "S.sheet_target",
-      address: screen.id,
-      message: "A sheet link needs exactly one Sheet",
-    });
+  issues.push(...checkSheetLinks(screen, flowOpensSheet));
   const body = screen.components.filter((entry) => resolveDefinition(defs, entry.c)?.meta.region === "body");
   for (const [index, entry] of body.entries())
     if (entry.c === "Composer" && entry.style === "reply") {

@@ -68,6 +68,9 @@ describe("Calendar schema", () => {
       }).success,
     ).toBe(true);
   });
+});
+
+describe("Calendar schema", () => {
   it("adds ids only to view props, never wire input", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["marked"][number]["id"]>().toEqualTypeOf<string>();

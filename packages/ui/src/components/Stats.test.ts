@@ -115,6 +115,9 @@ describe("Stats fallback and metadata", () => {
       { label: "Item two", value: "0" },
     ]);
   });
+});
+
+describe("Stats fallback and metadata", () => {
   it("declares only drawn parts and no actions", () => {
     expect(meta).toMatchObject({
       id: "Stats",

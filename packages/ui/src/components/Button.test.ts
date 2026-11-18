@@ -121,6 +121,9 @@ describe("Button fallback and metadata", () => {
       expect: { address: "b1/root", action: "press" },
     });
   });
+});
+
+describe("Button fallback and metadata", () => {
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Button");

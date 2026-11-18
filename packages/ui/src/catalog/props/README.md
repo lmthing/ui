@@ -6,7 +6,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `text.ts` `text(max)`: trimmed string with a limit
 - `icon.ts` enum of the curated icon names
-- `photo.ts` `lib:<tag>` or `local:<n>`, never a URL
+- `media.ts` `photo` and `media`: `lib:<tag>` or `local:<n>`, never a URL
 - `screen-id.ts` a slug or `back`
 - `date.ts` `isoDate` (YYYY-MM-DD, real) and `clock` (HH:MM)
 - `swatch.ts`, `swatch.test.ts`: closed product colours, nearest-name snapping

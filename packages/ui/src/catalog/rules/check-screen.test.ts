@@ -69,6 +69,9 @@ describe("screen rules", () => {
     };
     expect(codes(screen)).toContain("S.heavy_over");
   });
+});
+
+describe("screen rules", () => {
   it("checks primary, hero, neighbour and section rules", () => {
     const screen = base();
     screen.components.push(entry("Button", "b2"));
@@ -105,6 +108,9 @@ describe("screen rules", () => {
       ),
     ).toBe(false);
   });
+});
+
+describe("screen rules", () => {
   it("limits singletons, reply ordering, headlines and danger confirmation", () => {
     const screen = base();
     screen.components.push(entry("Choice", "c1"), entry("Choice", "c2"));

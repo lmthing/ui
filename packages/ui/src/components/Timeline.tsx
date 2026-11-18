@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   probesFor,
+  sampleWalks,
   clock,
   detailOf,
   itemsOf,
@@ -124,11 +125,7 @@ export const examples = [
   },
   {
     style: "day",
-    items: [
-      { time: "09:00", title: "Morning park walk", done: true },
-      { time: "12:30", title: "Lunch walk" },
-      { time: "17:00", title: "River walk" },
-    ],
+    items: sampleWalks,
   },
   {
     style: "hours",

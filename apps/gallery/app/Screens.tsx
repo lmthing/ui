@@ -52,7 +52,7 @@ function Screen({
       <KitProvider
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
-        resolvePhoto={resolvePhoto}
+        resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never)}
       >
         <YStack
           width={width}

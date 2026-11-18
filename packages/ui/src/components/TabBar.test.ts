@@ -61,6 +61,9 @@ describe("TabBar schema", () => {
       expect(props.safeParse({ tabs, at: count }).success).toBe(false);
     }
   });
+});
+
+describe("TabBar schema", () => {
   it("adds validator item ids only to view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["tabs"][number]["id"]>().toEqualTypeOf<string>();
