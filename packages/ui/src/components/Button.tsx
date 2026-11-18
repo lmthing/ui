@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   confirmNote,
   icon,
   placeholderLabel,
@@ -49,25 +50,13 @@ export const examples = [
   { label: "Back to walks", kind: "quiet", goto: "back" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Button");
 export const probes = [
-  { kind: "choose", need: "Let me log watering with one main tap", expect: "Button" },
-  {
-    kind: "choose",
-    need: "Give me three shortcuts to log watering, add a plant and see the schedule",
-    expect: "Actions",
-  },
-  { kind: "write", brief: "Let me book a dog walk and open the booking screen", expect: "Button" },
-  {
-    kind: "write",
-    brief: "A Remove plant button that, before it does anything, asks Remove this plant and its history?",
-    expect: "Button",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Press the main button",
-    expect: { address: "b1/root", action: "press" },
-  },
+  choose("Let me log watering with one main tap"),
+  choose("Give me three shortcuts to log watering, add a plant and see the schedule", "Actions"),
+  write("Let me book a dog walk and open the booking screen"),
+  write("A Remove plant button that, before it does anything, asks Remove this plant and its history?"),
+  read("Press the main button", { address: "b1/root", action: "press" }),
 ] satisfies Probe[];
 
 export function Button({ label, kind, icon, goto }: Props<typeof props, typeof meta>) {

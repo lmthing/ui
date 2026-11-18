@@ -69,6 +69,9 @@ describe("human and agent control paths", () => {
       expect(errors).toEqual([]);
     },
   );
+});
+
+describe("human and agent control paths", () => {
   it("blocks empty replies, sends typed content and clears the box", { timeout: 15000 }, async () => {
     await open("chat");
     expect(await part("c1/send").getAttribute("aria-disabled")).toBe("true");
@@ -117,6 +120,9 @@ describe("human and agent control paths", () => {
     expect(await part("t1/time").textContent()).toBe(paused);
     expect(errors).toEqual([]);
   });
+});
+
+describe("human and agent control paths", () => {
   it("selects filters, views, dates and linked tabs with count badges", { timeout: 15000 }, async () => {
     await open("navigation");
     await part("s1/r2/root").click();

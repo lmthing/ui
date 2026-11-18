@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   icon,
   placeholderTitle,
@@ -76,24 +77,12 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Actions");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Give me three ways to log watering, add a plant and see the schedule",
-    expect: "Actions",
-  },
-  { kind: "choose", need: "Let me log watering with one main tap", expect: "Button" },
-  {
-    kind: "write",
-    brief: "Let me book a dog walk, open my clients, see earnings and read messages",
-    expect: "Actions",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Add a plant",
-    expect: { address: "a1/r2", action: "press" },
-  },
+  choose("Give me three ways to log watering, add a plant and see the schedule"),
+  choose("Let me log watering with one main tap", "Button"),
+  write("Let me book a dog walk, open my clients, see earnings and read messages"),
+  read("Add a plant", { address: "a1/r2", action: "press" }),
 ] satisfies Probe[];
 
 export function Actions({ items }: Props<typeof props, typeof meta>) {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   photo,
   placeholderTitle,
   screenId,
@@ -101,33 +102,13 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Gallery");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show four shots of my plants together with their names underneath",
-    expect: "Gallery",
-  },
-  {
-    kind: "choose",
-    need: "Show just one shot of my fern with a short description underneath",
-    expect: "Photo",
-  },
-  {
-    kind: "write",
-    brief: "Show four plant shots together, captioned Fern, Monstera, Basil and Aloe, opening fern from Fern",
-    expect: "Gallery",
-  },
-  {
-    kind: "write",
-    brief: "Show three shots of the flat to swipe through one at a time: Front room, Kitchen and Garden",
-    expect: "Gallery",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Open the Fern picture",
-    expect: { address: "g1/r1", action: "press" },
-  },
+  choose("Show four shots of my plants together with their names underneath"),
+  choose("Show just one shot of my fern with a short description underneath", "Photo"),
+  write("Show four plant shots together, captioned Fern, Monstera, Basil and Aloe, opening fern from Fern"),
+  write("Show three shots of the flat to swipe through one at a time: Front room, Kitchen and Garden"),
+  read("Open the Fern picture", { address: "g1/r1", action: "press" }),
 ] satisfies Probe[];
 
 type Entry = Props<typeof props, typeof meta>["photos"][number];

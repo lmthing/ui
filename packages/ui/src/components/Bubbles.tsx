@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   placeholderDetail,
   text,
@@ -60,23 +61,15 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Bubbles");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show what Anna said about Clover's walk time and my reply, with each person's words on their own side",
-    expect: "Bubbles",
-  },
-  {
-    kind: "choose",
-    need: "Add a little supporting line explaining that ferns prefer indirect light",
-    expect: "Note",
-  },
-  {
-    kind: "write",
-    brief:
-      "Show an exchange with Anna: she asks if Clover's walk can start at 09:30, I say 09:30 works, and she thanks me",
-    expect: "Bubbles",
-  },
+  choose(
+    "Show what Anna said about Clover's walk time and my reply, with each person's words on their own side",
+  ),
+  choose("Add a little supporting line explaining that ferns prefer indirect light", "Note"),
+  write(
+    "Show an exchange with Anna: she asks if Clover's walk can start at 09:30, I say 09:30 works, and she thanks me",
+  ),
 ] satisfies Probe[];
 
 export function Bubbles({ messages, with: person }: Props<typeof props, typeof meta>) {

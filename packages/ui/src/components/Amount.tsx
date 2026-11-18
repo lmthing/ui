@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   changeLine,
   clip,
   currencies,
@@ -66,34 +67,16 @@ export const examples = [
   { style: "total", value: 54, currency: "GBP" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Amount");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how much I owe my flatmates this month as one big figure, with what changed since last month",
-    expect: "Amount",
-  },
-  {
-    kind: "choose",
-    need: "Show my income, what I spent and what is left this month as three numbers side by side",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief:
-      "My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings",
-    expect: "Amount",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open the walks price",
-    expect: { address: "a1", action: "press" },
-  },
+  choose("Show how much I owe my flatmates this month as one big figure, with what changed since last month"),
+  choose("Show my income, what I spent and what is left this month as three numbers side by side", "Stats"),
+  write("My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings"),
+  read("Open the walks price", { address: "a1", action: "press" }, 1),
 ] satisfies Probe[];
 
-export function Amount({
+function AmountFigure({
   style,
-  label,
   value,
   currency,
   per,
@@ -101,8 +84,46 @@ export function Amount({
   change,
   changeIn,
   sub,
-  goto,
 }: Props<typeof props, typeof meta>) {
+  const large = style === "large";
+  return (
+    <>
+      <KitText
+        role="number"
+        numberScale={large ? "display" : "compact"}
+        align={large ? "center" : "end"}
+        tabular
+        part="value"
+      >
+        {moneyLine(value, currency, per)}
+      </KitText>
+      {was !== undefined && (
+        <KitText role="caption" tone="muted" strike align={large ? "center" : "end"} tabular part="was">
+          {moneyLine(was, currency)}
+        </KitText>
+      )}
+      {change !== undefined && (
+        <KitText
+          role="caption"
+          tone={change > 0 ? "good" : change < 0 ? "bad" : "muted"}
+          align={large ? "center" : "end"}
+          tabular
+          part="change"
+        >
+          {changeLine(change, changeIn, currency)}
+        </KitText>
+      )}
+      {sub && (
+        <KitText role="caption" tone="muted" align={large ? "center" : "end"} part="sub">
+          {sub}
+        </KitText>
+      )}
+    </>
+  );
+}
+
+export function Amount(input: Props<typeof props, typeof meta>) {
+  const { style, label, value, currency, per, goto } = input;
   const state = useComponentState();
   if (state === "loading") {
     return (
@@ -113,35 +134,7 @@ export function Amount({
   }
   const large = style === "large";
   const shown = style === "total" ? (label ?? moneyLabels.total) : label;
-  const side = large ? "center" : "end";
-  const figure = (
-    <>
-      <KitText role="number" numberScale={large ? "display" : "compact"} align={side} tabular part="value">
-        {moneyLine(value, currency, per)}
-      </KitText>
-      {was !== undefined && (
-        <KitText role="caption" tone="muted" strike align={side} tabular part="was">
-          {moneyLine(was, currency)}
-        </KitText>
-      )}
-      {change !== undefined && (
-        <KitText
-          role="caption"
-          tone={change > 0 ? "good" : change < 0 ? "bad" : "muted"}
-          align={side}
-          tabular
-          part="change"
-        >
-          {changeLine(change, changeIn, currency)}
-        </KitText>
-      )}
-      {sub && (
-        <KitText role="caption" tone="muted" align={side} part="sub">
-          {sub}
-        </KitText>
-      )}
-    </>
-  );
+  const figure = <AmountFigure {...input} />;
   const name = shown && (
     <KitText
       role={large ? "label" : "body"}

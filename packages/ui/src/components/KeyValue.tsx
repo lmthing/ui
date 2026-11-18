@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   icon,
   itemsOf,
@@ -80,18 +81,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("KeyValue");
 export const probes = [
-  {
-    kind: "choose",
-    need: "the facts about one plant: room, light, water interval",
-    expect: "KeyValue",
-  },
-  { kind: "choose", need: "show all my plants to pick one", expect: "List" },
-  {
-    kind: "write",
-    brief: "One plant in the bathroom, bright indirect light, watered every seven days",
-    expect: "KeyValue",
-  },
+  choose("the facts about one plant: room, light, water interval"),
+  choose("show all my plants to pick one", "List"),
+  write("One plant in the bathroom, bright indirect light, watered every seven days"),
 ] satisfies Probe[];
 
 type Pair = Props<typeof props, typeof meta>["pairs"][number];

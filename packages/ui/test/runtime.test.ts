@@ -78,6 +78,9 @@ describe("interactive phone screen", () => {
     expect(await page.getByRole("dialog").count()).toBe(0);
     expect(errors).toEqual([]);
   });
+});
+
+describe("interactive phone screen", () => {
   it("plays and seeks a real local recording through act and keyboard controls", async () => {
     await page.waitForFunction(() => (document.querySelector("audio")?.readyState ?? 0) >= 1);
     await page.screenshot({ path: `${shots}screen.png` });

@@ -98,6 +98,9 @@ describe("Progress fallback and metadata", () => {
     expect(read.join("\n")).toContain("180 of 200");
     expect(readComponent(components.Progress, { bars: [bar] }, "p1", "loading")[0]).not.toContain("62");
   });
+});
+
+describe("Progress fallback and metadata", () => {
   it("has a real path and well-formed choose, write and read probes", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);

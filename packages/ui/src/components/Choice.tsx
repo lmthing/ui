@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   itemsOf,
@@ -115,29 +116,16 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Choice");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me pick one of three walk packages, each with a line explaining what is included and its price",
-    expect: "Choice",
-  },
-  {
-    kind: "choose",
-    need: "Let me filter my plants by room using a few short one-word tags",
-    expect: "Chips",
-  },
-  {
-    kind: "write",
-    brief:
-      "Ask how often to water the fern, with the answers every week, every two weeks and only when dry, each with a short reason, starting on every week",
-    expect: "Choice",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Choose every two weeks",
-    expect: { address: "c1/r2", action: "select" },
-  },
+  choose(
+    "Let me pick one of three walk packages, each with a line explaining what is included and its price",
+  ),
+  choose("Let me filter my plants by room using a few short one-word tags", "Chips"),
+  write(
+    "Ask how often to water the fern, with the answers every week, every two weeks and only when dry, each with a short reason, starting on every week",
+  ),
+  read("Choose every two weeks", { address: "c1/r2", action: "select" }),
 ] satisfies Probe[];
 
 export function Choice({ style, question, options, multi }: Props<typeof props, typeof meta>) {

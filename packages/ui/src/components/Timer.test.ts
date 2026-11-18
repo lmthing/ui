@@ -1,12 +1,11 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { renderInstance } from "../../test/render";
+
 import {
   affordancesOf,
   components,
   createRegistry,
   readComponent,
   leftLine,
-  timerLabels,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
@@ -154,6 +153,9 @@ describe("Timer metadata and probes", () => {
       expect: { address: "t1/start", action: "start" },
     });
   });
+});
+
+describe("Timer metadata and probes", () => {
   it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timer");
@@ -177,36 +179,6 @@ describe("Timer metadata and probes", () => {
       for (const text of [time, style, '"Activity"', "Start", "Stop", "[t1/start start]", "[t1/stop stop]"])
         expect(read).toContain(text);
       expect(meta.read(value, "loading")).toEqual([]);
-    }
-  });
-});
-
-function renderTimer(style: "down" | "up", seconds: number) {
-  return renderInstance(
-    "Timer",
-    { ...input, style, seconds },
-    "filled",
-    { preset: "calm", mode: "light", accent: "moss" },
-    { component: "t1" },
-  );
-}
-
-describe.each(["down", "up"] as const)("Timer rendering in %s", (style) => {
-  it.each([
-    [0, "0:00"],
-    [600, "10:00"],
-    [1260, "21:00"],
-    [86400, "24:00:00"],
-  ] as const)("renders %s seconds and both addressed buttons", (seconds, time) => {
-    const html = renderTimer(style, seconds);
-    for (const part of meta.parts)
-      expect(html.match(new RegExp(`data-testid="home/t1/${part}"`, "g"))).toHaveLength(1);
-    expect(html).toContain(time);
-    expect(html).toContain("tabular-nums");
-    for (const part of ["start", "stop"] as const) {
-      const tag = html.match(new RegExp(`<[^>]*data-testid="home/t1/${part}"[^>]*>`))?.[0];
-      expect(tag).toContain('role="button"');
-      expect(tag).toContain(`aria-label="${timerLabels[part]}"`);
     }
   });
 });

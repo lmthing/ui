@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   emptyLine,
   icon,
@@ -54,28 +55,17 @@ export const examples = [
   { title: "You're offline", kind: "offline" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Empty");
 export const probes = [
-  {
-    kind: "choose",
-    need: "My plant collection has nothing in it yet; show a calm message saying there are no plants",
-    expect: "Empty",
-  },
-  {
-    kind: "choose",
-    need: "Make 2 the single large main number on my plant screen, with plants need water today underneath",
-    expect: "Hero",
-  },
-  {
-    kind: "write",
-    brief: "My walks could not be loaded. Show a calm message that says what went wrong.",
-    expect: "Empty",
-  },
-  {
-    kind: "write",
-    brief:
-      "My plant collection has no plants yet. Say so with a leaf symbol and explain that added plants will appear here.",
-    expect: "Empty",
-  },
+  choose("My plant collection has nothing in it yet; show a calm message saying there are no plants"),
+  choose(
+    "Make 2 the single large main number on my plant screen, with plants need water today underneath",
+    "Hero",
+  ),
+  write("My walks could not be loaded. Show a calm message that says what went wrong."),
+  write(
+    "My plant collection has no plants yet. Say so with a leaf symbol and explain that added plants will appear here.",
+  ),
 ] satisfies Probe[];
 
 const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;

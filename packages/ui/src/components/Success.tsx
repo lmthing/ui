@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   icon,
   messageLabels,
   placeholderDetail,
@@ -56,28 +57,14 @@ export const examples = [
   { style: "toast", title: "Walk cancelled", icon: "circle_check", undo: true },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Success");
 export const probes = [
-  {
-    kind: "choose",
-    need: "After I book a dog walk, show a dedicated screen saying it worked and when the walk is",
-    expect: "Success",
-  },
-  {
-    kind: "choose",
-    need: "Make an urgent warning stand out at the top because today's dog walk has been cancelled",
-    expect: "Banner",
-  },
-  {
-    kind: "write",
-    brief:
-      "I just booked a walk for Clover tomorrow at 09:00. Show that the booking worked, with a check symbol and the dog and time underneath.",
-    expect: "Success",
-  },
-  {
-    kind: "write",
-    brief: "A small message at the bottom saying Walk cancelled, with a way to undo it",
-    expect: "Success",
-  },
+  choose("After I book a dog walk, show a dedicated screen saying it worked and when the walk is"),
+  choose("Make an urgent warning stand out at the top because today's dog walk has been cancelled", "Banner"),
+  write(
+    "I just booked a walk for Clover tomorrow at 09:00. Show that the booking worked, with a check symbol and the dog and time underneath.",
+  ),
+  write("A small message at the bottom saying Walk cancelled, with a way to undo it"),
 ] satisfies Probe[];
 
 export function Success({ style, title, sub, icon, undo }: Props<typeof props, typeof meta>) {

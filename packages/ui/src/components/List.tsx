@@ -1,5 +1,8 @@
 import { z } from "zod";
 import {
+  probesFor,
+  sampleWalkRows,
+  samplePlantRows,
   detailOf,
   icon,
   itemsOf,
@@ -14,7 +17,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitEmpty, KitListItem, KitSkeleton, KitStrip, useComponentState } from "../kit";
+import { KitCard, KitEmpty, KitGrid, KitListItem, KitSkeleton, KitStrip, useComponentState } from "../kit";
 
 export const meta = {
   id: "List",
@@ -112,29 +115,11 @@ export const examples = [
   },
   {
     style: "cards",
-    rows: [
-      { title: "Morning park walk", meta: "09:00 · two dogs", icon: "dog", trail: "value", value: "£18" },
-      {
-        title: "River walk",
-        meta: "14:30 · one dog",
-        icon: "clock",
-        trail: "badge",
-        value: "Booked",
-      },
-    ],
+    rows: sampleWalkRows,
   },
   {
     style: "plain",
-    rows: [
-      { title: "Aloe", meta: "Bedroom · water Friday", photo: "lib:plants", trail: "none" },
-      {
-        title: "Pothos",
-        meta: "Hall · due Sunday",
-        photo: "lib:plants",
-        trail: "chevron",
-        goto: "pothos",
-      },
-    ],
+    rows: samplePlantRows,
   },
   {
     style: "shelf",
@@ -160,32 +145,17 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("List");
 export const probes = [
-  { kind: "choose", need: "Show my plants and let me tap one", expect: "List" },
-  { kind: "choose", need: "Show the room and water interval of one plant", expect: "KeyValue" },
-  { kind: "write", brief: "Three plants with their rooms and water due today", expect: "List" },
-  {
-    kind: "write",
-    brief: "A sideways row of three plant photo cards to swipe through: Fern, Monstera and Basil",
-    expect: "List",
-  },
-  {
-    kind: "write",
-    brief:
-      "Two questions people ask, each opening to show its answer: how often to water, and whether walks can be moved",
-    expect: "List",
-  },
-  {
-    kind: "write",
-    brief: "A leaderboard of the three highest scores, Anna 412, Ben 380 and me on 351, ranked in order",
-    expect: "List",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Mark Fern as watered",
-    expect: { address: "l1/r1/trail", action: "toggle" },
-  },
+  choose("Show my plants and let me tap one"),
+  choose("Show the room and water interval of one plant", "KeyValue"),
+  write("Three plants with their rooms and water due today"),
+  write("A sideways row of three plant photo cards to swipe through: Fern, Monstera and Basil"),
+  write(
+    "Two questions people ask, each opening to show its answer: how often to water, and whether walks can be moved",
+  ),
+  write("A leaderboard of the three highest scores, Anna 412, Ben 380 and me on 351, ranked in order"),
+  read("Mark Fern as watered", { address: "l1/r1/trail", action: "toggle" }),
 ] satisfies Probe[];
 
 const surfaceOf = (style: Props<typeof props, typeof meta>["style"]) =>
@@ -208,7 +178,13 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
   const items = rows.map((row, index) => <KitListItem key={row.id} row={row} style={style} index={index} />);
   return (
     <KitCard style={surface} part="root" padded={style === "shelf"}>
-      {style === "shelf" ? <KitStrip>{items}</KitStrip> : items}
+      {style !== "shelf" ? (
+        items
+      ) : rows.length === 2 ? (
+        <KitGrid columns={2}>{items}</KitGrid>
+      ) : (
+        <KitStrip>{items}</KitStrip>
+      )}
     </KitCard>
   );
 }

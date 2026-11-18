@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   placeholderTitle,
   placeholderValue,
@@ -62,22 +63,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Sparkline");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show my plant's soil moisture at 18% now and how it has been falling recently",
-    expect: "Sparkline",
-  },
-  {
-    kind: "choose",
-    need: "Show the amounts I earned on each day this week so I can compare the days",
-    expect: "Bars",
-  },
-  {
-    kind: "write",
-    brief: "Soil moisture is 18% now, down from readings of 42, 35 and 28; warn me it is drying out",
-    expect: "Sparkline",
-  },
+  choose("Show my plant's soil moisture at 18% now and how it has been falling recently"),
+  choose("Show the amounts I earned on each day this week so I can compare the days", "Bars"),
+  write("Soil moisture is 18% now, down from readings of 42, 35 and 28; warn me it is drying out"),
 ] satisfies Probe[];
 
 export function Sparkline({ label, value, points, tone }: Props<typeof props, typeof meta>) {

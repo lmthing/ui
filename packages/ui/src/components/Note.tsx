@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   placeholderDetail,
@@ -58,22 +59,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Note");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Add a little supporting line explaining that ferns prefer indirect light",
-    expect: "Note",
-  },
-  {
-    kind: "choose",
-    need: "Make an urgent warning stand out now that today's dog walk has been cancelled",
-    expect: "Banner",
-  },
-  {
-    kind: "write",
-    brief: "Add a small reminder to keep Clover on a short lead near the road",
-    expect: "Note",
-  },
+  choose("Add a little supporting line explaining that ferns prefer indirect light"),
+  choose("Make an urgent warning stand out now that today's dog walk has been cancelled", "Banner"),
+  write("Add a small reminder to keep Clover on a short lead near the road"),
 ] satisfies Probe[];
 
 export function Note({ style, text, tone, icon }: Props<typeof props, typeof meta>) {

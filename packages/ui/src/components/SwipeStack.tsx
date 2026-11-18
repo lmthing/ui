@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   itemsOf,
   photo,
@@ -72,29 +73,14 @@ export const examples = [
   { cards: [{ title: "Aloe" }, { title: "Pothos" }] },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("SwipeStack");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Help me pick plants to adopt, showing one at a time so I can swipe to keep or skip",
-    expect: "SwipeStack",
-  },
-  {
-    kind: "choose",
-    need: "Show four plant pictures together with their names underneath so I can browse them",
-    expect: "Gallery",
-  },
-  {
-    kind: "write",
-    brief:
-      "Pick dogs for a group walk, one at a time: Clover with a dog photo and Ready for a group walk, Pip with Gentle park companion, and Milo",
-    expect: "SwipeStack",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Skip this one",
-    expect: { address: "s1/r1", action: "swipe" },
-  },
+  choose("Help me pick plants to adopt, showing one at a time so I can swipe to keep or skip"),
+  choose("Show four plant pictures together with their names underneath so I can browse them", "Gallery"),
+  write(
+    "Pick dogs for a group walk, one at a time: Clover with a dog photo and Ready for a group walk, Pip with Gentle park companion, and Milo",
+  ),
+  read("Skip this one", { address: "s1/r1", action: "swipe" }),
 ] satisfies Probe[];
 
 export function SwipeStack({ cards }: Props<typeof props, typeof meta>) {

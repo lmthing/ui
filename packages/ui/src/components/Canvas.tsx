@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   placeholderTitle,
   text,
   thingOf,
@@ -37,22 +38,11 @@ export const examples = [
   { caption: "A game: guess the dog breed" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Canvas");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me draw with my finger to sketch where each plant goes",
-    expect: "Canvas",
-  },
-  {
-    kind: "choose",
-    need: "My plant collection has no plants yet; show a calm message explaining that",
-    expect: "Empty",
-  },
-  {
-    kind: "write",
-    brief: "A game where I guess the dog breed and earn points for correct answers",
-    expect: "Canvas",
-  },
+  choose("Let me draw with my finger to sketch where each plant goes"),
+  choose("My plant collection has no plants yet; show a calm message explaining that", "Empty"),
+  write("A game where I guess the dog breed and earn points for correct answers"),
 ] satisfies Probe[];
 
 export function Canvas({ caption }: Props<typeof props, typeof meta>) {

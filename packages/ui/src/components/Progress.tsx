@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   goalLine,
   itemsOf,
   placeholderTitle,
@@ -88,28 +89,15 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Progress");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how far along I am with protein, carbs and fats against my daily limits, all together",
-    expect: "Progress",
-  },
-  {
-    kind: "choose",
-    need: "Show how close I am to my one goal of watering all five plants today, as a single big ring",
-    expect: "Ring",
-  },
-  {
-    kind: "write",
-    brief: "Two bars: plants watered this week 3 of 5, and plants fed this month 1 of 4",
-    expect: "Progress",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open the hours bar",
-    expect: { address: "p1/r2", action: "press" },
-  },
+  choose("Show how far along I am with protein, carbs and fats against my daily limits, all together"),
+  choose(
+    "Show how close I am to my one goal of watering all five plants today, as a single big ring",
+    "Ring",
+  ),
+  write("Two bars: plants watered this week 3 of 5, and plants fed this month 1 of 4"),
+  read("Open the hours bar", { address: "p1/r2", action: "press" }, 1),
 ] satisfies Probe[];
 
 export function Progress({ style, bars }: Props<typeof props, typeof meta>) {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   badgeLine,
   icon,
@@ -94,19 +95,10 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { read } = probesFor("TabBar");
 export const probes = [
-  {
-    kind: "read",
-    screen: 0,
-    task: "Open the care schedule",
-    expect: { address: "t1/r2", action: "select" },
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Go to my clients",
-    expect: { address: "t1/r2", action: "select" },
-  },
+  read("Open the care schedule", { address: "t1/r2", action: "select" }),
+  read("Go to my clients", { address: "t1/r2", action: "select" }, 1),
 ] satisfies Probe[];
 
 export function TabBar({ tabs, at }: Props<typeof props, typeof meta>) {

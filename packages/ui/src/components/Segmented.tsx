@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   itemsOf,
   placeholderTitle,
   text,
@@ -55,28 +56,12 @@ export const examples = [
   { options: [{ label: "Upcoming" }, { label: "Past" }], at: 1 },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Segmented");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Switch this care schedule between today, this week and all dates, showing one view at a time",
-    expect: "Segmented",
-  },
-  {
-    kind: "choose",
-    need: "Filter my plants by room, letting me keep kitchen and bathroom selected together",
-    expect: "Chips",
-  },
-  {
-    kind: "write",
-    brief: "Switch the care schedule between Today, Week and All, starting with Today",
-    expect: "Segmented",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Show the week",
-    expect: { address: "s1/r2", action: "select" },
-  },
+  choose("Switch this care schedule between today, this week and all dates, showing one view at a time"),
+  choose("Filter my plants by room, letting me keep kitchen and bathroom selected together", "Chips"),
+  write("Switch the care schedule between Today, Week and All, starting with Today"),
+  read("Show the week", { address: "s1/r2", action: "select" }),
 ] satisfies Probe[];
 
 export function Segmented({ options, at }: Props<typeof props, typeof meta>) {

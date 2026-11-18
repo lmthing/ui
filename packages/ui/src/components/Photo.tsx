@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   photo,
   placeholderTitle,
   text,
@@ -48,22 +49,11 @@ export const examples = [
   { style: "tall", photo: "lib:plants" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Photo");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show just one shot of my fern, with a short description underneath",
-    expect: "Photo",
-  },
-  {
-    kind: "choose",
-    need: "Show six shots of my dogs together so I can browse them",
-    expect: "Gallery",
-  },
-  {
-    kind: "write",
-    brief: "Show one shot of my fern in a landscape crop, with Fern in morning light underneath",
-    expect: "Photo",
-  },
+  choose("Show just one shot of my fern, with a short description underneath"),
+  choose("Show six shots of my dogs together so I can browse them", "Gallery"),
+  write("Show one shot of my fern in a landscape crop, with Fern in morning light underneath"),
 ] satisfies Probe[];
 
 export function Photo({ style, photo, caption }: Props<typeof props, typeof meta>) {

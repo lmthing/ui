@@ -1,10 +1,6 @@
+import { checkWeight, checkLimits, checkNeighbours, checkPlaceholders, checkCore } from "./checks";
 import type { ScreenLike } from "../agent";
-import { checkWeight } from "./weight";
-import { checkLimits } from "./limits";
-import { checkNeighbours } from "./neighbours";
-import { checkPlaceholders } from "./placeholders";
-import { checkCore } from "./core";
-import { definitionsOf, resolveDefinition, type RegistryLike, type Issue } from "./types";
+import { definitionsOf, resolveDefinition, type RegistryLike, type Issue } from "./shared";
 /** Reports stable issues and leaves the caller's screen untouched. */
 export function checkScreen(
   screen: ScreenLike,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   photoLabels,
   placeholderDetail,
@@ -45,28 +46,12 @@ export const examples = [
   { kind: "scan", hint: "Scan the dog's tag" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Camera");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me aim at my fern's leaves and take a new shot",
-    expect: "Camera",
-  },
-  {
-    kind: "choose",
-    need: "Show an existing shot of my fern with a short caption underneath",
-    expect: "Photo",
-  },
-  {
-    kind: "write",
-    brief: "Let me aim at my plant's leaves and take a new shot, with a short instruction",
-    expect: "Camera",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Take the photo",
-    expect: { address: "c1/shutter", action: "press" },
-  },
+  choose("Let me aim at my fern's leaves and take a new shot"),
+  choose("Show an existing shot of my fern with a short caption underneath", "Photo"),
+  write("Let me aim at my plant's leaves and take a new shot, with a short instruction"),
+  read("Take the photo", { address: "c1/shutter", action: "press" }),
 ] satisfies Probe[];
 
 export function Camera({ kind, hint }: Props<typeof props, typeof meta>) {

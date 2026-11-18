@@ -164,6 +164,9 @@ describe("Hero fallback and metadata", () => {
     expect(examples.map((example) => example.style)).toEqual(["number", "photo", "statement"]);
     expect(examples[0]).toMatchObject({ title: "2", sub: "plants need water", tone: "warn" });
   });
+});
+
+describe("Hero fallback and metadata", () => {
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Hero");

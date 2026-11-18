@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   icon,
   itemsOf,
   placeholderTitle,
@@ -76,24 +77,12 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Chips");
 export const probes = [
-  { kind: "choose", need: "Show plants in only the rooms I pick", expect: "Chips" },
-  {
-    kind: "choose",
-    need: "Switch between the upcoming walks view and the completed walks view",
-    expect: "Segmented",
-  },
-  {
-    kind: "write",
-    brief: "Let me choose a walk length: 30 min selected, 45 min or 60 min",
-    expect: "Chips",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Show only kitchen plants",
-    expect: { address: "c1/r3", action: "toggle" },
-  },
+  choose("Show plants in only the rooms I pick"),
+  choose("Switch between the upcoming walks view and the completed walks view", "Segmented"),
+  write("Let me choose a walk length: 30 min selected, 45 min or 60 min"),
+  read("Show only kitchen plants", { address: "c1/r3", action: "toggle" }),
 ] satisfies Probe[];
 
 export function Chips({ style, items }: Props<typeof props, typeof meta>) {

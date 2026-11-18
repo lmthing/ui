@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   goalLine,
   placeholderTitle,
@@ -52,22 +53,11 @@ export const examples = [
   { style: "lg", value: 9, of: 12, label: "Walks this week", sub: "3 to go" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Ring");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show three of the five plants I planned to water today as one amount completed out of the target",
-    expect: "Ring",
-  },
-  {
-    kind: "choose",
-    need: "Show my total plants, the number watered today and the number due together",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief: "Show three of five plants watered today, labelled Watered today",
-    expect: "Ring",
-  },
+  choose("Show three of the five plants I planned to water today as one amount completed out of the target"),
+  choose("Show my total plants, the number watered today and the number due together", "Stats"),
+  write("Show three of five plants watered today, labelled Watered today"),
 ] satisfies Probe[];
 
 export function Ring({ style, value, of, label, sub }: Props<typeof props, typeof meta>) {

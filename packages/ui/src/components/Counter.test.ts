@@ -117,6 +117,9 @@ describe("Counter fallback and metadata", () => {
       'c1 Counter 2 — "One less" (decrement) — "One more" (increment) — "Water glasses for fern" [c1/minus decrement] [c1/plus increment]',
     ]);
   });
+});
+
+describe("Counter fallback and metadata", () => {
   it("has the required metadata and choose, write and read probe blocks", () => {
     expect(meta).toMatchObject({ tier: "phone", group: "data", region: "body", weight: 2 });
     expect(meta.realPath).not.toBe("");

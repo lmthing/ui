@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   closeLabel,
   icon,
   itemsOf,
@@ -140,29 +141,16 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Sheet");
 export const probes = [
-  {
-    kind: "choose",
-    need: "When I tap a walk, show a panel over the list with its time, place and length, without leaving the screen",
-    expect: "Sheet",
-  },
-  {
-    kind: "choose",
-    need: "Show a short strip at the top of the screen warning that today's walk was cancelled",
-    expect: "Banner",
-  },
-  {
-    kind: "write",
-    brief:
-      "A panel titled Fern offering three actions: Edit, Share and Remove, with Remove marked as dangerous",
-    expect: "Sheet",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Choose Hall",
-    expect: { address: "s1/r3", action: "select" },
-  },
+  choose(
+    "When I tap a walk, show a panel over the list with its time, place and length, without leaving the screen",
+  ),
+  choose("Show a short strip at the top of the screen warning that today's walk was cancelled", "Banner"),
+  write(
+    "A panel titled Fern offering three actions: Edit, Share and Remove, with Remove marked as dangerous",
+  ),
+  read("Choose Hall", { address: "s1/r3", action: "select" }, 1),
 ] satisfies Probe[];
 
 export function Sheet({ style, title, sub, items, at, action }: Props<typeof props, typeof meta>) {

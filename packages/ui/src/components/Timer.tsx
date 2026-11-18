@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   clockLine,
   clock,
@@ -83,34 +84,13 @@ export const examples = [
   { style: "until", label: "Our wedding day", until: "2030-06-14", at: "14:00" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Timer");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how much time remains in the orchid's ten-minute soak, with controls to begin and end it",
-    expect: "Timer",
-  },
-  {
-    kind: "choose",
-    need: "Let me add or subtract one from the number of dogs on a walk",
-    expect: "Counter",
-  },
-  {
-    kind: "write",
-    brief:
-      "Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it",
-    expect: "Timer",
-  },
-  {
-    kind: "write",
-    brief: "Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day",
-    expect: "Timer",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Start the timer",
-    expect: { address: "t1/start", action: "start" },
-  },
+  choose("Show how much time remains in the orchid's ten-minute soak, with controls to begin and end it"),
+  choose("Let me add or subtract one from the number of dogs on a walk", "Counter"),
+  write("Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it"),
+  write("Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day"),
+  read("Start the timer", { address: "t1/start", action: "start" }),
 ] satisfies Probe[];
 
 export function Timer({ style, label, seconds, ...rest }: Props<typeof props, typeof meta>) {

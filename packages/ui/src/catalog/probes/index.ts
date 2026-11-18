@@ -1,3 +1,4 @@
+export { probesFor, sampleWalks, sampleWalkRows, samplePlantRows } from "./fixtures";
 export type {
   CallModel,
   ChooseProbe,
@@ -18,8 +19,7 @@ export {
   scoreComposition,
   compositionRubricPrompt,
   type ComposeResult,
-} from "./compose";
-export { runPackProbes } from "./run-pack-probes";
-export { scorePack } from "./score-pack";
-export { composeFormat } from "./compose-format";
+} from "./composition";
+export { runPackProbes, scorePack } from "./packs";
+export { composeFormat } from "./composition";
 export { mergePairs, mergeDecision } from "./merge-pairs";

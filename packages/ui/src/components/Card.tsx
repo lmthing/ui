@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   photo,
@@ -94,42 +95,38 @@ export const examples = [
   { style: "plain", title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Card");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show one tappable preview of my fern with a short care detail, so I can open it",
-    expect: "Card",
-  },
-  { kind: "choose", need: "Show several plants and let me tap each one to open it", expect: "List" },
-  {
-    kind: "write",
-    brief: "One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern",
-    expect: "Card",
-  },
-  {
-    kind: "write",
-    brief: "One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
-    expect: "Card",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Open the fern card",
-    expect: { address: "c1", action: "press" },
-  },
+  choose("Show one tappable preview of my fern with a short care detail, so I can open it"),
+  choose("Show several plants and let me tap each one to open it", "List"),
+  write("One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern"),
+  write("One card for the evening walk with Pip at 18:30, with a small Due today label in the corner"),
+  read("Open the fern card", { address: "c1", action: "press" }),
 ] satisfies Probe[];
 
-export function Card({
-  style,
-  title,
-  body,
-  meta: detail,
-  badge,
-  icon,
-  photo,
-  tone,
-  goto,
-}: Props<typeof props, typeof meta>) {
+function CardText({ title, body, meta: detail, badge }: Props<typeof props, typeof meta>) {
+  return (
+    <>
+      {badge && <KitTrail kind="badge" value={badge} part="badge" />}
+      <KitText role="heading" part="title">
+        {title}
+      </KitText>
+      {body && (
+        <KitText role="body" tone="muted" part="body">
+          {body}
+        </KitText>
+      )}
+      {detail && (
+        <KitText role="caption" tone="muted" part="meta">
+          {detail}
+        </KitText>
+      )}
+    </>
+  );
+}
+
+export function Card(input: Props<typeof props, typeof meta>) {
+  const { style, title, icon, photo, tone, goto } = input;
   const state = useComponentState();
   const { resolvePhoto } = useKit();
   const media = style === "media";
@@ -161,20 +158,7 @@ export function Card({
         <>
           {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
           <KitContent lead={lead} lineRole="heading" leadingAlign={photo && !media ? "row" : "line"}>
-            {badge && <KitTrail kind="badge" value={badge} part="badge" />}
-            <KitText role="heading" part="title">
-              {title}
-            </KitText>
-            {body && (
-              <KitText role="body" tone="muted" part="body">
-                {body}
-              </KitText>
-            )}
-            {detail && (
-              <KitText role="caption" tone="muted" part="meta">
-                {detail}
-              </KitText>
-            )}
+            <CardText {...input} />
           </KitContent>
         </>
       )}

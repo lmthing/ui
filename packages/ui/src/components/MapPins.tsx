@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   itemsOf,
   placeholderTitle,
   screenId,
@@ -69,28 +70,17 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("MapPins");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show where the dog pick-up points are around the neighbourhood, each marked with a number and a matching name below",
-    expect: "MapPins",
-  },
-  {
-    kind: "choose",
-    need: "Show the places on our walk in the order we visit: Home, Park gate, Pond, then Home again",
-    expect: "Route",
-  },
-  {
-    kind: "write",
-    brief: "Show nearby plant shops: Greenhouse plant shop, Riverside nursery and Garden centre",
-    expect: "MapPins",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open the park gate",
-    expect: { address: "m1/r1", action: "press" },
-  },
+  choose(
+    "Show where the dog pick-up points are around the neighbourhood, each marked with a number and a matching name below",
+  ),
+  choose(
+    "Show the places on our walk in the order we visit: Home, Park gate, Pond, then Home again",
+    "Route",
+  ),
+  write("Show nearby plant shops: Greenhouse plant shop, Riverside nursery and Garden centre"),
+  read("Open the park gate", { address: "m1/r1", action: "press" }, 1),
 ] satisfies Probe[];
 
 export function MapPins({ pins }: Props<typeof props, typeof meta>) {

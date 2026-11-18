@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   placeholderDetail,
@@ -55,28 +56,12 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Banner");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Make an urgent warning stand out now that today's dog walk has been cancelled",
-    expect: "Banner",
-  },
-  {
-    kind: "choose",
-    need: "Add a little supporting line explaining that ferns prefer indirect light",
-    expect: "Note",
-  },
-  {
-    kind: "write",
-    brief: "Warn me that today's 4pm dog walk is cancelled and let me open walk_details",
-    expect: "Banner",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open the banner",
-    expect: { address: "b1", action: "press" },
-  },
+  choose("Make an urgent warning stand out now that today's dog walk has been cancelled"),
+  choose("Add a little supporting line explaining that ferns prefer indirect light", "Note"),
+  write("Warn me that today's 4pm dog walk is cancelled and let me open walk_details"),
+  read("Open the banner", { address: "b1", action: "press" }, 1),
 ] satisfies Probe[];
 
 export function Banner({ text, icon, tone, goto }: Props<typeof props, typeof meta>) {

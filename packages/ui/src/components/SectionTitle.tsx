@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   placeholderTitle,
   screenId,
@@ -46,28 +47,12 @@ export const examples = [
   { text: "Today's walks" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("SectionTitle");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Put a short label just above the group of plants that need water",
-    expect: "SectionTitle",
-  },
-  {
-    kind: "choose",
-    need: "Put the name of this screen at the top with a shortcut to add a plant",
-    expect: "Header",
-  },
-  {
-    kind: "write",
-    brief: "Label the plants needing water Needs water, with a See all link to plants",
-    expect: "SectionTitle",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "See all plants",
-    expect: { address: "s1/link", action: "press" },
-  },
+  choose("Put a short label just above the group of plants that need water"),
+  choose("Put the name of this screen at the top with a shortcut to add a plant", "Header"),
+  write("Label the plants needing water Needs water, with a See all link to plants"),
+  read("See all plants", { address: "s1/link", action: "press" }),
 ] satisfies Probe[];
 
 export function SectionTitle({ text, link }: Props<typeof props, typeof meta>) {

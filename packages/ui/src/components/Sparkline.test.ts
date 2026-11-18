@@ -134,6 +134,9 @@ describe("Sparkline fallback and metadata", () => {
     expect(meta).not.toHaveProperty("items");
     for (const example of examples) expect(affordancesOf(meta, props.parse(example), "s1")).toEqual([]);
   });
+});
+
+describe("Sparkline fallback and metadata", () => {
   it.each([
     { points: [1, 2, 3], direction: "rising" },
     { points: [3, 2, 1], direction: "falling" },
