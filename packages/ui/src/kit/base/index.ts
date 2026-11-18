@@ -1,4 +1,7 @@
 export { KitCard } from "./surface";
+export { KitNumberPad } from "./keys";
+export { KitSetRow } from "./composition";
+export { KitJar } from "./data";
 export { KitOverlay } from "./surface";
 export { KitDay, KitDayMark } from "./time";
 export { KitWeekGrid, KitWeekStrip } from "./time";

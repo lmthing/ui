@@ -1,6 +1,6 @@
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
-import { usePart } from "../../part";
+import { useComponentState, usePart } from "../../part";
 import { useSlider } from "./use-slider";
 
 type SliderProps = {
@@ -9,12 +9,18 @@ type SliderProps = {
   min?: number;
   max?: number;
   part?: string;
+  step?: number;
+  disabled?: boolean;
 };
-function SliderTrack({ share }: { share: number }) {
+function SliderTrack({ share, inactive }: { share: number; inactive: boolean }) {
   const thumb = size.icon.lg;
   return (
     <XStack height={space.xs + space.xs / 2} borderRadius={radius.pill} backgroundColor="$line" aria-hidden>
-      <YStack width={`${share * 100}%`} borderRadius={radius.pill} backgroundColor="$accent" />
+      <YStack
+        width={`${share * 100}%`}
+        borderRadius={radius.pill}
+        backgroundColor={inactive ? "$muted" : "$accent"}
+      />
       <YStack
         position="absolute"
         left={`${share * 100}%`}
@@ -25,16 +31,34 @@ function SliderTrack({ share }: { share: number }) {
         borderRadius={radius.pill}
         backgroundColor="$surface"
         borderWidth={component.base.strongBorder}
-        borderColor="$accent"
+        borderColor={inactive ? "$muted" : "$accent"}
       />
     </XStack>
   );
 }
 
 /** An addressed themed slider with native actions and web keyboard/pointer controls. */
-export function KitSlider({ value = 0, label, min = 0, max = 10, part = "field" }: SliderProps) {
+export function KitSlider({
+  value = 0,
+  label,
+  min = 0,
+  max = 10,
+  part = "field",
+  step = 1,
+  disabled = false,
+}: SliderProps) {
   const address = usePart(part);
-  const { width, handlers } = useSlider({ address: address.testID, part, value, min, max });
+  const loading = useComponentState() === "loading";
+  const inactive = disabled || loading;
+  const { width, handlers } = useSlider({
+    address: address.testID,
+    part,
+    value,
+    min,
+    max,
+    step,
+    disabled: inactive,
+  });
   const clamped = Math.min(max, Math.max(min, value));
   const share = max > min ? (clamped - min) / (max - min) : 0;
   return (
@@ -48,14 +72,18 @@ export function KitSlider({ value = 0, label, min = 0, max = 10, part = "field" 
       height={size.control.md}
       justifyContent="center"
       paddingHorizontal={size.icon.lg / 2}
-      accessibilityRole="adjustable"
-      {...({ role: "slider" } as object)}
-      aria-label={label}
+      accessibilityRole={loading ? undefined : "adjustable"}
+      {...({ role: loading ? undefined : "slider" } as object)}
+      aria-label={loading ? undefined : label}
+      aria-busy={loading || undefined}
+      aria-hidden={loading || undefined}
+      aria-disabled={disabled || undefined}
+      {...(inactive ? { tabIndex: -1, accessibilityState: { disabled: true } } : {})}
       aria-valuemin={min}
       aria-valuemax={max}
       aria-valuenow={clamped}
     >
-      <SliderTrack share={share} />
+      <SliderTrack share={share} inactive={inactive} />
     </YStack>
   );
 }
