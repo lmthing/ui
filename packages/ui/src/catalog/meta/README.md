@@ -7,6 +7,7 @@ Built in step U1. Read plan 4.2 first.
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `meta.ts` `Meta`, `SurfaceMeta`, `PackMeta`, `ArchetypeMeta`, `PresetMeta`, `AccentMeta`, `Slot`
+- `pack-ids.ts`, `pack-ids.test.ts`: the 18 pack ids and type checks
 - `props.ts` `Props<S, M>`: the schema's output plus the `id` the validator stamps on each item of `M["items"]["key"]`
 
 Rules:

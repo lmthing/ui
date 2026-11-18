@@ -1,18 +1,17 @@
 # catalog/prompt
 
-Turns definitions into the compact text a model reads.
+Turns definitions into the compact text a model reads. Read plan 4.9 first.
 
-Built in step U1 (entry), U3 (all). Read plan 4.9 first.
-
-Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
-
-- `entry.ts` `buildEntry(def)`: two lines, each under 70 tokens
-- `block.ts` `buildBlock(registry, scope)`
-- `pack-index.ts` `buildPackIndex()`: one line per pack
-- `index.ts`
+Files:
+- `entry.ts`, `entry.test.ts`: `buildEntry(def)`, preserving recorded write entries and component write hints.
+- `block.ts`, `block.test.ts`: `buildBlock(registry, scope)`, core snapshot and fixture pack budgets.
+- `pack-index.ts`, `pack-index.test.ts`: `buildPackIndex(packs)`, one line per pack and fixture snapshot.
+- `estimate-tokens.ts`, `estimate-tokens.test.ts`: deterministic four-code-points-per-token estimate.
+- `index.ts`: folder exports.
 
 Rules:
-
-- Deterministic: fixed order by group then id, no timestamps, so prompt caching holds.
-- Budgets: core block under 3,500 tokens, each pack block under 1,200, core plus any 3 packs under 7,000.
-- Snapshot test for every block. A diff shows exactly what changes in the model's view.
+- Blocks use catalog group order, then id; pack indexes use id order. No timestamps.
+- Code-owned components never appear in choice blocks. Registries supply pack membership.
+- Probe choices keep their recorded order; write entries keep their recorded text.
+- Generated catalog entry wraps `buildPackIndex(packs)` with a no-argument function.
+- Budgets: core under 3,500, each pack under 1,200, core plus any 3 packs under 7,000 estimated tokens.

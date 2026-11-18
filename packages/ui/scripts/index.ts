@@ -16,3 +16,6 @@ export const webResolve = {
   conditions: ["source", "browser", "module", "development|production"],
   extensions: [".web.js", ".web.ts", ".web.tsx", ".mjs", ".js", ".ts", ".tsx", ".json"],
 };
+
+export { probeModels, type ProbeModel } from "./llm.config";
+export { keyOf, readBook, replayCall, writeBook } from "./recordings";

@@ -36,7 +36,7 @@ export function replayCall(component: string, model: string) {
     const reply = hit?.replies?.[sample] ?? (sample === 0 ? hit?.reply : undefined);
     if (reply === undefined)
       throw new Error(
-        `No recording for ${component} on ${model}. Run: pnpm llm:check --component ${component}`,
+        `No recording for ${component} on ${model}. Run: pnpm llm:check ${component.startsWith("pack/") ? `--pack ${component.slice(5)}` : `--component ${component}`}`,
       );
     return reply;
   };

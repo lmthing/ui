@@ -36,4 +36,4 @@ export const archetypes = {
 } as const;
 export type ArchetypeName = keyof typeof archetypes;
 export { defaultLines } from "./defaults";
-export type { ArchetypeMeta, Slot, ComposeProbe } from "./types";
+export type { ArchetypeMeta as CoreArchetypeMeta, Slot as CoreSlot, ComposeProbe } from "./types";

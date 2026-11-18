@@ -11,6 +11,8 @@ Files (exactly these):
 - `confusion.ts` which wrong component won, per component
 - `compose.ts` builds and scores whole-screen probes with `checkScreen`
 - `rubric.ts` the text-first rubric (clarity, focus, flow, content, structure, 1 to 5)
+- `run-pack-probes.ts`, `run-pack-probes.test.ts`: Director prompt and sampled pack runs
+- `score-pack.ts`, `score-pack.test.ts`: exact pack sets, at most three ids
 - `index.ts`
 
 Rules:

@@ -2,7 +2,8 @@ import { URL } from "node:url";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Definition } from "../src/catalog/probes/types";
 import { mergePairs, mergeDecision } from "../src/catalog/probes/merge-pairs";
-import { runProbes } from "../dist/catalog.js";
+import type * as Catalog from "@lmthing/ui/catalog";
+const { runProbes } = (await import(new URL("../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
 import { keyOf, readBook, writeBook, replayCall } from "./recordings";
 import type { ProbeModel } from "./llm.config";
 export async function checkCoreMerges(

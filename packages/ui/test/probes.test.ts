@@ -1,10 +1,10 @@
 // Replays the recorded model replies: every component's probes must pass on every required model.
 // A missing recording fails with the command to run (pnpm llm:check --component <Id>).
 import { describe, expect, it } from "vitest";
-import { createRegistry, runProbes } from "@lmthing/ui/catalog";
-import { probeModels } from "../scripts/llm.config";
+import { createRegistry, runProbes, runPackProbes, packs } from "@lmthing/ui/catalog";
+
 import { existsSync } from "node:fs";
-import { replayCall } from "../scripts/recordings";
+import { probeModels, replayCall } from "../scripts";
 
 const known = (id: string) => existsSync(`${import.meta.dirname}/known/${id}.md`);
 
@@ -23,5 +23,24 @@ describe.each(required)("probes on $id", (model) => {
     const failures = results.filter((result) => result.status === "fail");
     expect(failures.map((f) => `${f.probe.kind}: ${f.detail}`)).toEqual([]);
     expect(results.some((result) => result.status === "pass")).toBe(true);
+  });
+});
+
+describe.each(required)("pack probes on $id", (model) => {
+  it("replays pack recordings with at least 90% accuracy", async () => {
+    const results = [];
+    for (const id of Object.keys(packs))
+      results.push(
+        ...(await runPackProbes({
+          packs,
+          only: [id],
+          samples: model.samples,
+          callModel: replayCall(`pack/${id}`, model.id),
+        })),
+      );
+    if (!results.length) return;
+    expect(
+      results.filter((result) => result.status === "pass").length / results.length,
+    ).toBeGreaterThanOrEqual(0.9);
   });
 });

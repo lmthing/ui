@@ -1,6 +1,15 @@
-export type { CallModel, ChooseProbe, Definition, Probe, ProbeResult, ReadProbe, WriteProbe } from "./types";
+export type {
+  CallModel,
+  ChooseProbe,
+  Definition,
+  PackProbe,
+  Probe,
+  ProbeResult,
+  ReadProbe,
+  WriteProbe,
+} from "./types";
 export { signature } from "./signature";
-export { buildBlock, buildEntry, choosePrompt, readPrompt, writePrompt } from "./prompts";
+export { choosePrompt, readPrompt, writePrompt } from "./prompts";
 export { scoreChoose, scoreRead, scoreWrite } from "./score";
 export { runProbes } from "./run";
 export {
@@ -10,3 +19,5 @@ export {
   compositionRubricPrompt,
   type ComposeResult,
 } from "./compose";
+export { runPackProbes } from "./run-pack-probes";
+export { scorePack } from "./score-pack";

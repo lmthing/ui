@@ -6,7 +6,7 @@ Built in step U1. Read plan 4.6 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
-- `create-registry.ts` `createRegistry({ packs, includeDrafts })`
+- `create-registry.ts`, `create-registry.test.ts`: `registryOf`, scope options and tests
 - `scope.ts` alias resolution inside one scope
 - `index.ts`
 

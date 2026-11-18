@@ -4,18 +4,18 @@ import { checkCoreMerges } from "./core-merges";
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
 // Imports the built data-only catalog (dist/catalog.js): the views need React Native, Node does not have it.
-import type { ProbeResult } from "../src/catalog/probes";
-import type * as Catalog from "../src/entry/catalog";
-import { probeModels, type ProbeModel } from "./llm.config";
-import { keyOf, readBook, replayCall, writeBook } from "./recordings";
+import type { ProbeResult } from "@lmthing/ui/catalog";
+import type * as Catalog from "@lmthing/ui/catalog";
+import { probeModels, type ProbeModel, keyOf, readBook, replayCall, writeBook } from "./index";
 
-const { createRegistry, runProbes } = (await import(
+const { createRegistry, runProbes, runPackProbes, packs } = (await import(
   new URL("../dist/catalog.js", import.meta.url).href
 )) as typeof Catalog;
 
 function arg(name: string) {
   const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] : undefined;
+  const value = index >= 0 ? process.argv[index + 1] : undefined;
+  return value?.startsWith("--") ? undefined : value;
 }
 
 // Transport failures (network, rate limit, server error) are not model answers: retry them with backoff.
@@ -57,7 +57,13 @@ async function azureOnce(model: ProbeModel, prompt: string): Promise<string> {
 function print(model: ProbeModel, results: ProbeResult[]) {
   for (const r of results) {
     const what =
-      r.probe.kind === "read" ? r.probe.task : r.probe.kind === "choose" ? r.probe.need : r.probe.brief;
+      r.probe.kind === "pack"
+        ? r.probe.idea
+        : r.probe.kind === "read"
+          ? r.probe.task
+          : r.probe.kind === "choose"
+            ? r.probe.need
+            : r.probe.brief;
     console.log(
       `${r.status.toUpperCase().padEnd(7)} ${(r.score ?? "").padEnd(4)} ${model.id.padEnd(16)} ${r.component} ${r.probe.kind}: ${what}`,
     );
@@ -66,12 +72,14 @@ function print(model: ProbeModel, results: ProbeResult[]) {
   }
 }
 
-async function runModel(model: ProbeModel, only: string[], replay: boolean) {
+async function runModel(model: ProbeModel, only: string[], replay: boolean, packMode: boolean) {
   const registry = createRegistry({ includeDrafts: true });
-  const ids = only.length ? only : registry.ids;
+  const ids = only.length ? only : packMode ? Object.keys(packs) : registry.ids;
+  const packResults: ProbeResult[] = [];
   let failed = 0;
   for (const id of ids) {
-    const book = readBook(id, model.id);
+    const recording = packMode ? `pack/${id}` : id;
+    const book = readBook(recording, model.id);
     const live = async (prompt: string, sample = 0) => {
       const reply = await azure(model, prompt);
       const key = keyOf(model.id, prompt);
@@ -81,24 +89,36 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean) {
       return reply;
     };
     try {
-      const results = await runProbes({
+      const results = await (packMode ? runPackProbes : runProbes)({
+        packs,
         defs: registry.defs,
-        callModel: replay ? replayCall(id, model.id) : live,
+        callModel: replay ? replayCall(recording, model.id) : live,
         only: [id],
         samples: model.samples,
       });
-      if (!replay) writeBook(id, model.id, book);
+      if (!replay) writeBook(recording, model.id, book);
       print(model, results);
-      if (model.required) failed += results.filter((r) => r.status === "fail").length;
+      if (packMode) packResults.push(...results);
+      else if (model.required) failed += results.filter((r) => r.status === "fail").length;
     } catch (error) {
       console.log(`ERROR   ${model.id.padEnd(16)} ${id}: ${(error as Error).message}`);
       if (model.required) failed += 1;
     }
   }
+  if (packMode) {
+    const accuracy = packResults.length
+      ? packResults.filter((r) => r.status === "pass").length / packResults.length
+      : 1;
+    console.log(
+      `${model.id} pack accuracy: ${packResults.length ? `${(accuracy * 100).toFixed(1)}%` : "skipped (no packs)"}; gate >= 90%`,
+    );
+    if (model.required && accuracy < 0.9) failed++;
+  }
   return failed;
 }
 
-const only = (arg("--component") ?? "").split(",").filter(Boolean);
+const packMode = process.argv.includes("--pack");
+const only = (arg(packMode ? "--pack" : "--component") ?? "").split(",").filter(Boolean);
 const replay = process.argv.includes("--replay");
 let failed = 0;
 if (process.argv.includes("--compose")) {
@@ -115,7 +135,7 @@ if (process.argv.includes("--compose")) {
   );
   failed = result.failures;
 } else {
-  for (const model of probeModels) failed += await runModel(model, only, replay);
+  for (const model of probeModels) failed += await runModel(model, only, replay, packMode);
 }
 console.log(failed ? `\n${failed} failure(s) on required models.` : "\nAll required probes pass.");
 process.exit(failed ? 1 : 0);

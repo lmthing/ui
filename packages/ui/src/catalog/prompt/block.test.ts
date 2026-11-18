@@ -1,0 +1,121 @@
+import { expect, it } from "vitest";
+import { createRegistry } from "@lmthing/ui/catalog";
+import { registryOf } from "../registry";
+import type { Definition } from "../probes";
+import type { PackId } from "../meta";
+import { buildBlock, estimateTokens } from "./index";
+
+const core = createRegistry({ includeDrafts: true });
+const coreDefs: readonly Definition[] = core.defs;
+const block = buildBlock(core, "core");
+
+it("snapshots the real core block", () => {
+  expect(block).toMatchInlineSnapshot(`
+    "- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).
+    - SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).
+    - Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).
+    - Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).
+    - Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).
+    - Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).
+    - Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).
+    - Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).
+    - Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).
+    - KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).
+    - List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).
+    - Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).
+    - People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).
+    - Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).
+    - Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).
+    - Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).
+    - SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).
+    - Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).
+    - Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).
+    - Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).
+    - Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).
+    - MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).
+    - Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).
+    - Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).
+    - Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).
+    - Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).
+    - Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).
+    - Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).
+    - Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).
+    - Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).
+    - Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).
+    - Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).
+    - Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).
+    - Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).
+    - Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).
+    - Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).
+    - Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).
+    - Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).
+    - Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).
+    - Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).
+    - Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).
+    - Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).
+    - Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).
+    - Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo)."
+  `);
+});
+it("keeps the real core under 3,500 estimated tokens", () => {
+  expect(estimateTokens(block)).toBeLessThan(3500);
+});
+
+// Ten entries per fixture pack exercise the planned pack size using real component prose.
+const packs: PackId[] = ["booking", "customers", "money", "places"];
+const components: Record<string, Definition> = {};
+const membership: Record<string, PackId> = {};
+for (const pack of packs) {
+  coreDefs
+    .filter((def) => !def.meta.codeOwned)
+    .slice(0, 10)
+    .forEach((def, i) => {
+      const id = `${pack}${i}`;
+      components[id] = { ...def, meta: { ...def.meta, id } };
+      membership[id] = pack;
+    });
+}
+const registry = registryOf(components, { packs, includeDrafts: true }, membership);
+
+it.each(packs)("keeps fixture pack %s under 1,200 estimated tokens", (pack) => {
+  expect(estimateTokens(buildBlock(registry, pack))).toBeLessThan(1200);
+});
+it.each(packs)("keeps core plus every triple excluding %s under 7,000 tokens", (excluded) => {
+  const combined = [
+    block,
+    ...packs.filter((pack) => pack !== excluded).map((pack) => buildBlock(registry, pack)),
+  ].join("\n");
+  expect(estimateTokens(combined)).toBeLessThan(7000);
+});
+
+it("scopes blocks and sorts by group then id without mutating definitions", () => {
+  const base = core.defs[0]!;
+  const make = (id: string, group: Definition["meta"]["group"], codeOwned = false) => ({
+    ...base,
+    meta: { ...base.meta, id, group, codeOwned },
+  });
+  const defs = [
+    make("Zulu", "content"),
+    make("Owned", "structure", true),
+    make("Beta", "structure"),
+    make("Alpha", "content"),
+    make("Pack", "action"),
+  ];
+  const scoped = registryOf(
+    Object.fromEntries(defs.map((def) => [def.meta.id, def])),
+    { packs: ["booking"], includeDrafts: true },
+    { Pack: "booking" },
+  );
+  const ids = (scope: "core" | PackId) =>
+    buildBlock(scoped, scope)
+      .split("\n")
+      .map((line) => line.split(":")[0]);
+  expect(ids("core")).toEqual(["- Beta", "- Alpha", "- Zulu"]);
+  expect(ids("booking")).toEqual(["- Pack"]);
+  expect(buildBlock(scoped, "money")).toBe("");
+  expect(buildBlock({ ...scoped, defs: [...scoped.defs].reverse() }, "core")).toBe(
+    buildBlock(scoped, "core"),
+  );
+  expect(scoped.defs).toEqual(defs);
+  expect(buildBlock(registryOf(components), "booking")).toBe("");
+});

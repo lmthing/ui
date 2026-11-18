@@ -1,4 +1,6 @@
-import type { ActionSpec, StateName, Tier } from "../types";
+import type { ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
+import type { PackProbe } from "../probes";
+import type { PackId } from "./pack-ids";
 
 export type Meta = {
   id: string;
@@ -16,6 +18,8 @@ export type Meta = {
   /** A part that needs more than the component does (a reply that reaches other people) carries its own tier. */
   partTiers?: Readonly<Record<string, Tier>>;
   realPath: string;
+  dense?: true;
+  confirmParts?: readonly string[];
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
@@ -54,3 +58,24 @@ export type PresetMeta = {
   roles: { light: BaseRoles; dark: BaseRoles };
 };
 export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
+
+export type PackMeta = {
+  id: PackId;
+  name: string;
+  purpose: string;
+  pick: string;
+  example: string;
+  probes: readonly PackProbe[];
+};
+export type Slot = {
+  allow: readonly ComponentId[];
+  required: boolean;
+  min?: number;
+  max?: number;
+};
+export type ArchetypeMeta = {
+  id: string;
+  job: string;
+  layouts: Record<string, { recipe: readonly Slot[]; defaults: readonly Component[] }>;
+  defaultLayout: string;
+};
