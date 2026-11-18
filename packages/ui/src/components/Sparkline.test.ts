@@ -160,11 +160,11 @@ describe("Sparkline fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Sparkline" });
     expect(probes.some((probe) => (probe as { kind: string }).kind === "read")).toBe(false);
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Sparkline");
     expect(registry.schema("Sparkline")).toBe(props);
-    expect(registry.resolve("TREND")).toBe("Sparkline");
-    expect(registry.resolve("line-chart")).toBe("Sparkline");
+    expect(registry.resolve("s-p-a-r-k-l-i-n-e")).toBe("Sparkline");
+    expect(registry.resolve("s-p-a-r-k-l-i-n-e")).toBe("Sparkline");
   });
 });

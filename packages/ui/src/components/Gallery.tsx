@@ -37,7 +37,6 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
-  aliases: ["album", "photogrid", "filmstrip", "slideshow"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

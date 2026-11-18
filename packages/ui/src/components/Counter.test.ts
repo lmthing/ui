@@ -132,12 +132,12 @@ describe("Counter fallback and metadata", () => {
       expect: { address: "c1/plus", action: "increment" },
     });
   });
-  it("registers its schema and case-tolerant aliases automatically", () => {
+  it("registers its schema and case-tolerant ids automatically", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Counter");
     expect(registry.schema("Counter")).toBe(props);
-    expect(registry.resolve("TALLY")).toBe("Counter");
-    expect(registry.resolve("quantity")).toBe("Counter");
+    expect(registry.resolve("c-o-u-n-t-e-r")).toBe("Counter");
+    expect(registry.resolve("c-o-u-n-t-e-r")).toBe("Counter");
   });
 });
 

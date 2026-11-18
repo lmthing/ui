@@ -38,18 +38,6 @@ export const meta = {
     // Rows link in most styles and open in place in expand; `root` carries which.
     when: { trail: { trail: "toggle" }, "root.press": { root: "press" }, "root.toggle": { root: "toggle" } },
   },
-  aliases: [
-    "listview",
-    "table",
-    "rows",
-    "items",
-    "shelf",
-    "rail",
-    "accordion",
-    "faq",
-    "leaderboard",
-    "ranking",
-  ],
 } as const satisfies Meta;
 
 export const props = z

@@ -9,6 +9,7 @@ export * from "./tokens";
 export * from "./themes";
 export * from "./registry";
 export * from "./prompt";
+export * from "./format";
 export * from "./probes";
 export * from "./lines";
 export * from "./agent";

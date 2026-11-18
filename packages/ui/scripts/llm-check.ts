@@ -4,9 +4,9 @@ import { checkCoreMerges } from "./core-merges";
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
 // Imports the built data-only catalog (dist/catalog.js): the views need React Native, Node does not have it.
-import type { ProbeResult } from "@lmthing/ui/catalog";
+import type { ProbeResult, WriterFormat } from "@lmthing/ui/catalog";
 import type * as Catalog from "@lmthing/ui/catalog";
-import { probeModels, type ProbeModel, keyOf, readBook, replayCall, writeBook } from "./index";
+import { probeModels, type ProbeModel, keyOf, readBook, replayCall, writeBook, azure } from "./index";
 
 const { createRegistry, runProbes, runPackProbes, packs } = (await import(
   new URL("../dist/catalog.js", import.meta.url).href
@@ -16,42 +16,6 @@ function arg(name: string) {
   const index = process.argv.indexOf(name);
   const value = index >= 0 ? process.argv[index + 1] : undefined;
   return value?.startsWith("--") ? undefined : value;
-}
-
-// Transport failures (network, rate limit, server error) are not model answers: retry them with backoff.
-async function azure(model: ProbeModel, prompt: string): Promise<string> {
-  for (let attempt = 1; ; attempt++) {
-    try {
-      return await azureOnce(model, prompt);
-    } catch (error) {
-      const message = (error as Error).message;
-      const transient = /fetch failed|ECONN|ETIMEDOUT|429|5\d\d|high demand|unavailable/i.test(message);
-      if (!transient || attempt >= 4) throw error;
-      await new Promise((resolve) => setTimeout(resolve, 2000 * 2 ** attempt));
-    }
-  }
-}
-
-async function azureOnce(model: ProbeModel, prompt: string): Promise<string> {
-  const endpoint = process.env.AZURE_OPENAI_ENDPOINT?.replace(/\/$/, "");
-  const key = process.env.AZURE_OPENAI_API_KEY;
-  if (!endpoint || !key) throw new Error("AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY must be set");
-  const response = await fetch(`${endpoint}/openai/v1/chat/completions`, {
-    method: "POST",
-    headers: { "api-key": key, "content-type": "application/json" },
-    body: JSON.stringify({
-      model: model.deployment,
-      messages: [{ role: "user", content: prompt }],
-      max_completion_tokens: model.maxTokens,
-    }),
-  });
-  const body = (await response.json()) as {
-    choices?: { message?: { content?: string } }[];
-    error?: { message?: string };
-  };
-  if (!response.ok)
-    throw new Error(`unavailable ${response.status}: ${body.error?.message?.slice(0, 80) ?? ""}`);
-  return body.choices?.[0]?.message?.content ?? "";
 }
 
 function print(model: ProbeModel, results: ProbeResult[]) {
@@ -80,12 +44,12 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean, pack
   for (const id of ids) {
     const recording = packMode ? `pack/${id}` : id;
     const book = readBook(recording, model.id);
-    const live = async (prompt: string, sample = 0) => {
-      const reply = await azure(model, prompt);
-      const key = keyOf(model.id, prompt);
+    const live = async (prompt: string, sample = 0, format?: WriterFormat) => {
+      const reply = await azure(model, prompt, format);
+      const key = keyOf(model.id, prompt, format);
       const replies = [...(sample === 0 ? [] : (book[key]?.replies ?? []))];
       replies[sample] = reply;
-      book[key] = { prompt, reply: replies[0] ?? reply, replies };
+      book[key] = { prompt, ...(format ? { format } : {}), reply: replies[0] ?? reply, replies };
       return reply;
     };
     try {
@@ -96,13 +60,14 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean, pack
         only: [id],
         samples: model.samples,
       });
-      if (!replay) writeBook(recording, model.id, book);
       print(model, results);
       if (packMode) packResults.push(...results);
       else if (model.required) failed += results.filter((r) => r.status === "fail").length;
     } catch (error) {
       console.log(`ERROR   ${model.id.padEnd(16)} ${id}: ${(error as Error).message}`);
       if (model.required) failed += 1;
+    } finally {
+      if (!replay) writeBook(recording, model.id, book);
     }
   }
   if (packMode) {
@@ -125,7 +90,7 @@ if (process.argv.includes("--compose")) {
   for (const model of probeModels) {
     const failures = await checkCoreComposition(
       model,
-      (prompt) => azure(model, prompt),
+      (prompt, format) => azure(model, prompt, format),
       replay,
       (arg("--layout") ?? "").split(",").filter(Boolean),
     );

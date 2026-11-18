@@ -56,36 +56,12 @@ function checkComponents(input: Input): string[] {
   return Object.values(input.components).flatMap(({ meta }) => {
     if (!input.packOf[meta.id]) return [];
     const issues: string[] = [];
-    if (meta.aliases.some((alias) => !/^[a-z]+$/.test(alias))) issues.push(`${meta.id}: aliases`);
     const parts = new Set([...(meta.parts ?? ["root"]), ...(meta.items?.parts ?? [])]);
     if ([...(meta.confirmParts ?? []), ...Object.keys(meta.partTiers ?? {})].some((part) => !parts.has(part)))
       issues.push(`${meta.id}: parts`);
     if (denseIds.has(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);
     return issues;
   });
-}
-
-function checkAliases(input: Input): string[] {
-  const defs = Object.values(input.components);
-  const owners = new Map<string, Definition[]>();
-  const issues: string[] = [];
-  const normal = (name: string) => name.replace(/[\s_-]/g, "").toLowerCase();
-  // Each alias conflict involves two owners; their packs form a legal scope of at most two.
-  for (const def of defs)
-    for (const alias of def.meta.aliases) {
-      const word = normal(alias);
-      for (const previous of owners.get(word) ?? []) {
-        if (previous.meta.id === def.meta.id) continue;
-        const packs = [input.packOf[def.meta.id], input.packOf[previous.meta.id]];
-        const exact = defs.some(
-          ({ meta }) =>
-            normal(meta.id) === word && (!input.packOf[meta.id] || packs.includes(input.packOf[meta.id])),
-        );
-        if (!exact) issues.push(`alias ${word}: ${previous.meta.id}/${def.meta.id}`);
-      }
-      owners.set(word, [...(owners.get(word) ?? []), def]);
-    }
-  return issues;
 }
 
 /** Mechanical pack checks (plan 4.10 rules 6, 7 and the pack portion of 14). */
@@ -96,6 +72,5 @@ export function checkPacks(input: Input): string[] {
       ...checkExample(input, pack),
     ]),
     ...checkComponents(input),
-    ...checkAliases(input),
   ];
 }

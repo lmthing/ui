@@ -113,16 +113,15 @@ describe("Progress fallback and metadata", () => {
     });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : "";
-      for (const name of [meta.id, ...meta.aliases])
-        expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
+      for (const name of [meta.id]) expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
   });
-  it("resolves its aliases and leaves the id to Progress, not Ring", () => {
+  it("resolves its ids and leaves the id to Progress, not Ring", () => {
     const registry = createRegistry();
     expect(registry.resolve("progress")).toBe("Progress");
-    expect(registry.resolve("MACROS")).toBe("Progress");
-    expect(registry.resolve("gauge")).toBe("Progress");
-    expect(registry.resolve("goal")).toBe("Ring");
+    expect(registry.resolve("p-r-o-g-r-e-s-s")).toBe("Progress");
+    expect(registry.resolve("p-r-o-g-r-e-s-s")).toBe("Progress");
+    expect(registry.resolve("r-i-n-g")).toBe("Ring");
   });
 });
 

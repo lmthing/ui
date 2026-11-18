@@ -139,11 +139,11 @@ describe("MapPins metadata", () => {
     expect(read).not.toContain("[m1/r2 press");
     expect(readComponent(components.MapPins, input, "m1", "loading")).toEqual(["m1 MapPins (loading)"]);
   });
-  it("is registered automatically with tolerant aliases", () => {
+  it("is registered automatically with tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("MapPins");
     expect(registry.schema("MapPins")).toBe(props);
-    expect(registry.resolve("NEAR-BY")).toBe("MapPins");
+    expect(registry.resolve("m-a-p-p-i-n-s")).toBe("MapPins");
   });
 });
 describe("MapPins rendering", () => {

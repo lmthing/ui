@@ -26,7 +26,6 @@ export const meta = {
   parts: ["root", "icon", "text"],
   states: ["filled"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
-  aliases: ["notice", "notification", "alert", "announcement"],
 } as const satisfies Meta;
 
 export const props = z

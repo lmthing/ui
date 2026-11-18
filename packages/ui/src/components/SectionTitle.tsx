@@ -24,7 +24,6 @@ export const meta = {
   parts: ["root", "text", "link"],
   states: ["filled"],
   actions: { parts: { link: ["press"] } },
-  aliases: ["sectionheading", "grouplabel", "groupheading", "sectionlabel"],
 } as const satisfies Meta;
 
 export const props = z

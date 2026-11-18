@@ -3,13 +3,17 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
+import type { WriterFormat } from "@lmthing/ui/catalog";
 
 const root = fileURLToPath(new URL("../test/recordings/", import.meta.url));
 /** `reply` is the first sample; `replies` holds every sample when a probe is run more than once. */
-type Book = Record<string, { prompt: string; reply: string; replies?: string[] }>;
+type Book = Record<string, { prompt: string; format?: WriterFormat; reply: string; replies?: string[] }>;
 
-export const keyOf = (model: string, prompt: string) =>
-  createHash("sha256").update(`${model}\n${prompt}`).digest("hex").slice(0, 16);
+export const keyOf = (model: string, prompt: string, format?: WriterFormat) =>
+  createHash("sha256")
+    .update(`${model}\n${prompt}${format ? `\n${JSON.stringify(format)}` : ""}`)
+    .digest("hex")
+    .slice(0, 16);
 
 const fileOf = (component: string, model: string) => join(root, component, `${model}.json`);
 
@@ -31,8 +35,8 @@ export function writeBook(component: string, model: string, book: Book) {
 /** A callModel that only replays; throws when a prompt was never recorded. */
 export function replayCall(component: string, model: string) {
   const book = readBook(component, model);
-  return async (prompt: string, sample = 0) => {
-    const hit = book[keyOf(model, prompt)];
+  return async (prompt: string, sample = 0, format?: WriterFormat) => {
+    const hit = book[keyOf(model, prompt, format)];
     const reply = hit?.replies?.[sample] ?? (sample === 0 ? hit?.reply : undefined);
     if (reply === undefined)
       throw new Error(

@@ -14,7 +14,6 @@ export const meta = {
   parts: ["root", "field"],
   states: ["filled"],
   actions: { parts: { field: ["type"] } },
-  aliases: ["searchbox", "searchbar", "lookup", "find"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({ hint: text(40) });

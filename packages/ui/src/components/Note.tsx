@@ -24,7 +24,6 @@ export const meta = {
   realPath: "A short text field on one thing in the on-device database.",
   parts: ["root", "text", "icon"],
   states: ["filled"],
-  aliases: ["sentence", "tip", "aside", "quotation"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

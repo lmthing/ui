@@ -26,7 +26,6 @@ export const meta = {
   realPath: "The identity and photo of one thing in the on-device database.",
   parts: ["root", "photo", "name", "meta"],
   states: ["filled", "loading"],
-  aliases: ["identity", "portrait", "bio"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

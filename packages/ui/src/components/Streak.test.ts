@@ -110,8 +110,6 @@ describe("Streak metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Stats");
     expect(meta.pick).toContain("Steps");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has two well-formed choose probes with a Stats near miss and one write", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -120,16 +118,16 @@ describe("Streak metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Streak" });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, ...meta.aliases])
+      for (const name of [meta.id])
         expect(wording.toLowerCase()).not.toMatch(new RegExp(`\\b${name.toLowerCase()}\\b`));
     }
   });
-  it("registers with case and separator tolerant aliases", () => {
+  it("registers with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Streak");
     expect(registry.schema("Streak")).toBe(props);
-    expect(registry.resolve("CONSISTENCY")).toBe("Streak");
-    expect(registry.resolve("con-secutive")).toBe("Streak");
+    expect(registry.resolve("s-t-r-e-a-k")).toBe("Streak");
+    expect(registry.resolve("s-t-r-e-a-k")).toBe("Streak");
   });
   it("reads the count and completed weekdays without leaking unsupported state values", () => {
     expect(meta.read(input, "filled")).toEqual(["12 days", "none done this week"]);

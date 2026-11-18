@@ -1,4 +1,4 @@
-import { legacyTarget } from "../migrations/aliases";
+import { legacyTarget } from "../migrations";
 import type { Definition } from "../probes";
 import type { ScreenLike } from "../agent";
 export type Issue = { code: string; address: string; message: string };
@@ -13,12 +13,8 @@ const normal = (value: string) => value.replace(/[\s_-]/g, "").toLowerCase();
 export function resolveDefinition(defs: Record<string, Definition>, name: string): Definition | undefined {
   return (
     defs[name] ??
-    defs[legacyTarget(name) ?? ""] ??
-    Object.values(defs).find(
-      (def) =>
-        normal(def.meta.id) === normal(name) ||
-        def.meta.aliases.some((alias) => normal(alias) === normal(name)),
-    )
+    Object.values(defs).find((def) => normal(def.meta.id) === normal(name)) ??
+    defs[legacyTarget(name) ?? ""]
   );
 }
 export const at = (screen: ScreenLike, entry?: ScreenEntry) =>

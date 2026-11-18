@@ -145,12 +145,12 @@ describe("Timeline fallback and metadata", () => {
     expect(meta.pick).toContain("List");
     expect(meta.pick).toContain("Checklist");
   });
-  it("is found automatically with case and separator tolerant aliases", () => {
+  it("is found automatically with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timeline");
     expect(registry.schema("Timeline")).toBe(props);
     expect(registry.resolve("TIME-LINE")).toBe("Timeline");
-    expect(registry.resolve("AGENDA")).toBe("Timeline");
+    expect(registry.resolve("t-i-m-e-l-i-n-e")).toBe("Timeline");
     expect(registry.resolve("chronology")).toBe("Timeline");
   });
 });

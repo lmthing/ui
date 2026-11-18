@@ -152,16 +152,16 @@ describe("Bubbles metadata and probes", () => {
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "List", "Note", ...meta.aliases])
+      for (const name of [meta.id, "List", "Note"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
   });
-  it("builds a data-only registry with separator-tolerant aliases", () => {
+  it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Bubbles");
     expect(registry.schema("Bubbles")).toBe(props);
-    expect(registry.resolve("CHAT")).toBe("Bubbles");
-    expect(registry.resolve("conver-sation")).toBe("Bubbles");
+    expect(registry.resolve("b-u-b-b-l-e-s")).toBe("Bubbles");
+    expect(registry.resolve("b-u-b-b-l-e-s")).toBe("Bubbles");
   });
 });
 

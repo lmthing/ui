@@ -167,8 +167,6 @@ describe("TabBar metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Segmented");
     expect(meta.pick).toContain("Actions");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has only read probes and targets an existing tab action in each example", () => {
     expect(probes).toHaveLength(2);
@@ -184,12 +182,12 @@ describe("TabBar metadata and probes", () => {
       });
     }
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("TabBar");
     expect(registry.schema("TabBar")).toBe(props);
-    expect(registry.resolve("BOTTOM-NAV")).toBe("TabBar");
-    expect(registry.resolve("MainTabs")).toBe("TabBar");
+    expect(registry.resolve("t-a-b-b-a-r")).toBe("TabBar");
+    expect(registry.resolve("t-a-b-b-a-r")).toBe("TabBar");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

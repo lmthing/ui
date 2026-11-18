@@ -7,6 +7,7 @@ Files (45, flat on purpose):
 Header SectionTitle Steps TabBar Hero Card List KeyValue Note Photo Gallery Profile Banner Empty Stats Ring Bars Sparkline Timeline Calendar Counter Timer Field Chips Segmented Checklist Search Scale Button Actions Success Camera MapPins Bubbles People SwipeStack Streak Route Canvas Progress Amount Choice Composer Sheet Player (each `.tsx`)
 
 - A file exports exactly: `meta`, `props`, `fallback`, `examples`, `probes`, and a view named like the file.
+- Meta contains no component aliases; Writers are constrained by the scoped catalog format.
 - Imports only `zod`, `../catalog`, `../kit`. Views use kit bases only; no literal text, no raw values.
 - `fallback` uses `catalog/cast` helpers and placeholders. Empty and loading use `emptyLine` and `KitSkeleton`.
 - Each file has a `<Id>.test.ts` beside it and committed recordings in `test/recordings/<Id>/`.

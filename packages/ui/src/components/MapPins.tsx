@@ -26,7 +26,6 @@ export const meta = {
   parts: ["root", "map"],
   states: ["filled", "loading"],
   actions: { items: { root: ["press"] } },
-  aliases: ["map", "locations", "nearby", "places"],
   read: (value): string[] => {
     const { pins } = value as { pins: { id: string; label: string }[] };
     return pins.map((pin, index) => `${pin.id}: ${index + 1} ${pin.label}`);

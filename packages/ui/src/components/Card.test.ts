@@ -121,7 +121,7 @@ describe("Card metadata and probes", () => {
     const choose = probes.filter((probe) => probe.kind === "choose");
     expect(choose.map((probe) => probe.expect)).toEqual(["Card", "List"]);
     for (const probe of choose)
-      for (const name of [meta.id, "List", "Hero", ...meta.aliases])
+      for (const name of [meta.id, "List", "Hero"])
         expect(probe.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     expect(probes.filter((probe) => probe.kind === "write").map((probe) => probe.expect)).toEqual([
       "Card",

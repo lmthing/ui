@@ -125,7 +125,7 @@ describe("Empty metadata and probes", () => {
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "Hero", "Note", ...meta.aliases])
+      for (const name of [meta.id, "Hero", "Note"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
     expect(examples.some((example) => "icon" in example)).toBe(true);
@@ -140,15 +140,15 @@ describe("Empty metadata and probes", () => {
     });
     if (nearMiss?.kind !== "choose") throw new Error("Missing main-number near miss");
     for (const component of [components.Empty, components.Hero, components.Banner])
-      for (const name of [component.meta.id, ...component.meta.aliases])
+      for (const name of [component.meta.id])
         expect(nearMiss.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Empty");
     expect(registry.schema("Empty")).toBe(props);
-    expect(registry.resolve("BLANK")).toBe("Empty");
-    expect(registry.resolve("un-started")).toBe("Empty");
+    expect(registry.resolve("e-m-p-t-y")).toBe("Empty");
+    expect(registry.resolve("e-m-p-t-y")).toBe("Empty");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

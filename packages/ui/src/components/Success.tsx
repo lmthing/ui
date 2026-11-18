@@ -30,7 +30,6 @@ export const meta = {
     when: { close: { style: "toast" }, undo: { undoable: true } },
   },
   read: (input) => ((input as { undo: boolean }).undo ? [messageLabels.undo] : []),
-  aliases: ["confirmation", "completed", "receipt"],
 } as const satisfies Meta;
 
 export const props = z

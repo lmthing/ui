@@ -166,11 +166,11 @@ describe("Segmented metadata and probes", () => {
     for (const option of example.options) expect(read).toContain(option.label);
     expect(read).toContain("[s1/r2 select]");
   });
-  it("is discovered automatically and resolves its aliases", () => {
+  it("is discovered automatically and resolves its ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Segmented");
     expect(registry.schema("Segmented")).toBe(props);
-    expect(registry.resolve("VIEW-SWITCH")).toBe("Segmented");
-    expect(registry.resolve("view_picker")).toBe("Segmented");
+    expect(registry.resolve("s-e-g-m-e-n-t-e-d")).toBe("Segmented");
+    expect(registry.resolve("s-e-g-m-e-n-t-e-d")).toBe("Segmented");
   });
 });

@@ -28,7 +28,6 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  aliases: readonly string[];
   read?: (props: unknown, state: StateName) => string[];
   signature?: string;
   status?: "draft" | "ready";

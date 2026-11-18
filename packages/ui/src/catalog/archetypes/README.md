@@ -11,3 +11,4 @@ then optionally applies the clarity/focus/flow/content/structure rubric. Live re
 `pnpm llm:check --compose`; replay uses `--compose --replay`.
 
 The 35 layout gates replay real required-model replies in `test/archetypes.test.ts`, including the text-quality rubric. Layout write hints preserve field/enum limits and improve coherent content without weakening the score.
+Forced-format guidance explains null-only unused fields and cross-field rules not captured by Zod conversion.

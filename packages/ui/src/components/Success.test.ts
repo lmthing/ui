@@ -129,7 +129,6 @@ describe("Success metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Banner");
     expect(meta.pick).toContain("Empty");
-    expect(meta.aliases).toHaveLength(3);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
@@ -138,7 +137,7 @@ describe("Success metadata and probes", () => {
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "Banner", "Empty", ...meta.aliases])
+      for (const name of [meta.id, "Banner", "Empty"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
     expect(examples[0]!.title).toBe("Fern watered");
@@ -146,12 +145,12 @@ describe("Success metadata and probes", () => {
     expect(examples.some((example) => "icon" in example)).toBe(true);
     expect(examples.some((example) => "style" in example && example.style === "toast")).toBe(true);
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Success");
     expect(registry.schema("Success")).toBe(props);
-    expect(registry.resolve("CONFIRMATION")).toBe("Success");
-    expect(registry.resolve("com-pleted")).toBe("Success");
+    expect(registry.resolve("s-u-c-c-e-s-s")).toBe("Success");
+    expect(registry.resolve("s-u-c-c-e-s-s")).toBe("Success");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

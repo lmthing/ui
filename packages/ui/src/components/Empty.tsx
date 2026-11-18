@@ -28,7 +28,6 @@ export const meta = {
   // Only a message about something that failed offers another try.
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
   read: (input) => ((input as { kind: string }).kind === "none" ? [] : [messageLabels.retry]),
-  aliases: ["blank", "absence", "unstarted"],
 } as const satisfies Meta;
 
 export const props = z

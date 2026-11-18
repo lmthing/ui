@@ -39,7 +39,6 @@ export const meta = {
       l5: { readonly: false },
     },
   },
-  aliases: ["rating", "mood", "score", "level"],
   read: (input: unknown) => {
     const { value, meta: note } = props.parse(input);
     return [`${value} ${goalLine(5)}`, ...(note ? [JSON.stringify(note)] : [])];

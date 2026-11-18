@@ -25,7 +25,6 @@ export const meta = {
   parts: ["root", "title", "sub", "action", "back"],
   states: ["filled"],
   actions: { parts: { action: ["press"], back: ["press"] }, when: { back: { style: "back" } } },
-  aliases: ["heading", "topbar", "navbar", "screenheading"],
 } as const satisfies Meta;
 
 export const props = z

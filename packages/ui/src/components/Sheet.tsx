@@ -44,7 +44,6 @@ export const meta = {
       ? [`${value.items[value.at]!.label} chosen`]
       : [];
   },
-  aliases: ["modal", "dialog", "popup", "bottomsheet", "actionsheet", "overflow"],
 } as const satisfies Meta;
 
 const item = z.strictObject({

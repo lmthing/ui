@@ -108,8 +108,6 @@ describe("SectionTitle fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Header");
     expect(meta.pick).toContain("Hero");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Header")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "SectionTitle" });
@@ -118,12 +116,12 @@ describe("SectionTitle fallback and metadata", () => {
       expect: { address: "s1/link", action: "press" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("SectionTitle");
     expect(registry.schema("SectionTitle")).toBe(props);
-    expect(registry.resolve("section-heading")).toBe("SectionTitle");
-    expect(registry.resolve("GROUPLABEL")).toBe("SectionTitle");
+    expect(registry.resolve("s-e-c-t-i-o-n-t-i-t-l-e")).toBe("SectionTitle");
+    expect(registry.resolve("s-e-c-t-i-o-n-t-i-t-l-e")).toBe("SectionTitle");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

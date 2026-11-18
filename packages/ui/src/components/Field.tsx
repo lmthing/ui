@@ -43,7 +43,6 @@ export const meta = {
       "field.press": { kind: "photo" },
     },
   },
-  aliases: ["input", "formfield", "entry"],
   read: (input, state) => {
     const { kind, options } = input as z.output<typeof props>;
     if (state !== "filled") return [];

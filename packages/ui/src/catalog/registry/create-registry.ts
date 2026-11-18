@@ -1,4 +1,4 @@
-import { legacyTarget } from "../migrations/aliases";
+import { legacyTarget } from "../migrations";
 import { archetypes, defaultLines, type ArchetypeName } from "../archetypes";
 import type { CastLike } from "../types";
 import type { PackId } from "../meta";
@@ -23,7 +23,6 @@ export function registryOf<D extends Record<string, Definition>>(
       (options.includeDrafts || components[id]!.meta.status !== "draft"),
   );
   const scoped = Object.fromEntries(ids.map((id) => [id, components[id]!])) as Partial<D>;
-  const aliases = [...ids.filter((id) => packOf[id]), ...ids.filter((id) => !packOf[id])];
   return {
     archetypes,
     defaultLines: (id: ArchetypeName, layout: string, cast: CastLike) =>
@@ -38,7 +37,6 @@ export function registryOf<D extends Record<string, Definition>>(
       return (
         ids.find((id) => id === name) ??
         ids.find((id) => normal(id) === wanted) ??
-        aliases.find((id) => components[id]!.meta.aliases.some((alias) => normal(alias) === wanted)) ??
         ids.find((id) => id === legacyTarget(name))
       );
     },

@@ -1,10 +1,10 @@
 import type { CastLike } from "../types";
-import type { ArchetypeMeta } from "../archetypes/types";
-import { defaultLines } from "../archetypes/defaults";
+import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../archetypes";
 import { checkScreen } from "../rules";
 import { readScreen, type ScreenLike } from "../agent";
-import { buildEntry } from "../prompt/entry";
+import { buildEntry } from "../prompt";
 import type { CallModel, Definition } from "./types";
+import { composeFormat, compositionInput } from "./compose-format";
 export type ComposeResult = {
   archetype: string;
   layout: string;
@@ -31,7 +31,7 @@ export function composePrompt(
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
   return [
-    "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Omit absent optional fields, never write empty strings.",
+    "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
     `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
@@ -48,7 +48,7 @@ export function scoreComposition(
   layout: string,
   defs: Record<string, Definition>,
 ): { screen?: ScreenLike; issues: string[] } {
-  const decoded = decode(reply) as ScreenLike | undefined;
+  let decoded = decode(reply) as ScreenLike | undefined;
   if (
     !decoded ||
     typeof decoded.id !== "string" ||
@@ -56,6 +56,7 @@ export function scoreComposition(
     !decoded.components.every((entry) => entry && typeof entry.id === "string" && typeof entry.c === "string")
   )
     return { issues: ["Expected a screen object with component ids"] };
+  decoded = compositionInput(decoded, defs);
   const issues = checkScreen(decoded, defs).map((issue) => `${issue.code}: ${issue.message}`);
   let available = [...decoded.components];
   for (const slot of meta.layouts[layout]!.slots) {
@@ -115,7 +116,7 @@ export async function runComposeProbes(options: {
         replies: string[] = [];
       const scored: ReturnType<typeof scoreComposition>[] = [];
       for (let sample = 0; sample < samples; sample++) {
-        const reply = await options.callModel(prompt, sample);
+        const reply = await options.callModel(prompt, sample, composeFormat(meta, layout, options.defs));
         replies.push(reply);
         scored.push(scoreComposition(reply, meta, layout, options.defs));
       }
@@ -125,7 +126,7 @@ export async function runComposeProbes(options: {
         layout,
         status: passed * 2 > samples ? "pass" : "fail",
         score: `${passed}/${samples}`,
-        detail: scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe",
+        detail: `${passed * 2 > samples && passed < samples ? "unstable: " : ""}${scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe"}`,
         prompt,
         replies,
       };

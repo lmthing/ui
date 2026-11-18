@@ -154,12 +154,12 @@ describe("Timer metadata and probes", () => {
       expect: { address: "t1/start", action: "start" },
     });
   });
-  it("builds a data-only registry with separator-tolerant aliases", () => {
+  it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timer");
     expect(registry.schema("Timer")).toBe(props);
-    expect(registry.resolve("COUNTDOWN")).toBe("Timer");
-    expect(registry.resolve("stop-watch")).toBe("Timer");
+    expect(registry.resolve("t-i-m-e-r")).toBe("Timer");
+    expect(registry.resolve("t-i-m-e-r")).toBe("Timer");
   });
   it.each([
     [0, "0:00"],

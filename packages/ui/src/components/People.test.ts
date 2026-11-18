@@ -130,8 +130,6 @@ describe("People fallback and metadata", () => {
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     for (const id of ["List", "Profile"]) expect(meta.pick).toContain(id);
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "People")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
@@ -143,12 +141,12 @@ describe("People fallback and metadata", () => {
       expect: { address: "p1/r1", action: "press" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("People");
     expect(registry.schema("People")).toBe(props);
-    expect(registry.resolve("MEMBERS")).toBe("People");
-    expect(registry.resolve("house-hold")).toBe("People");
+    expect(registry.resolve("p-e-o-p-l-e")).toBe("People");
+    expect(registry.resolve("p-e-o-p-l-e")).toBe("People");
   });
 });
 

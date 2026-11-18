@@ -25,7 +25,6 @@ export const meta = {
   items: { key: "items", parts: ["root", "check", "text", "meta"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { check: ["check"] } },
-  aliases: ["tasks", "todo", "ticks", "checks"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

@@ -109,8 +109,6 @@ describe("Header fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("SectionTitle");
     expect(meta.pick).toContain("Hero");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "SectionTitle")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Header" });
@@ -119,12 +117,12 @@ describe("Header fallback and metadata", () => {
       expect: { address: "h1/action", action: "press" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Header");
     expect(registry.schema("Header")).toBe(props);
-    expect(registry.resolve("top-bar")).toBe("Header");
-    expect(registry.resolve("NAVBAR")).toBe("Header");
+    expect(registry.resolve("h-e-a-d-e-r")).toBe("Header");
+    expect(registry.resolve("h-e-a-d-e-r")).toBe("Header");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

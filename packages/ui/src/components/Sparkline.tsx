@@ -24,7 +24,6 @@ export const meta = {
   realPath: "Recent measurements of one field in the on-device database.",
   parts: ["root", "label", "value", "line"],
   states: ["filled", "loading"],
-  aliases: ["trend", "spark", "linechart"],
   read: (input, state) => {
     if (state === "loading") return [];
     const { points } = input as z.output<typeof props>;

@@ -38,7 +38,6 @@ export const meta = {
   parts: ["root", "more"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
-  aliases: ["members", "participants", "household", "team"],
   read: (input) => {
     const { more } = input as { more?: number };
     return more ? [moreLine(more)] : [];

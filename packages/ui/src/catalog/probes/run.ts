@@ -1,6 +1,7 @@
 import { choosePrompt, readPrompt, writePrompt } from "./prompts";
 import { scoreChoose, scoreRead, scoreWrite } from "./score";
 import type { CallModel, Definition, Probe, ProbeResult } from "./types";
+import { writerFormatFor } from "../format";
 
 async function runOne(
   def: Definition,
@@ -29,7 +30,7 @@ async function runOne(
     return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
   }
   const prompt = writePrompt(def, probe.brief);
-  const reply = await callModel(prompt);
+  const reply = await callModel(prompt, 0, writerFormatFor(def));
   const { pass, detail } = scoreWrite(reply, def);
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
@@ -44,7 +45,9 @@ async function sampled(
 ): Promise<ProbeResult> {
   const runs: ProbeResult[] = [];
   for (let sample = 0; sample < samples; sample++) {
-    const run = await runOne(def, probe, defs, (prompt) => callModel(prompt, sample));
+    const run = await runOne(def, probe, defs, (prompt, _sample, format) =>
+      callModel(prompt, sample, format),
+    );
     if (run.status === "skipped") return run;
     runs.push(run);
   }

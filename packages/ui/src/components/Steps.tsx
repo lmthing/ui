@@ -13,7 +13,6 @@ export const meta = {
   realPath: "The current position in a flow stored in the on-device app.",
   parts: ["root", "track", "label"],
   states: ["filled"],
-  aliases: ["stepper", "wizard", "sequence", "onboarding"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { at, count } = props.parse(input);
