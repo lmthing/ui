@@ -3,7 +3,7 @@
 Generated files. Never edit by hand. Regenerate with `pnpm build:entries` (`scripts/build-entries.ts`).
 
 Files:
-- `catalog.ts` exposes component data, `packOf`, `packs`, `packArchetypes`, inlined `packExamples`, and scoped `createRegistry`.
+- `catalog.ts` exposes component data, `packOf`, `packs`, `packArchetypes`, inlined `packExamples`, scoped `createRegistry`, and no-argument `buildPackIndex`.
 - `renderers.ts` maps each id to its view (the export named by the PascalCase id). Draft files are skipped.
 - `kit.ts` the public surface of the kit entry.
 

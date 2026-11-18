@@ -23,6 +23,7 @@ export function registryOf<D extends Record<string, Definition>>(
   const aliases = [...ids.filter((id) => packOf[id]), ...ids.filter((id) => !packOf[id])];
   return {
     ids,
+    packOf,
     defs: ids.map((id) => components[id]!),
     get: <Id extends keyof D>(id: Id) => scoped[id],
     schema: <Id extends keyof D>(id: Id) => scoped[id]?.props,

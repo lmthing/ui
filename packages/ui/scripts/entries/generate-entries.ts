@@ -4,7 +4,7 @@ import { dataExports, scanEntries } from "./index";
 
 function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) {
   return [
-    `import { registryOf, type Definition, type RegistryOptions, type PackId, type PackMeta, type ArchetypeMeta } from "../catalog";`,
+    `import { registryOf, buildPackIndex as packIndexOf, type Definition, type RegistryOptions, type PackId, type PackMeta, type ArchetypeMeta } from "../catalog";`,
     ...defs.map(({ name, path }) => `import * as ${name} from "${path}";`),
     ...packs
       .filter(({ meta }) => meta)
@@ -42,6 +42,9 @@ function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) 
     "} satisfies Partial<Record<PackId, string>>;",
     "export function createRegistry(options: RegistryOptions = {}) {",
     "  return registryOf(components, options, packOf);",
+    "}",
+    "export function buildPackIndex() {",
+    "  return packIndexOf(packs);",
     "}",
   ];
 }

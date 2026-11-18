@@ -64,6 +64,7 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   ])
     expect(catalog.createRegistry(options).ids).toEqual(ids);
   expect(catalog.packs.booking.id).toBe("booking");
+  expect(catalog.buildPackIndex()).toBe("- booking: Time Pick: Time");
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
   expect(catalog.packExamples.booking).toBe('{"app":"visit"}\n');
   const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");

@@ -1,28 +1,16 @@
 import type { Definition } from "./types";
-import { signature } from "./signature";
-import { readComponent } from "../agent/read";
-
-/** One line per component: what the model reads to choose. */
-export function buildBlock(defs: readonly Definition[]): string {
-  return defs.map(({ meta }) => `- ${meta.id}: ${meta.purpose} Pick: ${meta.pick}`).join("\n");
-}
-
-/** Everything the model needs to write one component line. */
-export function buildEntry(def: Definition): string {
-  const { meta, props, examples } = def;
-  return [
-    `${meta.id}: ${meta.purpose}`,
-    `props: ${signature(props)}`,
-    ...(meta.writeHints ?? []).map((hint) => `Rule: ${hint}`),
-    `example: ${JSON.stringify({ c: meta.id, ...(examples[0] as object) })}`,
-  ].join("\n");
-}
+import { readComponent } from "../agent";
+import { buildBlock, buildEntry } from "../prompt";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
   return [
     "You choose the one UI component that best fits a need on a phone app screen.",
     "Components:",
-    buildBlock(defs),
+    // Preserve the choice order used by recordings; standalone blocks sort by group then id.
+    defs
+      .map((def) => buildBlock({ defs: [def], packOf: {} }, "core"))
+      .filter(Boolean)
+      .join("\n"),
     "",
     `Need, in the person's words: "${need}"`,
     "Reply with only the component id, nothing else.",

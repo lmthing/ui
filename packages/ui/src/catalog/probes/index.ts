@@ -9,6 +9,6 @@ export type {
   WriteProbe,
 } from "./types";
 export { signature } from "./signature";
-export { buildBlock, buildEntry, choosePrompt, readPrompt, writePrompt } from "./prompts";
+export { choosePrompt, readPrompt, writePrompt } from "./prompts";
 export { scoreChoose, scoreRead, scoreWrite } from "./score";
 export { runProbes } from "./run";
