@@ -33,7 +33,6 @@ describe("loading columns", () => {
     ]);
   });
 });
-
 function renderBase(child: ReactElement, theme: ThemeChoice, state: StateName = "filled") {
   return renderToStaticMarkup(
     createElement(
@@ -83,7 +82,6 @@ describe("role-sized skeleton text", () => {
     },
   );
 });
-
 const actionCases = presets.flatMap(({ id: preset }) =>
   (["light", "dark"] as const).flatMap((mode) =>
     (["primary", "secondary", "quiet", "danger"] as const).map((kind) => ({ preset, mode, kind })),
@@ -121,7 +119,8 @@ describe("neutral control skeletons and themed disabled actions", () => {
           }
           expect(css).not.toContain("opacity:0.5");
           if (html !== disabled) {
-            expect(css).toContain(kind === "quiet" ? "transparent" : "var(--line)");
+            if (html === skeleton) expectControlBar(html, node, kind);
+            else expect(css).toContain(kind === "quiet" ? "transparent" : "var(--line)");
             if (kind === "quiet" && label)
               expect(descendants(node).some((child) => styleAt(html, child).includes("var(--line)"))).toBe(
                 true,
@@ -140,7 +139,6 @@ describe("neutral control skeletons and themed disabled actions", () => {
     }
   });
 });
-
 describe("media-only skeleton and short strips", () => {
   it("does not mount content or a gap for an explicitly avatar-only skeleton", () => {
     const html = renderBase(
@@ -184,4 +182,17 @@ describe("media-only skeleton and short strips", () => {
 
 function descendants(node: ReturnType<typeof elementAt>): ReturnType<typeof elementAt>[] {
   return [node, ...node.children.flatMap(descendants)];
+}
+
+function expectControlBar(html: string, node: ReturnType<typeof elementAt>, kind: string) {
+  const css = styleAt(html, node);
+  expect(css).toContain("background-color:transparent");
+  const bars = descendants(node).slice(1);
+  expect(bars.some((child) => styleAt(html, child).includes("var(--line)"))).toBe(true);
+  if (kind === "quiet") return;
+  const bar = node.children[0]!;
+  expect(styleAt(html, bar)).toContain("position:absolute");
+  for (const edge of ["top", "bottom", "left", "right"]) expect(styleAt(html, bar)).toContain(`${edge}:0px`);
+  const radius = css.match(/border-top-left-radius:[^;]+/)![0];
+  expect(styleAt(html, bar)).toContain(radius);
 }
