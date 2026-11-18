@@ -24,6 +24,7 @@ export const meta = {
   tier: "phone",
   realPath: "Filter flags or a selected value stored in the on-device database.",
   items: { key: "items", parts: ["root", "label"] },
+  select: { prop: "on", value: "index", mode: "flags" },
   parts: ["root"],
   states: ["filled"],
   actions: {

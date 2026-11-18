@@ -13,6 +13,7 @@ export const meta = {
   tier: "phone",
   realPath: "Dates with activity queried from the on-device database, with a locally selected day.",
   items: { key: "marked", parts: ["root", "label"] },
+  select: { prop: "selected", value: { field: "day" } },
   parts: ["root", "month"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
