@@ -1,5 +1,31 @@
 import { expect, it } from "vitest";
-import { clockLine, leftLine, remainingLine, repeatLabels, repeatOptions, streakLine } from "./time";
+import {
+  availabilityDefaults,
+  availabilityLabels,
+  breakLine,
+  clockLine,
+  leftLine,
+  remainingLine,
+  repeatLabels,
+  repeatOptions,
+  streakLine,
+  weekdayNames,
+} from "./time";
+
+it("names every weekday and keeps working-week copy neutral", () => {
+  expect(weekdayNames).toEqual([
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ]);
+  expect(availabilityDefaults).toEqual({ from: "09:00", to: "17:00" });
+  expect(availabilityLabels).toEqual({ from: "From", to: "To", break: "Break" });
+  expect(breakLine("00:00", "23:59")).toBe("Break 00:00–23:59");
+});
 
 it("keeps clock, countdown and streak text unchanged at boundaries", () => {
   expect([clockLine(-1), clockLine(59.9), clockLine(60), clockLine(3723)]).toEqual([
