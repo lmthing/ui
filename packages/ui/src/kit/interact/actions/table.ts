@@ -1,16 +1,20 @@
-import type { ActStep } from "../../../catalog";
+import { affordancesOf, stampItemIds, type ActStep } from "../../../catalog";
 import { controlsAction, mediaAction, showConfirmation } from "./families";
-import type { ActionHandler } from "./types";
-const pressAction: ActionHandler = (state, action, ctx) =>
-  ctx.entry.c === "Button" && ctx.input.confirm
-    ? showConfirmation(state, action, ctx)
-    : ctx.entry.c === "Player"
-      ? mediaAction(state, action, ctx)
-      : controlsAction(state, action, ctx);
+import type { ActionContext, ActionHandler, ActionState } from "./types";
+export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
+  const meta = ctx.defs[ctx.entry.c]!.meta;
+  const part = affordancesOf(meta, stampItemIds(meta, ctx.input), ctx.entry.id).find(
+    (offered) => offered.address === action.address && offered.action === action.action,
+  )?.part;
+  return (part && meta.confirmParts?.includes(part)) ||
+    (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
+    ? showConfirmation(state, ctx.selected, ctx)
+    : undefined;
+}
 const playbackAction: ActionHandler = (state, action, ctx) =>
   ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
 export const actionTable: Readonly<Record<ActStep["action"], ActionHandler>> = {
-  press: pressAction,
+  press: playbackAction,
   play: playbackAction,
   pause: playbackAction,
   seek: playbackAction,

@@ -18,6 +18,7 @@ describe("confirmation transitions", () => {
       kind: "danger",
       source: "test/c1/root",
       goto: "next",
+      step: { address: "test/c1/root", action: "press" },
     });
     const accepted = confirmationAction(pending.state, accept, ctx);
     expect(options.onLink).not.toHaveBeenCalled();

@@ -3,6 +3,7 @@ import { selectedStep, type ActOptions, type ActReply } from "../index";
 import {
   actionFailure,
   confirmationAction,
+  confirmationFor,
   handlerFor,
   type ActionContext,
   type ActionResult,
@@ -16,6 +17,7 @@ function prepareStep(
   ctx: ControllerContext,
   media: MediaRuntime,
   at: number,
+  confirmed = false,
 ): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
@@ -40,7 +42,7 @@ function prepareStep(
     (entry.c === "Sheet" && state.sheet !== ctx.status.openSheet) ||
     (entry.c === "SwipeStack" &&
       state.values[ctx.key(id, "$cursor")] !== ctx.store.get(ctx.key(id, "$cursor")));
-  if (ctx.options.requireMounted && !introduced && !ctx.mounted.has(action.address))
+  if (ctx.options.requireMounted && !confirmed && !introduced && !ctx.mounted.has(action.address))
     return fail("not_mounted", "This control is not mounted");
   return {
     state: { ...state, values: plan.values, changes: [...state.changes, ...plan.changed] },
@@ -62,7 +64,7 @@ function prepareStep(
     },
   };
 }
-function planSteps(list: ActStep[], ctx: ControllerContext, media: MediaRuntime): ActionResult {
+function planSteps(list: ActStep[], ctx: ControllerContext, media: MediaRuntime) {
   let state: ActionState = {
     values: ctx.valuesOf(),
     sheet: ctx.status.openSheet,
@@ -70,21 +72,37 @@ function planSteps(list: ActStep[], ctx: ControllerContext, media: MediaRuntime)
     changes: [],
   };
   const effects: (() => void)[] = [];
+  const performed: ActStep[] = [];
   for (const [at, step] of list.entries()) {
     const action = { ...step, address: ctx.relative(step.address) };
+    const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
+      const selected = { ...original, address: ctx.relative(original.address) };
+      const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
+      if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
+      const pending = !confirmed && confirmationFor(before, selected, prepared.context);
+      if (pending) return pending;
+      performed.push(selected);
+      const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
+      return handlerFor(selected.action)(
+        prepared.state,
+        { ...selected, address },
+        {
+          ...prepared.context,
+          links: prepared.context.links.map((link) => ({ ...link, address: `${ctx.screen.id}/${address}` })),
+        },
+      );
+    };
     let result: ActionResult;
     if (state.confirmation)
-      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options });
-    else {
-      const prepared = prepareStep(state, action, ctx, media, at);
-      if ("error" in prepared) return { state, effects: [], error: prepared.error };
-      result = handlerFor(action.action)(prepared.state, action, prepared.context);
-    }
-    if (result.error) return result;
+      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, (s, a) =>
+        run(s, a, true),
+      );
+    else result = run(state, action);
+    if (result.error) return { ...result, performed: [] };
     state = result.state;
     effects.push(...result.effects);
   }
-  return { state, effects };
+  return { state, effects, performed };
 }
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
@@ -105,7 +123,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (opts.dryRun) return reply;
     // Prepare media only after validation, before committing any changes.
     try {
-      media.prepare(list);
+      media.prepare(result.performed);
     } catch (error) {
       return actionFailure(
         0,
