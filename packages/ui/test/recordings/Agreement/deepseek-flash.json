@@ -96,7 +96,7 @@
     "replies": [
       "{\"address\": \"a1/agree\", \"action\": \"check\"}",
       "{\"address\": \"a1/agree\", \"action\": \"check\"}",
-      "{\"address\": \"a1/agree\", \"action\": \"check\"}"
+      "{\"address\": \"a1/agree check\", \"action\": \"check\"}"
     ]
   },
   "eb1bcd386db868ca": {

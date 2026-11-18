@@ -41,6 +41,9 @@ export const swipeLabels = { left: "Skip", right: "Keep" } as const;
 
 export const allLabel = "All";
 
+/** A provider choice with no preference for a particular person. */
+export const anyoneLabel = "Anyone";
+
 export const appointmentLabels = {
   reschedule: "Reschedule",
   edit: "Edit details",
@@ -96,7 +99,9 @@ export const bookLabel = "Book";
 /** A record's event kind and calendar date, kept together below its title. */
 export const historyDetailLine = (kind: string, date: string): string => `${kind} · ${date}`;
 
-export const agreementLabels = { agree: "I agree", accepted: "Accepted", name: "Full name" } as const;
-
-/** Keep the stored signing date visible without inventing a date for an unsigned record. */
-export const agreementDateLine = (date: string): string => `Signed · ${date}`;
+/** Device-local reward-card actions and the earned reward status. */
+export const loyaltyLabels = {
+  stamp: "Add stamp",
+  redeem: "Redeem reward",
+  earned: "Reward earned",
+} as const;

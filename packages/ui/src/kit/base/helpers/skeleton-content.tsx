@@ -2,7 +2,12 @@ import { YStack } from "tamagui";
 import { component, radius, space, type as typography } from "../../../catalog";
 import { KitContent, KitText, type TextRole } from "../text";
 
-export type SkeletonLine = { text: string; role: TextRole; align?: "start" | "center" | "end" | undefined };
+export type SkeletonLine = {
+  text: string;
+  role: TextRole;
+  align?: "start" | "center" | "end" | undefined;
+  numberScale?: "display" | "compact" | undefined;
+};
 export type SkeletonItem = {
   lines?: SkeletonLine[];
   title?: string;
@@ -27,7 +32,10 @@ export type ShapeProps = {
   inset?: "md" | "none" | "card";
   aspect?: "wide" | "square" | "tall" | "none" | "avatar";
   lines?: SkeletonLine[] | undefined;
-  content?: [TextRole, string | undefined, ("start" | "center" | "end")?][];
+  content?: [TextRole, string | undefined, ("start" | "center" | "end")?, ("display" | "compact")?][];
+  kind?: "primary" | "secondary" | "quiet" | "danger";
+  label?: string | undefined;
+  full?: boolean;
   items?: SkeletonItem[];
   question?: string | undefined;
   look?: "cards" | "list";
@@ -47,13 +55,27 @@ export function linesOf(item: SkeletonItem, heading = false): SkeletonLine[] {
 }
 
 /** Hidden text reserves the real wrapping height; clipped bars occupy each line. */
-export function SkeletonText({ text, role, align = "start" }: SkeletonLine) {
-  const line = typography[role].lineHeight;
-  const height = typography[role].size * 0.6;
+export function SkeletonText({ text, role, align = "start", numberScale = "display" }: SkeletonLine) {
+  const scale = typography[role === "number" && numberScale === "compact" ? "body" : role];
+  const line = scale.lineHeight;
+  const height = scale.size * 0.6;
   return (
-    <YStack position="relative" overflow="hidden" aria-hidden>
+    <YStack
+      position="relative"
+      overflow="hidden"
+      maxWidth="100%"
+      flexShrink={0}
+      alignSelf={align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"}
+      aria-hidden
+    >
       <YStack opacity={component.base.none}>
-        <KitText role={role} align={align} part={null}>
+        <KitText
+          role={role}
+          numberScale={numberScale}
+          align={align}
+          part={null}
+          {...(/^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text) ? { lines: 1 } : {})}
+        >
           {text}
         </KitText>
       </YStack>
@@ -63,15 +85,7 @@ export function SkeletonText({ text, role, align = "start" }: SkeletonLine) {
           position="absolute"
           top={index * line + (line - height) / 2}
           height={height}
-          width={
-            role === "caption"
-              ? "44%"
-              : role === "label" || role === "number"
-                ? "48%"
-                : index % 2
-                  ? "58%"
-                  : "72%"
-          }
+          width={index % 2 ? "82%" : "100%"}
           alignSelf={align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"}
           backgroundColor="$line"
           borderRadius={radius.sm}

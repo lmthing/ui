@@ -44,13 +44,15 @@ export function KitPhoto({
   initials?: string;
   ring?: "none" | "accent" | "muted";
 }) {
-  const source = photo ? useKit().resolvePhoto?.(photo) : undefined;
+  const kit = useKit();
+  const source = photo ? kit.resolvePhoto?.(photo) : undefined;
   const ks = useKitStyle();
   const circle = !photo || shape === "round" || shape === "avatar";
   return (
     <Frame
       {...usePart(part)}
       shape={!photo && shape !== "avatar" ? "round" : shape}
+      {...(!photo || !source ? { backgroundColor: "$raised" } : {})}
       {...(circle ? {} : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
       accessibilityRole="image"
       accessibilityLabel={label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials}
@@ -62,7 +64,7 @@ export function KitPhoto({
       {!photo && initials && (
         <KitText
           role={shape === "avatar" ? "heading" : "label"}
-          tone="accent"
+          tone="text"
           align="center"
           part={null}
           lines={1}

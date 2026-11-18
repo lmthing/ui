@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { components, component, radius, space } from "@lmthing/ui/catalog";
 import { renderInstance, elementAt, styleAt } from "../../../../test/render";
-import { linesOf, skeletonInset } from "./skeleton-content";
+import { linesOf, skeletonInset, SkeletonText } from "./skeleton-content";
 
 const theme = { preset: "calm", accent: "moss", mode: "light" } as const;
 const ids = [
@@ -34,6 +34,15 @@ function styles(html: string) {
 }
 
 describe("skeleton content geometry", () => {
+  it.each(["5", "600 min", "12:30", "1,240.50"])("keeps numeric %s on one hidden line", (text) => {
+    const drawing = SkeletonText({ text, role: "body" });
+    expect(drawing.props.flexShrink).toBe(0);
+    expect(drawing.props.children[0].props.children.props.lines).toBe(1);
+  });
+  it("retains wrapping for ordinary body text", () => {
+    const drawing = SkeletonText({ text: "Caller content that wraps", role: "body" });
+    expect(drawing.props.children[0].props.children.props.lines).toBeUndefined();
+  });
   it("uses only present text and preserves explicit roles", () => {
     expect(linesOf({ title: "Title", sub: "Detail", meta: "Context" }, true)).toEqual([
       { text: "Title", role: "heading" },

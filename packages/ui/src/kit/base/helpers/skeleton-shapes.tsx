@@ -112,7 +112,12 @@ export function SkeletonRing({ ring = "md" }: ShapeProps) {
 export function SkeletonMedia({ aspect = "wide", lines, inset, playback }: ShapeProps) {
   const ks = useKitStyle();
   return (
-    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={skeletonInset(inset)}>
+    <YStack
+      accessibilityLabel={loadingLabel}
+      aria-busy
+      gap={lines?.length === 0 && !playback ? component.base.none : space.sm}
+      padding={skeletonInset(inset)}
+    >
       {aspect !== "none" && (
         <Bar
           width={aspect === "avatar" ? size.avatar.lg : "100%"}
@@ -127,7 +132,7 @@ export function SkeletonMedia({ aspect = "wide", lines, inset, playback }: Shape
           borderRadius={aspect === "avatar" ? radius.pill : shifted("lg", ks.radiusShift)}
         />
       )}
-      {lines ? (
+      {lines?.length === 0 ? null : lines ? (
         <SkeletonContent lines={lines} />
       ) : (
         <>

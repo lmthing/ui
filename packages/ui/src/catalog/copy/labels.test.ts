@@ -1,7 +1,6 @@
 import { expect, it } from "vitest";
 import {
-  agreementDateLine,
-  agreementLabels,
+  anyoneLabel,
   appointmentDetails,
   appointmentLabels,
   appointmentReading,
@@ -11,14 +10,10 @@ import {
   emptyLine,
   historyDetailLine,
   loadingLabel,
+  loyaltyLabels,
   photoLabels,
   swipeLabels,
 } from "./labels";
-
-it("labels consent and the stored signing date without domain content", () => {
-  expect(agreementLabels).toEqual({ agree: "I agree", accepted: "Accepted", name: "Full name" });
-  expect(agreementDateLine("2026-11-18")).toBe("Signed · 2026-11-18");
-});
 
 it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect([emptyLine(), emptyLine(" "), emptyLine("plant"), emptyLine("city"), emptyLine("box")]).toEqual([
@@ -34,6 +29,11 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect(charLine(42, 600)).toBe("42 / 600");
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
+  expect(anyoneLabel).toBe("Anyone");
+});
+
+it("labels reward-card actions and completion", () => {
+  expect(loyaltyLabels).toEqual({ stamp: "Add stamp", redeem: "Redeem reward", earned: "Reward earned" });
 });
 
 it("keeps event kinds and full dates together without inventing record content", () => {

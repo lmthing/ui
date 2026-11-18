@@ -1,7 +1,5 @@
 import { z } from "zod";
 import {
-  agreementDateLine,
-  agreementLabels as copy,
   detailOf,
   isoDate,
   itemsOf,
@@ -26,6 +24,7 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
+import { agreementDateLine, agreementLabels as copy } from "../copy";
 
 // Core first: Checklist/default cannot capture one client's consent with terms, typed name and signed date.
 export const meta = {
