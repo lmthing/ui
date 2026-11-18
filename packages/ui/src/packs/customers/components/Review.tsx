@@ -1,38 +1,56 @@
 import { z } from "zod";
 import {
   detailOf,
+  goalLine,
   isoDate,
   itemsOf,
   placeholderDetail,
   placeholderTitle,
   probesFor,
+  reviewCountLine,
+  reviewLabels,
+  reviewReading,
+  reviewScaleLabels,
+  reviewStarsLine,
   text,
   thingOf,
   titleOf,
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
-
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitMeter,
+  KitRow,
+  KitScaleTrack,
+  KitText,
+  useComponentState,
+} from "../../../kit";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 export const meta = {
   id: "Review",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "See clients' ratings and words, their breakdown and the business's replies.",
   pick: "Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).",
   writeHints: [
-    'style: "summary" needs average, count and exactly five bars. style: "list" needs one to five reviews. Unused fields may be omitted or null.',
+    'style: "summary" needs average, count and exactly five bars ordered from 1 to 5 stars. style: "list" needs one to five reviews. Omit unused fields.',
     "Each review needs stars 1–5, name, date and text, with an optional business reply.",
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "Reviews left by clients in a shared app.",
-  items: { key: "reviews", parts: ["root", "stars", "name", "date", "text", "reply"] },
+  items: { key: "reviews", parts: ["root", "stars", "name", "date", "text", "response", "reply"] },
   parts: ["root", "average", "count", "bars"],
   states: ["filled", "empty"],
   actions: { items: { reply: ["press"] }, when: { reply: { style: "list" } } },
+  read: (input) => reviewReading(input as z.output<typeof props>),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -60,7 +78,18 @@ export const props = z
         ? average !== undefined && count !== undefined && bars !== undefined
         : reviews !== undefined,
     { message: "Supply the active style's fields" },
-  );
+  )
+  // Inactive rows must not be read or offered. A reply control exists before any response is written.
+  .overwrite((value) => ({
+    ...value,
+    average: value.style === "summary" ? value.average : undefined,
+    count: value.style === "summary" ? value.count : undefined,
+    bars: value.style === "summary" ? value.bars : undefined,
+    reviews:
+      value.style === "list"
+        ? (value.reviews ?? []).map(({ reply, ...review }) => ({ ...review, ...(reply ? { reply } : {}) }))
+        : [],
+  }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
@@ -103,3 +132,69 @@ export const probes = [
   ),
   read("Reply to Ben's review", { address: "r1/r1/reply", action: "press" }, 1),
 ] satisfies Probe[];
+function ReviewSummary(input: Props<typeof props, typeof meta>) {
+  const largest = Math.max(...input.bars!);
+  return (
+    <KitCard part="root" padded>
+      <KitText role="number" part="average" tabular>{`${input.average} ${goalLine(5)}`}</KitText>
+      <KitText role="caption" tone="muted" part="count">
+        {reviewCountLine(input.count!)}
+      </KitText>
+      <KitScaleTrack style="stars" value={input.average!} labels={reviewScaleLabels} readonly />
+      <KitCard style="plain" part="bars">
+        {input.bars!.map((amount, index) => (
+          <KitRow key={index} label={reviewStarsLine(index + 1)} inline>
+            <KitMeter
+              label={reviewStarsLine(index + 1)}
+              amount={String(amount)}
+              ratio={largest ? amount / largest : 0}
+              slim
+            />
+          </KitRow>
+        ))}
+      </KitCard>
+    </KitCard>
+  );
+}
+function ReviewList(input: Props<typeof props, typeof meta>) {
+  return (
+    <KitCard part="root">
+      {input.reviews!.map((review) => (
+        <KitRow key={review.id} item={review.id} label={review.name} lineRole="label">
+          <KitContent>
+            <KitText role="label" part="name" lines={1}>
+              {review.name}
+            </KitText>
+            <KitText role="caption" tone="muted" part="date" lines={1}>
+              {review.date}
+            </KitText>
+            <KitText role="caption" tone="muted" part="stars">{`${review.stars} ${goalLine(5)}`}</KitText>
+            <KitScaleTrack style="stars" value={review.stars} labels={reviewScaleLabels} readonly />
+            <KitText part="text">{review.text}</KitText>
+            {review.reply && (
+              <KitContent>
+                <KitText role="caption" tone="muted" part={null}>
+                  {reviewLabels.response}
+                </KitText>
+                <KitText tone="muted" part="response">
+                  {review.reply}
+                </KitText>
+              </KitContent>
+            )}
+            <KitAction label={reviewLabels.reply} kind="quiet" part="reply" />
+          </KitContent>
+        </KitRow>
+      ))}
+    </KitCard>
+  );
+}
+export function Review(input: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  if (state === "empty")
+    return (
+      <KitCard part="root">
+        <KitEmpty part="text" />
+      </KitCard>
+    );
+  return input.style === "summary" ? <ReviewSummary {...input} /> : <ReviewList {...input} />;
+}
