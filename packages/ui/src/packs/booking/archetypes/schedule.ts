@@ -6,6 +6,9 @@ export const schedule = {
   defaultLayout: "day",
   layouts: {
     day: {
+      writeHints: [
+        'Timeline must use style: "hours", each item with time and a later end in HH:MM. Omit or null meta; done must be false or omitted/null. They are not completed-history rows.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Calendar"], required: true, variant: "week" },

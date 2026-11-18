@@ -3,11 +3,25 @@ import { createHash } from "node:crypto";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import type { WriterFormat } from "@lmthing/ui/catalog";
+import type { WriterFormat, CallModel } from "@lmthing/ui/catalog";
 
 const root = fileURLToPath(new URL("../../test/recordings/", import.meta.url));
 /** `reply` is the first sample; `replies` holds every sample when a probe is run more than once. */
 type Book = Record<string, { prompt: string; format?: WriterFormat; reply: string; replies?: string[] }>;
+
+/** Changed pack prompts get new samples; unchanged prompts keep their original evidence. */
+export function recordingCall(model: string, book: Book, live: CallModel, reuse = false): CallModel {
+  return async (prompt, sample = 0, format) => {
+    const key = keyOf(model, prompt, format);
+    const cached = book[key]?.replies?.[sample] ?? (sample === 0 ? book[key]?.reply : undefined);
+    if (reuse && cached !== undefined) return cached;
+    const reply = await live(prompt, sample, format);
+    const replies = [...(!reuse && sample === 0 ? [] : (book[key]?.replies ?? []))];
+    replies[sample] = reply;
+    book[key] = { prompt, ...(format ? { format } : {}), reply: replies[0] ?? reply, replies };
+    return reply;
+  };
+}
 
 export const keyOf = (model: string, prompt: string, format?: WriterFormat) =>
   createHash("sha256")

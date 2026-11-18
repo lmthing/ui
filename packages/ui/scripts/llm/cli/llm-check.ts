@@ -5,9 +5,17 @@ import { packProbes } from "./pack-probes";
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
 // Imports the built data-only catalog (dist/catalog.js): the views need React Native, Node does not have it.
-import type { ProbeResult, WriterFormat } from "@lmthing/ui/catalog";
+import type { ProbeResult } from "@lmthing/ui/catalog";
 import type * as Catalog from "@lmthing/ui/catalog";
-import { probeModels, type ProbeModel, keyOf, readBook, replayCall, writeBook, azure } from "../index";
+import {
+  probeModels,
+  type ProbeModel,
+  recordingCall,
+  readBook,
+  replayCall,
+  writeBook,
+  azure,
+} from "../index";
 
 const {
   createRegistry,
@@ -52,14 +60,12 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean, pack
   for (const id of ids) {
     const recording = packMode ? `pack/${id}` : id;
     const book = readBook(recording, model.id);
-    const live = async (prompt: string, sample = 0, format?: WriterFormat) => {
-      const reply = await azure(model, prompt, format);
-      const key = keyOf(model.id, prompt, format);
-      const replies = [...(sample === 0 ? [] : (book[key]?.replies ?? []))];
-      replies[sample] = reply;
-      book[key] = { prompt, ...(format ? { format } : {}), reply: replies[0] ?? reply, replies };
-      return reply;
-    };
+    const live = recordingCall(
+      model.id,
+      book,
+      (prompt, _sample, format) => azure(model, prompt, format),
+      packMode,
+    );
     try {
       const callModel = replay ? replayCall(recording, model.id) : live;
       const pack = packMode ? await packProbes(id as Catalog.PackId, callModel, model.samples) : undefined;

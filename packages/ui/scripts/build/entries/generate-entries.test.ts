@@ -53,6 +53,25 @@ async function loadCatalog(root: string) {
   return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0]!.text).toString("base64")}`);
 }
 
+it("uses pack component and archetype doors when present", async () => {
+  const root = await fixture();
+  await writeFile(
+    join(root, "src/packs/booking/components/index.ts"),
+    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
+  );
+  await writeFile(
+    join(root, "src/packs/booking/archetypes/index.ts"),
+    'export { visitDetail } from "./visit-detail";\n',
+  );
+  const catalog = await loadCatalog(root);
+  expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Draft");
+  const entry = await readFile(join(root, "src/entry/catalog.ts"), "utf8");
+  expect(entry).toContain('import { Ready } from "../packs/booking/components"');
+  expect(entry).toContain('from "../packs/booking/archetypes"');
+  const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");
+  expect(renderers).toContain("const Ready = ReadyDefinition.Ready");
+});
+
 it("generates scoped drafts, ready renderers, pack data and inlined examples", async () => {
   const root = await fixture();
   const catalog = await loadCatalog(root);

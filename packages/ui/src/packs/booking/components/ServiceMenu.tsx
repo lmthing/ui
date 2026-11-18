@@ -20,7 +20,7 @@ export const meta = {
   status: "draft",
   group: "content",
   purpose: "Choose a bookable service by duration and price, grouped by offering.",
-  pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid).",
+  pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid). Several ordinary things each with short details and their own link remain List.",
   region: "body",
   weight: 3,
   dense: true,

@@ -3,6 +3,15 @@ import { affordancesOf, components, readComponent, queueLabels } from "@lmthing/
 import { renderInstance } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Waitlist;
+it("keeps distinct exact boundary counts in accessibility labels and the agent reading", () => {
+  const input = { position: Number.MAX_SAFE_INTEGER, ahead: Number.MAX_SAFE_INTEGER - 1, joined: true };
+  const html = renderInstance("Waitlist", input, "filled", { preset: "bold", mode: "dark", accent: "moss" });
+  expect(html).toContain("9.01Q");
+  expect(html).toContain('aria-label="Your place in line: 9007199254740991; 9007199254740990 people ahead"');
+  const reading = readComponent(components.Waitlist, input, "w1").join("\n");
+  expect(reading).toContain("9007199254740991");
+  expect(reading).toContain("9007199254740990");
+});
 describe("Waitlist schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),

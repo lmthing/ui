@@ -5,17 +5,25 @@ import { cellsOf, componentIds, groupedIds, groups, modes, variantCount } from "
 describe("gallery overview data", () => {
   it("shows all 45 core components once, in stable group and id order", () => {
     const sections = groupedIds("");
-    expect(sections.map(({ group }) => group)).toEqual([...groups, "booking"]);
+    expect(sections.map(({ group }) => group)).toEqual([
+      ...groups,
+      ...[...new Set(Object.values(packOf))].sort(),
+    ]);
     const ids = sections.flatMap((section) => section.ids);
-    expect(ids).toHaveLength(51);
-    expect(new Set(ids).size).toBe(51);
+    expect(ids).toHaveLength(45 + Object.keys(packOf).length);
+    expect(new Set(ids).size).toBe(45 + Object.keys(packOf).length);
     expect([...ids].sort()).toEqual(componentIds);
     for (const section of sections) expect(section.ids).toEqual([...section.ids].sort());
   });
   it("filters by pack, keeping ready and draft components together and excluding core", () => {
     const sections = groupedIds("", "booking");
     expect(sections.map(({ group }) => group)).toEqual(["booking"]);
-    expect(sections.flatMap(({ ids }) => ids)).toEqual(Object.keys(packOf).sort());
+    expect(sections.flatMap(({ ids }) => ids)).toEqual(
+      Object.entries(packOf)
+        .filter(([, pack]) => pack === "booking")
+        .map(([id]) => id)
+        .sort(),
+    );
     expect(groupedIds("Waitlist", "booking")[0]?.ids).toEqual(["Waitlist"]);
     expect(groupedIds("", "unknown")).toEqual([]);
   });

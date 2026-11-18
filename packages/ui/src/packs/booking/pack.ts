@@ -14,10 +14,14 @@ export const pack = {
       expect: ["booking"],
     },
     { kind: "pack", idea: "A shop selling goods, not appointments or time", expect: ["commerce"] },
-    { kind: "pack", idea: "Track how far along I am toward my personal daily goal", expect: [] },
+    {
+      kind: "pack",
+      idea: "A private habit tracker showing completion toward today's own goal. No appointments, classes, bookable services or sales.",
+      expect: [],
+    },
     {
       kind: "choose",
-      need: "Show how full the class is: eight of twelve places filled, without a waiting queue",
+      need: "One compact capacity bar shows eight out of twelve class places filled. No waiting queue and no comparison across days or categories.",
       expect: "Progress",
     },
   ],

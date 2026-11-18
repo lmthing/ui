@@ -26,7 +26,7 @@ export const props = z
     days: z
       .array(
         z.strictObject({
-          day: z.enum(weekdays),
+          day: z.enum(weekdays).meta({ kind: "text" }),
           on: z.boolean(),
           from: clock,
           to: clock,

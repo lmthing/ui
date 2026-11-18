@@ -2,6 +2,8 @@ import { z } from "zod";
 import {
   probesFor,
   queueAhead,
+  queueCount,
+  queueExact,
   queueLabels,
   type CastLike,
   type Meta,
@@ -33,8 +35,11 @@ export const meta = {
     const { joined, position, ahead } = props.parse(input);
     return [
       joined ? queueLabels.joined : queueLabels.waiting,
-      ...(joined && position !== undefined ? [String(position), queueLabels.position] : []),
+      ...(joined && position !== undefined ? [queueCount(position), queueLabels.position] : []),
       queueAhead(ahead),
+      ...(ahead > 999 || (joined && position !== undefined && position > 999)
+        ? [queueExact(ahead, joined ? position : undefined)]
+        : []),
       joined ? queueLabels.leave : queueLabels.join,
     ];
   },
@@ -52,7 +57,7 @@ export const examples = [
   { ahead: 4, joined: false },
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
-  { position: Number.MAX_SAFE_INTEGER, ahead: Number.MAX_SAFE_INTEGER, joined: true },
+  { position: 12, ahead: 11, joined: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
@@ -65,20 +70,15 @@ export const probes = [
 
 export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof meta>) {
   return (
-    <KitCard style="inset" padded part="root">
+    <KitCard style="inset" padded part="root" label={queueExact(ahead, joined ? position : undefined)}>
       <KitContent lineRole="heading">
-        <KitText role="heading" part="title">
+        <KitText role="label" part="title">
           {joined ? queueLabels.joined : queueLabels.waiting}
         </KitText>
         {joined && position !== undefined && (
           <>
-            <KitText
-              role="number"
-              numberScale={position > 999 ? "compact" : "display"}
-              tabular
-              part="position"
-            >
-              {position}
+            <KitText role="number" tabular part="position">
+              {queueCount(position)}
             </KitText>
             <KitText role="body" tone="muted" part="label">
               {queueLabels.position}
