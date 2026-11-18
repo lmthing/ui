@@ -1,7 +1,11 @@
 import { z } from "zod";
 import {
+  bookLabel,
   detailOf,
+  durationLine,
   itemsOf,
+  loadingLabel,
+  moneyLine,
   photo,
   placeholderTitle,
   probesFor,
@@ -12,12 +16,26 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitPhoto,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  type TextRole,
+  type TextTone,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: List/inset cannot group twelve services with numeric duration and price.
 export const meta = {
   id: "ServiceMenu",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Choose a bookable service by duration and price, grouped by offering.",
   pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid). Several ordinary things each with short details and their own link remain List.",
@@ -27,9 +45,17 @@ export const meta = {
   tier: "phone",
   realPath: "Services stored on the device by the provider.",
   items: { key: "services", parts: ["root", "name", "minutes", "price", "sub", "group", "photo"] },
-  parts: ["root"],
+  parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
+  read: (input, state) =>
+    state !== "filled"
+      ? []
+      : (input as z.output<typeof props>).services.flatMap((service) => [
+          durationLine(service.minutes),
+          ...(service.price === undefined ? [] : [moneyLine(service.price)]),
+          bookLabel,
+        ]),
 } as const satisfies Meta;
 export const props = z.strictObject({
   services: z
@@ -97,3 +123,73 @@ export const probes = [
   write("Offer a 30 minute park walk for 15 and a 60 minute walk for 25, both opening time"),
   read("Book the plant care visit", { address: "s1/r1", action: "press" }),
 ] satisfies Probe[];
+
+function ServiceText({
+  value,
+  part,
+  role = "body",
+  tone = "text",
+}: {
+  value: string;
+  part: string | null;
+  role?: TextRole;
+  tone?: TextTone;
+}) {
+  const loading = useComponentState() === "loading";
+  const skeleton = (
+    <KitSkeleton shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
+  );
+  if (loading) return role === "number" ? <KitContent lead={skeleton}>{null}</KitContent> : skeleton;
+  return (
+    <KitText role={role} tone={tone} numberScale="compact" tabular={role === "number"} part={part}>
+      {value}
+    </KitText>
+  );
+}
+
+function ServiceRows({ services }: Props<typeof props, typeof meta>) {
+  const loading = useComponentState() === "loading";
+  const photos = services.some((service) => service.photo);
+  return (
+    <>
+      {services.map((service, index) => (
+        <KitRow
+          key={service.id}
+          item={service.id}
+          label={loading ? loadingLabel : service.name}
+          goto={loading ? undefined : service.goto}
+          leadingAlign="row"
+          leadingWidth={photos ? "avatar" : undefined}
+          leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
+        >
+          <KitGrid columns={2} fitLast>
+            <KitContent>
+              {service.group && service.group !== services[index - 1]?.group && (
+                <ServiceText value={service.group} role="caption" tone="muted" part="group" />
+              )}
+              <ServiceText value={service.name} part="name" />
+              <ServiceText value={durationLine(service.minutes)} role="number" tone="muted" part="minutes" />
+              {service.sub && <ServiceText value={service.sub} role="caption" tone="muted" part="sub" />}
+            </KitContent>
+            <KitContent>
+              <ServiceText value={bookLabel} role="label" tone="accent" part={null} />
+              {service.price !== undefined && (
+                <ServiceText value={moneyLine(service.price)} role="number" part="price" />
+              )}
+            </KitContent>
+          </KitGrid>
+        </KitRow>
+      ))}
+    </>
+  );
+}
+
+export function ServiceMenu(input: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const { style } = input;
+  return (
+    <KitCard style={state === "empty" || style === "rows" ? "inset" : "cards"}>
+      {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} />}
+    </KitCard>
+  );
+}

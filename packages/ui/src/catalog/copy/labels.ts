@@ -38,3 +38,6 @@ export const mediaUnavailable = "Recording unavailable";
 export const swipeLabels = { left: "Skip", right: "Keep" } as const;
 
 export const allLabel = "All";
+
+/** The cue on an offering that opens its booking flow. */
+export const bookLabel = "Book";

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { charLine, emptyLine, loadingLabel, photoLabels, swipeLabels } from "./labels";
+import { bookLabel, charLine, emptyLine, loadingLabel, photoLabels, swipeLabels } from "./labels";
 
 it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect([emptyLine(), emptyLine(" "), emptyLine("plant"), emptyLine("city"), emptyLine("box")]).toEqual([
@@ -11,6 +11,7 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   ]);
   expect(emptyLine("garden-bed")).toBe("No garden beds yet");
   expect(loadingLabel).toBe("Loading");
+  expect(bookLabel).toBe("Book");
   expect(charLine(42, 600)).toBe("42 / 600");
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
