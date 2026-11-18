@@ -123,7 +123,7 @@ describe("Review fallback and metadata", () => {
     expect(fallback({ cast: casts[2]! }).reviews?.[0]?.name).toBe("Item one");
   });
   it("keeps core-first probes, declared states, people tier and the incomplete pack gate", () => {
-    expect(meta).toMatchObject({ tier: "people", states: ["filled", "empty"] });
+    expect(meta).toMatchObject({ status: "ready", tier: "people", states: ["filled", "empty"] });
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.realPath).not.toBe("");
     expect(meta.pick).toContain("Scale");
@@ -138,7 +138,7 @@ describe("Review fallback and metadata", () => {
     expect(createRegistry({ packs: ["customers"], includeDrafts: true }).ids).toContain("Review");
   });
 });
-describe.skipIf(String(meta.status) !== "ready")("Review states, parts and read/act", () => {
+describe("Review states, parts and read/act", () => {
   it("draws the average, count and five-bar summary with no interactive stars", () => {
     const html = renderInstance("Review", summary, "filled", theme);
     for (const part of ["root", "average", "count", "bars"])

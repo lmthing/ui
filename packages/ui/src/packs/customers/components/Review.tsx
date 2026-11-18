@@ -35,7 +35,7 @@ import {
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 export const meta = {
   id: "Review",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "See clients' ratings and words, their breakdown and the business's replies.",
   pick: "Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).",
