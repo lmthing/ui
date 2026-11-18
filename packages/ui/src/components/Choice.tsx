@@ -138,7 +138,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
     );
   }
   return (
-    <KitCard style="plain" part="root" padded>
+    <KitCard style="plain" part="root" padded inset="none">
       {question && (
         <KitText role="heading" part="question">
           {question}
@@ -156,6 +156,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
           on={option.on === true}
           multi={multi}
           look={style}
+          reserveIcon={options.some((entry) => entry.icon !== undefined)}
         />
       ))}
     </KitCard>

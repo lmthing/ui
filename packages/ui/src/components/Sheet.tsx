@@ -161,6 +161,7 @@ export function Sheet({ style, title, sub, items, at, action }: Props<typeof pro
           key={row.id}
           item={row.id}
           label={row.label}
+          inset="none"
           goto={row.goto}
           leading={
             row.icon ? <KitIcon name={row.icon} tone={row.danger ? "bad" : "muted"} part="icon" /> : undefined

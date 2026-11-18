@@ -15,7 +15,7 @@ const Pill = styled(XStack, {
   alignItems: "center",
   gap: space.xs,
   paddingHorizontal: space.md,
-  minHeight: size.control.sm,
+  minHeight: size.control.md,
   borderRadius: radius.pill,
   borderWidth: component.base.borderWidth,
   variants: {
@@ -166,6 +166,7 @@ export function KitTrack({
       {...address}
       flexWrap="wrap"
       columnGap={space.sm}
+      rowGap={space.sm}
       {...({ role: role ?? "list" } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
