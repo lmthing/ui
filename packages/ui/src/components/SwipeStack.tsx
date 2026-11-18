@@ -27,7 +27,7 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty"],
   actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
-  aliases: ["deck", "swipe", "choices"],
+  aliases: ["deck", "swipe", "keepskip"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

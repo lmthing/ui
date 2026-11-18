@@ -12,3 +12,5 @@ export { signature } from "./signature";
 export { choosePrompt, readPrompt, writePrompt } from "./prompts";
 export { scoreChoose, scoreRead, scoreWrite } from "./score";
 export { runProbes } from "./run";
+export { runPackProbes } from "./run-pack-probes";
+export { scorePack } from "./score-pack";

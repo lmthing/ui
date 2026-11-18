@@ -27,7 +27,7 @@ export type CallModel = (prompt: string, sample?: number) => Promise<string>;
 
 export type ProbeResult = {
   component: string;
-  probe: Probe;
+  probe: Probe | PackProbe;
   status: "pass" | "fail" | "skipped";
   prompt: string;
   reply: string;

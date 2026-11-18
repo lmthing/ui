@@ -13,6 +13,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `neighbours.ts` hero first, no two adjacent of one type except cards and fields, one primary action
 - `placeholders.ts` rejected patterns
 - `check-screen.ts` `checkScreen(screen, registry): Issue[]`
+- `check-packs.ts`, `check-packs.test.ts`: pack metadata, examples, probes, component rules and scoped alias conflicts
 - `index.ts`
 
 Rules:
