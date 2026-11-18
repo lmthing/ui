@@ -82,7 +82,11 @@ export function Checklist({ items }: Props<typeof props, typeof meta>) {
   if (state === "loading") {
     return (
       <KitCard style="inset" part="root">
-        <KitSkeleton rows={items.length} lead="box" />
+        <KitSkeleton
+          rows={items.length}
+          lead="box"
+          items={items.map(({ text, meta }) => ({ title: text, meta }))}
+        />
       </KitCard>
     );
   }

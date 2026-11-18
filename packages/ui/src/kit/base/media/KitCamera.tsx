@@ -76,7 +76,7 @@ export function KitViewfinder({
   part?: string;
   hintPart?: string;
 }) {
-  // A viewfinder is dark in both modes: the text colour in light mode, the screen background in dark.
+  // Keep the frame dark in both modes, but distinct from the screen in dark mode.
   const dark = useThemeName().includes("dark");
   return (
     <YStack
@@ -85,7 +85,7 @@ export function KitViewfinder({
       aspectRatio={component.base.tallRatio}
       borderRadius={shifted("md", useKitStyle().radiusShift)}
       overflow="hidden"
-      backgroundColor={dark ? "$bg" : "$text"}
+      backgroundColor={dark ? "$raised" : "$text"}
       alignItems="center"
       justifyContent="center"
     >

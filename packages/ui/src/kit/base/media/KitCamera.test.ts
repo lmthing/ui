@@ -13,7 +13,7 @@ describe("KitViewfinder marks", () => {
         });
         const frame = elementAt(html, "home/c1/viewfinder");
         const foreground = mode === "dark" ? "text" : "bg";
-        const background = mode === "dark" ? "bg" : "text";
+        const background = mode === "dark" ? "raised" : "text";
         expect(styleAt(html, frame)).toContain(`var(--${background})`);
         const marks = kind === "scan" ? frame.children[0]!.children : frame.children.slice(0, 4);
         expect(marks).toHaveLength(4);

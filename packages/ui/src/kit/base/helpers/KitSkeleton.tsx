@@ -43,7 +43,7 @@ function SkeletonLead({
       {...(time ? { width: component.base.timeWidth } : {})}
       {...(box
         ? {
-            width: size.avatar.md,
+            width: thumbnail ? size.avatar.md : size.control.md,
             alignItems: "center",
             ...(thumbnail ? { alignSelf: "center" as const } : {}),
           }
@@ -72,7 +72,11 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
           paddingVertical={space[ks.density.rowPad]}
           paddingHorizontal={skeletonInset(inset)}
         >
-          <SkeletonLead lead={items?.[index]?.lead ?? lead} first={first} thumbnail={Boolean(items)} />
+          <SkeletonLead
+            lead={items?.[index]?.lead ?? lead}
+            first={first}
+            thumbnail={Boolean(items?.some((item) => item.photo))}
+          />
           <YStack flex={1}>
             {items ? (
               linesOf(items[index]!).map((line, at) => <SkeletonText key={at} {...line} />)
