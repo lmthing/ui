@@ -19,7 +19,7 @@ import { KitAction, KitCard, KitContent, KitText, useComponentState } from "../.
 // Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {
   id: "PaymentStatus",
-  status: "ready",
+  status: "draft",
   group: "data",
   purpose: "Track whether one client payment arrived and mark it paid or remind them.",
   pick: "One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).",
