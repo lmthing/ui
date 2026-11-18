@@ -98,6 +98,94 @@
       "[\"customers\"]"
     ]
   },
+  "2872947ad772c4d2": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Loyalty 10 of 10 — Reward earned — Redeem reward — \"Your tenth walk is free\" — \"Ben Carter\" [l1/redeem press]\n\nTask: Redeem Ben's free walk\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/redeem\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/redeem\", \"action\": \"press\"}",
+      "{\"address\": \"l1/redeem\", \"action\": \"press\"}",
+      "{\"address\": \"l1/redeem\", \"action\": \"press\"}"
+    ]
+  },
+  "2b6103f124743066": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nPaymentStatus: Track whether one client payment arrived and mark it paid or remind them.\nprops: { amount: num 0.., paid?: num 0.., date: date YYYY-MM-DD, due?: date YYYY-MM-DD, method?: text≤16 }\nRule: Write amount and optional paid amount, not a status or balance. Code derives paid, due, overdue or part paid from paid, amount and due.\nexample: {\"c\":\"PaymentStatus\",\"amount\":60,\"paid\":20,\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"method\":\"Bank transfer\"}\n\nBrief: Ben owes 120 for dog walks dated 2026-11-18, paid 30 so far, due 2026-12-02 by bank transfer",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "PaymentStatus",
+              "enum": [
+                "PaymentStatus"
+              ]
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0
+            },
+            "paid": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "method": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "amount",
+            "paid",
+            "date",
+            "due",
+            "method"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"PaymentStatus\",\"amount\":120,\"paid\":30,\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"method\":\"Bank transfer\"}",
+    "replies": [
+      "{\"c\":\"PaymentStatus\",\"amount\":120,\"paid\":30,\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"method\":\"Bank transfer\"}",
+      "{\"c\":\"PaymentStatus\",\"amount\":120,\"paid\":30,\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"method\":\"Bank transfer\"}",
+      "{\"c\":\"PaymentStatus\",\"amount\":120,\"paid\":30,\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"method\":\"Bank transfer\"}"
+    ]
+  },
   "2be504a2de9e4a1a": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agreement: Keep a client's acceptance of terms with their typed name and signing date. Pick: A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).\n- ClientCard: Recognise one business client, their next visit and how to contact them. Pick: One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile) or a list of clients (List).\n- ClientHistory: Recall one client's visits, orders, payments, notes and messages together. Pick: One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).\n- Invoice: Bill a client or quote work before they accept it. Pick: A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).\n- Loyalty: Reward repeat clients with stamps toward a redeemable free thing. Pick: A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).\n- PaymentStatus: Track whether one client payment arrived and mark it paid or remind them. Pick: One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).\n- Review: See clients' ratings and words, their breakdown and the business's replies. Pick: Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n\nNeed, in the person's words: \"Show my own current balance as one large money figure without payment tracking\"\nReply with only the component id, nothing else.",
     "reply": "Amount",
@@ -114,6 +202,589 @@
       "Agreement",
       "Agreement",
       "Agreement"
+    ]
+  },
+  "2ef88bd5c1bc028c": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: client/waiver. Job: One client fully.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1,\"variant\":\"back\"},{\"id\":\"slot_1\",\"allow\":[\"Agreement\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nAgreement: Keep a client's acceptance of terms with their typed name and signing date.\nprops: { title: text≤32, terms: text≤600, signed: boolean, name?: text≤28, date?: date YYYY-MM-DD }\nRule: Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.\nRule: Only write date when a signing date is supplied. Never invent a name or signing date.\nexample: {\"c\":\"Agreement\",\"title\":\"Plant care access consent\",\"terms\":\"I allow the carer to enter for booked plant care visits and keep the spare key securely.\",\"signed\":false}\nweight: 2\n\nButton: One main thing the person does next.\nprops: { label: text≤24, kind?: primary|secondary|quiet|danger=\"primary\", icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"kind\":\"primary\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"client_waiver\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"back\",\"title\":\"Item one\"},{\"id\":\"a1\",\"c\":\"Agreement\",\"title\":\"Item one\",\"terms\":\"Details\",\"signed\":false},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\",\"kind\":\"primary\"}]}\n\nWrite a useful screen for the supplied content, using the recipe. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "large",
+                              "inline",
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Agreement",
+                        "enum": [
+                          "Agreement"
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "terms": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 600
+                      },
+                      "signed": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 28
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "date": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "title",
+                      "terms",
+                      "signed",
+                      "name",
+                      "date"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "primary",
+                              "secondary",
+                              "quiet",
+                              "danger"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"client_waiver\",\n  \"title\": \"Client Waiver\",\n  \"components\": [\n    {\n      \"id\": \"header_client_waiver\",\n      \"c\": \"Header\",\n      \"style\": \"back\",\n      \"title\": \"Client Waiver\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"agreement_consent\",\n      \"c\": \"Agreement\",\n      \"title\": \"Consent Agreement\",\n      \"terms\": \"I acknowledge that I have reviewed the provided information and agree to the terms and conditions as stated.\",\n      \"signed\": false,\n      \"name\": null,\n      \"date\": null\n    },\n    {\n      \"id\": \"button_accept\",\n      \"c\": \"Button\",\n      \"label\": \"Accept and Continue\",\n      \"kind\": \"primary\",\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"client_waiver\",\n  \"title\": \"Client Waiver\",\n  \"components\": [\n    {\n      \"id\": \"header_client_waiver\",\n      \"c\": \"Header\",\n      \"style\": \"back\",\n      \"title\": \"Client Waiver\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"agreement_consent\",\n      \"c\": \"Agreement\",\n      \"title\": \"Consent Agreement\",\n      \"terms\": \"I acknowledge that I have reviewed the provided information and agree to the terms and conditions as stated.\",\n      \"signed\": false,\n      \"name\": null,\n      \"date\": null\n    },\n    {\n      \"id\": \"button_accept\",\n      \"c\": \"Button\",\n      \"label\": \"Accept and Continue\",\n      \"kind\": \"primary\",\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"client_waiver\",\n  \"title\": \"Client Waiver\",\n  \"components\": [\n    {\n      \"id\": \"header_waiver\",\n      \"c\": \"Header\",\n      \"style\": \"back\",\n      \"title\": \"One client waiver\"\n     ,\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"agreement_consent\",\n      \"c\": \"Agreement\",\n      \"title\": \"Client service agreement\",\n      \"terms\": \"I confirm that the information provided is accurate and I agree to the terms and conditions of the service.\",\n      \"signed\": false,\n      \"name\": null,\n      \"date\": null\n    },\n    {\n      \"id\": \"button_continue\",\n      \"c\": \"Button\",\n      \"label\": \"Continue\",\n      \"kind\": \"primary\",\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"client_waiver\",\n  \"title\": \"Client Waiver\",\n  \"components\": [\n    {\n      \"id\": \"header_back\",\n      \"c\": \"Header\",\n      \"style\": \"back\",\n      \"title\": \"Client Waiver\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"agreement_main\",\n      \"c\": \"Agreement\",\n      \"title\": \"Terms and Conditions\",\n      \"terms\": \"By signing below, you acknowledge that you have read and agree to the terms and conditions of our service. Please review the details carefully.\",\n      \"signed\": false,\n      \"name\": null,\n      \"date\": null\n    },\n    {\n      \"id\": \"button_continue\",\n      \"c\": \"Button\",\n      \"label\": \"Continue\",\n      \"kind\": \"primary\",\n      \"icon\": null,\n      \"goto\": null,\n      \"confirm\": null\n    }\n  ]\n}"
     ]
   },
   "31d6f86f5f5f0efd": {
@@ -187,6 +858,15 @@
       "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":null,\"date\":null}",
       "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":null,\"date\":null}",
       "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks, and I understand it will only be used for those walks.\",\"signed\":false,\"name\":null,\"date\":null}"
+    ]
+  },
+  "3246e9823b0d6b66": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Invoice[quote] Quote T-Q07 — Sent — To · Ben Carter — Issued · 2026-11-18 — Qty 8 — $15 / each — Subtotal — $120 — Total — $120 — Resend — Accept — Decline — \"T-Q07\" — \"Ben Carter\" [i1/send press !needs-service] [i1/accept press] [i1/decline press]\n  r1 \"Morning park walk\"\n\nTask: Accept this quote\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"i1/accept\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"i1/accept\", \"action\": \"press\"}",
+      "{\"address\": \"i1/accept\", \"action\": \"press\"}",
+      "{\"address\": \"i1/accept\", \"action\": \"press\"}"
     ]
   },
   "32a4ee2c1b5212df": {
@@ -3054,6 +3734,15 @@
       "ClientHistory"
     ]
   },
+  "5f2b81fd39dd588c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 ClientHistory visit · 2026-11-18 — order · 2026-11-17 — +$20 — note · 2026-11-16\n  r1 \"visit\" · \"Watering and leaf care\" [c1/r1 press→visit]\n  r2 \"order\" · \"Repotting supplies\" [c1/r2 press→order]\n  r3 \"note\" · \"Spare key at reception\" [c1/r3 press→notes]\n\nTask: Open the watering and leaf care visit\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"c1/r1\", \"action\": \"press\"}"
+    ]
+  },
   "60995d5d9385f628": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nClientHistory: Recall one client's visits, orders, payments, notes and messages together.\nprops: { entries: [1..6 { date: date YYYY-MM-DD, kind: visit|order|payment|note|message, title: text≤32, amount?: number, goto: id snake_case }] }\nRule: Write entries newest first. Amounts are numeric records, never currency text.\nexample: {\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"visit\",\"title\":\"Watering and leaf care\",\"goto\":\"visit\"},{\"date\":\"2026-11-17\",\"kind\":\"order\",\"title\":\"Repotting supplies\",\"amount\":20,\"goto\":\"order\"},{\"date\":\"2026-11-16\",\"kind\":\"note\",\"title\":\"Spare key at reception\",\"goto\":\"notes\"}]}\n\nBrief: Ben's newest history: payment of 120 on 2026-11-18 opening payment, park walk on 2026-11-17 opening visit",
     "format": {
@@ -3154,6 +3843,494 @@
       "Streak",
       "Streak",
       "Streak"
+    ]
+  },
+  "64bda9ad10c2c831": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: reputation/reviews. Job: What clients say.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Review\"],\"min\":1,\"max\":1,\"variant\":\"summary\"},{\"id\":\"slot_2\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"Review\"],\"min\":1,\"max\":1,\"variant\":\"list\"}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nLayout rule: Put the summary first and the review list after SectionTitle; the two reviews must not touch.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nReview: See clients' ratings and words, their breakdown and the business's replies.\nprops: { style?: summary|list=\"summary\", average?: num 0..5, count?: int 0..9007199254740991, bars?: [5..5 num 0..], reviews?: [1..5 { stars: int 1..5, name: text≤24, date: date YYYY-MM-DD, text: text≤240, reply?: text≤160 }] }\nRule: style: \"summary\" needs average, count and exactly five bars ordered from 1 to 5 stars. style: \"list\" needs one to five reviews. Omit unused fields.\nRule: Each review needs stars 1–5, name, date and text, with an optional business reply.\nexample: {\"c\":\"Review\",\"style\":\"summary\",\"average\":4.5,\"count\":4,\"bars\":[0,0,0,2,2]}\nweight: 2\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nA valid default for this layout: {\"id\":\"reputation_reviews\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Item one\"},{\"id\":\"r1\",\"c\":\"Review\",\"average\":0,\"count\":0,\"bars\":[0,0,0,0,0],\"reviews\":[{\"stars\":1,\"name\":\"Item one\",\"date\":\"2026-11-18\",\"text\":\"Details\"}],\"style\":\"summary\"},{\"id\":\"s1\",\"c\":\"SectionTitle\",\"text\":\"Item one\"},{\"id\":\"r2\",\"c\":\"Review\",\"average\":0,\"count\":0,\"bars\":[0,0,0,0,0],\"reviews\":[{\"stars\":1,\"name\":\"Item one\",\"date\":\"2026-11-18\",\"text\":\"Details\"}],\"style\":\"list\"}]}\n\nWrite a useful screen for the supplied content, using the recipe. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "large",
+                              "inline",
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Review",
+                        "enum": [
+                          "Review"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "summary",
+                              "list"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "average": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 5
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "count": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "bars": {
+                        "anyOf": [
+                          {
+                            "minItems": 5,
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "number",
+                              "minimum": 0
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "reviews": {
+                        "anyOf": [
+                          {
+                            "minItems": 1,
+                            "maxItems": 5,
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "stars": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "maximum": 5
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                "date": {
+                                  "type": "string",
+                                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                                },
+                                "text": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 240
+                                },
+                                "reply": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "minLength": 1,
+                                      "maxLength": 160
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "stars",
+                                "name",
+                                "date",
+                                "text",
+                                "reply"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "average",
+                      "count",
+                      "bars",
+                      "reviews"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "SectionTitle",
+                        "enum": [
+                          "SectionTitle"
+                        ]
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "link": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "text",
+                      "link"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"id\":\"reputation_reviews\",\"title\":\"What clients say\",\"components\":[{\"id\":\"screen_header\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Client reviews\",\"sub\":\"See what clients think\",\"action\":{\"icon\":\"settings\",\"label\":\"Settings\",\"goto\":\"review_settings\"}},{\"id\":\"summary_review\",\"c\":\"Review\",\"style\":\"summary\",\"average\":4.8,\"count\":127,\"bars\":[2,3,5,42,75],\"reviews\":null},{\"id\":\"list_title\",\"c\":\"SectionTitle\",\"text\":\"Latest testimonials\",\"link\":{\"label\":\"View all\",\"goto\":\"all_reviews\"}},{\"id\":\"list_reviews\",\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Alice Johnson\",\"date\":\"2026-11-18\",\"text\":\"Absolutely wonderful service! The team was professional and attentive.\",\"reply\":\"Thank you, Alice! We're glad you had a great experience.\"},{\"stars\":5,\"name\":\"Michael Chen\",\"date\":\"2026-11-15\",\"text\":\"Exceeded my expectations. Highly recommend to anyone looking for quality.\" ,\"reply\":null},{\"stars\":4,\"name\":\"Sofia Martinez\",\"date\":\"2026-11-10\",\"text\":\"Very good overall. Small delay in communication but the result was great.\",\"reply\":\"Thanks for the feedback, Sofia! We'll work on that.\"}]}]}",
+    "replies": [
+      "{\"id\":\"reputation_reviews\",\"title\":\"What clients say\",\"components\":[{\"id\":\"screen_header\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Client reviews\",\"sub\":\"See what clients think\",\"action\":{\"icon\":\"settings\",\"label\":\"Settings\",\"goto\":\"review_settings\"}},{\"id\":\"summary_review\",\"c\":\"Review\",\"style\":\"summary\",\"average\":4.8,\"count\":127,\"bars\":[2,3,5,42,75],\"reviews\":null},{\"id\":\"list_title\",\"c\":\"SectionTitle\",\"text\":\"Latest testimonials\",\"link\":{\"label\":\"View all\",\"goto\":\"all_reviews\"}},{\"id\":\"list_reviews\",\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Alice Johnson\",\"date\":\"2026-11-18\",\"text\":\"Absolutely wonderful service! The team was professional and attentive.\",\"reply\":\"Thank you, Alice! We're glad you had a great experience.\"},{\"stars\":5,\"name\":\"Michael Chen\",\"date\":\"2026-11-15\",\"text\":\"Exceeded my expectations. Highly recommend to anyone looking for quality.\" ,\"reply\":null},{\"stars\":4,\"name\":\"Sofia Martinez\",\"date\":\"2026-11-10\",\"text\":\"Very good overall. Small delay in communication but the result was great.\",\"reply\":\"Thanks for the feedback, Sofia! We'll work on that.\"}]}]}",
+      "{\"id\":\"reputation_reviews\",\"title\":\"What clients say\",\"components\":[{\"id\":\"screen_header\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"What clients say\",\"sub\":\"Real ratings from real customers\",\"action\":{\"icon\":\"share\",\"label\":\"Share\",\"goto\":null}},{\"id\":\"summary_review\",\"c\":\"Review\",\"style\":\"summary\",\"average\":4.2,\"count\":4,\"bars\":[0,0,1,2,1],\"reviews\":null},{\"id\":\"reviews_title\",\"c\":\"SectionTitle\",\"text\":\"Client reviews\",\"link\":null},{\"id\":\"all_reviews\",\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Alice\",\"date\":\"2026-11-18\",\"text\":\"Exceptional service and prompt communication. Highly recommended.\",\"reply\":\"Thank you, Alice!\"},{\"stars\":5,\"name\":\"Bob\",\"date\":\"2026-11-15\",\"text\":\"Very professional and detail-oriented. Will hire again.\",\"reply\":null},{\"stars\":4,\"name\":\"Carol\",\"date\":\"2026-11-10\",\"text\":\"Great work overall, minor delay in delivery but great quality.\",\"reply\":\"We appreciate your patience.\"},{\"stars\":3,\"name\":\"Dave\",\"date\":\"2026-11-05\",\"text\":\"Good, but could improve on response times.\",\"reply\":\"Thanks for the feedback, Dave.\"}]}]}",
+      "{\"id\":\"reputation_reviews\",\"title\":\"What clients say\",\"components\":[{\"id\":\"screen_header\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"What clients say\",\"sub\":\"Reviews from real customers\",\"action\":{\"icon\":\"settings\",\"label\":\"Filter\",\"goto\":null}},{\"id\":\"summary_review\",\"c\":\"Review\",\"style\":\"summary\",\"average\":4.5,\"count\":4,\"bars\":[0,0,0,2,2],\"reviews\":null},{\"id\":\"reviews_title\",\"c\":\"SectionTitle\",\"text\":\"All reviews\",\"link\":null},{\"id\":\"list_reviews\",\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Alice\",\"date\":\"2026-11-10\",\"text\":\"Amazing service and quality, would recommend!\",\"reply\":\"Thank you, Alice!\"},{\"stars\":4,\"name\":\"Bob\",\"date\":\"2026-11-05\",\"text\":\"Very good experience, just a bit slow on delivery.\",\"reply\":null}]}]}"
     ]
   },
   "70ff3be050222b21": {
@@ -3825,6 +5002,15 @@
       "Review"
     ]
   },
+  "806194d4b601ab32": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Invoice Invoice L-042 — Sent — To · Anna Patel — Issued · 2026-11-18 — Due · 2026-12-02 — Qty 2 — $20 / each — Qty 1 — $30 / each — Subtotal — $70 — Tax (10%) — $7 — Total — $77 — Resend — \"L-042\" — \"Anna Patel\" — \"Thank you for keeping things growing.\" [i1/send press !needs-service]\n  r1 \"Plant care visit\"\n  r2 \"Repotting\"\n\nTask: Send this bill to Anna\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"i1/send\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"i1/send\", \"action\": \"press\"}",
+      "{\"address\": \"i1/send\", \"action\": \"press\"}",
+      "{\"address\": \"i1/send\", \"action\": \"press\"}"
+    ]
+  },
   "82d08aea87972f7c": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agreement: Keep a client's acceptance of terms with their typed name and signing date. Pick: A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).\n- ClientCard: Recognise one business client, their next visit and how to contact them. Pick: One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), a list of clients (List), or plain labelled phone and address details without contact buttons (KeyValue).\n- ClientHistory: Recall one client's visits, orders, payments, notes and messages together. Pick: One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).\n- Invoice: Bill a client or quote work before they accept it. Pick: A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).\n- Loyalty: Reward repeat clients with stamps toward a redeemable free thing. Pick: A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).\n- PaymentStatus: Track whether one client payment arrived and mark it paid or remind them. Pick: One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).\n- Review: See clients' ratings and words, their breakdown and the business's replies. Pick: Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n\nNeed, in the person's words: \"Send a client a bill with its number, dates, quantities, unit prices and tax, or a quote they can accept\"\nReply with only the component id, nothing else.",
     "reply": "Invoice",
@@ -3841,6 +5027,15 @@
       "ClientCard",
       "ClientCard",
       "ClientCard"
+    ]
+  },
+  "84e9e40453ab54ed": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Loyalty 3 of 6 — Add stamp — \"Your sixth plant care visit is free\" — \"Anna Patel\" [l1/stamp press]\n\nTask: Add a stamp for this visit\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/stamp\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/stamp\", \"action\": \"press\"}",
+      "{\"address\": \"l1/stamp\", \"action\": \"press\"}",
+      "{\"address\": \"l1/stamp\", \"action\": \"press\"}"
     ]
   },
   "8b730d0a78940eb2": {
@@ -4500,6 +5695,15 @@
       "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
       "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
       "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}"
+    ]
+  },
+  "a5cccfc25dc37617": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 ClientCard Client since 3 Apr 2025 — Next: Plant care · Friday 09:00 — Regular · Key holder — Message — Call — Directions — \"Anna Patel\" — photo:people — \"Plant care · Friday 09:00\" [c1/call press !needs-service] [c1/message press !needs-service] [c1/directions press !needs-service]\n\nTask: Call Anna\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/call\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/call\", \"action\": \"press\"}",
+      "{\"address\": \"c1/call\", \"action\": \"press\"}",
+      "{\"address\": \"c1/call\", \"action\": \"press\"}"
     ]
   },
   "a7efb7773dcb6bdd": {
@@ -5752,6 +6956,15 @@
       "{\"id\":\"clients_list\",\"title\":\"All my clients\",\"components\":[{\"id\":\"header_clients\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"All my clients\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add client\",\"goto\":\"add_client\"}},{\"id\":\"search_clients\",\"c\":\"Search\",\"hint\":\"Search clients\"},{\"id\":\"chips_filter\",\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"All\",\"on\":true,\"icon\":null},{\"label\":\"Active\",\"on\":false,\"icon\":null},{\"label\":\"Archived\",\"on\":false,\"icon\":null},{\"label\":\"VIP\",\"on\":false,\"icon\":null}]},{\"id\":\"list_clients\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"No clients yet\",\"meta\":\"Tap add to create your first client\",\"icon\":\"user\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":null,\"body\":null,\"me\":false},{\"title\":\"Example Client\",\"meta\":\"example@email.com\",\"icon\":\"user\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"client_detail\",\"body\":null,\"me\":false},{\"title\":\"Another Client\",\"meta\":\"phone: 555-1234\",\"icon\":\"building\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"client_detail\",\"body\":null,\"me\":false}]},{\"id\":\"button_add_client\",\"c\":\"Button\",\"label\":\"Add client\",\"kind\":\"primary\",\"icon\":\"plus\",\"goto\":\"add_client\",\"confirm\":null}]}"
     ]
   },
+  "b516a63f7e8843b2": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Review[list] 5 of 5 — 2026-11-18 — Reply — Business reply — 4 of 5 — 2026-11-17 — Reply\n  r1 \"Ben Carter\" · \"Clover and Pip come home happy after every walk.\" · \"Thank you, Ben. They are a lovely pair.\" [r1/r1/reply press !needs-people]\n  r2 \"Mia Jones\" · \"Reliable pickups and clear updates.\" [r1/r2/reply press !needs-people]\n\nTask: Reply to Ben's review\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r1/reply\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r1/reply\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/reply\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r1/reply\", \"action\": \"press\"}"
+    ]
+  },
   "ba2e1de639a5f7ee": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agreement: Keep a client's acceptance of terms with their typed name and signing date. Pick: A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).\n- ClientCard: Recognise one business client, their next visit and how to contact them. Pick: One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), a list of clients (List), or plain labelled phone and address details without contact buttons (KeyValue).\n- ClientHistory: Recall one client's visits, orders, payments, notes and messages together. Pick: One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).\n- Invoice: Bill a client or quote work before they accept it. Pick: A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).\n- Loyalty: Reward repeat clients with stamps toward a redeemable free thing. Pick: A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).\n- PaymentStatus: Track whether one client payment arrived and mark it paid or remind them. Pick: One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).\n- Review: See clients' ratings and words, their breakdown and the business's replies. Pick: Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n\nNeed, in the person's words: \"Show my current habit streak and which days this week I completed it\"\nReply with only the component id, nothing else.",
     "reply": "Streak",
@@ -5992,6 +7205,15 @@
       "[\"customers\"]"
     ]
   },
+  "c786cdb4fff410d0": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PaymentStatus Part paid — Total $60 — 60 — Received $20 — Date 18 Nov 2026 — Due 2 Dec 2026 — Bank transfer — 20 — 2026-11-18 — 2026-12-02 — Mark as paid — Remind — \"Bank transfer\" [p1/mark press] [p1/remind press !needs-service]\n\nTask: Send a reminder for this payment\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/remind\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/remind\", \"action\": \"press\"}",
+      "{\"address\": \"p1/remind\", \"action\": \"press\"}",
+      "{\"address\": \"p1/remind\", \"action\": \"press\"}"
+    ]
+  },
   "cdd3bf88a946cb35": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Agreement: Keep a client's acceptance of terms with their typed name and signing date. Pick: A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).\n- ClientCard: Recognise one business client, their next visit and how to contact them. Pick: One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.\n- ClientHistory: Recall one client's visits, orders, payments, notes and messages together. Pick: One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).\n- Invoice: Bill a client or quote work before they accept it. Pick: A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).\n- Loyalty: Reward repeat clients with stamps toward a redeemable free thing. Pick: A business client's four-to-twelve stamp reward card, with stamp and redeem actions. Not a habit streak (Streak) or a personal goal (Ring).\n- PaymentStatus: Track whether one client payment arrived and mark it paid or remind them. Pick: One payment from a client, with paid amount, dates, method and mark or remind actions. Not a full bill (Invoice) or the person's own balance (Amount).\n- Review: See clients' ratings and words, their breakdown and the business's replies. Pick: Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).\n\nNeed, in the person's words: \"Show my own identity with a photo, name, short bio and an edit button\"\nReply with only the component id, nothing else.",
     "reply": "Profile",
@@ -6073,6 +7295,171 @@
       "KeyValue"
     ]
   },
+  "e6772864ae8233cc": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nReview: See clients' ratings and words, their breakdown and the business's replies.\nprops: { style?: summary|list=\"summary\", average?: num 0..5, count?: int 0..9007199254740991, bars?: [5..5 num 0..], reviews?: [1..5 { stars: int 1..5, name: text≤24, date: date YYYY-MM-DD, text: text≤240, reply?: text≤160 }] }\nRule: style: \"summary\" needs average, count and exactly five bars ordered from 1 to 5 stars. style: \"list\" needs one to five reviews. Omit unused fields.\nRule: Each review needs stars 1–5, name, date and text, with an optional business reply.\nexample: {\"c\":\"Review\",\"style\":\"summary\",\"average\":4.5,\"count\":4,\"bars\":[0,0,0,2,2]}\n\nBrief: List two client reviews: Ben Carter gave five stars on 2026-11-18 and said Great walks; Mia Jones gave four on 2026-11-17 and said Reliable pickups",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Review",
+              "enum": [
+                "Review"
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "summary",
+                    "list"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "average": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "count": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "bars": {
+              "anyOf": [
+                {
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reviews": {
+              "anyOf": [
+                {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "stars": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240
+                      },
+                      "reply": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 160
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "stars",
+                      "name",
+                      "date",
+                      "text",
+                      "reply"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "c",
+            "style",
+            "average",
+            "count",
+            "bars",
+            "reviews"
+          ]
+        }
+      }
+    },
+    "reply": "{\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+    "replies": [
+      "{\"c\":\"Review\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,1,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,0,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}"
+    ]
+  },
+  "eb04f773ab4e5582": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 Agreement I agree — Full name — \"Plant care access consent\" — \"I allow the carer to enter for booked plant care visits and keep the spare key securely.\" [a1/agree check:todo] [a1/name type]\n\nTask: Accept these access terms\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"a1/agree\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"a1/agree\", \"action\": \"check\"}",
+      "{\"address\": \"a1/agree check\", \"action\": \"check\"}",
+      "{\"address\": \"a1/agree check\", \"action\": \"check\"}"
+    ]
+  },
+  "eb1bcd386db868ca": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 Agreement I agree — Full name — \"Plant care access consent\" — \"I allow the carer to enter for booked plant care visits and keep the spare key securely.\" [a1/agree check:todo] [a1/name type]\n\nTask: Type the client's name\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"a1/name\", \"action\": \"type\"}",
+    "replies": [
+      "{\"address\": \"a1/name\", \"action\": \"type\"}",
+      "{\"address\": \"a1/name\", \"action\": \"type\"}",
+      "{\"address\": \"a1/name\", \"action\": \"type\"}"
+    ]
+  },
   "ee66c9e6166709b3": {
     "prompt": "Choose the domain packs this app needs from the index below. Match the app's purpose to the pack's purpose and pick line. Include a matching domain even when core components cover some screens. Choose [] only for a core-only app with no matching domain.\n\n- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots and class waitlists. Booking alone covers clients booking a provider's appointments or studio classes; clients, providers, paid services and class groups do not imply customers, team, commerce, events or community. Add another pack only for an explicitly requested separate job. Not selling goods (commerce). Reply only with a valid JSON array of pack ids, never an object, invented app name or explanation.\n- books: Keeping a small business's books: record money received and spent, retain receipts, separate business costs from owner withdrawals, and understand a period's profit and tax provision. The default is local cash-basis bookkeeping for one business, not banking, certified accounts or automatic tax filing. Pick: A small business's own accounts: income, expenses, profit, tax set aside. Not personal money (money), client invoices (customers), or selling goods (commerce)\n- commerce: Goods on offer, a basket, an order and its progress, from both sides: the buyer browsing and ordering, and the seller seeing orders come in, moving them on and keeping products up to date. It covers small sellers (a bakery taking pre-orders, a market stall, a maker selling prints). Taking payment is always a service part. Pick: Selling things for money: a shop, a bakery, a stall. Not booking time (booking)\n- community: The continuing work of a member-run group: who belongs and can vote, subscriptions collected by the treasurer, motions decided under the group's rules, contributions people claim, and the agreed record of decisions and actions. Notices use the core; this pack adds governance, not another social feed. Pick: A club, association or neighbourhood group run by its members: dues, notices, votes, sign-ups, minutes. Not sharing posts (social), not organising one gathering (events), not staff shifts (team)\n- customers: Keep a business's client records, history, invoices, reviews, rewards and signed agreements. Pick: A business keeping track of the people it serves: client records, history, invoices and rewards. Past visits alone do not need scheduling (booking). Not people sharing posts, comments and follows with each other (social). Friends sharing with each other belong to social, not a core-only app.\n- data: The back office of a small operation: many records at once, sorted and filtered, moved through stages, changed in bulk, and summarised in charts. Any pack component allowed by the README's density rule may be dense. Pick: Running something behind the scenes: tables, boards, reports. Not personal tracking (core)\n- events: Running one event from the organiser's side and the guest's: who is invited and coming, what they will eat, where they sit, who supplies what and what it costs, tickets and the door on the day, the gift list, and finding a date that suits everyone. Weddings, parties, reunions, fundraisers, small conferences. Pick: Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts. Not travel (trips)\n- health: The most-asked personal app family: logging workouts set by set, taking medication on time, watching a body measurement move toward a goal, keeping several healthy habits, tracking symptoms, vitals and a menstrual cycle. Everything stays on the phone; nothing here is medical advice, and \"what's real?\" says so. Pick: The body: workouts, medication, measurements, symptoms, cycles. Not the mind (mind), not food (kitchen)\n- hiring: Before someone joins a team, a small employer tracks openings and applicants, reviews evidence, arranges interviews and records offers. A job seeker tracks the same process from the other side. Both can keep records on one phone; this pack does not promise a job board, shared recruiting system or automatic hiring. Pick: Finding people or work: job posts, applicants, interviews, offers and your own applications. Not staff already hired (team), not clients (customers), not a generic kanban (data)\n- home: The work of a home shared among the people in it: chores and whose turn it is, rewards for kids, the family's week, recurring care for pets, plants, the car and the house, a baby's feeds and sleeps, and the devices in the rooms, including set points, one-tap scenes and sensor readings. Pick: Running a household: chores, family, pets, plants, cars, the house and its devices. Not a business team (team)\n- inventory: Knowing what you have, where it is, who has it, when its warranty ends and what you still want, from a garage of boxes to a small shop's stock room, a record collection or a few rental flats. For rentals it covers the listing, the lease and a single rental-repair summary only; any request workflow (queue, triage, thread, work order) belongs to the requests pack. The tenants themselves are customers. Pick: Keeping track of things owned: stock, collections, storage, loans, warranties, rentals. Not selling them (commerce)\n- invest: Following money set aside for the future: what is owned, how its value changes apart from contributions, what income it pays, and how close it brings a savings target. It records investments, not advice or orders to a broker. A first showcase uses local records and dated quotes; live prices need a service. Pick: Investments over time: holdings, allocation, watchlists, performance, dividends, savings goals. Not day-to-day spending and bills (money), not a business's books (books, proposed)\n- kitchen: Everything about food in a household: cooking from a recipe with the right amounts and timers, planning the week's meals, the shopping list that follows from it, what is in the cupboard and when it goes off, and a simple log of what was eaten. Pick: Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (commerce)\n- learning: Learning something step by step and checking it stuck: lessons, questions with feedback, flashcards with spaced review, a path through units, results and badges, and a student's week of classes and homework. Pick: Teaching and practising: lessons, quizzes, flashcards, classes and homework. Not a team's training rota (team)\n- media: A library of things to read, hear or watch: articles, books, podcasts, albums, sermons, video courses. The core Player plays one recording; this pack adds what a library needs around it: the reading view, a show's page, episode lists, chapters, a player that follows the person between screens, and saved highlights. Pick: Reading, listening and watching a library. Not one recording on one screen (core Player)\n- mind: Looking after how one feels: a daily check-in of mood and what affected it, a journal, naming feelings, breathing exercises, sleep, calming sounds, and the patterns that show up over weeks. It is calm by design: soft presets, no red alarms, nothing competitive. Pick: The mind: mood, journaling, feelings, breathing, sleep. Not the body (health)\n- money: Personal and household money: what is in each account, where it went, what is due, who owes whom, how to clear debts, and how a holding is doing. It never moves money in a first showcase; bank links and payments are service, and \"what's real?\" says so. Pick: The person's own money: balances, budgets, bills, splitting costs, debts and repayment plans. Not a business's sales (commerce)\n- paperwork: IDs, insurance, tax evidence, certificates and personal contracts, with action dates and proof files. The pack is a local filing cabinet, not a bank, travel wallet, warranty book or client-consent workflow. Its hand-drawn signature pad for personal forms does not promise legally verified e-signing. Pick: Life admin: documents, renewals, receipts, forms to sign and deadlines. Not travel documents (trips), owned things' warranties (inventory), client agreements (customers) or payments to track (money)\n- places: Real places and moving between them: a venue's card and opening hours, an address to copy or navigate to, a map with a list beside it, a delivery coming to the door, and the next departures from a stop. Maps and live data need a service. Pick: Where things are and getting there: venues, addresses, deliveries, departures. Not planning a trip (trips)\n- play: Tools for playing around one phone: keep a board game's round scores, roll dice, spin for a random choice, take turns, reveal a trivia answer and split the players into teams. It supports the game at the table, not a general game engine, a sports season or a course. No wagers, prizes for money or payments. Pick: Playing a game together: round scores, dice, a spinner, turns, host-led trivia and random teams. Not league fixtures and standings (sports), not graded practice (learning), not household duties (home)\n- projects: Delivering a bounded piece of work: agree what is included, break it into assigned tasks, meet milestone gates, see dependencies across dates, and record the time spent on each task. It serves one person managing their own work first; collaborators and clients do not have to use the app. Pick: Work with deliverables: projects, tasks, milestones, time spent. Not running day-to-day operations (data), not staff shifts (team)\n- property: The operating view of rented homes: which independently lettable units are occupied, who owes rent for which period, who is viewing, what condition each room was in, and how meters changed. A landlord or host can keep these records on one phone; tenant accounts, automatic payments and booking-platform sync are not implied. This pack does not replace inventory's Lease or Listing. Pick: Running rented property: units, occupancy, rent, viewings, inspections, meters. Not owned things or one listing or lease (inventory), not repairs and maintenance requests (requests)\n- requests: An operator takes a reported problem through triage, assigned work, updates and verified resolution. Reports can span visits, have several work orders, wait for parts or information, and reopen after a failed fix. Pick: Requests moving through a service queue: repairs, maintenance, support tickets, work orders. Not booking time (booking), not a simple repair attached to something owned (inventory), not arbitrary records on a board (data)\n- social: A small community in one app: a club, a class, a neighbourhood, friends with a shared hobby. People post, react, comment, vote, join challenges and events, and invite others. Everything here needs other people, so the pack is tier people throughout. Pick: People sharing with each other: posts, comments, follows. Not a business's clients (customers)\n- sports: Amateur and grassroots sport, run by volunteers: the next match and who is available, the lineup, keeping the score live, what happened in the match, the league table and a knockout cup. It works for any sport with sides, scores and fixtures; football is the default for positions and periods. Pick: A sports team or league: fixtures, scores, standings, lineups, availability. Not a workout (health)\n- team: A small group that works together on a schedule: who is on when, who can cover a gap, hours worked, what the last shift handed over, and requests waiting for a manager. It suits cafés, salons, clinics, volunteer groups and family businesses. Pick: Staff or volunteers: shifts, hours, handovers, approvals. Not a sports squad (sports)\n- trips: One trip from planning to coming home: the plan day by day, the confirmations for flights, trains, stays and tickets, what to pack, the documents to carry, the weather where you are going, money in the local currency and the time back home. Shared costs on a trip come from money; places to visit from places. Pick: Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (events)\n\nIdea: A café keeping customers' loyalty stamps and reviews, without selling or ordering in the app\nReply with a JSON array of up to 3 pack ids, or [] when none fit.",
     "reply": "[\"customers\"]",
@@ -6080,6 +7467,15 @@
       "[\"customers\"]",
       "[\"customers\"]",
       "[\"customers\"]"
+    ]
+  },
+  "eed51007a4c62f2f": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 PaymentStatus Part paid — Total $60 — 60 — Received $20 — Date 18 Nov 2026 — Due 2 Dec 2026 — Bank transfer — 20 — 2026-11-18 — 2026-12-02 — Mark as paid — Remind — \"Bank transfer\" [p1/mark press] [p1/remind press !needs-service]\n\nTask: Mark this payment as paid\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/mark\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/mark\", \"action\": \"press\"}",
+      "{\"address\": \"p1/mark\", \"action\": \"press\"}",
+      "{\"address\": \"p1/mark\", \"action\": \"press\"}"
     ]
   },
   "f1ee70a4c62e8f31": {
@@ -6107,6 +7503,15 @@
       "ClientHistory",
       "ClientHistory",
       "ClientHistory"
+    ]
+  },
+  "f4f0908a31e90e7c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Invoice[quote] Quote T-Q07 — Sent — To · Ben Carter — Issued · 2026-11-18 — Qty 8 — $15 / each — Subtotal — $120 — Total — $120 — Resend — Accept — Decline — \"T-Q07\" — \"Ben Carter\" [i1/send press !needs-service] [i1/accept press] [i1/decline press]\n  r1 \"Morning park walk\"\n\nTask: Decline this quote\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"i1/decline\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"i1/decline\", \"action\": \"press\"}",
+      "{\"address\": \"i1/decline\", \"action\": \"press\"}",
+      "{\"address\": \"i1/decline\", \"action\": \"press\"}"
     ]
   },
   "f7a6849e14400623": {
@@ -6622,6 +8027,79 @@
       "Checklist",
       "Checklist",
       "Checklist"
+    ]
+  },
+  "fe7c2476f055af93": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nAgreement: Keep a client's acceptance of terms with their typed name and signing date.\nprops: { title: text≤32, terms: text≤600, signed: boolean, name?: text≤28, date?: date YYYY-MM-DD }\nRule: Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.\nRule: Only write date when a signing date is supplied. Never invent a name or signing date.\nexample: {\"c\":\"Agreement\",\"title\":\"Plant care access consent\",\"terms\":\"I allow the carer to enter for booked plant care visits and keep the spare key securely.\",\"signed\":false}\n\nBrief: Unsigned Key-holding consent: I allow Trot to keep my spare key for booked walks. Name Ben Carter",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Agreement",
+              "enum": [
+                "Agreement"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "terms": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600
+            },
+            "signed": {
+              "type": "boolean"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 28
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "title",
+            "terms",
+            "signed",
+            "name",
+            "date"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+    "replies": [
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}"
     ]
   }
 }
