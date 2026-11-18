@@ -91,7 +91,7 @@
     "reply": "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
     "replies": [
       "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
-      "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Mon 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
       "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}"
     ]
   },

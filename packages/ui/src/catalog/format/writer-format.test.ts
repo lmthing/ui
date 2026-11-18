@@ -93,9 +93,6 @@ it("omits every unready pack id from Writer enums and includes drafts on request
     packs: {
       booking: {
         id: "booking",
-        name: "Booking",
-        purpose: "Time",
-        pick: "Not commerce",
         example: "example.jsonl",
         probes: [],
       },

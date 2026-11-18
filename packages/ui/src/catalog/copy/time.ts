@@ -79,9 +79,6 @@ export function appointmentDate(date: string): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
-/** A stored joining date, formatted independently of the device time zone. */
-export const sinceLine = (date: string): string => `Client since ${appointmentDate(date)}`;
-
 export const minutesLine = (minutes: number): string => `${minutes} min`;
 /** Booking-time copy shared by the screen and its reading. */
 export const slotLabels = { free: "free", taken: "taken", empty: "No free times" } as const;

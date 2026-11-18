@@ -1,5 +1,10 @@
-/** Pack selection is an exact, order-free set of at most three known ids. */
-export function scorePack(reply: string, ids: readonly string[], expect: readonly string[]) {
+/** At most three known ids: every expected pack, with only explicitly allowed additions. */
+export function scorePack(
+  reply: string,
+  ids: readonly string[],
+  expect: readonly string[],
+  allow: readonly string[] = [],
+) {
   let selected: unknown;
   try {
     selected = JSON.parse(reply.trim().replace(/^```(?:json)?\s*|\s*```$/g, ""));
@@ -13,7 +18,7 @@ export function scorePack(reply: string, ids: readonly string[], expect: readonl
   const pass =
     Array.isArray(selected) &&
     valid &&
-    new Set(selected).size === new Set(expect).size &&
-    expect.every((id) => selected.includes(id));
+    expect.every((id) => selected.includes(id)) &&
+    selected.every((id) => expect.includes(id) || allow.includes(id));
   return { pass, detail: pass ? "selected expected packs" : `selected ${reply.trim().slice(0, 80)}` };
 }

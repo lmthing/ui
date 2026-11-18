@@ -17,6 +17,7 @@ export function KitStrip({ children, pages = false }: { children: ReactNode; pag
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: component.base.bodyFlex }}
         {...(pages && cell
           ? {
               snapToInterval: cell + space.sm,
@@ -27,7 +28,7 @@ export function KitStrip({ children, pages = false }: { children: ReactNode; pag
             }
           : {})}
       >
-        <XStack gap={space.sm} paddingVertical={space.xs}>
+        <XStack gap={space.sm} paddingVertical={space.xs} marginHorizontal="auto" flexShrink={0}>
           {cells.map((child, index) => (
             <YStack key={index} width={cell || undefined} flexShrink={0}>
               {child}

@@ -22,9 +22,6 @@ const definition = (id: string, status: Definition["meta"]["status"] = "ready"):
 });
 const pack: PackMeta = {
   id: "booking",
-  name: "Booking",
-  purpose: "Time",
-  pick: "Not commerce",
   example: "example.jsonl",
   probes: [],
 };

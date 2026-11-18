@@ -1,27 +1,18 @@
 import { expect, it } from "vitest";
 import {
+  anyoneLabel,
   appointmentDetails,
   appointmentLabels,
   appointmentReading,
   balancedLine,
   bookLabel,
   charLine,
-  contactLabels,
   emptyLine,
+  historyDetailLine,
   loadingLabel,
-  nextLine,
   photoLabels,
   swipeLabels,
-  tagsLine,
 } from "./labels";
-
-it("keeps contact actions, next details and static tags readable", () => {
-  expect(contactLabels).toEqual({ call: "Call", message: "Message", directions: "Directions" });
-  expect(nextLine("Friday 09:00")).toBe("Next: Friday 09:00");
-  expect(tagsLine([])).toBe("");
-  expect(tagsLine(["Regular"])).toBe("Regular");
-  expect(tagsLine(["Regular", "Key holder", "New"])).toBe("Regular · Key holder · New");
-});
 
 it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect([emptyLine(), emptyLine(" "), emptyLine("plant"), emptyLine("city"), emptyLine("box")]).toEqual([
@@ -37,6 +28,12 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect(charLine(42, 600)).toBe("42 / 600");
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
+  expect(anyoneLabel).toBe("Anyone");
+});
+
+it("keeps event kinds and full dates together without inventing record content", () => {
+  for (const kind of ["visit", "order", "payment", "note", "message"])
+    expect(historyDetailLine(kind, "2026-11-18")).toBe(`${kind} · 2026-11-18`);
 });
 
 it("keeps policy endings together and reads dates, amounts and style-specific actions", () => {

@@ -1,9 +1,5 @@
 import { z } from "zod";
 import {
-  contactLabels,
-  sinceLine,
-  nextLine,
-  tagsLine,
   detailOf,
   itemsOf,
   photo,
@@ -18,6 +14,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { clientReading, contactLabels, sinceLine, nextLine, tagsLine } from "../copy";
 import {
   KitAction,
   KitCard,
@@ -33,7 +30,7 @@ import {
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
   id: "ClientCard",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Recognise one business client, their next visit and how to contact them.",
   pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
@@ -48,18 +45,7 @@ export const meta = {
     parts: { call: ["press"], message: ["press"], directions: ["press"] },
     when: { call: { phone: true }, directions: { address: true } },
   },
-  read: (input, state) => {
-    if (state !== "filled") return [];
-    const { since, next, tags, phone, address } = input as z.output<typeof props>;
-    return [
-      ...(since ? [sinceLine(since)] : []),
-      ...(next ? [nextLine(next)] : []),
-      ...(tags.length ? [tagsLine(tags)] : []),
-      contactLabels.message,
-      ...(phone ? [contactLabels.call] : []),
-      ...(address ? [contactLabels.directions] : []),
-    ];
-  },
+  read: (input, state) => (state === "filled" ? clientReading(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
 export const props = z.strictObject({
   name: text(28),
@@ -122,16 +108,10 @@ function ClientText({ value, part, role = "label" }: { value: string; part: stri
 }
 
 function ContactAction({ part }: { part: keyof typeof contactLabels }) {
+  const kind = part === "message" ? "primary" : "secondary";
   if (useComponentState() === "loading")
-    return <KitAction part={part} a11y={contactLabels[part]} kind="primary" disabled full />;
-  return (
-    <KitAction
-      part={part}
-      label={contactLabels[part]}
-      kind={part === "message" ? "primary" : "secondary"}
-      full
-    />
-  );
+    return <KitSkeleton shape="control" kind={kind} label={contactLabels[part]} full />;
+  return <KitAction part={part} label={contactLabels[part]} kind={kind} full />;
 }
 
 export function ClientCard({
@@ -147,7 +127,7 @@ export function ClientCard({
   return (
     <KitCard padded part="root">
       {loading ? (
-        <KitSkeleton shape="media" aspect="avatar" inset="none" content={[]} />
+        <KitSkeleton shape="media" aspect="avatar" inset="none" lines={[]} />
       ) : (
         <KitPhoto photo={photo} shape="avatar" part="photo" label={name} />
       )}

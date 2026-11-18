@@ -11,7 +11,12 @@ export type ReadProbe = {
   task: string;
   expect: { address: string; action: string };
 };
-export type PackProbe = { kind: "pack"; idea: string; expect: readonly PackId[] };
+export type PackProbe = {
+  kind: "pack";
+  idea: string;
+  expect: readonly PackId[];
+  allow?: readonly PackId[];
+};
 export type Probe = ChooseProbe | WriteProbe | ReadProbe;
 
 /** What every component file exports, minus its view. */

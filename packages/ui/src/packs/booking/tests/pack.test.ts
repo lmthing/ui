@@ -16,12 +16,12 @@ import {
 } from "@lmthing/ui/catalog";
 
 describe("booking scaffold", () => {
-  it("keeps booking out of the live registry until every component is ready", () => {
-    expect(packReady("booking")).toBe(false);
+  it("puts booking in the live registry exactly when every component is ready", () => {
+    const ready = packReady("booking");
     const live = createRegistry({ packs: ["booking"] });
-    expect(live.ids).toEqual(createRegistry().ids);
+    if (!ready) expect(live.ids).toEqual(createRegistry().ids);
     const draft = createRegistry({ packs: ["booking"], includeDrafts: true });
-    expect(live.archetypes).not.toHaveProperty("book");
+    expect(Object.hasOwn(live.archetypes, "book")).toBe(ready);
     expect(draft.archetypes).toHaveProperty("book");
     expect(draft.defaultLines("book", "service", { things: [], items: [] }).components[1]?.c).toBe(
       "ServiceMenu",
@@ -32,7 +32,7 @@ describe("booking scaffold", () => {
     const liveFormat = JSON.stringify(writerFormat(live));
     for (const id of booking) {
       expect(format).toContain(`"const":"${id}"`);
-      expect(liveFormat).not.toContain(`"const":"${id}"`);
+      expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
     }
   });
   it("validates metadata, archetypes and every worked-example line", () => {
