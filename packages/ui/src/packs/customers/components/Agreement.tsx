@@ -7,7 +7,6 @@ import {
   itemsOf,
   placeholderDetail,
   placeholderTitle,
-  placeholderValue,
   probesFor,
   text,
   thingOf,
@@ -35,6 +34,10 @@ export const meta = {
   group: "input",
   purpose: "Keep a client's acceptance of terms with their typed name and signing date.",
   pick: "A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).",
+  writeHints: [
+    "Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.",
+    "Only write date when a signing date is supplied. Never invent a name or signing date.",
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
@@ -50,8 +53,7 @@ export const meta = {
     const value = input as z.infer<typeof props>;
     return [
       value.signed ? copy.accepted : copy.agree,
-      copy.name,
-      ...(value.signed && !value.name ? [placeholderValue] : []),
+      ...(!value.signed || value.name ? [copy.name] : []),
       ...(value.date ? [agreementDateLine(value.date)] : []),
     ];
   },
@@ -120,18 +122,20 @@ export function Agreement({ title, terms, signed, name, date }: Props<typeof pro
       >
         <KitText part={null}>{accepted ? copy.accepted : copy.agree}</KitText>
       </KitRow>
-      <KitContent>
-        <KitText role="caption" tone="muted" part={null}>
-          {copy.name}
-        </KitText>
-        {accepted ? (
-          <KitText part="name" lines={1}>
-            {name ?? placeholderValue}
+      {(!accepted || name) && (
+        <KitContent>
+          <KitText role="caption" tone="muted" part={null}>
+            {copy.name}
           </KitText>
-        ) : (
-          <KitInput part="name" hint={copy.name} label={copy.name} value={name} />
-        )}
-      </KitContent>
+          {accepted ? (
+            <KitText part="name" lines={1}>
+              {name}
+            </KitText>
+          ) : (
+            <KitInput part="name" hint={copy.name} label={copy.name} value={name} />
+          )}
+        </KitContent>
+      )}
       {date && (
         <KitText role="caption" tone="muted" part="date" tabular lines={1}>
           {agreementDateLine(date)}

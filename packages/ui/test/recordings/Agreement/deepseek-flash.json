@@ -107,5 +107,78 @@
       "{\"address\": \"a1/name\", \"action\": \"type\"}",
       "{\"address\": \"a1/name\", \"action\": \"type\"}"
     ]
+  },
+  "fe7c2476f055af93": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nAgreement: Keep a client's acceptance of terms with their typed name and signing date.\nprops: { title: text≤32, terms: text≤600, signed: boolean, name?: text≤28, date?: date YYYY-MM-DD }\nRule: Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.\nRule: Only write date when a signing date is supplied. Never invent a name or signing date.\nexample: {\"c\":\"Agreement\",\"title\":\"Plant care access consent\",\"terms\":\"I allow the carer to enter for booked plant care visits and keep the spare key securely.\",\"signed\":false}\n\nBrief: Unsigned Key-holding consent: I allow Trot to keep my spare key for booked walks. Name Ben Carter",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Agreement",
+              "enum": [
+                "Agreement"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "terms": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600
+            },
+            "signed": {
+              "type": "boolean"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 28
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "title",
+            "terms",
+            "signed",
+            "name",
+            "date"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+    "replies": [
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}",
+      "{\"c\":\"Agreement\",\"title\":\"Key-holding consent\",\"terms\":\"I allow Trot to keep my spare key for booked walks.\",\"signed\":false,\"name\":\"Ben Carter\",\"date\":null}"
+    ]
   }
 }

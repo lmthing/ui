@@ -156,9 +156,15 @@ describe("Agreement states, parts and reading", () => {
       const html = renderInstance("Agreement", { ...seed, signed }, "success", theme);
       expect(html).toContain("Accepted");
       expect(elementAt(html, "home/c1/agree").attributes).toContain('role="img"');
-      expect(elementAt(html, "home/c1/name").attributes).not.toContain('role="textbox"');
+      expect(html).not.toContain("home/c1/name");
+      expect(html).not.toContain("Full name");
       expect(html).not.toContain("home/c1/date");
     }
+  });
+  it("omits missing signer details in a filled signed record and its reading", () => {
+    const input = { ...seed, signed: true };
+    expect(renderInstance("Agreement", input, "filled", theme)).not.toContain("home/c1/name");
+    expect(readComponent(components.Agreement, input, "a1").join("\n")).not.toContain("Full name");
   });
 });
 
