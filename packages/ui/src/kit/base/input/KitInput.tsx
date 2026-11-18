@@ -14,6 +14,10 @@ type InputProps = {
   icon?: IconName | undefined;
   part?: string;
   label?: string;
+  /** Fit paired columns without reducing the addressed control's touch target. */
+  compact?: boolean;
+  /** Muted, unraised hours that remain editable before their day is enabled. */
+  inactive?: boolean;
 };
 
 function TextControl({
@@ -22,6 +26,8 @@ function TextControl({
   value,
   kind = "text",
   label,
+  compact = false,
+  inactive = false,
 }: InputProps & {
   address: ReturnType<typeof usePart>;
 }) {
@@ -39,11 +45,12 @@ function TextControl({
       aria-label={label ?? hint}
       placeholder={hint}
       placeholderTextColor="$muted"
-      color="$text"
+      color={inactive ? "$muted" : "$text"}
       fontFamily={fontFamilies[ks.fonts.text]}
       fontSize={typography.body.size}
       lineHeight={typography.body.lineHeight}
       minHeight={size.control.md}
+      {...(compact ? { width: component.base.none, minWidth: size.control.md } : {})}
       readOnly={!kit.interactive}
       editable={kit.interactive}
       onFocus={() => kit.nativeHost?.ensureVisible?.(address.ref.current)}
@@ -71,7 +78,16 @@ function TextControl({
  * shown as placeholder, at least 44px tall. The box is the part (default `field`) that `type` acts on.
  * Read-only unless the host is interactive.
  */
-export function KitInput({ hint, value, kind = "text", icon, part = "field", label }: InputProps) {
+export function KitInput({
+  hint,
+  value,
+  kind = "text",
+  icon,
+  part = "field",
+  label,
+  compact = false,
+  inactive = false,
+}: InputProps) {
   const ks = useKitStyle();
   const address = usePart(part);
   const error = useControlValue<string | undefined>(`${address.testID}/$error`, undefined);
@@ -81,9 +97,9 @@ export function KitInput({ hint, value, kind = "text", icon, part = "field", lab
         alignItems="center"
         gap={space.sm}
         minHeight={size.control.md}
-        paddingHorizontal={space.md}
+        paddingHorizontal={compact ? space.sm : space.md}
         borderRadius={shifted(kind === "search" ? "lg" : "md", ks.radiusShift)}
-        backgroundColor="$raised"
+        backgroundColor={inactive ? "$surface" : "$raised"}
         borderWidth={component.base.borderWidth}
         borderColor="$line"
       >
@@ -95,6 +111,8 @@ export function KitInput({ hint, value, kind = "text", icon, part = "field", lab
           hint={hint}
           value={value}
           kind={kind}
+          compact={compact}
+          inactive={inactive}
           {...(label === undefined ? {} : { label })}
         />
       </XStack>

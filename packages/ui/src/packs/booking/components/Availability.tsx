@@ -11,12 +11,21 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitCard, KitInput, KitRow, KitText, KitTrail } from "../../../kit";
+import {
+  KitCard,
+  KitGrid,
+  KitInput,
+  KitRow,
+  KitText,
+  KitTrail,
+  useControlValue,
+  usePart,
+} from "../../../kit";
 
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Set the working week during which people can book.",
   pick: "Seven weekdays with working switches, start and end times and breaks. Not one time field (Field), one day's free starts (Slots), staff shifts (Roster), or venue opening hours (Hours).",
@@ -114,33 +123,63 @@ export const probes = [
   read("Change Monday's booking finish to 16:00", { address: "a1/r1/to", action: "type" }),
 ] satisfies Probe[];
 
+function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
+  const toggle = usePart("toggle", false);
+  const on = useControlValue(toggle.testID, day.on);
+  return (
+    <>
+      <KitRow
+        inline
+        label={weekdayNames[weekdays.indexOf(day.day)]!}
+        trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}
+      >
+        <KitText role="label" part="day">
+          {weekdayNames[weekdays.indexOf(day.day)]}
+        </KitText>
+      </KitRow>
+      <KitGrid columns={2}>
+        <KitRow inline label={availabilityLabels.from}>
+          <KitText role="caption" tone="muted" part={null}>
+            {availabilityLabels.from}
+          </KitText>
+          <KitInput
+            compact
+            inactive={!on}
+            kind="time"
+            part="from"
+            hint={availabilityLabels.from}
+            value={day.from}
+          />
+        </KitRow>
+        <KitRow inline label={availabilityLabels.to}>
+          <KitText role="caption" tone="muted" part={null}>
+            {availabilityLabels.to}
+          </KitText>
+          <KitInput
+            compact
+            inactive={!on}
+            kind="time"
+            part="to"
+            hint={availabilityLabels.to}
+            value={day.to}
+          />
+        </KitRow>
+      </KitGrid>
+      {day.breakFrom && day.breakTo && (
+        <KitText role="caption" tone="muted" part="break">
+          {breakLine(day.breakFrom, day.breakTo)}
+        </KitText>
+      )}
+    </>
+  );
+}
+
 export function Availability({ days }: Props<typeof props, typeof meta>) {
   return (
     <KitCard style="inset" part="root">
       {days.map((day) => (
         <KitRow key={day.id} item={day.id} label={day.day}>
-          <KitRow
-            inline
-            label={weekdayNames[weekdays.indexOf(day.day)]!}
-            trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}
-          >
-            <KitText role="label" part="day">
-              {weekdayNames[weekdays.indexOf(day.day)]}
-            </KitText>
-          </KitRow>
-          <KitText role="caption" tone="muted" part={null}>
-            {availabilityLabels.from}
-          </KitText>
-          <KitInput kind="time" part="from" hint={availabilityLabels.from} value={day.from} />
-          <KitText role="caption" tone="muted" part={null}>
-            {availabilityLabels.to}
-          </KitText>
-          <KitInput kind="time" part="to" hint={availabilityLabels.to} value={day.to} />
-          {day.breakFrom && day.breakTo && (
-            <KitText role="caption" tone="muted" part="break">
-              {breakLine(day.breakFrom, day.breakTo)}
-            </KitText>
-          )}
+          <DayFields day={day} />
         </KitRow>
       ))}
     </KitCard>

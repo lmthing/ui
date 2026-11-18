@@ -11,7 +11,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Availability;
@@ -121,6 +121,8 @@ describe("Availability parts, filled state and read/act", () => {
         expect(elementAt(html, `${base}/toggle`).attributes).toContain(`aria-checked="${day.on}"`);
         for (const part of ["from", "to"]) {
           expect(elementAt(html, `${base}/${part}`).attributes).toContain('role="textbox"');
+          expect(styleAt(html, `${base}/${part}`)).toContain("min-width:44px");
+          expect(styleAt(html, `${base}/${part}`)).toContain(`color:var(--${day.on ? "text" : "muted"})`);
           expect(offered).toContainEqual({
             address: `a1/${day.id}/${part}`,
             part,
