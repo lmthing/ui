@@ -66,9 +66,6 @@ export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
 
 export type PackMeta = {
   id: PackId;
-  name: string;
-  purpose: string;
-  pick: string;
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
 };

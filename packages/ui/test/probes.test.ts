@@ -37,7 +37,7 @@ describe.each(required)("probes on $id", (model) => {
 });
 
 describe.each(required)("pack probes on $id", (model) => {
-  it("replays pack recordings with at least 90% accuracy", async () => {
+  it("replays every pack probe with a passing majority", async () => {
     const results = [];
     for (const id of Object.keys(packs))
       results.push(
@@ -50,8 +50,10 @@ describe.each(required)("pack probes on $id", (model) => {
       );
     if (!results.length) return;
     expect(
-      results.filter((result) => result.status === "pass").length / results.length,
-    ).toBeGreaterThanOrEqual(0.9);
+      results
+        .filter((result) => result.status !== "pass")
+        .map((result) => `${result.component}: ${result.detail}`),
+    ).toEqual([]);
   });
 });
 

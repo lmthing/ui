@@ -1,4 +1,4 @@
-import { packIds, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
+import { packIds, packIndex, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
 import type { Definition } from "../probes";
 import { registryOf } from "../registry";
 import { denseIds } from "./dense-ids";
@@ -13,8 +13,10 @@ type Input = {
 
 function checkMeta(input: Input, pack: PackMeta): string[] {
   const issues: string[] = [];
-  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pack.pick));
-  if (!pack.purpose.trim() || !nearest.length) issues.push(`${pack.id}: purpose/pick`);
+  const entry = packIndex.find(({ id }) => id === pack.id);
+  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(entry?.pick ?? ""));
+  if (!entry?.purpose.trim() || !entry.pick.trim() || !nearest.length)
+    issues.push(`${pack.id}: purpose/pick`);
   if ((input.packArchetypes[pack.id]?.length ?? 0) < 2) issues.push(`${pack.id}: archetypes`);
   const probes = pack.probes.filter((probe) => probe.kind === "pack");
   const positive = probes.filter((probe) => probe.expect.includes(pack.id));
@@ -24,6 +26,8 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
   if (probes.length < 3 || positive.length < 2 || !miss) issues.push(`${pack.id}: probes`);
   if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !packIds.includes(id))))
     issues.push(`${pack.id}: expect`);
+  if (probes.some((probe) => probe.allow?.some((id) => !packIds.includes(id))))
+    issues.push(`${pack.id}: allow`);
   return issues;
 }
 
