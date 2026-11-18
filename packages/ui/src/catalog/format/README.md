@@ -9,6 +9,7 @@ Strict structured output for Writers. No provider I/O or component imports.
 
 Rules:
 - Only scoped registry ids appear; code-owned components are excluded.
+- Pack enums follow whole-pack readiness; draft opt-in and invalid examples are covered by fixtures.
 - Every object disallows extra properties and requires all keys. Optional inputs accept null.
 - Consumers call `writerInput(def, props)` before the unchanged Zod validator.
 - Refinements and computed output stay in code; formats retain expressible input constraints.

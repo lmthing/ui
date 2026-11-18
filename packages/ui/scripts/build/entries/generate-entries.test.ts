@@ -9,7 +9,7 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => rm(root, { recursive: true, force: true })));
 });
 
-async function fixture() {
+async function fixture(status = "draft", example = '{"c":"Ready"}\n') {
   const root = await mkdtemp(resolve(".entries-test-"));
   roots.push(root);
   async function put(path: string, source: string) {
@@ -27,7 +27,7 @@ async function fixture() {
     export const probes = [];
     ${status === "ready" ? `export function ${name}() { return null; }` : ""}`;
   await put("components/Core.tsx", component("Core", "ready"));
-  await put("packs/booking/components/Draft.tsx", component("Draft", "draft"));
+  await put("packs/booking/components/Draft.tsx", component("Draft", status));
   await put("packs/booking/components/Ready.tsx", component("Ready", "ready"));
   await put(
     "packs/booking/pack.ts",
@@ -37,12 +37,11 @@ async function fixture() {
     "packs/booking/archetypes/visit-detail.ts",
     `export const visitDetail = { id: "visit-detail", job: "Visit", layouts: {}, defaultLayout: "plain" }; export const probes = [];`,
   );
-  await put("packs/booking/example.jsonl", '{"app":"visit"}\n');
+  await put("packs/booking/example.jsonl", example);
   return root;
 }
 
-it("generates scoped drafts, ready renderers, pack data and inlined examples", async () => {
-  const root = await fixture();
+async function loadCatalog(root: string) {
   await generateEntries(root);
   const result = await build({
     entryPoints: [join(root, "src/entry/catalog.ts")],
@@ -51,23 +50,47 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
     platform: "node",
     format: "esm",
   });
-  const catalog = await import(
-    `data:text/javascript;base64,${Buffer.from(result.outputFiles[0]!.text).toString("base64")}`
-  );
+  return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0]!.text).toString("base64")}`);
+}
+
+it("generates scoped drafts, ready renderers, pack data and inlined examples", async () => {
+  const root = await fixture();
+  const catalog = await loadCatalog(root);
   expect(Object.keys(catalog.components)).toEqual(["Core", "Draft", "Ready"]);
   expect(catalog.packOf).toEqual({ Draft: "booking", Ready: "booking" });
   for (const [options, ids] of [
     [{}, ["Core"]],
     [{ includeDrafts: true }, ["Core"]],
-    [{ packs: ["booking"] }, ["Core", "Ready"]],
+    [{ packs: ["booking"] }, ["Core"]],
     [{ packs: ["booking"], includeDrafts: true }, ["Core", "Draft", "Ready"]],
   ])
     expect(catalog.createRegistry(options).ids).toEqual(ids);
   expect(catalog.packs.booking.id).toBe("booking");
-  expect(catalog.buildPackIndex()).toBe("- booking: Time Pick: Time");
+  expect(catalog.packReady("booking")).toBe(false);
+  expect(catalog.buildPackIndex()).toBe("");
+  expect(catalog.buildPackIndex({ includeDrafts: true })).toBe("- booking: Time Pick: Time");
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
-  expect(catalog.packExamples.booking).toBe('{"app":"visit"}\n');
+  expect(catalog.packExamples.booking).toBe('{"c":"Ready"}\n');
   const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");
   expect(renderers).toContain("{ Core, Ready }");
   expect(renderers).not.toContain("Draft");
+});
+
+it.each([
+  ['{"c":"Ready"}\n', true],
+  ['{"c":"Ready"}\n{"c":"Missing"}\n', false],
+])("wires the ready gate into the generated public catalog for %s", async (example, ready) => {
+  const catalog = await loadCatalog(await fixture("ready", example));
+  expect(catalog.packReady("booking")).toBe(ready);
+  expect(catalog.createRegistry({ packs: ["booking"] }).ids).toEqual(
+    ready ? ["Core", "Draft", "Ready"] : ["Core"],
+  );
+  expect(catalog.buildPackIndex()).toBe(ready ? "- booking: Time Pick: Time" : "");
+  expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toEqual([
+    "Core",
+    "Draft",
+    "Ready",
+  ]);
+  expect(catalog.buildPackIndex({ includeDrafts: true })).toBe("- booking: Time Pick: Time");
+  expect(catalog.packReady("commerce")).toBe(false);
 });

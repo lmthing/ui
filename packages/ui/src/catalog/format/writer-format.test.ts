@@ -1,4 +1,6 @@
 import { expect, it } from "vitest";
+import { z } from "zod";
+import { packReady } from "../registry";
 import {
   components,
   createRegistry,
@@ -9,6 +11,7 @@ import {
   type PackId,
   type JsonSchema,
   type Definition,
+  type PackReadyInput,
 } from "@lmthing/ui/catalog";
 
 const core = createRegistry({ includeDrafts: true });
@@ -60,4 +63,55 @@ it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
 it("trusts ids rather than extra definitions and rejects missing ids", () => {
   expect(writerFormat({ ids: ["List"], defs: core.defs }).json_schema.schema.anyOf).toHaveLength(1);
   expect(() => writerFormat({ ids: ["Missing"], defs: core.defs })).toThrow("No definition");
+});
+
+it("omits every unready pack id from Writer enums and includes drafts on request", () => {
+  const make = (id: string, status: "ready" | "draft"): Definition => ({
+    meta: {
+      id,
+      status,
+      group: "content",
+      purpose: "Items",
+      pick: "Not details",
+      region: "body",
+      weight: 2,
+      tier: "phone",
+      realPath: "Local data",
+    },
+    props: z.strictObject({ title: z.string() }),
+    fallback: () => ({ title: "Items" }),
+    examples: [],
+    probes: [],
+  });
+  const input: PackReadyInput = {
+    components: {
+      Core: make("Core", "ready"),
+      First: make("First", "ready"),
+      Second: make("Second", "draft"),
+    },
+    packOf: { First: "booking", Second: "booking" },
+    packs: {
+      booking: {
+        id: "booking",
+        name: "Booking",
+        purpose: "Time",
+        pick: "Not commerce",
+        example: "example.jsonl",
+        probes: [],
+      },
+    },
+    packExamples: { booking: '{"c":"First","title":"Items"}' },
+  };
+  const enums = (includeDrafts: boolean) =>
+    writerFormat(
+      registryOf(input.components, { packs: ["booking"], includeDrafts }, input.packOf, (id) =>
+        packReady(id, input),
+      ),
+    ).json_schema.schema.anyOf!.flatMap((branch) => branch.properties!.c!.enum!);
+  expect(enums(false)).toEqual(["Core"]);
+  expect(enums(true)).toEqual(["Core", "First", "Second"]);
+  input.components = { ...input.components, Second: make("Second", "ready") };
+  expect(enums(false)).toEqual(["Core", "First", "Second"]);
+  input.packExamples = { booking: '{"c":"First","title":3}' };
+  expect(enums(false)).toEqual(["Core"]);
 });

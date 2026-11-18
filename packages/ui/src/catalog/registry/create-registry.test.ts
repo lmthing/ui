@@ -65,15 +65,18 @@ it.each([
 ] satisfies [PackId[], string, string | undefined][])(
   "scopes %j resolving %s to %s",
   (packs, name, expected) => {
-    expect(registryOf(packDefs, { packs }, membership).resolve(name)).toBe(expected);
+    expect(registryOf(packDefs, { packs, includeDrafts: true }, membership).resolve(name)).toBe(expected);
   },
 );
 it.each([false, true])("filters every accessor, including drafts (%s)", (includeDrafts) => {
   const registry = registryOf(packDefs, { packs: ["data"], includeDrafts }, membership);
-  expect(registry.ids).toEqual(includeDrafts ? ["List", "Table", "Draft"] : ["List", "Table"]);
+  expect(registry.ids).toEqual(includeDrafts ? ["List", "Table", "Draft"] : ["List"]);
   expect(registry.defs.map((def) => def.meta.id)).toEqual(registry.ids);
   expect(registry.get("Slots")).toBeUndefined();
   expect(registry.schema("Slots")).toBeUndefined();
+  expect(registry.get("Table")).toBe(includeDrafts ? packDefs.Table : undefined);
+  expect(registry.schema("Table")).toBe(includeDrafts ? packDefs.Table.props : undefined);
+  expect(registry.resolve("Table")).toBe(includeDrafts ? "Table" : undefined);
   expect(registry.get("Draft")).toBe(includeDrafts ? packDefs.Draft : undefined);
   expect(registry.schema("Draft")).toBe(includeDrafts ? packDefs.Draft.props : undefined);
   expect(registry.resolve("Draft")).toBe(includeDrafts ? "Draft" : undefined);
