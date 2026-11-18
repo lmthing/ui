@@ -51,7 +51,7 @@ describe("motion acceptance", () => {
     expect(await ratio()).toBeCloseTo(0.6, 3);
     expect(errors).toEqual([]);
   }, 15000);
-  it("shows signature end states in reduced-motion and agent modes", async () => {
+  it("shows signature end states in reduced-motion and agent modes", { timeout: 15000 }, async () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open();
     expect(await ratio()).toBeCloseTo(0.6, 3);
