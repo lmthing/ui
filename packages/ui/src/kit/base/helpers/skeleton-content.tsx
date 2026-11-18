@@ -64,11 +64,18 @@ export function SkeletonText({ text, role, align = "start", numberScale = "displ
       position="relative"
       overflow="hidden"
       maxWidth="100%"
+      flexShrink={0}
       alignSelf={align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start"}
       aria-hidden
     >
       <YStack opacity={component.base.none}>
-        <KitText role={role} numberScale={numberScale} align={align} part={null}>
+        <KitText
+          role={role}
+          numberScale={numberScale}
+          align={align}
+          part={null}
+          {...(/^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text) ? { lines: 1 } : {})}
+        >
           {text}
         </KitText>
       </YStack>

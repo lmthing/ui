@@ -84,45 +84,58 @@ describe("role-sized skeleton text", () => {
   );
 });
 
+const actionCases = presets.flatMap(({ id: preset }) =>
+  (["light", "dark"] as const).flatMap((mode) =>
+    (["primary", "secondary", "quiet", "danger"] as const).map((kind) => ({ preset, mode, kind })),
+  ),
+);
 describe("neutral control skeletons and themed disabled actions", () => {
-  it.each(presets)("retains every kind's frame without fading its caption in $id", ({ id: preset }) => {
-    for (const mode of ["light", "dark"] as const) {
-      for (const kind of ["primary", "secondary", "quiet", "danger"] as const) {
-        for (const label of [undefined, "Caller action"]) {
-          for (const full of [false, true]) {
-            const theme = { preset, mode, accent: "moss" } as const;
-            const props = { label, kind, full };
-            const filled = renderBase(createElement(KitAction, props), theme);
-            const loading = renderBase(createElement(KitAction, props), theme, "loading");
-            const skeleton = renderBase(createElement(KitSkeleton, { shape: "control", ...props }), theme);
-            const disabled = renderBase(createElement(KitAction, { ...props, disabled: true }), theme);
-            const frame = elementAt(filled, "home/c1/root");
-            for (const html of [loading, skeleton, disabled]) {
-              const node = elementAt(html, "base").children[0]!;
-              const css = styleAt(html, node);
-              for (const property of [
-                "min-height",
-                "min-width",
-                "padding-left",
-                "border-top-left-radius",
-                "align-self",
-              ]) {
-                const rule = new RegExp(`${property}:[^;]+`);
-                expect(css.match(rule)?.[0]).toBe(styleAt(filled, frame).match(rule)?.[0]);
-              }
-              expect(css).not.toContain("opacity:0.5");
-              if (html !== disabled) {
-                expect(css).toContain("var(--line)");
-                expect(node.attributes).not.toContain('role="button"');
-                expect(html).toContain('aria-busy="true"');
-              }
-            }
-            const caption = label ? elementAt(disabled, "home/c1/root_label") : undefined;
-            if (caption)
-              expect(styleAt(disabled, caption)).toContain(`var(--${kind === "danger" ? "bad" : "accent"})`);
-            expect(elementAt(disabled, "home/c1/root").attributes).toContain('aria-disabled="true"');
+  it.each(actionCases)("retains the $kind frame and caption in $preset/$mode", ({ preset, mode, kind }) => {
+    for (const label of [undefined, "Caller action"]) {
+      for (const full of [false, true]) {
+        const theme = { preset, mode, accent: "moss" } as const;
+        const props = { label, kind, full };
+        const filled = renderBase(createElement(KitAction, props), theme);
+        const loading = renderBase(createElement(KitAction, props), theme, "loading");
+        const skeleton = renderBase(createElement(KitSkeleton, { shape: "control", ...props }), theme);
+        const disabled = renderBase(createElement(KitAction, { ...props, disabled: true }), theme);
+        const frame = elementAt(filled, "home/c1/root");
+        const frameCss = styleAt(filled, frame);
+        if (label) {
+          const hidden = descendants(elementAt(loading, "base")).find((node) => node.tag === "span")!;
+          expect(styleAt(loading, hidden)).toContain("var(--text)");
+          expect(loading).not.toContain('data-testid="home/c1/root_label"');
+        }
+        for (const html of [loading, skeleton, disabled]) {
+          const node = elementAt(html, "base").children[0]!;
+          const css = styleAt(html, node);
+          for (const property of [
+            "min-height",
+            "min-width",
+            "padding-left",
+            "border-top-left-radius",
+            "align-self",
+          ]) {
+            const rule = new RegExp(`${property}:[^;]+`);
+            expect(css.match(rule)?.[0]).toBe(frameCss.match(rule)?.[0]);
+          }
+          expect(css).not.toContain("opacity:0.5");
+          if (html !== disabled) {
+            expect(css).toContain(kind === "quiet" ? "transparent" : "var(--line)");
+            if (kind === "quiet" && label)
+              expect(descendants(node).some((child) => styleAt(html, child).includes("var(--line)"))).toBe(
+                true,
+              );
+            expect(node.attributes).not.toContain('role="button"');
+            expect(html).toContain('aria-busy="true"');
           }
         }
+        const caption = label ? elementAt(disabled, "home/c1/root_label") : undefined;
+        if (caption)
+          expect(styleAt(disabled, caption)).toContain(
+            `var(--${kind === "danger" ? "bad" : kind === "primary" ? "text" : "muted"})`,
+          );
+        expect(elementAt(disabled, "home/c1/root").attributes).toContain('aria-disabled="true"');
       }
     }
   });

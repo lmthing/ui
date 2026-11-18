@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAnimatedValue } from "../../motion";
 import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type IconName } from "../../../catalog";
+import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, type IconTone } from "../text";
@@ -30,7 +30,7 @@ const Frame = styled(XStack, {
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
     loading: {
-      true: { backgroundColor: "$line", borderColor: "$line" },
+      true: { borderColor: "$line" },
     },
   } as const,
 });
@@ -44,9 +44,15 @@ const toneOf: Record<ActionKind, TextTone & IconTone> = {
 const inactiveSurface = {
   primary: "$accentSoft",
   secondary: "$raised",
-  quiet: "$raised",
+  quiet: "transparent",
   danger: "$badSoft",
 } as const;
+const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
+  primary: "text",
+  secondary: "muted",
+  quiet: "muted",
+  danger: "bad",
+};
 
 /**
  * Something the person presses: a labelled button, or an icon-only button when `label` is absent
@@ -70,26 +76,42 @@ function ActionContent({
   part,
   tone,
   loading,
-}: Pick<ActionProps, "label" | "icon" | "part"> & { tone: TextTone & IconTone; loading: boolean }) {
+  quiet,
+}: Pick<ActionProps, "label" | "icon" | "part"> & {
+  tone: TextTone & IconTone;
+  loading: boolean;
+  quiet: boolean;
+}) {
   return (
-    <XStack
-      gap={space.sm}
-      alignItems="center"
-      {...(loading ? { opacity: component.base.none, "aria-hidden": true } : {})}
-    >
-      {icon && (
-        <KitIcon
-          name={icon}
-          tone={tone}
-          scale={label ? "sm" : "md"}
-          part={`${part}_icon`}
-          decorative={loading}
+    <XStack position="relative" alignItems="center">
+      <XStack
+        gap={space.sm}
+        alignItems="center"
+        {...(loading ? { opacity: component.base.none, "aria-hidden": true } : {})}
+      >
+        {icon && (
+          <KitIcon
+            name={icon}
+            tone={tone}
+            scale={label ? "sm" : "md"}
+            part={`${part}_icon`}
+            decorative={loading}
+          />
+        )}
+        {label && (
+          <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
+            {label}
+          </KitText>
+        )}
+      </XStack>
+      {loading && quiet && (
+        <XStack
+          position="absolute"
+          width="100%"
+          height={typography.label.size * 0.6}
+          backgroundColor="$line"
+          borderRadius={radius.sm}
         />
-      )}
-      {label && (
-        <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
-          {label}
-        </KitText>
       )}
     </XStack>
   );
@@ -116,16 +138,15 @@ export function KitAction({
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
     kit.environment.reduceMotion || kit.environment.agentMode,
   );
-  const inactive =
-    loading ||
-    disabled ||
-    Boolean(kit.interactive && kit.controller && !kit.controller.canPress(address.testID));
-  const captionTone = inactive && kind === "primary" ? "accent" : tone;
+  const blocked = kit.interactive && kit.controller && !kit.controller.canPress(address.testID);
+  const inactive = loading || disabled || Boolean(blocked);
+  const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
+  const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   return (
     <Frame
       {...address}
       kind={kind}
-      backgroundColor={inactive ? (loading ? "$line" : inactiveSurface[kind]) : undefined}
+      backgroundColor={inactive ? fill : undefined}
       loading={loading}
       scale={pressScale}
       {...(kit.interactive && !inactive
@@ -151,7 +172,7 @@ export function KitAction({
           ? { onPress: () => kit.onLink?.(goto, address.testID) }
           : {})}
     >
-      <ActionContent {...{ label, icon, part, tone: captionTone, loading }} />
+      <ActionContent {...{ label, icon, part, tone: captionTone, loading, quiet: kind === "quiet" }} />
     </Frame>
   );
 }
