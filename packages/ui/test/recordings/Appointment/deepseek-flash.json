@@ -166,8 +166,8 @@
     "reply": "{\"c\":\"Appointment\",\"service\":\"Park walk\",\"with\":\"Sam\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":null,\"price\":15,\"status\":\"confirmed\",\"policy\":null,\"goto\":\"time\",\"style\":\"card\"}",
     "replies": [
       "{\"c\":\"Appointment\",\"service\":\"Park walk\",\"with\":\"Sam\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":null,\"price\":15,\"status\":\"confirmed\",\"policy\":null,\"goto\":\"time\",\"style\":\"card\"}",
-      "{\"c\":\"Appointment\",\"service\":\"Park walk\",\"with\":\"Sam\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":null,\"price\":15,\"status\":\"confirmed\",\"policy\":null,\"goto\":\"time\",\"style\":\"card\"}",
-      "{\"c\":\"Appointment\",\"service\":\"Park walk\",\"with\":\"Sam\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":null,\"price\":15,\"status\":\"confirmed\",\"policy\":null,\"goto\":\"time\",\"style\":\"summary\"}"
+      "{\n  \"c\": \"Appointment\",\n  \"service\": \"Park walk\",\n  \"with\": \"Sam\",\n  \"date\": \"2026-11-20\",\n  \"time\": \"09:00\",\n  \"minutes\": 30,\n  \"place\": null,\n  \"price\": 15,\n  \"status\": \"confirmed\",\n  \"policy\": null,\n  \"goto\": \"time\",\n  \"style\": \"card\"\n}",
+      "{\"c\":\"Appointment\",\"service\":\"Park walk\",\"with\":\"Sam\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":null,\"price\":15,\"status\":\"confirmed\",\"policy\":null,\"goto\":\"time\",\"style\":\"card\"}"
     ]
   },
   "face2adf478078f4": {

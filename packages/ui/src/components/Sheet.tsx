@@ -31,6 +31,7 @@ export const meta = {
   tier: "phone",
   realPath: "A local overlay on the current screen, opened by a link whose target is sheet.",
   items: { key: "items", parts: ["root", "icon", "label", "meta", "value"] },
+  select: { prop: "at", value: "index" },
   parts: ["root", "title", "sub", "close", "action"],
   states: ["filled"],
   actions: {

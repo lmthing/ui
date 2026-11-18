@@ -9,6 +9,9 @@ export function clockLine(seconds: number): string {
 /** Weekday initials, Monday first. */
 export const weekdayInitials = ["M", "T", "W", "T", "F", "S", "S"] as const;
 
+/** A stored duration in minutes. */
+export const durationLine = (minutes: number): string => `${minutes} min`;
+
 /** The two buttons of a timer. */
 export const timerLabels = { start: "Start", stop: "Stop" } as const;
 
