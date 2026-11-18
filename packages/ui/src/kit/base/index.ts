@@ -3,6 +3,8 @@ export { KitDay, KitDayMark } from "./KitDay";
 export { KitWeekGrid, KitWeekStrip } from "./KitWeek";
 export { KitScaleTrack } from "./KitScaleTrack";
 export { KitBars } from "./KitBars";
+export { KitShare } from "./KitShare";
+export { KitRank } from "./KitRank";
 export { KitSpark } from "./KitSpark";
 export { KitTime } from "./KitTime";
 export { KitRing } from "./KitRing";

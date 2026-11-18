@@ -19,6 +19,7 @@ export function Row({
   label,
   lineRole = "body",
   role,
+  expanded,
   tone,
   leadingAlign = "line",
   inset = "md",
@@ -29,7 +30,9 @@ export function Row({
   goto?: string | undefined;
   label: string;
   lineRole?: LineRole;
-  role?: "listitem" | "text";
+  role?: "listitem" | "text" | "button";
+  /** A row that opens in place (role `button`): whether its content is shown. */
+  expanded?: boolean;
   tone?: SurfaceTone | undefined;
   /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
   leadingAlign?: "line" | "row";
@@ -51,6 +54,7 @@ export function Row({
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={goto ? "link" : (role ?? "listitem")}
       accessibilityLabel={label}
+      {...(expanded === undefined ? {} : { "aria-expanded": expanded })}
       {...(kit.interactive && goto ? { onPress: () => kit.onLink?.(goto, part.testID) } : {})}
     >
       {leading &&

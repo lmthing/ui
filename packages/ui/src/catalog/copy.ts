@@ -95,3 +95,8 @@ export const messageLabels = { retry: "Try again", undo: "Undo", dismiss: "Dismi
 export function moreLine(count: number): string {
   return `+${count}`;
 }
+
+/** A part's share of a whole as a rounded percent: "42%". */
+export function percentLine(value: number, total: number): string {
+  return `${total > 0 ? Math.round((value / total) * 100) : 0}%`;
+}

@@ -12,6 +12,8 @@ export const component = {
     stripShare: 0.4,
     pageShare: 0.9,
     dot: 8,
+    shareStep: 0.18,
+    shareFloor: 0.3,
     ringMd: 120,
     ringLg: 168,
     timeWidth: 64,

@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   clip,
   itemsOf,
+  percentLine,
   placeholderTitle,
   text,
   thingOf,
@@ -18,6 +19,7 @@ import {
   KitContent,
   KitEmpty,
   KitGrid,
+  KitShare,
   KitSkeleton,
   KitText,
   useComponentState,
@@ -35,28 +37,41 @@ export const meta = {
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total"],
   states: ["filled", "empty", "loading"],
-  aliases: ["columns", "histogram", "barchart"],
+  aliases: ["columns", "histogram", "barchart", "breakdown", "share"],
   read: (input, state) => {
     if (state !== "filled") return [];
-    const { points, unit } = input as z.output<typeof props>;
+    const { points, unit, style } = input as z.output<typeof props>;
+    const total = points.reduce((sum, point) => sum + point.value, 0);
     return [
-      totalLine(
-        points.reduce((total, point) => total + point.value, 0),
-        unit,
-      ),
-      points.map((point) => `${point.label} ${point.value}`).join(", "),
+      totalLine(total, unit),
+      points
+        .map(
+          (point) =>
+            `${point.label} ${point.value}${style === "share" ? ` ${percentLine(point.value, total)}` : ""}`,
+        )
+        .join(", "),
     ];
   },
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  title: text(32),
-  unit: text(8).optional(),
-  points: z
-    .array(z.strictObject({ label: text(4), value: z.number().min(0) }))
-    .min(2)
-    .max(7),
-});
+export const props = z
+  .strictObject({
+    style: z.enum(["columns", "share"]).default("columns"),
+    title: text(32),
+    unit: text(8).optional(),
+    points: z
+      .array(z.strictObject({ label: text(16), value: z.number().min(0) }))
+      .min(2)
+      .max(7),
+  })
+  .refine(({ style, points }) => style === "share" || points.every((point) => point.label.length <= 4), {
+    path: ["points"],
+    message: "Columns take labels of four characters or fewer",
+  })
+  .refine(({ style, points }) => style === "columns" || points.length <= 6, {
+    path: ["points"],
+    message: "A share holds at most six parts",
+  });
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -101,6 +116,16 @@ export const examples = [
       { label: "Sun", value: 1 },
     ],
   },
+  {
+    style: "share",
+    title: "Where it went",
+    unit: "€",
+    points: [
+      { label: "Groceries", value: 240 },
+      { label: "Rent", value: 800 },
+      { label: "Fun", value: 120 },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
@@ -117,6 +142,12 @@ export const probes = [
   {
     kind: "write",
     brief: "Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1",
+    expect: "Bars",
+  },
+  {
+    kind: "write",
+    brief:
+      "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
     expect: "Bars",
   },
 ] satisfies Probe[];
@@ -140,7 +171,7 @@ function Total({ value, unit }: { value: number; unit?: string | undefined }) {
   );
 }
 
-export function Bars({ title, unit, points }: Props<typeof props, typeof meta>) {
+export function Bars({ style, title, unit, points }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   if (state === "loading") {
     return (
@@ -164,7 +195,7 @@ export function Bars({ title, unit, points }: Props<typeof props, typeof meta>) 
         </KitText>
         <Total value={points.reduce((total, point) => total + point.value, 0)} unit={unit} />
       </KitGrid>
-      <KitBars points={points} />
+      {style === "share" ? <KitShare points={points} percentOf={percentLine} /> : <KitBars points={points} />}
     </KitCard>
   );
 }

@@ -6,7 +6,9 @@ import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } fro
 import {
   affordancesOf,
   components,
+  percentLine,
   placeholderTitle,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -16,6 +18,32 @@ const { props, meta, examples, fallback, probes } = components.Bars;
 const point = { label: "Mon", value: 3 };
 const input = { title: "This week", points: [point, { label: "Tue", value: 5 }] };
 
+describe("Bars share", () => {
+  const share = {
+    style: "share",
+    title: "Where it went",
+    points: [
+      { label: "Groceries", value: 3 },
+      { label: "Rent", value: 1 },
+    ],
+  };
+  it("takes long labels and reads each part's share of the whole", () => {
+    expect(props.safeParse(share).success).toBe(true);
+    const line = readComponent(components.Bars, share, "b1").join("\n");
+    expect(line).toContain("Groceries 3 75%");
+    expect(line).toContain("Rent 1 25%");
+    expect(percentLine(0, 0)).toBe("0%");
+  });
+  it("draws one item per part with its label and a legend row", () => {
+    const html = renderInput(share);
+    for (const index of [1, 2]) {
+      expect(html).toContain(`data-testid="home/c1/r${index}/root"`);
+      expect(html).toContain(`data-testid="home/c1/r${index}/label"`);
+    }
+    expect(html).toContain("75%");
+  });
+});
+
 describe("Bars schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -24,6 +52,7 @@ describe("Bars schema", () => {
     expect(
       props.parse({ title: " This week ", unit: " walks ", points: [{ label: " Mon ", value: 0 }, point] }),
     ).toEqual({
+      style: "columns",
       title: "This week",
       unit: "walks",
       points: [{ label: "Mon", value: 0 }, point],
@@ -48,7 +77,9 @@ describe("Bars schema", () => {
       ...input,
       points: [{ ...point, ...invalid }, point],
     })),
-    { ...input, style: "columns" },
+    { ...input, style: "donut" },
+    { ...input, style: "share", points: Array.from({ length: 7 }, () => point) },
+    { ...input, style: "share", points: [{ ...point, label: "a".repeat(17) }, point] },
     { ...input, color: "red" },
     { ...input, total: 8 },
   ])("rejects invalid input", (value) => expect(props.safeParse(value).success).toBe(false));
@@ -155,6 +186,20 @@ const config = createTamagui({
   themes: kitThemes,
   defaultFont: "humanist",
 });
+function renderInput(input: unknown) {
+  const value = props.parse(input);
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "c1",
+    rev: 1,
+    state: "filled",
+    children: createElement(renderers.Bars, stampItemIds(meta, value) as Props<typeof props, typeof meta>),
+  });
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config }, createElement(KitProvider, { theme, children: scope })),
+  );
+}
 function renderPoints(count: number, state: "filled" | "empty" | "loading", unit?: string) {
   const value = props.parse({
     title: "a".repeat(32),
