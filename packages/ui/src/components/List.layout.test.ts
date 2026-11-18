@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { components } from "@lmthing/ui/catalog";
+import { components, size } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt, type RenderedElement } from "../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -41,6 +41,9 @@ describe("filled data layout regressions", () => {
     expect(elementAt(html, "home/c1/badge").tag).toBe("span");
     expect(styleAt(html, "home/c1/badge")).toContain("--muted");
   });
+});
+
+describe("data hierarchy and avatar regressions", () => {
   it("uses neutral icons for empty states, while success remains semantic", () => {
     const empty = renderInstance("List", components.List.examples[0], "empty", theme);
     expect(
@@ -70,5 +73,14 @@ describe("filled data layout regressions", () => {
       .map((node) => styleAt(html, node).match(/font-size:\s*(\d+)px/)?.[1])
       .filter(Boolean);
     expect(new Set(sizes).size).toBeLessThanOrEqual(3);
+  });
+  it("addresses placeholder avatars at the same size as resolved stack photos", () => {
+    const html = renderInstance("People", components.People.examples[2], "filled", theme);
+    for (const item of ["r1", "r2", "r3"]) {
+      const avatar = styleAt(html, `home/c1/${item}/photo`);
+      expect(avatar).toContain(`width:${size.avatar.md}px`);
+      expect(avatar).toContain(`height:${size.avatar.md}px`);
+    }
+    expect(html.match(/data-testid="home\/c1\/r2\/photo"/g)).toHaveLength(1);
   });
 });

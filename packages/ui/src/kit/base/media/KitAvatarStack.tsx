@@ -6,6 +6,7 @@ import { KitPhoto } from "./KitPhoto";
 
 function Avatar({ label, photo }: { label: string; photo?: string | undefined }) {
   const address = usePart();
+  const placeholder = usePart("photo");
   return (
     <YStack
       {...address}
@@ -20,6 +21,7 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
         <KitPhoto photo={photo} shape="round" part="photo" label={label} />
       ) : (
         <YStack
+          {...placeholder}
           width={size.avatar.md}
           height={size.avatar.md}
           borderRadius={radius.pill}
@@ -27,7 +29,7 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
           alignItems="center"
           justifyContent="center"
         >
-          <KitIcon name="user" part="photo" />
+          <KitIcon name="user" decorative />
         </YStack>
       )}
     </YStack>
