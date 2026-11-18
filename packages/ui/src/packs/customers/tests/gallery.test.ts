@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { createServer } from "vite";
 import { components, presets, type Definition } from "@lmthing/ui/catalog";
-import { galleryConfig, launchChrome } from "../../../scripts/look";
+import { galleryConfig, launchChrome } from "../../../../scripts/look";
 
 const ids = ["ClientCard", "ClientHistory", "Invoice", "PaymentStatus", "Review", "Loyalty", "Agreement"];
 

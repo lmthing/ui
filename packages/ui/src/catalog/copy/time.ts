@@ -15,7 +15,20 @@ export const durationLine = (minutes: number): string => `${minutes} min`;
 /** The two buttons of a timer. */
 export const timerLabels = { start: "Start", stop: "Stop" } as const;
 
-const weekdayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] as const;
+export const weekdayNames = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+] as const;
+
+/** Neutral working-week defaults and labels for paired time controls. */
+export const availabilityDefaults = { from: "09:00", to: "17:00" } as const;
+export const availabilityLabels = { from: "From", to: "To", break: "Break" } as const;
+export const breakLine = (from: string, to: string): string => `${availabilityLabels.break} ${from}–${to}`;
 
 /** A streak as read text: ["12 days", "done Mon, Tue, Wed"] (or "none done this week"). */
 export function streakLine(count: number, days: readonly boolean[]): string[] {
@@ -56,6 +69,17 @@ export const mediaLabels = {
 } as const;
 export const remainingLine = (seconds: number): string => `-${clockLine(seconds)}`;
 
+/** Provider-local dates, independent of the viewer's timezone. */
+export function appointmentDate(date: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
+export const minutesLine = (minutes: number): string => `${minutes} min`;
 /** Booking-time copy shared by the screen and its reading. */
 export const slotLabels = { free: "free", taken: "taken", empty: "No free times" } as const;
 export const slotDurationLine = (minutes: number): string => `${minutes} min`;
