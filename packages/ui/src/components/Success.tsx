@@ -12,7 +12,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitContent, KitEmpty, KitIcon, KitText } from "../kit";
+import { KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
 
 export const meta = {
   id: "Success",
@@ -71,8 +71,17 @@ export function Success({ style, title, sub, icon, undo }: Props<typeof props, t
   if (style === "toast") {
     return (
       <KitCard style="inset" look="tinted" tone="good" part="root" padded>
-        <KitContent lead={<KitIcon name={icon} tone="good" part="icon" />} lineRole="body">
-          <KitText role="body" part="title">
+        <KitRow
+          label={title}
+          inline
+          lineRole="label"
+          leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
+          trailing={[
+            undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
+            <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
+          ]}
+        >
+          <KitText role="label" part="title">
             {title}
           </KitText>
           {sub && (
@@ -80,9 +89,7 @@ export function Success({ style, title, sub, icon, undo }: Props<typeof props, t
               {sub}
             </KitText>
           )}
-        </KitContent>
-        {undo && <KitAction label={messageLabels.undo} kind="quiet" part="undo" />}
-        <KitAction icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />
+        </KitRow>
       </KitCard>
     );
   }
