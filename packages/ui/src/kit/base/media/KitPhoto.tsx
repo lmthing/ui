@@ -2,7 +2,7 @@ import { Image, YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { usePart } from "../../part";
-import { shifted } from "../text";
+import { KitText, shifted } from "../text";
 
 const Frame = styled(YStack, {
   overflow: "hidden",
@@ -34,24 +34,42 @@ export function KitPhoto({
   shape = "thumb",
   part = "icon",
   label,
+  initials,
+  ring = "none",
 }: {
-  photo: string;
+  photo?: string;
   shape?: "thumb" | "round" | "wide" | "square" | "tall" | "avatar";
   part?: string;
   label?: string;
+  initials?: string;
+  ring?: "none" | "accent" | "muted";
 }) {
-  const source = useKit().resolvePhoto?.(photo);
+  const source = photo ? useKit().resolvePhoto?.(photo) : undefined;
   const ks = useKitStyle();
+  const circle = !photo || shape === "round" || shape === "avatar";
   return (
     <Frame
       {...usePart(part)}
-      shape={shape}
-      {...(shape === "round" || shape === "avatar"
-        ? {}
-        : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
+      shape={!photo && shape !== "avatar" ? "round" : shape}
+      {...(circle ? {} : { borderRadius: shifted(shape === "thumb" ? "sm" : "lg", ks.radiusShift) })}
       accessibilityRole="image"
-      accessibilityLabel={label ?? photo.replace(/^lib:/, "").replace(/_/g, " ")}
+      accessibilityLabel={label ?? photo?.replace(/^lib:/, "").replace(/_/g, " ") ?? initials}
+      {...(ring !== "none"
+        ? { borderWidth: component.base.strongBorder, borderColor: ring === "accent" ? "$accent" : "$muted" }
+        : {})}
+      {...(!photo ? { alignItems: "center", justifyContent: "center" } : {})}
     >
+      {!photo && initials && (
+        <KitText
+          role={shape === "avatar" ? "heading" : "label"}
+          tone="accent"
+          align="center"
+          part={null}
+          lines={1}
+        >
+          {initials}
+        </KitText>
+      )}
       {source && (
         <Image
           source={{ uri: source }}

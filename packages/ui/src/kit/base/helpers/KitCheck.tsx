@@ -33,15 +33,28 @@ const Box = styled(YStack, {
  * A tick box: a 24px box inside a 44px touch area, filled with a check when done. The touch area
  * is the part (default `check`) and carries the checkbox role.
  */
-export function KitCheck({ done, part = "check", label }: { done: boolean; part?: string; label?: string }) {
+export function KitCheck({
+  done,
+  part = "check",
+  label,
+  disabled = false,
+  readonly = false,
+}: {
+  done: boolean;
+  part?: string;
+  label?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+}) {
   const kit = useKit();
   const address = usePart(part);
   const progress = useSignatureProgress("check_burst");
-  const checked = useControlValue(address.testID, done);
+  const value = useControlValue(address.testID, done);
+  const checked = readonly ? done : value;
   return (
     <Hit
       {...address}
-      {...(kit.interactive && kit.controller
+      {...(kit.interactive && kit.controller && !disabled && !readonly
         ? {
             onPress: (event: { stopPropagation?(): void }) => {
               event.stopPropagation?.();
@@ -49,11 +62,17 @@ export function KitCheck({ done, part = "check", label }: { done: boolean; part?
             },
           }
         : {})}
-      accessibilityRole="checkbox"
-      aria-checked={checked}
+      accessibilityRole={readonly ? "image" : "checkbox"}
+      aria-checked={readonly ? undefined : checked}
       aria-label={label}
+      {...(disabled ? { disabled: true, "aria-disabled": true } : {})}
+      {...(readonly ? {} : disabled ? { focusable: false } : {})}
     >
-      <Box done={checked} scale={checked ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}>
+      <Box
+        done={checked}
+        {...(disabled ? { opacity: component.base.disabledOpacity } : {})}
+        scale={checked && !readonly ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}
+      >
         {checked && <Check size={size.icon.sm} color="$onAccent" aria-hidden />}
       </Box>
     </Hit>
