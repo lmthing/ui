@@ -19,8 +19,8 @@ tracker, savings jars, kids' pocket money (with `home`), simple portfolio watche
 - One balance or total as the headline: `Amount` style `large`; a few figures (income, spent, left):
   `Stats`.
 - Budget per category against its limit: `Progress` (`over: bad`); a savings goal: `Ring` with `Amount`.
-- Spending by category: `Bars` style `share`; spending by day or week: `Bars`; a short trend: `Stats` style
-  `trend`.
+- Spending by category: `Bars` style `share`; spending by day or week: `Bars`; one latest value with a
+  short trend: `Sparkline`.
 - A bill's due date: `Calendar`; repeating bills: `Field` kind `repeat`.
 
 The first plan's `Balance` is core `Amount`, its `Budget` is `Progress` under an `Amount`, and the revised

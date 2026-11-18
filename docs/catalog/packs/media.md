@@ -132,5 +132,5 @@ All `phone` for files on the device. Streaming from a service would make `Librar
 ## Open questions
 
 - **The first plan's name `content`?** Renamed because "content" reads as anything on a screen; `content`
-  stays a pack alias for one minor version.
+  → `media` is a planned migration for one minor version, pending implementation.
 - **Downloads screen?** Default: `Playlist` filtered by `Chips` ("Downloaded"); no component.

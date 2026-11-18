@@ -61,7 +61,7 @@ picker, the active filter count, the sort order and a clear action.
 ### `LineChart` · planned · data · phone
 One to three series over time as lines with labelled axes and the latest values; tapping reads a point.
 - Pick: how numbers changed over many points. Not up to seven amounts compared (`Bars`), not a small trend
-  under a number (`Stats` style `trend`), not a holding's price (money `PriceChart`).
+  under a number (`Sparkline`), not a holding's price (money `PriceChart`).
 - Writes: `title` text(32), `unit` text(8) optional, `labels` text(6) each, 4–31; `series` of `label`
   text(16), `values` numbers matching `labels`, 1–3.
 - Parts → actions: points `root select` (reads the value). · States: filled, empty, loading.

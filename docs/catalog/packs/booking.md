@@ -16,8 +16,7 @@ physiotherapist or massage, cleaner, car wash, photographer, meeting-room bookin
 
 ## What the core already covers
 
-- The day's bookings in order: `Timeline` (`day`, or `hours` to show gaps; `DayTimeline` if the core merge
-  does not happen).
+- The day's bookings in order: `Timeline` (`day`, or the built `hours` style to show durations and gaps).
 - Which days have bookings, and choosing a day: `Calendar` with marked days.
 - How full a class is: `Progress` style `compact` ("8 of 12 places", `over: bad`) with `People` style
   `stack` for who is coming. The first plan's `Capacity` is dropped as a near miss with `Progress`.

@@ -64,7 +64,7 @@ item, ticked items greyed, and the share packed at the top.
 The forecast for the trip's place: today large with an icon and the high and low, then a strip of the next
 days, with rain chance in `warn` when high.
 - Pick: the weather where the person is going or is. Not numbers of their own (`Stats`), not a trend
-  (`Stats` style `trend`).
+  (`Sparkline`).
 - Writes: `place` text(24), `from` and `to` dates optional (the trip's days; beyond the forecast range it
   shows typical weather for the month). The forecast comes from a weather service.
 - States: filled, loading, error and offline (drawn like core `Empty` kinds). · Real path: a weather service.

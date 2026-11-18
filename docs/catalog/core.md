@@ -1,9 +1,9 @@
 # Core components plan
 
-The core is the set of components every app can use and every prompt carries. It goes from **40 to 44**:
-six new components, two built ones folded into others, and new options on thirteen built ones. Entry format
-and tier names: [README](README.md). Limits and aliases of built components are copied from
-`packages/ui/src/components/*.tsx` as of 2026-11-17; the files win if they change.
+The core is the set of components every app can use: **45 components, 44 model choices**. Six were added
+to the first 40 and `DayTimeline` was folded into `Timeline`; `Sparkline` stays separate. `TabBar` is
+code-owned and stays out of choose and write prompts. Entry format and tier names: [README](README.md).
+Built behavior follows `packages/ui/src/components/*.tsx` as of 2026-11-18; the files win if they change.
 
 ## Status
 
@@ -21,24 +21,19 @@ Native host hooks provide keyboard height, safe-area insets, reduced-motion pref
 handling and focused-input scrolling. Native device acceptance is **not verified**: no iOS/Android host
 or device setup is available in this session. Composition and motion/visual gates are tracked below.
 
-Differences from the plan below, decided while building:
-
-| Plan | Built | Why |
-| --- | --- | --- |
-| `Empty` takes a `goto` | No `goto`; a `Button` below it carries the next step | Keeps `Empty` to one job, and screens already place a `Button` |
-| `Success` toast dismisses at its root | An icon `close` part carries `dismiss` | A card root has the role list; a button is the accessible target |
-| `Success` `undo` needs `style: toast` | `undo: true` makes it a toast | The cheap model wrote `undo` alone two times in three |
-| `People` stack rejects a `goto` | A stack drops `goto`; `more` makes it a stack | Same reason: the model mixed `rows` with `more` |
-| `List` `body` and `me` only in their styles | A `body` makes it `expand`, a `me` row makes it `ranked` | Same reason |
-| `Amount` `currency` defaults from the app | Defaults to `USD` in the catalog; the screen writes it | A kit default would make the reader and the view disagree |
-| `Sheet` has `pairs`, `options` and `items` | One `items` array for all three styles | One schema the model can learn; counts are checked per style |
-| `Sheet` picker is 6 to 12 | 6 to 12, and no `at` for the other styles | As planned |
-| `Player` has `kind` and `style` | `style` only | One enum, as the component guide asks |
-| `Button` `confirm` draws a kit sheet | `PhoneScreen` draws the standard sheet; taps and agent actions share its dispatcher | Confirm and cancel are addressed separately, and the original action waits for confirmation |
-| `Scale` `readonly` is in halves for any style | Stars only | Faces and dots have no half |
-| `Composer` `reply` `send` is `people` | Built through the new `meta.partTiers` | As planned |
-
 Component size cleanup is still needed where metadata, examples and probes push a file beyond the 200-line guide.
+
+### Remaining core work
+
+- `Bars[share]`: pending icons, legend presses and largest-first order. Shares and totals are built.
+- `Composer`: pending empty/sent state treatments. Empty send is disabled; sending clears the box,
+  appends to `Bubbles` and calls the host's `onSend`.
+- `Success[toast]`: pending bottom placement and timed expiry. Close and undo already dismiss locally.
+- `Player`: pending video controls over the frame, a one-row compact layout and a paused/playing read mark.
+- `Hero[photo]`: pending title over the photo; it currently follows the photo.
+- `Card`: pending corner badge placement; the badge currently sits in the content.
+- `Amount`: pending change arrow; signed change text and its tone are built.
+- `Field[photo]`: pending the `needs your OK` tier and `!needs-ok` read mark; it currently reads as `phone`.
 
 ### C3 runtime
 
@@ -66,13 +61,13 @@ released when the screen leaves. The gallery's `?runtime=1` page provides a loca
 
 | Change | Components | Why |
 | --- | --- | --- |
-| **New** (6) | `Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player` | Gaps found by at least three of the four research passes that no option on a built component can close |
-| **Merged** (2) | `Sparkline` → `Stats` style `trend`; `DayTimeline` → `Timeline` style `hours` | Near neighbours a model may confuse; each is a different drawing of the same data. Gated by evidence (section 3) |
-| **Changed** (13) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Stats`, `Timeline`, `Bars` | Shelves, accordions, leaderboards, shares of a whole, carousels, badges, toasts, ratings, countdowns, repeats, avatar stacks and confirmations become options, so the model has no new ids to tell apart |
-| **Kept** (25) | Everything else (`TabBar` gains count badges from code only) | Already covers its need with a clear `pick` |
+| **Added, built** (6) | `Sheet`, `Composer`, `Progress`, `Choice`, `Amount`, `Player` | Gaps no option on a built component can close; pending details are marked in each entry |
+| **Merged** (1 retired id) | `DayTimeline` → `Timeline` style `hours` | The recorded near miss was unstable; section 3 records the mapping |
+| **Built options** (12) | `List`, `Card`, `Gallery`, `Empty`, `Timer`, `Field`, `Scale`, `Button`, `Success`, `People`, `Timeline`, `Bars` | Shelves, accordions, leaderboards, shares, carousels, badges, toasts, ratings, countdowns, repeats, stacks and confirmations; pending details stay in the spec |
+| **Kept** (27) | Everything else, including `Stats` and `Sparkline` (`TabBar` gains code-owned count badges) | Already covers its need with a clear `pick`; the Sparkline merge gate said retain |
 
 **Sections and groups.** The headings in section 4 follow the plan's table (4.4): structure 4, content 11,
-data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each entry's header gives the
+data 10, input 8, action 4, beyond phone 4, signature 3, escape 1 = **45**. Each entry's header gives the
 `meta.group` from the code, which differs for beyond-phone and signature components (`MapPins` is group
 `data`, `Bubbles` is `content`, and so on).
 
@@ -99,9 +94,9 @@ data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each 
 | In-page tabs | `Segmented` already switches 2 to 4 views of the same screen |
 | Table | `data` pack (`Table`); on a phone `List` and `KeyValue` cover most uses |
 | Donut, pie, share of a whole | `Bars` style `share`: money and data both need it, and one drawing serves both |
-| Line chart over many points | Up to 7 values: `Bars`; up to 12 as a small trend: `Stats` style `trend`; longer series: data `LineChart`, health `Measurements` |
+| Line chart over many points | Up to 7 compared amounts: `Bars`; 3–12 values with the latest value: `Sparkline`; longer series: data `LineChart`, health `Measurements` |
 | Avatar, avatar group | `Profile`, and `People` style `stack` |
-| Badge | `List` trail `badge` (built), new `badge` on `Card`, counts on `TabBar` from code |
+| Badge | `List` trail `badge`, `Card` badge (corner placement pending), counts on `TabBar` from code |
 | Toast, snackbar | `Success` style `toast` |
 | Confirm dialog | `Button` with `confirm`: the kit draws a standard confirm sheet, no model line |
 | Accordion, FAQ | `List` style `expand` |
@@ -112,32 +107,33 @@ data 9, input 8, action 4, beyond phone 4, signature 3, escape 1 = **44**. Each 
 | Countdown to a date | `Timer` style `until` |
 | Repeat or reminder picker | `Field` kind `repeat` |
 | Error with retry, offline | `Empty` kind `error` and `offline` |
-| Onboarding, paywall | Archetypes (`onboarding`, new `plans`) built from `Hero`, `Steps`, `Choice`, `Button` |
+| Onboarding, paywall | Built archetypes (`onboarding`, `plans`) from `Hero`, `Steps`, `Choice`, `Button` |
 | Filter bar with sort | `Chips` in the core; `FilterBar` in the `data` pack |
 | Divider, spacer, layout grids | The screen's rhythm table (plan 5.6) owns spacing |
 | Floating add button | `Button` (one primary per screen, bottom region) |
 | Spinner, skeleton | The kit draws `loading` for every component; never written by a model |
 | PIN or code entry, colour picker, signature pad | Rare outside one domain; `Canvas` until misses ask |
 
-## 2. New components
+## 2. Six added components
 
-### `Sheet` · new · action · phone · overlay · weight 0
+### `Sheet` · built · action · phone · overlay · weight 0
 
 A panel that rises from the bottom over the current screen, dims what is behind it, and closes by a swipe
 down, a tap outside or its close button. It is the only component outside the screen's flow: it lives in
-the new `overlay` region, at most one per screen, hidden until something opens it. It never holds other
+the `overlay` region, at most one per screen, hidden until something opens it. It never holds other
 components, only its own items, so screens stay flat.
 
 - **Pick:** more about one item without leaving the screen, picking from six or more options, or a few
   extra actions behind the header. Not a message that stays on the screen (`Banner`), not 2 to 5 options
   shown inline (`Choice`, `Chips`), not a whole new task (a new screen through `goto`), not confirming a
   dangerous press (`Button` with `confirm`).
-- **Writes:** `title` text(40), `sub` text(100) optional, `style`, and per style:
-  - `detail`: `pairs` of label text(20), value text(28), 1–6; `action` (label text(24), `goto`) optional.
-  - `picker`: `label` text(24) (what is chosen), `options` of label text(28), meta text(36) optional and
-    icon optional, 6–12, `at` optional. The choice is stored on the record like a `Field` `choice`.
-  - `menu`: `items` of icon, label text(20), `goto`, `danger` boolean, 2–6.
-- **Parts → actions:** root `dismiss`; detail `action press`; picker items `root select`; menu items
+- **Writes:** `title` text(40), `sub` text(100) optional, `style` (`detail` default, `picker`, `menu`), and
+  one `items` array for every style. Each item has `label` text(28), optional `meta` text(36), `value`
+  text(28), `icon` and `goto`, and `danger` boolean (default false).
+  - `detail`: 1–6 facts, each with a `value`; `action` (label text(24), `goto` optional) optional.
+  - `picker`: 6–12 options, `at` index optional and picker-only. The selected option stays visible.
+  - `menu`: 2–6 actions; `danger` marks an item. There is no separate picker `label`.
+- **Parts → actions:** `close dismiss`; detail `action press`; picker items `root select`; menu items
   `root press`.
 - **Opening it:** `goto` gains the value `sheet` (this screen's sheet) everywhere a screen id is allowed:
   the `Header` action, `Button`, `List` rows, `Card`. A flow step can open it too.
@@ -148,7 +144,7 @@ components, only its own items, so screens stay flat.
   `overlay` region in `Screen`, a focus trap, `dismiss` in the interaction store, `screenId` accepting
   `sheet`.
 
-### `Composer` · new · input · phone · body · weight 2
+### `Composer` · built · pending: empty/sent states · input · phone · body · weight 2
 
 A text box that grows to several lines for writing in full sentences. As an entry it fills the width with a
 soft border and a quiet character count; as a reply it sits at the end of a conversation with a send button
@@ -161,15 +157,16 @@ that stays disabled while the box is empty.
 - **Styles:** `entry` (multi-line box), `reply` (one line growing to four, with send; after `Bubbles` or
   social `Comments`).
 - **Parts → actions:** `field type` (text), `send send` (reply only).
-- **States:** filled, empty (the hint shows), success (reply: the sent text joins the conversation).
-- **Tier:** `phone`; the `send` part of `reply` reads `!needs-people` through a new optional
+- **States:** filled. **Pending:** empty (the hint shows) and success (the sent text joins the conversation)
+  state treatments. The hint, disabled empty send, clearing and appending a reply to `Bubbles` are built.
+- **Tier:** `phone`; the `send` part of `reply` reads `!needs-people` through optional
   `meta.partTiers` (`{ send: "people" }`), because a reply only matters when someone else reads it.
 - **Real path:** the text is saved to one record on the device; a reply goes through the same shared app as
   the conversation above it.
 - **Kit work:** `KitTextArea` (grows with content, keyboard-safe, role textbox multiline), `KitSend`; copy
   `charLine(n, max)` and the send label. The kit pins `reply` above the keyboard.
 
-### `Progress` · new · data · phone · body · weight 2
+### `Progress` · built · data · phone · body · weight 2
 
 One to five labelled bars, each filled toward its own target, with the amount and target written beside it.
 A bar past its target turns to its `over` tone.
@@ -186,7 +183,7 @@ A bar past its target turns to its `over` tone.
 - **Read:** `"Protein" 62 of 120 g · "Carbs" 180 of 200 g`.
 - **Kit work:** `KitProgressBar` (track `$line`, fill `$accent` or tone, clamped), a `progress` skeleton.
 
-### `Choice` · new · input · phone · body · weight 2
+### `Choice` · built · input · phone · body · weight 2
 
 Two to five options stacked as large tappable cards or rows, each with a title, a sentence under it, an
 optional icon and an optional value on the right (a price, a duration). The chosen card takes an accent
@@ -197,28 +194,31 @@ ring and a tick. With `multi`, several can be chosen.
   short value inside a form (`Field` kind `choice`), not switching views (`Segmented`), not keep-or-skip one
   at a time (`SwipeStack`), not six or more options (`Sheet` style `picker`).
 - **Writes:** `question` text(60) optional, `options` of `title` text(28), `sub` text(80) optional, `icon`
-  optional, `value` text(16) optional, `badge` text(12) optional ("Most popular"), `on` boolean (with
-  `multi` only), 2–5; `at` index (without `multi`); `multi` boolean (default false); `style`.
+  optional, `value` text(16) optional, `badge` text(12) optional ("Most popular"), `on` boolean optional,
+  2–5; `at` index (without `multi`); `multi` boolean (default false); `style`. A single choice uses `at`
+  or the first `on` option, then derives `on` for every option. A multi choice uses `on` and omits `at`.
 - **Styles:** `cards` (default), `list` (rows with a radio or tick on the left, for longer questions).
-- **Parts → actions:** items `root select` (with `multi`: `toggle`). · **States:** filled.
+- **Parts → actions:** items `root select` (with `multi`: `toggle`). · **States:** filled, loading.
 - **Real path:** the chosen option is stored on one record on the device.
 - **Kit work:** `KitOption` (card or row, selected ring, badge corner, role radio or checkbox).
 
-### `Amount` · new · data · phone · body · weight 2
+### `Amount` · built · pending: change arrow · data · phone · body · weight 2
 
-One sum of money written properly: the currency symbol where the locale puts it, tabular digits, an
-optional period ("/ month"), an optional old price struck through, and an optional change with an arrow in
-`good` or `bad`.
+One sum of money written properly in English: the currency symbol in its currency's format, tabular
+digits, an optional period ("/ month"), an optional old price struck through, and an optional change
+with an arrow in `good` or `bad`.
 
+- **Pending:** the change arrow. The view currently shows signed text with its tone.
 - **Pick:** one sum of money is the point: a balance, a price, a total, what is owed. Not two to four
   figures side by side, even if they are money (`Stats`), not the headline in words (`Hero`), not a price
   on each row of a list (`List` trail `value`).
 - **Writes:** `label` text(24) optional, `value` number, `currency` (from the catalog's `currency` enum of
-  ISO 4217 codes; default from the app's locale), `per` (`none` default, `hour`, `day`, `night`, `week`,
-  `month`, `year`, `each`, `person`), `was` number optional, `change` number optional (signed), `changeIn`
-  (`money` default, `percent`), `sub` text(40) optional, `goto` optional, `style`.
-- **Styles:** `large` (display size, centred: the screen's headline number), `inline` (label left, amount
-  right, on its own row), `total` (a rule above, the label "Total" from copy unless `label` is given).
+  ISO 4217 codes; default `USD`, written explicitly for another currency), `per` (`none` default, `hour`,
+  `day`, `night`, `week`, `month`, `year`, `each`, `person`), `was` number optional, `change` number optional
+  (signed), `changeIn` (`money` default, `percent`), `sub` text(40) optional, `goto` optional, `style`.
+- **Styles:** `inline` (default: label left, amount right, on its own row), `large` (display size,
+  centred: the screen's headline number), `total` (a rule above, the label "Total" from copy unless
+  `label` is given).
 - **Parts → actions:** `root press` (when linked). · **States:** filled, loading.
 - **Real path:** a sum computed on the device from stored records; no money moves (paying is a pack
   component with tier `service`).
@@ -226,12 +226,14 @@ optional period ("/ month"), an optional old price struck through, and an option
 - **Kit work:** `moneyLine(value, currency, per)` in `catalog/copy.ts` over `Intl.NumberFormat`; the
   `currency` prop helper; `KitText role="number" tabular` draws it.
 
-### `Player` · new · content · phone · body · weight 3
+### `Player` · built · pending: variant layouts/read status · content · phone · body · weight 3
 
 Plays one piece of audio or video: artwork or the video frame, title and source, a scrubber with elapsed
 and remaining time, play and pause, and skip back and forward by 15 seconds. `audio` has square artwork and
 large controls, `video` a 16:9 frame with controls over it, `compact` one row for audio.
 
+- **Pending:** video controls over the frame and the one-row compact layout. Every style currently stacks
+  the title, scrubber, times and controls. Local playback, seeking and skips are built.
 - **Pick:** listening to or watching one recording now: a meditation, a lesson, an episode, a workout
   video, a voice memo. Not a list of recordings to choose from (`List`, media `Playlist`), not a picture
   (`Photo`), not timing an activity with no recording (`Timer`).
@@ -242,23 +244,26 @@ large controls, `video` a 16:9 frame with controls over it, `compact` one row fo
 - **Parts → actions:** `play play`, `play pause`, `scrubber seek`, `back press`, `forward press`.
 - **States:** filled, loading.
 - **Real path:** a file stored on or bundled with the app, played by the device's media player.
-- **Read:** `"Evening wind-down" · 4:05 of 12:00 · paused`.
+- **Read:** elapsed and remaining time. **Pending:** a paused/playing mark, as in
+  `"Evening wind-down" · 4:05 of 12:00 · paused`.
 - **Kit work:** `KitScrubber` (role slider, `clockLine` labels), `KitMediaControls`, a `media` prop helper,
   and a media adapter behind the host interface (plan 5.3) so the kit never imports a player library.
 
 ## 3. Merged components
 
-Both merges keep the drawing and the signature; only the id goes away. Each is gated by evidence: merge only
-if the pair's near-miss `choose` probes are unstable on a required model, or the Critic logs the pair as a
-repeated wrong pick. If both stay stable, keep both ids and close this section without merging.
+Merge only if a pair's near-miss `choose` probes are unstable on a required model, or the Critic logs
+repeated wrong picks. The recorded gate merged `DayTimeline` and retained `Sparkline`.
 
-| Old id | Becomes | Props mapping | Catalog work |
+| Old id | Built result | Props mapping | Catalog work |
 | --- | --- | --- | --- |
-| `Sparkline` | `Stats` style `trend` | `label`, `value` text(10), `points` 3–12, `tone` become one tile | Stats `value` grows to text(10); a per-style tile count (1–2 in `trend`); `tone` per tile; aliases `trend`, `spark`, `linechart` move to `Stats` |
-| `DayTimeline` | `Timeline` style `hours` | `blocks` of `start`, `end` (HH:MM), `title`, `tone`, `goto` become `items` | Per-style limits (up to 8 items, `time` as HH:MM, `end` required); `meta.weightByStyle` so `hours` keeps weight 3; signature `day_unfold` moves; aliases `dayplan`, `timeblocks`, `hourly`, `daily` move |
+| `DayTimeline` | `Timeline` style `hours` | `blocks` of `start`, `end` (HH:MM), `title`, `tone`, `goto` become `items` with `time` and `end` | Up to 8 items; `meta.weightByStyle` keeps weight 3; `meta.signatureByStyle` keeps `day_unfold` |
 
-Migrations under `catalog/migrations/` rewrite old lines; recordings of the old ids retire in the same
-commit.
+`catalog/migrations/day-timeline.ts` rewrites lines, screens and JSON Lines while keeping component ids,
+state, links and tones. Migration aliases `daytimeline`, `dayplan`, `timeblocks`, `hourly`, `daily` and
+`chronology` target `Timeline`; legacy `blocks` become `items` in `hours`. Old component recordings are retired.
+
+`Sparkline` keeps its id, latest value and 3–12 points. `Stats` keeps `tiles` and `inline`, with text(8)
+values; there is no `Stats[trend]` style.
 
 ## 4. The full core
 
@@ -283,39 +288,42 @@ Where the person is in a short sequence: dots, a segmented bar or numbered circl
 
 ### `TabBar` · built · structure · phone · bottom · weight 1 · code-owned
 Bottom navigation with 2 to 5 tabs, built by code from sections marked `nav`; never written by a model.
-- Writes (code): `tabs` of icon, label text(12), `goto`, 2–5; `at`. **Change:** a count badge per tab from
-  code (unread, due), never from the model.
+- Writes (code): `tabs` of icon, label text(12), `goto`, optional `count` int 0–9999, 2–5; `at`.
+  Code supplies unread/due counts, never the model.
 - Parts → actions: items `root select`.
 
 ### Content (11)
 
-### `Hero` · built · content · phone · body · weight 3
+### `Hero` · built · pending: photo title overlay · content · phone · body · weight 3
 The one thing this screen says, as a large statement, a full-bleed photo with a title over it, or a big
 number with a caption.
+- Pending: the photo title overlay. The view currently puts the title after the photo.
 - Pick: one headline fact or message. Not one sum of money as the headline (`Amount` style `large`), not
   several numbers (`Stats`), not something to notice now (`Banner`).
 - Writes: `title` text(40), `sub` text(80) optional, `photo` optional, `tone`.
 - Styles: `statement`, `photo`, `number`. · States: filled, loading.
 
-### `Card` · changed · content · phone · body · weight 2
+### `Card` · built · pending: corner badge · content · phone · body · weight 2
 One thing with a little detail: title, body, meta, an icon or a photo (not both), optionally tappable.
 - Pick: one featured thing to open. Not several things of a kind (`List`), not facts about one thing
   (`KeyValue`).
-- Writes: `title` text(40), `body` text(120), `meta` text(24), `icon` or `photo`, `tone`, `goto`; **new**
+- Writes: `title` text(40), `body` text(120), `meta` text(24), `icon` or `photo`, `tone`, `goto`;
   `badge` text(12) optional: a status pill in the top corner ("Paid", "Due today", "New").
 - Styles: `plain`, `tinted`, `outlined`, `media`. · States: filled, loading. · Parts → actions: `root press`.
+- Pending: corner placement; the badge currently sits in the content.
 
-### `List` · changed · content · phone · body · weight 2
+### `List` · built · content · phone · body · weight 2
 Several things of one kind as rows (title, meta, icon or photo, and a trail: chevron, check, switch, value
 or badge), each tappable.
 - Pick: several things of one kind to scan and tap. Not one featured thing (`Card`), facts about one thing
   (`KeyValue`), jobs to tick off (`Checklist`).
 - Writes: `rows` of `title` text(28), `meta` text(36), `icon`, `photo`, `trail`, `value` text(10), `goto`,
-  1–6; **new** `body` text(200) per row, in style `expand` only; **new** `me` boolean per row, in style
-  `ranked` only (at most one).
-- Styles: `plain`, `inset`, `cards`, **new** `shelf` (a sideways rail of 2–6 photo cards with the next one
-  peeking, named by a `SectionTitle` above it: "Popular", "Continue", "Near you"), **new** `expand` (each row
-  opens in place to show its `body`: FAQs, instructions), **new** `ranked` (rows numbered 1 to n in order,
+  1–6; `body` text(200) optional per row; `me` boolean optional per row (at most one). A `body` makes the
+  list `expand`; otherwise a `me` row makes it `ranked`, whatever style was written. Write a body on every
+  expandable row and a photo on every shelf row.
+- Styles: `inset` (default), `plain`, `cards`, `shelf` (a sideways rail of 2–6 photo cards with the next one
+  peeking, named by a `SectionTitle` above it: "Popular", "Continue", "Near you"), `expand` (each row
+  opens in place to show its `body`: FAQs, instructions), `ranked` (rows numbered 1 to n in order,
   the top three marked, the `me` row tinted, `value` as the score: leaderboards for social, learning, health
   and sports).
 - Parts → actions: items `root press` (`root toggle` in `expand`), `trail toggle`.
@@ -338,11 +346,11 @@ One picture with an optional caption; the style is its shape.
 - Writes: `photo`, `caption` text(80) optional. · Styles: `wide` (default), `square`, `tall`.
 - States: filled, loading.
 
-### `Gallery` · changed · content · phone · body · weight 3
+### `Gallery` · built · content · phone · body · weight 3
 Several pictures as a grid, a sideways strip, or a full-width carousel.
 - Pick: several pictures together. Not one (`Photo`), not titled cards to open (`List` style `shelf`).
 - Writes: `photos` of photo, caption text(24), `goto`, 2–6.
-- Styles: `grid`, `strip`, **new** `carousel` (full width, one at a time, page dots: product, listing and
+- Styles: `grid`, `strip`, `carousel` (full width, one at a time, page dots: product, listing and
   place photos).
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 
@@ -357,26 +365,25 @@ A tinted strip near the top with an icon and a sentence that needs attention now
   (commerce `Promo`).
 - Writes: `text` text(80), `icon`, `tone` (default `warn`), `goto`.
 
-### `Empty` · changed · content · phone · body · weight 2
+### `Empty` · built · content · phone · body · weight 2
 A calm, centred message on a screen with nothing in it yet, with an icon badge.
 - Pick: there is no content yet, or loading it failed. Not a sentence beside content (`Note`).
-- Writes: `title` text(40), `sub` text(100), `icon`; **new** `kind` (`none` default, `error`, `offline`)
-  and **new** `goto` for the next step.
-- Parts → actions: **new** `retry press` (error, offline), `root press` (with `goto`).
+- Writes: `title` text(40), `sub` text(100) optional, `icon` optional; `kind` (`none` default, `error`,
+  `offline`). No `goto`; a `Button` below it carries the next step.
+- Parts → actions: `retry press` (error, offline). No root action. · States: filled.
 
-### `Player` · new · content · phone · body · weight 3
+### `Player` · built · pending: variant layouts/read status · content · phone · body · weight 3
 See section 2.
 
-### Data (9)
+### Data (10)
 
-### `Stats` · changed · data · phone · body · weight 2
+### `Stats` · built · data · phone · body · weight 2
 Two to four numbers as tiles or one inline row, each with a label, unit and an optional trend arrow.
 - Pick: a few summary numbers side by side, money included. Not one sum as the point (`Amount`), not one goal
   (`Ring`), not targets per category (`Progress`).
-- Writes: `tiles` of label text(20), value text(8, **new** 10), unit text(8), trend, 2–4; **new** in style
-  `trend`: 1–2 tiles, each with `points` 3–12 and `tone`.
-- Styles: `tiles`, `inline`, **new** `trend` (a small line of recent values under each number; replaces
-  `Sparkline` if section 3 merges it).
+- Writes: `tiles` of label text(20), value text(8), unit text(8) optional, trend (`up`, `down`, `flat`)
+  optional, 2–4.
+- Styles: `tiles` (default), `inline`. A latest value with a small line is `Sparkline`, not a Stats style.
 - States: filled, empty, loading. · Signature: `count_up`.
 
 ### `Ring` · built · data · phone · body · weight 2
@@ -385,32 +392,46 @@ A ring filling toward one goal with the amount written inside.
 - Writes: `value`, `of`, `label` text(24), `sub` text(48). · Styles: `md`, `lg`. · States: filled, loading.
 - Signature: `ring_fill`.
 
-### `Bars` · changed · data · phone · body · weight 2
+### `Bars` · built · pending: share icons/press/order · data · phone · body · weight 2
 Two to seven columns comparing amounts across days or categories under a title, the largest in accent; or
 one bar split into shares of a whole with a legend.
 - Pick: compare amounts with each other, or show how a whole splits into parts. Not progress toward targets
-  (`Progress`), not a trend (`Stats` style `trend`).
-- Writes: `title` text(32), `unit` text(8), `points` of label text(4), value ≥ 0, 2–7; **new** in style
-  `share`: labels up to text(16), 2–6 points, an `icon` per point; shares and the total are computed by code.
-- Styles: **new** `columns` (default, as built), **new** `share` (one stacked bar the full width, the
+  (`Progress`), not a latest value with a trend (`Sparkline`).
+- Writes: `title` text(32), `unit` text(8) optional, `points` of label text(4), value ≥ 0, 2–7; in style
+  `share`: labels up to text(16), 2–6 points; shares and the total are computed by code. An `icon`
+  per share is pending.
+- Styles: `columns` (default), `share` (one stacked bar the full width, the
   total above it, and a legend of label, value and percent, largest first: spending by category, time by
   project, votes by option; replaces the first plan's money `Spending` and data `Donut`).
-- Parts → actions: **new** `share` legend items `root press`. · States: filled, empty, loading.
+- Parts → actions: none built; `share` legend items `root press` are pending. · States: filled, empty, loading.
+- Pending: share icons, legend presses and largest-first order. The current legend is static and keeps input order.
 - Signature: `bars_grow`.
 
-### `Progress` · new · data · phone · body · weight 2
+### `Sparkline` · built · data · phone · body · weight 1
+One latest value with a small line of its recent rise or fall.
+- Pick: one measurement and how it is changing. Not amounts compared across days or categories (`Bars`),
+  not several independent summary numbers (`Stats`).
+- Writes: `label` text(24), `value` text(10), `points` 3–12 numbers, `tone` (`neutral` default, `good`,
+  `warn`, `bad`).
+- States: filled, loading. · Parts → actions: none.
+- Real path: recent measurements of one field stored on the device.
+
+### `Progress` · built · data · phone · body · weight 2
 See section 2.
 
-### `Amount` · new · data · phone · body · weight 2
+### `Amount` · built · pending: change arrow · data · phone · body · weight 2
 See section 2.
 
-### `Timeline` · changed · data · phone · body · weight 2
+### `Timeline` · built · data · phone · body · weight 2
 Things in time order with a time column, as a day plan or a history, or as blocks on an hour rail.
 - Pick: when things happen, in order. Not which days have something (`Calendar`), not jobs (`Checklist`).
-- Writes: `items` of `time` text(12), `title` text(32), `meta` text(32), `done`, 1–6; **new** in style
-  `hours`: up to 8 items with `time` and `end` as HH:MM, `tone` and `goto`.
-- Styles: `day`, `history`, **new** `hours` (blocks sized by their length so gaps show; replaces
-  `DayTimeline` if section 3 merges it). · States: filled, empty, loading.
+- Writes: `items` of `time` text(12), `title` text(32), `meta` text(32) optional, `done`, 1–6 in `day`
+  and `history`; `hours` takes 1–8 items with `time` and a later `end` as HH:MM, `tone` and `goto`
+  optional. Only `hours` accepts `end`, `tone` and `goto`; omit `meta` and `done` there. Code orders hour
+  blocks by their start time.
+- Styles: `day` (default), `history`, `hours` (blocks sized by duration so gaps show; `DayTimeline` is merged).
+  `hours` keeps weight 3. · States: filled, empty, loading.
+- Parts → actions: linked hour blocks `root press`; day and history are read-only.
 - Signature: `day_unfold` (on `hours`).
 
 ### `Calendar` · built · data · phone · body · weight 3
@@ -425,25 +446,26 @@ One number nudged up or down by a fixed step with large minus and plus buttons.
 - Writes: `label` text(24), `value` int ≥ 0, `unit` text(8), `step` 1–100.
 - Parts → actions: `minus decrement`, `plus increment`.
 
-### `Timer` · changed · data · phone · body · weight 2
+### `Timer` · built · data · phone · body · weight 2
 A large clock counting down or up with start and stop, or the time left until a date.
 - Pick: time an activity now, or count down to a date. Not a recording to play (`Player`).
-- Writes: `label` text(24), `seconds` 0–86400; **new** `until` (date `YYYY-MM-DD`, optional `HH:MM`) in
-  style `until`.
-- Styles: `down`, `up`, **new** `until` (days, hours and minutes left: a trip, a wedding, a deadline; no
+- Writes: `label` text(24), `seconds` 0–86400 in `down` and `up`; `until` date `YYYY-MM-DD` with optional
+  `at` time `HH:MM` in `until` only, with no `seconds`.
+- Styles: `down`, `up`, `until` (days, hours and minutes left: a trip, a wedding, a deadline; no
   start or stop). · Parts → actions: `start`, `stop` (not in `until`). · Signature: `timer_spin`.
 
 ### Input (8)
 
-### `Field` · changed · input · phone · body · weight 1
-One labelled piece of information: text, number, date, time, a choice, a toggle, a slider or a photo.
+### `Field` · built · pending: photo permission tier · input · phone · body · weight 1
+One labelled piece of information: text, number, date, time, a choice, a repeat, a toggle, a slider or a photo.
 - Pick: one value on a form. Not several lines of writing (`Composer`), not options that need a sentence
   each (`Choice`).
-- Writes: `kind`, `label` text(24), `value` text(40), `hint` text(60), `options` text(16), 2–4 (choice
-  only); **new** kind `repeat` (value `never`, `daily`, `weekdays`, `weekly`, `monthly`, `yearly`) for
-  reminders, chores, medication and care schedules.
+- Writes: `kind` (`text` default, `number`, `date`, `time`, `choice`, `repeat`, `toggle`, `slider`, `photo`),
+  `label` text(24), `value` text(40) optional (one line), `hint` text(60) optional, `options` text(16),
+  2–4 (required for `choice` only). Kind `repeat` uses its own `repeat` prop (`never`, `daily`, `weekdays`,
+  `weekly`, `monthly`, `yearly`), never `value`; omit `repeat` for other kinds.
 - Parts → actions: `field` `type`, `select`, `toggle`, `set` or `press` (photo) by kind.
-- Tier: kind `photo` needs the person's OK.
+- Tier: `phone` today. **Pending:** kind `photo` needs your OK and must read `!needs-ok`.
 
 ### `Chips` · built · input · phone · body · weight 1
 A wrapping row of two to six short pills to filter, or to pick one.
@@ -468,29 +490,31 @@ A search box with a magnifier and a hint.
 - Pick: find one thing among many by name. Not writing text (`Composer`).
 - Writes: `hint` text(40). · Parts → actions: `field type`.
 
-### `Scale` · changed · input · phone · body · weight 2
+### `Scale` · built · input · phone · body · weight 2
 Five faces, stars or dots to log a level from one to five, or stars that show a rating.
 - Pick: log a level or feeling 1 to 5, or show how something is rated. Not a number with a unit
   (`Counter`, `Field` kind `slider`).
-- Writes: `label` text(32), `value` 0–5; **new** in style `stars` only: `readonly` boolean, with `value`
-  0–5 in steps of 0.5 and `meta` text(24) ("4.6 · 212 reviews").
+- Writes: `label` text(32), `value` 0–5 (integers when editable); `readonly` boolean (default false),
+  in style `stars` only. A readonly rating accepts half steps and `meta` text(24) ("4.5 · 212 reviews");
+  editable ratings omit `meta`.
 - Styles: `dots` (default), `mood`, `stars`. · Parts → actions: `l1`…`l5 select` (none when `readonly`).
 
-### `Choice` · new · input · phone · body · weight 2
+### `Choice` · built · input · phone · body · weight 2
 See section 2.
 
-### `Composer` · new · input · phone · body · weight 2
+### `Composer` · built · pending: empty/sent states · input · phone · body · weight 2
 See section 2.
 
 ### Action (4)
 
-### `Button` · changed · action · phone · bottom · weight 1
+### `Button` · built · action · phone · bottom · weight 1
 The one thing to do next as a full-width button (`primary` at most once per screen), or a quieter one.
 - Pick: the main thing the person does. Not 2 to 4 shortcuts (`Actions`).
-- Writes: `label` text(24), `kind`, `icon`, `goto` (a screen id or **new** `sheet`); **new** `confirm`
+- Writes: `label` text(24), `kind`, `icon`, `goto` (a screen id or `sheet`); `confirm`
   text(60) optional: pressing first shows a standard confirm sheet with this sentence, a confirm button in
-  the button's tone and cancel. The kit draws it; it is not a `Sheet` component and does not count against
-  the one-sheet rule.
+  the button's tone and cancel. `PhoneScreen` draws it through the shared tap/agent dispatcher and waits
+  for `confirm/confirm press` or `confirm/cancel dismiss` before the original action runs. It is not a
+  `Sheet` component and does not count against the one-sheet rule.
 - Kinds: `primary`, `secondary`, `quiet`, `danger`. · Parts → actions: `root press`.
 
 ### `Actions` · built · action · phone · body · weight 2
@@ -499,15 +523,17 @@ Two to four shortcuts as icon tiles.
   extra actions (`Sheet` style `menu`).
 - Writes: `items` of icon, label text(16), `goto`, 2–4. · Parts → actions: items `root press`.
 
-### `Success` · changed · action · phone · body · weight 2
+### `Success` · built · pending: toast placement/expiry · action · phone · body · weight 2
 Proof something worked: a large tick, a title and a line; or a toast at the bottom for a few seconds with an
 optional undo.
 - Pick: confirm an action worked. Not news to notice later (`Banner`).
-- Writes: `title` text(40), `sub` text(100), `icon`; **new** `undo` boolean (toast only).
-- Styles: **new** `screen` (default, as built), **new** `toast`. · Parts → actions: **new** `undo press`,
-  `root dismiss` (toast).
+- Writes: `title` text(40), `sub` text(100) optional, `icon`; `undo` boolean (default false).
+  `undo: true` makes it a toast, whatever style was written.
+- Styles: `screen` (default), `toast`. · Parts → actions: `undo press` (with undo), `close dismiss` (toast).
+- Pending: bottom placement and timed expiry. The toast is currently a body-flow card; close and undo
+  dismiss it locally. · States: filled.
 
-### `Sheet` · new · action · phone · overlay · weight 0
+### `Sheet` · built · action · phone · overlay · weight 0
 See section 2.
 
 ### Beyond phone (4)
@@ -528,13 +554,14 @@ A conversation as chat bubbles, mine on the right in accent, theirs on the left.
 - Writes: `messages` of from (`me`, `them`), text text(120), 1–6; `with` text(24). · States: filled, empty.
 - Change: none to the component; the `chat` archetype adds `Composer` style `reply` after it.
 
-### `People` · changed · content · people · body · weight 2
+### `People` · built · content · people · body · weight 2
 Who else is part of this, as rows with avatar, name and role, or as an overlapping stack.
 - Pick: other people involved. Not the one person this screen is about (`Profile`).
-- Writes: `members` of name text(24), role text(24), photo, `goto`, 1–6; **new** `more` number (shown
-  "+3" through `moreLine`).
-- Styles: **new** `rows` (default, as built), **new** `stack` (overlapping avatars with a count:
+- Writes: `members` of name text(24), role text(24), photo, `goto`, 1–6; `more` int 1–999 optional (shown
+  "+3" through `moreLine`). `more` makes it a stack; a stack drops members' `goto` rather than rejecting it.
+- Styles: `rows` (default), `stack` (overlapping avatars with a count:
   assignees, attendees, shared with). · States: filled, empty.
+- Parts → actions: linked row members `root press`; stacks are read-only.
 
 ### Signature (3)
 
@@ -566,15 +593,19 @@ logged as a miss and feeds the catalog review.
 
 All seventeen core archetypes are implemented as data. `defaultLines` validates every layout, and `runComposeProbes` scores required slots, screen rules and the text-first rubric.
 
-| Archetype | Change | Recipe |
+The built ids are `home`, `dashboard`, `list`, `detail`, `form`, `checklist`, `calendar`, `tracker`,
+`journal`, `profile`, `settings`, `success`, `onboarding`, `capture`, `chat`, `plans` and `browse`.
+The recipes affected by the added components are:
+
+| Archetype | Built use | Recipe |
 | --- | --- | --- |
 | `chat` | Uses `Composer` | Header, Bubbles, Composer[reply] |
-| `journal` | New layout `write` | `entries`: Header, Card, Button · `write`: Header, Field[date], Scale[mood], Composer[entry], Button |
+| `journal` | Layout `write` | `entries`: Header, Card, Button · `write`: Header, Field[date], Scale[mood], Composer[entry], Button |
 | `onboarding` | May ask a question | Hero, Note, Steps, Choice \| Button |
-| `plans` | **New**: pricing and upgrade | Header, Hero, Choice (with `value`), Note, Button |
-| `browse` | **New**: shelves to explore | Header, Search, Chips, SectionTitle, List[shelf], SectionTitle, List[shelf] |
+| `plans` | Pricing and upgrade | Header, Hero, Choice (with `value`), Note, Button |
+| `browse` | Shelves to explore | Header, Search, Chips, SectionTitle, List[shelf], SectionTitle, List[shelf] |
 
-## 6. Screen rules added
+## 6. Built screen rules
 
 - At most one `Sheet` per screen, region `overlay`; something on the screen opens it (a `goto: sheet`)
   unless a flow step does. It does not count toward the screen's weight.
@@ -582,18 +613,18 @@ All seventeen core archetypes are implemented as data. `defaultLines` validates 
   after `Bubbles` or `Comments`.
 - At most one `Amount[large]` per screen, never together with `Hero[number]`.
 - A `Button` with `kind: danger` and no `confirm` raises an issue (rules never repair, plan 4.5); the repair
-  stage then fills `confirm` from copy.
+  stage should then fill `confirm` from copy.
 
 ## 7. Build order
 
-| Step | Builds | Gate |
+| Step | Built | Gate and remaining work |
 | --- | --- | --- |
-| C1, options (1 week) | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf, expand and ranked, `Bars` share, `Card` badge, `Success` toast, `Empty` kinds | Each changed component re-passes `pnpm llm:check --component <Id>` with probes for the new option; examples cover every new value |
-| C2, simple new (1.5 weeks) | `Progress`, `Amount`, `Choice`, `Composer` with `KitProgressBar`, `moneyLine`, `currency`, `KitOption`, `KitTextArea`, `meta.partTiers` | Gate per component; near-miss probes against `Ring`, `Stats`, `Chips`, `Field` pass |
-| C3, overlays and media (1.5 weeks) | `Sheet` with the `overlay` region and `dismiss`, `goto: sheet`, `Button` confirm; `Player` with the `media` helper, the host media adapter and `play`, `pause`, `seek` | Agent end-to-end: open, pick and dismiss a sheet, and confirm a danger button, through `window.__lmthingUI.act`; play and seek a fixture recording |
-| C4, merges (0.5 week) | `Sparkline` and `DayTimeline` folded, with `meta.weightByStyle` and per-style limits, if section 3's evidence says so | Migrations rewrite every fixture; no recording refers to the old ids |
+| C1, options | `Field` repeat, `Timer` until, `Scale` readonly, `People` stack, `Gallery` carousel, `List` shelf, expand and ranked, `Bars` share, `Card` badge, `Success` toast, `Empty` kinds | Component majority probes pass; examples cover the options. Pending: photo tier, share icons/press/order, corner badge and toast placement/expiry |
+| C2, simple additions | `Progress`, `Amount`, `Choice`, `Composer` with `KitProgressBar`, `moneyLine`, `currency`, `KitOption`, `KitTextArea`, `meta.partTiers` | Component majority probes pass, including near misses. Pending: Amount arrow and Composer empty/sent states |
+| C3, overlays and media | `Sheet`, `overlay`, `dismiss`, `goto: sheet`, `Button` confirm; `Player`, media helper and host adapter, `play`, `pause`, `seek` | Chrome taps and `window.__lmthingUI.act` cover open/pick/dismiss, confirm/cancel and fixture playback/seeking. Pending: Player layouts/read status and native device acceptance |
+| C4, merge gate | `DayTimeline` folded into `Timeline[hours]`, weight 3 and `day_unfold`; `Sparkline` retained | Recorded evidence decided the pair; migration tests preserve ids, state, links, tones and ordering; old DayTimeline recordings are retired |
 
-New copy for `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, offline, "See all", `moneyLine`,
+Shared copy in `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, offline, "See all", `moneyLine`,
 `charLine`, period words (per night, per month), `moreLine(n)` ("+3"), `leftLine` ("3 days left").
 
 ## 8. Open questions, with the default to build
@@ -602,6 +633,6 @@ New copy for `catalog/copy.ts`: send, cancel, confirm, close, undo, retry, offli
   reads as one line while open.
 - **Should `Player` stream?** Default: files on the device only (tier `phone`). Streaming is a media-pack
   concern with tier `service`.
-- **Merges now or later?** Default: later, decided by section 3's evidence.
-- **Is 44 too many for the cheapest model?** Default: no, because overlap is what hurts. Re-measure with the
-  choose probes after C2: if any near miss turns unstable, fix the `pick` lines before adding anything else.
+- **More merges?** Use section 3's evidence gate. `DayTimeline` is merged; `Sparkline` stays.
+- **Are 44 model choices too many for the cheapest model?** Default: no, because overlap is what hurts.
+  Keep measuring near misses; fix `pick` lines before adding choices.

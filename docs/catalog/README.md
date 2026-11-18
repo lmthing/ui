@@ -23,9 +23,9 @@ with an option on an existing component before a new id is added.
 
 ## What belongs where
 
-- **Core** (available to every app; model choices omit code-owned `TabBar`): needed by apps in at least three unrelated domains, or by three or more packs
-  (a pack never depends on another pack), cannot be an option on an existing core component, and has a
-  one-line `pick` that separates it from every neighbour.
+- **Core** (available to every app; model choices omit code-owned `TabBar`): needed by apps in at least
+  three unrelated domains, or by three or more packs (a pack never depends on another pack), cannot be an
+  option on an existing core component, and has a one-line `pick` that separates it from every neighbour.
 - **Pack** (loaded when the Director picks it, up to 3 per app): needed by one family of apps, or needs
   domain words in its schema (sets and reps, beds and baths, RSVP).
 - **Option** (a `style`, `kind` or prop on an existing component): looks different but answers the same

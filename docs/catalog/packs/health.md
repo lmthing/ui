@@ -19,7 +19,7 @@ log, period and cycle tracker, physio exercise plan, step and activity goals.
 
 - One goal for today (steps, water, minutes): `Ring`; a count (glasses of water): `Counter`.
 - A habit kept day after day: `Streak`; today's health jobs: `Checklist`.
-- Minutes by day: `Bars`; a few numbers: `Stats`; a short trend: `Stats` style `trend`.
+- Minutes by day: `Bars`; a few numbers: `Stats`; one latest value with a short trend: `Sparkline`.
 - Timing a run or a rest: `Timer`; an exercise video: `Player` style `video`.
 - How a day felt: `Scale` style `mood` (the `mind` pack goes deeper).
 - Reminder times: `Field` kind `time` and kind `repeat`.
@@ -53,7 +53,7 @@ the person's best and last result.
 One body measurement over weeks as a line with a dashed goal line, the latest value large, the change since
 the start, and range tabs (month, three months, year).
 - Pick: one body measurement moving toward a goal. Not a holding's price (money `PriceChart`), not business
-  numbers (data `LineChart`), not a short trend under a number (`Stats` style `trend`).
+  numbers (data `LineChart`), not a short trend under a number (`Sparkline`).
 - Writes: `label` text(20), `unit` text(8), `points` 4–52, `goal` number optional, `range` (`month`,
   `quarter`, `year`), `goto` (the add-a-measurement screen). The latest value and the change are computed.
 - Parts → actions: `range select`, `add press` (goes to `goto`). · States: filled, empty, loading.
