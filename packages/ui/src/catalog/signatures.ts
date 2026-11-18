@@ -1,4 +1,4 @@
-import { durations, springs } from "./tokens/motion";
+import { durations, springs } from "./tokens";
 export const signatures = {
   ring_fill: { component: "Ring", duration: durations.slow, spring: springs.gentle },
   bars_grow: { component: "Bars", duration: durations.slow, spring: springs.gentle },

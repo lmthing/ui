@@ -61,7 +61,7 @@ export async function generateEntries(root: string) {
     renderers,
     kit: [
       `import { createElement } from "react";`,
-      `import { PhoneScreen as BasePhoneScreen, type PhoneScreenProps as BasePhoneScreenProps } from "../kit/screen/PhoneScreen";`,
+      `import { PhoneScreen as BasePhoneScreen, type PhoneScreenProps as BasePhoneScreenProps } from "../kit/screen";`,
       `import { components } from "./catalog";`,
       `import { renderers } from "./renderers";`,
       `export * from "../kit";`,

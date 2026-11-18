@@ -986,7 +986,7 @@ not the shared fixed-port gallery server.
 | `pnpm look --component <Id>`, `pnpm shoot`        | Automated phone review or gallery capture                                                  |
 | `pnpm --filter @lmthing/ui build`                 | Both ESM entries and declarations                                                          |
 | `pnpm --filter @lmthing/gallery build`            | Vite static build                                                                          |
-| `pnpm check`                                      | format:check, typecheck, test, build:catalog                                               |
+| `pnpm check`                                      | format:check, typecheck, rules, test, build:catalog                                            |
 
 Root `dev`, `lint`, `catalog:check` and `build` scripts and catalog watch support are **pending**.
 Package-level builds already work; root `build` is not an existing command.
@@ -1080,7 +1080,7 @@ The required PR workflow remains:
 9. Static gallery build and Playwright baseline screenshots with artifacts.
 10. Compressed kit/theme size report and gates in §9.
 
-`pnpm check` currently wires formatting, types, tests and catalog build only. It does not run the
+`pnpm check` wires formatting, types, the code rules (`pnpm rules`), tests and catalog build. It does not run the
 standalone contrast script, visual baseline/axe checks or size/performance gates. A tagged
 Changesets release workflow stays pending/disabled until registry/licence decisions in §14.
 
