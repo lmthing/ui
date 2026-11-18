@@ -1,2 +1,2 @@
 export { probesFor } from "./builders";
-export { sampleWalks } from "./samples";
+export { sampleWalks, sampleWalkRows, samplePlantRows } from "./samples";

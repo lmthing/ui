@@ -1,4 +1,4 @@
-export { probesFor, sampleWalks } from "./fixtures";
+export { probesFor, sampleWalks, sampleWalkRows, samplePlantRows } from "./fixtures";
 export type {
   CallModel,
   ChooseProbe,

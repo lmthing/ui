@@ -1,6 +1,6 @@
 export { checkScreen } from "./check-screen";
-export { sortByRegion } from "./regions";
+export { sortByRegion } from "./shared";
 export { gapBetween } from "./rhythm";
-export { definitionsOf, resolveDefinition, type RegistryLike, type Issue } from "./types";
-export { limitAt } from "./limits";
+export { definitionsOf, resolveDefinition, type RegistryLike, type Issue } from "./shared";
+export { limitAt } from "./checks";
 export { checkPacks } from "./check-packs";

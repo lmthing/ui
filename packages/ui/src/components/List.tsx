@@ -1,6 +1,8 @@
 import { z } from "zod";
 import {
   probesFor,
+  sampleWalkRows,
+  samplePlantRows,
   detailOf,
   icon,
   itemsOf,
@@ -15,7 +17,7 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitEmpty, KitListItem, KitSkeleton, KitStrip, useComponentState } from "../kit";
+import { KitCard, KitEmpty, KitGrid, KitListItem, KitSkeleton, KitStrip, useComponentState } from "../kit";
 
 export const meta = {
   id: "List",
@@ -113,29 +115,11 @@ export const examples = [
   },
   {
     style: "cards",
-    rows: [
-      { title: "Morning park walk", meta: "09:00 · two dogs", icon: "dog", trail: "value", value: "£18" },
-      {
-        title: "River walk",
-        meta: "14:30 · one dog",
-        icon: "clock",
-        trail: "badge",
-        value: "Booked",
-      },
-    ],
+    rows: sampleWalkRows,
   },
   {
     style: "plain",
-    rows: [
-      { title: "Aloe", meta: "Bedroom · water Friday", photo: "lib:plants", trail: "none" },
-      {
-        title: "Pothos",
-        meta: "Hall · due Sunday",
-        photo: "lib:plants",
-        trail: "chevron",
-        goto: "pothos",
-      },
-    ],
+    rows: samplePlantRows,
   },
   {
     style: "shelf",
@@ -194,7 +178,13 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
   const items = rows.map((row, index) => <KitListItem key={row.id} row={row} style={style} index={index} />);
   return (
     <KitCard style={surface} part="root" padded={style === "shelf"}>
-      {style === "shelf" ? <KitStrip>{items}</KitStrip> : items}
+      {style !== "shelf" ? (
+        items
+      ) : rows.length === 2 ? (
+        <KitGrid columns={2}>{items}</KitGrid>
+      ) : (
+        <KitStrip>{items}</KitStrip>
+      )}
     </KitCard>
   );
 }

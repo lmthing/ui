@@ -143,17 +143,24 @@ export const probes = [
   ),
 ] satisfies Probe[];
 
-function Total({ value, unit }: { value: number; unit?: string | undefined }) {
+type TotalProps = { value: number; unit?: string | undefined; compact?: boolean };
+function Total({ value, unit, compact = false }: TotalProps) {
   const label = totalLine(value).slice(0, -String(value).length).trim();
   return (
     <KitContent>
-      <KitText role="caption" tone="muted" align="end" part={null}>
+      <KitText role={compact ? "label" : "caption"} tone="muted" align="end" part={null}>
         {label}
       </KitText>
-      <KitText role="number" tone="muted" align="end" part="total">
+      <KitText
+        role="number"
+        numberScale={compact ? "compact" : "display"}
+        tone="muted"
+        align="end"
+        part="total"
+      >
         {value}
         {unit && (
-          <KitText role="caption" tone="muted" part={null}>
+          <KitText role={compact ? "label" : "caption"} tone="muted" part={null}>
             {` ${unit}`}
           </KitText>
         )}
@@ -175,13 +182,14 @@ export function Bars({ style, title, unit, points }: Props<typeof props, typeof 
       </KitCard>
     );
   }
+  const total = points.reduce((sum, point) => sum + point.value, 0);
   return (
     <KitCard style="inset" part="root" padded>
       <KitGrid columns={2}>
         <KitText role="heading" part="title">
           {title}
         </KitText>
-        <Total value={points.reduce((total, point) => total + point.value, 0)} unit={unit} />
+        <Total value={total} unit={unit} compact={style === "share"} />
       </KitGrid>
       {style === "share" ? <KitShare points={points} percentOf={percentLine} /> : <KitBars points={points} />}
     </KitCard>

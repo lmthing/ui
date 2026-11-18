@@ -1,7 +1,8 @@
 # catalog/archetypes
 
 Seventeen data-only screen patterns, with 35 layouts. Each archetype file exports `meta`, `defaults` and
-one compose probe per layout. `recipe.ts` defines alternatives, bounded repetitions and variants.
+one compose probe per layout. `recipe/` defines alternatives, bounded repetitions and variants.
+`pages/`, `activity/` and `flows/` group the patterns behind `index.ts` doors.
 
 `defaultLines(meta, layout, cast, registry)` builds a finished default from catalog fallbacks and checks
 it with `checkScreen`. `createRegistry().defaultLines(id, layout, cast)` is the host shortcut.

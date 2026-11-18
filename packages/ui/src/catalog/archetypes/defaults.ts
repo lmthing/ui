@@ -4,7 +4,7 @@ import type { Definition } from "../probes";
 import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
-import type { ArchetypeMeta, DefaultLine } from "./types";
+import type { ArchetypeMeta, DefaultLine } from "./recipe";
 function inputOf(
   line: DefaultLine,
   defs: Record<string, Definition>,
