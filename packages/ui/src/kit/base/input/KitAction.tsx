@@ -77,9 +77,17 @@ function ActionContent({
       alignItems="center"
       {...(loading ? { opacity: component.base.none, "aria-hidden": true } : {})}
     >
-      {icon && <KitIcon name={icon} tone={tone} scale={label ? "sm" : "md"} part={`${part}_icon`} />}
+      {icon && (
+        <KitIcon
+          name={icon}
+          tone={tone}
+          scale={label ? "sm" : "md"}
+          part={`${part}_icon`}
+          decorative={loading}
+        />
+      )}
       {label && (
-        <KitText role="label" tone={tone} part={`${part}_label`}>
+        <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
           {label}
         </KitText>
       )}
