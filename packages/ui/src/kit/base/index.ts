@@ -1,4 +1,5 @@
 export { KitCard } from "./surface";
+export { KitDiceFace, KitWheel, KitOrbit } from "./game";
 export { KitOverlay } from "./surface";
 export { KitDay, KitDayMark } from "./time";
 export { KitWeekGrid, KitWeekStrip } from "./time";
