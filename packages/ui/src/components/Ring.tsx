@@ -23,7 +23,7 @@ export const meta = {
   realPath: "A completed amount and its target derived from records in the on-device database.",
   parts: ["root", "ring", "value", "label", "sub"],
   states: ["filled", "loading"],
-  aliases: ["progress", "goal", "completion"],
+  aliases: ["goal", "completion"],
   read: (input, state) => {
     const { value, of } = props.parse(input);
     return state === "filled" ? [`${value} ${goalLine(of)}`] : [];

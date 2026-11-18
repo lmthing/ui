@@ -60,6 +60,7 @@ export function KitText({
   lines,
   tabular = false,
   numberScale = "display",
+  strike = false,
 }: {
   children: ReactNode;
   role?: TextRole;
@@ -72,6 +73,8 @@ export function KitText({
   tabular?: boolean;
   /** `number` role only: `compact` keeps the number font and weight at body size (a list index). */
   numberScale?: "display" | "compact";
+  /** Struck through: an old price. */
+  strike?: boolean;
 }) {
   const style = useKitStyle();
   const address = usePart(part ?? "root");
@@ -92,6 +95,7 @@ export function KitText({
       {...(heavier ? { fontWeight: heavier } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
+      {...(strike ? { textDecorationLine: "line-through" as const } : {})}
       {...(role === "number" && numberScale === "compact"
         ? { fontSize: typography.body.size, lineHeight: typography.body.lineHeight, letterSpacing: 0 }
         : {})}

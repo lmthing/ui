@@ -8,6 +8,8 @@ export type Meta = {
   region: "top" | "body" | "bottom";
   weight: 1 | 2 | 3;
   tier: Tier;
+  /** A part that needs more than the component does (a reply that reaches other people) carries its own tier. */
+  partTiers?: Readonly<Record<string, Tier>>;
   realPath: string;
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and

@@ -42,8 +42,14 @@ const risks: Record<string, string> = {
 };
 
 /** Live values (keyed by address relative to the screen) replace a toggle's or check's initial state. */
-function withValues(affordances: Affordance[], values: Record<string, unknown>, risk: string) {
+function withValues(
+  affordances: Affordance[],
+  values: Record<string, unknown>,
+  tier: string,
+  partTiers: Readonly<Record<string, string>> = {},
+) {
   return affordances.map((a) => {
+    const risk = risks[partTiers[a.part] ?? tier] ?? "";
     const value = values[a.address];
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
@@ -73,7 +79,8 @@ export function readComponent(
   const affordances = withValues(
     affordancesOf(def.meta, props, instance),
     values,
-    risks[def.meta.tier] ?? "",
+    def.meta.tier,
+    def.meta.partTiers,
   );
   const key = def.meta.items?.key;
   // A component whose meaning lives in numbers (Ring "3 of 5", Steps "step 2 of 3") adds it with
