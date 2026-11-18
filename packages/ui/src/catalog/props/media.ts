@@ -6,3 +6,6 @@ export const media = z
   .max(64)
   .regex(/^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$/)
   .meta({ kind: "media", max: 64 });
+
+/** An image by host reference, never a URL or a file path. */
+export const photo = media.meta({ kind: "photo", max: 64 });

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   changeLine,
   clip,
   currencies,
@@ -66,29 +67,12 @@ export const examples = [
   { style: "total", value: 54, currency: "GBP" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Amount");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how much I owe my flatmates this month as one big figure, with what changed since last month",
-    expect: "Amount",
-  },
-  {
-    kind: "choose",
-    need: "Show my income, what I spent and what is left this month as three numbers side by side",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief:
-      "My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings",
-    expect: "Amount",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open the walks price",
-    expect: { address: "a1", action: "press" },
-  },
+  choose("Show how much I owe my flatmates this month as one big figure, with what changed since last month"),
+  choose("Show my income, what I spent and what is left this month as three numbers side by side", "Stats"),
+  write("My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings"),
+  read("Open the walks price", { address: "a1", action: "press" }, 1),
 ] satisfies Probe[];
 
 export function Amount({

@@ -1,5 +1,15 @@
 import { z } from "zod";
-import { clip, emptyLine, text, thingOf, type CastLike, type Meta, type Probe, type Props } from "../catalog";
+import {
+  probesFor,
+  clip,
+  emptyLine,
+  text,
+  thingOf,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
 import { KitBlock, KitInput } from "../kit";
 
 export const meta = {
@@ -28,28 +38,12 @@ export const examples = [{ hint: "Search plants" }, { hint: "Search clients" }] 
   typeof props
 >[];
 
+const { choose, write, read } = probesFor("Search");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me find any plant by typing part of its name above the list",
-    expect: "Search",
-  },
-  {
-    kind: "choose",
-    need: "Narrow my plants with a few fixed filters for All, Needs water and Favorites",
-    expect: "Chips",
-  },
-  {
-    kind: "write",
-    brief: "Let me find plants by typing, with the placeholder Search plants",
-    expect: "Search",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Look for the fern",
-    expect: { address: "s1/field", action: "type" },
-  },
+  choose("Let me find any plant by typing part of its name above the list"),
+  choose("Narrow my plants with a few fixed filters for All, Needs water and Favorites", "Chips"),
+  write("Let me find plants by typing, with the placeholder Search plants"),
+  read("Look for the fern", { address: "s1/field", action: "type" }),
 ] satisfies Probe[];
 
 export function Search({ hint }: Props<typeof props, typeof meta>) {

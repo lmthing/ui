@@ -1,3 +1,4 @@
+export { probesFor } from "./builders";
 export type {
   CallModel,
   ChooseProbe,

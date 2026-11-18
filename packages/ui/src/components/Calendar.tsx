@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
+import { probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
 import { KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
 
 export const meta = {
@@ -94,24 +94,14 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Calendar");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show June's dates with dots on the days I need to water plants, and let me open a day",
-    expect: "Calendar",
-  },
-  {
-    kind: "choose",
-    need: "Show today's walks in time order: 09:00 park, 12:30 lunch, 17:00 river",
-    expect: "Timeline",
-  },
-  {
-    kind: "write",
-    brief:
-      "June 2026, a full month of dates, with watering planned on the 5th, 12th, 19th and 26th marked good. Open the 12th initially.",
-    expect: "Calendar",
-  },
-  { kind: "read", screen: 0, task: "Open the 12th", expect: { address: "c1/r12", action: "select" } },
+  choose("Show June's dates with dots on the days I need to water plants, and let me open a day"),
+  choose("Show today's walks in time order: 09:00 park, 12:30 lunch, 17:00 river", "Timeline"),
+  write(
+    "June 2026, a full month of dates, with watering planned on the 5th, 12th, 19th and 26th marked good. Open the 12th initially.",
+  ),
+  read("Open the 12th", { address: "c1/r12", action: "select" }),
 ] satisfies Probe[];
 
 export function Calendar({ month, marked, selected, start }: Props<typeof props, typeof meta>) {

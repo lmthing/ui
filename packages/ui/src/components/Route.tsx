@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   itemsOf,
   placeholderTitle,
@@ -65,23 +66,18 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Route");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
-    expect: "Route",
-  },
-  {
-    kind: "choose",
-    need: "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9",
-    expect: "Timeline",
-  },
-  {
-    kind: "write",
-    brief:
-      "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
-    expect: "Route",
-  },
+  choose(
+    "Show the places on our dog walk in the order we visit: Home, Park gate, Pond, Home, covering 3.2 km",
+  ),
+  choose(
+    "Show past plant-care events in date order: watered the fern on June 2, repotted basil on June 5, misted the orchid on June 9",
+    "Timeline",
+  ),
+  write(
+    "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
+  ),
 ] satisfies Probe[];
 
 export function Route({ stops, distance }: Props<typeof props, typeof meta>) {

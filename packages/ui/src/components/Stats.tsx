@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   itemsOf,
   placeholderTitle,
@@ -102,18 +103,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Stats");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how many plants I have, how many I watered today and how many are due",
-    expect: "Stats",
-  },
-  { kind: "choose", need: "Show the room and water interval of one plant", expect: "KeyValue" },
-  {
-    kind: "write",
-    brief: "Show nine walks this week and 180 EUR earned, with earnings trending up",
-    expect: "Stats",
-  },
+  choose("Show how many plants I have, how many I watered today and how many are due"),
+  choose("Show the room and water interval of one plant", "KeyValue"),
+  write("Show nine walks this week and 180 EUR earned, with earnings trending up"),
 ] satisfies Probe[];
 
 type Tile = Props<typeof props, typeof meta>["tiles"][number];

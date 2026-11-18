@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   itemsOf,
   moreLine,
@@ -100,34 +101,15 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("People");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show everyone who helps care for our plants, with their names and what each person does",
-    expect: "People",
-  },
-  {
-    kind: "choose",
-    need: "At the top of Anna's page, show her picture and name so I know whose page this is",
-    expect: "Profile",
-  },
-  {
-    kind: "write",
-    brief: "Show Anna, Clover's owner, and Ben, Pip's owner, with a way to open each person's page",
-    expect: "People",
-  },
-  {
-    kind: "write",
-    brief:
-      "Show the three people going to the walk as small overlapping pictures, and that 3 more are going too",
-    expect: "People",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Open Anna",
-    expect: { address: "p1/r1", action: "press" },
-  },
+  choose("Show everyone who helps care for our plants, with their names and what each person does"),
+  choose("At the top of Anna's page, show her picture and name so I know whose page this is", "Profile"),
+  write("Show Anna, Clover's owner, and Ben, Pip's owner, with a way to open each person's page"),
+  write(
+    "Show the three people going to the walk as small overlapping pictures, and that 3 more are going too",
+  ),
+  read("Open Anna", { address: "p1/r1", action: "press" }, 1),
 ] satisfies Probe[];
 
 export function People({ style, members, more }: Props<typeof props, typeof meta>) {

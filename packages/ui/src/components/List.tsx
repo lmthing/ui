@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   itemsOf,
@@ -160,32 +161,17 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("List");
 export const probes = [
-  { kind: "choose", need: "Show my plants and let me tap one", expect: "List" },
-  { kind: "choose", need: "Show the room and water interval of one plant", expect: "KeyValue" },
-  { kind: "write", brief: "Three plants with their rooms and water due today", expect: "List" },
-  {
-    kind: "write",
-    brief: "A sideways row of three plant photo cards to swipe through: Fern, Monstera and Basil",
-    expect: "List",
-  },
-  {
-    kind: "write",
-    brief:
-      "Two questions people ask, each opening to show its answer: how often to water, and whether walks can be moved",
-    expect: "List",
-  },
-  {
-    kind: "write",
-    brief: "A leaderboard of the three highest scores, Anna 412, Ben 380 and me on 351, ranked in order",
-    expect: "List",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Mark Fern as watered",
-    expect: { address: "l1/r1/trail", action: "toggle" },
-  },
+  choose("Show my plants and let me tap one"),
+  choose("Show the room and water interval of one plant", "KeyValue"),
+  write("Three plants with their rooms and water due today"),
+  write("A sideways row of three plant photo cards to swipe through: Fern, Monstera and Basil"),
+  write(
+    "Two questions people ask, each opening to show its answer: how often to water, and whether walks can be moved",
+  ),
+  write("A leaderboard of the three highest scores, Anna 412, Ben 380 and me on 351, ranked in order"),
+  read("Mark Fern as watered", { address: "l1/r1/trail", action: "toggle" }),
 ] satisfies Probe[];
 
 const surfaceOf = (style: Props<typeof props, typeof meta>["style"]) =>

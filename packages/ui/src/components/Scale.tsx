@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   goalLine,
   itemsOf,
   placeholderDetail,
@@ -84,33 +85,16 @@ export const examples = [
   { label: "Rated by walkers", style: "stars", value: 4.5, readonly: true, meta: "4.6 · 212 reviews" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Scale");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me rate how today's walk went from one to five stars",
-    expect: "Scale",
-  },
-  {
-    kind: "choose",
-    need: "Switch the walk schedule between today, this week and all dates, showing one view at a time",
-    expect: "Segmented",
-  },
-  {
-    kind: "write",
-    brief: "Ask how healthy the plant looks with five faces, starting at three out of five",
-    expect: "Scale",
-  },
-  {
-    kind: "write",
-    brief: "Show that the dog park is rated 4.5 stars out of five by 212 walkers, only to look at",
-    expect: "Scale",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Rate it 5",
-    expect: { address: "s1/l5", action: "select" },
-  },
+  choose("Let me rate how today's walk went from one to five stars"),
+  choose(
+    "Switch the walk schedule between today, this week and all dates, showing one view at a time",
+    "Segmented",
+  ),
+  write("Ask how healthy the plant looks with five faces, starting at three out of five"),
+  write("Show that the dog park is rated 4.5 stars out of five by 212 walkers, only to look at"),
+  read("Rate it 5", { address: "s1/l5", action: "select" }),
 ] satisfies Probe[];
 
 export function Scale({ style, label, value, readonly, meta: note }: Props<typeof props, typeof meta>) {

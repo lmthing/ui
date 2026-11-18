@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   itemsOf,
   percentLine,
@@ -132,28 +133,14 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Bars");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Compare how many walks I did each day this week, Monday through Sunday",
-    expect: "Bars",
-  },
-  {
-    kind: "choose",
-    need: "Show how many plants I have, how many I watered today and how many are due",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief: "Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1",
-    expect: "Bars",
-  },
-  {
-    kind: "write",
-    brief:
-      "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
-    expect: "Bars",
-  },
+  choose("Compare how many walks I did each day this week, Monday through Sunday"),
+  choose("Show how many plants I have, how many I watered today and how many are due", "Stats"),
+  write("Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1"),
+  write(
+    "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
+  ),
 ] satisfies Probe[];
 
 function Total({ value, unit }: { value: number; unit?: string | undefined }) {

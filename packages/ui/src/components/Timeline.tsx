@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clock,
   detailOf,
   itemsOf,
@@ -139,40 +140,19 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Timeline");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show today's walks in time order: 09:00 park, 12:30 lunch, 17:00 river",
-    expect: "Timeline",
-  },
-  { kind: "choose", need: "Show my plants and let me open one, with no dates or times", expect: "List" },
-  {
-    kind: "choose",
-    need: "Show today's walks from 09:00 to 10:00, 12:00 to 13:30 and 17:00 to 18:00, with their lengths and the free gaps between them",
-    expect: "Timeline",
-  },
-  {
-    kind: "choose",
-    need: "Show a whole month of dates, marking the days when plants need water",
-    expect: "Calendar",
-  },
-  {
-    kind: "write",
-    brief: "Today's walks: Morning park walk at 09:00 already done, Lunch walk at 12:30, River walk at 17:00",
-    expect: "Timeline",
-  },
-  {
-    kind: "write",
-    brief:
-      "Saturday plant care by the hour: Water the fern 09:00–10:00, Repot basil 11:00–12:30, Check the orchid 14:00–15:00. Show the free gaps and let me open the fern's screen fern.",
-    expect: "Timeline",
-  },
-  {
-    kind: "read",
-    screen: 2,
-    task: "Open the fern scheduled for watering",
-    expect: { address: "t1/r1", action: "press" },
-  },
+  choose("Show today's walks in time order: 09:00 park, 12:30 lunch, 17:00 river"),
+  choose("Show my plants and let me open one, with no dates or times", "List"),
+  choose(
+    "Show today's walks from 09:00 to 10:00, 12:00 to 13:30 and 17:00 to 18:00, with their lengths and the free gaps between them",
+  ),
+  choose("Show a whole month of dates, marking the days when plants need water", "Calendar"),
+  write("Today's walks: Morning park walk at 09:00 already done, Lunch walk at 12:30, River walk at 17:00"),
+  write(
+    "Saturday plant care by the hour: Water the fern 09:00–10:00, Repot basil 11:00–12:30, Check the orchid 14:00–15:00. Show the free gaps and let me open the fern's screen fern.",
+  ),
+  read("Open the fern scheduled for watering", { address: "t1/r1", action: "press" }, 2),
 ] satisfies Probe[];
 
 export function Timeline({ style, items }: Props<typeof props, typeof meta>) {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   icon,
   photo,
@@ -94,29 +95,13 @@ export const examples = [
   { style: "plain", title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Card");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show one tappable preview of my fern with a short care detail, so I can open it",
-    expect: "Card",
-  },
-  { kind: "choose", need: "Show several plants and let me tap each one to open it", expect: "List" },
-  {
-    kind: "write",
-    brief: "One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern",
-    expect: "Card",
-  },
-  {
-    kind: "write",
-    brief: "One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
-    expect: "Card",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Open the fern card",
-    expect: { address: "c1", action: "press" },
-  },
+  choose("Show one tappable preview of my fern with a short care detail, so I can open it"),
+  choose("Show several plants and let me tap each one to open it", "List"),
+  write("One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern"),
+  write("One card for the evening walk with Pip at 18:30, with a small Due today label in the corner"),
+  read("Open the fern card", { address: "c1", action: "press" }),
 ] satisfies Probe[];
 
 export function Card({

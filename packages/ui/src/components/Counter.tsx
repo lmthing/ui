@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   placeholderTitle,
   stepLabels,
@@ -52,28 +53,15 @@ export const examples = [
   { label: "Dogs walked today", value: 3, unit: "dogs" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Counter");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me add or remove one glass of water for my fern with a tap",
-    expect: "Counter",
-  },
-  {
-    kind: "choose",
-    need: "Show how many dogs I walked today, how many walks I booked and how much I earned together",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief: "Show three dogs walked today, with dogs as the unit and one more or less per tap",
-    expect: "Counter",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Add one more",
-    expect: { address: "c1/plus", action: "increment" },
-  },
+  choose("Let me add or remove one glass of water for my fern with a tap"),
+  choose(
+    "Show how many dogs I walked today, how many walks I booked and how much I earned together",
+    "Stats",
+  ),
+  write("Show three dogs walked today, with dogs as the unit and one more or less per tap"),
+  read("Add one more", { address: "c1/plus", action: "increment" }),
 ] satisfies Probe[];
 
 export function Counter({ label, value, unit }: Props<typeof props, typeof meta>) {

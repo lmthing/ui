@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   clock,
   isoDate,
@@ -128,16 +129,13 @@ export const examples = [
   { kind: "photo", label: "Dog photo" },
   { kind: "repeat", label: "Water it", repeat: "weekly" },
 ] satisfies z.input<typeof props>[];
+const { choose, write, read } = probesFor("Field");
 export const probes = [
-  { kind: "choose", need: "Let me enter the name of a new plant on its form", expect: "Field" },
-  { kind: "choose", need: "Find a plant in my collection by typing part of its name", expect: "Search" },
-  { kind: "write", brief: "A form input labelled Plant name, with Fern already entered", expect: "Field" },
-  {
-    kind: "write",
-    brief: "A form input labelled Water it, set to repeat every week",
-    expect: "Field",
-  },
-  { kind: "read", screen: 0, task: "Name the plant Basil", expect: { address: "f1/field", action: "type" } },
+  choose("Let me enter the name of a new plant on its form"),
+  choose("Find a plant in my collection by typing part of its name", "Search"),
+  write("A form input labelled Plant name, with Fern already entered"),
+  write("A form input labelled Water it, set to repeat every week"),
+  read("Name the plant Basil", { address: "f1/field", action: "type" }),
 ] satisfies Probe[];
 
 export function Field(input: Props<typeof props, typeof meta>) {

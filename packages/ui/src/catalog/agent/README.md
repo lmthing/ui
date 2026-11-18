@@ -2,8 +2,6 @@
 
 Reading screens as compact text and the action vocabulary. Needs no browser, so the server uses it too.
 
-Built in step U1. Read plan 4.12 first.
-
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `actions.ts` the vocabulary (`press`, `toggle`, `check`, `select`, `type`, `set`, `increment`, `decrement`, `swipe`, `start`, `stop`)

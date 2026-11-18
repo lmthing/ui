@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   itemsOf,
   photo,
@@ -50,23 +51,13 @@ export const examples = [
   { style: "centered", name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Profile");
 export const probes = [
-  {
-    kind: "choose",
-    need: "At the top of my dog's page, show her picture, name and breed so I know whose page this is",
-    expect: "Profile",
-  },
-  {
-    kind: "choose",
-    need: "Put the name of my plants screen at the top with a shortcut to add a plant",
-    expect: "Header",
-  },
-  {
-    kind: "write",
-    brief:
-      "Introduce Clover at the top of her page with her picture above her name and Beagle · 4 years underneath",
-    expect: "Profile",
-  },
+  choose("At the top of my dog's page, show her picture, name and breed so I know whose page this is"),
+  choose("Put the name of my plants screen at the top with a shortcut to add a plant", "Header"),
+  write(
+    "Introduce Clover at the top of her page with her picture above her name and Beagle · 4 years underneath",
+  ),
 ] satisfies Probe[];
 
 export function Profile({ style, name, meta: detail, photo }: Props<typeof props, typeof meta>) {

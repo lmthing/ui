@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   icon,
   placeholderTitle,
@@ -61,24 +62,12 @@ export const examples = [
   { style: "back", title: "Fern", sub: "Bathroom · watered today" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Header");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Put the name of this screen at the top with a shortcut to add a plant",
-    expect: "Header",
-  },
-  {
-    kind: "choose",
-    need: "Put a short label just above the group of plants that need water",
-    expect: "SectionTitle",
-  },
-  { kind: "write", brief: "Name this screen My plants, with a shortcut to add a plant", expect: "Header" },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Add a plant",
-    expect: { address: "h1/action", action: "press" },
-  },
+  choose("Put the name of this screen at the top with a shortcut to add a plant"),
+  choose("Put a short label just above the group of plants that need water", "SectionTitle"),
+  write("Name this screen My plants, with a shortcut to add a plant"),
+  read("Add a plant", { address: "h1/action", action: "press" }),
 ] satisfies Probe[];
 
 export function Header({ style, title, sub, action }: Props<typeof props, typeof meta>) {

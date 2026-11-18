@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   placeholderTitle,
   streakLine,
@@ -58,23 +59,13 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Streak");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Show how many days in a row I watered on time and which days I did it this week",
-    expect: "Streak",
-  },
-  {
-    kind: "choose",
-    need: "Show my total plants, how many were watered today and how many are due together",
-    expect: "Stats",
-  },
-  {
-    kind: "write",
-    brief:
-      "Show 12 days in a row watering on time, labelled days watering on time, with Monday through Friday done and Saturday and Sunday not done",
-    expect: "Streak",
-  },
+  choose("Show how many days in a row I watered on time and which days I did it this week"),
+  choose("Show my total plants, how many were watered today and how many are due together", "Stats"),
+  write(
+    "Show 12 days in a row watering on time, labelled days watering on time, with Monday through Friday done and Saturday and Sunday not done",
+  ),
 ] satisfies Probe[];
 
 export function Streak({ count, label, days }: Props<typeof props, typeof meta>) {

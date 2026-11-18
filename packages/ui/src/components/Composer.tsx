@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   charLine,
   clip,
   placeholderDetail,
@@ -61,28 +62,12 @@ export const examples = [
   { style: "reply", hint: "Reply to Anna", value: "Thanks, see you at nine" },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Composer");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me write a few paragraphs about how my plants did this week, in a big box",
-    expect: "Composer",
-  },
-  {
-    kind: "choose",
-    need: "Let me type the name of a new plant on its form, just a short word or two",
-    expect: "Field",
-  },
-  {
-    kind: "write",
-    brief: "A reply box under the chat saying Reply to Anna, already holding Thanks, see you at nine",
-    expect: "Composer",
-  },
-  {
-    kind: "read",
-    screen: 1,
-    task: "Send the reply",
-    expect: { address: "c1/send", action: "send" },
-  },
+  choose("Let me write a few paragraphs about how my plants did this week, in a big box"),
+  choose("Let me type the name of a new plant on its form, just a short word or two", "Field"),
+  write("A reply box under the chat saying Reply to Anna, already holding Thanks, see you at nine"),
+  read("Send the reply", { address: "c1/send", action: "send" }, 1),
 ] satisfies Probe[];
 
 export function Composer({ style, label, hint, max, value }: Props<typeof props, typeof meta>) {

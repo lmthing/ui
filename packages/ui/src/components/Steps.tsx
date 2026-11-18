@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
+import { probesFor, stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
 import { KitBlock, KitContent, KitStepsTrack, KitText } from "../kit";
 
 export const meta = {
@@ -39,23 +39,16 @@ export const examples = [
   { style: "bar", count: 5, at: 1 },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Steps");
 export const probes = [
-  {
-    kind: "choose",
-    need: "I'm on the second screen of three while setting up my plant care app; show how far along I am",
-    expect: "Steps",
-  },
-  {
-    kind: "choose",
-    need: "Show today's plant jobs so I can tick off watering, misting and turning each pot independently",
-    expect: "Checklist",
-  },
-  {
-    kind: "write",
-    brief:
-      "I'm adding my first plant on the second screen of a three-screen setup; show my place and say Add your first plant",
-    expect: "Steps",
-  },
+  choose("I'm on the second screen of three while setting up my plant care app; show how far along I am"),
+  choose(
+    "Show today's plant jobs so I can tick off watering, misting and turning each pot independently",
+    "Checklist",
+  ),
+  write(
+    "I'm adding my first plant on the second screen of a three-screen setup; show my place and say Add your first plant",
+  ),
 ] satisfies Probe[];
 
 export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {

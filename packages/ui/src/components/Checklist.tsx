@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   itemsOf,
   placeholderTitle,
   text,
@@ -68,24 +69,12 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Checklist");
 export const probes = [
-  {
-    kind: "choose",
-    need: "things I have to do for my plants today, ticking them off",
-    expect: "Checklist",
-  },
-  { kind: "choose", need: "browse my plants and open one", expect: "List" },
-  {
-    kind: "write",
-    brief: "Three plant jobs for today: water the fern, mist the monstera (already done), turn the basil",
-    expect: "Checklist",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Tick off the first job",
-    expect: { address: "k1/r1/check", action: "check" },
-  },
+  choose("things I have to do for my plants today, ticking them off"),
+  choose("browse my plants and open one", "List"),
+  write("Three plant jobs for today: water the fern, mist the monstera (already done), turn the basil"),
+  read("Tick off the first job", { address: "k1/r1/check", action: "check" }),
 ] satisfies Probe[];
 
 export function Checklist({ items }: Props<typeof props, typeof meta>) {

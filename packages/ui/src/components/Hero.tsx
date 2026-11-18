@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   detailOf,
   itemsOf,
   photo,
@@ -61,22 +62,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write } = probesFor("Hero");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Make the main message of my plant screen that two plants need water today",
-    expect: "Hero",
-  },
-  {
-    kind: "choose",
-    need: "Add a small supporting sentence below my plants reminding me not to overwater",
-    expect: "Note",
-  },
-  {
-    kind: "write",
-    brief: "Make the main number two, with plants need water underneath and a warning tone",
-    expect: "Hero",
-  },
+  choose("Make the main message of my plant screen that two plants need water today"),
+  choose("Add a small supporting sentence below my plants reminding me not to overwater", "Note"),
+  write("Make the main number two, with plants need water underneath and a warning tone"),
 ] satisfies Probe[];
 
 export function Hero({ style, title, sub, photo, tone }: Props<typeof props, typeof meta>) {

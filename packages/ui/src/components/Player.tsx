@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  probesFor,
   clip,
   clockLine,
   mediaLabels,
@@ -98,28 +99,12 @@ export const examples = [
   { style: "compact", media: "lib:voice_note", title: "Voice note from Anna", seconds: 38, at: 12 },
 ] satisfies z.input<typeof props>[];
 
+const { choose, write, read } = probesFor("Player");
 export const probes = [
-  {
-    kind: "choose",
-    need: "Let me listen to a twelve minute evening meditation and scrub back and forth through it",
-    expect: "Player",
-  },
-  {
-    kind: "choose",
-    need: "Show the ten meditations I can pick from, each with its length, to tap one",
-    expect: "List",
-  },
-  {
-    kind: "write",
-    brief: "Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in",
-    expect: "Player",
-  },
-  {
-    kind: "read",
-    screen: 0,
-    task: "Pause the recording",
-    expect: { address: "p1/play", action: "pause" },
-  },
+  choose("Let me listen to a twelve minute evening meditation and scrub back and forth through it"),
+  choose("Show the ten meditations I can pick from, each with its length, to tap one", "List"),
+  write("Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in"),
+  read("Pause the recording", { address: "p1/play", action: "pause" }),
 ] satisfies Probe[];
 
 export function Player({ style, title, sub, photo: art, seconds, at }: Props<typeof props, typeof meta>) {

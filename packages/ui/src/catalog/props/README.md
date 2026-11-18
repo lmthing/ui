@@ -2,8 +2,6 @@
 
 Shared prop helpers. They implement the vocabulary that is the same on every component.
 
-Built in step U1. Read plan 4.2 first.
-
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `text.ts` `text(max)`: trimmed string with a limit
