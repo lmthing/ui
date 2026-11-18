@@ -1,5 +1,6 @@
 import { YStack } from "tamagui";
 import { component } from "../../../catalog";
+import { useKitStyle } from "../../provider";
 import { KitText } from "../text";
 
 /**
@@ -7,9 +8,17 @@ import { KitText } from "../text";
  * lines up. Use it as a `KitRow` leading item. The text carries the part (default `time`).
  */
 export function KitTime({ value, part = "time" }: { value: string; part?: string }) {
+  const ks = useKitStyle();
+  const weekday = !/\d/.test(value);
   return (
     <YStack width={component.base.timeWidth}>
-      <KitText role="label" tone="muted" part={part} tabular lines={1}>
+      <KitText
+        role={ks.strong && weekday ? "body" : "label"}
+        tone={ks.strong && weekday ? "text" : "muted"}
+        part={part}
+        tabular
+        lines={1}
+      >
         {value}
       </KitText>
     </YStack>

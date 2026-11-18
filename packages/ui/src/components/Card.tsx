@@ -18,11 +18,11 @@ import {
 import {
   KitCard,
   KitContent,
+  KitGrid,
   KitIcon,
   KitPhoto,
   KitSkeleton,
   KitText,
-  KitTrail,
   useComponentState,
   useKit,
 } from "../kit";
@@ -105,12 +105,23 @@ export const probes = [
 ] satisfies Probe[];
 
 function CardText({ title, body, meta: detail, badge }: Props<typeof props, typeof meta>) {
+  const heading = (
+    <KitText role="heading" part="title">
+      {title}
+    </KitText>
+  );
   return (
     <>
-      {badge && <KitTrail kind="badge" value={badge} part="badge" />}
-      <KitText role="heading" part="title">
-        {title}
-      </KitText>
+      {badge ? (
+        <KitGrid fitLast>
+          {heading}
+          <KitText role="label" tone="muted" part="badge">
+            {badge}
+          </KitText>
+        </KitGrid>
+      ) : (
+        heading
+      )}
       {body && (
         <KitText role="body" tone="muted" part="body">
           {body}

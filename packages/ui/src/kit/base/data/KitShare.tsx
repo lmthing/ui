@@ -34,7 +34,7 @@ function Entry({
       <KitText role="body" tone="muted" tabular part={null}>
         {`${value}`}
       </KitText>
-      <KitText role="label" tone="muted" tabular part={null}>
+      <KitText role="body" tone="muted" tabular part={null}>
         {percent}
       </KitText>
     </XStack>
