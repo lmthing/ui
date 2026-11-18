@@ -45,6 +45,20 @@ const changePack = (patch: Partial<PackMeta>) => (f: Fixture) => (f.packs.bookin
 const changeMeta = (patch: Partial<Definition["meta"]>) => (f: Fixture) =>
   (f.components.Slots = { ...component, meta: { ...component.meta, ...patch } });
 const example = (text: string) => (f: Fixture) => (f.packExamples.booking = text);
+it.each<[string, (f: Fixture) => unknown]>([
+  ["pack metadata belongs", changePack({ id: "commerce" })],
+  ["packOf names an undeclared pack", (f) => (f.packOf.Slots = "commerce" as "booking")],
+  ["packOf does not name a matching component", changeMeta({ id: "Other" })],
+  [
+    "packOf does not name a matching component",
+    (f) => delete (f.components as Partial<Fixture["components"]>).Slots,
+  ],
+  ["archetype belongs to an undeclared pack", (f) => delete (f.packs as Partial<Fixture["packs"]>).booking],
+])("rejects ownership: %s", (issue, mutate) => {
+  const input = fixture();
+  mutate(input);
+  expect(checkPacks(input).join("\n")).toContain(issue);
+});
 const [yes, , no] = pack.probes;
 it.each<[string, (f: Fixture) => unknown]>([
   ["purpose/pick", changePack({ purpose: "" })],
