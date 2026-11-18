@@ -1,9 +1,13 @@
-import { affordancesOf, stampItemIds, type ActStep } from "../../../catalog";
+import { affordancesOf, liveProps, stampItemIds, type ActStep } from "../../../catalog";
 import { controlsAction, mediaAction, showConfirmation } from "./families";
 import type { ActionContext, ActionHandler, ActionState } from "./types";
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
   const meta = ctx.defs[ctx.entry.c]!.meta;
-  const part = affordancesOf(meta, stampItemIds(meta, ctx.input), ctx.entry.id).find(
+  const local = Object.fromEntries(
+    Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
+  );
+  const props = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local);
+  const part = affordancesOf(meta, props, ctx.entry.id).find(
     (offered) => offered.address === action.address && offered.action === action.action,
   )?.part;
   return (part && meta.confirmParts?.includes(part)) ||

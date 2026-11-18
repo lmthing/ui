@@ -64,7 +64,11 @@ function prepareStep(
     },
   };
 }
-function planSteps(list: ActStep[], ctx: ControllerContext, media: MediaRuntime) {
+function planSteps(
+  list: ActStep[],
+  ctx: ControllerContext,
+  media: MediaRuntime,
+): ActionResult & { performed: ActStep[] } {
   let state: ActionState = {
     values: ctx.valuesOf(),
     sheet: ctx.status.openSheet,

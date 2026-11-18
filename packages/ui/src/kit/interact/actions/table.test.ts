@@ -62,7 +62,16 @@ function confirming(requireMounted = false) {
   const runtime = createScreenController({
     screen: {
       id: "test",
-      components: [{ id: "c1", c: fixture.meta.id, items: [{ label: "Item", goto: "next" }] }],
+      components: [
+        {
+          id: "c1",
+          c: fixture.meta.id,
+          items: [
+            { label: "Item", goto: "next" },
+            { label: "Next item", goto: "later" },
+          ],
+        },
+      ],
     },
     defs: { ...components, [fixture.meta.id]: fixture },
     requireMounted,
@@ -143,11 +152,23 @@ describe("confirmation state", () => {
     expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "test/c1/cancel", action: "dismiss" });
   });
 });
-it("confirms an item root by its declared part, not by its stamped id", () => {
-  const { runtime } = confirming();
-  runtime.defs[fixture.meta.id] = { ...fixture, meta: { ...fixture.meta, confirmParts: ["root"] } };
-  runtime.press("c1/i1");
-  expect(runtime.confirmation?.source).toBe("test/c1/i1");
+it("confirms the live first item's root by its declared part, not by its stamped id", () => {
+  const { runtime, onLink } = confirming();
+  runtime.defs[fixture.meta.id] = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      confirmParts: ["root"],
+      items: { ...fixture.meta.items!, visible: "first" },
+      actions: { items: { root: ["press"] }, when: { root: { $first: true } } },
+    },
+  };
+  runtime.store.set("test/c1/$cursor", 1);
+  expect(runtime.press("c1/i2")).toMatchObject({ ok: true });
+  expect(runtime.confirmation?.source).toBe("test/c1/i2");
+  expect(onLink).not.toHaveBeenCalled();
+  expect(runtime.press("confirm/confirm")).toMatchObject({ ok: true });
+  expect(onLink).toHaveBeenCalledExactlyOnceWith("later", "test/c1/i2");
 });
 it("prepares and plays confirmable media only after accepting", () => {
   const session = { play: vi.fn(), pause: vi.fn(), seek: vi.fn(), dispose: vi.fn() };
