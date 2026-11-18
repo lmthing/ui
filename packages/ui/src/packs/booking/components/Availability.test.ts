@@ -134,9 +134,16 @@ describe("Availability parts, filled state and read/act", () => {
       if (withBreak) expect(html).toContain(breakLine("12:00", "13:00"));
       const reading = readComponent(components.Availability, input, "a1").join("\n");
       expect(reading).toContain("Monday");
+      for (const day of input.days) {
+        expect(reading).toContain(day.from);
+        expect(reading).toContain(day.to);
+      }
       expect(reading).toContain(`[a1/r1/toggle toggle:${on ? "on" : "off"}]`);
     }
   });
+});
+
+describe("Availability identity and read/act", () => {
   it("uses the weekday identity, not array order, for names", () => {
     const input = { days: [...neutral().days].reverse() };
     const html = renderInstance("Availability", input, "filled", theme);

@@ -11,7 +11,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitCard, KitGrid, KitInput, KitRow, KitText, KitTrail } from "../../../kit";
+import { KitCard, KitInput, KitRow, KitText, KitTrail } from "../../../kit";
 
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
@@ -39,9 +39,11 @@ export const meta = {
           ...weekdayNames,
           availabilityLabels.from,
           availabilityLabels.to,
-          ...(input as z.output<typeof props>).days.flatMap((day) =>
-            day.breakFrom && day.breakTo ? [breakLine(day.breakFrom, day.breakTo)] : [],
-          ),
+          ...(input as z.output<typeof props>).days.flatMap((day) => [
+            day.from,
+            day.to,
+            ...(day.breakFrom && day.breakTo ? [breakLine(day.breakFrom, day.breakTo)] : []),
+          ]),
         ],
 } as const satisfies Meta;
 const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
@@ -126,20 +128,14 @@ export function Availability({ days }: Props<typeof props, typeof meta>) {
               {weekdayNames[weekdays.indexOf(day.day)]}
             </KitText>
           </KitRow>
-          <KitGrid columns={2}>
-            <KitRow inline label={availabilityLabels.from}>
-              <KitText role="caption" tone="muted" part={null}>
-                {availabilityLabels.from}
-              </KitText>
-              <KitInput kind="time" part="from" hint={availabilityLabels.from} value={day.from} />
-            </KitRow>
-            <KitRow inline label={availabilityLabels.to}>
-              <KitText role="caption" tone="muted" part={null}>
-                {availabilityLabels.to}
-              </KitText>
-              <KitInput kind="time" part="to" hint={availabilityLabels.to} value={day.to} />
-            </KitRow>
-          </KitGrid>
+          <KitText role="caption" tone="muted" part={null}>
+            {availabilityLabels.from}
+          </KitText>
+          <KitInput kind="time" part="from" hint={availabilityLabels.from} value={day.from} />
+          <KitText role="caption" tone="muted" part={null}>
+            {availabilityLabels.to}
+          </KitText>
+          <KitInput kind="time" part="to" hint={availabilityLabels.to} value={day.to} />
           {day.breakFrom && day.breakTo && (
             <KitText role="caption" tone="muted" part="break">
               {breakLine(day.breakFrom, day.breakTo)}
