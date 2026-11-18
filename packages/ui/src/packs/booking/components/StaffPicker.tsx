@@ -16,6 +16,7 @@ import {
 import {
   KitAction,
   KitCard,
+  KitContent,
   KitPhoto,
   KitRow,
   KitSkeleton,
@@ -87,15 +88,17 @@ export const probes = [
 
 function StaffLoading({ name, role }: { name: string; role?: string | undefined }) {
   return (
-    <KitSkeleton
-      shape="media"
-      aspect="avatar"
-      inset="none"
-      content={[
-        ["label", name, "center"],
-        ["caption", role, "center"],
-      ]}
-    />
+    <KitRow label={name} inset="none">
+      <KitSkeleton
+        shape="media"
+        aspect="avatar"
+        inset="none"
+        content={[
+          ["body", name, "center"],
+          ["caption", role, "center"],
+        ]}
+      />
+    </KitRow>
   );
 }
 
@@ -128,18 +131,18 @@ export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof me
                 ring={at === person.position ? "accent" : "none"}
               />
               {person.id ? (
-                <KitRow label={person.name} inline lineRole="label">
-                  <KitText role="label" part="name" align="center" lines={1}>
+                <KitContent lineRole="body">
+                  <KitText role="body" part="name" align="center" lines={1}>
                     {person.name}
                   </KitText>
-                </KitRow>
+                  {person.role && (
+                    <KitText role="caption" tone="muted" part="role" align="center">
+                      {person.role}
+                    </KitText>
+                  )}
+                </KitContent>
               ) : (
                 <KitAction label={anyoneLabel} part="anyone" kind="quiet" full />
-              )}
-              {person.role && (
-                <KitText role="caption" tone="muted" part="role" align="center">
-                  {person.role}
-                </KitText>
               )}
             </KitRow>
           ),
