@@ -19,6 +19,7 @@ export type Confirmation = {
   kind: "primary" | "secondary" | "quiet" | "danger";
   source: string;
   goto?: string;
+  step?: ActStep;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
