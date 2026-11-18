@@ -44,8 +44,8 @@ const casts: CastLike[] = [
   },
 ];
 
-describe("customers draft contracts", () => {
-  it("generates exactly seven viewless drafts with examples, fallbacks and core near misses", () => {
+describe("customers contracts", () => {
+  it("has exactly seven components with examples, fallbacks and core near misses", () => {
     expect(
       Object.entries(packOf)
         .filter(([, owner]) => owner === "customers")
@@ -54,8 +54,9 @@ describe("customers draft contracts", () => {
     ).toEqual([...ids].sort());
     for (const id of ids) {
       const def = defs[id]!;
-      expect(def.meta).toMatchObject({ id, status: "draft", region: "body" });
-      expect(def).not.toHaveProperty(id);
+      expect(def.meta).toMatchObject({ id, region: "body" });
+      // A draft has no view yet; a built component exports one.
+      if (def.meta.status === "draft") expect(def).not.toHaveProperty(id);
       expect(def.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
       expect(def.meta.realPath).not.toBe("");
       expect(def.examples.length).toBeGreaterThanOrEqual(2);
