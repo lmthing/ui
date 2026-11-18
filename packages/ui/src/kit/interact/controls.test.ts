@@ -88,6 +88,8 @@ describe("live control state", () => {
     expect(changed).toHaveBeenCalled();
     runtime.dispose();
   });
+});
+describe("live control state", () => {
   it("uses fixed counter steps, pauses timers at their current value and keeps batches atomic", () => {
     const { runtime, agent, advance } = setup();
     expect(agent.act({ address: "n1/minus", action: "decrement" })).toMatchObject({
@@ -134,6 +136,8 @@ describe("live control state", () => {
     expect(links).toHaveBeenLastCalledWith("inbox", "controls/nav/r2");
     runtime.dispose();
   });
+});
+describe("live control state", () => {
   it("sends exact text, clears the draft and clips the displayed conversation to its schema", () => {
     const { runtime, agent, sent } = setup();
     expect(agent.act({ address: "r1/send", action: "send" })).toMatchObject({ ok: false, code: "disabled" });
@@ -163,6 +167,8 @@ describe("live control state", () => {
     expect(input(runtime, "w1").state).toBe("empty");
     runtime.dispose();
   });
+});
+describe("live control state", () => {
   it("persists through a host store, resets only its screen, and refuses unmounted/preview actions", () => {
     const store = createInteractionStore({ "other/f1/field": "Keep" });
     const runtime = createScreenController({ screen, defs: components, store, requireMounted: true });

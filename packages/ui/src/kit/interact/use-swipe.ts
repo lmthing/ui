@@ -2,6 +2,60 @@ import { useEffect, useRef, useState } from "react";
 import { space } from "../../catalog";
 import { useKit } from "../provider";
 type Touch = { nativeEvent: { pageX: number; pageY: number } };
+type Gesture = {
+  begin(x: number, y: number): void;
+  move(x: number, y: number): void;
+  end(x: number, y: number): void;
+  cancel(): void;
+  origin(): { x: number; y: number } | undefined;
+};
+function pointerHandlers(gesture: Gesture, cleanup: { current: (() => void) | undefined }) {
+  return {
+    onPointerDown: (event: PointerEvent) => {
+      if (event.button !== 0) return;
+      cleanup.current?.();
+      gesture.begin(event.clientX, event.clientY);
+      const track = (next: PointerEvent) => gesture.move(next.clientX, next.clientY);
+      const release = (next: PointerEvent) => {
+        gesture.end(next.clientX, next.clientY);
+        cleanup.current?.();
+      };
+      const cancel = () => {
+        gesture.cancel();
+        cleanup.current?.();
+      };
+      document.addEventListener("pointermove", track);
+      document.addEventListener("pointerup", release);
+      document.addEventListener("pointercancel", cancel);
+      cleanup.current = () => {
+        document.removeEventListener("pointermove", track);
+        document.removeEventListener("pointerup", release);
+        document.removeEventListener("pointercancel", cancel);
+        cleanup.current = undefined;
+      };
+    },
+  };
+}
+function responderHandlers(axis: "horizontal" | "vertical", gesture: Gesture) {
+  return {
+    onTouchStart: (event: Touch) => gesture.begin(event.nativeEvent.pageX, event.nativeEvent.pageY),
+    onStartShouldSetResponder: () => axis === "vertical",
+    onMoveShouldSetResponder: (event: Touch) => {
+      const origin = gesture.origin();
+      return Boolean(
+        origin &&
+        Math.abs(event.nativeEvent.pageX - origin.x) > space.sm &&
+        Math.abs(event.nativeEvent.pageX - origin.x) > Math.abs(event.nativeEvent.pageY - origin.y),
+      );
+    },
+    onResponderGrant: (event: Touch) => {
+      if (!gesture.origin()) gesture.begin(event.nativeEvent.pageX, event.nativeEvent.pageY);
+    },
+    onResponderMove: (event: Touch) => gesture.move(event.nativeEvent.pageX, event.nativeEvent.pageY),
+    onResponderRelease: (event: Touch) => gesture.end(event.nativeEvent.pageX, event.nativeEvent.pageY),
+    onResponderTerminate: gesture.cancel,
+  };
+}
 /** Pointer and native responder events share one direction/threshold calculation. */
 export function swipeDirection(
   dx: number,
@@ -43,54 +97,20 @@ export function useSwipe(
     if (direction) callback.current(direction);
   };
   useEffect(() => () => cleanup.current?.(), []);
+  const gesture: Gesture = {
+    begin,
+    move,
+    end,
+    origin: () => start.current,
+    cancel: () => {
+      start.current = undefined;
+      setOffset(0);
+    },
+  };
   const handlers = !enabled
     ? {}
     : typeof document !== "undefined"
-      ? {
-          onPointerDown: (event: PointerEvent) => {
-            if (event.button !== 0) return;
-            cleanup.current?.();
-            begin(event.clientX, event.clientY);
-            const track = (next: PointerEvent) => move(next.clientX, next.clientY);
-            const release = (next: PointerEvent) => {
-              end(next.clientX, next.clientY);
-              cleanup.current?.();
-            };
-            const cancel = () => {
-              start.current = undefined;
-              setOffset(0);
-              cleanup.current?.();
-            };
-            document.addEventListener("pointermove", track);
-            document.addEventListener("pointerup", release);
-            document.addEventListener("pointercancel", cancel);
-            cleanup.current = () => {
-              document.removeEventListener("pointermove", track);
-              document.removeEventListener("pointerup", release);
-              document.removeEventListener("pointercancel", cancel);
-              cleanup.current = undefined;
-            };
-          },
-        }
-      : {
-          onTouchStart: (event: Touch) => begin(event.nativeEvent.pageX, event.nativeEvent.pageY),
-          onStartShouldSetResponder: () => axis === "vertical",
-          onMoveShouldSetResponder: (event: Touch) =>
-            Boolean(
-              start.current &&
-              Math.abs(event.nativeEvent.pageX - start.current.x) > space.sm &&
-              Math.abs(event.nativeEvent.pageX - start.current.x) >
-                Math.abs(event.nativeEvent.pageY - start.current.y),
-            ),
-          onResponderGrant: (event: Touch) => {
-            if (!start.current) begin(event.nativeEvent.pageX, event.nativeEvent.pageY);
-          },
-          onResponderMove: (event: Touch) => move(event.nativeEvent.pageX, event.nativeEvent.pageY),
-          onResponderRelease: (event: Touch) => end(event.nativeEvent.pageX, event.nativeEvent.pageY),
-          onResponderTerminate: () => {
-            start.current = undefined;
-            setOffset(0);
-          },
-        };
+      ? pointerHandlers(gesture, cleanup)
+      : responderHandlers(axis, gesture);
   return { handlers, offset };
 }

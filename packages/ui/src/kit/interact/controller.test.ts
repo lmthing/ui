@@ -65,6 +65,8 @@ describe("screen actions", () => {
     expect(runtime.store.get("home/s1/at")).toBe(2);
     expect(runtime.openSheet).toBeUndefined();
   });
+});
+describe("screen actions", () => {
   it("asks before any dangerous action or link, and cancellation does nothing", () => {
     const { agent, runtime, onLink, onAction } = setup();
     expect(agent.act({ address: "b2", action: "press" })).toMatchObject({ ok: true });
@@ -102,6 +104,8 @@ describe("screen actions", () => {
     expect(onLink).not.toHaveBeenCalled();
     expect(agent.log()).toEqual([]);
   });
+});
+describe("screen actions", () => {
   it("plays, pauses, skips and seeks the host recording with bounded values", () => {
     const { agent, runtime, media, session } = setup();
     agent.act({ address: "p1/play", action: "play" });
@@ -125,6 +129,8 @@ describe("screen actions", () => {
     });
     expect(runtime.store.get("home/p1/scrubber")).toBe(15);
   });
+});
+describe("screen actions", () => {
   it("updates readings from device time events and disposes playback when the screen leaves", () => {
     let notify: ((seconds: number) => void) | undefined;
     const session = { play: vi.fn(), pause: vi.fn(), seek: vi.fn(), dispose: vi.fn() };
