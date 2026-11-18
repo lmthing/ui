@@ -17,6 +17,15 @@ export const packIds = [
   "events",
   "inventory",
   "sports",
+  "play",
+  "requests",
+  "community",
+  "projects",
+  "paperwork",
+  "hiring",
+  "property",
+  "invest",
+  "books",
 ] as const;
 
 export type PackId = (typeof packIds)[number];

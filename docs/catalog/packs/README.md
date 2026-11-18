@@ -4,31 +4,41 @@ A pack is a family of components and archetypes for one kind of app. The Directo
 the pick lines below and writes them in the brief; every later call for that app sees the core plus those
 packs only. A personal app often needs none. Entry format: [../README.md](../README.md).
 
-There are **18 packs**: the ten from the first plan (one renamed, all revised) and eight new ones.
+There are **27 packs**: the ten from the first plan (one renamed, all revised), eight earlier additions
+and nine newly planned packs.
 
-| Pack | Status | Pick line (what the Director reads) | Components | Archetypes |
-| --- | --- | --- | --- | --- |
-| [booking](booking.md) | revised | Booking time with someone: appointments, classes, slots. Not selling goods (`commerce`) | 6 | 4 |
-| [customers](customers.md) | revised | A business keeping track of the people it serves. Not the person's own friends (`social`) | 7 | 4 |
-| [commerce](commerce.md) | revised | Selling things for money: a shop, a bakery, a stall. Not booking time (`booking`) | 9 | 6 |
-| [money](money.md) | revised | The person's own money: balances, budgets, bills, splitting costs. Not a business's sales (`commerce`) | 6 | 5 |
-| [team](team.md) | revised | Staff or volunteers: shifts, hours, handovers, approvals. Not a sports squad (`sports`) | 7 | 3 |
-| [data](data.md) | revised | Running something behind the scenes: tables, boards, reports. Not personal tracking (core) | 7 | 3 |
-| [social](social.md) | revised | People sharing with each other: posts, comments, follows. Not a business's clients (`customers`) | 8 | 5 |
-| [media](media.md) | renamed from `content` | Reading, listening and watching a library. Not one recording on one screen (core `Player`) | 7 | 3 |
-| [learning](learning.md) | revised | Teaching and practising: lessons, quizzes, flashcards, classes and homework. Not a team's training rota (`team`) | 8 | 4 |
-| [places](places.md) | revised | Where things are and getting there: venues, addresses, deliveries, departures. Not planning a trip (`trips`) | 6 | 3 |
-| [health](health.md) | **new** | The body: workouts, medication, measurements, symptoms, cycles. Not the mind (`mind`), not food (`kitchen`) | 9 | 4 |
-| [mind](mind.md) | **new** | The mind: mood, journaling, feelings, breathing, sleep. Not the body (`health`) | 7 | 4 |
-| [kitchen](kitchen.md) | **new** | Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (`commerce`) | 7 | 5 |
-| [home](home.md) | **new** | Running a household: chores, family, pets, plants, cars, the house itself. Not a business team (`team`) | 7 | 5 |
-| [trips](trips.md) | **new** | Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (`events`) | 7 | 5 |
-| [events](events.md) | **new**, additional | Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts. Not travel (`trips`) | 8 | 4 |
-| [inventory](inventory.md) | **new** | Keeping track of things owned: stock, collections, storage, loans, warranties, rentals. Not selling them (`commerce`) | 8 | 4 |
-| [sports](sports.md) | **new**, additional | A sports team or league: fixtures, scores, standings, lineups, availability. Not a workout (`health`) | 7 | 4 |
+| Pack                      | Status                 | Pick line (what the Director reads)                                                                                                                                                                                                 | Components | Archetypes |
+| ------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ---------- |
+| [booking](booking.md)     | revised                | Booking time with someone: appointments, classes, slots. Not selling goods (`commerce`)                                                                                                                                             | 6          | 4          |
+| [customers](customers.md) | revised                | A business keeping track of the people it serves. Not the person's own friends (`social`)                                                                                                                                           | 7          | 4          |
+| [commerce](commerce.md)   | revised                | Selling things for money: a shop, a bakery, a stall. Not booking time (`booking`)                                                                                                                                                   | 9          | 6          |
+| [money](money.md)         | revised                | The person's own money: balances, budgets, bills, splitting costs, debts and repayment plans. Not a business's sales (`commerce`)                                                                                                   | 8          | 6          |
+| [team](team.md)           | revised                | Staff or volunteers: shifts, hours, handovers, approvals. Not a sports squad (`sports`)                                                                                                                                             | 7          | 3          |
+| [data](data.md)           | revised                | Running something behind the scenes: tables, boards, reports. Not personal tracking (core)                                                                                                                                          | 7          | 3          |
+| [social](social.md)       | revised                | People sharing with each other: posts, comments, follows. Not a business's clients (`customers`)                                                                                                                                    | 8          | 5          |
+| [media](media.md)         | renamed from `content` | Reading, listening and watching a library. Not one recording on one screen (core `Player`)                                                                                                                                          | 7          | 3          |
+| [learning](learning.md)   | revised                | Teaching and practising: lessons, quizzes, flashcards, classes and homework. Not a team's training rota (`team`)                                                                                                                    | 8          | 4          |
+| [places](places.md)       | revised                | Where things are and getting there: venues, addresses, deliveries, departures. Not planning a trip (`trips`)                                                                                                                        | 6          | 3          |
+| [health](health.md)       | **new**                | The body: workouts, medication, measurements, symptoms, cycles. Not the mind (`mind`), not food (`kitchen`)                                                                                                                         | 9          | 4          |
+| [mind](mind.md)           | **new**                | The mind: mood, journaling, feelings, breathing, sleep. Not the body (`health`)                                                                                                                                                     | 7          | 4          |
+| [kitchen](kitchen.md)     | **new**                | Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (`commerce`)                                                                                                                                  | 7          | 5          |
+| [home](home.md)           | **new**                | Running a household: chores, family, pets, plants, cars, the house and its devices. Not a business team (`team`)                                                                                                                    | 7          | 5          |
+| [trips](trips.md)         | **new**                | Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (`events`)                                                                                                                              | 7          | 5          |
+| [events](events.md)       | **new**, additional    | Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts. Not travel (`trips`)                                                                                                                                   | 8          | 4          |
+| [inventory](inventory.md) | **new**                | Keeping track of things owned: stock, collections, storage, loans, warranties, rentals. Not selling them (`commerce`)                                                                                                               | 8          | 4          |
+| [sports](sports.md)       | **new**, additional    | A sports team or league: fixtures, scores, standings, lineups, availability. Not a workout (`health`)                                                                                                                               | 7          | 4          |
+| [play](play.md)           | planned                | Playing a game together: round scores, dice, a spinner, turns, host-led trivia and random teams. Not league fixtures and standings (`sports`), not graded practice (`learning`), not household duties (`home`)                      | 6          | 3          |
+| [requests](requests.md)   | planned                | Requests moving through a service queue: repairs, maintenance, support tickets, work orders. Not booking time (`booking`), not a simple repair attached to something owned (`inventory`), not arbitrary records on a board (`data`) | 5          | 3          |
+| [community](community.md) | planned                | A club, association or neighbourhood group run by its members: dues, notices, votes, sign-ups, minutes. Not sharing posts (`social`), not organising one gathering (`events`), not staff shifts (`team`)                            | 5          | 3          |
+| [projects](projects.md)   | planned                | Work with deliverables: projects, tasks, milestones, time spent. Not running day-to-day operations (`data`), not staff shifts (`team`)                                                                                              | 5          | 4          |
+| [paperwork](paperwork.md) | planned                | Life admin: documents, renewals, receipts, forms to sign and deadlines. Not travel documents (`trips`), owned things' warranties (`inventory`), client agreements (`customers`) or payments to track (`money`)                      | 5          | 4          |
+| [hiring](hiring.md)       | planned                | Finding people or work: job posts, applicants, interviews, offers and your own applications. Not staff already hired (`team`), not clients (`customers`), not a generic kanban (`data`)                                             | 6          | 4          |
+| [property](property.md)   | planned                | Running rented property: units, occupancy, rent, viewings, inspections, meters. Not owned things or one listing or lease (`inventory`), not repairs and maintenance requests (`requests`)                                           | 5          | 4          |
+| [invest](invest.md)       | planned                | Investments over time: holdings, allocation, watchlists, performance, dividends, savings goals. Not day-to-day spending and bills (`money`), not a business's books (`books`, proposed)                                             | 5          | 4          |
+| [books](books.md)         | planned                | A small business's own accounts: income, expenses, profit, tax set aside. Not personal money (`money`), client invoices (`customers`), or selling goods (`commerce`)                                                                | 5          | 4          |
 
-Total: 131 pack components and 75 pack archetypes, all `planned`. With the 45 core components and 17 core
-archetypes, the catalog plans 176 components and 92 archetypes. An app can use 45 core components plus
+Total: 180 pack components and 109 pack archetypes, all `planned`. With the 45 core components and 17 core
+archetypes, the catalog plans 225 components and 126 archetypes. An app can use 45 core components plus
 at most 26 pack components; the Writer's choices omit code-owned entries, including core `TabBar`.
 
 `events` and `sports` are the packs added beyond the first plan's ten and the five the research suggested
@@ -37,22 +47,35 @@ mood and sleep apart from workouts and medicine.
 
 ## Common combinations
 
-| App idea | Packs |
-| --- | --- |
-| Dog walker, hairdresser, tutor (Trot) | booking, customers, money |
-| Bakery or market stall with pre-orders | commerce, customers, places |
-| Workout and meal tracker | health, kitchen |
-| Family organiser with chores and meals | home, kitchen |
-| Meditation and mood journal | mind |
-| Trip planner with a shared budget | trips, money, places |
-| Wedding or party planner | events, money |
-| Book club or running club | social, events |
-| Language or exam practice | learning |
-| Podcast or audiobook library | media |
-| Small shop's stock room | inventory, commerce, data |
-| Café or salon staff rota | team, booking |
-| Sunday league team | sports, social |
-| Landlord with a few flats | inventory, customers, money |
+| App idea                                                               | Packs                        |
+| ---------------------------------------------------------------------- | ---------------------------- |
+| Dog walker, hairdresser, tutor (Trot)                                  | booking, customers, books    |
+| Bakery or market stall with pre-orders                                 | commerce, customers, places  |
+| Workout and meal tracker                                               | health, kitchen              |
+| Family organiser with chores and meals                                 | home, kitchen                |
+| Meditation and mood journal                                            | mind                         |
+| Trip planner with a shared budget                                      | trips, money, places         |
+| Wedding or party planner                                               | events, money                |
+| Book club or running club                                              | social, events               |
+| Language or exam practice                                              | learning                     |
+| Podcast or audiobook library                                           | media                        |
+| Small shop's stock room                                                | inventory, commerce, data    |
+| Café or salon staff rota                                               | team, booking                |
+| Sunday league team                                                     | sports, social               |
+| Landlord with a few flats and tenant maintenance reports               | property, requests           |
+| Pub-quiz night with guest invitations and RSVPs                        | play, events                 |
+| Family organiser with an evening game night                            | home, play                   |
+| Bike repair shop with a queue, appointments and client bills           | requests, booking, customers |
+| Residents' association with neighbour posts                            | community, social            |
+| School parents' association running its annual fair                    | community, events            |
+| Freelancer's deliverables, client billing and tax-year accounts        | projects, customers, books   |
+| Home renovation with tools, warranties and shared costs                | projects, inventory, money   |
+| Household admin with chores, policy renewals and bills                 | home, paperwork, money       |
+| Freelancer's tax-prep evidence and expense log                         | paperwork, money             |
+| Café hiring for summer and then running the staff rota                 | hiring, team                 |
+| Trot recruiting another walker while managing appointments and clients | hiring, booking, customers   |
+| Stock, crypto or pension portfolio with allocation and dividends       | invest                       |
+| Kids' long-term savings with pocket money and household chores         | invest, money, home          |
 
 ## Rules every pack follows
 
@@ -109,17 +132,19 @@ mood and sleep apart from workouts and medicine.
 
 ## Build waves
 
-All 18 packs have folder scaffolds only. No domain component, archetype, `pack.ts`, worked example or
+All 27 packs have folder scaffolds only. No domain component, archetype, `pack.ts`, worked example or
 domain probe is built. Shared metadata, entry scanning/generation, prompt builders, pack checks and probe
-runners exist; the waves below remain planned.
+runners exist; the waves below remain planned. The [build plan](build-plan.md) defines the prerequisites,
+per-pack workflow and gates.
 
-| Wave | Packs | Why this order |
-| --- | --- | --- |
-| 1 | booking, customers | Trot, the Phase 1 worked example |
-| 2 | health, kitchen, home, money | The most-asked personal apps |
-| 3 | commerce, mind, trips, learning | The next most-asked; commerce and trips lean on `Amount` |
-| 4 | social, media, events, places | Need `people` and `service` tiers; showcase less often |
-| 5 | inventory, data, team, sports | Business back-office and niche; built when misses ask |
+| Wave | Packs                                                                     | Why this order                                                                                     |
+| ---- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 0    | Step 0 prerequisites                                                      | Every wave depends on them                                                                         |
+| 1    | booking, customers                                                        | Trot, the Phase 1 worked example                                                                   |
+| 2    | health, kitchen, home, money, play                                        | The most-asked personal apps; `play` turns the most common `Canvas` miss (games) into a showcase   |
+| 3    | commerce, mind, trips, learning, requests, property                       | Next most-asked; `requests` and `property` complete the landlord combination                       |
+| 4    | social, media, events, places, community                                  | Need `people` and `service` tiers; groups build on social and events                               |
+| 5    | inventory, data, team, sports, projects, paperwork, books, invest, hiring | Business back-office and niche; order inside the wave follows real `Canvas` misses and forced fits |
 
 Inside a wave, the order follows the off-pack repair codes and `Canvas` misses from the bake-off. A pack
 enters live prompts only when every component is `ready` and its worked example renders without issues.
@@ -130,15 +155,15 @@ sibling from an incomplete pack can enter; the Director's pack index includes ev
 
 Several packs need the same drawing. These are built once in `src/kit/base/` the first time a pack needs them:
 
-| Base | Draws | First needed by |
-| --- | --- | --- |
-| `KitSlotGrid` | A grid of time chips, taken ones disabled | booking `Slots` |
-| `KitColumns` | Two to five columns of cards that scroll sideways, with a count per column | data `Board` |
-| `KitTable` | A compact table with a sticky first column | data `Table`, sports `Standings` |
-| `KitSetRow` | A row of small number boxes (sets, reps, weight) with a done tick | health `Workout` |
-| `KitWeekMatrix` | Rows of things by seven day columns with a mark per cell | health `HabitGrid`, kitchen `MealPlan` |
-| `KitFlip` | A card with two faces and a flip on press | learning `Flashcard` |
-| `KitTicket` | A ticket shape with a perforation and a code area | trips `Reservation`, events `Ticket` |
-| `KitScore` | Two sides with large numbers and a status in the middle | sports `Scoreboard` |
-| `KitBreath` | A circle that grows and shrinks on a timed rhythm | mind `Breathe` |
-| `KitSeatMap` | Round or long tables with seats as dots | events `Seating` |
+| Base            | Draws                                                                      | First needed by                        |
+| --------------- | -------------------------------------------------------------------------- | -------------------------------------- |
+| `KitSlotGrid`   | A grid of time chips, taken ones disabled                                  | booking `Slots`                        |
+| `KitColumns`    | Two to five columns of cards that scroll sideways, with a count per column | data `Board`                           |
+| `KitTable`      | A compact table with a sticky first column                                 | data `Table`, sports `Standings`       |
+| `KitSetRow`     | A row of small number boxes (sets, reps, weight) with a done tick          | health `Workout`                       |
+| `KitWeekMatrix` | Rows of things by seven day columns with a mark per cell                   | health `HabitGrid`, kitchen `MealPlan` |
+| `KitFlip`       | A card with two faces and a flip on press                                  | learning `Flashcard`                   |
+| `KitTicket`     | A ticket shape with a perforation and a code area                          | trips `Reservation`, events `Ticket`   |
+| `KitScore`      | Two sides with large numbers and a status in the middle                    | sports `Scoreboard`                    |
+| `KitBreath`     | A circle that grows and shrinks on a timed rhythm                          | mind `Breathe`                         |
+| `KitSeatMap`    | Round or long tables with seats as dots                                    | events `Seating`                       |
