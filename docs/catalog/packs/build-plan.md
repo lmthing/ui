@@ -61,6 +61,10 @@ bases for the wave are built first, then scaffolds, then components, then archet
 
 ## Gates
 
+- **Core first:** before a pack component is built, its task names the nearest core component and option
+  and says what they cannot show; if they can, the component is dropped and the pack's recipes use the
+  core one. Each pack component has a choose probe whose near miss is that core component, and the
+  pack's probes include a core need that must still pick the core component with the pack loaded.
 - **Component:** the core gates (model probes 2/3 on every probe, `pnpm look` no issues, reviewer
   approval, `pnpm rules`, tests).
 - **Pack:** every component ready; archetype compose probes 2/3 on every layout; worked example valid in
