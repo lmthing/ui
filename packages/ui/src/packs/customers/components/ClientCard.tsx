@@ -33,7 +33,7 @@ import {
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
   id: "ClientCard",
-  status: "ready",
+  status: "draft",
   group: "content",
   purpose: "Recognise one business client, their next visit and how to contact them.",
   pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
@@ -111,7 +111,7 @@ export const probes = [
   read("Call Anna", { address: "c1/call", action: "press" }),
 ] satisfies Probe[];
 
-function ClientText({ value, part, role = "body" }: { value: string; part: string; role?: TextRole }) {
+function ClientText({ value, part, role = "label" }: { value: string; part: string; role?: TextRole }) {
   if (useComponentState() === "loading")
     return <KitSkeleton shape="figure" inset="none" centered content={[[role, value]]} />;
   return (
@@ -123,14 +123,7 @@ function ClientText({ value, part, role = "body" }: { value: string; part: strin
 
 function ContactAction({ part }: { part: keyof typeof contactLabels }) {
   if (useComponentState() === "loading")
-    return (
-      <KitSkeleton
-        rows={1}
-        lead="none"
-        inset="none"
-        items={[{ lines: [{ role: "label", text: contactLabels[part], align: "center" }] }]}
-      />
-    );
+    return <KitAction part={part} a11y={contactLabels[part]} kind="primary" disabled full />;
   return (
     <KitAction
       part={part}

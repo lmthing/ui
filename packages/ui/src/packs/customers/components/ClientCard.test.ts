@@ -140,7 +140,7 @@ describe("ClientCard states and parts", () => {
       const html = draw(input, "loading");
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       expect(html).toContain("Loading");
-      expect(html).not.toContain('role="button"');
+      expect(html.match(/aria-disabled="true"/g)).toHaveLength(1 + Number(phone) + Number(address));
       expect(html).toMatch(/aria-hidden="true"[^]*?Anna Patel/);
       expect(readComponent(components.ClientCard, input, "c1", "loading")).toEqual([
         "c1 ClientCard (loading)",
