@@ -7,7 +7,8 @@ loans, warranties, rentals. Not selling them (`commerce`).
 
 Knowing what you have, where it is, who has it, when its warranty ends and what you still want, from a
 garage of boxes to a small shop's stock room, a record collection or a few rental flats. For rentals it
-covers the listing, the lease and repair requests; the tenants themselves are `customers`.
+covers the listing, the lease and a single rental-repair summary only; any request workflow (queue,
+triage, thread, work order) belongs to the `requests` pack. The tenants themselves are `customers`.
 
 ## Apps it serves
 
@@ -90,10 +91,12 @@ address line, available from, and a short description; photos sit above it in a 
 - Real path: listings stored on the device.
 
 ### `Request` · planned · input · people
-A repair or maintenance request: what is wrong, where, a photo, priority, status (new, booked, fixed), who
-is on it, and updates under it; tenants raise them, the landlord moves them on.
-- Pick: reporting and following a repair. Not a staff request for time off (team `Approval`), not a
-  general board of work (data `Board`).
+A single rental-repair summary only: what is wrong, where, a photo, priority, status (new, booked, fixed),
+who is on it, and brief updates. Any request workflow (queue, triage, thread, work order) is the
+`requests` pack.
+- Pick: a single rental-repair summary only. Any request workflow (queue, triage, thread, work order) is
+  the `requests` pack. Not a staff request for time off (team `Approval`), not a general board of work
+  (data `Board`).
 - Writes: `title` text(32), `where` text(24), `photo` optional, `priority` (`low`, `normal`, `urgent`),
   `status` (`new`, `booked`, `fixed`), `who` text(20) optional, `updates` of `time` text(12), `text`
   text(36), 0–4.

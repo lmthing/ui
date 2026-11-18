@@ -80,7 +80,8 @@ avatar stack, and "Going" or "Interested".
 - Pick: an event to join in a community. Not organising one's own event (`events` pack), not a booking with a
   provider (booking `Appointment`).
 - Writes: `title` text(40), `date`, `time` HH:MM, `place` text(40), `photo` optional, `going` number,
-  `status` (`none`, `going`, `interested`), `goto`.
+  `status` (`none`, `going`, `interested`), `goto`; `attendees` names text(24) each, 0–5 optional.
+  The avatar stack draws `attendees`; the `going` count covers the rest.
 - Parts → actions: `going press`, `interested press`, `root press`. · States: filled, loading.
 - Real path: an event in a shared app.
 
