@@ -113,7 +113,13 @@ export function Player({ style, title, sub, photo: art, seconds, at }: Props<typ
   if (state === "loading") {
     return (
       <KitCard style="inset" padded>
-        <KitSkeleton shape="media" rows={1} lead="none" />
+        <KitSkeleton
+          shape="media"
+          inset="none"
+          playback
+          aspect={art && style !== "compact" ? (style === "video" ? "wide" : "square") : "none"}
+          lines={[{ text: title, role: "heading" }, ...(sub ? [{ text: sub, role: "body" as const }] : [])]}
+        />
       </KitCard>
     );
   }
