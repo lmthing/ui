@@ -49,6 +49,10 @@ describe("KitSlotGrid", () => {
             `font-size:${typography.body.size}px`,
           );
           expect(html).toContain(slot.label);
+          const time = elementAt(html, `home/c1/${slot.id}/time`);
+          expect(time).toEqual(node.children[0]!.children[0]);
+          expect(time.attributes).not.toContain('role="button"');
+          expect(html.match(new RegExp(`data-testid="home/c1/${slot.id}/time"`, "g"))).toHaveLength(1);
         }
         expect(styleAt(html, "home/c1/r2/root")).toContain("var(--accent)");
         expect(styleAt(html, "home/c1/r2/root")).toContain(
@@ -66,6 +70,7 @@ describe("KitSlotGrid", () => {
     expect(loading).toContain('aria-busy="true"');
     expect(loading).not.toContain('role="button"');
     expect(loading).not.toContain('data-testid="home/c1/r1/root"');
+    expect(loading).not.toMatch(/data-testid="home\/c1\/r\d+\/time"/);
     const filledRows = elementAt(filled, "home/c1/root").children;
     const loadingRows = elementAt(loading, "home/c1/root").children;
     expect(loadingRows).toHaveLength(filledRows.length);
@@ -80,5 +85,8 @@ describe("KitSlotGrid", () => {
     const html = render({ times, part: "times" });
     expect(elementAt(html, "home/c1/times").children).toHaveLength(3);
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('role="button"');
+    expect(elementAt(html, "home/c1/r1/time")).toEqual(
+      elementAt(html, "home/c1/r1/root").children[0]!.children[0],
+    );
   });
 });

@@ -89,7 +89,7 @@ function SlotItem({
           numberScale="compact"
           tone={slot.taken ? "muted" : selected ? "accent" : "text"}
           tabular
-          part={null}
+          part={loading ? null : "time"}
         >
           {slot.label}
         </KitText>
