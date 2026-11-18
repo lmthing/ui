@@ -76,3 +76,14 @@ export function leftLine(ms: number): string {
   if (minutes >= 60) return `${Math.floor(minutes / 60)} h left`;
   return `${Math.max(1, minutes)} min left`;
 }
+
+/** How often something repeats, in the order a picker shows it. */
+export const repeatOptions = ["never", "daily", "weekdays", "weekly", "monthly", "yearly"] as const;
+export const repeatLabels = {
+  never: "Never",
+  daily: "Daily",
+  weekdays: "Weekdays",
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "Yearly",
+} as const satisfies Record<(typeof repeatOptions)[number], string>;

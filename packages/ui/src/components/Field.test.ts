@@ -22,7 +22,7 @@ describe("Field schema", () => {
       label: "Name",
       value: "Fern",
       hint: "Required",
-      typed: "input",
+      mode: "input",
     });
   });
   it.each([
@@ -48,7 +48,9 @@ describe("Field schema", () => {
     { label: "Level", kind: "slider", value: "Infinity" },
     { label: "Name", color: "red" },
     { label: "Name", pixels: 44 },
-    { label: "Name", typed: true },
+    { label: "Name", mode: true },
+    { kind: "repeat", label: "Water it", repeat: "fortnightly" },
+    { kind: "text", label: "Name", repeat: "weekly" },
     { label: "Name", id: "r1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact text limits and two to four distinct choice options", () => {
@@ -75,7 +77,7 @@ describe("Field schema", () => {
   it("keeps strict wire props and typed view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["label"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps>().not.toHaveProperty("typed");
+    expectTypeOf<ViewProps>().not.toHaveProperty("mode");
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
   });
@@ -153,7 +155,7 @@ describe("Field fallback and metadata", () => {
       task: "Name the plant Basil",
       expect: { address: "f1/field", action: "type" },
     });
-    expect(new Set(examples.map((example) => example.kind)).size).toBe(8);
+    expect(new Set(examples.map((example) => example.kind)).size).toBe(9);
   });
   it("registers its data-only definition and aliases", () => {
     const registry = createRegistry();
@@ -173,7 +175,7 @@ describe("Field rendering", () => {
     }
     const field = html.match(/<[^>]*data-testid="home\/c1\/field"[^>]*>/)?.[0];
     const role =
-      { choice: "radiogroup", toggle: "switch", slider: "slider", photo: "button" }[
+      { choice: "radiogroup", repeat: "radiogroup", toggle: "switch", slider: "slider", photo: "button" }[
         example.kind as "choice"
       ] ?? "textbox";
     expect(field).toContain(`role="${role}"`);

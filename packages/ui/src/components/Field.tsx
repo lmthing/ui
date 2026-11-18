@@ -5,6 +5,8 @@ import {
   placeholderDetail,
   placeholderTitle,
   placeholderValue,
+  repeatLabels,
+  repeatOptions,
   text,
   thingOf,
   type CastLike,
@@ -39,8 +41,8 @@ export const meta = {
   actions: {
     parts: { field: ["type", "select", "toggle", "set", "press"] },
     when: {
-      "field.type": { typed: "input" },
-      "field.select": { kind: "choice" },
+      "field.type": { mode: "input" },
+      "field.select": { mode: "choice" },
       "field.toggle": { kind: "toggle" },
       "field.set": { kind: "slider" },
       "field.press": { kind: "photo" },
@@ -50,15 +52,30 @@ export const meta = {
   read: (input, state) => {
     const { kind, options } = input as z.output<typeof props>;
     if (state !== "filled") return [];
+    if (kind === "repeat") {
+      const { repeat } = input as z.output<typeof props>;
+      return [
+        ...repeatOptions.map((option) => repeatLabels[option]),
+        ...(repeat ? [`${repeatLabels[repeat]} chosen`] : []),
+      ];
+    }
     return kind === "choice" ? (options ?? []) : kind === "photo" ? [photoLabels.add] : [kind];
   },
 } as const satisfies Meta;
 
+const fits = (kind: string, value: string) =>
+  kind === "toggle"
+    ? ["on", "off"].includes(value)
+    : !["number", "slider"].includes(kind) || Number.isFinite(Number(value));
+
 export const props = z
   .strictObject({
-    kind: z.enum(["text", "number", "date", "time", "choice", "toggle", "slider", "photo"]).default("text"),
+    kind: z
+      .enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo"])
+      .default("text"),
     label: text(24),
     value: text(40).optional(),
+    repeat: z.enum(repeatOptions).optional(),
     hint: text(60).optional(),
     options: z.array(text(16)).min(2).max(4).optional(),
   })
@@ -75,21 +92,21 @@ export const props = z
       message: "Choice needs distinct options and an available value",
     },
   )
-  .refine(({ kind, value }) => value === undefined || kind !== "toggle" || ["on", "off"].includes(value), {
+  .refine(({ kind, value }) => value === undefined || fits(kind, value), {
     path: ["value"],
-    message: "Toggle value must be on or off",
+    message: "Value must fit the kind: on or off, or a finite number",
   })
-  .refine(
-    ({ kind, value }) =>
-      value === undefined || !["number", "slider"].includes(kind) || Number.isFinite(Number(value)),
-    {
-      path: ["value"],
-      message: "Numeric value must be finite",
-    },
-  )
+  .refine(({ kind, repeat }) => repeat === undefined || kind === "repeat", {
+    path: ["repeat"],
+    message: "Repeat is only for the repeat kind",
+  })
   .overwrite((value) => ({
     ...value,
-    typed: ["text", "number", "date", "time"].includes(value.kind) ? "input" : "other",
+    mode: ["text", "number", "date", "time"].includes(value.kind)
+      ? "input"
+      : value.kind === "choice" || value.kind === "repeat"
+        ? "choice"
+        : "other",
   }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return { kind: "text", label: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 24) };
@@ -103,26 +120,34 @@ export const examples = [
   { kind: "toggle", label: "Remind me", value: "on" },
   { kind: "slider", label: "Walk intensity", value: "5" },
   { kind: "photo", label: "Dog photo" },
+  { kind: "repeat", label: "Water it", repeat: "weekly" },
 ] satisfies z.input<typeof props>[];
 export const probes = [
   { kind: "choose", need: "Let me enter the name of a new plant on its form", expect: "Field" },
   { kind: "choose", need: "Find a plant in my collection by typing part of its name", expect: "Search" },
   { kind: "write", brief: "A form input labelled Plant name, with Fern already entered", expect: "Field" },
+  {
+    kind: "write",
+    brief: "A form input labelled Water it, set to repeat every week",
+    expect: "Field",
+  },
   { kind: "read", screen: 0, task: "Name the plant Basil", expect: { address: "f1/field", action: "type" } },
 ] satisfies Probe[];
 
-function FieldControl({ kind, label, value, options }: Props<typeof props, typeof meta>) {
-  if (kind === "choice") {
+function FieldControl({ kind, label, value, options, repeat: every }: Props<typeof props, typeof meta>) {
+  if (kind === "choice" || kind === "repeat") {
+    const repeat = kind === "repeat";
+    const choices = repeat ? repeatOptions.map((option) => repeatLabels[option]) : (options ?? []);
     return (
-      <KitTrack look="segments" part="field" role="radiogroup" label={label}>
-        {options?.map((option) => (
+      <KitTrack look={repeat ? "pills" : "segments"} part="field" role="radiogroup" label={label}>
+        {choices.map((option) => (
           <KitChip
             key={option}
             item={null}
             label={option}
-            on={option === value}
             role="radio"
-            look="segment"
+            look={repeat ? "pill" : "segment"}
+            on={option === (repeat ? every && repeatLabels[every] : value)}
           />
         ))}
       </KitTrack>
@@ -167,19 +192,8 @@ function FieldControl({ kind, label, value, options }: Props<typeof props, typeo
       </>
     );
   }
-  return <TypedField kind={kind} label={label} value={value} />;
-}
-
-function TypedField({ kind, label, value }: Props<typeof props, typeof meta>) {
-  return (
-    <KitInput
-      label={label}
-      hint={label}
-      value={value}
-      icon={kind === "date" ? "calendar" : kind === "time" ? "clock" : undefined}
-      part="field"
-    />
-  );
+  const icon = kind === "date" ? "calendar" : kind === "time" ? "clock" : undefined;
+  return <KitInput label={label} hint={label} value={value} icon={icon} part="field" />;
 }
 
 export function Field(input: Props<typeof props, typeof meta>) {
