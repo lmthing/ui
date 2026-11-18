@@ -6,7 +6,7 @@ Folders (exactly these, 27 packs): commerce booking customers data social media 
 
 What each pack holds and why: `docs/catalog/packs/README.md` (`content` is renamed `media`).
 
-Each pack folder holds: `pack.ts`, `example.jsonl`, `components/` (one file per component), `archetypes/` (at least 2 data files).
+Each pack folder holds: `pack.ts`, `example.jsonl`, `components/` (one file per component), `archetypes/` (at least 2 data files), `tests/` (pack and component tests, so `components/` stays within 12 files).
 
 Rules:
 
