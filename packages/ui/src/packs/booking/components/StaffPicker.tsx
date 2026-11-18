@@ -28,7 +28,7 @@ import {
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
 export const meta = {
   id: "StaffPicker",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Choose who provides the booked service, or leave it to anyone.",
   pick: "Select a service provider for a booking, including Anyone. Not participants or people shown without selecting a provider (People).",
