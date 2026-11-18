@@ -1,6 +1,7 @@
 import { packIds, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
 import type { Definition } from "../probes";
 import { registryOf } from "../registry";
+import { denseIds } from "./dense-ids";
 
 type Input = {
   components: Record<string, Definition>;
@@ -9,11 +10,6 @@ type Input = {
   packArchetypes: Partial<Record<PackId, readonly ArchetypeMeta[]>>;
   packExamples: Partial<Record<PackId, string>>;
 };
-const denseIds = new Set(
-  "Slots Roster MealPlan Timetable HabitGrid Table Board Bracket Standings Seating FindDate Invoice OrderSummary Cart Timesheet CookSteps Ingredients GroceryList Medication Agenda BabyLog Workout ServiceMenu ChapterList GuestList Itinerary PackingList Registry Squad Lineup MatchFeed Storage ProductGrid Library Achievements Factors Feelings SymptomLog Stories Path Things CareSchedule Pantry FoodLog Devices Feed Comments Entries".split(
-    " ",
-  ),
-);
 
 function checkMeta(input: Input, pack: PackMeta): string[] {
   const issues: string[] = [];
@@ -59,14 +55,34 @@ function checkComponents(input: Input): string[] {
     const parts = new Set([...(meta.parts ?? ["root"]), ...(meta.items?.parts ?? [])]);
     if ([...(meta.confirmParts ?? []), ...Object.keys(meta.partTiers ?? {})].some((part) => !parts.has(part)))
       issues.push(`${meta.id}: parts`);
-    if (denseIds.has(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);
+    if (denseIds.includes(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);
     return issues;
   });
+}
+
+function checkOwnership(input: Input): string[] {
+  const issues: string[] = [];
+  for (const [id, pack] of Object.entries(input.packs))
+    if (!packIds.includes(id as PackId) || pack.id !== id)
+      issues.push(`${id}: -/-: pack metadata belongs to ${pack.id}`);
+  for (const [id, owner] of Object.entries(input.packOf)) {
+    if (!owner) continue;
+    if (!input.components[id] || input.components[id]!.meta.id !== id)
+      issues.push(`${owner}: ${id}/-: packOf does not name a matching component`);
+    if (!input.packs[owner] || input.packs[owner]!.id !== owner)
+      issues.push(`${owner}: ${id}/-: packOf names an undeclared pack`);
+  }
+  for (const [owner, archetypes] of Object.entries(input.packArchetypes))
+    if (!input.packs[owner as PackId] || input.packs[owner as PackId]!.id !== owner)
+      for (const archetype of archetypes)
+        issues.push(`${owner}: ${archetype.id}/-: archetype belongs to an undeclared pack`);
+  return issues;
 }
 
 /** Mechanical pack checks (plan 4.10 rules 6, 7 and the pack portion of 14). */
 export function checkPacks(input: Input): string[] {
   return [
+    ...checkOwnership(input),
     ...Object.values(input.packs).flatMap((pack) => [
       ...checkMeta(input, pack),
       ...checkExample(input, pack),
