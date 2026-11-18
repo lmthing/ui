@@ -17,3 +17,4 @@ Rules:
 - `SurfaceMeta` has no `region`, `weight`, `group`, `items` or `actions`.
 - Component ids are PascalCase and equal the file name.
 - Meta has no repair aliases; historical names live only in catalog/migrations.
+- `select?: { prop, value, mode?, parts? }` declares selection: `value` is `"index"` (zero-based), `"position"` (one-based), or `{ field: string }`; `mode: "flags"` projects `prop` on each row, otherwise on the component; `parts` maps named non-row controls to fixed values.
