@@ -80,7 +80,7 @@ each habit's streak at the end of its row.
 
 ### `Vitals` · planned · data · phone
 Readings with their healthy range: each as a value with unit, a band showing low, normal and high with the
-reading placed on it, the time taken, and a status in `good`, `warn` or `bad`.
+reading placed on it, the time taken, and a status in neutral or `warn`, never `bad`.
 - Pick: readings that have a normal range (blood pressure, heart rate, glucose, temperature). Not
   numbers without a range (`Stats`), not progress toward a goal (`Progress`).
 - Writes: `readings` of `label` text(20), `value` number, `value2` number optional (the second number of

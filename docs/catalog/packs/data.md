@@ -6,8 +6,8 @@ reports. Not personal tracking (core).
 ## Purpose
 
 The back office of a small operation: many records at once, sorted and filtered, moved through stages,
-changed in bulk, and summarised in charts. It is the only pack whose components may be dense, because the
-person using it is working, not browsing.
+changed in bulk, and summarised in charts. Any pack component allowed by the README's density rule may
+be dense.
 
 ## Apps it serves
 

@@ -91,7 +91,7 @@ with exercise"), each with a pair of small bars comparing days with and without 
 findings, writes the sentences from copy and computes the bars; a model only chooses which factors to show.
 - Pick: links between what the person logs and how they feel. Not one trend (`Sparkline`), not
   a general chart (`Bars`).
-- Writes: `factors` text(14) each, 1–4 (labels from the screen's `Factors`), `minDays` 7–60 (default 14).
+- Writes: `factors` text(14) each, 1–4 (labels from the screen's `Factors`), `minDays` 14–60 (default 14).
 - States: filled, empty (too few days logged). · Real path: averages computed on the device from entries.
 
 ## Archetypes (4)

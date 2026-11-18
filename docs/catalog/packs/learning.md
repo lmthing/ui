@@ -91,7 +91,7 @@ current period highlighted.
 - Pick: a repeating weekly class schedule. Not one day's plan (`Timeline`), not staff shifts (team
   `Roster`), not bookable times (booking `Slots`), not a family's week (home `Agenda`).
 - Writes: `days` of `day` (mon…sun), `periods` of `time` HH:MM, `subject` text(24), `room` text(12)
-  optional, `tone` optional, 1–8, 1–7.
+  optional, `teacher` text(24) optional, `tone` optional, 1–8, 1–7.
 - Parts → actions: `day select`, periods `root press`. · States: filled, empty. · Dense.
 - Real path: a timetable stored on the device.
 
