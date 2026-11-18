@@ -1,0 +1,118 @@
+import {
+  affordancesOf,
+  liveProps,
+  stampItemIds,
+  readScreen,
+  cancelLabel,
+  confirmLabel,
+  mediaUnavailable,
+} from "../../../catalog";
+import type { ActStep } from "../../../catalog";
+import { actionFailure } from "../actions";
+import type { ActReply } from "../index";
+import type { ControllerContext } from "./context";
+type Act = (step: ActStep) => ActReply;
+const pressActions = [
+  "press",
+  "select",
+  "toggle",
+  "check",
+  "increment",
+  "decrement",
+  "start",
+  "stop",
+  "send",
+  "dismiss",
+];
+function actionsAt(ctx: ControllerContext, address: string): string[] {
+  const local = ctx.relative(address),
+    id = local.split("/")[0]!;
+  if (ctx.status.disposed) return [];
+  if (ctx.status.confirmation)
+    return local === "confirm/confirm"
+      ? ["press"]
+      : ["confirm/cancel", "confirm/close"].includes(local)
+        ? ["dismiss"]
+        : [];
+  const entry = ctx
+    .liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet))
+    .components.find((item) => item.id === id);
+  if (!entry || (entry.state && entry.state !== "filled") || !ctx.defs[entry.c]) return [];
+  try {
+    const localValues = Object.fromEntries(
+      Object.entries(ctx.valuesOf()).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
+    );
+    const props = liveProps(
+      ctx.defs[entry.c]!.meta,
+      stampItemIds(ctx.defs[entry.c]!.meta, ctx.inputOf(entry)),
+      id,
+      localValues,
+    );
+    return affordancesOf(ctx.defs[entry.c]!.meta, props, id)
+      .filter((item) => item.address === local)
+      .map((item) => item.action);
+  } catch {
+    return [];
+  }
+}
+function press(ctx: ControllerContext, act: Act, address: string) {
+  const local = ctx.relative(address);
+  if (ctx.status.confirmation) {
+    if (!["confirm/confirm", "confirm/cancel", "confirm/close"].includes(local))
+      return actionFailure(0, "not_actionable", "Answer the confirmation first");
+    return act({
+      address: local === "confirm/confirm" ? local : "confirm/cancel",
+      action: local === "confirm/confirm" ? "press" : "dismiss",
+    });
+  }
+  const offered = actionsAt(ctx, address);
+  const action =
+    local.endsWith("/play") && offered.includes("play")
+      ? ctx.store.get(ctx.key(local.split("/")[0]!, "play"))
+        ? "pause"
+        : "play"
+      : offered.find((item) => pressActions.includes(item));
+  return action
+    ? act({ address, action })
+    : actionFailure(0, "not_actionable", "No press action at this address");
+}
+function read(ctx: ControllerContext) {
+  if (ctx.status.confirmation)
+    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
+  return [
+    readScreen(visible, ctx.defs, ctx.valuesOf()),
+    ...visible.components
+      .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
+      .map((entry) => `${entry.id} ${mediaUnavailable}`),
+  ].join("\n");
+}
+export function createAccess(ctx: ControllerContext, act: Act) {
+  return {
+    actionsAt: (address: string) => actionsAt(ctx, address),
+    press: (address: string) => press(ctx, act, address),
+    read: () => read(ctx),
+    canPress: (address: string) =>
+      actionsAt(ctx, address).some((action) => pressActions.includes(action)) ||
+      (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
+    edit(address: string, text: string) {
+      const result = act({ address, action: "type", value: text });
+      if (!result.ok && result.code === "invalid_value") {
+        const full = `${ctx.screen.id}/${ctx.relative(address)}`;
+        ctx.store.setMany({
+          [`${full}/$draft`]: text,
+          [`${full}/$error`]: result.hint ?? "Check this value",
+        });
+      }
+      return result;
+    },
+    registerPart(address: string) {
+      const local = ctx.relative(address),
+        token = Symbol(local);
+      ctx.mounted.set(local, token);
+      return () => {
+        if (ctx.mounted.get(local) === token) ctx.mounted.delete(local);
+      };
+    },
+  };
+}

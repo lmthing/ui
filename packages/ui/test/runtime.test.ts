@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { galleryConfig } from "../scripts/gallery-config";
+import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
 
 let server: ViteDevServer, browser: Browser, page: Page;

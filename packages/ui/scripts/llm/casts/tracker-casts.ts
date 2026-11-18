@@ -1,0 +1,83 @@
+import type { CastLike } from "@lmthing/ui/catalog";
+export const counterCast: CastLike = {
+  things: [{ type: "water_log", fields: ["label", "day", "amount", "unit"] }],
+  items: [
+    {
+      id: "today",
+      type: "water_log",
+      sample: true,
+      label: "Water glasses",
+      day: "Today",
+      amount: 3,
+      unit: "glasses",
+    },
+    {
+      id: "mon",
+      type: "water_log",
+      sample: true,
+      label: "Water glasses",
+      day: "Mon",
+      amount: 2,
+      unit: "glasses",
+    },
+    {
+      id: "tue",
+      type: "water_log",
+      sample: true,
+      label: "Water glasses",
+      day: "Tue",
+      amount: 4,
+      unit: "glasses",
+    },
+    {
+      id: "wed",
+      type: "water_log",
+      sample: true,
+      label: "Water glasses",
+      day: "Wed",
+      amount: 3,
+      unit: "glasses",
+    },
+  ],
+};
+export const timerCast: CastLike = {
+  things: [{ type: "session", fields: ["label", "day", "seconds", "minutes"] }],
+  items: [
+    {
+      id: "today",
+      type: "session",
+      sample: true,
+      label: "Care session",
+      day: "Today",
+      seconds: 0,
+      minutes: 0,
+    },
+    {
+      id: "mon",
+      type: "session",
+      sample: true,
+      label: "Care session",
+      day: "Mon",
+      seconds: 720,
+      minutes: 12,
+    },
+    {
+      id: "tue",
+      type: "session",
+      sample: true,
+      label: "Care session",
+      day: "Tue",
+      seconds: 480,
+      minutes: 8,
+    },
+    {
+      id: "wed",
+      type: "session",
+      sample: true,
+      label: "Care session",
+      day: "Wed",
+      seconds: 900,
+      minutes: 15,
+    },
+  ],
+};

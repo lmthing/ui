@@ -16,16 +16,17 @@
     }
   },
   "scripts": {
-    "build": "pnpm build:catalog && tsx scripts/build-kit.ts",
-    "build:entries": "tsx scripts/build-entries.ts",
-    "kit:themes": "tsx scripts/build-themes.ts",
-    "build:catalog": "pnpm build:entries && tsx scripts/bundle-check.ts && pnpm kit:themes",
-    "catalog:bundle-check": "tsx scripts/bundle-check.ts",
-    "typecheck": "tsx scripts/build-entries.ts && tsc -p tsconfig.json",
-    "test": "tsx scripts/build-entries.ts && tsx scripts/build-themes.ts && tsx scripts/check.ts",
-    "llm:check": "pnpm build:catalog && tsx scripts/llm-check.ts",
-    "shoot": "tsx scripts/build-entries.ts && tsx scripts/shoot.ts",
-    "look": "tsx scripts/build-entries.ts && tsx scripts/build-themes.ts && tsx scripts/look.ts"
+    "build": "pnpm build:catalog && tsx scripts/build/build-kit.ts",
+    "build:entries": "tsx scripts/build/build-entries.ts",
+    "kit:themes": "tsx scripts/build/build-themes.ts",
+    "build:catalog": "pnpm build:entries && tsx scripts/build/bundle-check.ts && pnpm kit:themes",
+    "catalog:bundle-check": "tsx scripts/build/bundle-check.ts",
+    "typecheck": "tsx scripts/build/build-entries.ts && tsc -p tsconfig.json",
+    "test": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/build/check.ts",
+    "llm:check": "pnpm build:catalog && tsx scripts/llm/cli/index.ts",
+    "shoot": "tsx scripts/build/build-entries.ts && tsx scripts/look/shoot.ts",
+    "look": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/look/look.ts",
+    "rules": "tsx scripts/rules/run.ts"
   },
   "dependencies": {
     "zod": "4.6.7"
