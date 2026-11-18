@@ -10,21 +10,16 @@ import { shifted } from "../text";
  * A text box that grows with what is written (role textbox, multiline), at least `lines` tall, with its
  * hint as placeholder. The box is the part (default `field`) that `type` acts on. Read-only in a preview.
  */
-export function KitTextArea({
-  hint,
-  value,
-  lines = 4,
-  part = "field",
-  label,
-  maxLength,
-}: {
+type TextAreaProps = {
   hint: string;
   value?: string | undefined;
   lines?: number;
   part?: string;
   label?: string;
   maxLength?: number;
-}) {
+};
+
+export function KitTextArea({ hint, value, lines = 4, part = "field", label, maxLength }: TextAreaProps) {
   const ks = useKitStyle();
   const kit = useKit();
   const address = usePart(part);

@@ -43,6 +43,18 @@ const toneOf: Record<ActionKind, TextTone & IconTone> = {
  * Something the person presses: a labelled button, or an icon-only button when `label` is absent
  * (give `a11y` then). Presses follow `goto` through the host's onLink when the kit is interactive.
  */
+type ActionProps = {
+  label?: string | undefined;
+  icon?: IconName | undefined;
+  kind?: ActionKind;
+  goto?: string | undefined;
+  part?: string;
+  a11y?: string;
+  full?: boolean;
+  action?: "press" | "dismiss" | "play" | "pause";
+  disabled?: boolean;
+};
+
 export function KitAction({
   label,
   icon,
@@ -53,17 +65,7 @@ export function KitAction({
   full = false,
   action,
   disabled = false,
-}: {
-  label?: string | undefined;
-  icon?: IconName | undefined;
-  kind?: ActionKind;
-  goto?: string | undefined;
-  part?: string;
-  a11y?: string;
-  full?: boolean;
-  action?: "press" | "dismiss" | "play" | "pause";
-  disabled?: boolean;
-}) {
+}: ActionProps) {
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);

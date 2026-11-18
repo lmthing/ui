@@ -22,6 +22,43 @@ function Corner({ top, left }: { top: boolean; left: boolean }) {
   );
 }
 
+function ViewfinderMarks({ kind }: { kind: "photo" | "scan" }) {
+  const third = (index: number) => `${(index * 100) / 3}%` as const;
+  return kind === "photo" ? (
+    [1, 2].flatMap((i) => [
+      <YStack
+        key={`v${i}`}
+        position="absolute"
+        left={third(i)}
+        top={0}
+        bottom={0}
+        width={component.base.borderWidth}
+        backgroundColor="$onAccent"
+        opacity={component.base.gridOpacity}
+        aria-hidden
+      />,
+      <YStack
+        key={`h${i}`}
+        position="absolute"
+        top={third(i)}
+        left={0}
+        right={0}
+        height={component.base.borderWidth}
+        backgroundColor="$onAccent"
+        opacity={component.base.gridOpacity}
+        aria-hidden
+      />,
+    ])
+  ) : (
+    <YStack width="55%" aspectRatio={1} aria-hidden>
+      <Corner top left />
+      <Corner top left={false} />
+      <Corner top={false} left />
+      <Corner top={false} left={false} />
+    </YStack>
+  );
+}
+
 /**
  * A camera viewfinder: a dark rounded frame (photo: a soft rule-of-thirds grid; scan: a centred square
  * with corner marks) with the hint over its bottom edge. The frame is the part (default `viewfinder`);
@@ -38,7 +75,6 @@ export function KitViewfinder({
   part?: string;
   hintPart?: string;
 }) {
-  const third = (index: number) => `${(index * 100) / 3}%` as const;
   // A viewfinder is dark in both modes: the text colour in light mode, the screen background in dark.
   const dark = useThemeName().includes("dark");
   return (
@@ -52,39 +88,7 @@ export function KitViewfinder({
       alignItems="center"
       justifyContent="center"
     >
-      {kind === "photo" ? (
-        [1, 2].flatMap((i) => [
-          <YStack
-            key={`v${i}`}
-            position="absolute"
-            left={third(i)}
-            top={0}
-            bottom={0}
-            width={component.base.borderWidth}
-            backgroundColor="$onAccent"
-            opacity={component.base.gridOpacity}
-            aria-hidden
-          />,
-          <YStack
-            key={`h${i}`}
-            position="absolute"
-            top={third(i)}
-            left={0}
-            right={0}
-            height={component.base.borderWidth}
-            backgroundColor="$onAccent"
-            opacity={component.base.gridOpacity}
-            aria-hidden
-          />,
-        ])
-      ) : (
-        <YStack width="55%" aspectRatio={1} aria-hidden>
-          <Corner top left />
-          <Corner top left={false} />
-          <Corner top={false} left />
-          <Corner top={false} left={false} />
-        </YStack>
-      )}
+      <ViewfinderMarks kind={kind} />
       <XStack position="absolute" left={0} right={0} bottom={0} padding={space.md} justifyContent="center">
         <YStack
           backgroundColor="$surface"

@@ -2,20 +2,9 @@ import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon } from "../text";
-import { KitText } from "../text";
-import { shifted } from "../text";
+import { KitIcon, KitText, shifted } from "../text";
 
-function Option({
-  title,
-  sub,
-  icon,
-  value,
-  badge,
-  on,
-  multi,
-  look,
-}: {
+type OptionProps = {
   title: string;
   sub?: string | undefined;
   icon?: IconName | undefined;
@@ -24,7 +13,48 @@ function Option({
   on: boolean;
   multi: boolean;
   look: "cards" | "list";
-}) {
+};
+function OptionMark({ multi, on }: Pick<OptionProps, "multi" | "on">) {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      width={size.icon.md}
+      height={size.icon.md}
+      borderRadius={multi ? shifted("sm", ks.radiusShift) : radius.pill}
+      borderWidth={component.base.strongBorder}
+      borderColor={on ? "$accent" : "$muted"}
+      backgroundColor={on ? "$accent" : "transparent"}
+      alignItems="center"
+      justifyContent="center"
+      aria-hidden
+    >
+      {on && <KitIcon name="check" tone="onAccent" scale="sm" decorative />}
+    </YStack>
+  );
+}
+function OptionText({ title, badge, sub }: Pick<OptionProps, "title" | "badge" | "sub">) {
+  return (
+    <YStack flex={1} gap={space.xs}>
+      <XStack gap={space.sm} alignItems="center" flexWrap="wrap">
+        <KitText role="heading" part="title">
+          {title}
+        </KitText>
+        {badge && (
+          <KitText role="caption" tone="accent" part="badge">
+            {badge}
+          </KitText>
+        )}
+      </XStack>
+      {sub && (
+        <KitText role="body" tone="muted" part="sub">
+          {sub}
+        </KitText>
+      )}
+    </YStack>
+  );
+}
+function Option(props: OptionProps) {
+  const { title, icon, value, on, multi, look } = props;
   const ks = useKitStyle();
   const address = usePart();
   const kit = useKit();
@@ -50,39 +80,9 @@ function Option({
       aria-checked={on}
       accessibilityLabel={title}
     >
-      {!card && (
-        <YStack
-          width={size.icon.md}
-          height={size.icon.md}
-          borderRadius={multi ? shifted("sm", ks.radiusShift) : radius.pill}
-          borderWidth={component.base.strongBorder}
-          borderColor={on ? "$accent" : "$muted"}
-          backgroundColor={on ? "$accent" : "transparent"}
-          alignItems="center"
-          justifyContent="center"
-          aria-hidden
-        >
-          {on && <KitIcon name="check" tone="onAccent" scale="sm" decorative />}
-        </YStack>
-      )}
+      {!card && <OptionMark multi={multi} on={on} />}
       {icon && <KitIcon name={icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />}
-      <YStack flex={1} gap={space.xs}>
-        <XStack gap={space.sm} alignItems="center" flexWrap="wrap">
-          <KitText role="heading" part="title">
-            {title}
-          </KitText>
-          {badge && (
-            <KitText role="caption" tone="accent" part="badge">
-              {badge}
-            </KitText>
-          )}
-        </XStack>
-        {sub && (
-          <KitText role="body" tone="muted" part="sub">
-            {sub}
-          </KitText>
-        )}
-      </YStack>
+      <OptionText {...props} />
       {value && (
         <KitText role="number" numberScale="compact" tabular part="value">
           {value}
@@ -93,12 +93,8 @@ function Option({
   );
 }
 
-/**
- * One choosable option: a card (`cards`, a ring and a tick when chosen) or a row with a radio or tick box
- * (`list`). The whole option is the item's root part and carries the role (radio, or checkbox when several
- * may be chosen); title, sub, value and badge are its text parts.
- */
-export function KitOption({ item, ...props }: { item: string } & Parameters<typeof Option>[0]) {
+/** A card or row option, addressed as one item with title, sub, value and badge parts. */
+export function KitOption({ item, ...props }: { item: string } & OptionProps) {
   const context = usePartContext();
   return (
     <PartContext.Provider value={{ ...context, item }}>

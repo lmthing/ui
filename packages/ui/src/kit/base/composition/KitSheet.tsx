@@ -13,17 +13,14 @@ import { KitText } from "../text";
  * line under it, then its own content. The whole panel is the component's root part and the close button
  * the part `close`. It holds only its own items, never other components.
  */
-export function KitSheet({
-  title,
-  sub,
-  closeLabel,
-  children,
-}: {
+type SheetProps = {
   title: string;
   sub?: string | undefined;
   closeLabel: string;
   children: ReactNode;
-}) {
+};
+
+export function KitSheet({ title, sub, closeLabel, children }: SheetProps) {
   const kit = useKit();
   const context = usePartContext();
   const swipe = useSwipe("vertical", Boolean(kit.interactive && kit.controller), (direction) => {

@@ -3,7 +3,7 @@ import { useSwipe } from "../../interact";
 import { useControlValue } from "../../interact";
 import { swipeLabels } from "../../../catalog";
 import type { ReactNode } from "react";
-import { YStack } from "tamagui";
+import { YStack, isWeb } from "tamagui";
 import { component, space } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -39,6 +39,10 @@ function Front({ label, children }: { label: string; children: ReactNode }) {
                 });
               }
             },
+          } as object)
+        : {})}
+      {...(!isWeb && kit.interactive && kit.controller
+        ? ({
             accessibilityActions: [
               { name: "swipe_left", label: swipeLabels.left },
               { name: "swipe_right", label: swipeLabels.right },

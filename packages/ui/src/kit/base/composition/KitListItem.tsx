@@ -2,12 +2,10 @@ import { useKit } from "../../provider";
 import { usePartContext } from "../../part";
 import { useControlValue } from "../../interact";
 import type { IconName } from "../../../catalog";
-import { KitContent } from "../text";
-import { KitIcon } from "../text";
+import { KitContent, KitIcon, KitText } from "../text";
 import { KitPhoto } from "../media";
 import { KitRank } from "../data";
 import { KitRow } from "../surface";
-import { KitText } from "../text";
 import { KitTrail, type TrailKind } from "../helpers";
 
 export type ListItemRow = {
@@ -22,61 +20,54 @@ export type ListItemRow = {
   body?: string | undefined;
   me?: boolean | undefined;
 };
-
-/**
- * One row of a `List`, drawn for its style. `shelf`: a photo card for a sideways rail. `expand`: a button
- * row showing its body. `ranked`: a place number, the score at the end, the person's own row in accent.
- * Otherwise a plain row: icon or photo, title, meta and the chosen trail.
- */
-export function KitListItem({
-  row,
-  style,
-  index,
-}: {
+type ItemProps = {
   row: ListItemRow;
   style: "plain" | "inset" | "cards" | "shelf" | "expand" | "ranked";
   index: number;
-}) {
+};
+function ItemText({ row }: { row: ListItemRow }) {
+  return (
+    <>
+      <KitText role="body" tone={row.me ? "accent" : "text"} part="title">
+        {row.title}
+      </KitText>
+      {row.meta && (
+        <KitText role="caption" tone="muted" part="meta">
+          {row.meta}
+        </KitText>
+      )}
+    </>
+  );
+}
+function ShelfItem({ row }: { row: ListItemRow }) {
+  return (
+    <KitRow item={row.id} label={row.title} goto={row.goto} inset="none">
+      <KitContent lineRole="body">
+        {row.photo && <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />}
+        <ItemText row={row} />
+      </KitContent>
+    </KitRow>
+  );
+}
+function ItemLead({ row, style, index }: ItemProps) {
+  if (style === "ranked") return <KitRank place={index + 1} />;
+  if (row.photo) return <KitPhoto photo={row.photo} part="icon" />;
+  return <KitIcon name={row.icon} part="icon" />;
+}
+function ItemTrail({ row, style }: ItemProps) {
+  if (style === "expand") return null;
+  if (style === "ranked") return row.value ? <KitTrail kind="value" value={row.value} part="trail" /> : null;
+  return <KitTrail kind={row.trail} value={row.value} part="trail" />;
+}
+
+/** A shelf, expandable or ranked row, retaining the same addresses and live controls. */
+export function KitListItem(props: ItemProps) {
+  const { row, style } = props;
   const kit = useKit();
   const context = usePartContext();
   const open = useControlValue(`${context.screen}/${context.component}/${row.id}`, !kit.controller);
-  const title = (
-    <KitText role="body" tone={row.me ? "accent" : "text"} part="title">
-      {row.title}
-    </KitText>
-  );
-  const meta = row.meta && (
-    <KitText role="caption" tone="muted" part="meta">
-      {row.meta}
-    </KitText>
-  );
-  if (style === "shelf") {
-    return (
-      <KitRow item={row.id} label={row.title} goto={row.goto} inset="none">
-        <KitContent lineRole="body">
-          {row.photo && <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />}
-          {title}
-          {meta}
-        </KitContent>
-      </KitRow>
-    );
-  }
+  if (style === "shelf") return <ShelfItem row={row} />;
   const expand = style === "expand";
-  const ranked = style === "ranked";
-  const leading = ranked ? (
-    <KitRank place={index + 1} />
-  ) : row.photo ? (
-    <KitPhoto photo={row.photo} part="icon" />
-  ) : (
-    <KitIcon name={row.icon} part="icon" />
-  );
-  const trailing = expand ? undefined : ranked ? (
-    row.value ? (
-      <KitTrail kind="value" value={row.value} part="trail" />
-    ) : undefined
-  ) : (
-    <KitTrail kind={row.trail} value={row.value} part="trail" />
-  );
   return (
     <KitRow
       leadingAlign={row.photo ? "row" : "line"}
@@ -84,11 +75,10 @@ export function KitListItem({
       label={row.title}
       goto={expand ? undefined : row.goto}
       {...(expand ? { role: "button" as const, expanded: open } : {})}
-      leading={leading}
-      trailing={trailing}
+      leading={<ItemLead {...props} />}
+      trailing={expand || (style === "ranked" && !row.value) ? undefined : <ItemTrail {...props} />}
     >
-      {title}
-      {meta}
+      <ItemText row={row} />
       {expand && open && row.body && (
         <KitText role="body" tone="muted" part="body">
           {row.body}

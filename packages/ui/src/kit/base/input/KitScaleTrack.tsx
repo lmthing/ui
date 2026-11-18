@@ -1,6 +1,6 @@
 import { useKit } from "../../provider";
 import { Angry, Frown, Laugh, Meh, Smile, Star } from "@tamagui/lucide-icons";
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size } from "../../../catalog";
 import { usePart } from "../../part";
 
@@ -19,30 +19,48 @@ function HalfStar({ fill }: { fill: number }) {
   );
 }
 
-function Level({
-  level,
-  style,
-  value,
-  label,
-  readonly,
-}: {
+type LevelProps = {
   level: number;
   style: "mood" | "stars" | "dots";
   value: number;
   label: string;
   readonly: boolean;
-}) {
+};
+
+function LevelMark({ level, style, value, readonly }: LevelProps) {
   const filled = style === "mood" ? level === value : level <= value;
   const tone = filled ? "$accent" : "$muted";
   const Face = faces[level - 1]!;
+  return style === "dots" ? (
+    <YStack
+      width={size.icon.md}
+      height={size.icon.md}
+      borderRadius={radius.pill}
+      borderWidth={component.base.strongBorder}
+      borderColor={filled ? "$accent" : "$muted"}
+      backgroundColor={filled ? "$accent" : "transparent"}
+      aria-hidden
+    />
+  ) : style === "stars" && readonly ? (
+    <HalfStar fill={Math.min(1, Math.max(0, value - (level - 1)))} />
+  ) : style === "stars" ? (
+    <Star size={size.icon.lg} color={tone} fill={filled ? "currentColor" : "none"} aria-hidden />
+  ) : (
+    <Face size={size.icon.lg} color={tone} aria-hidden />
+  );
+}
+
+function Level({ level, style, value, label, readonly }: LevelProps) {
   const target = usePart(`l${level}`, !readonly);
   const kit = useKit();
   return (
     <YStack
       {...(readonly ? {} : target)}
       {...(!readonly && kit.interactive && kit.controller
+        ? { onPress: () => kit.controller!.press(target.testID) }
+        : {})}
+      {...(!isWeb && !readonly && kit.interactive && kit.controller
         ? ({
-            onPress: () => kit.controller!.press(target.testID),
             accessibilityActions: [{ name: "increment" }, { name: "decrement" }],
             onAccessibilityAction: (event: { nativeEvent: { actionName: string } }) => {
               const next = Math.min(
@@ -70,23 +88,7 @@ function Level({
             accessibilityLabel: label,
           })}
     >
-      {style === "dots" ? (
-        <YStack
-          width={size.icon.md}
-          height={size.icon.md}
-          borderRadius={radius.pill}
-          borderWidth={component.base.strongBorder}
-          borderColor={filled ? "$accent" : "$muted"}
-          backgroundColor={filled ? "$accent" : "transparent"}
-          aria-hidden
-        />
-      ) : style === "stars" && readonly ? (
-        <HalfStar fill={Math.min(1, Math.max(0, value - (level - 1)))} />
-      ) : style === "stars" ? (
-        <Star size={size.icon.lg} color={tone} fill={filled ? "currentColor" : "none"} aria-hidden />
-      ) : (
-        <Face size={size.icon.lg} color={tone} aria-hidden />
-      )}
+      <LevelMark level={level} style={style} value={value} label={label} readonly={readonly} />
     </YStack>
   );
 }

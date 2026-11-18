@@ -28,6 +28,41 @@ const Pill = styled(XStack, {
 
 const ChoiceTarget = createContext<string | undefined>(undefined);
 
+function ChipContent({
+  label,
+  on,
+  icon,
+  look,
+  stamped,
+}: Pick<Parameters<typeof Chip>[0], "label" | "on" | "icon" | "look" | "stamped">) {
+  const ks = useKitStyle();
+  if (look === "segment") {
+    return (
+      <XStack
+        justifyContent="center"
+        alignItems="center"
+        minHeight={size.control.sm}
+        paddingHorizontal={space.sm}
+        borderRadius={shifted("sm", ks.radiusShift)}
+        backgroundColor={on ? "$surface" : "transparent"}
+        {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
+      >
+        <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? "label" : null} lines={1}>
+          {label}
+        </KitText>
+      </XStack>
+    );
+  }
+  return (
+    <Pill on={on}>
+      {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
+      <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? "label" : null} lines={1}>
+        {label}
+      </KitText>
+    </Pill>
+  );
+}
+
 function Chip({
   label,
   on,
@@ -43,7 +78,6 @@ function Chip({
   look: "pill" | "segment";
   stamped: boolean;
 }) {
-  const ks = useKitStyle();
   const address = usePart("root", stamped);
   const kit = useKit();
   const parent = useContext(ChoiceTarget);
@@ -67,28 +101,7 @@ function Chip({
       aria-selected={role === "tab" ? on : undefined}
       accessibilityLabel={label}
     >
-      {segment ? (
-        <XStack
-          justifyContent="center"
-          alignItems="center"
-          minHeight={size.control.sm}
-          paddingHorizontal={space.sm}
-          borderRadius={shifted("sm", ks.radiusShift)}
-          backgroundColor={on ? "$surface" : "transparent"}
-          {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
-        >
-          <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? "label" : null} lines={1}>
-            {label}
-          </KitText>
-        </XStack>
-      ) : (
-        <Pill on={on}>
-          {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
-          <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? "label" : null} lines={1}>
-            {label}
-          </KitText>
-        </Pill>
-      )}
+      <ChipContent label={label} on={on} icon={icon} look={look} stamped={stamped} />
     </Hit>
   );
 }

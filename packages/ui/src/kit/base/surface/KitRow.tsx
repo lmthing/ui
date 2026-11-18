@@ -11,19 +11,7 @@ const Body = styled(YStack, { flex: component.base.bodyFlex });
 // Taller items (a 44px touch target) overflow the line equally above and below.
 const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
 type LineRole = "body" | "heading" | "title" | "display" | "number";
-export function Row({
-  children,
-  leading,
-  trailing,
-  goto,
-  label,
-  lineRole = "body",
-  role,
-  expanded,
-  tone,
-  leadingAlign = "line",
-  inset = "md",
-}: {
+type RowProps = {
   children: ReactNode;
   leading?: ReactNode;
   trailing?: ReactNode;
@@ -38,7 +26,21 @@ export function Row({
   leadingAlign?: "line" | "row";
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
-}) {
+};
+
+export function Row({
+  children,
+  leading,
+  trailing,
+  goto,
+  label,
+  lineRole = "body",
+  role,
+  expanded,
+  tone,
+  leadingAlign = "line",
+  inset = "md",
+}: RowProps) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
     kit = useKit(),

@@ -3,17 +3,8 @@ import { ScrollView, YStack, type TamaguiElement } from "tamagui";
 import { useKit } from "../../provider";
 import { component, zIndex } from "../../../catalog";
 
-/** A modal inside its screen, with keyboard focus contained and restored when dismissed. */
-export function KitOverlay({
-  children,
-  label,
-  onDismiss,
-}: {
-  children: ReactNode;
-  label: string;
-  onDismiss(): void;
-}) {
-  const { environment, nativeHost } = useKit();
+function useModalFocus(onDismiss: () => void) {
+  const { nativeHost } = useKit();
   const panel = useRef<TamaguiElement>(null);
   useEffect(() => {
     const restore = nativeHost?.focusModal?.(panel.current);
@@ -58,6 +49,21 @@ export function KitOverlay({
       if (typeof restore === "function") restore();
     };
   }, [onDismiss, nativeHost]);
+  return panel;
+}
+
+/** A modal inside its screen, with keyboard focus contained and restored when dismissed. */
+export function KitOverlay({
+  children,
+  label,
+  onDismiss,
+}: {
+  children: ReactNode;
+  label: string;
+  onDismiss(): void;
+}) {
+  const { environment } = useKit();
+  const panel = useModalFocus(onDismiss);
   return (
     <YStack
       position="absolute"
