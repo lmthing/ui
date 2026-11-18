@@ -119,6 +119,7 @@ describe("StaffPicker states, parts and read/act", () => {
     expect(reading.includes(anyoneLabel)).toBe(anyone);
     expect(html.includes('data-testid="home/c1/anyone"')).toBe(anyone);
     expect(html.includes('data-testid="home/c1/anyone_photo"')).toBe(anyone);
+    expect(html.includes('data-testid="home/c1/anyone_name"')).toBe(anyone);
     for (const part of ["name", "photo"]) expect(html).toContain(`home/c1/r1/${part}`);
     expect(html).not.toContain("home/c1/r1/role");
     expect(html).toContain("home/c1/r2/role");

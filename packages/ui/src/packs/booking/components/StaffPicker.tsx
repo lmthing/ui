@@ -14,7 +14,6 @@ import {
   type Props,
 } from "../../../catalog";
 import {
-  KitAction,
   KitCard,
   KitContent,
   KitPhoto,
@@ -28,7 +27,7 @@ import {
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
 export const meta = {
   id: "StaffPicker",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Choose who provides the booked service, or leave it to anyone.",
   pick: "Select a service provider for a booking, including Anyone. Not participants or people shown without selecting a provider (People).",
@@ -40,7 +39,7 @@ export const meta = {
   tier: "people",
   realPath: "Each staff member has working hours and bookings in a shared app.",
   items: { key: "staff", parts: ["root", "name", "photo", "role"] },
-  parts: ["root", "anyone", "anyone_photo"],
+  parts: ["root", "anyone", "anyone_photo", "anyone_name"],
   states: ["filled", "loading"],
   actions: { items: { root: ["select"] }, parts: { anyone: ["select"] }, when: { anyone: { anyone: true } } },
   select: { prop: "at", value: "position", parts: { anyone: 0 } },
@@ -117,7 +116,7 @@ export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof me
           ) : (
             <KitRow
               key={person.position}
-              {...(person.id ? { item: person.id } : {})}
+              {...(person.id ? { item: person.id } : { part: "anyone" })}
               label={person.name}
               role="button"
               inset="none"
@@ -130,20 +129,16 @@ export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof me
                 initials={person.name.slice(0, 1)}
                 ring={at === person.position ? "accent" : "none"}
               />
-              {person.id ? (
-                <KitContent lineRole="body">
-                  <KitText role="body" part="name" align="center" lines={1}>
-                    {person.name}
+              <KitContent lineRole="body">
+                <KitText role="body" part={person.id ? "name" : "anyone_name"} align="center" lines={1}>
+                  {person.name}
+                </KitText>
+                {person.role && (
+                  <KitText role="caption" tone="muted" part="role" align="center">
+                    {person.role}
                   </KitText>
-                  {person.role && (
-                    <KitText role="caption" tone="muted" part="role" align="center">
-                      {person.role}
-                    </KitText>
-                  )}
-                </KitContent>
-              ) : (
-                <KitAction label={anyoneLabel} part="anyone" kind="quiet" full />
-              )}
+                )}
+              </KitContent>
             </KitRow>
           ),
         )}
