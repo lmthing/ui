@@ -38,3 +38,13 @@ export const mediaUnavailable = "Recording unavailable";
 export const swipeLabels = { left: "Skip", right: "Keep" } as const;
 
 export const allLabel = "All";
+
+export const appointmentLabels = {
+  reschedule: "Reschedule",
+  edit: "Edit details",
+  booked: "Booked",
+  confirmed: "Confirmed",
+  pending: "Pending",
+  cancelled: "Cancelled",
+  done: "Done",
+} as const;

@@ -52,3 +52,15 @@ export const mediaLabels = {
   forward: "Forward 15 seconds",
 } as const;
 export const remainingLine = (seconds: number): string => `-${clockLine(seconds)}`;
+
+/** Provider-local dates, independent of the viewer's timezone. */
+export function appointmentDate(date: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+}
+
+export const minutesLine = (minutes: number): string => `${minutes} min`;
