@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { components, presets, size } from "@lmthing/ui/catalog";
+import { components, presets, size, type ThemeChoice } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -7,7 +7,11 @@ import { TamaguiProvider } from "tamagui";
 import { KitPhoto, KitProvider, PartScope } from "@lmthing/ui/kit";
 import { config } from "../../../../test/render";
 
-function renderPhoto(props: Parameters<typeof KitPhoto>[0]) {
+function renderPhoto(
+  props: Parameters<typeof KitPhoto>[0],
+  theme: ThemeChoice = { preset: "calm", mode: "light", accent: "moss" },
+  resolved = true,
+) {
   return renderToStaticMarkup(
     createElement(
       TamaguiProvider,
@@ -15,9 +19,9 @@ function renderPhoto(props: Parameters<typeof KitPhoto>[0]) {
       createElement(
         KitProvider,
         {
-          theme: { preset: "calm", mode: "light", accent: "moss" },
+          theme,
           children: null,
-          resolvePhoto: () => "data:image/svg+xml,test",
+          resolvePhoto: () => (resolved ? "data:image/svg+xml,test" : undefined),
         },
         createElement(
           PartScope,
@@ -29,7 +33,21 @@ function renderPhoto(props: Parameters<typeof KitPhoto>[0]) {
   );
 }
 
-describe("KitPhoto options", () => {
+// The media folder is at its twelve-file limit; photo coverage is grouped explicitly here.
+describe("KitPhoto options (photo coverage in the shared media test file)", () => {
+  it.each(presets)("uses a neutral raised placeholder and readable initials in $id", ({ id: preset }) => {
+    for (const mode of ["light", "dark"] as const) {
+      const theme = { preset, mode, accent: "moss" } as const;
+      for (const props of [{ initials: "AB" }, { photo: "lib:caller_name" }]) {
+        const html = renderPhoto(props, theme, false);
+        expect(styleAt(html, "home/c1/icon")).toContain("var(--raised)");
+        if ("initials" in props) {
+          const text = elementAt(html, "home/c1/icon").children[0]!;
+          expect(styleAt(html, text)).toContain("var(--text)");
+        }
+      }
+    }
+  });
   it.each(["none", "accent", "muted"] as const)("draws initials and the %s ring without a photo", (ring) => {
     for (const shape of ["thumb", "round", "wide", "square", "tall", "avatar"] as const) {
       const html = renderPhoto({ initials: "AB", ring, shape, label: "Caller name", part: "photo" });

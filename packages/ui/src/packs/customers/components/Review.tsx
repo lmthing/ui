@@ -8,11 +8,6 @@ import {
   placeholderDetail,
   placeholderTitle,
   probesFor,
-  reviewCountLine,
-  reviewLabels,
-  reviewReading,
-  reviewScaleLabels,
-  reviewStarsLine,
   text,
   thingOf,
   titleOf,
@@ -32,6 +27,7 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
+import * as copy from "../copy";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 export const meta = {
   id: "Review",
@@ -51,7 +47,7 @@ export const meta = {
   parts: ["root", "average", "count", "bars"],
   states: ["filled", "empty"],
   actions: { items: { reply: ["press"] }, when: { reply: { style: "list" } } },
-  read: (input) => reviewReading(input as z.output<typeof props>),
+  read: (input) => copy.reviewReading(input as z.output<typeof props>),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -138,14 +134,14 @@ function ReviewSummary(input: Props<typeof props, typeof meta>) {
     <KitCard part="root" padded>
       <KitText role="number" part="average" tabular>{`${input.average} ${goalLine(5)}`}</KitText>
       <KitText role="caption" tone="muted" part="count">
-        {reviewCountLine(input.count!)}
+        {copy.reviewCountLine(input.count!)}
       </KitText>
-      <KitScaleTrack style="stars" value={input.average!} labels={reviewScaleLabels} readonly />
+      <KitScaleTrack style="stars" value={input.average!} labels={copy.reviewScaleLabels} readonly />
       <KitCard style="plain" part="bars">
         {input.bars!.map((amount, index) => (
-          <KitRow key={index} label={reviewStarsLine(index + 1)} inline>
+          <KitRow key={index} label={copy.reviewStarsLine(index + 1)} inline>
             <KitMeter
-              label={reviewStarsLine(index + 1)}
+              label={copy.reviewStarsLine(index + 1)}
               amount={String(amount)}
               ratio={largest ? amount / largest : 0}
               slim
@@ -169,19 +165,19 @@ function ReviewList(input: Props<typeof props, typeof meta>) {
               {review.date}
             </KitText>
             <KitText role="caption" tone="muted" part="stars">{`${review.stars} ${goalLine(5)}`}</KitText>
-            <KitScaleTrack style="stars" value={review.stars} labels={reviewScaleLabels} readonly />
+            <KitScaleTrack style="stars" value={review.stars} labels={copy.reviewScaleLabels} readonly />
             <KitText part="text">{review.text}</KitText>
             {review.reply && (
               <KitContent>
                 <KitText role="caption" tone="muted" part={null}>
-                  {reviewLabels.response}
+                  {copy.reviewLabels.response}
                 </KitText>
                 <KitText tone="muted" part="response">
                   {review.reply}
                 </KitText>
               </KitContent>
             )}
-            <KitAction label={reviewLabels.reply} kind="quiet" part="reply" />
+            <KitAction label={copy.reviewLabels.reply} kind="quiet" part="reply" />
           </KitContent>
         </KitRow>
       ))}

@@ -175,10 +175,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+    "reply": "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,1,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
     "replies": [
-      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
-      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,1,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,1,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
       "{\"c\":\"Review\",\"style\":\"list\",\"average\":4.5,\"count\":2,\"bars\":[0,0,0,1,1],\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}"
     ]
   }

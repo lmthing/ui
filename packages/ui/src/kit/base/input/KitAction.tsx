@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useAnimatedValue } from "../../motion";
 import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type IconName } from "../../../catalog";
+import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
-import { usePart } from "../../part";
+import { useComponentState, usePart } from "../../part";
 import { KitIcon, type IconTone } from "../text";
 import { KitText, type TextTone } from "../text";
 import { shifted } from "../text";
@@ -29,6 +29,9 @@ const Frame = styled(XStack, {
       },
     },
     iconOnly: { true: { paddingHorizontal: space.xs }, false: { paddingHorizontal: space.lg } },
+    loading: {
+      true: { borderColor: "$line" },
+    },
   } as const,
 });
 
@@ -36,6 +39,18 @@ const toneOf: Record<ActionKind, TextTone & IconTone> = {
   primary: "onAccent",
   secondary: "accent",
   quiet: "accent",
+  danger: "bad",
+};
+const inactiveSurface = {
+  primary: "$accentSoft",
+  secondary: "$raised",
+  quiet: "transparent",
+  danger: "$badSoft",
+} as const;
+const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
+  primary: "text",
+  secondary: "muted",
+  quiet: "muted",
   danger: "bad",
 };
 
@@ -55,6 +70,53 @@ type ActionProps = {
   disabled?: boolean;
 };
 
+function ActionContent({
+  label,
+  icon,
+  part,
+  tone,
+  loading,
+  quiet,
+}: Pick<ActionProps, "label" | "icon" | "part"> & {
+  tone: TextTone & IconTone;
+  loading: boolean;
+  quiet: boolean;
+}) {
+  return (
+    <XStack position="relative" alignItems="center">
+      <XStack
+        gap={space.sm}
+        alignItems="center"
+        {...(loading ? { opacity: component.base.none, "aria-hidden": true } : {})}
+      >
+        {icon && (
+          <KitIcon
+            name={icon}
+            tone={tone}
+            scale={label ? "sm" : "md"}
+            part={`${part}_icon`}
+            decorative={loading}
+          />
+        )}
+        {label && (
+          <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
+            {label}
+          </KitText>
+        )}
+      </XStack>
+      {loading && quiet && (
+        <XStack
+          position="absolute"
+          width="100%"
+          height={typography.label.size * 0.6}
+          backgroundColor="$line"
+          borderRadius={radius.sm}
+        />
+      )}
+    </XStack>
+  );
+}
+
 export function KitAction({
   label,
   icon,
@@ -69,27 +131,35 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
+  const loading = useComponentState() === "loading";
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const [pressed, setPressed] = useState(false);
   const pressScale = useAnimatedValue(
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
     kit.environment.reduceMotion || kit.environment.agentMode,
   );
-  const inactive =
-    disabled || Boolean(kit.interactive && kit.controller && !kit.controller.canPress(address.testID));
+  const blocked = kit.interactive && kit.controller && !kit.controller.canPress(address.testID);
+  const inactive = loading || disabled || Boolean(blocked);
+  const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
+  const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   return (
     <Frame
       {...address}
       kind={kind}
+      backgroundColor={inactive ? fill : undefined}
+      loading={loading}
       scale={pressScale}
-      {...(kit.interactive ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) } : {})}
+      {...(kit.interactive && !inactive
+        ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
+        : {})}
       iconOnly={!label}
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
       {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
-      accessibilityRole="button"
+      accessibilityRole={loading ? undefined : "button"}
+      aria-busy={loading || undefined}
       {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
       aria-disabled={inactive || undefined}
-      {...(inactive ? { opacity: component.base.disabledOpacity, tabIndex: -1 } : {})}
+      {...(inactive ? { tabIndex: -1 } : {})}
       accessibilityLabel={label ?? a11y}
       {...(kit.interactive && !inactive && kit.controller
         ? {
@@ -102,12 +172,7 @@ export function KitAction({
           ? { onPress: () => kit.onLink?.(goto, address.testID) }
           : {})}
     >
-      {icon && <KitIcon name={icon} tone={tone} scale={label ? "sm" : "md"} part={`${part}_icon`} />}
-      {label && (
-        <KitText role="label" tone={tone} part={`${part}_label`}>
-          {label}
-        </KitText>
-      )}
+      <ActionContent {...{ label, icon, part, tone: captionTone, loading, quiet: kind === "quiet" }} />
     </Frame>
   );
 }

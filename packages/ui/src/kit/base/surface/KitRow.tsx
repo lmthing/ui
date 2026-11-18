@@ -30,6 +30,7 @@ type RowProps = {
   /** An inset-free, tightly spaced row inside an already padded surface. */
   inline?: boolean;
   addressed?: boolean;
+  part?: string;
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
 };
@@ -48,16 +49,17 @@ export function Row({
   leadingWidth,
   inline = false,
   addressed = true,
+  part = "root",
   inset = "md",
 }: RowProps) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
     kit = useKit(),
     style = useContext(CardStyleContext);
-  const part = usePart("root", addressed);
+  const address = usePart(part, addressed);
   return (
     <Frame
-      {...(addressed ? part : {})}
+      {...(addressed ? address : {})}
       {...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(ks.surface) : {})}
       paddingVertical={inline ? component.base.none : space[ks.density.rowPad]}
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
@@ -66,9 +68,9 @@ export function Row({
       accessibilityLabel={label}
       {...(expanded === undefined ? {} : { "aria-expanded": expanded })}
       {...(kit.interactive && kit.controller
-        ? { onPress: () => kit.controller!.press(part.testID) }
+        ? { onPress: () => kit.controller!.press(address.testID) }
         : kit.interactive && goto
-          ? { onPress: () => kit.onLink?.(goto, part.testID) }
+          ? { onPress: () => kit.onLink?.(goto, address.testID) }
           : {})}
     >
       <Content
@@ -98,6 +100,8 @@ export function KitRow({
   ...props
 }: {
   item?: string;
+  /** Address a named non-item control; omitted non-item rows stay unaddressed. */
+  part?: string;
   label: string;
   children: ReactNode;
   role?: "listitem" | "text" | "button";
@@ -113,7 +117,7 @@ export function KitRow({
   inset?: "md" | "none";
 }) {
   const context = usePartContext();
-  if (!item) return <Row addressed={false} role="text" {...props} />;
+  if (!item) return <Row addressed={props.part !== undefined} role="text" {...props} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
       <Row {...props} />

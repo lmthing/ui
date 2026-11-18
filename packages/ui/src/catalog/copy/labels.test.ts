@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
 import {
+  anyoneLabel,
   appointmentDetails,
   appointmentLabels,
   appointmentReading,
@@ -7,7 +8,9 @@ import {
   bookLabel,
   charLine,
   emptyLine,
+  historyDetailLine,
   loadingLabel,
+  loyaltyLabels,
   photoLabels,
   swipeLabels,
 } from "./labels";
@@ -26,6 +29,16 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect(charLine(42, 600)).toBe("42 / 600");
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
+  expect(anyoneLabel).toBe("Anyone");
+});
+
+it("labels reward-card actions and completion", () => {
+  expect(loyaltyLabels).toEqual({ stamp: "Add stamp", redeem: "Redeem reward", earned: "Reward earned" });
+});
+
+it("keeps event kinds and full dates together without inventing record content", () => {
+  for (const kind of ["visit", "order", "payment", "note", "message"])
+    expect(historyDetailLine(kind, "2026-11-18")).toBe(`${kind} · 2026-11-18`);
 });
 
 it("keeps policy endings together and reads dates, amounts and style-specific actions", () => {

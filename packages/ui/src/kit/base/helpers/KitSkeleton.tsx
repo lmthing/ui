@@ -3,7 +3,7 @@ import { component, loadingLabel, radius, size, space, type as typography } from
 import { useKitStyle } from "../../provider";
 import { KitContent } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, linesOf, type ShapeProps } from "./skeleton-content";
-import { SkeletonOptions } from "./skeleton-options";
+import { SkeletonOptions, SkeletonControl } from "./skeleton-options";
 
 const Line = styled(YStack, { justifyContent: "center" });
 
@@ -17,7 +17,8 @@ type SkeletonProps = ShapeProps & {
   rows?: number;
   lead?: "dot" | "box" | "time" | "none";
   /** rows: title and detail per row. pairs: a short label and a longer value. headline: one large line and a short one. */
-  shape?: "rows" | "pairs" | "headline" | "media" | "ring" | "trend" | "bars" | "figure" | "options";
+  shape?:
+    "rows" | "pairs" | "headline" | "media" | "ring" | "trend" | "bars" | "figure" | "options" | "control";
   /** `ring` only: the ring size, matching `KitRing scale`. */
   ring?: "md" | "lg";
   /** `rows` only: `none` drops the side inset (rows inside a padded card). */
@@ -148,6 +149,7 @@ const shapes = {
   media: SkeletonMedia,
   figure: SkeletonFigure,
   options: SkeletonOptions,
+  control: SkeletonControl,
 };
 
 /** Loading shapes retain each filled component's geometry and public props. */
@@ -161,7 +163,9 @@ export function KitSkeleton({
   ...props
 }: SkeletonProps) {
   const Shape = shapes[shape];
-  const lines = content?.flatMap(([role, text, align]) => (text ? [{ role, text, align }] : []));
+  const lines = content?.flatMap(([role, text, align, numberScale]) =>
+    text ? [{ role, text, align, numberScale }] : [],
+  );
   const items = props.items?.map((item) => ({
     ...item,
     lead: item.lead ?? (item.photo ? ("box" as const) : lead),

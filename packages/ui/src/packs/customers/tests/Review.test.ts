@@ -4,13 +4,13 @@ import {
   components,
   createRegistry,
   readComponent,
-  reviewLabels,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
+import { reviewLabels } from "../copy";
 const { props, meta, examples, fallback, probes } = components.Review;
 const summary = { average: 4.5, count: 4, bars: [0, 0, 0, 2, 2] };
 const row = { stars: 5, name: "Alex", date: "2026-11-18", text: "Thoughtful service." };
