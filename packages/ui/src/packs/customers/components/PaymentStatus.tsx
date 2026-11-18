@@ -1,20 +1,14 @@
 import { z } from "zod";
+import { isoDate, probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { KitAction, KitCard, KitContent, KitText, useComponentState } from "../../../kit";
 import {
   paymentAmountLine,
-  isoDate,
   paymentDetails,
   paymentFallback,
   paymentLabels,
   paymentReading,
   paymentStatus,
-  probesFor,
-  text,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitText, useComponentState } from "../../../kit";
+} from "../copy";
 
 // Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {

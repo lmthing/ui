@@ -3,13 +3,13 @@ import {
   affordancesOf,
   components,
   createRegistry,
-  paymentToday,
   readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
+import { paymentToday } from "../copy";
 const { props, meta, examples, fallback, probes } = components.PaymentStatus;
 const base = { amount: 60, date: "2026-11-18" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
