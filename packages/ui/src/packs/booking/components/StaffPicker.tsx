@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  anyoneLabel,
   itemsOf,
   photo,
   placeholderTitle,
@@ -10,12 +11,23 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitAction,
+  KitCard,
+  KitPhoto,
+  KitRow,
+  KitSkeleton,
+  KitStrip,
+  KitText,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
 export const meta = {
   id: "StaffPicker",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Choose who provides the booked service, or leave it to anyone.",
   pick: "Select a service provider for a booking, including Anyone. Not participants or people shown without selecting a provider (People).",
@@ -27,9 +39,11 @@ export const meta = {
   tier: "people",
   realPath: "Each staff member has working hours and bookings in a shared app.",
   items: { key: "staff", parts: ["root", "name", "photo", "role"] },
-  parts: ["root", "anyone"],
+  parts: ["root", "anyone", "anyone_photo"],
   states: ["filled", "loading"],
   actions: { items: { root: ["select"] }, parts: { anyone: ["select"] }, when: { anyone: { anyone: true } } },
+  select: { prop: "at", value: "position", parts: { anyone: 0 } },
+  read: (input) => ((input as { anyone: boolean }).anyone ? [anyoneLabel] : []),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -68,4 +82,69 @@ export const probes = [
   choose("Show the people coming on my walk as overlapping avatars", "People"),
   write("Choose between walkers Sam and Alex, allow anyone, select Sam"),
   read("Choose Anna for this booking", { address: "s1/r1", action: "select" }),
+  read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
+
+function StaffLoading({ name, role }: { name: string; role?: string | undefined }) {
+  return (
+    <KitSkeleton
+      shape="media"
+      aspect="avatar"
+      inset="none"
+      content={[
+        ["label", name, "center"],
+        ["caption", role, "center"],
+      ]}
+    />
+  );
+}
+
+export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof meta>) {
+  const loading = useComponentState() === "loading";
+  const choices = [
+    ...(anyone ? [{ id: undefined, name: anyoneLabel, photo: undefined, role: undefined, position: 0 }] : []),
+    ...staff.map((person, index) => ({ ...person, position: index + 1 })),
+  ];
+  return (
+    <KitCard part="root" padded>
+      <KitStrip>
+        {choices.map((person) =>
+          loading ? (
+            <StaffLoading key={person.position} name={person.name} role={person.role} />
+          ) : (
+            <KitRow
+              key={person.position}
+              {...(person.id ? { item: person.id } : {})}
+              label={person.name}
+              role="button"
+              inset="none"
+            >
+              <KitPhoto
+                {...(person.photo ? { photo: person.photo } : {})}
+                shape="avatar"
+                part={person.id ? "photo" : "anyone_photo"}
+                label={person.name}
+                initials={person.name.slice(0, 1)}
+                ring={at === person.position ? "accent" : "none"}
+              />
+              {person.id ? (
+                <KitRow label={person.name} inline lineRole="label">
+                  <KitText role="label" part="name" align="center" lines={1}>
+                    {person.name}
+                  </KitText>
+                </KitRow>
+              ) : (
+                <KitAction label={anyoneLabel} part="anyone" kind="quiet" full />
+              )}
+              {person.role && (
+                <KitText role="caption" tone="muted" part="role" align="center">
+                  {person.role}
+                </KitText>
+              )}
+            </KitRow>
+          ),
+        )}
+      </KitStrip>
+    </KitCard>
+  );
+}
