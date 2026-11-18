@@ -63,4 +63,22 @@ describe("KitWheel", () => {
     expect(placeholders).not.toContain("Nothing here yet");
     expect(placeholders).not.toContain("NaN");
   });
+  it("aligns every settled selection with the pointer despite stale caller rotation", () => {
+    for (const option of options)
+      for (const rotation of [0, 0.25, 19.7]) {
+        const html = render({ options, at: option.id, rotation });
+        const wheel = elementAt(html, "home/c1/root").children[0]!;
+        const slot = wheel.children.find((child) =>
+          child.children[0]?.attributes.includes(`data-testid="home/c1/${option.id}/root"`),
+        )!;
+        const style = styleAt(html, slot);
+        const left = Number(style.match(/left:([-\d.]+)px/)![1]);
+        const box = component.base.ringLg + size.avatar.lg;
+        expect(left + size.avatar.lg / 2).toBeCloseTo(box / 2);
+      }
+    const busy = render({ options, at: "r2", rotation: 0.25, busy: true });
+    expect(busy).not.toContain('aria-current="true"');
+    const empty = render({ options: [], rotation: 0 });
+    expect(empty).not.toContain('width="232"');
+  });
 });

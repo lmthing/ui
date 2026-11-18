@@ -38,7 +38,11 @@ describe("KitOrbit", () => {
         for (const node of nodes) {
           const item = elementAt(html, `home/c1/${node.id}/root`);
           expect(item.attributes).toContain(`aria-label="${node.label}"`);
-          expect(styleAt(html, item)).toContain(`width:${size.avatar.lg + 16}px`);
+          expect(styleAt(html, item)).toContain(
+            style === "queue"
+              ? "width:100%"
+              : `width:${size.avatar.md + 24 + component.base.strongBorder * 2}px`,
+          );
           expect(elementAt(html, `home/c1/${node.id}/content`)).toBeDefined();
         }
         expect(elementAt(html, "home/c1/r2/root").attributes).toContain('aria-current="true"');

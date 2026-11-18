@@ -1,7 +1,7 @@
 import { YStack, useTheme } from "tamagui";
 import { Svg, Circle, Path } from "react-native-svg";
 import { ChevronDown } from "@tamagui/lucide-icons";
-import { component, radius, size, space } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitText } from "../text";
 export type WheelDrawingProps = {
@@ -33,13 +33,14 @@ export function OptionLabel({
       accessibilityLabel={loading ? undefined : option.label}
       alignItems="center"
       justifyContent="center"
+      height={typography.label.lineHeight}
       gap={space.xs}
     >
       {loading ? (
         <YStack
           width={size.icon.lg}
           height={component.base.dot}
-          backgroundColor="$line"
+          backgroundColor="$muted"
           borderRadius={radius.pill}
         />
       ) : (
@@ -80,14 +81,16 @@ function Sector({
       d={`M ${box / 2} ${box / 2} L ${x} ${y} A ${r} ${r} 0 0 1 ${ex} ${ey} Z`}
       fill={
         loading || option.disabled
-          ? theme.line?.val
+          ? loading
+            ? theme.surface?.val
+            : theme.line?.val
           : at === option.id
             ? theme.accentSoft?.val
             : index % 2
               ? theme.raised?.val
               : theme.surface?.val
       }
-      stroke={at === option.id && !loading ? theme.accent?.val : theme.muted?.val}
+      stroke={loading ? theme.line?.val : at === option.id ? theme.accent?.val : theme.muted?.val}
       strokeWidth={component.base.borderWidth}
     />
   );
@@ -107,12 +110,14 @@ export function WheelDrawing(props: WheelDrawingProps) {
             r={r}
             fill={
               loading || options.every((option) => option.disabled)
-                ? theme.line?.val
+                ? loading
+                  ? theme.surface?.val
+                  : theme.line?.val
                 : options.length === 1 && at === options[0]?.id
                   ? theme.accentSoft?.val
                   : theme.surface?.val
             }
-            stroke={theme.muted?.val}
+            stroke={loading ? theme.line?.val : theme.muted?.val}
             strokeWidth={component.base.strongBorder}
           />
           {options.length > 1 &&

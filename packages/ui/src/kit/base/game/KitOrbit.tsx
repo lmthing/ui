@@ -5,9 +5,9 @@ import { RotateCw, RotateCcw } from "@tamagui/lucide-icons";
 import { component, emptyLine, radius, size, space, type as typography } from "../../../catalog";
 import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
-
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 type Node = { id: string; label: string; content: ReactNode };
+type NodeProps = { node: Node; current: boolean; loading: boolean; queue?: boolean };
 type OrbitProps = {
   part?: string;
   loading?: boolean;
@@ -16,10 +16,39 @@ type OrbitProps = {
   reverse?: boolean;
   style?: "ring" | "queue";
 };
-const nodeWidth = size.avatar.lg + space.sm * 2;
-const nodeHeight = size.avatar.lg + typography.label.lineHeight + space.sm + space.sm * 2;
-
-function OrbitNode({ node, current, loading }: { node: Node; current: boolean; loading: boolean }) {
+const nodeWidth = size.avatar.md + space.md * 2 + component.base.strongBorder * 2;
+const nodeHeight = nodeWidth + typography.body.lineHeight + space.sm;
+function NodeLabel({ node, current, loading, queue = false }: NodeProps) {
+  return (
+    <YStack
+      height={typography.body.lineHeight}
+      minWidth={component.base.none}
+      {...(queue ? { flex: component.base.bodyFlex } : { width: "100%" as const })}
+      justifyContent="center"
+      alignItems={queue ? "flex-start" : "center"}
+    >
+      {loading ? (
+        <YStack
+          width={size.avatar.sm}
+          height={component.base.dot}
+          backgroundColor="$line"
+          borderRadius={radius.pill}
+        />
+      ) : (
+        <KitText
+          role="body"
+          align={queue ? "start" : "center"}
+          tone={current ? "accent" : "text"}
+          lines={1}
+          part={null}
+        >
+          {node.label}
+        </KitText>
+      )}
+    </YStack>
+  );
+}
+function OrbitNode({ node, current, loading, queue = false }: NodeProps) {
   const ks = useKitStyle();
   const address = usePart("root", !loading);
   return (
@@ -27,18 +56,22 @@ function OrbitNode({ node, current, loading }: { node: Node; current: boolean; l
       {...(loading ? { "aria-hidden": true } : address)}
       aria-current={!loading && current ? "true" : undefined}
       accessibilityLabel={loading ? undefined : node.label}
-      width={nodeWidth}
-      height={nodeHeight}
-      padding={space.sm}
+      width={queue ? "100%" : nodeWidth}
+      height={
+        queue ? size.avatar.md + space[ks.density.rowPad] * 2 + component.base.strongBorder * 2 : nodeHeight
+      }
+      padding={queue ? space[ks.density.rowPad] : space.md}
       gap={space.sm}
+      flexDirection={queue ? "row" : "column"}
       alignItems="center"
-      justifyContent="center"
+      justifyContent={queue ? "flex-start" : "center"}
       borderRadius={shifted("lg", ks.radiusShift)}
-      borderWidth={component.base.strongBorder}
-      borderColor={!loading && current ? "$accent" : "$line"}
-      backgroundColor={!loading && current ? "$accentSoft" : "$surface"}
+      {...surfaceOf(ks.surface)}
+      {...(!loading && current
+        ? { borderWidth: component.base.strongBorder, borderColor: "$accent", backgroundColor: "$accentSoft" }
+        : {})}
     >
-      <YStack width={size.avatar.lg} height={size.avatar.lg} alignItems="center" justifyContent="center">
+      <YStack width={size.avatar.md} height={size.avatar.md} alignItems="center" justifyContent="center">
         {loading ? (
           <YStack
             width={size.avatar.md}
@@ -50,22 +83,10 @@ function OrbitNode({ node, current, loading }: { node: Node; current: boolean; l
           node.content
         )}
       </YStack>
-      {loading ? (
-        <YStack
-          width={size.avatar.sm}
-          height={component.base.dot}
-          backgroundColor="$line"
-          borderRadius={radius.pill}
-        />
-      ) : (
-        <KitText role="label" align="center" tone={current ? "accent" : "muted"} lines={1} part={null}>
-          {node.label}
-        </KitText>
-      )}
+      <NodeLabel node={node} current={current} loading={loading} queue={queue} />
     </YStack>
   );
 }
-
 function Ring({ nodes, at, loading, reverse }: Pick<OrbitProps, "nodes" | "at" | "loading" | "reverse">) {
   const theme = useTheme();
   const context = usePartContext();
@@ -114,25 +135,24 @@ function Ring({ nodes, at, loading, reverse }: Pick<OrbitProps, "nodes" | "at" |
     </ScrollView>
   );
 }
-
 function Queue({ nodes, at, loading }: Pick<OrbitProps, "nodes" | "at" | "loading">) {
   const context = usePartContext();
+  const ks = useKitStyle();
   const start = Math.max(
     0,
     nodes.findIndex((node) => node.id === at),
   );
   const ordered = [...nodes.slice(start), ...nodes.slice(0, start)];
   return (
-    <YStack gap={space.sm} alignItems="center">
+    <YStack gap={space[ks.density.gap]} alignItems="center">
       {ordered.map((node) => (
         <PartContext.Provider key={node.id} value={{ ...context, item: node.id }}>
-          <OrbitNode node={node} current={node.id === at} loading={!!loading} />
+          <OrbitNode node={node} current={node.id === at} loading={!!loading} queue />
         </PartContext.Provider>
       ))}
     </YStack>
   );
 }
-
 /** Supplied order and current node, never turn advancement or lap calculations. */
 export function KitOrbit({
   part = "root",
@@ -154,9 +174,12 @@ export function KitOrbit({
       {ordered.length ? (
         <Drawing nodes={ordered} at={at} loading={loading} reverse={reverse} />
       ) : (
-        <KitText part={null} tone="muted" align="center">
-          {emptyLine(thing)}
-        </KitText>
+        <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
+          <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
+          <KitText part={null} tone="muted" align="center">
+            {emptyLine(thing)}
+          </KitText>
+        </YStack>
       )}
     </YStack>
   );

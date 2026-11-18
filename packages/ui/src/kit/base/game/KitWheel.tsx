@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, XStack, YStack } from "tamagui";
 import { ChevronDown } from "@tamagui/lucide-icons";
-import { component, emptyLine, radius, size, space } from "../../../catalog";
+import { component, emptyLine, size, space } from "../../../catalog";
 import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { useAnimatedValue } from "../../motion";
-import { KitText, shifted } from "../text";
-import { OptionLabel, WheelDrawing, type WheelDrawingProps } from "./KitWheelDrawing";
+import { KitIcon, KitText, shifted } from "../text";
+import { OptionLabel, WheelDrawing } from "./KitWheelDrawing";
 type Option = { id: string; label: string; disabled?: boolean };
 type WheelProps = {
   part?: string;
@@ -24,7 +24,7 @@ function StripDrawing({
   loading,
 }: {
   options: readonly Option[];
-  at?: string | undefined;
+  at?: string;
   angle: number;
   loading: boolean;
 }) {
@@ -33,7 +33,9 @@ function StripDrawing({
   const ks = useKitStyle();
   const [viewport, setViewport] = useState(0);
   const width = size.control.md * 3;
-  const offset = (((angle % 1) + 1) % 1) * Math.max(0, options.length - 1) * (width + space.sm);
+  const selected = options.findIndex((option) => option.id === at);
+  const position = selected >= 0 ? selected : (((angle % 1) + 1) % 1) * Math.max(0, options.length - 1);
+  const offset = position * (width + space.sm);
   useEffect(() => {
     scroll.current?.scrollTo({ x: offset, animated: false });
   }, [offset, viewport]);
@@ -85,8 +87,14 @@ export function KitWheel({
 }: WheelProps) {
   const kit = useKit();
   const hidden = loading;
+  const turns = Number.isFinite(rotation) ? rotation : 0;
+  const selected = options.findIndex((option) => option.id === at);
+  const target =
+    !busy && selected >= 0 && style === "wheel"
+      ? Math.round(turns) - (selected + 0.5) / options.length
+      : turns;
   const angle = useAnimatedValue(
-    Number.isFinite(rotation) ? rotation : 0,
+    target,
     loading || kit.environment.reduceMotion || kit.environment.agentMode,
   );
   const thing = useEmptyThing();
@@ -103,11 +111,20 @@ export function KitWheel({
       gap={space.md}
       aria-busy={loading || busy}
     >
-      <Drawing options={rows} at={at} angle={angle} loading={hidden} />
-      {!loading && !options.length && (
-        <KitText part={null} tone="muted" align="center">
-          {emptyLine(thing)}
-        </KitText>
+      {!loading && !options.length ? (
+        <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
+          <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
+          <KitText part={null} tone="muted" align="center">
+            {emptyLine(thing)}
+          </KitText>
+        </YStack>
+      ) : (
+        <Drawing
+          options={rows}
+          {...(at === undefined || busy ? {} : { at })}
+          angle={angle}
+          loading={hidden}
+        />
       )}
     </YStack>
   );

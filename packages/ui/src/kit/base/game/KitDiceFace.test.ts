@@ -51,6 +51,7 @@ describe("KitDiceFace", () => {
   it.each([4, 6, 8, 10, 12, 20] as const)("draws caller-owned numbered %s-sided faces", (sides) => {
     const html = render({ ...die, sides, style: "numbers", value: sides, disabled: true });
     expect(elementAt(html, "home/c1/r1/hold").attributes).toContain('aria-disabled="true"');
+    expect(styleAt(html, "home/c1/r1/hold")).toContain(`opacity:${component.base.disabledOpacity}`);
     expect(html).toContain(`>${sides}</span>`);
     expect(render({ ...die, sides, style: "numbers" })).not.toContain('role="text"');
     expect(render({ ...die, sides, style: "numbers", value: sides + 1 })).not.toContain('role="text"');
@@ -66,5 +67,13 @@ describe("KitDiceFace", () => {
     }
     const html = render({ item: "r2", sides: 6, value: 3, held: false, label: "Static face" });
     expect(elementAt(html, "home/c1/r2/root").attributes).not.toContain('role="button"');
+  });
+  it("keeps a valid pip pattern and a distinct numeric loading footprint", () => {
+    const pips = render({ ...die, value: 6, loading: true });
+    const numbers = render({ ...die, value: 6, style: "numbers", loading: true });
+    expect(pips).toContain("var(--line)");
+    expect(numbers).toContain(`height:${size.control.md - 8}px`);
+    expect(numbers).not.toEqual(render({ ...die, style: "numbers" }));
+    expect(pips).not.toContain("First face");
   });
 });
