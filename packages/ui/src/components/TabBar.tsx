@@ -26,6 +26,7 @@ export const meta = {
   realPath: "The host builds linked tabs from sections marked nav and tracks the current screen.",
   codeOwned: true,
   items: { key: "tabs", parts: ["root", "icon", "label", "badge"] },
+  select: { prop: "at", value: "index" },
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },

@@ -1,4 +1,4 @@
-import { type ActStep, type Definition, type ScreenLike, type Values } from "../../catalog";
+import { selectionAt, type ActStep, type Definition, type ScreenLike, type Values } from "../../catalog";
 import { valueKey } from "./live-screen";
 import { selectControl, fieldControl, valueControl, type ControlContext } from "./controls";
 type Entry = ScreenLike["components"][number];
@@ -16,11 +16,8 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
   const local = step.address.replace(`${entry.id}/`, "");
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
-  const match = local.match(/(?:^|\/)r([1-9][0-9]*)$/);
-  if (!match) return step;
-  const index = Number(match[1]) - 1;
-  const items = def.meta.items?.key ? (input[def.meta.items.key] as Values[]) : [];
-  return { ...step, value: entry.c === "Calendar" ? items[index]?.day : index };
+  const found = selectionAt(def.meta, input, local.replace(/\/root$/, ""));
+  return found ? { ...step, value: found.value } : step;
 }
 export function controlStep(
   screen: ScreenLike,

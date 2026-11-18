@@ -1,4 +1,4 @@
-import type { Definition, ScreenLike, Values } from "../../catalog";
+import { projectSelection, type Definition, type ScreenLike, type Values } from "../../catalog";
 export type TimerState = { running: boolean; from: number; seconds: number };
 export const valueKey = (screen: string, id: string, part: string) => `${screen}/${id}/${part}`;
 export function timerSeconds(
@@ -41,11 +41,6 @@ function projectItems(entry: Entry, parsed: Values, get: (part: string) => unkno
       ...row,
       on: get(`r${index + 1}`) ?? row.on ?? false,
     }));
-  if (entry.c === "Chips")
-    result.items = raw("items").map((row, index) => ({
-      ...row,
-      on: get(`r${index + 1}`) ?? row.on ?? false,
-    }));
   if (entry.c === "List")
     result.rows = raw("rows").map((row, index) => {
       const on = get(`r${index + 1}/trail`);
@@ -75,15 +70,8 @@ function projectEntry(
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  if (entry.c === "Calendar" && get("$selected") !== undefined) result.selected = get("$selected");
+  Object.assign(result, projectSelection(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
-  if (
-    ["Choice", "Segmented", "TabBar", "Sheet"].includes(entry.c) &&
-    (entry.c !== "Choice" || !parsed.multi) &&
-    get("$at") !== undefined
-  )
-    result.at = get("$at");
-  if (entry.c === "Sheet" && get("at") !== undefined) result.at = get("at");
   projectItems(entry, parsed, get, result);
   if (entry.c === "Timer" && parsed.style !== "until")
     result.seconds = timerSeconds(parsed, get("$timer") as TimerState | undefined, get("$seconds"), now);
