@@ -10,6 +10,7 @@ import {
   emptyLine,
   historyDetailLine,
   loadingLabel,
+  loyaltyLabels,
   photoLabels,
   swipeLabels,
 } from "./labels";
@@ -29,6 +30,10 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
   expect(anyoneLabel).toBe("Anyone");
+});
+
+it("labels reward-card actions and completion", () => {
+  expect(loyaltyLabels).toEqual({ stamp: "Add stamp", redeem: "Redeem reward", earned: "Reward earned" });
 });
 
 it("keeps event kinds and full dates together without inventing record content", () => {

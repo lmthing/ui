@@ -98,3 +98,10 @@ export const bookLabel = "Book";
 
 /** A record's event kind and calendar date, kept together below its title. */
 export const historyDetailLine = (kind: string, date: string): string => `${kind} · ${date}`;
+
+/** Device-local reward-card actions and the earned reward status. */
+export const loyaltyLabels = {
+  stamp: "Add stamp",
+  redeem: "Redeem reward",
+  earned: "Reward earned",
+} as const;
