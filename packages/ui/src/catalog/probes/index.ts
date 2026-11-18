@@ -22,3 +22,4 @@ export {
 } from "./composition";
 export { runPackProbes, scorePack } from "./packs";
 export { composeFormat } from "./composition";
+export { mergePairs, mergeDecision } from "./merge-pairs";
