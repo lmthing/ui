@@ -5,31 +5,51 @@ import { usePart } from "../part";
 
 const faces = [Angry, Frown, Meh, Smile, Laugh] as const;
 
+function HalfStar({ fill }: { fill: number }) {
+  return (
+    <YStack width={size.icon.lg} height={size.icon.lg} aria-hidden>
+      <Star size={size.icon.lg} color="$muted" fill="none" />
+      {fill > 0 && (
+        <YStack position="absolute" top={0} left={0} width={`${fill * 100}%`} overflow="hidden">
+          <Star size={size.icon.lg} color="$accent" fill="currentColor" />
+        </YStack>
+      )}
+    </YStack>
+  );
+}
+
 function Level({
   level,
   style,
   value,
   label,
+  readonly,
 }: {
   level: number;
   style: "mood" | "stars" | "dots";
   value: number;
   label: string;
+  readonly: boolean;
 }) {
   const filled = style === "mood" ? level === value : level <= value;
   const tone = filled ? "$accent" : "$muted";
   const Face = faces[level - 1]!;
+  const target = usePart(`l${level}`);
   return (
     <YStack
-      {...usePart(`l${level}`)}
+      {...(readonly ? {} : target)}
       flex={1}
       minWidth={size.control.md}
       height={size.control.md}
       alignItems="center"
       justifyContent="center"
-      accessibilityRole="radio"
-      aria-checked={level === value}
-      accessibilityLabel={label}
+      {...(readonly
+        ? { "aria-hidden": true }
+        : {
+            accessibilityRole: "radio" as const,
+            "aria-checked": level === value,
+            accessibilityLabel: label,
+          })}
     >
       {style === "dots" ? (
         <YStack
@@ -41,6 +61,8 @@ function Level({
           backgroundColor={filled ? "$accent" : "transparent"}
           aria-hidden
         />
+      ) : style === "stars" && readonly ? (
+        <HalfStar fill={Math.min(1, Math.max(0, value - (level - 1)))} />
       ) : style === "stars" ? (
         <Star size={size.icon.lg} color={tone} fill={filled ? "currentColor" : "none"} aria-hidden />
       ) : (
@@ -59,15 +81,23 @@ export function KitScaleTrack({
   style,
   value,
   labels,
+  readonly = false,
 }: {
   style: "mood" | "stars" | "dots";
   value: number;
   labels: readonly [string, string, string, string, string];
+  /** A rating that is only shown: no targets or addresses, one image named by the value. */
+  readonly?: boolean;
 }) {
   return (
-    <XStack accessibilityRole="radiogroup" justifyContent="space-between">
+    <XStack
+      {...(readonly
+        ? { accessibilityRole: "image" as const, accessibilityLabel: `${value} ${labels[4].slice(2)}` }
+        : { accessibilityRole: "radiogroup" as const })}
+      justifyContent="space-between"
+    >
       {labels.map((label, index) => (
-        <Level key={label} level={index + 1} style={style} value={value} label={label} />
+        <Level key={label} level={index + 1} style={style} value={value} label={label} readonly={readonly} />
       ))}
     </XStack>
   );

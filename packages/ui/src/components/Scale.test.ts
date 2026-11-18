@@ -21,6 +21,7 @@ describe("Scale schema", () => {
       style: "dots",
       label: "How did it go?",
       value: 0,
+      readonly: false,
     });
   });
   it.each([
@@ -43,6 +44,12 @@ describe("Scale schema", () => {
     { label: "Rating", levels: [1, 2, 3, 4, 5] },
     { label: "Rating", l1: "Low" },
     { label: "Rating", id: "s1" },
+    { label: "Rating", value: 4.5 },
+    { label: "Rating", value: 4.25, readonly: true, style: "stars" },
+    { label: "Rating", readonly: true, style: "dots", value: 3 },
+    { label: "Rating", readonly: true, style: "mood", value: 3 },
+    { label: "Rating", meta: "212 reviews" },
+    { label: "Rating", readonly: true, style: "stars", meta: "a".repeat(25) },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it.each([0, 1, 2, 3, 4, 5])("accepts every level including unset and both bounds: %s", (value) => {
     for (const style of ["mood", "stars", "dots"])
@@ -139,9 +146,27 @@ describe("Scale fallback and metadata", () => {
       );
       expect(readComponent(components.Scale, input, "s1")[0]).toContain(`${value} of 5`);
     }
-    expect(meta.parts).toEqual(["root", "label", "l1", "l2", "l3", "l4", "l5"]);
+    expect(meta.parts).toEqual(["root", "label", "meta", "l1", "l2", "l3", "l4", "l5"]);
     expect(meta.states).toEqual(["filled"]);
     expect(meta).not.toHaveProperty("items");
+  });
+  it("shows a readonly rating with halves, a note and nothing to act on", () => {
+    const input = props.parse({
+      label: "Rated",
+      style: "stars",
+      value: 4.5,
+      readonly: true,
+      meta: "212 reviews",
+    });
+    expect(affordancesOf(meta, input, "s1")).toEqual([]);
+    const line = readComponent(components.Scale, input, "s1")[0];
+    expect(line).toContain("4.5 of 5");
+    expect(line).toContain('"212 reviews"');
+    const html = renderInstance("Scale", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(html).not.toContain('role="radio"');
+    expect(html).not.toMatch(/data-testid="home\/c1\/l[1-5]"/);
+    expect(html).toContain('data-testid="home/c1/meta"');
+    expect(html).toContain('aria-label="4.5 of 5"');
   });
   it("has a tier, real path and well-formed choose, write and read probes", () => {
     expect(meta.tier).toBe("phone");
@@ -155,6 +180,7 @@ describe("Scale fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Scale")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Segmented")).toBeDefined();
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Scale" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,

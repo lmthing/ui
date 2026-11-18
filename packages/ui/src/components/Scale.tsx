@@ -22,23 +22,46 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A selected level is stored with a record in the on-device database.",
-  parts: ["root", "label", "l1", "l2", "l3", "l4", "l5"],
+  parts: ["root", "label", "meta", "l1", "l2", "l3", "l4", "l5"],
   states: ["filled"],
   actions: {
     parts: { l1: ["select"], l2: ["select"], l3: ["select"], l4: ["select"], l5: ["select"] },
+    // A rating that is only shown has no targets to act on.
+    when: {
+      l1: { readonly: false },
+      l2: { readonly: false },
+      l3: { readonly: false },
+      l4: { readonly: false },
+      l5: { readonly: false },
+    },
   },
   aliases: ["rating", "mood", "score", "level"],
   read: (input: unknown) => {
-    const { value } = props.parse(input);
-    return [`${value} ${goalLine(5)}`];
+    const { value, meta: note } = props.parse(input);
+    return [`${value} ${goalLine(5)}`, ...(note ? [JSON.stringify(note)] : [])];
   },
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  style: z.enum(["mood", "stars", "dots"]).default("dots"),
-  label: text(32),
-  value: z.int().min(0).max(5).default(0),
-});
+export const props = z
+  .strictObject({
+    style: z.enum(["mood", "stars", "dots"]).default("dots"),
+    label: text(32),
+    value: z.number().min(0).max(5).multipleOf(0.5).default(0),
+    readonly: z.boolean().default(false),
+    meta: text(24).optional(),
+  })
+  .refine(({ readonly, value }) => readonly || Number.isInteger(value), {
+    path: ["value"],
+    message: "Half levels are only for a rating that is shown",
+  })
+  .refine(({ readonly, style }) => !readonly || style === "stars", {
+    path: ["readonly"],
+    message: "A shown rating uses stars",
+  })
+  .refine(({ readonly, meta: note }) => readonly || note === undefined, {
+    path: ["meta"],
+    message: "Meta is only for a shown rating",
+  });
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -55,6 +78,7 @@ export const examples = [
   { label: "How healthy does it look?", style: "mood", value: 3 },
   { label: "How was the walk?", style: "stars", value: 4 },
   { label: "How did it go? 1 low, 5 high", style: "dots", value: 0 },
+  { label: "Rated by walkers", style: "stars", value: 4.5, readonly: true, meta: "4.6 · 212 reviews" },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
@@ -74,6 +98,11 @@ export const probes = [
     expect: "Scale",
   },
   {
+    kind: "write",
+    brief: "Show that the dog park is rated 4.5 stars out of five by 212 walkers, only to look at",
+    expect: "Scale",
+  },
+  {
     kind: "read",
     screen: 0,
     task: "Rate it 5",
@@ -81,7 +110,7 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Scale({ style, label, value }: Props<typeof props, typeof meta>) {
+export function Scale({ style, label, value, readonly, meta: note }: Props<typeof props, typeof meta>) {
   const labels = [1, 2, 3, 4, 5].map((level) => `${level} ${goalLine(5)}`) as [
     string,
     string,
@@ -94,7 +123,12 @@ export function Scale({ style, label, value }: Props<typeof props, typeof meta>)
       <KitText role="heading" part="label">
         {label}
       </KitText>
-      <KitScaleTrack style={style} value={value} labels={labels} />
+      <KitScaleTrack style={style} value={value} labels={labels} readonly={readonly} />
+      {note && (
+        <KitText role="caption" tone="muted" part="meta">
+          {note}
+        </KitText>
+      )}
     </KitCard>
   );
 }
