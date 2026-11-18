@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { reviewCountLine, reviewLabels, reviewReading, reviewScaleLabels, reviewStarsLine } from "../copy";
+import { reviewCountLine, reviewLabels, reviewReading, reviewScaleLabels, reviewStarsLine } from "../../copy";
 
 it("reads exact summary numbers and singular/plural breakdown labels", () => {
   expect([reviewCountLine(0), reviewCountLine(1), reviewCountLine(2)]).toEqual([
