@@ -11,11 +11,10 @@ import {
   gapBetween,
   type Issue,
 } from "../../catalog";
-import { KitAction, KitSheet } from "../base";
-import { KitOverlay } from "../base/KitOverlay";
+import { KitAction, KitSheet, KitOverlay } from "../base";
 import { useKit } from "../provider";
 import { PartScope } from "../part";
-import type { ScreenController } from "../interact/controller";
+import type { ScreenController } from "../interact";
 
 export type RendererMap = Record<string, (props: never) => React.ReactNode>;
 export function Screen({

@@ -1,7 +1,7 @@
 import { YStack, styled } from "tamagui";
 import { component, emptyLine, size, space, type IconName } from "../../../catalog";
-import { KitIcon } from "../KitIcon";
-import { KitText } from "../KitText";
+import { KitIcon } from "../text";
+import { KitText } from "../text";
 import { usePartContext } from "../../part";
 
 const Badge = styled(YStack, {

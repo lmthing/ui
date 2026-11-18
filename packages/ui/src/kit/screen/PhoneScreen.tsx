@@ -7,13 +7,15 @@ import {
   type Values,
   type Issue,
 } from "../../catalog";
-import { KitProvider } from "../provider";
-import { createAgentAccess } from "../interact/agent";
-import { createInteractionStore, type InteractionStore } from "../interact/store";
-import { useEnvironment } from "../provider/useEnvironment";
-import type { NativeHost } from "../provider/environment";
-import { createScreenController } from "../interact/controller";
-import { browserMediaAdapter, type MediaAdapter } from "../interact/media";
+import { KitProvider, useEnvironment, type NativeHost } from "../provider";
+import {
+  createAgentAccess,
+  createInteractionStore,
+  type InteractionStore,
+  createScreenController,
+  browserMediaAdapter,
+  type MediaAdapter,
+} from "../interact";
 import type { PartRegistry } from "../registry";
 import { Screen, type RendererMap } from "./Screen";
 

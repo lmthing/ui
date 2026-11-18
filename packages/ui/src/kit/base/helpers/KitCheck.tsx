@@ -1,7 +1,7 @@
 import { useSignatureProgress } from "../../motion";
 import { motion } from "../../../catalog";
 import { useKit } from "../../provider";
-import { useControlValue } from "../../interact/use-control";
+import { useControlValue } from "../../interact";
 import { Check } from "@tamagui/lucide-icons";
 import { YStack, styled } from "tamagui";
 import { component, radius, size } from "../../../catalog";
