@@ -1,12 +1,14 @@
 # Visual rubric
 
 What "finished" means for a component, judged on its `pnpm look` screenshots (3 widths × 3 presets ×
-light and dark, every example and state). Every line is checkable by eye. A problem found by a person
+light and dark, the first accent). Each filled example is shown; other declared states use the first
+example. The current presets are `calm`, `bold` and `editorial`. Full 12-preset acceptance is **pending**. Every line is checkable by eye. A problem found by a person
 that this rubric missed becomes a new line here, or an automated check in `scripts/look-checks.ts`.
 
 Automated checks already cover clipping, overflow, overlap, contrast, faint loading bars, cramped
 text, awkward wraps, text under 12px, touch targets, alignment of item parts and item rhythm. The
-reviewer judges what they cannot.
+reviewer judges what they cannot. `look` writes fresh PNGs and `issues.json`, not pixel-baseline
+comparisons. The planned 0.1% CI baseline gate and axe/native checks are **pending** (plan 7 and 8).
 
 ## Hierarchy
 
