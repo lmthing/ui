@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
 import {
+  anyoneLabel,
   appointmentDetails,
   appointmentLabels,
   appointmentReading,
@@ -27,6 +28,7 @@ it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect(charLine(42, 600)).toBe("42 / 600");
   expect(photoLabels).toEqual({ add: "Add photo", take: "Take photo", scan: "Scan" });
   expect(swipeLabels).toEqual({ left: "Skip", right: "Keep" });
+  expect(anyoneLabel).toBe("Anyone");
 });
 
 it("keeps event kinds and full dates together without inventing record content", () => {

@@ -41,6 +41,9 @@ export const swipeLabels = { left: "Skip", right: "Keep" } as const;
 
 export const allLabel = "All";
 
+/** A provider choice with no preference for a particular person. */
+export const anyoneLabel = "Anyone";
+
 export const appointmentLabels = {
   reschedule: "Reschedule",
   edit: "Edit details",

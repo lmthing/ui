@@ -1,6 +1,41 @@
-import { describe, expect, it } from "vitest";
-import { components, presets, type as typography } from "@lmthing/ui/catalog";
-import { elementAt, renderInstance, styleAt } from "../../../../test/render";
+import { createElement } from "react";
+import * as jsxRuntime from "react/jsx-dev-runtime";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { describe, expect, it, vi } from "vitest";
+import { components, presets, themeName, type as typography } from "@lmthing/ui/catalog";
+import {
+  createScreenController,
+  KitProvider,
+  KitRow,
+  KitText,
+  PartScope,
+  type ScreenController,
+} from "@lmthing/ui/kit";
+import * as parts from "../../part";
+import { config, elementAt, renderInstance, styleAt } from "../../../../test/render";
+
+vi.mock("react/jsx-dev-runtime", { spy: true });
+
+function renderRow(row: Parameters<typeof KitRow>[0], controller?: ScreenController) {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  return renderToStaticMarkup(
+    createElement(
+      TamaguiProvider,
+      { config, defaultTheme: themeName(theme) },
+      createElement(
+        KitProvider,
+        { theme, interactive: true, controller, children: null },
+        createElement(
+          PartScope,
+          { screen: "home", component: "s1", rev: 1, state: "filled", children: null },
+          createElement(KitRow, row),
+        ),
+      ),
+    ),
+  );
+}
+const label = createElement(KitText, { part: "name", children: "Choice" });
 
 describe("KitRow first-line geometry", () => {
   it.each(presets)("centres ranked content together in $id", ({ id: preset }) => {
@@ -30,6 +65,82 @@ describe("KitRow first-line geometry", () => {
     const line = typography[style === "large" ? "title" : "heading"].lineHeight;
     expect(styleAt(html, content.children.at(-1)!)).toContain(`height:${line}px`);
     if (style === "back") expect(styleAt(html, content.children[0]!)).toContain(`height:${line}px`);
+  });
+});
+
+describe("KitRow named non-item controls", () => {
+  it("keeps omitted-part rows static and item roots addressed without changing geometry", () => {
+    const spy = vi.spyOn(parts, "usePart");
+    try {
+      const input = { label: "Choice", children: label };
+      const staticHtml = renderRow(input);
+      expect(staticHtml).not.toContain('data-testid="home/s1/root"');
+      expect(staticHtml).toContain('role="text"');
+      expect(spy).toHaveBeenCalledWith("root", false);
+      const itemHtml = renderRow({ ...input, item: "r1", role: "button" });
+      expect(spy).toHaveBeenCalledWith("root", true);
+      const namedHtml = renderRow({ ...input, part: "anyone", role: "button" });
+      expect(spy).toHaveBeenCalledWith("anyone", true);
+      expect(namedHtml.match(/data-testid="home\/s1\/anyone"/g)).toHaveLength(1);
+      expect(namedHtml).not.toContain("home/s1/anyone/root");
+      expect(elementAt(namedHtml, "home/s1/anyone").attributes).toContain('role="button"');
+      expect(styleAt(namedHtml, "home/s1/anyone")).toBe(styleAt(itemHtml, "home/s1/r1/root"));
+    } finally {
+      spy.mockRestore();
+    }
+  });
+  it("dispatches a named choice through the same controller press path as staff", async () => {
+    const controller = createScreenController({
+      defs: components,
+      requireMounted: true,
+      screen: {
+        id: "home",
+        components: [{ id: "s1", c: "StaffPicker", ...components.StaffPicker.examples[0], at: 1 }],
+      },
+    });
+    let press: (() => unknown) | undefined;
+    const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
+    const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
+      const target = args[1] as { testID?: string; onPress?: () => unknown };
+      if (target.testID === "home/s1/anyone" && target.onPress) press = target.onPress;
+      return jsxDEV(...args);
+    });
+    let html: string;
+    try {
+      html = renderRow({ part: "anyone", role: "button", label: "Anyone", children: label }, controller);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(press).toBeDefined();
+    const address = elementAt(html, "home/s1/anyone").attributes.match(/data-testid="([^"]+)"/)![1]!;
+    expect(press!()).toMatchObject({ ok: false, code: "not_mounted" });
+    const unregister = controller.registerPart(address);
+    expect(press!()).toMatchObject({ ok: true });
+    expect(controller.snapshotScreen().components[0]!.at).toBe(0);
+    unregister();
+    expect(press!()).toMatchObject({ ok: false, code: "not_mounted" });
+    controller.dispose();
+  });
+});
+
+describe("KitRow avatar choice geometry", () => {
+  it.each(presets)("uses the same avatar and primary label slots for Anyone and staff in $id", ({ id }) => {
+    for (const mode of ["light", "dark"] as const) {
+      const html = renderInstance("StaffPicker", components.StaffPicker.examples[0], "filled", {
+        preset: id,
+        mode,
+        accent: "moss",
+      });
+      const anyone = elementAt(html, "home/c1/anyone");
+      const staff = elementAt(html, "home/c1/r1/root");
+      expect(styleAt(html, anyone)).toBe(styleAt(html, staff));
+      expect(styleAt(html, "home/c1/anyone_name")).toBe(styleAt(html, "home/c1/r1/name"));
+      for (const row of [anyone, staff]) {
+        const body = row.children[0]!.children[0]!;
+        expect(body.children).toHaveLength(2);
+        expect(body.children[0]!.attributes).toContain('role="img"');
+      }
+    }
   });
 });
 
