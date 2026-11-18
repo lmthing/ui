@@ -5,7 +5,32 @@ import { build, type Plugin } from "esbuild";
 import ts from "typescript";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
-const forbidden = /^(react(?:-native|-dom)?(?:\/|$)|tamagui(?:\/|$)|@tamagui\/)/;
+const forbidden = /^(react(?:-native(?:-web)?|-dom)?(?:\/|$)|tamagui(?:\/|$)|@tamagui\/)/;
+
+export function hasCatalogLeak(source: string, inputs: readonly string[] = []): boolean {
+  const ast = ts.createSourceFile("catalog.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  function visit(node: ts.Node): boolean {
+    let specifier: ts.Node | undefined;
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) specifier = node.moduleSpecifier;
+    if (
+      ts.isCallExpression(node) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && /^(?:require|__require)$/.test(node.expression.text)))
+    )
+      specifier = node.arguments[0];
+    if (specifier && ts.isStringLiteralLike(specifier) && forbidden.test(specifier.text)) return true;
+    return ts.forEachChild(node, visit) ?? false;
+  }
+  return (
+    visit(ast) ||
+    inputs.some((file) =>
+      `/${file.replace(/\\/g, "/")}`
+        .split("/node_modules/")
+        .slice(1)
+        .some((specifier) => forbidden.test(specifier)),
+    )
+  );
+}
 
 function imports(source: string, file: string) {
   const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
@@ -114,10 +139,7 @@ export async function bundleCheck() {
     treeShaking: true,
   });
   const source = await readFile(resolve(root, "dist/catalog.js"), "utf8");
-  if (
-    /\b(?:react|react-native|tamagui)\b/i.test(source) ||
-    Object.keys(result.metafile.inputs).some((file) => /node_modules\/.*(?:react|tamagui)/.test(file))
-  ) {
+  if (hasCatalogLeak(source, Object.keys(result.metafile.inputs))) {
     throw new Error("React or Tamagui leaked into the catalog bundle");
   }
   emitTypes();
@@ -134,4 +156,4 @@ export async function bundleCheck() {
   );
 }
 
-await bundleCheck();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await bundleCheck();

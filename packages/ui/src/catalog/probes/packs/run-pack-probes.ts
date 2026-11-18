@@ -19,7 +19,7 @@ export async function runPackProbes(options: {
       const runs = [];
       for (let sample = 0; sample < samples; sample++) {
         const reply = await callModel(prompt, sample);
-        runs.push({ reply, ...scorePack(reply, index.ids, probe.expect) });
+        runs.push({ reply, ...scorePack(reply, index.ids, probe.expect, probe.allow) });
       }
       const passed = runs.filter((run) => run.pass).length;
       const shown = runs.find((run) => !run.pass) ?? runs[0]!;
