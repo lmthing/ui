@@ -1,4 +1,5 @@
 export { agreementDateLine, agreementLabels } from "./Agreement";
+export { clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "./ClientCard";
 export {
   paymentLabels,
   paymentToday,
@@ -8,3 +9,4 @@ export {
   paymentReading,
   paymentFallback,
 } from "./PaymentStatus";
+export { reviewLabels, reviewCountLine, reviewStarsLine, reviewScaleLabels, reviewReading } from "./Review";

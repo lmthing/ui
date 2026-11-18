@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  packReady,
   placeholderDetail,
   readComponent,
   type CastLike,
@@ -156,7 +157,7 @@ describe("Loyalty read/act and core-first probes", () => {
       expect(meta.weight).toBe(2);
     },
   );
-  it("keeps core-first probes and the incomplete-pack readiness gate", () => {
+  it("keeps core-first probes and the pack readiness gate", () => {
     expect(meta.status).toBe("ready");
     expect(meta.states).toEqual(["filled", "success"]);
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -169,7 +170,7 @@ describe("Loyalty read/act and core-first probes", () => {
       { address: "l1/stamp", action: "press" },
       { address: "l1/redeem", action: "press" },
     ]);
-    expect(createRegistry({ packs: ["customers"] }).ids).not.toContain("Loyalty");
+    expect(createRegistry({ packs: ["customers"] }).ids.includes(meta.id)).toBe(packReady("customers"));
     expect(createRegistry({ packs: ["customers"], includeDrafts: true }).ids).toContain("Loyalty");
   });
 });

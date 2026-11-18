@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { paymentDetails, paymentLabels, paymentReading, paymentStatus } from "../copy";
+import { paymentDetails, paymentLabels, paymentReading, paymentStatus } from "../../copy";
 
 it("derives settlement, partial and overdue states at the date and amount boundaries", () => {
   const input = { amount: 60, date: "2026-11-01" };
