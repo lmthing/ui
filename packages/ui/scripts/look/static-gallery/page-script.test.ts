@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { launchChrome } from "../index";
 import type { GalleryEntry } from "./entries";
@@ -25,6 +25,8 @@ const html = renderPage(entries, {}, "today");
 
 beforeAll(async () => {
   browser = await launchChrome();
+}, 20000);
+beforeEach(async () => {
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   await page.route("**/*", (route) =>
     route.fulfill({
@@ -35,11 +37,10 @@ beforeAll(async () => {
           : '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"/>',
     }),
   );
-}, 20000);
-beforeEach(async () => {
   await page.goto("http://gallery.test/");
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
+});
+afterEach(async () => {
+  await page?.close();
 });
 afterAll(async () => {
   await browser?.close();
@@ -157,4 +158,17 @@ it("works when localStorage is unavailable", async () => {
   expect(await page.locator("body").getAttribute("data-view")).toBe("compact");
   await page.fill("#filter", "time");
   expect(await page.locator("#count").textContent()).toBe("1 components");
+});
+
+it("highlights the final short section at the bottom in desktop compact view", async () => {
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  await page.click('#view [data-value="compact"]');
+  await page.locator('[data-nav="other"]').click();
+  await page.waitForFunction(
+    () => document.querySelector('[data-nav="other"]')?.getAttribute("aria-current") === "location",
+  );
+  expect(await page.locator("#s-other").isVisible()).toBe(true);
+  expect(await page.evaluate(() => scrollY + innerHeight >= document.documentElement.scrollHeight - 1)).toBe(
+    true,
+  );
 });

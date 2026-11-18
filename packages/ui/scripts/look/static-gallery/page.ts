@@ -25,8 +25,9 @@ function card(e: GalleryEntry, v: Record<string, string>): string {
   return `<article data-search="${search}" data-status="${status}" data-scope="${e.pack ? "packs" : "core"}" id="c-${esc(e.id)}">
 <div class="name"><strong><a href="#c-${esc(e.id)}">${esc(e.id)}</a></strong><span class="chip metadata">${esc(e.group)} · ${esc(tiers[e.tier] ?? e.tier)}</span><span class="chip ${status}">${status}</span></div>
 <button class="compact-toggle" type="button" aria-expanded="false" aria-controls="body-${esc(e.id)}">Expand ${esc(e.id)}</button>
+<p class="purpose">${esc(e.purpose)}</p>
 <div class="thumb"><img src="shots/${esc(e.id)}.card.jpg?v=${esc(v[`${e.id}.card`] ?? "0")}" alt="${esc(e.id)}, first example in the calm preset, light mode" loading="lazy"></div>
-<div class="card-body" id="body-${esc(e.id)}"><p class="purpose">${esc(e.purpose)}</p>
+<div class="card-body" id="body-${esc(e.id)}">
 <details><summary>Show all variants</summary><div class="variants"><img src="shots/${esc(e.id)}.grid.jpg?v=${esc(v[`${e.id}.grid`] ?? "0")}" alt="Every example and state of ${esc(e.id)} in the calm preset, light and dark" loading="lazy"></div></details></div>
 </article>`;
 }

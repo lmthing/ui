@@ -35,7 +35,8 @@ function expandCard(a,open){
 function active(){
   const visible=sections.filter(s=>!s.hidden);
   const edge=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sticky-height"))||0;
-  const current=visible.find(s=>s.getBoundingClientRect().bottom>edge+1);
+  const bottom=scrollY>0&&scrollY+innerHeight>=document.documentElement.scrollHeight-1;
+  const current=bottom?visible.at(-1):visible.find(s=>s.getBoundingClientRect().bottom>edge+1);
   document.querySelectorAll("[data-nav]").forEach(a=>{
     const hit=current&&a.dataset.nav===current.dataset.section;
     if(hit)a.setAttribute("aria-current","location");else a.removeAttribute("aria-current");
