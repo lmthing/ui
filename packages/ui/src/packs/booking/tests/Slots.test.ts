@@ -1,5 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  packReady,
   affordancesOf,
   components,
   createRegistry,
@@ -146,7 +147,7 @@ describe("Slots states, parts and read/act", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Slots" });
     expect(probes.filter((probe) => probe.kind === "read")).toHaveLength(2);
     expect(createRegistry({ packs: ["booking"], includeDrafts: true }).schema("Slots")).toBe(props);
-    expect(createRegistry({ packs: ["booking"] }).ids).not.toContain("Slots");
+    expect(createRegistry({ packs: ["booking"] }).ids.includes("Slots")).toBe(packReady("booking"));
   });
 });
 
