@@ -82,5 +82,6 @@ describe("data hierarchy and avatar regressions", () => {
       expect(avatar).toContain(`height:${size.avatar.md}px`);
     }
     expect(html.match(/data-testid="home\/c1\/r2\/photo"/g)).toHaveLength(1);
+    expect(styleAt(html, "home/c1/r2/photo")).toContain("--raised");
   });
 });

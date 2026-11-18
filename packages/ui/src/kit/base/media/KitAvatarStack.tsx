@@ -25,7 +25,7 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
           width={size.avatar.md}
           height={size.avatar.md}
           borderRadius={radius.pill}
-          backgroundColor="$accentSoft"
+          backgroundColor="$raised"
           alignItems="center"
           justifyContent="center"
         >
