@@ -10,3 +10,4 @@ export type {
 } from "./meta";
 export type { Props } from "./props";
 export { packIds, type PackId } from "./pack-ids";
+export { packIndex, type PackIndexEntry } from "./pack-index";

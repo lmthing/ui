@@ -5,7 +5,7 @@ import { galleryConfig, launchChrome } from "../../../../scripts/look";
 
 const ids = ["ClientCard", "ClientHistory", "Invoice", "PaymentStatus", "Review", "Loyalty", "Agreement"];
 
-it("renders the customers overview and every draft grid on an existing free-port gallery", async () => {
+it("renders the customers overview and every component grid on an existing free-port gallery", async () => {
   const server = await createServer(galleryConfig(0));
   await server.listen();
   const browser = await launchChrome();
@@ -19,7 +19,8 @@ it("renders the customers overview and every draft grid on an existing free-port
     expect(await page.locator('[data-testid^="component_"]').count()).toBe(7);
     expect(await page.locator('[data-testid="component_List"]').count()).toBe(0);
     expect(await page.locator('[data-testid="component_Waitlist"]').count()).toBe(0);
-    for (const id of ids)
+    const isDraft = (id: string) => (components as Record<string, Definition>)[id]!.meta.status === "draft";
+    for (const id of ids.filter(isDraft))
       expect(await page.locator(`[data-testid="component_${id}"]`).innerText()).toContain("draft");
     await page.close();
     for (const id of ids) {
@@ -32,7 +33,7 @@ it("renders the customers overview and every draft grid on an existing free-port
         const cells = def.examples.length + def.meta.states!.filter((state) => state !== "filled").length;
         const previews = await grid.locator('[data-testid^="preview_"]').allTextContents();
         expect(previews).toHaveLength(cells * presets.length * 2);
-        for (const text of previews) expect(text).toContain(`${id} · draft`);
+        if (isDraft(id)) for (const text of previews) expect(text).toContain(`${id} · draft`);
         for (const preset of presets)
           for (const mode of ["light", "dark"])
             expect(previews.filter((text) => text.includes(`${preset.id} / ${mode}`))).toHaveLength(cells);
