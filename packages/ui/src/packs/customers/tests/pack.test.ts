@@ -103,13 +103,16 @@ describe("customers contracts", () => {
 });
 
 describe("customers pack pipeline", () => {
-  it("keeps the incomplete pack and its Writer choices out of default and live registries", () => {
-    expect(packReady("customers")).toBe(false);
+  it("includes the pack and its Writer choices exactly when the pack is ready", () => {
+    const ready = packReady("customers");
     const core = createRegistry(),
       live = createRegistry({ packs: ["customers"] });
     const draft = createRegistry({ packs: ["customers"], includeDrafts: true });
-    expect(live.ids).toEqual(core.ids);
-    expect(live.archetypes).toEqual(core.archetypes);
+    if (!ready) {
+      expect(live.ids).toEqual(core.ids);
+      expect(live.archetypes).toEqual(core.archetypes);
+    }
+    expect(Object.hasOwn(live.archetypes, "client")).toBe(ready);
     expect(draft.ids.filter((id) => packOf[id as keyof typeof packOf] === "customers").sort()).toEqual(
       [...ids].sort(),
     );
@@ -117,7 +120,9 @@ describe("customers pack pipeline", () => {
       liveFormat = JSON.stringify(writerFormat(live));
     for (const id of ids) {
       expect(draftFormat).toContain(`"const":"${id}"`);
-      expect(liveFormat).not.toContain(`"const":"${id}"`);
+      expect(core.ids).not.toContain(id);
+      expect(live.ids.some((value) => value === id)).toBe(ready);
+      expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
     }
     expect(draft.ids).not.toContain("Waitlist");
     expect(packs.customers.probes).toContainEqual({

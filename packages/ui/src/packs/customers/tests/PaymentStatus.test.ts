@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  packReady,
   readComponent,
   type CastLike,
   type Props,
@@ -91,7 +92,7 @@ describe("PaymentStatus fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Amount")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "PaymentStatus" });
     expect(probes.filter((probe) => probe.kind === "read")).toHaveLength(2);
-    expect(createRegistry({ packs: ["customers"] }).ids).not.toContain("PaymentStatus");
+    expect(createRegistry({ packs: ["customers"] }).ids.includes(meta.id)).toBe(packReady("customers"));
     expect(createRegistry({ packs: ["customers"], includeDrafts: true }).ids).toContain("PaymentStatus");
   });
 });

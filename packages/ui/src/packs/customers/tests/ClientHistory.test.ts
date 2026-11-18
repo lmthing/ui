@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  packReady,
   readComponent,
   stampItemIds,
   type CastLike,
@@ -147,7 +148,7 @@ describe("ClientHistory read/act and core-first probes", () => {
       expect(html).toContain(line);
     }
   });
-  it("preserves the contract probes and incomplete-pack readiness gate", () => {
+  it("preserves the contract probes and pack readiness gate", () => {
     expect(meta.status).toBe("ready");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.realPath).not.toBe("");
@@ -159,7 +160,7 @@ describe("ClientHistory read/act and core-first probes", () => {
       screen: 0,
       expect: { address: "c1/r1", action: "press" },
     });
-    expect(createRegistry({ packs: ["customers"] }).ids).not.toContain("ClientHistory");
+    expect(createRegistry({ packs: ["customers"] }).ids.includes(meta.id)).toBe(packReady("customers"));
     expect(createRegistry({ packs: ["customers"], includeDrafts: true }).ids).toContain("ClientHistory");
   });
 });

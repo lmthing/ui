@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  packReady,
   readComponent,
   type CastLike,
   type Props,
@@ -176,7 +177,7 @@ describe("ClientCard read/act and core-first probes", () => {
       expect(reading).toContain(text);
     expect(meta.partTiers).toEqual({ call: "service", message: "service", directions: "service" });
   });
-  it("preserves metadata, core near miss, probes and incomplete-pack isolation", () => {
+  it("preserves metadata, core near miss, probes and the pack readiness gate", () => {
     expect(meta.status).toBe("ready");
     expect(meta.tier).toBe("phone");
     expect(meta.weight).toBe(2);
@@ -191,7 +192,7 @@ describe("ClientCard read/act and core-first probes", () => {
       screen: 0,
       expect: { address: "c1/call", action: "press" },
     });
-    expect(createRegistry({ packs: ["customers"] }).ids).not.toContain("ClientCard");
+    expect(createRegistry({ packs: ["customers"] }).ids.includes(meta.id)).toBe(packReady("customers"));
     expect(createRegistry({ packs: ["customers"], includeDrafts: true }).resolve("client-card")).toBe(
       "ClientCard",
     );

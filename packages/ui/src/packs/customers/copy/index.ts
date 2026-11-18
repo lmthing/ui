@@ -1,3 +1,4 @@
+export { agreementDateLine, agreementLabels } from "./Agreement";
 export { clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "./ClientCard";
 export {
   paymentLabels,
