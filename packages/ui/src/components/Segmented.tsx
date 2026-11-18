@@ -23,6 +23,7 @@ export const meta = {
   tier: "phone",
   realPath: "A local selection changes which view of the screen's data is shown.",
   items: { key: "options", parts: ["root", "label"] },
+  select: { prop: "at", value: "index" },
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },

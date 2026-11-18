@@ -4,6 +4,7 @@ import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
+import { selectionAt, selectionChanges, selectionError } from "./selection";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -34,6 +35,28 @@ function initialOn(found: Affordance) {
   return found.detail === ":on" || found.detail === ":done";
 }
 
+function selectStep(screen: ScreenLike, defs: Record<string, Definition>, step: ActStep, address: string) {
+  if (step.action !== "select") return { step };
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!def?.meta.select) return { step };
+  const { id: _id, c: _c, state: _state, ...raw } = entry!;
+  const props = stampItemIds(def.meta, def.props.parse(raw) as Values);
+  const target = parts.join("/");
+  const error = selectionError(def.meta, props, target, step.value);
+  return {
+    step: { ...step, value: selectionAt(def.meta, props, target)?.value },
+    error,
+    changes: Object.fromEntries(
+      Object.entries(selectionChanges(def.meta, props, target)).map(([part, value]) => [
+        `${screen.id}/${id}/${part}`,
+        value,
+      ]),
+    ),
+  };
+}
+
 /**
  * Plans a list of steps against a screen without changing anything: every step must name an offered
  * action with a valid value. All or nothing: the first bad step returns its index and no values, so
@@ -49,14 +72,17 @@ export function planAct(
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];
-  for (const [at, step] of steps.entries()) {
-    const address = relative(screen.id, step.address);
+  for (const [at, original] of steps.entries()) {
+    const address = relative(screen.id, original.address);
+    const selected = selectStep(screen, defs, original, address);
+    const step = selected.step;
     const found = offered.find((a) => a.address === address && a.action === step.action);
     if (!found) {
       const here = offered.filter((a) => a.address === address).map((a) => a.action);
       const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
       return { ok: false, code: "not_actionable", at, hint };
     }
+    if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
     const error = validateActionValue(step.action, step.value);
     if (error) return { ok: false, at, ...error };
     const key = `${screen.id}/${address}`;
@@ -71,6 +97,7 @@ export function planAct(
     } else {
       next[key] = step.value;
     }
+    Object.assign(next, selected.changes);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return { ok: true, values: next, changed, links };

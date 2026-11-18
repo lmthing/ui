@@ -4,6 +4,7 @@ import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+import { projectSelection } from "./selection";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -88,7 +89,10 @@ export function readComponent(
   // A component whose meaning lives in numbers (Ring "3 of 5", Steps "step 2 of 3") adds it with
   // `meta.read`; its lines come before the quoted texts.
   const own = [
-    ...(def.meta.read?.(validated, state) ?? []),
+    ...(def.meta.read?.(
+      projectSelection(def.meta, validated, (part) => values[`${instance}/${part}`]),
+      state,
+    ) ?? []),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,
