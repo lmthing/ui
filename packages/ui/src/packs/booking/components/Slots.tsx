@@ -31,10 +31,10 @@ import {
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
   id: "Slots",
-  status: "draft",
+  status: "ready",
   group: "input",
-  purpose: "Choose a free clock time within an already selected day.",
-  pick: "HH:MM start times within one day already chosen: free times selectable, taken times disabled. Not choosing which day or date to book, even next week (Calendar/week); not setting working hours (Availability).",
+  purpose: "Pick an available appointment start time, such as 09:00.",
+  pick: "Select free HH:MM start times, keeping taken times disabled. Not deciding which day, date or week to book: use Calendar for that, even in a booking app. Not working hours (Availability).",
   writeHints: [
     "Times are unique HH:MM start times. at, when present, must exactly match a free time; omit it if none is selected.",
     "minutes is the appointment length, from 5 to 600. End times in list style are computed, not written.",
@@ -48,6 +48,7 @@ export const meta = {
   parts: ["root", "times", "minutes", "sub"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
+  select: { prop: "at", value: { field: "time" } },
   read: (input, state) => {
     if (state !== "filled") return [];
     const { times, minutes, style } = input as z.output<typeof props>;

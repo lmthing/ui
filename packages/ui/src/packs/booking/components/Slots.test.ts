@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
   components,
@@ -14,17 +14,12 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance } from "../../../../test/render";
-import { createScreenController, renderers } from "@lmthing/ui/kit";
-import { Slots as SlotsDefinition } from ".";
+import { createScreenController } from "@lmthing/ui/kit";
 
 const { props, meta, examples, fallback, probes } = components.Slots;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const free = { time: "09:00", taken: false };
 const seed = { times: [free], minutes: 30 };
-// Drafts still test their actual view through the shared host renderer.
-beforeAll(() => {
-  Object.assign(renderers, { Slots: SlotsDefinition.Slots });
-});
 
 describe("Slots contract and boundaries", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -74,23 +69,37 @@ describe("Slots contract and boundaries", () => {
   });
 });
 
-it("projects each human selection into at and blocks taken times", () => {
-  const runtime = createScreenController({
-    screen: { id: "home", components: [{ id: "s1", c: "Slots", ...examples[0] }] },
-    defs: components,
-  });
-  try {
-    expect(runtime.press("home/s1/r2/root")).toMatchObject({ ok: false });
-    expect(runtime.press("home/s1/r3/root")).toMatchObject({ ok: true });
-    expect(runtime.snapshotScreen().components[0]?.at).toBe("10:00");
-    expect(runtime.press("home/s1/r4/root")).toMatchObject({ ok: true });
-    expect(runtime.snapshotScreen().components[0]?.at).toBe("10:30");
-    expect(runtime.press("home/s1/r4/root")).toMatchObject({ ok: true });
-    expect(runtime.snapshotScreen().components[0]?.at).toBe("10:30");
-  } finally {
-    runtime.dispose();
-  }
-});
+it.each(["grid", "list"] as const)(
+  "projects repeated %s selections into at and blocks taken times",
+  (style) => {
+    const runtime = createScreenController({
+      screen: { id: "home", components: [{ id: "s1", c: "Slots", ...examples[0], style }] },
+      defs: components,
+    });
+    try {
+      expect(runtime.press("home/s1/r2/root")).toMatchObject({ ok: false });
+      expect(runtime.press("home/s1/r3/root")).toMatchObject({ ok: true });
+      expect(runtime.store.get("home/s1/$at")).toBe("10:00");
+      expect(runtime.snapshotScreen().components[0]?.at).toBe("10:00");
+      expect(runtime.act({ address: "s1/r4", action: "select", value: "10:30" })).toMatchObject({ ok: true });
+      expect(runtime.snapshotScreen().components[0]?.at).toBe("10:30");
+      expect(runtime.read()).toContain('[s1/r4 select = "10:30"]');
+      expect(runtime.read()).not.toContain('[s1/r3 select = "10:00"]');
+      const html = renderInstance(
+        "Slots",
+        { ...examples[0], style, at: runtime.snapshotScreen().components[0]?.at },
+        "filled",
+        theme,
+      );
+      expect(elementAt(html, "home/c1/r4/root").attributes).toContain('aria-pressed="true"');
+      expect(elementAt(html, "home/c1/r3/root").attributes).toContain('aria-pressed="false"');
+      expect(runtime.press("home/s1/r4/root")).toMatchObject({ ok: true });
+      expect(runtime.snapshotScreen().components[0]?.at).toBe("10:30");
+    } finally {
+      runtime.dispose();
+    }
+  },
+);
 
 describe("Slots fallback", () => {
   const casts: CastLike[] = [
@@ -128,6 +137,7 @@ describe("Slots states, parts and read/act", () => {
     expect(meta.tier).toBe("phone");
     expect(meta.dense).toBe(true);
     expect(meta.weight).toBe(3);
+    expect(meta.select).toEqual({ prop: "at", value: { field: "time" } });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Calendar");
