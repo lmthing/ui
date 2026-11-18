@@ -24,19 +24,34 @@ type SkeletonProps = ShapeProps & {
   inset?: "md" | "none" | "card";
 };
 
-function SkeletonLead({ lead, first }: { lead: "dot" | "box" | "time" | "none"; first: number }) {
+function SkeletonLead({
+  lead,
+  first,
+  thumbnail = false,
+}: {
+  lead: "dot" | "box" | "time" | "none";
+  first: number;
+  thumbnail?: boolean;
+}) {
   if (lead === "none") return null;
   const box = lead === "box";
   const time = lead === "time";
+  const square = thumbnail ? size.avatar.md : size.icon.lg;
   return (
     <Line
-      height={box ? size.avatar.md : first}
+      height={box && thumbnail ? size.avatar.md : first}
       {...(time ? { width: component.base.timeWidth } : {})}
-      {...(box ? { width: size.avatar.md, alignSelf: "center", alignItems: "center" } : {})}
+      {...(box
+        ? {
+            width: size.avatar.md,
+            alignItems: "center",
+            ...(thumbnail ? { alignSelf: "center" as const } : {}),
+          }
+        : {})}
     >
       <Bar
-        width={time ? "58%" : box ? size.avatar.md : size.icon.md}
-        height={time ? space.sm : box ? size.avatar.md : size.icon.md}
+        width={time ? "58%" : box ? square : size.icon.md}
+        height={time ? space.sm : box ? square : size.icon.md}
         borderRadius={lead === "dot" ? size.icon.md : radius.sm}
       />
     </Line>
@@ -57,7 +72,7 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
           paddingVertical={space[ks.density.rowPad]}
           paddingHorizontal={skeletonInset(inset)}
         >
-          <SkeletonLead lead={items?.[index]?.lead ?? lead} first={first} />
+          <SkeletonLead lead={items?.[index]?.lead ?? lead} first={first} thumbnail={Boolean(items)} />
           <YStack flex={1}>
             {items ? (
               linesOf(items[index]!).map((line, at) => <SkeletonText key={at} {...line} />)
@@ -105,7 +120,9 @@ function SkeletonFigure({ lines, centered, split, inset, lead = "none" }: ShapeP
       ) : (
         <KitContent
           lead={
-            lead === "none" ? undefined : <SkeletonLead lead={lead} first={typography.heading.lineHeight} />
+            lead === "none" ? undefined : (
+              <SkeletonLead lead={lead} first={typography.heading.lineHeight} thumbnail />
+            )
           }
         >
           {aligned?.map((line, index) => (

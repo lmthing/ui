@@ -51,6 +51,11 @@ describe("skeleton content geometry", () => {
   });
 });
 describe("skeleton loading through the real entry", () => {
+  it("retains compact box leads for existing control skeletons", () => {
+    const html = renderInstance("Checklist", components.Checklist.examples[0], "loading", theme);
+    expect(styles(html)).toContain("height:24px");
+    expect(styles(html)).not.toMatch(/(?:^|;)height:44px(?:;|$)/m);
+  });
   it.each(ids)("renders every %s example loading through the real entry", (id) => {
     for (const input of components[id].examples) {
       const html = renderInstance(id, input, "loading", theme, { resolvePhoto: () => "photo-uri" });
