@@ -10,7 +10,7 @@ const booking = {
 
 it("snapshots the Director's fixture pack index", () => {
   expect(buildPackIndex({ booking }, {}, () => true)).toMatchInlineSnapshot(
-    `"- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots. Not selling goods (commerce)."`,
+    `"- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots and class waitlists. Booking alone covers clients booking a provider's appointments or studio classes; clients, providers, paid services and class groups do not imply customers, team, commerce, events or community. Add another pack only for an explicitly requested separate job. Not selling goods (commerce). Reply only with a valid JSON array of pack ids, never an object, invented app name or explanation."`,
   );
 });
 
@@ -35,7 +35,7 @@ it("lists only ready fixture packs unless drafts are requested", () => {
   const ready = (id: PackMeta["id"]) => id === "booking";
   expect(buildPackIndex(packs)).toBe("");
   expect(buildPackIndex(packs, {}, ready)).toBe(
-    "- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots. Not selling goods (commerce).",
+    "- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots and class waitlists. Booking alone covers clients booking a provider's appointments or studio classes; clients, providers, paid services and class groups do not imply customers, team, commerce, events or community. Add another pack only for an explicitly requested separate job. Not selling goods (commerce). Reply only with a valid JSON array of pack ids, never an object, invented app name or explanation.",
   );
   expect(buildPackIndex(packs, { includeDrafts: true }, ready).split("\n")).toHaveLength(packIds.length);
   expect(
