@@ -1,3 +1,21 @@
+export const swatchNames = [
+  "black",
+  "white",
+  "grey",
+  "navy",
+  "blue",
+  "green",
+  "olive",
+  "red",
+  "pink",
+  "purple",
+  "yellow",
+  "orange",
+  "brown",
+  "beige",
+] as const;
+export type Swatch = (typeof swatchNames)[number];
+
 // Fixed values for kit bases and single components that no scale token covers.
 // Key by base (`base`) or by component id. Add a key only when no token in space/size/radius/type fits.
 export const component = {
@@ -33,5 +51,23 @@ export const component = {
     sparkHeight: 48,
     emptyMinHeight: 200,
   },
+  // Dots use this fixed outline for contrast on light and dark surfaces.
+  swatchBorder: "#808080",
+  swatch: {
+    black: "#242424",
+    white: "#faf9f6",
+    grey: "#808080",
+    navy: "#283c58",
+    blue: "#397ac2",
+    green: "#43845b",
+    olive: "#7b803c",
+    red: "#bf4945",
+    pink: "#d67f9c",
+    purple: "#9165ad",
+    yellow: "#e3bd45",
+    orange: "#cc793d",
+    brown: "#87654c",
+    beige: "#d3c2a3",
+  } satisfies Record<Swatch, string>,
   Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },
 } as const;

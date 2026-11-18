@@ -11,10 +11,13 @@ export type ActionName =
   | "start"
   | "stop"
   | "dismiss"
-  | "send"
   | "play"
   | "pause"
-  | "seek";
+  | "seek"
+  | "flip"
+  | "move"
+  | "send"
+  | "scan";
 export type ScreenAction = "back" | "tab" | "scroll";
 export type ActionSpec = {
   parts?: Record<string, readonly ActionName[]>;

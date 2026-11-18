@@ -6,6 +6,14 @@ export type ValueError = { code: "invalid_value"; hint: string };
 const none = (value: unknown) => value === undefined;
 
 const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> = {
+  dismiss: [none, "dismiss takes no value"],
+  play: [none, "play takes no value"],
+  pause: [none, "pause takes no value"],
+  flip: [none, "flip takes no value"],
+  send: [none, "send takes no value"],
+  scan: [none, "scan takes no value"],
+  seek: [(v) => typeof v === "number" && Number.isFinite(v), "seek takes seconds"],
+  move: [(v) => typeof v === "string", "move takes a label"],
   press: [none, "press takes no value"],
   start: [none, "start takes no value"],
   stop: [none, "stop takes no value"],

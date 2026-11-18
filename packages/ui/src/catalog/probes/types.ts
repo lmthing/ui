@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import type { Meta } from "../meta";
+import type { Meta, PackId } from "../meta";
 import type { CastLike } from "../types";
 
 export type ChooseProbe = { kind: "choose"; need: string; expect: string };
@@ -10,6 +10,7 @@ export type ReadProbe = {
   task: string;
   expect: { address: string; action: string };
 };
+export type PackProbe = { kind: "pack"; idea: string; expect: readonly PackId[] };
 export type Probe = ChooseProbe | WriteProbe | ReadProbe;
 
 /** What every component file exports, minus its view. */

@@ -7,7 +7,7 @@ Built in step U1. Read plan 4.12 first.
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
 - `actions.ts` the vocabulary (`press`, `toggle`, `check`, `select`, `type`, `set`, `increment`, `decrement`, `swipe`, `start`, `stop`)
-- `validate-value.ts` `validateActionValue`
+- `validate-value.ts`, `validate-value.test.ts`: `validateActionValue` and action shape tests
 - `default-reader.ts` reader generated from the schema
 - `read-screen.ts` `readScreen(screen, registry, opts)`
 - `read-app.ts` `readApp` outline

@@ -13,7 +13,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `elevation.ts` flat card sheet
 - `motion.ts` durations and springs
 - `roles.ts` the 12 colour role names
-- `component.ts` tokens owned by one component, named by it (`Ring.stroke`)
+- `component.ts`, `component.test.ts`: component tokens, fixed swatches and dot outline contrast
 
 Rules:
 

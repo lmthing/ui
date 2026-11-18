@@ -1,1 +1,1 @@
-export { registryOf } from "./create-registry";
+export { registryOf, type RegistryOptions } from "./create-registry";

@@ -57,7 +57,7 @@ export async function buildEntries() {
   const ready = defs.filter((def) => !def.draft);
   const catalog = [
     header,
-    `import { registryOf, type Definition } from "../catalog";`,
+    `import { registryOf, type Definition, type RegistryOptions } from "../catalog";`,
     ...defs.map(({ name, path }) => `import * as ${name} from "${path}";`),
     `export * from "../catalog";`,
     "",
@@ -68,7 +68,7 @@ export async function buildEntries() {
     "} satisfies Record<string, Definition>;",
     "export type ComponentName = keyof typeof components;",
     "",
-    "export function createRegistry(options: { includeDrafts?: boolean } = {}) {",
+    "export function createRegistry(options: RegistryOptions = {}) {",
     "  return registryOf(components, options);",
     "}",
   ];

@@ -5,4 +5,4 @@ export { type, fontFamilies, type FontName } from "./type";
 export { elevation } from "./elevation";
 export { durations, springs } from "./motion";
 export { roles } from "./roles";
-export { component } from "./component";
+export { component, swatchNames, type Swatch } from "./component";
