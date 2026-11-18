@@ -24,6 +24,7 @@ const roles: Record<string, string[]> = {
   decrement: ["button"],
   start: ["button"],
   stop: ["button"],
+  dismiss: ["button"],
   type: ["textbox", "searchbox"],
   set: ["slider", "spinbutton"],
 };

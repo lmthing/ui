@@ -9,7 +9,8 @@ export type ActionName =
   | "decrement"
   | "swipe"
   | "start"
-  | "stop";
+  | "stop"
+  | "dismiss";
 export type ScreenAction = "back" | "tab" | "scroll";
 export type ActionSpec = {
   parts?: Record<string, readonly ActionName[]>;

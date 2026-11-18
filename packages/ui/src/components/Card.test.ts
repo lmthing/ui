@@ -117,7 +117,7 @@ describe("Card fallback", () => {
 describe("Card metadata and probes", () => {
   it("has the required contract and well-formed choose, write and read probes", () => {
     expect(meta).toMatchObject({ id: "Card", group: "content", region: "body", weight: 2, tier: "phone" });
-    expect(meta.parts).toEqual(["root", "icon", "photo", "title", "body", "meta"]);
+    expect(meta.parts).toEqual(["root", "icon", "photo", "badge", "title", "body", "meta"]);
     expect(meta.states).toEqual(["filled", "loading"]);
     expect(meta.actions).toEqual({ parts: { root: ["press"] }, when: { root: { linked: true } } });
     expect(meta.realPath).not.toBe("");
@@ -129,13 +129,22 @@ describe("Card metadata and probes", () => {
     for (const probe of choose)
       for (const name of [meta.id, "List", "Hero", ...meta.aliases])
         expect(probe.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
-    expect(probes.filter((probe) => probe.kind === "write").map((probe) => probe.expect)).toEqual(["Card"]);
+    expect(probes.filter((probe) => probe.kind === "write").map((probe) => probe.expect)).toEqual([
+      "Card",
+      "Card",
+    ]);
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
       task: "Open the fern card",
       expect: { address: "c1", action: "press" },
     });
-    expect(examples.map((example) => example.style)).toEqual(["media", "tinted", "plain", "outlined"]);
+    expect(examples.map((example) => example.style)).toEqual([
+      "media",
+      "tinted",
+      "plain",
+      "outlined",
+      "plain",
+    ]);
   });
 });
 describe("Card view and actions", () => {
@@ -154,10 +163,11 @@ describe("Card view and actions", () => {
     });
     const content = view.props.children.props.children[1];
     expect(content.type).toBe(KitContent);
-    expect(content.props.leadingAlign).toBe(example.style === "plain" ? "row" : "line");
-    expect(content.props.children[0].type).toBe(KitText);
-    expect(content.props.children[0].props).toMatchObject({ role: "heading", part: "title" });
-    if (example.style === "plain")
+    const parsed = props.parse(example);
+    expect(content.props.leadingAlign).toBe(parsed.photo && example.style !== "media" ? "row" : "line");
+    const heading = [content.props.children].flat().find((child) => child && child.type === KitText);
+    expect(heading.props).toMatchObject({ role: "heading", part: "title" });
+    if (example.style === "plain" && parsed.photo)
       expect(content.props.lead.props).toMatchObject({ photo: "lib:plants", part: "photo" });
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {

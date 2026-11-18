@@ -9,6 +9,7 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
   press: [none, "press takes no value"],
   start: [none, "start takes no value"],
   stop: [none, "stop takes no value"],
+  dismiss: [none, "dismiss takes no value"],
   increment: [none, "increment takes no value"],
   decrement: [none, "decrement takes no value"],
   toggle: [(v) => none(v) || typeof v === "boolean", "toggle takes nothing or true/false"],

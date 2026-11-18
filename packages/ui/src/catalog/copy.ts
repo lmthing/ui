@@ -87,3 +87,6 @@ export const repeatLabels = {
   monthly: "Monthly",
   yearly: "Yearly",
 } as const satisfies Record<(typeof repeatOptions)[number], string>;
+
+/** The two small actions a message can offer. */
+export const messageLabels = { retry: "Try again", undo: "Undo", dismiss: "Dismiss" } as const;

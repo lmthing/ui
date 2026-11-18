@@ -18,8 +18,10 @@ describe("Success schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims text and defaults the optional icon to a check", () => {
-    expect(props.parse({ title: "  Saved  " })).toEqual({ title: "Saved", icon: "circle_check" });
+    const derived = { style: "screen", undo: false, undoable: false };
+    expect(props.parse({ title: "  Saved  " })).toEqual({ ...derived, title: "Saved", icon: "circle_check" });
     expect(props.parse({ title: "  Saved  ", sub: "  Details  ", icon: "leaf" })).toEqual({
+      ...derived,
       title: "Saved",
       sub: "Details",
       icon: "leaf",
@@ -27,6 +29,8 @@ describe("Success schema", () => {
     expect(props.parse({ title: "Saved", icon: undefined }).icon).toBe("circle_check");
   });
   it.each([
+    { title: "Saved", undoable: true },
+    { title: "Saved", style: "banner" },
     {},
     { title: "" },
     { title: " ".repeat(4) },
@@ -117,10 +121,9 @@ describe("Success metadata and probes", () => {
       region: "body",
       weight: 2,
       tier: "phone",
-      parts: ["root", "icon", "title", "sub"],
+      parts: ["root", "icon", "title", "sub", "undo", "close"],
       states: ["filled"],
     });
-    expect(meta).not.toHaveProperty("actions");
     expect(meta).not.toHaveProperty("items");
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -130,7 +133,7 @@ describe("Success metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Success" });
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
@@ -141,6 +144,7 @@ describe("Success metadata and probes", () => {
     expect(examples[0]!.title).toBe("Fern watered");
     expect(examples[1]).toEqual({ title: "Walk booked", sub: "Clover, tomorrow at 09:00" });
     expect(examples.some((example) => "icon" in example)).toBe(true);
+    expect(examples.some((example) => "style" in example && example.style === "toast")).toBe(true);
   });
   it("builds a data-only registry with case and separator tolerant aliases", () => {
     const registry = createRegistry();
@@ -152,11 +156,16 @@ describe("Success metadata and probes", () => {
   });
 });
 
+type ScreenView = {
+  type: unknown;
+  props: { children: { type: unknown; props: unknown }; [key: string]: unknown };
+};
+
 describe("Success view", () => {
   it("omits absent detail and preserves the default or a custom icon", () => {
     for (const icon of [undefined, "leaf"] as const) {
       const parsed = props.parse({ title: "Saved", icon });
-      const view = Success(parsed);
+      const view = Success(parsed) as ScreenView;
       expect(view.props.children.props).toEqual({
         title: "Saved",
         icon: icon ?? "circle_check",
@@ -165,19 +174,43 @@ describe("Success view", () => {
       });
     }
   });
-  it.each(examples)("draws the centred good-toned kit state with a root address", (example) => {
+  const screens = examples.filter((example) => !("style" in example));
+  it.each(screens)("draws the centred good-toned kit state with a root address", (example) => {
     const parsed = props.parse(example);
-    const view = Success(parsed);
+    const view = Success(parsed) as ScreenView;
     expect(view.type).toBe(KitCard);
     expect(view.props).toMatchObject({ style: "plain", part: "root" });
     expect(view.props.children.type).toBe(KitEmpty);
-    expect(view.props.children.props).toEqual({ ...parsed, fill: true, tone: "good" });
+    const { title, sub, icon } = parsed;
+    expect(view.props.children.props).toEqual({
+      title,
+      ...(sub ? { sub } : {}),
+      icon,
+      fill: true,
+      tone: "good",
+    });
   });
-  it.each(examples)("reads the shown content without offering actions", (example) => {
+  it.each(screens)("reads the shown content without offering actions", (example) => {
     const parsed = props.parse(example);
-    const read = readComponent(components.Success, parsed, "s1").join("\n");
+    const read = readComponent(components.Success, example, "s1").join("\n");
     expect(read).toContain(`"${parsed.title}"`);
     if (parsed.sub) expect(read).toContain(`"${parsed.sub}"`);
     expect(affordancesOf(meta, parsed, "s1")).toEqual([]);
+  });
+  it("treats an undo as a toast, whatever style was written", () => {
+    expect(props.parse({ title: "Saved", undo: true }).style).toBe("toast");
+    expect(props.parse({ title: "Saved", style: "screen", undo: true }).style).toBe("toast");
+  });
+  it("offers undo and dismiss only on a toast", () => {
+    const toast = props.parse({ style: "toast", title: "Walk cancelled", undo: true });
+    expect(affordancesOf(meta, toast, "s1")).toEqual([
+      { address: "s1/close", part: "close", action: "dismiss", detail: "" },
+      { address: "s1/undo", part: "undo", action: "press", detail: "" },
+    ]);
+    const plain = props.parse({ style: "toast", title: "Walk cancelled" });
+    expect(affordancesOf(meta, plain, "s1").map((a) => a.part)).toEqual(["close"]);
+    expect(
+      readComponent(components.Success, { style: "toast", title: "Done", undo: true }, "s1").join("\n"),
+    ).toContain("Undo");
   });
 });

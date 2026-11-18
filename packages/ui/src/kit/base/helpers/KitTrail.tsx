@@ -77,6 +77,7 @@ export function KitTrail({
         numberScale="compact"
         tabular
         tone={kind === "badge" ? "accent" : "text"}
+        part={null}
       >
         {value ?? ""}
       </KitText>

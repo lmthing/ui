@@ -21,6 +21,7 @@ import {
   KitPhoto,
   KitSkeleton,
   KitText,
+  KitTrail,
   useComponentState,
   useKit,
 } from "../kit";
@@ -34,7 +35,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A preview of one record and optional navigation link in the on-device app.",
-  parts: ["root", "icon", "photo", "title", "body", "meta"],
+  parts: ["root", "icon", "photo", "badge", "title", "body", "meta"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
   aliases: ["tile", "summary", "panel"],
@@ -46,6 +47,7 @@ export const props = z
     title: text(40),
     body: text(120).optional(),
     meta: text(24).optional(),
+    badge: text(12).optional(),
     icon: icon.optional(),
     photo: photo.optional(),
     tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
@@ -90,6 +92,7 @@ export const examples = [
     icon: "leaf",
     goto: "basil",
   },
+  { style: "plain", title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
@@ -105,6 +108,11 @@ export const probes = [
     expect: "Card",
   },
   {
+    kind: "write",
+    brief: "One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
+    expect: "Card",
+  },
+  {
     kind: "read",
     screen: 0,
     task: "Open the fern card",
@@ -117,6 +125,7 @@ export function Card({
   title,
   body,
   meta: detail,
+  badge,
   icon,
   photo,
   tone,
@@ -153,6 +162,7 @@ export function Card({
         <>
           {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
           <KitContent lead={lead} lineRole="heading" leadingAlign={photo && !media ? "row" : "line"}>
+            {badge && <KitTrail kind="badge" value={badge} part="badge" />}
             <KitText role="heading" part="title">
               {title}
             </KitText>
