@@ -6,6 +6,10 @@ export const invoice = {
   defaultLayout: "edit",
   layouts: {
     edit: {
+      writeHints: [
+        'End with a Button that saves the draft locally: label "Save", kind "primary", icon null, goto null, confirm null. Invoice already has its own send action.',
+        "Return compact, complete JSON. Write null for unused optional fields and close every object and array.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Invoice"], required: true },

@@ -4,7 +4,7 @@ export const pack = {
   id: "customers",
   name: "Customers",
   purpose: "Keep a business's client records, history, invoices, reviews, rewards and signed agreements.",
-  pick: "A business keeping track of the people it serves. Not the person's own friends (social).",
+  pick: "A business keeping track of the people it serves: client records, history, invoices and rewards. Past visits alone do not need scheduling (booking). Not people sharing posts, comments and follows with each other (social). Friends sharing with each other belong to social, not a core-only app.",
   example: "Trot keeps owners, dogs, walk history, invoices, loyalty stamps and key-holding consent.",
   probes: [
     {

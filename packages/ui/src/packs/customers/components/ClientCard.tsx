@@ -20,7 +20,7 @@ export const meta = {
   status: "draft",
   group: "content",
   purpose: "Recognise one business client, their next visit and how to contact them.",
-  pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile) or a list of clients (List).",
+  pick: "One business client's page head with tenure, next booking or order, tags and contact actions. Not another kind of identity (Profile), multiple clients as tappable rows (List), or plain labelled phone and address details without contact buttons (KeyValue). All clients with a photo and last-visit detail on each row remain List, never this one-client page head.",
   region: "body",
   weight: 2,
   tier: "phone",
