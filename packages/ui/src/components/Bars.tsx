@@ -38,7 +38,6 @@ export const meta = {
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total"],
   states: ["filled", "empty", "loading"],
-  aliases: ["columns", "histogram", "barchart", "breakdown", "share"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { points, unit, style } = input as z.output<typeof props>;

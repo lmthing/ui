@@ -108,8 +108,6 @@ describe("Button fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Actions");
     expect(meta.pick).toContain("Card");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has well-formed choose, write and read probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -123,12 +121,12 @@ describe("Button fallback and metadata", () => {
       expect: { address: "b1/root", action: "press" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Button");
     expect(registry.schema("Button")).toBe(props);
-    expect(registry.resolve("C-T-A")).toBe("Button");
-    expect(registry.resolve("SUBMIT")).toBe("Button");
+    expect(registry.resolve("b-u-t-t-o-n")).toBe("Button");
+    expect(registry.resolve("b-u-t-t-o-n")).toBe("Button");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

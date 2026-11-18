@@ -41,7 +41,6 @@ export const meta = {
   actions: {
     parts: { scrubber: ["seek"], back: ["press"], play: ["play", "pause"], forward: ["press"] },
   },
-  aliases: ["audio", "video", "podcast", "playback", "nowplaying"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { at, seconds } = input as z.output<typeof props>;

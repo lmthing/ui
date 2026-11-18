@@ -139,12 +139,12 @@ describe("Stats fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "KeyValue")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Stats" });
   });
-  it("builds a data-only registry with separator-tolerant aliases", () => {
+  it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Stats");
     expect(registry.schema("Stats")).toBe(props);
-    expect(registry.resolve("TOTALS")).toBe("Stats");
-    expect(registry.resolve("met-rics")).toBe("Stats");
+    expect(registry.resolve("s-t-a-t-s")).toBe("Stats");
+    expect(registry.resolve("s-t-a-t-s")).toBe("Stats");
   });
 });
 

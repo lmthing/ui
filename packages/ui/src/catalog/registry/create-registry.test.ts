@@ -14,7 +14,6 @@ const definition = {
     weight: 2,
     tier: "phone",
     realPath: "A local query.",
-    aliases: ["Table"],
   },
   props: z.object({}),
   examples: [],
@@ -22,8 +21,8 @@ const definition = {
   probes: [],
 } satisfies Definition;
 
-it("exact ids win over another component's alias", () => {
-  const table = { ...definition, meta: { ...definition.meta, id: "Table", aliases: [] } };
+it("resolves exact and case/separator-insensitive ids", () => {
+  const table = { ...definition, meta: { ...definition.meta, id: "Table" } };
   const registry = registryOf({ List: definition, Table: table });
   expect(registry.resolve("Table")).toBe("Table");
   expect(registry.resolve("ta-ble")).toBe("Table");
@@ -42,25 +41,25 @@ it("leaves drafts out unless asked", () => {
 
 const packDefs = {
   List: definition,
-  Table: { ...definition, meta: { ...definition.meta, id: "Table", aliases: ["grid", "rows"] } },
-  Slots: { ...definition, meta: { ...definition.meta, id: "Slots", aliases: ["times"] } },
-  ClientList: { ...definition, meta: { ...definition.meta, id: "ClientList", aliases: ["clients"] } },
+  Table: { ...definition, meta: { ...definition.meta, id: "Table" } },
+  Slots: { ...definition, meta: { ...definition.meta, id: "Slots" } },
+  ClientList: { ...definition, meta: { ...definition.meta, id: "ClientList" } },
   Draft: {
     ...definition,
-    meta: { ...definition.meta, id: "Draft", aliases: ["preview"], status: "draft" as const },
+    meta: { ...definition.meta, id: "Draft", status: "draft" as const },
   },
 };
 const membership = { Table: "data", Slots: "booking", ClientList: "customers", Draft: "data" } as const;
 
 it.each([
-  [[], "table", "List"],
-  [[], "Table", "List"],
+  [[], "table", undefined],
+  [[], "Table", undefined],
   [[], "grid", undefined],
   [["data"], "table", "Table"],
   [["data"], "ta_ble", "Table"],
-  [["data"], "GRID", "Table"],
+  [["data"], "GRID", undefined],
   [["booking", "customers"], "Slots", "Slots"],
-  [["booking", "customers"], "clients", "ClientList"],
+  [["booking", "customers"], "client_list", "ClientList"],
   [["booking"], "ClientList", undefined],
   [["data"], "preview", undefined],
 ] satisfies [PackId[], string, string | undefined][])(
@@ -69,15 +68,6 @@ it.each([
     expect(registryOf(packDefs, { packs }, membership).resolve(name)).toBe(expected);
   },
 );
-it("pack aliases beat core aliases regardless of definition order", () => {
-  const core = { ...definition, meta: { ...definition.meta, aliases: ["grid"] } };
-  for (const defs of [
-    { List: core, Table: packDefs.Table },
-    { Table: packDefs.Table, List: core },
-  ]) {
-    expect(registryOf(defs, { packs: ["data"] }, membership).resolve("grid")).toBe("Table");
-  }
-});
 it.each([false, true])("filters every accessor, including drafts (%s)", (includeDrafts) => {
   const registry = registryOf(packDefs, { packs: ["data"], includeDrafts }, membership);
   expect(registry.ids).toEqual(includeDrafts ? ["List", "Table", "Draft"] : ["List", "Table"]);
@@ -87,4 +77,13 @@ it.each([false, true])("filters every accessor, including drafts (%s)", (include
   expect(registry.get("Draft")).toBe(includeDrafts ? packDefs.Draft : undefined);
   expect(registry.schema("Draft")).toBe(includeDrafts ? packDefs.Draft.props : undefined);
   expect(registry.resolve("Draft")).toBe(includeDrafts ? "Draft" : undefined);
+});
+
+it("keeps historical Timeline names scoped and drops repair words", () => {
+  const timeline = { ...definition, meta: { ...definition.meta, id: "Timeline" } };
+  const registry = registryOf({ List: definition, Timeline: timeline });
+  expect(registry.resolve("daytimeline")).toBe("Timeline");
+  expect(registry.resolve("Day-Timeline")).toBe("Timeline");
+  expect(registry.resolve("rows")).toBeUndefined();
+  expect(registryOf({ List: definition }).resolve("daytimeline")).toBeUndefined();
 });

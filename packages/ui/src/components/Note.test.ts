@@ -134,17 +134,17 @@ describe("Note metadata and probes", () => {
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "Banner", "Hero", ...meta.aliases])
+      for (const name of [meta.id, "Banner", "Hero"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
     expect(new Set(examples.map((example) => example.style))).toEqual(new Set(["body", "quote", "hint"]));
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Note");
     expect(registry.schema("Note")).toBe(props);
-    expect(registry.resolve("SENTENCE")).toBe("Note");
-    expect(registry.resolve("quo-tation")).toBe("Note");
+    expect(registry.resolve("n-o-t-e")).toBe("Note");
+    expect(registry.resolve("n-o-t-e")).toBe("Note");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

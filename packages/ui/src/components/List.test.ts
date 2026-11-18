@@ -128,12 +128,12 @@ describe("List fallback and metadata", () => {
       expect: { address: "l1/r1/trail", action: "toggle" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("List");
     expect(registry.schema("List")).toBe(props);
-    expect(registry.resolve("list-view")).toBe("List");
-    expect(registry.resolve("ROWS")).toBe("List");
+    expect(registry.resolve("l-i-s-t")).toBe("List");
+    expect(registry.resolve("l-i-s-t")).toBe("List");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

@@ -25,7 +25,6 @@ export const meta = {
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
-  aliases: ["segments", "viewswitch", "viewpicker", "viewtabs"],
 } as const satisfies Meta;
 
 export const props = z

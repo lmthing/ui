@@ -28,7 +28,6 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  aliases: ["progressbar", "meter", "gauge", "targets", "macros"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { bars } = input as z.output<typeof props>;

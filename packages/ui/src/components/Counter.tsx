@@ -24,7 +24,6 @@ export const meta = {
   parts: ["root", "value", "label", "minus", "plus"],
   states: ["filled"],
   actions: { parts: { minus: ["decrement"], plus: ["increment"] } },
-  aliases: ["tally", "count", "quantity"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { value, unit } = props.parse(input);

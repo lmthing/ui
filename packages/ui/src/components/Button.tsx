@@ -24,7 +24,6 @@ export const meta = {
   parts: ["root"],
   states: ["filled"],
   actions: { parts: { root: ["press"] } },
-  aliases: ["button", "cta", "submit", "action"],
   // Pressing asks first when a confirm sentence is written (a sheet the host draws).
   read: (input) => ((input as { confirm?: string }).confirm ? [confirmNote] : []),
 } as const satisfies Meta;

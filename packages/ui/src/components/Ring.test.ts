@@ -131,12 +131,12 @@ describe("Ring metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Stats")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Ring" });
   });
-  it("builds a data-only registry with separator-tolerant aliases", () => {
+  it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Ring");
     expect(registry.schema("Ring")).toBe(props);
-    expect(registry.resolve("GOAL")).toBe("Ring");
-    expect(registry.resolve("comple-tion")).toBe("Ring");
+    expect(registry.resolve("r-i-n-g")).toBe("Ring");
+    expect(registry.resolve("r-i-n-g")).toBe("Ring");
   });
   it("reads the actual value and goal without clamping or leaking loading values", () => {
     expect(readComponent(components.Ring, examples[0], "c1")).toEqual(['c1 Ring 3 of 5 — "Watered today"']);

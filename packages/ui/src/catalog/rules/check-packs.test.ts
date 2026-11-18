@@ -18,7 +18,7 @@ const pack: PackMeta = {
 };
 const component: Definition = {
   ...catalog.components.List,
-  meta: { ...catalog.components.List.meta, id: "Slots", aliases: ["slots"], dense: true },
+  meta: { ...catalog.components.List.meta, id: "Slots", dense: true },
   props: z.strictObject({ title: z.string() }),
 };
 const fixture = () => ({
@@ -70,10 +70,6 @@ it.each<[string, (f: Fixture) => unknown]>([
       ],
     }),
   ],
-  ...["two words", "Title", "hyphen-word"].map((alias): [string, (f: Fixture) => unknown] => [
-    "aliases",
-    changeMeta({ aliases: [alias] }),
-  ]),
   ["parts", changeMeta({ confirmParts: ["missing"] })],
   ["parts", changeMeta({ partTiers: { missing: "service" } })],
   [
@@ -87,24 +83,4 @@ it.each<[string, (f: Fixture) => unknown]>([
   const input = fixture();
   mutate(input);
   expect(checkPacks(input).join("\n")).toContain(issue);
-});
-it("rejects core/pack and pack/pack alias conflicts, allowing exact id precedence", () => {
-  const input = fixture();
-  const other = { ...component, meta: { ...component.meta, id: "Other", aliases: ["shared"] } };
-  const components = {
-    Slots: { ...component, meta: { ...component.meta, aliases: ["shared"] } },
-    Other: other,
-  };
-  for (const packOf of [
-    { Slots: "booking" as const },
-    { Slots: "booking" as const, Other: "commerce" as const },
-  ]) {
-    expect(checkPacks({ ...input, components, packOf }).join("\n")).toContain("alias shared");
-  }
-  expect(
-    checkPacks({
-      ...input,
-      components: { Slots: component, Other: { ...other, meta: { ...other.meta, aliases: ["slots"] } } },
-    }),
-  ).toEqual([]);
 });

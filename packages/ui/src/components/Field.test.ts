@@ -163,12 +163,12 @@ describe("Field fallback and metadata", () => {
     });
     expect(new Set(examples.map((example) => example.kind)).size).toBe(9);
   });
-  it("registers its data-only definition and aliases", () => {
+  it("registers its data-only definition and ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Field");
     expect(registry.schema("Field")).toBe(props);
-    expect(registry.resolve("form-field")).toBe("Field");
-    expect(registry.resolve("INPUT")).toBe("Field");
+    expect(registry.resolve("f-i-e-l-d")).toBe("Field");
+    expect(registry.resolve("f-i-e-l-d")).toBe("Field");
   });
 });
 

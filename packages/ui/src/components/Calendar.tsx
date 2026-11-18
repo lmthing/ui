@@ -16,7 +16,6 @@ export const meta = {
   parts: ["root", "month"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
-  aliases: ["dates", "monthgrid", "weekgrid", "daypicker"],
   read: (value): string[] => {
     const { marked } = value as { marked: { id: string; day: number; mark?: string }[] };
     return marked.map((day) => `${day.id}: ${day.day}${day.mark ? ` (${day.mark})` : ""}`);

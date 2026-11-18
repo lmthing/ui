@@ -31,7 +31,6 @@ export const meta = {
     // One option is chosen in a single choice; several can be ticked in a multiple one.
     when: { "root.select": { multi: false }, "root.toggle": { multi: true } },
   },
-  aliases: ["options", "plans", "pricing", "radio", "multiplechoice"],
 } as const satisfies Meta;
 
 export const props = z

@@ -104,8 +104,7 @@ describe("Camera metadata and probes", () => {
     expect(choose.some((probe) => probe.expect === "Camera")).toBe(true);
     expect(choose.some((probe) => probe.expect === "Photo")).toBe(true);
     for (const probe of choose) {
-      for (const word of [meta.id, ...meta.aliases])
-        expect(probe.need.toLowerCase()).not.toContain(word.toLowerCase());
+      for (const word of [meta.id]) expect(probe.need.toLowerCase()).not.toContain(word.toLowerCase());
     }
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Camera" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
@@ -114,12 +113,12 @@ describe("Camera metadata and probes", () => {
       expect: { address: "c1/shutter", action: "press" },
     });
   });
-  it("registers its data-only definition and aliases", () => {
+  it("registers its data-only definition and ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Camera");
     expect(registry.schema("Camera")).toBe(props);
-    expect(registry.resolve("VIEWFINDER")).toBe("Camera");
-    expect(registry.resolve("cap-ture")).toBe("Camera");
+    expect(registry.resolve("c-a-m-e-r-a")).toBe("Camera");
+    expect(registry.resolve("c-a-m-e-r-a")).toBe("Camera");
   });
 });
 

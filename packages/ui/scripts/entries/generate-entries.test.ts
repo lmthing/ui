@@ -20,7 +20,7 @@ async function fixture() {
   await put("catalog/index.ts", `export * from ${JSON.stringify(resolve("src/catalog/index.ts"))};`);
   const component = (name: string, status: string) => `
     import { z } from "zod";
-    export const meta = { id: "${name}", status: "${status}", aliases: [] };
+    export const meta = { id: "${name}", status: "${status}" };
     export const props = z.object({});
     export const fallback = () => ({});
     export const examples = [{}];

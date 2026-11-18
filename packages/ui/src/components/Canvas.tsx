@@ -22,7 +22,6 @@ export const meta = {
   realPath: "A custom on-device interaction not represented by the catalog, recorded by the host as a miss.",
   parts: ["root", "caption"],
   states: ["filled"],
-  aliases: ["custom", "bespoke", "unrepresented"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({ caption: text(80) });

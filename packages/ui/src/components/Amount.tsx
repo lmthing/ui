@@ -28,7 +28,6 @@ export const meta = {
   parts: ["root", "label", "value", "was", "change", "sub"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
-  aliases: ["price", "balance", "money", "cost", "sum"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const v = input as z.output<typeof props>;

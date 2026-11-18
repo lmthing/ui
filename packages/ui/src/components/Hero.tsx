@@ -26,7 +26,6 @@ export const meta = {
   realPath: "A headline derived from content or a query in the on-device database.",
   parts: ["root", "title", "sub", "photo"],
   states: ["filled", "loading"],
-  aliases: ["headline", "intro", "spotlight"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

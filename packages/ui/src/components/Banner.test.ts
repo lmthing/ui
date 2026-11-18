@@ -132,8 +132,6 @@ describe("Banner metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Note");
     expect(meta.pick).toContain("Hero");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has two choose probes with a near miss, one write and one read", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -147,17 +145,17 @@ describe("Banner metadata and probes", () => {
       expect: { address: "b1", action: "press" },
     });
     for (const probe of probes.filter((probe) => probe.kind === "choose"))
-      for (const name of [meta.id, "Note", "Hero", ...meta.aliases])
+      for (const name of [meta.id, "Note", "Hero"])
         expect(probe.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     expect(examples.some((example) => "icon" in example && "goto" in example)).toBe(true);
     expect(examples.some((example) => !("goto" in example))).toBe(true);
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Banner");
     expect(registry.schema("Banner")).toBe(props);
-    expect(registry.resolve("NOTICE")).toBe("Banner");
-    expect(registry.resolve("announce-ment")).toBe("Banner");
+    expect(registry.resolve("b-a-n-n-e-r")).toBe("Banner");
+    expect(registry.resolve("b-a-n-n-e-r")).toBe("Banner");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

@@ -36,7 +36,6 @@ export const meta = {
   items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
   parts: ["root"],
   states: ["filled", "empty", "loading"],
-  aliases: ["metrics", "totals", "figures"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

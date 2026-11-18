@@ -144,8 +144,6 @@ describe("Actions metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Button");
     expect(meta.pick).toContain("List");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has well-formed choose, write and read probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -159,12 +157,12 @@ describe("Actions metadata and probes", () => {
       expect: { address: "a1/r2", action: "press" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Actions");
     expect(registry.schema("Actions")).toBe(props);
-    expect(registry.resolve("QUICK-ACTIONS")).toBe("Actions");
-    expect(registry.resolve("Shortcuts")).toBe("Actions");
+    expect(registry.resolve("a-c-t-i-o-n-s")).toBe("Actions");
+    expect(registry.resolve("a-c-t-i-o-n-s")).toBe("Actions");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

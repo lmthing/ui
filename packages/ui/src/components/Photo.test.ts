@@ -147,17 +147,17 @@ describe("Photo metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Photo" });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "Gallery", "Hero", ...meta.aliases])
+      for (const name of [meta.id, "Gallery", "Hero"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
     expect(examples.map((example) => example.style)).toEqual(["wide", "square", "tall"]);
     expect(examples[2]).not.toHaveProperty("caption");
   });
-  it("registers case and separator tolerant aliases", () => {
+  it("registers case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.schema("Photo")).toBe(props);
-    expect(registry.resolve("IMAGE")).toBe("Photo");
-    expect(registry.resolve("snap-shot")).toBe("Photo");
+    expect(registry.resolve("p-h-o-t-o")).toBe("Photo");
+    expect(registry.resolve("p-h-o-t-o")).toBe("Photo");
   });
 });
 

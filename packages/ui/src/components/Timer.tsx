@@ -33,7 +33,6 @@ export const meta = {
     parts: { start: ["start"], stop: ["stop"] },
     when: { start: { controls: true }, stop: { controls: true } },
   },
-  aliases: ["countdown", "stopwatch", "duration"],
   read: (input, state) => {
     // Already parsed by the validator: it carries the derived `controls`, which a strict parse would refuse.
     const value = input as z.output<typeof props>;

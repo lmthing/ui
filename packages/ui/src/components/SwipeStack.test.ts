@@ -170,12 +170,12 @@ describe("SwipeStack fallback and metadata", () => {
       expect: { address: "s1/r1", action: "swipe" },
     });
   });
-  it("builds a data-only registry with tolerant aliases", () => {
+  it("builds a data-only registry with tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("SwipeStack");
     expect(registry.schema("SwipeStack")).toBe(props);
-    expect(registry.resolve("DECK")).toBe("SwipeStack");
-    expect(registry.resolve("swipe")).toBe("SwipeStack");
+    expect(registry.resolve("s-w-i-p-e-s-t-a-c-k")).toBe("SwipeStack");
+    expect(registry.resolve("s-w-i-p-e-s-t-a-c-k")).toBe("SwipeStack");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

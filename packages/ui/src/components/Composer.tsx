@@ -31,7 +31,6 @@ export const meta = {
     parts: { field: ["type"], send: ["send"] },
     when: { send: { style: "reply", sendable: true } },
   },
-  aliases: ["textarea", "editor", "notes", "messagebox", "multiline"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { style, value, max } = input as z.output<typeof props>;

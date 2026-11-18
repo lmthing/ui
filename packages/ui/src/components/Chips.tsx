@@ -29,7 +29,6 @@ export const meta = {
     items: { root: ["toggle", "select"] },
     when: { "root.toggle": { style: "filter" }, "root.select": { style: "choose" } },
   },
-  aliases: ["pills", "filters", "choices"],
 } as const satisfies Meta;
 
 export const props = z

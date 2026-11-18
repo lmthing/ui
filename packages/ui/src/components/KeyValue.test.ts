@@ -130,12 +130,12 @@ describe("KeyValue field labels and metadata", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "KeyValue" });
     expect(probes.some((probe) => (probe as { kind: string }).kind === "read")).toBe(false);
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("KeyValue");
     expect(registry.schema("KeyValue")).toBe(props);
     expect(registry.resolve("key-value")).toBe("KeyValue");
-    expect(registry.resolve("ATTRIBUTES")).toBe("KeyValue");
+    expect(registry.resolve("k-e-y-v-a-l-u-e")).toBe("KeyValue");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

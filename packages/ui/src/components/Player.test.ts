@@ -106,14 +106,13 @@ describe("Player fallback, metadata and actions", () => {
     });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : "";
-      for (const name of [meta.id, ...meta.aliases])
-        expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
+      for (const name of [meta.id]) expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
   });
-  it("resolves its aliases", () => {
+  it("resolves its ids", () => {
     const registry = createRegistry();
-    expect(registry.resolve("PODCAST")).toBe("Player");
-    expect(registry.resolve("now-playing")).toBe("Player");
+    expect(registry.resolve("p-l-a-y-e-r")).toBe("Player");
+    expect(registry.resolve("p-l-a-y-e-r")).toBe("Player");
   });
 });
 

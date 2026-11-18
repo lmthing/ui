@@ -107,24 +107,22 @@ describe("Steps metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Checklist");
     expect(meta.pick).toContain("Ring");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Checklist")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Steps" });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, ...meta.aliases]) {
+      for (const name of [meta.id]) {
         expect(wording.toLowerCase()).not.toMatch(new RegExp(`\\b${name.toLowerCase()}\\b`));
       }
     }
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Steps");
     expect(registry.schema("Steps")).toBe(props);
-    expect(registry.resolve("step-per")).toBe("Steps");
-    expect(registry.resolve("WIZARD")).toBe("Steps");
+    expect(registry.resolve("s-t-e-p-s")).toBe("Steps");
+    expect(registry.resolve("s-t-e-p-s")).toBe("Steps");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

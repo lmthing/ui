@@ -23,7 +23,6 @@ export const meta = {
   items: { key: "messages", parts: ["root", "text"] },
   parts: ["root"],
   states: ["filled", "empty"],
-  aliases: ["chat", "conversation", "thread"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

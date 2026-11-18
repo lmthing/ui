@@ -25,7 +25,6 @@ export const meta = {
   realPath: "Fields of one record in the on-device database.",
   items: { key: "pairs", parts: ["root", "label", "value", "icon"] },
   states: ["filled", "empty", "loading"],
-  aliases: ["attributes", "details", "properties", "specifications"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

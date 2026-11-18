@@ -144,11 +144,11 @@ describe("Route metadata", () => {
     expect(meta.pick).toContain("Timeline");
     expect(meta.pick).toContain("MapPins");
   });
-  it("is found automatically through case and separator tolerant aliases", () => {
+  it("is found automatically through case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Route");
     expect(registry.schema("Route")).toBe(props);
-    expect(registry.resolve("jour-ney")).toBe("Route");
+    expect(registry.resolve("r-o-u-t-e")).toBe("Route");
   });
 });
 

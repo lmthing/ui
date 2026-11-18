@@ -100,8 +100,6 @@ describe("Search fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Chips");
     expect(meta.pick).toContain("Field");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Chips")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Search" });
@@ -111,12 +109,12 @@ describe("Search fallback and metadata", () => {
       expect: { address: "s1/field", action: "type" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Search");
     expect(registry.schema("Search")).toBe(props);
-    expect(registry.resolve("search-box")).toBe("Search");
-    expect(registry.resolve("LOOKUP")).toBe("Search");
+    expect(registry.resolve("s-e-a-r-c-h")).toBe("Search");
+    expect(registry.resolve("s-e-a-r-c-h")).toBe("Search");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

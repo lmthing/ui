@@ -24,7 +24,6 @@ export const meta = {
   parts: ["root", "viewfinder", "hint", "shutter"],
   states: ["filled"],
   actions: { parts: { shutter: ["press"] } },
-  aliases: ["capture", "viewfinder", "shutter"],
   read: (input, state) => {
     const { kind } = input as z.output<typeof props>;
     return state === "filled" ? [kind === "scan" ? photoLabels.scan : photoLabels.take] : [];

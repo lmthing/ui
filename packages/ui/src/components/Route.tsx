@@ -26,7 +26,6 @@ export const meta = {
   items: { key: "stops", parts: ["root", "label"] },
   parts: ["root", "distance"],
   states: ["filled"],
-  aliases: ["journey", "circuit", "itinerary"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({

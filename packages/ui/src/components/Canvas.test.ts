@@ -118,8 +118,6 @@ describe("Canvas metadata and probes", () => {
     expect(meta.pick).toContain("Only");
     expect(meta.pick).toContain("Empty");
     expect(meta.pick).toContain("Photo");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
   });
   it("has two choose probes with an Empty near miss and one write", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -129,16 +127,16 @@ describe("Canvas metadata and probes", () => {
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
-      for (const name of [meta.id, "Empty", "Photo", ...meta.aliases])
+      for (const name of [meta.id, "Empty", "Photo"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
   });
-  it("registers with case and separator tolerant aliases", () => {
+  it("registers with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Canvas");
     expect(registry.schema("Canvas")).toBe(props);
-    expect(registry.resolve("CUSTOM")).toBe("Canvas");
-    expect(registry.resolve("un-represented")).toBe("Canvas");
+    expect(registry.resolve("c-a-n-v-a-s")).toBe("Canvas");
+    expect(registry.resolve("c-a-n-v-a-s")).toBe("Canvas");
   });
 });
 

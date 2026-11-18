@@ -38,7 +38,6 @@ export const meta = {
   parts: ["root", "icon", "photo", "badge", "title", "body", "meta"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
-  aliases: ["tile", "summary", "panel"],
 } as const satisfies Meta;
 
 export const props = z

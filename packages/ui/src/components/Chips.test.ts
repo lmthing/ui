@@ -112,11 +112,10 @@ describe("Chips metadata and probes", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Segmented");
     expect(meta.pick).toContain("Checklist");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
     const choose = probes.filter((probe) => probe.kind === "choose");
     expect(choose.map((probe) => probe.expect)).toEqual(["Chips", "Segmented"]);
     for (const probe of choose)
-      for (const name of [meta.id, "Segmented", "Checklist", ...meta.aliases])
+      for (const name of [meta.id, "Segmented", "Checklist"])
         expect(probe.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Chips" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
@@ -127,8 +126,8 @@ describe("Chips metadata and probes", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Chips");
     expect(registry.schema("Chips")).toBe(props);
-    expect(registry.resolve("FILTERS")).toBe("Chips");
-    expect(registry.resolve("pills")).toBe("Chips");
+    expect(registry.resolve("c-h-i-p-s")).toBe("Chips");
+    expect(registry.resolve("c-h-i-p-s")).toBe("Chips");
   });
 });
 

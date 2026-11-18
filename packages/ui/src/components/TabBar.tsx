@@ -32,7 +32,6 @@ export const meta = {
     (input as { tabs: { label: string; count?: number }[] }).tabs
       .filter((tab) => Boolean(tab.count))
       .map((tab) => `${tab.label}: ${badgeLine(tab.count!)}`),
-  aliases: ["bottomnav", "navigation", "maintabs", "navtabs"],
 } as const satisfies Meta;
 
 export const props = z

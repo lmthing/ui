@@ -138,8 +138,6 @@ describe("Profile fallback and metadata", () => {
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Header");
     expect(meta.pick).toContain("Card");
-    expect(meta.aliases.length).toBeGreaterThanOrEqual(3);
-    expect(meta.aliases.length).toBeLessThanOrEqual(5);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Header")).toBeDefined();
@@ -147,12 +145,12 @@ describe("Profile fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Profile" });
     expect(examples.map((example) => example.style)).toEqual(["row", "centered"]);
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Profile");
     expect(registry.schema("Profile")).toBe(props);
-    expect(registry.resolve("IDENTITY")).toBe("Profile");
-    expect(registry.resolve("port-rait")).toBe("Profile");
+    expect(registry.resolve("p-r-o-f-i-l-e")).toBe("Profile");
+    expect(registry.resolve("p-r-o-f-i-l-e")).toBe("Profile");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

@@ -45,7 +45,6 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
-  aliases: ["agenda", "history", "dayplan", "timeblocks", "hourly"],
   read: (input, state) =>
     state === "filled" && (input as { style: string }).style === "hours"
       ? (input as { items: { time: string; end: string }[] }).items.map((item) => `${item.time}–${item.end}`)

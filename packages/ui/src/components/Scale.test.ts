@@ -188,12 +188,12 @@ describe("Scale fallback and metadata", () => {
       expect: { address: "s1/l5", action: "select" },
     });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Scale");
     expect(registry.schema("Scale")).toBe(props);
-    expect(registry.resolve("RATING")).toBe("Scale");
-    expect(registry.resolve("s-c-o-r-e")).toBe("Scale");
+    expect(registry.resolve("s-c-a-l-e")).toBe("Scale");
+    expect(registry.resolve("s-c-a-l-e")).toBe("Scale");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });

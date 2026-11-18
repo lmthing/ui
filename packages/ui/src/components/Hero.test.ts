@@ -164,12 +164,12 @@ describe("Hero fallback and metadata", () => {
     expect(examples.map((example) => example.style)).toEqual(["number", "photo", "statement"]);
     expect(examples[0]).toMatchObject({ title: "2", sub: "plants need water", tone: "warn" });
   });
-  it("builds a data-only registry with case and separator tolerant aliases", () => {
+  it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Hero");
     expect(registry.schema("Hero")).toBe(props);
-    expect(registry.resolve("HEADLINE")).toBe("Hero");
-    expect(registry.resolve("spot-light")).toBe("Hero");
+    expect(registry.resolve("h-e-r-o")).toBe("Hero");
+    expect(registry.resolve("h-e-r-o")).toBe("Hero");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
   it("reads the headline and detail without offering actions, including while loading", () => {

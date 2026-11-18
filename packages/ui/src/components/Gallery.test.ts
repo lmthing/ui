@@ -154,7 +154,7 @@ describe("Gallery metadata and probes", () => {
     });
     const registry = createRegistry();
     expect(registry.schema("Gallery")).toBe(props);
-    expect(registry.resolve("FILM-STRIP")).toBe("Gallery");
+    expect(registry.resolve("g-a-l-l-e-r-y")).toBe("Gallery");
   });
 });
 

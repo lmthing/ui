@@ -24,7 +24,6 @@ export const meta = {
   realPath: "Consecutive completed days and this week's completion derived from on-device habit records.",
   parts: ["root", "count", "label", "days"],
   states: ["filled"],
-  aliases: ["habit", "consecutive", "consistency"],
   read: (input, state) => {
     if (state !== "filled") return [];
     const { count, days } = props.parse(input);

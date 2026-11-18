@@ -161,12 +161,12 @@ describe("Calendar fallback and metadata", () => {
       expect: { address: "c1/r12", action: "select" },
     });
   });
-  it("builds a data-only registry with tolerant aliases", () => {
+  it("builds a data-only registry with tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Calendar");
     expect(registry.schema("Calendar")).toBe(props);
-    expect(registry.resolve("DAY-PICKER")).toBe("Calendar");
-    expect(registry.resolve("DATES")).toBe("Calendar");
+    expect(registry.resolve("c-a-l-e-n-d-a-r")).toBe("Calendar");
+    expect(registry.resolve("c-a-l-e-n-d-a-r")).toBe("Calendar");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
