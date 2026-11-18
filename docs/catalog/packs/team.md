@@ -35,7 +35,6 @@ tinted, and days short of cover flagged in `warn`.
   `day` 0–6, `from` HH:MM, `to` HH:MM, `role` text(12) optional, 0–40.
 - Parts → actions: cells `root press`. · States: filled, empty, loading.
 - Real path: a shared rota in a shared app; one manager edits it. · Kit: `KitWeekMatrix`.
-- Aliases: rota, roster, staffschedule.
 
 ### `Shift` · planned · content · people
 One shift as a card: day, times, place and role, who else is on, and swap or offer actions.
@@ -44,14 +43,14 @@ One shift as a card: day, times, place and role, who else is on, and swap or off
 - Writes: `date`, `from` HH:MM, `to` HH:MM, `place` text(28) optional, `role` text(16) optional, `with`
   text(48) optional, `status` (`confirmed`, `offered`, `swap_requested`).
 - Parts → actions: `swap press`, `offer press`. · States: filled, loading.
-- Real path: a shift record in a shared rota. · Aliases: shift, myshift, nextshift.
+- Real path: a shift record in a shared rota.
 
 ### `OpenShift` · planned · action · people
 Shifts nobody has yet, each with time, role and pay, and a claim button; a claimed one becomes a `Shift`.
 - Pick: gaps someone can pick up. Not shifts already assigned (`Shift`), not jobs to tick (`Checklist`).
 - Writes: `shifts` of `date`, `from`, `to`, `role` text(16), `pay` number optional, 1–6.
 - Parts → actions: items `claim press`. · States: filled, empty, success.
-- Real path: open shifts in a shared rota; the manager approves claims. · Aliases: openshifts, cover, pickup.
+- Real path: open shifts in a shared rota; the manager approves claims.
 
 ### `TimeClock` · planned · input · phone
 A large clock-in or clock-out button with the current shift, the time on shift so far, and today's breaks.
@@ -60,7 +59,6 @@ A large clock-in or clock-out button with the current shift, the time on shift s
   computed from the stored clock events.
 - Parts → actions: `clock press`, `break press`. · States: filled, success.
 - Real path: timestamps stored on the device; sending them to a manager needs a shared app.
-- Aliases: timeclock, clockin, clockout, punch.
 
 ### `Timesheet` · planned · data · people
 Hours worked per person for a week: hours per day, total, overtime in `warn`, and an approve action per row.
@@ -68,7 +66,7 @@ Hours worked per person for a week: hours per day, total, overtime in `warn`, an
 - Writes: `period` text(20), `rows` of `name` text(20), `hours` exactly 7 numbers, `approved` boolean,
   1–8. Totals and overtime are computed by code.
 - Parts → actions: items `approve press`. · States: filled, empty.
-- Real path: clocked hours collected in a shared app. · Aliases: timesheet, hoursworked, payrollhours.
+- Real path: clocked hours collected in a shared app.
 
 ### `Approval` · planned · action · people
 Requests waiting for a decision: who asked, what (time off, a swap, an expense with its amount), the dates,
@@ -79,8 +77,7 @@ a note, and approve and decline.
   text(32), `dates` text(24) optional, `amount` number optional, `note` text(100) optional, 1–5.
 - Parts → actions: items `approve press`, items `decline press` (in `confirmParts`). · States: filled,
   empty, success.
-- Real path: requests in a shared app; the requester is told the answer. · Aliases: approvals, requests,
-  timeoff, leave.
+- Real path: requests in a shared app; the requester is told the answer.
 
 ### `Handover` · planned · content · people
 Notes passed from one shift to the next, newest first: who wrote it, when, the note, and an optional flag
@@ -90,7 +87,7 @@ Notes passed from one shift to the next, newest first: who wrote it, when, the n
 - Writes: `notes` of `by` text(20), `time` text(12), `text` text(160), `flag` text(16) optional, `seen`
   boolean, 1–6.
 - Parts → actions: items `seen check`. · States: filled, empty.
-- Real path: notes in a shared app. · Aliases: handover, shiftnotes, logbook.
+- Real path: notes in a shared app.
 
 ## Archetypes (3)
 
@@ -106,11 +103,6 @@ A café with six staff. The manager's `rota` shows the week with one gap on Satu
 `OpenShift` that Lee claims. Baristas clock in on `team/today`, read the morning's `Handover` ("oat milk
 low") and tick the opening `Checklist`. Lee asks for a day off (`request`); on Friday the manager approves
 `Timesheet` rows. Signature: `check_burst` on the opening checklist.
-
-## Aliases that shadow the core
-
-With `team`: `rota`, `roster` → `Roster` (otherwise `Calendar`); `shift` → `Shift` (otherwise `Card`);
-`approvals`, `requests` → `Approval` (otherwise `List`). The core alias `team` stays with `People`.
 
 ## Tiers
 

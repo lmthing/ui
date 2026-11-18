@@ -37,7 +37,7 @@ the quantity is at or under its minimum, and an optional value.
   computed from `min`.
 - Styles: `grid` (default), `rows`. · Parts → actions: items `root press`, items `qty increment`, items
   `qty decrement`. · States: filled, empty, loading. · Dense.
-- Real path: records on the device. · Aliases: things, inventory, stock, belongings.
+- Real path: records on the device.
 
 ### `Storage` · planned · content · phone
 Places within places: a breadcrumb at the top (Garage › Shelf 2), then the spots inside this one with how
@@ -47,7 +47,7 @@ many things each holds, and the things kept right here.
 - Writes: `path` text(16) each, 0–4; `spots` of `name` text(24), `icon`, `goto`, 0–6; `here` text(28)
   each, 0–6. How many things each spot holds is computed.
 - Parts → actions: path items `root press`, spots `root press`. · States: filled, empty.
-- Real path: a tree of spots on the device. · Aliases: storage, spots, boxes, shelves, whereitis.
+- Real path: a tree of spots on the device.
 
 ### `Loans` · planned · data · phone
 What is lent and borrowed: each thing with its photo, the person, since when, due back, overdue in `bad`,
@@ -57,7 +57,7 @@ and "Returned".
 - Writes: `loans` of `thing` text(28), `photo` optional, `person` text(20), `way` (`lent`, `borrowed`),
   `since` date, `due` date optional, 1–6. Overdue is computed.
 - Parts → actions: items `returned press` (in `confirmParts`), items `remind press` (`partTiers`: `service`).
-- States: filled, empty. · Real path: records on the device. · Aliases: loans, lent, borrowed, lending.
+- States: filled, empty. · Real path: records on the device.
 
 ### `Warranties` · planned · data · phone
 Receipts and warranties: each thing with where and when it was bought, the price, a receipt thumbnail, and
@@ -67,7 +67,7 @@ the warranty's end, ending soon in `warn` and ended in grey.
 - Writes: `items` of `thing` text(28), `shop` text(20) optional, `bought` date, `price` number optional,
   `ends` date optional, `receipt` photo optional, 1–6. Status is computed from `ends`.
 - Parts → actions: items `root press`. · States: filled, empty.
-- Real path: receipts photographed and stored on the device. · Aliases: warranties, receipts, guarantees.
+- Real path: receipts photographed and stored on the device.
 
 ### `Wishlist` · planned · input · phone
 Things the person wants: photo, name, price and a target price, a priority, where to get it, and "Got it",
@@ -77,7 +77,7 @@ after which the host adds a `Things` record and removes the wish.
 - Writes: `items` of `name` text(28), `photo` optional, `price` number optional, `target` number optional,
   `priority` 1–3, `where` text(24) optional, 1–6.
 - Parts → actions: items `got press` (in `confirmParts`), items `root press`. · States: filled, empty.
-- Real path: records on the device; price tracking would be a `service`. · Aliases: wishlist, wants, wishes.
+- Real path: records on the device; price tracking would be a `service`.
 
 ### `Listing` · planned · content · phone
 A place to rent or buy: price per month or the asking price, beds, baths and area as icon facts, the
@@ -87,7 +87,7 @@ address line, available from, and a short description; photos sit above it in a 
 - Writes: `title` text(32), `price` number, `per` (`month`, `week`, `none`), `beds` 0–20, `baths` 0–10,
   `area` number, `areaUnit` (`m2`, `ft2`), `where` text(40), `from` date optional, `about` text(160).
 - Parts → actions: `contact press` (`partTiers`: `service`), `save toggle`. · States: filled, loading.
-- Real path: listings stored on the device. · Aliases: listing, property, rental, flat, apartment.
+- Real path: listings stored on the device.
 
 ### `Request` · planned · input · people
 A repair or maintenance request: what is wrong, where, a photo, priority, status (new, booked, fixed), who
@@ -98,7 +98,7 @@ is on it, and updates under it; tenants raise them, the landlord moves them on.
   `status` (`new`, `booked`, `fixed`), `who` text(20) optional, `updates` of `time` text(12), `text`
   text(36), 0–4.
 - Parts → actions: `status select` (landlord), `update type`. · States: filled, success (fixed).
-- Real path: requests in a shared app between tenant and landlord. · Aliases: request, repair, maintenancerequest, fixit.
+- Real path: requests in a shared app between tenant and landlord.
 
 ### `Lease` · planned · data · phone
 One lease: the tenant and the place, start and end dates with the time left as a bar, rent and when it is
@@ -109,7 +109,6 @@ next due, the deposit held, and the renewal date flagged as it nears.
 - Writes: `tenant` text(24), `place` text(32), `start` date, `end` date, `rent` number, `per` (`month`,
   `week`), `due` day 1–31, `deposit` number optional. Time left and the next due date are computed.
 - Parts → actions: `root press`. · States: filled. · Real path: lease records on the device.
-- Aliases: lease, tenancy, rentalagreement.
 
 ## Archetypes (4)
 
@@ -129,10 +128,6 @@ unpacked.
 
 A second take, **Flats**: a landlord's three rentals as `rentals/listings`; one flat's `Lease` warns that
 renewal is in 40 days; a tenant's leaking-tap `Request` moves from new to booked on `rentals/repair`.
-
-## Aliases that shadow the core
-
-No alias here matches a core alias.
 
 ## Tiers
 

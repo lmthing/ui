@@ -18,11 +18,10 @@ it.each(defs)("preserves the recorded write entry for $meta.id", (def) => {
     [
       "You write one UI component of a phone app as a single JSON line.",
       "Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).",
-      "Leave out an optional prop (name?) when you have nothing for it: never write an empty string.",
+      "Use null for an optional prop (name?) when you have nothing for it: never write an empty string.",
       entry,
       "",
       "Brief: A brief",
-      `Reply with only the JSON line, starting with {"c":"${def.meta.id}".`,
     ].join("\n"),
   );
 });

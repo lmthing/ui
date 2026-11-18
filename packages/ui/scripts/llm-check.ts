@@ -92,6 +92,7 @@ if (process.argv.includes("--compose")) {
       model,
       (prompt, format) => azure(model, prompt, format),
       replay,
+      (arg("--layout") ?? "").split(",").filter(Boolean),
     );
     if (model.required) failed += failures;
   }

@@ -34,7 +34,7 @@ for the filling), each tickable while cooking, with a metric or US switch.
   text(20) optional, 1–16, 1–3; `system` (`metric`, `us`). Scaled amounts and conversions are computed.
 - Parts → actions: `servings increment`, `servings decrement`, items `have check`, `system select`,
   `shop press` (adds the unticked ones to the grocery list). · States: filled.
-- Real path: recipe data on the device. · Aliases: ingredients, ingredientlist.
+- Real path: recipe data on the device.
 
 ### `CookSteps` · planned · action · phone
 Cooking mode: one step at a time in large type, the ingredients that step uses, a timer button when the
@@ -43,7 +43,7 @@ step has a time, and next and back; the screen stays awake.
   through screens (`Steps`), not chapters of a recording (media `ChapterList`).
 - Writes: `steps` of `text` text(200), `uses` text(20) each 0–4, `minutes` number optional, 1–20; `at`.
 - Parts → actions: `next press`, `back press`, `timer start`, `timer stop`. · States: filled, success (done).
-- Real path: steps on the device; the screen is kept awake while cooking. · Aliases: cookmode, method, cooksteps.
+- Real path: steps on the device; the screen is kept awake while cooking.
 
 ### `MealPlan` · planned · input · phone
 The week as rows of days and columns of meals (breakfast, lunch, dinner), each cell a recipe name with a
@@ -54,7 +54,7 @@ small photo or an add button, today highlighted.
   `day` 0–6, `meal`, `title` text(24), `photo` optional, `goto`, 0–28.
 - Parts → actions: cells `root press`, empty cells `add press`. · States: filled, empty.
 - Real path: plans stored on the device; sharing with a household needs a shared app.
-- Kit: `KitWeekMatrix`. · Aliases: mealplan, mealplanner, weekmenu.
+- Kit: `KitWeekMatrix`.
 
 ### `GroceryList` · planned · input · phone
 The shopping list grouped by aisle (produce, dairy, bakery…), each item with a quantity, ticked items
@@ -67,7 +67,6 @@ sliding to the bottom, and who added it when shared.
 - Signature: `check_burst` (the same moment as core `Checklist`).
 - Real path: the list on the device; a shared list needs the household on a shared app (`by` and others'
   additions are `people`).
-- Aliases: grocerylist, shoppinglist, groceries.
 
 ### `Pantry` · planned · data · phone
 What is in the cupboard, fridge and freezer: each item with a quantity, where it is, and its use-by date,
@@ -78,7 +77,6 @@ items expiring soon at the top in `warn` and expired ones in `bad`.
   date optional, `goto`, 1–20. The order and tones are computed from `useBy`. · Dense.
 - Parts → actions: items `root press`, items `used press` (in `confirmParts`: it removes the item). · States: filled, empty.
 - Real path: items typed in or scanned with `Camera` kind `scan`; dates on the device.
-- Aliases: pantry, fridge, cupboard, useby.
 
 ### `FoodLog` · planned · input · phone
 Today's food by meal: each meal with its items and calories, an add button per meal, and the day's total
@@ -90,7 +88,6 @@ against the target at the top.
   screen). Calorie totals are computed; macros belong in a `Progress` above it. · Dense.
 - Parts → actions: meals `add press` (goes to `goto`), items `root press`. · States: filled, empty.
 - Real path: entries on the device; a food database to look items up is a `service`.
-- Aliases: foodlog, fooddiary, calories, mealslog.
 
 ### `KitchenTimers` · planned · action · phone
 Several named timers running at once (pasta 6:12, oven 18:40), each with its own progress ring, pause and
@@ -99,7 +96,7 @@ add a minute, the one finishing soonest first.
   mode (`CookSteps`).
 - Writes: `timers` of `label` text(16), `seconds` 1–14400, 1–6.
 - Parts → actions: timers `root start`, timers `root stop`, timers `more press` (adds a minute). · States: filled, empty.
-- Real path: timers on the device with an alarm (notifications, `ok`). · Aliases: kitchentimers, timers.
+- Real path: timers on the device with an alarm (notifications, `ok`).
 
 ## Archetypes (5)
 
@@ -117,10 +114,6 @@ A family recipe box and planner. `recipe/overview` shows Nonna's lasagne with se
 `recipe/cook` steps through it with the béchamel and oven timers running together; `mealweek` puts it on
 Thursday; `groceries/list` adds the missing ingredients by aisle; `groceries/pantry` warns that the ricotta goes off
 tomorrow. Signature: `check_burst` on the grocery list.
-
-## Aliases that shadow the core
-
-No alias here matches a core alias.
 
 ## Tiers
 

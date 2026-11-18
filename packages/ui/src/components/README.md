@@ -15,4 +15,4 @@ Header SectionTitle Steps TabBar Hero Card List KeyValue Note Photo Gallery Prof
 - Entries, renderers, conformance tests and the gallery find new files automatically.
 - Built: U1 data of 6, U2 views, U3 drafts of the rest, U4 and U6 final.
 - Built: the six new schemas/views and the options of C1 to C3. Browser runtime for sheets, confirmation and media is verified.
-- Built: live controls, navigation counts, rules and 17 archetypes; DayTimeline is now Timeline[hours]. Remaining acceptance: compose/rubric and motion visuals, then native device QA; see `docs/catalog/core.md`.
+- Built: live controls, navigation counts, rules and 17 archetypes; DayTimeline is now Timeline[hours]. Compose/rubric and browser motion/visual gates pass. Remaining acceptance: native device QA; see `docs/catalog/core.md`.

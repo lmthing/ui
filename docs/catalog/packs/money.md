@@ -19,8 +19,8 @@ tracker, savings jars, kids' pocket money (with `home`), simple portfolio watche
 - One balance or total as the headline: `Amount` style `large`; a few figures (income, spent, left):
   `Stats`.
 - Budget per category against its limit: `Progress` (`over: bad`); a savings goal: `Ring` with `Amount`.
-- Spending by category: `Bars` style `share`; spending by day or week: `Bars`; a short trend: `Stats` style
-  `trend`.
+- Spending by category: `Bars` style `share`; spending by day or week: `Bars`; one latest value with a
+  short trend: `Sparkline`.
 - A bill's due date: `Calendar`; repeating bills: `Field` kind `repeat`.
 
 The first plan's `Balance` is core `Amount`, its `Budget` is `Progress` under an `Amount`, and the revised
@@ -37,7 +37,6 @@ last four digits, the balance, and a colour per account.
   text(4) optional, `balance` number, `swatch` (from the `swatch` vocabulary), `goto`, 1–4.
 - Parts → actions: items `root press`. · States: filled, loading.
 - Real path: balances typed in by the person; a bank link would be a `service`.
-- Aliases: accounts, accountcard, cards, wallet, jars.
 
 ### `Transactions` · planned · data · phone
 Money in and out grouped by day ("Today", "Yesterday", "Mon 3 Nov"): a category icon, the payee, the
@@ -48,7 +47,6 @@ category and the signed amount, income in `good`.
   `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: entries added by the person or imported from a bank file on the device.
-- Aliases: transactions, payments, moneyin, moneyout.
 
 ### `Bills` · planned · data · phone
 What is due: bills or subscriptions with the payee's icon, the amount, the due date or "every month", a paid
@@ -60,7 +58,6 @@ tick, and the month's total at the foot.
 - Styles: `due` (default: by due date, overdue in `bad`), `subscriptions` (by cost, with the yearly total).
 - Parts → actions: items `paid check`, items `root press`. · States: filled, empty.
 - Real path: bills typed in by the person; reminders before a due date need notifications (`ok`).
-- Aliases: bills, subscriptions, recurring, directdebits.
 
 ### `Split` · planned · data · people
 Shared costs among a group: each person's balance (owed or owing) and the fewest payments to settle up
@@ -71,7 +68,6 @@ Shared costs among a group: each person's balance (owed or owing) and the fewest
   `split` (`equal`, `shares`), 0–6; `goto` (the add-expense screen). Balances and settle-ups are computed.
 - Parts → actions: `add press` (goes to `goto`), settle-up items `settle press` (`partTiers`: `people`).
 - States: filled, empty, success (settled). · Real path: shared expenses in a shared app.
-- Aliases: split, splitbill, sharedexpenses, iou, settleup.
 
 ### `AmountPad` · planned · input · phone
 A large amount at the top that fills as digits are typed on a big keypad below, with a backspace and an
@@ -80,7 +76,7 @@ optional note line.
   (`Field` kind `number`), not a count (`Counter`).
 - Writes: `label` text(24), `value` number optional, `max` number optional, `note` boolean.
 - Parts → actions: `pad type` (digits), `note type`. · States: filled, empty.
-- Real path: an amount saved to a new entry on the device. · Aliases: keypad, amountpad, numberpad.
+- Real path: an amount saved to a new entry on the device.
 
 ### `PriceChart` · planned · data · service
 A holding's price over time as a line, with the current price and change above it and range tabs (1D, 1W,
@@ -90,7 +86,7 @@ A holding's price over time as a line, with the current price and change above i
 - Writes: `name` text(24), `points` 8–60, `range` (`day`, `week`, `month`, `year`, `all`). The current price
   and change are the last point and its difference from the first.
 - Parts → actions: `range select`. · States: filled, loading.
-- Real path: prices from a market data service. · Aliases: pricechart, stockchart, ticker, holding.
+- Real path: prices from a market data service.
 
 ## Archetypes (5)
 
@@ -110,11 +106,6 @@ titles ("Needs", "Wants"), because two of one id may not touch.
 A flat's shared expenses. Four flatmates log groceries and bills (`entry`), `Split` shows who owes whom with
 two settle-ups, `Bills` holds rent, power and internet with the month's total, and `budget` shows groceries
 at 80% of the month's limit. Signature: `count_up` on the balance.
-
-## Aliases that shadow the core
-
-With `money`: `transactions` → `Transactions` (otherwise `List`); `keypad` → `AmountPad` (otherwise
-`Field`); `bills` → `Bills` (otherwise `Checklist`). No other alias here matches a core alias.
 
 ## Tiers
 

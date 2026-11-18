@@ -115,11 +115,19 @@ export const probes = [
 
 export function Timer({ style, label, seconds, ...rest }: Props<typeof props, typeof meta>) {
   const controls = style !== "until";
+  const [amount, ...words] = controls ? [] : leftLine(untilMs(rest)).split(" ");
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
         <KitText role="number" align="center" tabular part="time">
-          {controls ? clockLine(seconds ?? 0) : leftLine(untilMs(rest))}
+          {controls ? (
+            clockLine(seconds ?? 0)
+          ) : (
+            <>
+              {amount}
+              <KitText role="caption" tone="muted" part={null}>{` ${words.join(" ")}`}</KitText>
+            </>
+          )}
         </KitText>
         <KitText role="body" tone="muted" align="center" part="label">
           {label}

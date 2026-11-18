@@ -35,6 +35,7 @@ export function composePrompt(
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
     `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
+    ...(meta.layouts[layout]!.writeHints ?? []).map((hint) => `Layout rule: ${hint}`),
     `Real app content: ${JSON.stringify(cast)}`,
     ...names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`),
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
@@ -99,16 +100,18 @@ export function compositionRubricPrompt(screen: ScreenLike, defs: Record<string,
 export async function runComposeProbes(options: {
   archetypes: readonly ArchetypeMeta[];
   defs: Record<string, Definition>;
-  cast: CastLike | ((archetype: string) => CastLike);
+  cast: CastLike | ((archetype: string, layout: string) => CastLike);
   callModel: CallModel;
   samples?: number;
   rubric?: boolean;
+  only?: readonly string[];
 }): Promise<ComposeResult[]> {
   const results: ComposeResult[] = [],
     samples = options.samples ?? 3;
   for (const meta of options.archetypes)
     for (const layout of Object.keys(meta.layouts)) {
-      const cast = typeof options.cast === "function" ? options.cast(meta.id) : options.cast;
+      if (options.only?.length && !options.only.includes(`${meta.id}/${layout}`)) continue;
+      const cast = typeof options.cast === "function" ? options.cast(meta.id, layout) : options.cast;
       const prompt = composePrompt(meta, layout, cast, options.defs),
         replies: string[] = [];
       const scored: ReturnType<typeof scoreComposition>[] = [];
