@@ -14,7 +14,7 @@ export async function runPackProbes(options: {
   const results: ProbeResult[] = [];
   for (const pack of Object.values(packs).filter((pack) => !only?.length || only.includes(pack.id))) {
     for (const probe of pack.probes) {
-      const prompt = `${buildPackIndex(packs)}\n\nIdea: ${probe.idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
+      const prompt = `${buildPackIndex(packs, { includeDrafts: true })}\n\nIdea: ${probe.idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
       const runs = [];
       for (let sample = 0; sample < samples; sample++) {
         const reply = await callModel(prompt, sample);

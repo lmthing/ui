@@ -10,17 +10,17 @@ const normal = (name: string) => name.replace(/[\s_-]/g, "").toLowerCase();
 
 /**
  * A registry over component definitions. The catalog entry wraps this as `createRegistry()`
- * over the generated `components` map. Drafts are left out unless asked for.
+ * over generated data. Packs load as a whole; core drafts are left out unless asked for.
  */
 export function registryOf<D extends Record<string, Definition>>(
   components: D,
   options: RegistryOptions = {},
   packOf: Partial<Record<keyof D & string, PackId>> = {},
+  isPackReady: (id: PackId) => boolean = () => false,
 ) {
-  const ids = (Object.keys(components) as (keyof D & string)[]).filter(
-    (id) =>
-      (!packOf[id] || options.packs?.includes(packOf[id]!)) &&
-      (options.includeDrafts || components[id]!.meta.status !== "draft"),
+  const selected = new Set(options.packs?.filter((pack) => options.includeDrafts || isPackReady(pack)));
+  const ids = (Object.keys(components) as (keyof D & string)[]).filter((id) =>
+    packOf[id] ? selected.has(packOf[id]!) : options.includeDrafts || components[id]!.meta.status !== "draft",
   );
   const scoped = Object.fromEntries(ids.map((id) => [id, components[id]!])) as Partial<D>;
   return {
