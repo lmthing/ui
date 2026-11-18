@@ -1,5 +1,17 @@
 import { expect, it } from "vitest";
-import { clockLine, leftLine, remainingLine, repeatLabels, repeatOptions, streakLine } from "./time";
+import {
+  clockLine,
+  durationLine,
+  leftLine,
+  remainingLine,
+  repeatLabels,
+  repeatOptions,
+  streakLine,
+} from "./time";
+
+it("formats stored durations at the booking bounds", () => {
+  expect([5, 30, 60, 600].map(durationLine)).toEqual(["5 min", "30 min", "60 min", "600 min"]);
+});
 
 it("keeps clock, countdown and streak text unchanged at boundaries", () => {
   expect([clockLine(-1), clockLine(59.9), clockLine(60), clockLine(3723)]).toEqual([
