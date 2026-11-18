@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { archetypes, components, runComposeProbes } from "@lmthing/ui/catalog";
-import { probeModels } from "../scripts/llm.config";
-import { replayCall } from "../scripts/recordings";
-import { compositionHistoryCast } from "../scripts/compose-history-cast";
+import { probeModels } from "../scripts/llm";
+import { replayCall } from "../scripts/llm";
+import { compositionHistoryCast } from "../scripts/llm";
 describe.each(probeModels.filter((model) => model.required))("archetype composition on $id", (model) => {
   it("passes every current layout and the text-first rubric from real recorded replies", async () => {
     const results = await runComposeProbes({

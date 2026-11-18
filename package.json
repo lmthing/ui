@@ -15,7 +15,8 @@
     "llm:check": "pnpm --filter @lmthing/ui llm:check",
     "check": "pnpm format:check && pnpm typecheck && pnpm test && pnpm build:catalog",
     "shoot": "pnpm --filter @lmthing/ui shoot",
-    "look": "pnpm --filter @lmthing/ui look"
+    "look": "pnpm --filter @lmthing/ui look",
+    "rules": "pnpm --filter @lmthing/ui rules"
   },
   "devDependencies": {
     "@types/node": "26.6.6",
