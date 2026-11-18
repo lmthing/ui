@@ -29,6 +29,7 @@ export { KitSlider } from "./input";
 export { KitInput } from "./input";
 export { KitStrip } from "./surface";
 export { KitScroll } from "./surface";
+export { KitTable, KitWeekMatrix, KitColumns } from "./matrix";
 export { KitStepsTrack } from "./data";
 export { KitChip, KitTrack } from "./input";
 export { KitTile } from "./surface";
