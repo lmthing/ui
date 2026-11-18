@@ -2,7 +2,7 @@
 
 Pack `hiring`: Finding people or work: job posts, applicants, interviews, offers and your own applications.
 
-Built in step U5 (drafts in U3), wave to be decided of the catalog plan. Read `docs/catalog/packs/hiring.md` (every component, archetype and the worked example) and plan 4.4 first.
+Built in step U7 (drafts in U3), wave to be decided of the catalog plan. Read `docs/catalog/packs/hiring.md` (every component, archetype and the worked example) and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
