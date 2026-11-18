@@ -2,6 +2,9 @@ import { z } from "zod";
 import {
   clip,
   clockLine,
+  clock,
+  isoDate,
+  leftLine,
   placeholderTitle,
   text,
   thingOf,
@@ -24,19 +27,47 @@ export const meta = {
   realPath: "A countdown or stopwatch based on timestamps stored on the phone.",
   parts: ["root", "time", "label", "start", "stop"],
   states: ["filled"],
-  actions: { parts: { start: ["start"], stop: ["stop"] } },
+  // A countdown to a date has nothing to start or stop.
+  actions: {
+    parts: { start: ["start"], stop: ["stop"] },
+    when: { start: { controls: true }, stop: { controls: true } },
+  },
   aliases: ["countdown", "stopwatch", "duration"],
   read: (input, state) => {
-    const { seconds, style } = props.parse(input);
-    return state === "filled" ? [`${clockLine(seconds)} ${style}`, timerLabels.start, timerLabels.stop] : [];
+    // Already parsed by the validator: it carries the derived `controls`, which a strict parse would refuse.
+    const value = input as z.output<typeof props>;
+    if (state !== "filled") return [];
+    if (value.style === "until") return [leftLine(untilMs(value))];
+    return [`${clockLine(value.seconds ?? 0)} ${value.style}`, timerLabels.start, timerLabels.stop];
   },
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  style: z.enum(["down", "up"]).default("down"),
-  label: text(24),
-  seconds: z.number().int().min(0).max(86400),
-});
+export const props = z
+  .strictObject({
+    style: z.enum(["down", "up", "until"]).default("down"),
+    label: text(24),
+    seconds: z.number().int().min(0).max(86400).optional(),
+    until: isoDate.optional(),
+    at: clock.optional(),
+  })
+  .refine(({ style, seconds }) => (style === "until") === (seconds === undefined), {
+    path: ["seconds"],
+    message: "Seconds for down and up, not for until",
+  })
+  .refine(({ style, until }) => (style === "until") === (until !== undefined), {
+    path: ["until"],
+    message: "A date for until only",
+  })
+  .refine(({ style, at }) => style === "until" || at === undefined, {
+    path: ["at"],
+    message: "Time is for until",
+  })
+  // Derived, never written: start and stop exist only for down and up.
+  .overwrite((value) => ({ ...value, controls: value.style !== "until" }));
+
+function untilMs({ until, at }: { until?: string | undefined; at?: string | undefined }): number {
+  return new Date(`${until}T${at ?? "00:00"}`).getTime() - Date.now();
+}
 
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return {
@@ -49,6 +80,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   { style: "down", label: "Soak the orchid", seconds: 600 },
   { style: "up", label: "Walk timer", seconds: 1260 },
+  { style: "until", label: "Our wedding day", until: "2030-06-14", at: "14:00" },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
@@ -69,6 +101,11 @@ export const probes = [
     expect: "Timer",
   },
   {
+    kind: "write",
+    brief: "Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day",
+    expect: "Timer",
+  },
+  {
     kind: "read",
     screen: 0,
     task: "Start the timer",
@@ -76,19 +113,20 @@ export const probes = [
   },
 ] satisfies Probe[];
 
-export function Timer({ label, seconds }: Props<typeof props, typeof meta>) {
+export function Timer({ style, label, seconds, ...rest }: Props<typeof props, typeof meta>) {
+  const controls = style !== "until";
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
         <KitText role="number" align="center" tabular part="time">
-          {clockLine(seconds)}
+          {controls ? clockLine(seconds ?? 0) : leftLine(untilMs(rest))}
         </KitText>
         <KitText role="body" tone="muted" align="center" part="label">
           {label}
         </KitText>
       </KitContent>
-      <KitAction label={timerLabels.start} kind="primary" part="start" full />
-      <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />
+      {controls && <KitAction label={timerLabels.start} kind="primary" part="start" full />}
+      {controls && <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />}
     </KitCard>
   );
 }

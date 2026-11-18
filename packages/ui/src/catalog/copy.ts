@@ -66,3 +66,13 @@ export function streakLine(count: number, days: readonly boolean[]): string[] {
 
 /** Photo actions: add one to a field, take one, scan a code. */
 export const photoLabels = { add: "Add photo", take: "Take photo", scan: "Scan" } as const;
+
+/** Time left until a moment, from milliseconds: "23 days left", "5 h left", "12 min left" or "Passed". */
+export function leftLine(ms: number): string {
+  if (ms <= 0) return "Passed";
+  const minutes = Math.floor(ms / 60000);
+  const days = Math.floor(minutes / 1440);
+  if (days >= 1) return `${days} ${days === 1 ? "day" : "days"} left`;
+  if (minutes >= 60) return `${Math.floor(minutes / 60)} h left`;
+  return `${Math.max(1, minutes)} min left`;
+}

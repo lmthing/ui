@@ -5,10 +5,12 @@ Everything that can be known without drawing: types, tokens, themes, rules, read
 Built in step U1. Read plan 4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
+
 - `meta/` `props/` `types/` `tokens/` `themes/` `archetypes/` `rules/` `address/` `lookup/` `lines/` `prompt/` `agent/` `probes/` `registry/` `migrations/`
 - `icons.ts` curated icon names, `photos.ts` photo tags, `signatures.ts` signature ids and their component, `version.ts`, `index.ts`
 
 Rules:
+
 - Pure and synchronous. No React, no Tamagui, no `node:*` (that is for `scripts/` only), no I/O.
 - Nothing runs at import time. All checks live in `scripts/check.ts`.
 - Importing the built catalog stays under 50 ms in Node.
