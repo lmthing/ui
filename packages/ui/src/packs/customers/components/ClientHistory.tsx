@@ -29,7 +29,7 @@ import {
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
   id: "ClientHistory",
-  status: "ready",
+  status: "draft",
   group: "data",
   purpose: "Recall one client's visits, orders, payments, notes and messages together.",
   pick: "One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).",
@@ -97,7 +97,7 @@ export const examples = [
   {
     entries: [
       { date: "2026-11-18", kind: "payment", title: "October walks paid", amount: 120, goto: "payment" },
-      { date: "2026-11-17", kind: "message", title: "Clover's pickup confirmed", goto: "messages" },
+      { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
 ] satisfies z.input<typeof props>[];
