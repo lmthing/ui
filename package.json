@@ -16,6 +16,7 @@
     "check": "pnpm format:check && pnpm typecheck && pnpm rules && pnpm test && pnpm build:catalog",
     "shoot": "pnpm --filter @lmthing/ui shoot",
     "look": "pnpm --filter @lmthing/ui look",
+    "gallery:static": "pnpm --filter @lmthing/ui gallery:static",
     "rules": "pnpm --filter @lmthing/ui rules"
   },
   "devDependencies": {

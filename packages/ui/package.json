@@ -26,6 +26,7 @@
     "llm:check": "pnpm build:catalog && tsx scripts/llm/cli/index.ts",
     "shoot": "tsx scripts/build/build-entries.ts && tsx scripts/look/shoot.ts",
     "look": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/look/look.ts",
+    "gallery:static": "pnpm build:catalog && tsx scripts/build/build-themes.ts && tsx scripts/look/static-gallery/run.ts",
     "rules": "tsx scripts/rules/run.ts"
   },
   "dependencies": {
