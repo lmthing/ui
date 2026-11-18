@@ -1,7 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
-  anyoneLabel,
   components,
   createRegistry,
   readComponent,
@@ -10,6 +9,7 @@ import {
   type Props,
   type ScreenLike,
 } from "@lmthing/ui/catalog";
+import { anyoneLabel } from "../copy";
 import { createInteractionStore, createScreenController, projectScreen } from "@lmthing/ui/kit";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { queueAhead, queueLabels, queueCount, queueExact } from "./queue";
+import { queueAhead, queueLabels, queueCount, queueExact } from "../../copy";
 
 it("labels empty, singular and plural queues without implying membership", () => {
   expect(queueAhead(0)).toBe("0 people ahead");
@@ -15,4 +15,13 @@ it("labels empty, singular and plural queues without implying membership", () =>
   );
   expect(queueLabels.join).toBe("Join waitlist");
   expect(queueLabels.leave).toBe("Leave waitlist");
+});
+
+it("shares exact singular/plural copy at compact boundaries and with optional positions", () => {
+  for (const ahead of [0, 1, 2, 999, 1000, Number.MAX_SAFE_INTEGER]) {
+    const exact = `${ahead} ${ahead === 1 ? "person" : "people"} ahead`;
+    expect(queueExact(ahead)).toBe(exact);
+    expect(queueExact(ahead, 1)).toBe(`Your place in line: 1; ${exact}`);
+    if (ahead <= 999) expect(queueAhead(ahead)).toBe(exact);
+  }
 });

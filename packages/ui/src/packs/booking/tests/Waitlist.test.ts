@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { affordancesOf, components, readComponent, queueLabels } from "@lmthing/ui/catalog";
+import { affordancesOf, components, readComponent } from "@lmthing/ui/catalog";
+import { queueLabels } from "../copy";
 import { renderInstance } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Waitlist;
