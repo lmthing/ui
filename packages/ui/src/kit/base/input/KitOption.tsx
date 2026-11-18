@@ -2,7 +2,7 @@ import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon, KitText, shifted } from "../text";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 
 type OptionProps = {
   title: string;
@@ -38,16 +38,16 @@ function OptionHeader({ title, icon, value, on, multi, look, reserveIcon }: Opti
   return (
     <XStack gap={space.md} alignItems="flex-start">
       {(reserveIcon || icon) && (
-        <YStack width={size.icon.lg} height={typography.heading.lineHeight} justifyContent="center">
+        <YStack width={size.icon.lg} height={typography.body.lineHeight} justifyContent="center">
           {icon && <KitIcon name={icon} tone={on ? "accent" : "muted"} scale="lg" part="icon" />}
         </YStack>
       )}
       <YStack flex={1}>
-        <KitText role="heading" part="title">
+        <KitText role="body" part="title">
           {title}
         </KitText>
       </YStack>
-      <XStack gap={space.sm} height={typography.heading.lineHeight} alignItems="center">
+      <XStack gap={space.sm} height={typography.body.lineHeight} alignItems="center">
         {value && (
           <KitText role="number" numberScale="compact" tabular part="value" lines={1}>
             {value}
@@ -62,6 +62,23 @@ function OptionHeader({ title, icon, value, on, multi, look, reserveIcon }: Opti
     </XStack>
   );
 }
+function OptionOutline() {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      position="absolute"
+      top={component.base.none}
+      bottom={component.base.none}
+      left={component.base.none}
+      right={component.base.none}
+      borderRadius={shifted("md", ks.radiusShift)}
+      borderWidth={component.base.strongBorder}
+      borderColor="$accent"
+      pointerEvents="none"
+      aria-hidden
+    />
+  );
+}
 function Option(props: OptionProps) {
   const { title, icon, badge, sub, on, multi, look, reserveIcon } = props;
   const ks = useKitStyle();
@@ -71,18 +88,13 @@ function Option(props: OptionProps) {
   return (
     <YStack
       {...address}
-      gap={space.xs}
-      minHeight={size.control.lg}
-      paddingVertical={space.md}
+      gap={component.base.none}
+      minHeight={size.control.md}
+      paddingVertical={space[ks.density.rowPad]}
       paddingHorizontal={space.md}
       borderRadius={shifted("md", ks.radiusShift)}
-      {...(card
-        ? {
-            borderWidth: component.base.strongBorder,
-            borderColor: on ? "$accent" : "$line",
-            backgroundColor: on ? "$accentSoft" : "$surface",
-          }
-        : {})}
+      {...(card ? surfaceOf(ks.surface) : {})}
+      {...(card && on ? { backgroundColor: "$accentSoft" } : {})}
       accessibilityRole={multi ? "checkbox" : "radio"}
       {...(kit.interactive && kit.controller ? { onPress: () => kit.controller!.press(address.testID) } : {})}
       aria-checked={on}
@@ -100,12 +112,13 @@ function Option(props: OptionProps) {
             </KitText>
           )}
           {sub && (
-            <KitText role="body" tone="muted" part="sub">
+            <KitText role="caption" tone="muted" part="sub">
               {sub}
             </KitText>
           )}
         </YStack>
       )}
+      {card && on && <OptionOutline />}
     </YStack>
   );
 }

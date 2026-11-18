@@ -138,7 +138,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
     );
   }
   return (
-    <KitCard style="plain" part="root" padded>
+    <KitCard style="plain" part="root" padded inset="none">
       {question && (
         <KitText role="heading" part="question">
           {question}
