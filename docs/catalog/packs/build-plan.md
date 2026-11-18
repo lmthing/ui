@@ -17,7 +17,7 @@ same read/act runtime, the same probe gate and the same Writer format.
 
 | # | Work | Why |
 | --- | --- | --- |
-| P1 | **Kit base survey.** Read every pack file, list each component's drawing needs, map them to existing bases, and write the backlog of new bases (for example a dice face, a wheel, a sign pad, a dense score grid, a Gantt bar row, a seating plan) with exact APIs and the waves that need them | Component tasks stop when a base is missing (the core build showed this); bases are built ahead, to the visual rubric |
+| P1 | **Kit base survey.** Read every pack file, list each component's drawing needs, map them to existing bases, and write the backlog of new bases (for example a dice face, a wheel, a sign pad, a dense score grid, a Gantt bar row, a seating plan) with exact APIs and the waves that need them. The [base survey](bases.md) maps every pack component and lists the APIs and build order. | Component tasks stop when a base is missing (the core build showed this); bases are built ahead, to the visual rubric |
 | P2 | **Pack readiness gate.** A pack enters a registry, the pack index and `writerFormat` only when every component and archetype in it is ready; drafts still load with `includeDrafts` | `README` rule; today drafts are filtered one by one |
 | P3 | **Archetype checks.** Archetype and layout ids unique across core and packs; every layout exists; `defaultLayout` names one; every recipe id exists in core or the same pack | `README` rule, pending in `checkPacks` |
 | P4 | **`confirmParts` dispatch.** The runtime shows the standard confirm sheet for any part in `meta.confirmParts`, not only `Button.confirm` | Destructive pack parts (cancel, remove, decline) depend on it |
