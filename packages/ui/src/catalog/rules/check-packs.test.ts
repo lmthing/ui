@@ -38,6 +38,14 @@ it("checks today's empty pack catalog and a complete fixture", () => {
   expect(checkPacks(catalog)).toEqual([]);
   expect(checkPacks(fixture())).toEqual([]);
 });
+it("accepts optional known additions without requiring every allowed pack", () => {
+  const input = fixture();
+  input.packs.booking = {
+    ...pack,
+    probes: pack.probes.map((probe) => ({ ...probe, allow: ["customers", "commerce", "team", "books"] })),
+  };
+  expect(checkPacks(input)).toEqual([]);
+});
 const changePack = (patch: Partial<PackMeta>) => (f: Fixture) => (f.packs.booking = { ...pack, ...patch });
 const changeMeta = (patch: Partial<Definition["meta"]>) => (f: Fixture) =>
   (f.components.Slots = { ...component, meta: { ...component.meta, ...patch } });
@@ -67,6 +75,21 @@ it.each<[string, (f: Fixture) => unknown]>([
   ["probes", changePack({ probes: [yes!, no!] })],
   ["probes", changePack({ probes: [yes!, no!, no!] })],
   ["probes", changePack({ probes: [yes!, yes!, { kind: "pack", idea: "Track plants", expect: [] }] })],
+  [
+    "probes",
+    changePack({
+      probes: [yes!, yes!, { kind: "pack", idea: "Track plants", expect: [], allow: ["commerce"] }],
+    }),
+  ],
+  [
+    "allow",
+    changePack({
+      probes: [
+        ...pack.probes,
+        { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["bakery" as PackId] },
+      ],
+    }),
+  ],
   [
     "expect",
     changePack({ probes: [...pack.probes, { kind: "pack", idea: "Buy", expect: ["bakery" as PackId] }] }),

@@ -26,6 +26,8 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
   if (probes.length < 3 || positive.length < 2 || !miss) issues.push(`${pack.id}: probes`);
   if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !packIds.includes(id))))
     issues.push(`${pack.id}: expect`);
+  if (probes.some((probe) => probe.allow?.some((id) => !packIds.includes(id))))
+    issues.push(`${pack.id}: allow`);
   return issues;
 }
 

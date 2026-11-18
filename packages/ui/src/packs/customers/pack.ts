@@ -8,6 +8,7 @@ export const pack = {
       kind: "pack",
       idea: "A dog walker's client book with owners, their history, invoices and key-holding consent",
       expect: ["customers"],
+      allow: ["booking"],
     },
     {
       kind: "pack",

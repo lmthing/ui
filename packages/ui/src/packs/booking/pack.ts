@@ -4,7 +4,12 @@ export const pack = {
   id: "booking",
   example: "Trot offers walks, sets working hours and lets clients book a service and time.",
   probes: [
-    { kind: "pack", idea: "A dog walker offering appointments that clients book", expect: ["booking"] },
+    {
+      kind: "pack",
+      idea: "A dog walker offering appointments that clients book",
+      expect: ["booking"],
+      allow: ["customers"],
+    },
     {
       kind: "pack",
       idea: "A studio where people book a class and wait for a full session",
