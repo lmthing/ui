@@ -16,8 +16,7 @@ physiotherapist or massage, cleaner, car wash, photographer, meeting-room bookin
 
 ## What the core already covers
 
-- The day's bookings in order: `Timeline` (`day`, or `hours` to show gaps; `DayTimeline` if the core merge
-  does not happen).
+- The day's bookings in order: `Timeline` (`day`, or the built `hours` style to show durations and gaps).
 - Which days have bookings, and choosing a day: `Calendar` with marked days.
 - How full a class is: `Progress` style `compact` ("8 of 12 places", `over: bad`) with `People` style
   `stack` for who is coming. The first plan's `Capacity` is dropped as a near miss with `Progress`.
@@ -38,7 +37,7 @@ headings, each with a book action.
   `group` text(20) optional, `photo` optional, `goto`, 1–12; `style`.
 - Styles: `rows` (default), `cards` (with a photo per service).
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: services stored on the device by the provider. · Aliases: services, pricelist, treatments.
+- Real path: services stored on the device by the provider.
 
 ### `Slots` · planned · input · phone
 The free start times of the day chosen in the `Calendar` above it, as a grid of chips (09:00, 09:30…),
@@ -51,7 +50,7 @@ taken ones dimmed and disabled. Picking one highlights it.
 - Parts → actions: items `root select` (free times only). · States: filled, empty ("No free times" from
   copy), loading.
 - Real path: free times computed on the device from working hours minus bookings.
-- Aliases: slots, timeslots, freetimes. · Kit: `KitSlotGrid`.
+- Kit: `KitSlotGrid`.
 
 ### `Availability` · planned · input · phone
 The provider's working week: each weekday as a row with a switch and its hours (09:00–17:00), with an
@@ -61,7 +60,7 @@ optional break.
 - Writes: `days` of `day` (mon…sun), `on` boolean, `from` HH:MM, `to` HH:MM, `breakFrom` and `breakTo`
   HH:MM optional, exactly 7.
 - Parts → actions: items `toggle toggle`, items `from type`, items `to type`. · States: filled.
-- Real path: working hours stored on the device. · Aliases: availability, workinghours, workweek.
+- Real path: working hours stored on the device.
 
 ### `StaffPicker` · planned · input · people
 Who the booking is with: avatars in a row with names, "Anyone" first, the chosen one ringed.
@@ -70,7 +69,6 @@ Who the booking is with: avatars in a row with names, "Anyone" first, the chosen
   true); `at` optional.
 - Parts → actions: items `root select`. · States: filled, loading.
 - Real path: each staff member has their own working hours and bookings in a shared app.
-- Aliases: staff, stylist, staffpicker, practitioner.
 
 ### `Appointment` · planned · content · phone
 One booking: day and time large, service and person, place, status badge (confirmed, pending, cancelled,
@@ -86,7 +84,6 @@ cancellation policy.
   `edit press` (`summary`; goes to `goto`). · States: filled, loading, success (booked).
 - Real path: a booking record on the device; a customer booking through the provider's app needs a shared
   app (`partTiers`: none on the provider's side).
-- Aliases: appointment, booking, upcoming, bookingsummary.
 
 ### `Waitlist` · planned · action · people
 A full session's join-the-waitlist panel: the place in line, how many are ahead, and join or leave.
@@ -94,7 +91,6 @@ A full session's join-the-waitlist panel: the place in line, how many are ahead,
 - Writes: `position` number optional, `ahead` number, `joined` boolean.
 - Parts → actions: `join press`, `leave press` (in `confirmParts`). · States: filled, success.
 - Real path: a queue in a shared app; the next person is told when a place opens (notifications, `ok`).
-- Aliases: waitlist, waitinglist, queue, notifyme.
 
 ## Archetypes (4)
 
@@ -111,11 +107,6 @@ A dog walker's app. The walker sets their week (`hours`), lists 30- and 60-minut
 (`ServiceMenu`), and sees today's walks on an hour rail (`schedule`). A client books a walk (`book`), the
 next one shows as an `Appointment` card under `appointments`, and the `customers` pack shows the client and
 their dogs. Signature: `day_unfold` on the schedule.
-
-## Aliases that shadow the core
-
-With `booking`: `slots` → `Slots` (otherwise `Chips`); `booking`, `appointment` → `Appointment` (otherwise
-`Card`); `workinghours` → `Availability` (otherwise `KeyValue`). No other alias here matches a core alias.
 
 ## Tiers
 

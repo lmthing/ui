@@ -35,7 +35,6 @@ travel legs between them (a train icon and "2 h 10"), the current day open and t
   `kind` (`stop`, `travel`, `stay`, `meal`), `minutes` number optional (travel), `goto`, 1–6, 1–14.
 - Parts → actions: days `root toggle` (fold), stops `root press`. · States: filled, empty. · Dense.
 - Real path: the plan stored on the device; a shared plan needs a shared app.
-- Aliases: itinerary, tripplan, dayplans. (Shadows core `Route`'s alias `itinerary` while `trips` is loaded.)
 
 ### `Reservation` · planned · content · phone
 A booking confirmation drawn as a ticket: what it is (flight, train, bus, stay, car, ticket), from and to
@@ -50,7 +49,7 @@ with times, the reference code large, seat or room, and for passes a scannable c
 - Styles: `card` (default), `pass` (full-width pass with the code, for the gate or the door).
 - Parts → actions: `ref press` (copies), `root press`. · States: filled, loading.
 - Real path: details typed in or pasted from a confirmation email on the device; live flight status would be
-  a `service`. · Kit: `KitTicket`. · Aliases: reservation, boardingpass, bookingref, ticketpass.
+  a `service`. · Kit: `KitTicket`.
 
 ### `PackingList` · planned · input · phone
 What to pack, grouped by category (clothes, toiletries, documents, tech) or by person, with a count per
@@ -60,16 +59,15 @@ item, ticked items greyed, and the share packed at the top.
   boolean, 1–10, 1–6. The share packed is computed.
 - Parts → actions: items `packed check`, `add type`. · States: filled, empty, success (all packed). · Dense.
 - Real path: the list on the device; a shared family list needs a shared app.
-- Aliases: packinglist, packing, whattopack.
 
 ### `Weather` · planned · data · service
 The forecast for the trip's place: today large with an icon and the high and low, then a strip of the next
 days, with rain chance in `warn` when high.
 - Pick: the weather where the person is going or is. Not numbers of their own (`Stats`), not a trend
-  (`Stats` style `trend`).
+  (`Sparkline`).
 - Writes: `place` text(24), `from` and `to` dates optional (the trip's days; beyond the forecast range it
   shows typical weather for the month). The forecast comes from a weather service.
-- States: filled, loading, error and offline (drawn like core `Empty` kinds). · Real path: a weather service. · Aliases: weather, forecast.
+- States: filled, loading, error and offline (drawn like core `Empty` kinds). · Real path: a weather service.
 
 ### `TravelDocs` · planned · data · phone
 The documents for the trip: passport, visa, insurance, licence, vaccination; each with whose it is, its
@@ -80,7 +78,6 @@ number masked, its expiry, and a warning in `warn` or `bad` when it ends before 
   text(16), `number` secret(16), `expires` date, 1–6; `tripEnds` date optional. Warnings are computed.
 - Parts → actions: docs `root press`. · States: filled, empty.
 - Real path: details stored on the device; numbers always read as `(secret)`.
-- Aliases: traveldocs, documents, passport, visa.
 
 ### `Converter` · planned · input · service
 Two amounts in two currencies, one above the other; typing in either updates the other, with a swap
@@ -91,7 +88,6 @@ button and the rate's date.
   currency; the rate comes from a rates service.
 - Parts → actions: `from type`, `to type`, `swap press`. · States: filled, loading.
 - Real path: exchange rates from a rates service, cached on the device for offline use.
-- Aliases: converter, exchange, currencyconverter.
 
 ### `Clocks` · planned · data · phone
 The time in two to four places side by side, with the difference from home ("+9 h") and whether it is day or
@@ -99,7 +95,7 @@ night there.
 - Pick: what time it is in other places. Not timing something (`Timer`), not a day's plan (`Timeline`).
 - Writes: `places` of `label` text(16), `zone` (an IANA time zone id from the catalog's zone list), 2–4.
   Times and differences are computed.
-- States: filled. · Real path: the device's clock and time zone data. · Aliases: clocks, timezones, worldclock.
+- States: filled. · Real path: the device's clock and time zone data.
 
 ## Archetypes (5)
 
@@ -117,10 +113,6 @@ A ten-day Japan trip for two. `trip` counts down 23 days with Tokyo's forecast a
 to Kyoto to Osaka; `day` shows the Kyoto day with temples on a map and the hotel's `Reservation`;
 `bookings/pass` shows the Shinkansen pass at the gate; `prep/packing` is 70% packed; `prep/tools` converts
 yen and shows home time. Signature: `route_draw` on a day's path.
-
-## Aliases that shadow the core
-
-With `trips`: `itinerary` → `Itinerary` (otherwise `Route`). No other alias here matches a core alias.
 
 ## Tiers
 
