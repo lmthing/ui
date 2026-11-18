@@ -1,6 +1,60 @@
 import { describe, expect, it } from "vitest";
 import { components, presets, size } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { KitPhoto, KitProvider, PartScope } from "@lmthing/ui/kit";
+import { config } from "../../../../test/render";
+
+function renderPhoto(props: Parameters<typeof KitPhoto>[0]) {
+  return renderToStaticMarkup(
+    createElement(
+      TamaguiProvider,
+      { config },
+      createElement(
+        KitProvider,
+        {
+          theme: { preset: "calm", mode: "light", accent: "moss" },
+          children: null,
+          resolvePhoto: () => "data:image/svg+xml,test",
+        },
+        createElement(
+          PartScope,
+          { screen: "home", component: "c1", rev: 1, state: "filled", children: null },
+          createElement(KitPhoto, props),
+        ),
+      ),
+    ),
+  );
+}
+
+describe("KitPhoto options", () => {
+  it.each(["none", "accent", "muted"] as const)("draws initials and the %s ring without a photo", (ring) => {
+    for (const shape of ["thumb", "round", "wide", "square", "tall", "avatar"] as const) {
+      const html = renderPhoto({ initials: "AB", ring, shape, label: "Caller name", part: "photo" });
+      const node = elementAt(html, "home/c1/photo");
+      expect(node.attributes).toContain('role="img"');
+      expect(node.attributes).toContain('aria-label="Caller name"');
+      expect(html).toContain("AB");
+      expect(html).not.toContain("<img");
+      expect(styleAt(html, node)).toContain(
+        `width:${shape === "avatar" ? size.avatar.lg : size.avatar.md}px`,
+      );
+      expect(styleAt(html, node)).toContain("border-top-left-radius:999px");
+      if (ring !== "none") expect(styleAt(html, node)).toContain(`var(--${ring})`);
+      expect(html.match(/data-testid=/g)).toHaveLength(1);
+    }
+  });
+  it("retains resolved photos, default labels and empty initials", () => {
+    const html = renderPhoto({ photo: "lib:caller_name", initials: "AB" });
+    expect(html).toContain("<img");
+    expect(html).toContain('aria-label="caller name"');
+    expect(html).not.toContain(">AB<");
+    expect(renderPhoto({ initials: "AB" })).toContain('aria-label="AB"');
+    expect(renderPhoto({})).not.toContain("<img");
+  });
+});
 
 describe("KitViewfinder marks", () => {
   it.each(presets)("uses a light foreground on the dark frame in $id", ({ id: preset }) => {
