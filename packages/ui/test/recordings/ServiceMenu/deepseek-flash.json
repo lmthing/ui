@@ -129,11 +129,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"Park walk\",\"minutes\":30,\"price\":15,\"sub\":\"30 minute guided stroll\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"park_walk_30\"},{\"name\":\"Extended park walk\",\"minutes\":60,\"price\":25,\"sub\":\"60 minute guided stroll\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"park_walk_60\"}] ,\"style\":\"rows\"}",
+    "reply": "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"Park walk\",\"minutes\":30,\"price\":15,\"sub\":\"30 min walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"},{\"name\":\"Park walk long\",\"minutes\":60,\"price\":25,\"sub\":\"60 min walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"}] ,\"style\":\"rows\"}",
     "replies": [
-      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"Park walk\",\"minutes\":30,\"price\":15,\"sub\":\"30 minute guided stroll\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"park_walk_30\"},{\"name\":\"Extended park walk\",\"minutes\":60,\"price\":25,\"sub\":\"60 minute guided stroll\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"park_walk_60\"}] ,\"style\":\"rows\"}",
-      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"30 min park walk\",\"minutes\":30,\"price\":15,\"sub\":\"Quick stroll through the park\",\"group\":\"Walk\",\"photo\":null,\"goto\":\"book_time_30\"},{\"name\":\"60 min park walk\",\"minutes\":60,\"price\":25,\"sub\":\"Extended walk with scenic route\",\"group\":\"Walk\",\"photo\":null,\"goto\":\"book_time_60\"}] ,\"style\":\"rows\"}",
-      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"30 min park walk\",\"minutes\":30,\"price\":15,\"sub\":\"Quick park stroll\",\"group\":\"Walk\",\"photo\":null,\"goto\":\"walk_30\"},{\"name\":\"60 min park walk\",\"minutes\":60,\"price\":25,\"sub\":\"Extended park walk\",\"group\":\"Walk\",\"photo\":null,\"goto\":\"walk_60\"}],\"style\":\"rows\"}"
+      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"Park walk\",\"minutes\":30,\"price\":15,\"sub\":\"30 min walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"},{\"name\":\"Park walk long\",\"minutes\":60,\"price\":25,\"sub\":\"60 min walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"}] ,\"style\":\"rows\"}",
+      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"30 min park walk\",\"minutes\":30,\"price\":15,\"sub\":\"A brisk walk through the park\",\"group\":\"Park Walk\",\"photo\":null,\"goto\":\"time\"},{\"name\":\"60 min park walk\",\"minutes\":60,\"price\":25,\"sub\":\"Extended walk with more sights\",\"group\":\"Park Walk\",\"photo\":null,\"goto\":\"time\"}] ,\"style\":\"rows\"}",
+      "{\"c\":\"ServiceMenu\",\"services\":[{\"name\":\"Park walk\",\"minutes\":30,\"price\":15,\"sub\":\"30-minute guided walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"},{\"name\":\"Extended park walk\",\"minutes\":60,\"price\":25,\"sub\":\"60-minute guided walk\",\"group\":\"Walks\",\"photo\":null,\"goto\":\"time\"}],\"style\":\"rows\"}"
     ]
   },
   "e7a68aab91169695": {

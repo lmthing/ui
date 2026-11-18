@@ -35,7 +35,7 @@ import {
 // Core first: List/inset cannot group twelve services with numeric duration and price.
 export const meta = {
   id: "ServiceMenu",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Choose a bookable service by duration and price, grouped by offering.",
   pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid). Several ordinary things each with short details and their own link remain List.",
