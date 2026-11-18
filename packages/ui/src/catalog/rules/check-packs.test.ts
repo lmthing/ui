@@ -6,9 +6,6 @@ import { checkPacks } from "./index";
 
 const pack: PackMeta = {
   id: "booking",
-  name: "Booking",
-  purpose: "Book time",
-  pick: "Not commerce",
   example: "example.jsonl",
   probes: [
     { kind: "pack", idea: "Reserve a lesson", expect: ["booking"] },
@@ -61,8 +58,7 @@ it.each<[string, (f: Fixture) => unknown]>([
 });
 const [yes, , no] = pack.probes;
 it.each<[string, (f: Fixture) => unknown]>([
-  ["purpose/pick", changePack({ purpose: "" })],
-  ["purpose/pick", changePack({ pick: "Book time" })],
+  ["purpose/pick", changePack({ id: "unknown" as PackId })],
   ["archetypes", (f) => (f.packArchetypes.booking = [])],
   ["example", example("")],
   ["example line", example('{"c":"Slots","title":"Valid"}\n{"c":"Unknown"}')],

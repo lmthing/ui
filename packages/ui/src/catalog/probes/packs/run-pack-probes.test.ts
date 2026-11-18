@@ -16,9 +16,6 @@ it("skips an empty pack index without calling a model", async () => {
 it("explicitly includes draft packs in the full index and uses majority scoring", async () => {
   const booking: PackMeta = {
     id: "booking",
-    name: "Booking",
-    purpose: "Book time",
-    pick: "Not commerce",
     example: "example.jsonl",
     probes: [{ kind: "pack", idea: "I need a haircut", expect: ["booking"] }],
   };

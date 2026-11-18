@@ -31,7 +31,7 @@ async function fixture(status = "draft", example = '{"c":"Ready"}\n') {
   await put("packs/booking/components/Ready.tsx", component("Ready", "ready"));
   await put(
     "packs/booking/pack.ts",
-    `import type { PackMeta } from "../../catalog"; export const pack = { id: "booking", name: "Booking", purpose: "Time", pick: "Time", example: "./example.jsonl", probes: [] } satisfies PackMeta;`,
+    `import type { PackMeta } from "../../catalog"; export const pack = { id: "booking", example: "./example.jsonl", probes: [] } satisfies PackMeta;`,
   );
   await put(
     "packs/booking/archetypes/visit-detail.ts",
@@ -85,9 +85,10 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   ])
     expect(catalog.createRegistry(options).ids).toEqual(ids);
   expect(catalog.packs.booking.id).toBe("booking");
+  expect(Object.keys(catalog.packs.booking)).toEqual(["id", "example", "probes"]);
   expect(catalog.packReady("booking")).toBe(false);
   expect(catalog.buildPackIndex()).toBe("");
-  expect(catalog.buildPackIndex({ includeDrafts: true })).toBe("- booking: Time Pick: Time");
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
   expect(catalog.packExamples.booking).toBe('{"c":"Ready"}\n');
   const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");
@@ -104,12 +105,46 @@ it.each([
   expect(catalog.createRegistry({ packs: ["booking"] }).ids).toEqual(
     ready ? ["Core", "Draft", "Ready"] : ["Core"],
   );
-  expect(catalog.buildPackIndex()).toBe(ready ? "- booking: Time Pick: Time" : "");
+  expect(catalog.buildPackIndex()).toBe(
+    ready
+      ? "- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots. Not selling goods (commerce)."
+      : "",
+  );
   expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toEqual([
     "Core",
     "Draft",
     "Ready",
   ]);
-  expect(catalog.buildPackIndex({ includeDrafts: true })).toBe("- booking: Time Pick: Time");
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
   expect(catalog.packReady("commerce")).toBe(false);
+});
+
+it("regenerates a new scaffold without changing the draft index or Director prompt", async () => {
+  const root = await fixture();
+  const file = join(root, "src/packs/booking/pack.ts");
+  await writeFile(
+    file,
+    `export const pack = { id: "booking", example: "example.jsonl", probes: [{ kind: "pack", idea: "Book an appointment", expect: ["booking"] }] };`,
+  );
+  const before = await loadCatalog(root);
+  await mkdir(join(root, "src/packs/commerce"), { recursive: true });
+  await writeFile(
+    join(root, "src/packs/commerce/pack.ts"),
+    `export const pack = { id: "commerce", example: "example.jsonl", probes: [] };`,
+  );
+  const after = await loadCatalog(root);
+  expect(Object.keys(after.packs)).toEqual(["booking", "commerce"]);
+  expect(after.buildPackIndex({ includeDrafts: true })).toBe(before.buildPackIndex({ includeDrafts: true }));
+  const prompts: string[] = [];
+  for (const catalog of [before, after])
+    await catalog.runPackProbes({
+      packs: catalog.packs,
+      only: ["booking"],
+      callModel: async (prompt: string) => {
+        prompts.push(prompt);
+        return '["booking"]';
+      },
+    });
+  expect(prompts).toHaveLength(2);
+  expect(prompts[1]).toBe(prompts[0]);
 });
