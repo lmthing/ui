@@ -1,10 +1,13 @@
 import { z } from "zod";
 import {
+  agreementDateLine,
+  agreementLabels as copy,
   detailOf,
   isoDate,
   itemsOf,
   placeholderDetail,
   placeholderTitle,
+  placeholderValue,
   probesFor,
   text,
   thingOf,
@@ -12,12 +15,23 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitCheck,
+  KitContent,
+  KitInput,
+  KitRow,
+  KitScroll,
+  KitText,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: Checklist/default cannot capture one client's consent with terms, typed name and signed date.
 export const meta = {
   id: "Agreement",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Keep a client's acceptance of terms with their typed name and signing date.",
   pick: "A waiver, consent or terms signed once by a client. Not jobs to tick (Checklist) or a long read without consent (Article).",
@@ -31,6 +45,15 @@ export const meta = {
   actions: {
     parts: { agree: ["check"], name: ["type"] },
     when: { agree: { signed: false }, name: { signed: false } },
+  },
+  read: (input) => {
+    const value = input as z.infer<typeof props>;
+    return [
+      value.signed ? copy.accepted : copy.agree,
+      copy.name,
+      ...(value.signed && !value.name ? [placeholderValue] : []),
+      ...(value.date ? [agreementDateLine(value.date)] : []),
+    ];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
@@ -71,3 +94,49 @@ export const probes = [
   read("Accept these access terms", { address: "a1/agree", action: "check" }),
   read("Type the client's name", { address: "a1/name", action: "type" }),
 ] satisfies Probe[];
+
+export function Agreement({ title, terms, signed, name, date }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const accepted = signed || state === "success";
+  return (
+    <KitCard padded part="root">
+      <KitText role="heading" part="title">
+        {title}
+      </KitText>
+      <KitScroll part="terms" label={title}>
+        <KitText part={null}>{terms}</KitText>
+      </KitScroll>
+      <KitRow
+        inline
+        label={accepted ? copy.accepted : copy.agree}
+        trailing={
+          <KitCheck
+            part="agree"
+            done={accepted}
+            readonly={accepted}
+            label={accepted ? copy.accepted : copy.agree}
+          />
+        }
+      >
+        <KitText part={null}>{accepted ? copy.accepted : copy.agree}</KitText>
+      </KitRow>
+      <KitContent>
+        <KitText role="caption" tone="muted" part={null}>
+          {copy.name}
+        </KitText>
+        {accepted ? (
+          <KitText part="name" lines={1}>
+            {name ?? placeholderValue}
+          </KitText>
+        ) : (
+          <KitInput part="name" hint={copy.name} label={copy.name} value={name} />
+        )}
+      </KitContent>
+      {date && (
+        <KitText role="caption" tone="muted" part="date" tabular lines={1}>
+          {agreementDateLine(date)}
+        </KitText>
+      )}
+    </KitCard>
+  );
+}

@@ -1,5 +1,7 @@
 import { expect, it } from "vitest";
 import {
+  agreementDateLine,
+  agreementLabels,
   appointmentDetails,
   appointmentLabels,
   appointmentReading,
@@ -12,6 +14,11 @@ import {
   photoLabels,
   swipeLabels,
 } from "./labels";
+
+it("labels consent and the stored signing date without domain content", () => {
+  expect(agreementLabels).toEqual({ agree: "I agree", accepted: "Accepted", name: "Full name" });
+  expect(agreementDateLine("2026-11-18")).toBe("Signed · 2026-11-18");
+});
 
 it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect([emptyLine(), emptyLine(" "), emptyLine("plant"), emptyLine("city"), emptyLine("box")]).toEqual([
