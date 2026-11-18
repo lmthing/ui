@@ -1,4 +1,5 @@
 import { createElement } from "react";
+import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
@@ -13,6 +14,8 @@ import {
 } from "@lmthing/ui/kit";
 import * as parts from "../../part";
 import { config, elementAt, renderInstance, styleAt } from "../../../../test/render";
+
+vi.mock("react/jsx-dev-runtime", { spy: true });
 
 function renderRow(row: Parameters<typeof KitRow>[0], controller?: ScreenController) {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -86,7 +89,7 @@ describe("KitRow named non-item controls", () => {
       spy.mockRestore();
     }
   });
-  it("dispatches a named choice through the same controller press path as staff", () => {
+  it("dispatches a named choice through the same controller press path as staff", async () => {
     const controller = createScreenController({
       defs: components,
       requireMounted: true,
@@ -95,16 +98,32 @@ describe("KitRow named non-item controls", () => {
         components: [{ id: "s1", c: "StaffPicker", ...components.StaffPicker.examples[0], at: 1 }],
       },
     });
-    const html = renderRow({ part: "anyone", role: "button", label: "Anyone", children: label }, controller);
+    let press: (() => unknown) | undefined;
+    const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
+    const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
+      const target = args[1] as { testID?: string; onPress?: () => unknown };
+      if (target.testID === "home/s1/anyone" && target.onPress) press = target.onPress;
+      return jsxDEV(...args);
+    });
+    let html: string;
+    try {
+      html = renderRow({ part: "anyone", role: "button", label: "Anyone", children: label }, controller);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(press).toBeDefined();
     const address = elementAt(html, "home/s1/anyone").attributes.match(/data-testid="([^"]+)"/)![1]!;
-    expect(controller.press(address)).toMatchObject({ ok: false, code: "not_mounted" });
+    expect(press!()).toMatchObject({ ok: false, code: "not_mounted" });
     const unregister = controller.registerPart(address);
-    expect(controller.press(address)).toMatchObject({ ok: true });
+    expect(press!()).toMatchObject({ ok: true });
     expect(controller.snapshotScreen().components[0]!.at).toBe(0);
     unregister();
-    expect(controller.press(address)).toMatchObject({ ok: false, code: "not_mounted" });
+    expect(press!()).toMatchObject({ ok: false, code: "not_mounted" });
     controller.dispose();
   });
+});
+
+describe("KitRow avatar choice geometry", () => {
   it.each(presets)("uses the same avatar and primary label slots for Anyone and staff in $id", ({ id }) => {
     for (const mode of ["light", "dark"] as const) {
       const html = renderInstance("StaffPicker", components.StaffPicker.examples[0], "filled", {
