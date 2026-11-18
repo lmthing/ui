@@ -197,3 +197,5 @@ export const mediaUnavailable = "Recording unavailable";
 
 export const swipeLabels = { left: "Skip", right: "Keep" } as const;
 export const badgeLine = (count: number): string => (count > 99 ? "99+" : String(count));
+
+export const allLabel = "All";

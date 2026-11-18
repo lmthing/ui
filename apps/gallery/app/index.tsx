@@ -19,6 +19,8 @@ import { resolvePhoto } from "./photos";
 import { Screens } from "./Screens";
 import { Runtime } from "./Runtime";
 import { Controls } from "./Controls";
+import { MotionPreview } from "./Motion";
+import type { SignatureName } from "@lmthing/ui/catalog";
 const modes = ["light", "dark"] as const;
 const query = new URLSearchParams(globalThis.location?.search ?? "");
 const only = query.get("c");
@@ -60,6 +62,7 @@ function Preview({ cell, preset, mode }: { cell: Cell; preset: string; mode: (ty
 }
 
 export function Gallery() {
+  if (query.has("motion")) return <MotionPreview name={query.get("motion") as SignatureName} />;
   if (query.has("controls")) return <Controls kind={query.get("controls") ?? "form"} />;
   if (query.has("runtime")) return <Runtime />;
   if (only && width) {
