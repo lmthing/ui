@@ -6,6 +6,7 @@ import {
   documentHeading,
   documentLabels as copy,
   documentReading,
+  documentSend,
   documentStatus,
   itemsOf,
   moneyLine,
@@ -116,7 +117,7 @@ export const examples = [
     to: "Ben Carter",
     date: "2026-11-18",
     lines: [{ item: "Morning park walk", qty: 8, price: 15 }],
-    status: draft,
+    status: "sent",
     style: "quote",
   },
 ] satisfies z.input<typeof props>[];
@@ -138,10 +139,10 @@ function InvoiceLines({ lines }: Props<typeof props, typeof meta>) {
     <KitRow key={line.id} item={line.id} inline label={line.item}>
       <KitText part="item">{line.item}</KitText>
       <KitGrid fitLast>
-        <KitText part="qty" tone="muted" tabular>
+        <KitText role="caption" part="qty" tone="muted" tabular>
           {quantityLine(line.qty)}
         </KitText>
-        <KitText part="price" tone="muted" tabular align="end">
+        <KitText role="caption" part="price" tone="muted" tabular align="end">
           {moneyLine(line.price, undefined, "each")}
         </KitText>
       </KitGrid>
@@ -155,44 +156,40 @@ export function Invoice(input: Props<typeof props, typeof meta>) {
     <KitCard padded part="root">
       <KitContent>
         <KitGrid fitLast>
-          <KitText role="label" part="number">
-            {documentHeading(style, number)}
-          </KitText>
-          <KitText role="label" part="status" tone="muted">
+          <KitText part="number">{documentHeading(style, number)}</KitText>
+          <KitText role="caption" part="status" tone="muted">
             {documentStatus(input, state)}
           </KitText>
         </KitGrid>
         {documentFields(input).map(({ part, text }) => (
-          <KitText key={part} part={part} tone="muted">
+          <KitText key={part} role="caption" part={part} tone="muted">
             {text}
           </KitText>
         ))}
       </KitContent>
-      <KitContent>
-        <InvoiceLines {...input} />
-      </KitContent>
+      <InvoiceLines {...input} />
       <KitContent>
         {documentAmounts(input).map(({ part, label, value }) => (
           <KitGrid key={part} fitLast>
-            <KitText part={null} tone="muted">
+            <KitText role="caption" part={null} tone="muted">
               {label}
             </KitText>
-            <KitText role={part === "total" ? "number" : "body"} part={part} tabular>
+            <KitText role={part === "total" ? "number" : "caption"} part={part} tabular>
               {value}
             </KitText>
           </KitGrid>
         ))}
       </KitContent>
       {note && (
-        <KitText part="note" tone="muted">
+        <KitText role="caption" part="note" tone="muted">
           {note}
         </KitText>
       )}
-      <KitAction part="send" label={copy.send} kind={style === "quote" ? "secondary" : "primary"} full />
+      <KitAction part="send" {...documentSend(input, state)} full />
       {style === "quote" && (
         <KitGrid>
           <KitAction part="accept" label={copy.accept} full />
-          <KitAction part="decline" label={copy.decline} kind="secondary" full />
+          <KitAction part="decline" label={copy.decline} kind="danger" full />
         </KitGrid>
       )}
     </KitCard>

@@ -125,14 +125,13 @@ describe("Invoice states, parts and read/act", () => {
       const input = { ...seed, style, status },
         parsed = stampItemIds(meta, props.parse(input));
       const html = renderInstance("Invoice", input, "filled", theme);
-      const actions = affordancesOf(meta, parsed, "i1");
-      expect(actions.map(({ part }) => part)).toEqual(
-        style === "quote" ? ["send", "accept", "decline"] : ["send"],
-      );
+      const actions = affordancesOf(meta, parsed, "i1"),
+        deciding = style === "quote";
+      expect(actions.map(({ part }) => part)).toEqual(deciding ? ["send", "accept", "decline"] : ["send"]);
       for (const { part } of actions)
         expect(elementAt(html, `home/c1/${part}`).attributes).toContain('role="button"');
-      expect(html.includes("home/c1/accept")).toBe(style === "quote");
-      expect(html.includes("home/c1/decline")).toBe(style === "quote");
+      expect(html.includes("home/c1/accept")).toBe(deciding);
+      expect(html.includes("home/c1/decline")).toBe(deciding);
       const reading = readComponent(components.Invoice, input, "i1").join("\n");
       for (const word of ["Subtotal", "Tax (10%)", "$70", "$7", "$77", "Qty 2", "$20 / each"])
         expect(reading).toContain(word);
@@ -172,6 +171,7 @@ describe("Invoice success and confirmation", () => {
       expect(html).toContain("Sent");
       expect(html).toContain("$77");
       expect(html.includes("home/c1/accept")).toBe(style === "quote");
+      expect(html).toContain("Resend");
     }
     expect(
       renderInstance("Invoice", { ...seed, status: "paid", due: "2000-01-01" }, "success", theme),

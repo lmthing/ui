@@ -81,6 +81,7 @@ export const documentLabels = {
   paid: "Paid",
   overdue: "Overdue",
   send: "Send",
+  resend: "Resend",
   accept: "Accept",
   decline: "Decline",
 } as const;
@@ -124,6 +125,14 @@ export const documentHeading = (style: DocumentInput["style"], number: string): 
 export const quantityLine = (qty: number): string => `Qty ${qty}`;
 export const documentFieldLine = (label: string, value: string): string => `${label} · ${value}`;
 
+/** Drafts lead with sending; a sent quote leads with the client's decision. */
+export function documentSend(input: Pick<DocumentInput, "status" | "style">, state: string) {
+  return {
+    label: input.status === "draft" && state !== "success" ? documentLabels.send : documentLabels.resend,
+    kind: input.style === "quote" && input.status === "sent" ? ("quiet" as const) : ("primary" as const),
+  };
+}
+
 export function documentFields(input: Pick<DocumentInput, "to" | "date" | "due">) {
   const parts = ["to", "date", "due"] as const;
   return parts.flatMap((part) =>
@@ -150,7 +159,7 @@ export function documentReading(input: DocumentInput, state: string): string[] {
     ...documentFields(input).map(({ text }) => text),
     ...input.lines.flatMap((line) => [quantityLine(line.qty), moneyLine(line.price, undefined, "each")]),
     ...documentAmounts(input).flatMap(({ label, value }) => [label, value]),
-    documentLabels.send,
+    documentSend(input, state).label,
     ...(input.style === "quote" ? [documentLabels.accept, documentLabels.decline] : []),
   ];
 }

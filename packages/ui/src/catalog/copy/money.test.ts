@@ -9,6 +9,7 @@ import {
   documentHeading,
   documentLabels,
   documentReading,
+  documentSend,
   documentStatus,
   documentTotals,
   moneyLine,
@@ -104,6 +105,14 @@ it("shares document headings, quantities, optional fields and readings", () => {
     "Accept",
     "Decline",
   ]);
+  expect(documentReading({ ...input, status: "sent" }, "filled").slice(-3)).toEqual([
+    "Resend",
+    "Accept",
+    "Decline",
+  ]);
+  expect(documentSend(input, "filled")).toEqual({ label: "Send", kind: "primary" });
+  expect(documentSend(input, "success")).toEqual({ label: "Resend", kind: "primary" });
+  expect(documentSend({ ...input, status: "sent" }, "filled")).toEqual({ label: "Resend", kind: "quiet" });
   expect(documentReading({ ...input, style: "invoice" }, "filled")).not.toContain(documentLabels.accept);
 });
 
