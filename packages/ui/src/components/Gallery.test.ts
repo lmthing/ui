@@ -74,7 +74,7 @@ describe("Gallery schema", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["photos"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["photos"][number]["caption"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"grid" | "strip">();
+    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"grid" | "strip" | "carousel">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
@@ -173,14 +173,17 @@ describe("Gallery view", () => {
     expect(view.props.children.props.columns).toBe(count === 3 || count === 6 ? 3 : 2);
     expect(view.props.children.props.children).toHaveLength(count);
   });
-  it.each(examples)("draws square photos in the requested layout", (example) => {
+  it.each(examples)("draws photos in the requested layout", (example) => {
     host.state = "filled";
     const view = Gallery(viewProps(example));
-    expect(view.props.children.type).toBe(example.style === "strip" ? KitStrip : KitGrid);
+    expect(view.props.children.type).toBe(example.style === "grid" ? KitGrid : KitStrip);
     for (const cell of view.props.children.props.children) {
       const row = cell.type(cell.props);
       const [image, caption] = row.props.children.props.children;
-      expect(image.props).toMatchObject({ shape: "square", part: "photo" });
+      expect(image.props).toMatchObject({
+        shape: example.style === "carousel" ? "wide" : "square",
+        part: "photo",
+      });
       expect(Boolean(caption)).toBe(Boolean(cell.props.entry.caption));
       if (caption) expect(caption.props).toMatchObject({ role: "caption", tone: "muted", part: "caption" });
     }
@@ -188,7 +191,7 @@ describe("Gallery view", () => {
   it.each(examples)("keeps the layout while loading and hides content when empty", (example) => {
     host.state = "loading";
     const view = Gallery(viewProps(example));
-    expect(view.props.children.type).toBe(example.style === "strip" ? KitStrip : KitGrid);
+    expect(view.props.children.type).toBe(example.style === "grid" ? KitGrid : KitStrip);
     for (const cell of view.props.children.props.children) {
       expect(cell.type).toBe(KitSkeleton);
       expect(cell.props).toMatchObject({ shape: "media", lead: "none" });

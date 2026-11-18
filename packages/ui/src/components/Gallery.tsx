@@ -37,11 +37,11 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
-  aliases: ["album", "photogrid", "filmstrip"],
+  aliases: ["album", "photogrid", "filmstrip", "slideshow"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({
-  style: z.enum(["grid", "strip"]).default("grid"),
+  style: z.enum(["grid", "strip", "carousel"]).default("grid"),
   photos: z
     .array(
       z
@@ -92,6 +92,14 @@ export const examples = [
       { photo: "lib:dogs" },
     ],
   },
+  {
+    style: "carousel",
+    photos: [
+      { photo: "lib:plants", caption: "Front room" },
+      { photo: "lib:plants", caption: "Kitchen" },
+      { photo: "lib:plants", caption: "Garden" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 export const probes = [
@@ -111,6 +119,11 @@ export const probes = [
     expect: "Gallery",
   },
   {
+    kind: "write",
+    brief: "Show three shots of the flat to swipe through one at a time: Front room, Kitchen and Garden",
+    expect: "Gallery",
+  },
+  {
     kind: "read",
     screen: 0,
     task: "Open the Fern picture",
@@ -120,13 +133,13 @@ export const probes = [
 
 type Entry = Props<typeof props, typeof meta>["photos"][number];
 
-function GalleryItem({ entry, index }: { entry: Entry; index: number }) {
+function GalleryItem({ entry, index, wide }: { entry: Entry; index: number; wide: boolean }) {
   return (
     <KitRow item={entry.id} label={entry.caption ?? placeholderTitle(index)} goto={entry.goto} inset="none">
       <KitContent lineRole="body">
         <KitPhoto
           photo={entry.photo}
-          shape="square"
+          shape={wide ? "wide" : "square"}
           part="photo"
           {...(entry.caption ? { label: entry.caption } : {})}
         />
@@ -153,13 +166,13 @@ export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
     state === "loading" ? (
       <KitSkeleton key={entry.id} shape="media" lead="none" />
     ) : (
-      <GalleryItem key={entry.id} entry={entry} index={index} />
+      <GalleryItem key={entry.id} entry={entry} index={index} wide={style === "carousel"} />
     ),
   );
   return (
     <KitCard style="plain" part="root" padded={state !== "loading"}>
-      {style === "strip" ? (
-        <KitStrip>{cells}</KitStrip>
+      {style === "strip" || style === "carousel" ? (
+        <KitStrip pages={style === "carousel"}>{cells}</KitStrip>
       ) : (
         <KitGrid columns={photos.length === 3 || photos.length === 6 ? 3 : 2}>{cells}</KitGrid>
       )}

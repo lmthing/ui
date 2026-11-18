@@ -10,6 +10,8 @@ export const component = {
     wideRatio: 16 / 9,
     tallRatio: 3 / 4,
     stripShare: 0.4,
+    pageShare: 0.9,
+    dot: 8,
     ringMd: 120,
     ringLg: 168,
     timeWidth: 64,
