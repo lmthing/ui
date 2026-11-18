@@ -1,15 +1,17 @@
 # apps/gallery (private)
 
-An Expo Router app, web first, that shows every component, pack, archetype, surface and theme.
+A web-first gallery using kit tokens and Tamagui.
 
-Built in step U0 (skeleton), U2. Read plan 7 first.
+- `/`: grouped component cards, one first-example preview each; filter by id or purpose.
+- Expand cards independently, or use Expand all / Collapse all for the catalog.
+- Group headings link to anchors such as `/#content`.
+- `?c=List`: the full example/state × preset × mode grid for one component.
+- `?c=List&preset=calm&mode=light`: filter that grid for screenshot tooling.
+- `?c=List&w=390&mode=light`: phone-screen frames used by `pnpm look`.
+- `?controls=form`: interactive control fixtures (also choice, chat, lists, etc.).
+- `?runtime=1`: runtime composition fixture.
+- `?motion=ring_fill`: one signature-motion preview.
 
-Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
-- `app/` routes, `fixtures/`, `e2e/`, `agent-hook.ts`, `tamagui.config.ts`
-
-Rules:
-- Uses the package's kit entry only, with its own `tamagui.config.ts` (kit tokens and themes, nothing else).
-- `agent-hook.ts` exposes `window.__lmthingUI`: `read`, `act`, `log`, `reset`, on every page.
-- A presets by modes switcher and a reduce-motion toggle on every page.
-- Default exports are allowed in route files only.
-- Nothing imports from `apps/`.
+The original `preview_*` test ids and `data-look-frame` markers remain stable.
+Nothing imports from `apps/`; default exports are allowed only in route files.
+Do not start the shared fixed-port gallery for review. Use `galleryConfig(0)`.

@@ -6,7 +6,7 @@
     "dev": "tsx ../../packages/ui/scripts/gallery.ts",
     "build": "tsx ../../packages/ui/scripts/gallery.ts --build",
     "typecheck": "pnpm --filter @lmthing/ui build:entries && tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
+    "test": "pnpm --filter @lmthing/ui build:catalog && vitest run --passWithNoTests"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "5.2.9",
