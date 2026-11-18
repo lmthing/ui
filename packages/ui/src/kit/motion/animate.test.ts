@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { motion, signatures, springs } from "../../catalog";
 import { springStep } from "./animate";
 import { countText } from "./use-motion";
-import { swipeDirection } from "../interact/use-swipe";
+import { swipeDirection } from "../interact";
 describe("motion and gesture contracts", () => {
   it("settles every shared spring at its target without diverging", () => {
     for (const spring of Object.values(springs)) {
