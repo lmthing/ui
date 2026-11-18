@@ -9,7 +9,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `contrast.ts` all 288 themes
 - `build-prompt.ts` writes prompt blocks
 - `count-tokens.ts` o200k tokenizer (dev dependency, scripts only)
-- `build-entries.ts` generates `src/entry/*`
+- `build-entries.ts`, `entries/` generate `src/entry/*`
 - `build-themes.ts` writes `themes.generated.ts` (`pnpm kit:themes`, `--check`, `--compact`)
 - `bundle-check.ts` catalog bundle has no React
 - `llm-check.ts` runs the model probes against the models in `llm.config.ts` (live) or recordings (replay); `llm.config.ts` holds the model names, the only place in this package
