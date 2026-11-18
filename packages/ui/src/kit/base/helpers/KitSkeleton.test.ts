@@ -1,6 +1,50 @@
 import { describe, expect, it } from "vitest";
 import { components, presets, size, space, type as typography } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { KitCheck, KitProvider, PartScope } from "@lmthing/ui/kit";
+import { config } from "../../../../test/render";
+
+function renderCheck(props: Parameters<typeof KitCheck>[0]) {
+  return renderToStaticMarkup(
+    createElement(
+      TamaguiProvider,
+      { config },
+      createElement(
+        KitProvider,
+        { theme: { preset: "calm", mode: "light", accent: "moss" }, children: null },
+        createElement(
+          PartScope,
+          { screen: "home", component: "c1", item: "r1", rev: 1, state: "filled", children: null },
+          createElement(KitCheck, props),
+        ),
+      ),
+    ),
+  );
+}
+
+describe("KitCheck options", () => {
+  it.each([false, true])("draws editable, disabled and readonly checks, done=%s", (done) => {
+    for (const disabled of [false, true]) {
+      for (const readonly of [false, true]) {
+        const html = renderCheck({ done, disabled, readonly, label: "Caller label" });
+        const node = elementAt(html, "home/c1/r1/check");
+        expect(node.attributes).toContain(`role="${readonly ? "img" : "checkbox"}"`);
+        expect(node.attributes).toContain('aria-label="Caller label"');
+        if (readonly) expect(node.attributes).not.toContain("aria-checked");
+        else expect(node.attributes).toContain(`aria-checked="${done}"`);
+        if (disabled) expect(node.attributes).toContain('aria-disabled="true"');
+        expect(styleAt(html, node)).toContain(`width:${size.control.md}px`);
+        expect(styleAt(html, node)).toContain(`height:${size.control.md}px`);
+        expect(node.children[0]!.children).toHaveLength(done ? 1 : 0);
+      }
+    }
+    const implicit = renderCheck({ done });
+    expect(implicit).toBe(renderCheck({ done, disabled: false, readonly: false }));
+  });
+});
 
 describe("Checklist loading row geometry", () => {
   it.each(presets)("matches filled rows without inventing captions in $id", ({ id: preset }) => {

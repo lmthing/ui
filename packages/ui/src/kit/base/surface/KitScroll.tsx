@@ -1,15 +1,11 @@
-import { Children, useRef, type ReactNode } from "react";
-import { ScrollView, YStack } from "tamagui";
+import { Children, useRef, useState, type ReactNode } from "react";
+import { ScrollView, XStack, YStack, styled } from "tamagui";
 import { ChevronDown, ChevronRight } from "@tamagui/lucide-icons";
-import { component, emptyLine, radius, size, space } from "../../../catalog";
+import { component, emptyLine, size, space, type as typography } from "../../../catalog";
 import { usePart, useEmptyThing } from "../../part";
-import { useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
-
-type ScrollNode = {
-  getScrollableNode?: () => HTMLElement;
-  scrollTo?: (options: { x?: number; y?: number; animated: boolean }) => void;
-};
+import { useKit, useKitStyle } from "../../provider";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+const Bar = styled(YStack, { height: size.icon.sm, backgroundColor: "$line" });
 type ScrollProps = {
   part?: string;
   loading?: boolean;
@@ -19,24 +15,28 @@ type ScrollProps = {
   bounded?: boolean;
 };
 
-function scrollKey(event: { key: string; target: unknown; currentTarget: unknown; preventDefault(): void }) {
+function scrollKey(
+  event: { key: string; target: unknown; currentTarget: unknown; preventDefault(): void },
+  horizontal: boolean,
+) {
   if (event.target !== event.currentTarget) return;
   const node = event.currentTarget as HTMLElement;
-  const page = node.clientHeight;
+  const page = horizontal ? node.clientWidth : node.clientHeight;
+  const paging: [number, number] = horizontal ? [page, 0] : [0, page];
   const moves: Record<string, [number, number]> = {
     ArrowDown: [0, size.control.md],
     ArrowUp: [0, -size.control.md],
     ArrowRight: [size.control.md, 0],
     ArrowLeft: [-size.control.md, 0],
-    PageDown: [0, page],
-    PageUp: [0, -page],
-    " ": [0, page],
+    PageDown: paging,
+    PageUp: [-paging[0], -paging[1]],
+    " ": paging,
   };
   if (event.key === "Home" || event.key === "End") {
     event.preventDefault();
-    node.scrollTo({
-      top: event.key === "Home" ? 0 : node.scrollHeight,
-      left: event.key === "Home" ? 0 : node.scrollWidth,
+    node.scrollBy({
+      top: (event.key === "Home" ? 0 : node.scrollHeight) - node.scrollTop,
+      left: (event.key === "Home" ? 0 : node.scrollWidth) - node.scrollLeft,
     });
   } else if (moves[event.key]) {
     event.preventDefault();
@@ -44,27 +44,55 @@ function scrollKey(event: { key: string; target: unknown; currentTarget: unknown
     node.scrollBy({ left, top });
   }
 }
+function ScrollLoading({ horizontal }: { horizontal: boolean }) {
+  const ks = useKitStyle();
+  const fieldHeight = size.control.md + component.base.borderWidth * 2;
+  if (horizontal)
+    return (
+      <XStack gap={space.md} aria-hidden>
+        {Array.from({ length: 3 }, (_, index) => (
+          <YStack key={index} width={size.control.md * 3}>
+            <YStack height={typography.body.lineHeight} justifyContent="center">
+              <Bar width="72%" borderRadius={shifted("sm", ks.radiusShift)} />
+            </YStack>
+            <Bar height={fieldHeight} borderRadius={shifted("md", ks.radiusShift)} />
+          </YStack>
+        ))}
+      </XStack>
+    );
+  return (
+    <YStack minHeight={component.base.emptyMinHeight + space.sm} gap={space.lg} aria-hidden>
+      {Array.from({ length: 5 }, (_, index) => (
+        <Bar key={index} width={index % 2 ? "72%" : "88%"} borderRadius={shifted("sm", ks.radiusShift)} />
+      ))}
+    </YStack>
+  );
+}
 
-function ScrollContent({ loading, children }: Pick<ScrollProps, "loading" | "children">) {
+function ScrollContent({
+  loading,
+  children,
+  horizontal,
+  viewport,
+}: Pick<ScrollProps, "loading" | "children"> & {
+  horizontal: boolean;
+  viewport: number;
+}) {
   const ks = useKitStyle();
   const thing = useEmptyThing();
   const empty = Children.toArray(children).length === 0;
   return (
-    <YStack padding={space[ks.density.cardPad]} gap={space.sm}>
+    <YStack
+      paddingHorizontal={space.md}
+      paddingVertical={space[ks.density.rowPad]}
+      gap={space.sm}
+      {...(horizontal && empty && !loading ? { width: viewport || component.base.emptyMinHeight } : {})}
+    >
       {loading ? (
-        <YStack height={component.base.emptyMinHeight - space.xl} gap={space.lg} aria-hidden>
-          {Array.from({ length: 3 }, (_, index) => (
-            <YStack
-              key={index}
-              height={size.icon.sm}
-              width={index % 2 ? "72%" : "88%"}
-              backgroundColor="$line"
-              borderRadius={shifted("sm", ks.radiusShift)}
-            />
-          ))}
-        </YStack>
+        <ScrollLoading horizontal={horizontal} />
       ) : empty ? (
-        <YStack paddingVertical={space.xl}>
+        <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
+          <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
           <KitText tone="muted" align="center" part={null}>
             {emptyLine(thing)}
           </KitText>
@@ -86,8 +114,21 @@ function focusScroll(target: HTMLElement, node?: HTMLElement) {
   });
 }
 
-function ScrollCue({ loading, axis }: Pick<ScrollProps, "loading" | "axis">) {
-  const Cue = axis === "horizontal" ? ChevronRight : ChevronDown;
+function useScrollGeometry(horizontal: boolean) {
+  const [view, setView] = useState({ width: 0, height: 0 });
+  const [content, setContent] = useState({ width: 0, height: 0 });
+  const axis = horizontal ? "width" : "height";
+  return {
+    viewport: view.width,
+    overflow: content[axis] > view[axis] + component.base.borderWidth,
+    onLayout: (event: { nativeEvent: { layout: { width: number; height: number } } }) =>
+      setView(event.nativeEvent.layout),
+    onContentSizeChange: (width: number, height: number) => setContent({ width, height }),
+  };
+}
+
+function ScrollCue({ horizontal }: { horizontal: boolean }) {
+  const Cue = horizontal ? ChevronRight : ChevronDown;
   return (
     <YStack
       height={size.control.md}
@@ -97,16 +138,12 @@ function ScrollCue({ loading, axis }: Pick<ScrollProps, "loading" | "axis">) {
       borderColor="$line"
       aria-hidden
     >
-      {loading ? (
-        <YStack width={size.icon.md} height={size.icon.sm} backgroundColor="$line" borderRadius={radius.sm} />
-      ) : (
-        <Cue size={size.icon.md} color="$muted" />
-      )}
+      <Cue size={size.icon.md} color="$muted" />
     </YStack>
   );
 }
 
-/** A labelled, focusable scroll region; the control-sized cue remains visible without OS scrollbars. */
+/** A labelled, token-bounded scroll region; a visible cue appears only when content overflows. */
 export function KitScroll({
   part = "root",
   loading = false,
@@ -115,41 +152,49 @@ export function KitScroll({
   axis = "vertical",
   bounded = true,
 }: ScrollProps) {
-  const ks = useKitStyle();
+  const ks = useKitStyle(),
+    kit = useKit();
   const address = usePart(part);
-  const scroll = useRef<ScrollNode>(null);
+  const scroll = useRef<{ getScrollableNode?: () => HTMLElement }>(null);
+  const horizontal = axis === "horizontal";
+  const { viewport, overflow, ...geometry } = useScrollGeometry(horizontal);
   const empty = Children.toArray(children).length === 0;
   return (
     <YStack
       {...address}
+      {...surfaceOf(ks.surface)}
       width="100%"
       minWidth={component.base.none}
-      borderRadius={shifted("md", ks.radiusShift)}
-      borderWidth={component.base.borderWidth}
-      borderColor="$line"
-      backgroundColor="$raised"
+      borderRadius={shifted("lg", ks.radiusShift)}
       overflow="hidden"
       aria-busy={loading}
     >
       <ScrollView
         ref={scroll as never}
-        horizontal={axis === "horizontal"}
+        horizontal={horizontal}
         showsVerticalScrollIndicator
         showsHorizontalScrollIndicator
+        scrollEnabled={!loading}
+        contentContainerStyle={{ minWidth: "100%" }}
+        {...geometry}
         {...(bounded ? { maxHeight: component.base.emptyMinHeight } : {})}
         {...({
           role: "region",
           tabIndex: loading || empty ? -1 : 0,
           "aria-label": label,
-          onKeyDown: scrollKey,
+          onKeyDown: (event: Parameters<typeof scrollKey>[0]) => scrollKey(event, horizontal),
         } as object)}
-        onFocus={(event: { target: unknown }) =>
-          focusScroll(event.target as HTMLElement, scroll.current?.getScrollableNode?.())
-        }
+        onFocus={(event: { target: unknown }) => {
+          const node = scroll.current?.getScrollableNode?.();
+          if (node) focusScroll(event.target as HTMLElement, node);
+          else kit.nativeHost?.ensureVisible?.(event.target);
+        }}
       >
-        <ScrollContent loading={loading}>{children}</ScrollContent>
+        <ScrollContent loading={loading} horizontal={horizontal} viewport={viewport}>
+          {children}
+        </ScrollContent>
       </ScrollView>
-      {(loading || !empty) && <ScrollCue loading={loading} axis={axis} />}
+      {overflow && <ScrollCue horizontal={horizontal} />}
     </YStack>
   );
 }

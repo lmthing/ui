@@ -4,6 +4,7 @@ import { component, emptyLine, radius, size, space } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext, useEmptyThing } from "../../part";
 import { KitText, shifted } from "../text";
+import { useState } from "react";
 
 type Slot = { id: string; label: string; sub?: string; taken: boolean };
 type SlotGridProps = {
@@ -52,11 +53,13 @@ function SlotItem({
   selected,
   list,
   loading,
+  width,
 }: {
   slot: Slot;
   selected: boolean;
   list: boolean;
   loading: boolean;
+  width: number;
 }) {
   const ks = useKitStyle();
   const target = useSlotTarget(slot, selected, loading);
@@ -67,23 +70,36 @@ function SlotItem({
       minWidth={size.control.md}
       paddingHorizontal={space.md}
       paddingVertical={space.sm}
-      gap={space.md}
+      gap={list ? space.md : space.xs}
+      flexDirection={list ? "row" : "column"}
       alignItems="center"
       justifyContent={list ? "space-between" : "center"}
       borderRadius={list ? shifted("md", ks.radiusShift) : radius.pill}
       borderWidth={component.base.strongBorder}
-      borderColor={selected ? "$accent" : slot.taken ? "$line" : "$muted"}
+      borderColor={loading ? "$line" : selected ? "$accent" : slot.taken ? "$line" : "$muted"}
       backgroundColor={loading ? "$line" : selected ? "$accentSoft" : slot.taken ? "$raised" : "$surface"}
-      {...(list ? { width: "100%" as const } : {})}
+      width={list ? "100%" : width ? (width - space.sm * 2) / 3 : "30%"}
     >
-      <YStack opacity={loading ? component.base.none : 1}>
-        <KitText role="label" tone={slot.taken ? "muted" : selected ? "accent" : "text"} tabular part={null}>
+      <YStack
+        opacity={loading ? component.base.none : 1}
+        {...(loading ? { visibility: "hidden" as const } : {})}
+      >
+        <KitText
+          role="number"
+          numberScale="compact"
+          tone={slot.taken ? "muted" : selected ? "accent" : "text"}
+          tabular
+          part={null}
+        >
           {slot.label}
         </KitText>
       </YStack>
       {slot.sub && (
-        <YStack opacity={loading ? component.base.none : 1}>
-          <KitText role="caption" tone="muted" tabular part={null}>
+        <YStack
+          opacity={loading ? component.base.none : 1}
+          {...(loading ? { visibility: "hidden" as const } : {})}
+        >
+          <KitText role="label" tone="muted" tabular part={null}>
             {slot.sub}
           </KitText>
         </YStack>
@@ -98,10 +114,11 @@ export function KitSlotGrid({ part = "root", loading = false, times, at, style =
   const address = usePart(part);
   const thing = useEmptyThing();
   const list = style === "list";
+  const [width, setWidth] = useState(0);
   const slots =
     loading && !times.length
       ? Array.from({ length: 3 }, (_, id) => ({
-          id: String(id),
+          id: `r${id + 1}`,
           label: "\u2007\u2007:\u2007\u2007",
           taken: false,
         }))
@@ -109,6 +126,10 @@ export function KitSlotGrid({ part = "root", loading = false, times, at, style =
   return (
     <XStack
       {...address}
+      onLayout={(event) => {
+        address.onLayout();
+        setWidth(event.nativeEvent.layout.width);
+      }}
       flexDirection={list ? "column" : "row"}
       flexWrap={list ? "nowrap" : "wrap"}
       gap={space.sm}
@@ -117,7 +138,7 @@ export function KitSlotGrid({ part = "root", loading = false, times, at, style =
       {slots.length ? (
         slots.map((slot) => (
           <PartContext.Provider key={slot.id} value={{ ...context, item: slot.id }}>
-            <SlotItem slot={slot} selected={at === slot.id} list={list} loading={loading} />
+            <SlotItem slot={slot} selected={at === slot.id} list={list} loading={loading} width={width} />
           </PartContext.Provider>
         ))
       ) : (
