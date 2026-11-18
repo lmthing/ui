@@ -63,7 +63,8 @@ export function KitTrail({
 }) {
   const address = usePart(part, kind !== "none");
   const kit = useKit();
-  const stored = useControlValue<unknown>(address.testID, on);
+  const initial = value === "on" ? true : value === "off" ? false : on;
+  const stored = useControlValue<unknown>(address.testID, initial);
   const active =
     typeof stored === "boolean" ? stored : stored === "on" ? true : stored === "off" ? false : on;
   if (kind === "none") return null;

@@ -1,6 +1,11 @@
 import type { ArchetypeMeta, ComposeProbe, Slot } from "./types";
 /** A short data vocabulary: alternatives, optional slots, variants and bounded repetitions. */
-export function createMeta(id: string, purpose: string, recipes: Record<string, string>): ArchetypeMeta {
+export function createMeta(
+  id: string,
+  purpose: string,
+  recipes: Record<string, string>,
+  guidance: Record<string, readonly string[]> = {},
+): ArchetypeMeta {
   const layouts = Object.fromEntries(
     Object.entries(recipes).map(([layout, recipe]) => {
       const slots: Slot[] = recipe.split(/\s+/).map((token, index) => {
@@ -16,7 +21,7 @@ export function createMeta(id: string, purpose: string, recipes: Record<string, 
           ...(variantCount ? { variant: variantCount } : {}),
         };
       });
-      return [layout, { slots }];
+      return [layout, { slots, ...(guidance[layout] ? { writeHints: guidance[layout] } : {}) }];
     }),
   );
   const defaults = Object.fromEntries(

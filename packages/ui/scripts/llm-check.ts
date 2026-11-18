@@ -123,7 +123,12 @@ const replay = process.argv.includes("--replay");
 let failed = 0;
 if (process.argv.includes("--compose")) {
   for (const model of probeModels) {
-    const failures = await checkCoreComposition(model, (prompt) => azure(model, prompt), replay);
+    const failures = await checkCoreComposition(
+      model,
+      (prompt) => azure(model, prompt),
+      replay,
+      (arg("--layout") ?? "").split(",").filter(Boolean),
+    );
     if (model.required) failed += failures;
   }
 } else if (process.argv.includes("--merges")) {

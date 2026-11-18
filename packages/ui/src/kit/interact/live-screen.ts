@@ -62,6 +62,13 @@ export function projectScreen(
             ...row,
             on: get(`r${index + 1}`) ?? row.on ?? false,
           }));
+        if (entry.c === "List")
+          result.rows = raw("rows").map((row, index) => {
+            const on = get(`r${index + 1}/trail`);
+            return row.trail === "toggle" && typeof on === "boolean"
+              ? { ...row, value: on ? "on" : "off" }
+              : row;
+          });
         if (entry.c === "Checklist")
           result.items = raw("items").map((row, index) => ({
             ...row,

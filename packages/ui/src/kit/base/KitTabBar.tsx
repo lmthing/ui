@@ -33,7 +33,8 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
             top={-space.xs}
             right={-space.sm}
             minWidth={size.icon.sm}
-            paddingHorizontal={space.xs}
+            paddingHorizontal={space.sm}
+            paddingVertical={space.xs}
             borderRadius={radius.pill}
             backgroundColor="$accent"
           >

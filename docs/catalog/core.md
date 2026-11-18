@@ -19,7 +19,7 @@ and `act()`.
 
 Native host hooks provide keyboard height, safe-area insets, reduced-motion preferences, modal/back
 handling and focused-input scrolling. Native device acceptance is **not verified**: no iOS/Android host
-or device setup is available in this session. Composition and motion/visual gates are tracked below.
+or device setup is available in this session. Composition, browser motion and affected component visual gates pass.
 
 Component size cleanup is still needed where metadata, examples and probes push a file beyond the 200-line guide.
 
@@ -53,8 +53,8 @@ released when the screen leaves. The gallery's `?runtime=1` page provides a loca
 
 - Core component probes: the live 45-component run passes every required majority gate. Some samples remain unstable, recorded rather than retried for luck.
 - Merge evidence: `docs/catalog/core-merge-evidence.json`. `DayTimeline`/`Timeline` had a 2/3 near miss and was merged. `Sparkline` cases were 3/3. The extra Stats-arrow case consistently chose Bars; that is an out-of-pair classification conflict, not evidence to remove Sparkline.
-- Rule, archetype default, migration, state and browser regression tests pass. The standard project check currently passes 2,210 tests.
-- The first live archetype compose/rubric run passed 25 of 35 layouts. Ten layouts need writing guidance or content improvements; the recorded failures remain visible. Visual motion acceptance is in progress.
+- Rule, archetype default, migration, state and browser regression tests pass. The standard project check passes 2,372 tests, including real composition replay and browser motion acceptance.
+- All 35 current compose/rubric gates pass. Failed samples were addressed with precise layout guidance, actual tracker/settings data, grouped defaults and connected save instructions. Some probes pass 2/3; those samples remain recorded rather than being retried for luck.
 - iOS/Android acceptance remains pending a real host/device setup. Browser contract checks cannot establish native rendering or performance.
 
 ## 1. Summary of changes

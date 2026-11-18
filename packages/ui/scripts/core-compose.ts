@@ -6,80 +6,12 @@ import type { CastLike } from "../src/catalog/types";
 const { archetypes, components, runComposeProbes } = (await import(
   new URL("../dist/catalog.js", import.meta.url).href
 )) as typeof Catalog;
-const cast: CastLike = {
-  things: [{ type: "plant", fields: ["name", "room", "care"] }],
-  items: [
-    {
-      id: "fern",
-      type: "plant",
-      sample: true,
-      name: "Fern",
-      room: "Bathroom",
-      care: "Water every seven days",
-      photo: "lib:plants",
-    },
-    {
-      id: "basil",
-      type: "plant",
-      sample: true,
-      name: "Basil",
-      room: "Kitchen",
-      care: "Water every three days",
-      photo: "lib:plants",
-    },
-    {
-      id: "monstera",
-      type: "plant",
-      sample: true,
-      name: "Monstera",
-      room: "Living room",
-      care: "Water every ten days",
-      photo: "lib:plants",
-    },
-  ],
-};
-const castOf = (id: string): CastLike =>
-  id === "plans"
-    ? {
-        things: [{ type: "plan", fields: ["name", "description", "price"] }],
-        items: [
-          {
-            id: "single",
-            type: "plan",
-            sample: true,
-            name: "Single walk",
-            description: "One walk when needed",
-            price: "£18",
-          },
-          {
-            id: "weekly",
-            type: "plan",
-            sample: true,
-            name: "Weekly pack",
-            description: "Five walks every week",
-            price: "£65",
-          },
-        ],
-      }
-    : id === "chat"
-      ? {
-          things: [{ type: "message", fields: ["sender", "text"] }],
-          items: [
-            {
-              id: "anna",
-              type: "message",
-              sample: true,
-              sender: "Anna",
-              text: "Can Clover's walk start at 09:30?",
-            },
-            { id: "reply", type: "message", sample: true, sender: "Me", text: "09:30 works, see you then." },
-          ],
-        }
-      : cast;
+import { compositionCast } from "./compose-casts";
 export async function checkCoreComposition(
   model: ProbeModel,
   liveCall: (prompt: string) => Promise<string>,
   replay = false,
+  only: readonly string[] = [],
 ) {
   const book = readBook("Archetypes", model.id);
   const call: CallModel = replay
@@ -95,10 +27,11 @@ export async function checkCoreComposition(
   const results = await runComposeProbes({
     archetypes: Object.values(archetypes).map((def) => def.meta),
     defs: components,
-    cast: castOf,
+    cast: compositionCast,
     callModel: call,
     samples: model.samples,
     rubric: true,
+    only,
   });
   if (!replay) writeBook("Archetypes", model.id, book);
   for (const result of results)
