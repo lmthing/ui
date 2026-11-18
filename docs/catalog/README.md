@@ -5,11 +5,12 @@ the system works; this folder says **which** components exist, what each one is 
 are built. Where the two disagree on a component list, this folder is newer and wins; the plan's 4.4 tables
 point here.
 
-| File | Holds |
-| --- | --- |
-| [core.md](core.md) | The core: 45 components available to every app, 44 model choices, 17 archetypes, build order |
-| [packs/README.md](packs/README.md) | The pack index: all 18 packs, the one-line pick for each, common combinations, build waves |
-| `packs/<pack>.md` | One pack in full: purpose, apps it serves, every component, archetypes, worked example, build notes |
+| File                                       | Holds                                                                                               |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| [core.md](core.md)                         | The core: 45 components available to every app, 44 model choices, 17 archetypes, build order        |
+| [packs/README.md](packs/README.md)         | The pack index: all 27 packs, the one-line pick for each, common combinations                       |
+| [packs/build-plan.md](packs/build-plan.md) | Pack build order, shared prerequisites, per-pack workflow and gates                                 |
+| `packs/<pack>.md`                          | One pack in full: purpose, apps it serves, every component, archetypes, worked example, build notes |
 
 ## Where this came from
 
@@ -66,15 +67,15 @@ Two or three sentences: what the person sees and does.
 
 Every action name below is new to the vocabulary in plan 4.12 (each is a minor catalog version):
 
-| Action | Value | Used by |
-| --- | --- | --- |
-| `dismiss` | None | `Sheet`, `Success` toast |
-| `play`, `pause` | None | Media and paced loops: `Player`, `MiniPlayer`, `Breathe`, `Soundscape` |
-| `seek` | Seconds | `Player` |
-| `flip` | None | `Flashcard` |
-| `move` | A column or table label | data `Board`, events `Seating` |
-| `send` | None | `Composer` (reply) |
-| `scan` | None | events `Door` (returns a code; tier `ok`) |
+| Action          | Value                   | Used by                                                                |
+| --------------- | ----------------------- | ---------------------------------------------------------------------- |
+| `dismiss`       | None                    | `Sheet`, `Success` toast                                               |
+| `play`, `pause` | None                    | Media and paced loops: `Player`, `MiniPlayer`, `Breathe`, `Soundscape` |
+| `seek`          | Seconds                 | `Player`                                                               |
+| `flip`          | None                    | `Flashcard`                                                            |
+| `move`          | A column or table label | data `Board`, events `Seating`                                         |
+| `send`          | None                    | `Composer` (reply)                                                     |
+| `scan`          | None                    | events `Door` (returns a code; tier `ok`)                              |
 
 Countdowns in packs (`KitchenTimers`, `CookSteps` step timers, `BabyLog` feed and sleep timers) use the
 existing `start` and `stop`, like core `Timer`. Everything else uses the existing `press`, `toggle`, `check`, `select`, `type`, `set`, `increment`,
