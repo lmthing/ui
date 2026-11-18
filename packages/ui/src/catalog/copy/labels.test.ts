@@ -1,5 +1,23 @@
 import { expect, it } from "vitest";
-import { bookLabel, charLine, emptyLine, loadingLabel, photoLabels, swipeLabels } from "./labels";
+import {
+  bookLabel,
+  charLine,
+  contactLabels,
+  emptyLine,
+  loadingLabel,
+  nextLine,
+  photoLabels,
+  swipeLabels,
+  tagsLine,
+} from "./labels";
+
+it("keeps contact actions, next details and static tags readable", () => {
+  expect(contactLabels).toEqual({ call: "Call", message: "Message", directions: "Directions" });
+  expect(nextLine("Friday 09:00")).toBe("Next: Friday 09:00");
+  expect(tagsLine([])).toBe("");
+  expect(tagsLine(["Regular"])).toBe("Regular");
+  expect(tagsLine(["Regular", "Key holder", "New"])).toBe("Regular · Key holder · New");
+});
 
 it("keeps neutral labels and empty-state inflection unchanged", () => {
   expect([emptyLine(), emptyLine(" "), emptyLine("plant"), emptyLine("city"), emptyLine("box")]).toEqual([

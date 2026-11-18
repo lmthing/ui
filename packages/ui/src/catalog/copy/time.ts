@@ -55,3 +55,14 @@ export const mediaLabels = {
   forward: "Forward 15 seconds",
 } as const;
 export const remainingLine = (seconds: number): string => `-${clockLine(seconds)}`;
+
+/** A stored joining date, formatted independently of the device time zone. */
+export function sinceLine(date: string): string {
+  const day = new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
+  return `Client since ${day}`;
+}

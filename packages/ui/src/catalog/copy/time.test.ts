@@ -7,7 +7,14 @@ import {
   repeatLabels,
   repeatOptions,
   streakLine,
+  sinceLine,
 } from "./time";
+
+it("formats joining dates without device time zone shifts, including leap days", () => {
+  expect(sinceLine("2025-04-03")).toBe("Client since 3 Apr 2025");
+  expect(sinceLine("2024-02-29")).toBe("Client since 29 Feb 2024");
+  expect(sinceLine("2025-01-01")).toBe("Client since 1 Jan 2025");
+});
 
 it("formats stored durations at the booking bounds", () => {
   expect([5, 30, 60, 600].map(durationLine)).toEqual(["5 min", "30 min", "60 min", "600 min"]);

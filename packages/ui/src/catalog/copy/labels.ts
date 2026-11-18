@@ -41,3 +41,8 @@ export const allLabel = "All";
 
 /** The cue on an offering that opens its booking flow. */
 export const bookLabel = "Book";
+
+/** Labels for actions that open the phone's contact apps. */
+export const contactLabels = { call: "Call", message: "Message", directions: "Directions" } as const;
+export const nextLine = (next: string): string => `Next: ${next}`;
+export const tagsLine = (tags: readonly string[]): string => tags.join(" · ");
