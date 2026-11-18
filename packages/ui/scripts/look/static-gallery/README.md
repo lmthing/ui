@@ -6,6 +6,11 @@ can be published (for example as a Claude artifact): `index.html` plus two JPEGs
 
 - `entries.ts`: the components listed (core and packs, drafts included) and each one's source file.
 - `shoot.ts`: starts the gallery on a free port and takes the images in headless Chrome.
-- `page.ts`, `page-style.ts`: the page, coloured from the kit's calm/moss theme roles.
+- `page.ts`: anchored cards and collapsible sections; `nav.ts`: overview, navigation and filters.
+- `page-style.ts`: responsive cards/compact layouts, using calm/moss theme roles in light and dark.
+- `page-script.ts`: filtering, hash sharing, sticky scroll tracking and compact expansion.
+- Scope, status and search persist as `#?scope=packs&status=ready&q=time`; section/card anchors can
+  precede the query. `/` focuses search and Esc clears it. Density persists in guarded localStorage.
+- Expand/Collapse all affects sections; each card keeps its own Show all variants toggle.
 - `run.ts`: the command. It keeps `manifest.json` in `<dir>` and shoots only what changed, then prints
   `GALLERY-FILE` lines for new or changed images and `GALLERY-PAGE` for the page.
