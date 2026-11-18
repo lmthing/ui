@@ -1,5 +1,10 @@
 # packs/customers/copy
 
-Component-owned labels, summary lines and reading copy for the customers pack.
-`ClientCard.ts` holds client summary and contact copy; `ClientCard.test.ts` checks it.
-Other folders import through `index.ts`. General shared formatters stay in `catalog`.
+Pure copy and formatting owned by customers pack components, one file per component.
+Use `index.ts` as the folder's door.
+
+- `ClientCard.ts`: client summary, contact labels and reading.
+- `PaymentStatus.ts`: payment labels, dates, settlement, reading and fallback.
+- `Review.ts`: review labels, counts, stars and reading.
+- Tests live in `../tests/copy/<Id>.test.ts`.
+- Shared currencies and money formatting stay in `catalog/copy`.

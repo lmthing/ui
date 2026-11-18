@@ -12,8 +12,8 @@ import {
   documentSend,
   documentStatus,
   documentTotals,
-  moneyLine,
   moneyLabels,
+  moneyLine,
   quantityLine,
 } from "./money";
 

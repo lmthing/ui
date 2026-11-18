@@ -36,3 +36,6 @@ export function percentLine(value: number, total: number): string {
 }
 
 export const badgeLine = (count: number): string => (count > 99 ? "99+" : String(count));
+
+/** Earned stamps and the reward target, for the screen and its reading. */
+export const stampLine = (stamps: number, of: number): string => `${stamps} ${goalLine(of)}`;

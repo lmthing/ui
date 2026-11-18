@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "./ClientCard";
+import { clientReading, contactLabels, nextLine, sinceLine, tagsLine } from "../../copy";
 
 it("keeps contact actions, next details and static tags readable", () => {
   expect(contactLabels).toEqual({ call: "Call", message: "Message", directions: "Directions" });

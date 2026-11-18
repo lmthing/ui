@@ -1,5 +1,14 @@
 import { expect, it } from "vitest";
-import { badgeLine, goalLine, moreLine, percentLine, stepLine, totalLine, trendWord } from "./counts";
+import {
+  badgeLine,
+  goalLine,
+  moreLine,
+  percentLine,
+  stampLine,
+  stepLine,
+  totalLine,
+  trendWord,
+} from "./counts";
 
 it("keeps count, sequence and total copy unchanged", () => {
   expect(goalLine(5)).toBe("of 5");
@@ -9,6 +18,11 @@ it("keeps count, sequence and total copy unchanged", () => {
   expect(moreLine(3)).toBe("+3");
   expect([badgeLine(0), badgeLine(99), badgeLine(100)]).toEqual(["0", "99", "99+"]);
   expect([percentLine(5, 12), percentLine(1, 0)]).toEqual(["42%", "0%"]);
+});
+
+it("reads every bounded stamp count with its target", () => {
+  for (let of = 4; of <= 12; of++)
+    for (let stamps = 0; stamps <= of; stamps++) expect(stampLine(stamps, of)).toBe(`${stamps} of ${of}`);
 });
 
 it("keeps all trend directions, including empty and single-point data", () => {
