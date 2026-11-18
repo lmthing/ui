@@ -50,7 +50,7 @@ it.each(["booking", "customers", "money", "places"] satisfies PackId[])(
         .map((def, i) => [`${pack}${i}`, { ...def, meta: { ...def.meta, id: `${pack}${i}` } }]),
     );
     const packOf = Object.fromEntries(Object.keys(fixture).map((id) => [id, pack]));
-    const defs = { ...components, ...fixture };
+    const defs = { ...Object.fromEntries(core.defs.map((def) => [def.meta.id, def])), ...fixture };
     const absent = writerFormat(registryOf(defs, { includeDrafts: true }, packOf));
     const included = writerFormat(registryOf(defs, { packs: [pack], includeDrafts: true }, packOf));
     expect(absent.json_schema.schema.anyOf).toHaveLength(44);

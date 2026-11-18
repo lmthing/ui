@@ -5,14 +5,16 @@ import { dataExports, scanEntries } from "./index";
 function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) {
   return [
     `import { registryOf, packReady as packReadyOf, buildPackIndex as packIndexOf, type Definition, type RegistryOptions, type PackId, type PackMeta, type ArchetypeMeta } from "../catalog";`,
-    ...defs.map(({ name, path }) => `import * as ${name} from "${path}";`),
+    ...defs.map(({ name, path, pack, door }) =>
+      door ? `import { ${name} } from "../packs/${pack}/components";` : `import * as ${name} from "${path}";`,
+    ),
     ...packs
       .filter(({ meta }) => meta)
       .map(({ id }) => `import { pack as ${id}Pack } from "../packs/${id}/pack";`),
-    ...packs.flatMap(({ id, archetypes }) =>
+    ...packs.flatMap(({ id, archetypes, door }) =>
       archetypes.map(
         ({ name, file }, i) =>
-          `import { ${name} as ${id}Archetype${i} } from "../packs/${id}/archetypes/${file}";`,
+          `import { ${name} as ${id}Archetype${i} } from "../packs/${id}/archetypes${door ? "" : "/" + file}";`,
       ),
     ),
     `export * from "../catalog";`,
@@ -44,7 +46,7 @@ function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) 
     "  return packReadyOf(id, { components, packOf, packs, packExamples });",
     "}",
     "export function createRegistry(options: RegistryOptions = {}) {",
-    "  return registryOf(components, options, packOf, packReady);",
+    "  return registryOf(components, options, packOf, packReady, packArchetypes);",
     "}",
     "export function buildPackIndex(options: { includeDrafts?: boolean } = {}) {",
     "  return packIndexOf(packs, options, packReady);",
@@ -56,7 +58,14 @@ export async function generateEntries(root: string) {
   const entries = await scanEntries(root);
   const ready = entries.defs.filter((def) => !def.draft);
   const renderers = [
-    ...ready.map(({ name, path }) => `import { ${name} } from "${path}";`),
+    ...ready.flatMap(({ name, path, pack, door }) =>
+      door
+        ? [
+            `import { ${name} as ${name}Definition } from "../packs/${pack}/components";`,
+            `const ${name} = ${name}Definition.${name};`,
+          ]
+        : [`import { ${name} } from "${path}";`],
+    ),
     `export const renderers = { ${ready.map((def) => def.name).join(", ")} };`,
   ];
   const outputs = {

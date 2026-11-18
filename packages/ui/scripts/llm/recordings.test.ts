@@ -2,10 +2,23 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { expect, it, vi, afterEach } from "vitest";
 import { components, writerFormatFor } from "@lmthing/ui/catalog";
-import { keyOf, replayCall } from "./recordings";
+import { keyOf, replayCall, recordingCall } from "./recordings";
 
 vi.mock("node:fs", () => ({ readFileSync: vi.fn(), mkdirSync: vi.fn(), writeFileSync: vi.fn() }));
 afterEach(() => vi.resetAllMocks());
+it("resumes unchanged pack samples, including failures, and calls changed prompts or formats", async () => {
+  const live = vi.fn(async () => "fresh");
+  const book = { [keyOf("model", "same")]: { prompt: "same", reply: "failed", replies: ["failed"] } };
+  const call = recordingCall("model", book, live, true);
+  expect(await call("same", 0)).toBe("failed");
+  expect(live).not.toHaveBeenCalled();
+  expect(await call("same", 1)).toBe("fresh");
+  expect(await call("changed", 0)).toBe("fresh");
+  expect(await call("same", 0, writerFormatFor(components.List))).toBe("fresh");
+  expect(live).toHaveBeenCalledTimes(3);
+  expect(await call("same", 1)).toBe("fresh");
+  expect(live).toHaveBeenCalledTimes(3);
+});
 it("hashes the sent format and preserves unformatted choose/read keys", () => {
   const format = writerFormatFor(components.List),
     prompt = "prompt",

@@ -15,6 +15,7 @@ import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config } from "../index";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
+import { DraftPreview } from "./overview";
 
 type Cell = { example: unknown; index: number; state: StateName };
 
@@ -62,7 +63,7 @@ function Screen({
           data-look-frame={screen}
         >
           <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
-            <View {...props} />
+            {View ? <View {...props} /> : <DraftPreview id={id} />}
           </PartScope>
         </YStack>
       </KitProvider>

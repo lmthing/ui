@@ -1,5 +1,5 @@
 import type { ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
-import type { PackProbe } from "../probes";
+import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 
 export type Meta = {
@@ -64,17 +64,21 @@ export type PackMeta = {
   purpose: string;
   pick: string;
   example: string;
-  probes: readonly PackProbe[];
+  probes: readonly (PackProbe | ChooseProbe)[];
 };
 export type Slot = {
   allow: readonly ComponentId[];
   required: boolean;
   min?: number;
   max?: number;
+  variant?: string;
 };
 export type ArchetypeMeta = {
   id: string;
   job: string;
-  layouts: Record<string, { recipe: readonly Slot[]; defaults: readonly Component[] }>;
+  layouts: Record<
+    string,
+    { recipe: readonly Slot[]; defaults: readonly Component[]; writeHints?: readonly string[] }
+  >;
   defaultLayout: string;
 };

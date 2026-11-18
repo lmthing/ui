@@ -49,7 +49,7 @@ function ComponentGroup({
 export function Overview() {
   const [filter, setFilter] = useState("");
   const [expanded, setExpanded] = useState<ReadonlySet<ComponentName>>(new Set());
-  const sections = groupedIds(filter);
+  const sections = groupedIds(filter, new URLSearchParams(globalThis.location?.search ?? "").get("pack"));
   const toggle = (id: ComponentName) =>
     setExpanded((current) => {
       const next = new Set(current);

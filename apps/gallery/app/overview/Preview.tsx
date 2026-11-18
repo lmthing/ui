@@ -3,6 +3,7 @@ import { accents, component, components, space, stampItemIds } from "@lmthing/ui
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { galleryParts, resolvePhoto } from "../../index";
 import type { Cell, modes } from "./gallery-data";
+import { DraftPreview } from "./DraftPreview";
 
 export function Preview({
   cell,
@@ -49,7 +50,7 @@ export function Preview({
           backgroundColor={responsive ? "$bg" : undefined}
         >
           <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
-            <View {...props} />
+            {View ? <View {...props} /> : <DraftPreview id={cell.id} />}
           </PartScope>
         </YStack>
       </KitProvider>
