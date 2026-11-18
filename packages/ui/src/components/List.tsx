@@ -168,7 +168,7 @@ export function List({ style, rows }: Props<typeof props, typeof meta>) {
     return (
       <KitCard style={surface}>
         {state === "loading" ? (
-          <KitSkeleton rows={rows.length} lead={rows[0]?.photo ? "box" : "dot"} />
+          <KitSkeleton rows={rows.length} lead={rows[0]?.photo ? "box" : "dot"} items={rows} />
         ) : (
           <KitEmpty part="title" />
         )}

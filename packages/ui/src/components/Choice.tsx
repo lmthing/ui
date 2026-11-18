@@ -133,7 +133,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
   if (state === "loading") {
     return (
       <KitCard style="plain" padded>
-        <KitSkeleton rows={options.length} lead="box" />
+        <KitSkeleton shape="options" question={question} look={style} items={options} />
       </KitCard>
     );
   }

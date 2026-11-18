@@ -122,16 +122,36 @@ function AmountFigure({
   );
 }
 
+function AmountLoading(input: Props<typeof props, typeof meta>) {
+  const { style, label, value, currency, per } = input;
+  const shown = style === "total" ? (label ?? moneyLabels.total) : label;
+  return (
+    <KitCard style="inset" padded look={style === "total" ? "outlined" : "surface"}>
+      <KitSkeleton
+        shape="figure"
+        inset="none"
+        centered={style === "large"}
+        split={style !== "large" && Boolean(shown)}
+        content={[
+          [style === "large" ? "label" : "body", shown],
+          [style === "large" ? "number" : "body", moneyLine(value, currency, per), "end"],
+          ["caption", input.was === undefined ? undefined : moneyLine(input.was, currency), "end"],
+          [
+            "caption",
+            input.change === undefined ? undefined : changeLine(input.change, input.changeIn, currency),
+            "end",
+          ],
+          ["caption", input.sub, "end"],
+        ]}
+      />
+    </KitCard>
+  );
+}
+
 export function Amount(input: Props<typeof props, typeof meta>) {
   const { style, label, value, currency, per, goto } = input;
   const state = useComponentState();
-  if (state === "loading") {
-    return (
-      <KitCard style="inset" padded>
-        <KitSkeleton shape="headline" rows={1} lead="none" />
-      </KitCard>
-    );
-  }
+  if (state === "loading") return <AmountLoading {...input} />;
   const large = style === "large";
   const shown = style === "total" ? (label ?? moneyLabels.total) : label;
   const figure = <AmountFigure {...input} />;

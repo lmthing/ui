@@ -175,7 +175,7 @@ export function Bars({ style, title, unit, points }: Props<typeof props, typeof 
     return (
       <KitCard style="inset" part="root" padded>
         {state === "loading" ? (
-          <KitSkeleton shape="bars" rows={points.length} lead="none" />
+          <KitSkeleton shape="bars" rows={points.length} title={title} share={style === "share"} />
         ) : (
           <KitEmpty part="title" />
         )}

@@ -1,21 +1,65 @@
 import { XStack, YStack, styled } from "tamagui";
-import { component, loadingLabel, radius, space } from "../../../catalog";
+import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
+import { useKitStyle } from "../../provider";
+import { shifted } from "../text";
+import { SkeletonContent, SkeletonText, skeletonInset, type ShapeProps } from "./skeleton-content";
 
 export const Bar = styled(YStack, { backgroundColor: "$line", borderRadius: radius.sm });
-export type ShapeProps = { rows: number; ring: "md" | "lg" };
-
-export function SkeletonBars({ rows }: ShapeProps) {
+export function SkeletonBars({ rows = 7, title, inset, share }: ShapeProps) {
   const heights = [0.45, 0.7, 0.55, 0.9, 0.6, 0.35, 0.75];
   return (
-    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.md} padding={space.md}>
-      <Bar height={space.md} width="45%" />
-      <XStack gap={space.xs} height={component.base.barsHeight} alignItems="flex-end">
-        {heights.slice(0, rows > 1 ? rows : 7).map((h, index) => (
-          <YStack key={index} flex={1} alignItems="center">
-            <Bar width="70%" height={component.base.barsHeight * h} />
+    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={skeletonInset(inset)}>
+      <XStack gap={space.md} paddingVertical={space.xs}>
+        <YStack flex={1}>
+          {title ? <SkeletonText text={title} role="heading" /> : <Bar height={space.md} width="45%" />}
+        </YStack>
+        <YStack flex={1} gap={space.xs}>
+          <YStack height={typography.caption.lineHeight} justifyContent="center">
+            <Bar height={space.sm} width="30%" alignSelf="flex-end" />
           </YStack>
-        ))}
+          <YStack
+            height={share ? typography.body.lineHeight : typography.number.lineHeight}
+            justifyContent="center"
+          >
+            <Bar height={share ? space.md : space.lg} width="55%" alignSelf="flex-end" />
+          </YStack>
+        </YStack>
       </XStack>
+      {share ? (
+        <YStack gap={space.md}>
+          <Bar height={space.md} />
+          {Array.from({ length: rows }, (_, index) => (
+            <XStack key={index} height={typography.body.lineHeight} alignItems="center" gap={space.sm}>
+              <Bar width={component.base.dot} height={component.base.dot} />
+              <Bar width="48%" height={space.md} />
+              <YStack flex={1} />
+              <Bar width="20%" height={space.md} />
+            </XStack>
+          ))}
+        </YStack>
+      ) : (
+        <XStack gap={space.xs} alignItems="flex-end">
+          {heights.slice(0, rows).map((h, index) => (
+            <YStack key={index} flex={1} alignItems="center" gap={space.xs}>
+              <YStack
+                height={component.base.barsHeight + typography.caption.lineHeight + space.xs}
+                width="100%"
+                justifyContent="flex-end"
+                alignItems="center"
+                gap={space.xs}
+              >
+                <YStack height={typography.caption.lineHeight} width="30%" justifyContent="center">
+                  <Bar height={space.sm} />
+                </YStack>
+                <Bar width="70%" height={component.base.barsHeight * h} />
+              </YStack>
+              <YStack height={typography.caption.lineHeight} width="55%" justifyContent="center">
+                <Bar height={space.sm} />
+              </YStack>
+            </YStack>
+          ))}
+        </XStack>
+      )}
     </YStack>
   );
 }
@@ -34,7 +78,7 @@ export function SkeletonTrend() {
   );
 }
 
-export function SkeletonRing({ ring }: ShapeProps) {
+export function SkeletonRing({ ring = "md" }: ShapeProps) {
   const box = ring === "lg" ? component.base.ringLg : component.base.ringMd;
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy alignItems="center" gap={space.sm} padding={space.md}>
@@ -51,13 +95,54 @@ export function SkeletonRing({ ring }: ShapeProps) {
   );
 }
 
-export function SkeletonMedia() {
+export function SkeletonMedia({ aspect = "wide", lines, inset, playback }: ShapeProps) {
+  const ks = useKitStyle();
   return (
-    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={space.md}>
-      <Bar width="100%" aspectRatio={component.base.wideRatio} borderRadius={radius.lg} />
-      <Bar height={space.md} width="56%" />
-      <Bar height={space.sm + space.xs / 2} width="82%" />
-      <Bar height={space.sm + space.xs / 2} width="34%" />
+    <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={skeletonInset(inset)}>
+      {aspect !== "none" && (
+        <Bar
+          width={aspect === "avatar" ? size.avatar.lg : "100%"}
+          alignSelf={aspect === "avatar" ? "center" : undefined}
+          aspectRatio={
+            aspect === "wide"
+              ? component.base.wideRatio
+              : aspect === "tall"
+                ? component.base.tallRatio
+                : component.base.bodyFlex
+          }
+          borderRadius={aspect === "avatar" ? radius.pill : shifted("lg", ks.radiusShift)}
+        />
+      )}
+      {lines ? (
+        <SkeletonContent lines={lines} />
+      ) : (
+        <>
+          <Bar height={space.md} width="56%" />
+          <Bar height={space.sm + space.xs / 2} width="82%" />
+          <Bar height={space.sm + space.xs / 2} width="34%" />
+        </>
+      )}
+      {playback && (
+        <>
+          <YStack height={size.control.md} justifyContent="center" paddingHorizontal={size.icon.lg / 2}>
+            <Bar height={space.xs + space.xs / 2} />
+          </YStack>
+          <XStack height={typography.caption.lineHeight} justifyContent="space-between" alignItems="center">
+            <Bar width={size.control.md} height={space.sm} />
+            <Bar width={size.control.md} height={space.sm} />
+          </XStack>
+          <XStack height={size.control.md} justifyContent="center" alignItems="center" gap={space.md}>
+            {[0, 1, 2].map((index) => (
+              <Bar
+                key={index}
+                width={size.control.md}
+                height={size.control.md}
+                borderRadius={shifted("md", ks.radiusShift)}
+              />
+            ))}
+          </XStack>
+        </>
+      )}
     </YStack>
   );
 }

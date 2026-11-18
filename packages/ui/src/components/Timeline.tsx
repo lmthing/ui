@@ -154,11 +154,14 @@ export const probes = [
 
 export function Timeline({ style, items }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const loading = <KitSkeleton rows={items.length} lead="time" items={items} />;
   if (state === "loading" || state === "empty")
     return (
-      <KitCard style="inset" part="root">
-        {state === "loading" ? <KitSkeleton rows={items.length} lead="box" /> : <KitEmpty part="title" />}
-      </KitCard>
+      <KitCard
+        style="inset"
+        part="root"
+        children={state === "loading" ? loading : <KitEmpty part="title" />}
+      />
     );
   if (style === "hours")
     return (
