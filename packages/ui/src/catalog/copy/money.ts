@@ -154,3 +154,14 @@ export function documentReading(input: DocumentInput, state: string): string[] {
     ...(input.style === "quote" ? [documentLabels.accept, documentLabels.decline] : []),
   ];
 }
+
+/** Keep record prices readable even at the schema's largest finite value. */
+export function compactMoneyLine(value: number, currency: Currency = defaultCurrency): string {
+  if (value < 10000) return moneyLine(value, currency);
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    notation: value < 1e15 ? "compact" : "scientific",
+    maximumSignificantDigits: 3,
+  }).format(value);
+}

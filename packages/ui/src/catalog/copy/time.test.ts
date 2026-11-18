@@ -1,11 +1,13 @@
 import { expect, it } from "vitest";
 import {
+  appointmentDate,
   availabilityDefaults,
   availabilityLabels,
   breakLine,
   clockLine,
   durationLine,
   leftLine,
+  minutesLine,
   remainingLine,
   repeatLabels,
   repeatOptions,
@@ -62,6 +64,13 @@ it("keeps clock, countdown and streak text unchanged at boundaries", () => {
     "Monthly",
     "Yearly",
   ]);
+});
+
+it("formats the full provider date and bounded duration without a timezone shift", () => {
+  expect(appointmentDate("2026-11-20")).toBe("20 Nov 2026");
+  expect(appointmentDate("2024-02-29")).toBe("29 Feb 2024");
+  expect(appointmentDate("9999-12-31")).toBe("31 Dec 9999");
+  expect([minutesLine(5), minutesLine(600)]).toEqual(["5 min", "600 min"]);
 });
 
 it("formats exact slot durations and local end times at the supported boundaries", () => {

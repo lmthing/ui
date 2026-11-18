@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import {
   changeLine,
+  compactMoneyLine,
   currencies,
   defaultCurrency,
   documentAmounts,
@@ -104,4 +105,15 @@ it("shares document headings, quantities, optional fields and readings", () => {
     "Decline",
   ]);
   expect(documentReading({ ...input, style: "invoice" }, "filled")).not.toContain(documentLabels.accept);
+});
+
+it("keeps ordinary prices exact and bounds large displayed prices", () => {
+  expect([compactMoneyLine(0), compactMoneyLine(15.5), compactMoneyLine(9999.99)]).toEqual([
+    "$0",
+    "$15.50",
+    "$9,999.99",
+  ]);
+  expect(compactMoneyLine(10000)).toBe("$10K");
+  expect(compactMoneyLine(1e15)).toBe("$1E15");
+  expect(compactMoneyLine(Number.MAX_VALUE)).toBe("$1.8E308");
 });
