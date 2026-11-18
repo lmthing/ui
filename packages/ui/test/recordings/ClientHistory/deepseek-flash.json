@@ -97,7 +97,7 @@
     "reply": "{\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"payment\",\"title\":\"Payment received\",\"amount\":120,\"goto\":\"payment\"},{\"date\":\"2026-11-17\",\"kind\":\"visit\",\"title\":\"Park walk\",\"amount\":null,\"goto\":\"visit\"}]}",
     "replies": [
       "{\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"payment\",\"title\":\"Payment received\",\"amount\":120,\"goto\":\"payment\"},{\"date\":\"2026-11-17\",\"kind\":\"visit\",\"title\":\"Park walk\",\"amount\":null,\"goto\":\"visit\"}]}",
-      "{\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"payment\",\"title\":\"Payment of 120\",\"amount\":120,\"goto\":\"payment\"},{\"date\":\"2026-11-17\",\"kind\":\"visit\",\"title\":\"Park walk\",\"amount\":null,\"goto\":\"visit\"}]}",
+      "{\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"payment\",\"title\":\"Payment for services\",\"amount\":120,\"goto\":\"payment\"},{\"date\":\"2026-11-17\",\"kind\":\"visit\",\"title\":\"Park walk\",\"amount\":null,\"goto\":\"visit\"}]}",
       "{\"c\":\"ClientHistory\",\"entries\":[{\"date\":\"2026-11-18\",\"kind\":\"payment\",\"title\":\"Payment received\",\"amount\":120,\"goto\":\"payment\"},{\"date\":\"2026-11-17\",\"kind\":\"visit\",\"title\":\"Park walk\",\"amount\":null,\"goto\":\"visit\"}]}"
     ]
   },

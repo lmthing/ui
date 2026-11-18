@@ -29,7 +29,7 @@ import {
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
   id: "ClientHistory",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Recall one client's visits, orders, payments, notes and messages together.",
   pick: "One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).",
