@@ -1,5 +1,7 @@
 import { z } from "zod";
 import {
+  changeLine,
+  historyDetailLine,
   isoDate,
   itemsOf,
   placeholderTitle,
@@ -11,12 +13,23 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitEmpty,
+  KitIcon,
+  KitRow,
+  KitSkeleton,
+  KitText,
+  KitTrail,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
   id: "ClientHistory",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Recall one client's visits, orders, payments, notes and messages together.",
   pick: "One client's past events across visits, orders, payments, notes and messages, newest first. Not a plan in time order (Timeline), personal banking (Transactions), or staff changes (ActivityLog).",
@@ -26,9 +39,16 @@ export const meta = {
   tier: "phone",
   realPath: "Records linked to one client on the device.",
   items: { key: "entries", parts: ["root", "date", "kind", "title", "amount"] },
-  parts: ["root"],
+  parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
+  read: (input, state) =>
+    state !== "filled"
+      ? []
+      : (input as z.output<typeof props>).entries.flatMap((entry) => [
+          historyDetailLine(entry.kind, entry.date),
+          ...(entry.amount === undefined ? [] : [changeLine(entry.amount, "money")]),
+        ]),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -77,7 +97,7 @@ export const examples = [
   {
     entries: [
       { date: "2026-11-18", kind: "payment", title: "October walks paid", amount: 120, goto: "payment" },
-      { date: "2026-11-17", kind: "message", title: "Clover's pickup confirmed", goto: "messages" },
+      { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -92,3 +112,54 @@ export const probes = [
   ),
   read("Open the watering and leaf care visit", { address: "c1/r1", action: "press" }),
 ] satisfies Probe[];
+
+const kindIcons = {
+  visit: "calendar",
+  order: "shopping_bag",
+  payment: "banknote",
+  note: "file_text",
+  message: "message",
+} as const;
+
+export function ClientHistory({ entries }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  return (
+    <KitCard style="inset" part="root">
+      {state === "empty" ? (
+        <KitEmpty decorativeIcon part="empty" />
+      ) : state === "loading" ? (
+        <KitSkeleton
+          rows={entries.length}
+          lead="dot"
+          items={entries.map((entry) => ({
+            title: entry.title,
+            meta: historyDetailLine(entry.kind, entry.date),
+            trail: true,
+          }))}
+        />
+      ) : (
+        entries.map((entry) => (
+          <KitRow
+            key={entry.id}
+            item={entry.id}
+            label={entry.title}
+            goto={entry.goto}
+            leading={<KitIcon name={kindIcons[entry.kind]} part="kind" />}
+            trailing={
+              entry.amount === undefined ? (
+                <KitIcon name="chevron_right" decorative />
+              ) : (
+                <KitTrail kind="value" value={changeLine(entry.amount, "money")} part="amount" />
+              )
+            }
+          >
+            <KitText part="title">{entry.title}</KitText>
+            <KitText role="caption" tone="muted" part="date">
+              {historyDetailLine(entry.kind, entry.date)}
+            </KitText>
+          </KitRow>
+        ))
+      )}
+    </KitCard>
+  );
+}
