@@ -142,7 +142,6 @@ components, only its own items, so screens stay flat.
 - **Opening it:** `goto` gains the value `sheet` (this screen's sheet) everywhere a screen id is allowed:
   the `Header` action, `Button`, `List` rows, `Card`. A flow step can open it too.
 - **States:** filled. · **Real path:** a local overlay on the current screen.
-- **Aliases:** modal, dialog, popup, bottomsheet, actionsheet, overflow.
 - **Read:** printed under the screen only while open, with the runtime mark `open` (plan 4.12 `marks`):
   `s1 Sheet[picker] "Repeat"`.
 - **Kit work:** `KitSheet` (grabber, title, content, safe area, `sheet` elevation, spring `gentle`), the
@@ -167,7 +166,6 @@ that stays disabled while the box is empty.
   `meta.partTiers` (`{ send: "people" }`), because a reply only matters when someone else reads it.
 - **Real path:** the text is saved to one record on the device; a reply goes through the same shared app as
   the conversation above it.
-- **Aliases:** textarea, editor, notes, messagebox, reply, multiline.
 - **Kit work:** `KitTextArea` (grows with content, keyboard-safe, role textbox multiline), `KitSend`; copy
   `charLine(n, max)` and the send label. The kit pins `reply` above the keyboard.
 
@@ -185,7 +183,6 @@ A bar past its target turns to its `over` tone.
   one tight line each, for a short strip between other components).
 - **Parts → actions:** items `root press` (linked bars only). · **States:** filled, empty, loading.
 - **Real path:** amounts summed from records on the device, each compared with a target stored there.
-- **Aliases:** progressbar, meter, gauge, targets, macros.
 - **Read:** `"Protein" 62 of 120 g · "Carbs" 180 of 200 g`.
 - **Kit work:** `KitProgressBar` (track `$line`, fill `$accent` or tone, clamped), a `progress` skeleton.
 
@@ -205,7 +202,6 @@ ring and a tick. With `multi`, several can be chosen.
 - **Styles:** `cards` (default), `list` (rows with a radio or tick on the left, for longer questions).
 - **Parts → actions:** items `root select` (with `multi`: `toggle`). · **States:** filled.
 - **Real path:** the chosen option is stored on one record on the device.
-- **Aliases:** options, plans, pricing, radio, multiplechoice.
 - **Kit work:** `KitOption` (card or row, selected ring, badge corner, role radio or checkbox).
 
 ### `Amount` · new · data · phone · body · weight 2
@@ -226,7 +222,6 @@ optional period ("/ month"), an optional old price struck through, and an option
 - **Parts → actions:** `root press` (when linked). · **States:** filled, loading.
 - **Real path:** a sum computed on the device from stored records; no money moves (paying is a pack
   component with tier `service`).
-- **Aliases:** price, balance, money, cost, sum.
 - **Read:** `"Balance" €1,240.50 · down €32 this week`.
 - **Kit work:** `moneyLine(value, currency, per)` in `catalog/copy.ts` over `Intl.NumberFormat`; the
   `currency` prop helper; `KitText role="number" tabular` draws it.
@@ -247,7 +242,6 @@ large controls, `video` a 16:9 frame with controls over it, `compact` one row fo
 - **Parts → actions:** `play play`, `play pause`, `scrubber seek`, `back press`, `forward press`.
 - **States:** filled, loading.
 - **Real path:** a file stored on or bundled with the app, played by the device's media player.
-- **Aliases:** audio, video, podcast, media, playback, nowplaying.
 - **Read:** `"Evening wind-down" · 4:05 of 12:00 · paused`.
 - **Kit work:** `KitScrubber` (role slider, `clockLine` labels), `KitMediaControls`, a `media` prop helper,
   and a media adapter behind the host interface (plan 5.3) so the kit never imports a player library.
@@ -266,13 +260,6 @@ repeated wrong pick. If both stay stable, keep both ids and close this section w
 Migrations under `catalog/migrations/` rewrite old lines; recordings of the old ids retire in the same
 commit.
 
-### Alias clean-up
-
-An alias has one owner and never equals another component's id. Two built aliases break that and change in
-step C1: `choices` is on both `Chips` and `SwipeStack` (it stays with `Chips`; `SwipeStack` takes `keepskip`),
-and `progress` on `Ring` equals the new `Progress` id (it moves off `Ring`). Pack aliases that shadow a core
-alias on purpose are listed in each pack file.
-
 ## 4. The full core
 
 ### Structure (4)
@@ -283,25 +270,22 @@ one corner action.
 - Pick: every screen that needs a name. Not the label of one group inside the screen (`SectionTitle`).
 - Writes: `title` text(28), `sub` text(40) optional, `action` (icon, label text(16), `goto`) optional.
 - Styles: `large`, `inline`, `back`. · States: filled. · Parts → actions: `action press` (may open `sheet`).
-- Aliases: heading, topbar, navbar, screenheading.
 
 ### `SectionTitle` · built · structure · phone · body · weight 1
 A small heading above a group of content, with one optional link on the right ("See all").
 - Pick: label a group so the screen scans; names a `List` `shelf`. Not the screen's name (`Header`).
 - Writes: `text` text(32), `link` (label text(16), `goto`) optional. · Parts → actions: `link press`.
-- Aliases: sectionheading, grouplabel, groupheading, sectionlabel.
 
 ### `Steps` · built · structure · phone · top · weight 1
 Where the person is in a short sequence: dots, a segmented bar or numbered circles, with an optional label.
 - Pick: a flow of 2 to 6 screens. Not progress toward an amount (`Progress`, `Ring`).
 - Writes: `count` 2–6, `at` 1–6, `label` text(32) optional. · Styles: `dots`, `bar`, `numbered`.
-- Aliases: stepper, wizard, sequence, onboarding.
 
 ### `TabBar` · built · structure · phone · bottom · weight 1 · code-owned
 Bottom navigation with 2 to 5 tabs, built by code from sections marked `nav`; never written by a model.
 - Writes (code): `tabs` of icon, label text(12), `goto`, 2–5; `at`. **Change:** a count badge per tab from
   code (unread, due), never from the model.
-- Parts → actions: items `root select`. · Aliases: bottomnav, navigation, maintabs, navtabs.
+- Parts → actions: items `root select`.
 
 ### Content (11)
 
@@ -311,7 +295,7 @@ number with a caption.
 - Pick: one headline fact or message. Not one sum of money as the headline (`Amount` style `large`), not
   several numbers (`Stats`), not something to notice now (`Banner`).
 - Writes: `title` text(40), `sub` text(80) optional, `photo` optional, `tone`.
-- Styles: `statement`, `photo`, `number`. · States: filled, loading. · Aliases: headline, intro, spotlight.
+- Styles: `statement`, `photo`, `number`. · States: filled, loading.
 
 ### `Card` · changed · content · phone · body · weight 2
 One thing with a little detail: title, body, meta, an icon or a photo (not both), optionally tappable.
@@ -320,7 +304,6 @@ One thing with a little detail: title, body, meta, an icon or a photo (not both)
 - Writes: `title` text(40), `body` text(120), `meta` text(24), `icon` or `photo`, `tone`, `goto`; **new**
   `badge` text(12) optional: a status pill in the top corner ("Paid", "Due today", "New").
 - Styles: `plain`, `tinted`, `outlined`, `media`. · States: filled, loading. · Parts → actions: `root press`.
-- Aliases: tile, summary, panel.
 
 ### `List` · changed · content · phone · body · weight 2
 Several things of one kind as rows (title, meta, icon or photo, and a trail: chevron, check, switch, value
@@ -336,26 +319,24 @@ or badge), each tappable.
   the top three marked, the `me` row tinted, `value` as the score: leaderboards for social, learning, health
   and sports).
 - Parts → actions: items `root press` (`root toggle` in `expand`), `trail toggle`.
-- States: filled, empty, loading. · Aliases: listview, table, rows, items, **new** shelf, rail, accordion, faq,
-  leaderboard, ranking.
+- States: filled, empty, loading.
 
 ### `KeyValue` · built · content · phone · body · weight 2
 Labelled facts about one thing in rows or a two-column grid.
 - Pick: details of one thing (its room, schedule, size). Not one sum of money (`Amount`).
 - Writes: `pairs` of label text(20), value text(28), icon, 1–6. · Styles: `rows`, `grid`.
-- States: filled, empty, loading. · Aliases: attributes, details, properties, specifications.
+- States: filled, empty, loading.
 
 ### `Note` · built · content · phone · body · weight 1
 One short sentence of supporting information, as body text, a quote or a hint.
 - Pick: one sentence that helps. Not something urgent (`Banner`), not the person's own writing (`Composer`).
 - Writes: `text` text(120), `tone`, `icon`. · Styles: `body`, `quote`, `hint`.
-- Aliases: sentence, tip, aside, quotation.
 
 ### `Photo` · built · content · phone · body · weight 2
 One picture with an optional caption; the style is its shape.
 - Pick: one picture matters. Not several (`Gallery`), not a recording (`Player`).
 - Writes: `photo`, `caption` text(80) optional. · Styles: `wide` (default), `square`, `tall`.
-- States: filled, loading. · Aliases: picture, image, snapshot.
+- States: filled, loading.
 
 ### `Gallery` · changed · content · phone · body · weight 3
 Several pictures as a grid, a sideways strip, or a full-width carousel.
@@ -364,20 +345,17 @@ Several pictures as a grid, a sideways strip, or a full-width carousel.
 - Styles: `grid`, `strip`, **new** `carousel` (full width, one at a time, page dots: product, listing and
   place photos).
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Aliases: album, photogrid, filmstrip, **new** carousel, slideshow.
 
 ### `Profile` · built · content · phone · top · weight 2
 Who or what this screen is about: a photo, a name and a meta line, as a row or centred.
 - Pick: the identity of the person, pet, plant or thing. Not other people involved (`People`).
 - Writes: `name` text(32), `meta` text(48), `photo`. · Styles: `row`, `centered`. · States: filled, loading.
-- Aliases: identity, portrait, bio.
 
 ### `Banner` · built · content · phone · top · weight 2
 A tinted strip near the top with an icon and a sentence that needs attention now, optionally tappable.
 - Pick: something to notice now (overdue, offline, a change). Not a helpful sentence (`Note`), not an offer
   (commerce `Promo`).
-- Writes: `text` text(80), `icon`, `tone` (default `warn`), `goto`. · Aliases: notice, notification, alert,
-  announcement.
+- Writes: `text` text(80), `icon`, `tone` (default `warn`), `goto`.
 
 ### `Empty` · changed · content · phone · body · weight 2
 A calm, centred message on a screen with nothing in it yet, with an icon badge.
@@ -385,7 +363,6 @@ A calm, centred message on a screen with nothing in it yet, with an icon badge.
 - Writes: `title` text(40), `sub` text(100), `icon`; **new** `kind` (`none` default, `error`, `offline`)
   and **new** `goto` for the next step.
 - Parts → actions: **new** `retry press` (error, offline), `root press` (with `goto`).
-- Aliases: blank, absence, unstarted, **new** error, offline.
 
 ### `Player` · new · content · phone · body · weight 3
 See section 2.
@@ -400,14 +377,13 @@ Two to four numbers as tiles or one inline row, each with a label, unit and an o
   `trend`: 1–2 tiles, each with `points` 3–12 and `tone`.
 - Styles: `tiles`, `inline`, **new** `trend` (a small line of recent values under each number; replaces
   `Sparkline` if section 3 merges it).
-- States: filled, empty, loading. · Signature: `count_up`. · Aliases: metrics, totals, figures.
+- States: filled, empty, loading. · Signature: `count_up`.
 
 ### `Ring` · built · data · phone · body · weight 2
 A ring filling toward one goal with the amount written inside.
 - Pick: how far toward one main goal. Not several targets (`Progress`), not a sequence (`Steps`).
 - Writes: `value`, `of`, `label` text(24), `sub` text(48). · Styles: `md`, `lg`. · States: filled, loading.
-- Signature: `ring_fill`. · Aliases: goal, completion (**change:** `progress` moves off `Ring` when the
-  `Progress` component is built, since an alias may not equal another component's id).
+- Signature: `ring_fill`.
 
 ### `Bars` · changed · data · phone · body · weight 2
 Two to seven columns comparing amounts across days or categories under a title, the largest in accent; or
@@ -420,7 +396,7 @@ one bar split into shares of a whole with a legend.
   total above it, and a legend of label, value and percent, largest first: spending by category, time by
   project, votes by option; replaces the first plan's money `Spending` and data `Donut`).
 - Parts → actions: **new** `share` legend items `root press`. · States: filled, empty, loading.
-- Signature: `bars_grow`. · Aliases: columns, histogram, barchart, **new** breakdown, share, pie, donut.
+- Signature: `bars_grow`.
 
 ### `Progress` · new · data · phone · body · weight 2
 See section 2.
@@ -435,20 +411,19 @@ Things in time order with a time column, as a day plan or a history, or as block
   `hours`: up to 8 items with `time` and `end` as HH:MM, `tone` and `goto`.
 - Styles: `day`, `history`, **new** `hours` (blocks sized by their length so gaps show; replaces
   `DayTimeline` if section 3 merges it). · States: filled, empty, loading.
-- Signature: `day_unfold` (on `hours`). · Aliases: chronology, agenda, history.
+- Signature: `day_unfold` (on `hours`).
 
 ### `Calendar` · built · data · phone · body · weight 3
 A week strip or a month grid with marked days in a tone and one selected day.
 - Pick: which days have something, and opening a day. Not what happens within a day (`Timeline`).
 - Writes: `month` text(16), `marked` of day 1–31 and tone, 0–12, `selected` optional, `start`, `days`.
 - Styles: `week`, `month`. · Parts → actions: items `root select`. · Signature: `calendar_sweep`.
-- Aliases: dates, monthgrid, weekgrid, daypicker.
 
 ### `Counter` · built · data · phone · body · weight 2
 One number nudged up or down by a fixed step with large minus and plus buttons.
 - Pick: keep one running count (glasses of water, laps). Not a quantity on a product (commerce `Product`).
 - Writes: `label` text(24), `value` int ≥ 0, `unit` text(8), `step` 1–100.
-- Parts → actions: `minus decrement`, `plus increment`. · Aliases: tally, count, quantity.
+- Parts → actions: `minus decrement`, `plus increment`.
 
 ### `Timer` · changed · data · phone · body · weight 2
 A large clock counting down or up with start and stop, or the time left until a date.
@@ -457,7 +432,6 @@ A large clock counting down or up with start and stop, or the time left until a 
   style `until`.
 - Styles: `down`, `up`, **new** `until` (days, hours and minutes left: a trip, a wedding, a deadline; no
   start or stop). · Parts → actions: `start`, `stop` (not in `until`). · Signature: `timer_spin`.
-- Aliases: countdown, stopwatch, duration.
 
 ### Input (8)
 
@@ -469,30 +443,30 @@ One labelled piece of information: text, number, date, time, a choice, a toggle,
   only); **new** kind `repeat` (value `never`, `daily`, `weekdays`, `weekly`, `monthly`, `yearly`) for
   reminders, chores, medication and care schedules.
 - Parts → actions: `field` `type`, `select`, `toggle`, `set` or `press` (photo) by kind.
-- Tier: kind `photo` needs the person's OK. · Aliases: input, formfield, entry, **new** repeat.
+- Tier: kind `photo` needs the person's OK.
 
 ### `Chips` · built · input · phone · body · weight 1
 A wrapping row of two to six short pills to filter, or to pick one.
 - Pick: filter, or pick among a few one-word options. Not options needing a sentence (`Choice`), not
   switching views (`Segmented`).
 - Writes: `items` of label text(16), on, icon, 2–6. · Styles: `filter`, `choose`.
-- Parts → actions: items `root toggle` or `select`. · Aliases: pills, filters, choices.
+- Parts → actions: items `root toggle` or `select`.
 
 ### `Segmented` · built · input · phone · top · weight 1
 A tinted track of 2 to 4 equal segments that switches between views of the same screen.
 - Pick: switch between views (Day, Week, Month). Not filtering a list (`Chips`).
-- Writes: `options` of label text(14), 2–4, `at`. · Aliases: segments, viewswitch, viewpicker, viewtabs.
+- Writes: `options` of label text(14), 2–4, `at`.
 
 ### `Checklist` · built · input · phone · body · weight 2
 Up to six jobs with tick boxes; ticking one strikes it through.
 - Pick: things to do and tick off. Not things to scan and open (`List`), not quiz answers (`Choice`).
 - Writes: `items` of text text(36), done, meta text(24), 1–6. · Parts → actions: items `check check`.
-- States: filled, empty, loading. · Signature: `check_burst`. · Aliases: tasks, todo, ticks, checks.
+- States: filled, empty, loading. · Signature: `check_burst`.
 
 ### `Search` · built · input · phone · top · weight 1
 A search box with a magnifier and a hint.
 - Pick: find one thing among many by name. Not writing text (`Composer`).
-- Writes: `hint` text(40). · Parts → actions: `field type`. · Aliases: searchbox, searchbar, lookup, find.
+- Writes: `hint` text(40). · Parts → actions: `field type`.
 
 ### `Scale` · changed · input · phone · body · weight 2
 Five faces, stars or dots to log a level from one to five, or stars that show a rating.
@@ -501,7 +475,6 @@ Five faces, stars or dots to log a level from one to five, or stars that show a 
 - Writes: `label` text(32), `value` 0–5; **new** in style `stars` only: `readonly` boolean, with `value`
   0–5 in steps of 0.5 and `meta` text(24) ("4.6 · 212 reviews").
 - Styles: `dots` (default), `mood`, `stars`. · Parts → actions: `l1`…`l5 select` (none when `readonly`).
-- Aliases: rating, mood, score, level.
 
 ### `Choice` · new · input · phone · body · weight 2
 See section 2.
@@ -519,14 +492,12 @@ The one thing to do next as a full-width button (`primary` at most once per scre
   the button's tone and cancel. The kit draws it; it is not a `Sheet` component and does not count against
   the one-sheet rule.
 - Kinds: `primary`, `secondary`, `quiet`, `danger`. · Parts → actions: `root press`.
-- Aliases: button, cta, submit, action.
 
 ### `Actions` · built · action · phone · body · weight 2
 Two to four shortcuts as icon tiles.
 - Pick: a few different things the person can do next. Not the one main thing (`Button`), not a menu of
   extra actions (`Sheet` style `menu`).
 - Writes: `items` of icon, label text(16), `goto`, 2–4. · Parts → actions: items `root press`.
-- Aliases: shortcuts, quickactions, quicklinks.
 
 ### `Success` · changed · action · phone · body · weight 2
 Proof something worked: a large tick, a title and a line; or a toast at the bottom for a few seconds with an
@@ -535,7 +506,6 @@ optional undo.
 - Writes: `title` text(40), `sub` text(100), `icon`; **new** `undo` boolean (toast only).
 - Styles: **new** `screen` (default, as built), **new** `toast`. · Parts → actions: **new** `undo press`,
   `root dismiss` (toast).
-- Aliases: confirmation, completed, receipt, **new** toast, snackbar.
 
 ### `Sheet` · new · action · phone · overlay · weight 0
 See section 2.
@@ -546,20 +516,17 @@ See section 2.
 A dark viewfinder with a hint and a shutter, for a photo or a scan.
 - Pick: point the camera at something now. Not choosing an existing photo (`Field` kind `photo`).
 - Writes: `kind` (`photo`, `scan`), `hint` text(48). · Parts → actions: `shutter press`.
-- Aliases: capture, viewfinder, shutter.
 
 ### `MapPins` · built · data · service · body · weight 3
 A stylised map with up to five numbered pins and the places listed under it.
 - Pick: where a few places are. Not the path between them (`Route`).
 - Writes: `pins` of label text(24), `goto`, 1–5. · States: filled, loading.
-- Aliases: map, locations, nearby, places.
 
 ### `Bubbles` · built · content · people · body · weight 2
 A conversation as chat bubbles, mine on the right in accent, theirs on the left.
 - Pick: a conversation between people. Not comments under a post (social `Comments`).
 - Writes: `messages` of from (`me`, `them`), text text(120), 1–6; `with` text(24). · States: filled, empty.
 - Change: none to the component; the `chat` archetype adds `Composer` style `reply` after it.
-- Aliases: chat, conversation, thread.
 
 ### `People` · changed · content · people · body · weight 2
 Who else is part of this, as rows with avatar, name and role, or as an overlapping stack.
@@ -568,7 +535,6 @@ Who else is part of this, as rows with avatar, name and role, or as an overlappi
   "+3" through `moreLine`).
 - Styles: **new** `rows` (default, as built), **new** `stack` (overlapping avatars with a count:
   assignees, attendees, shared with). · States: filled, empty.
-- Aliases: members, participants, household, team.
 
 ### Signature (3)
 
@@ -576,27 +542,25 @@ Who else is part of this, as rows with avatar, name and role, or as an overlappi
 A stack of cards; the top one swipes right to keep and left to skip.
 - Pick: decide on things one at a time. Not options side by side (`Choice`).
 - Writes: `cards` of title text(32), photo, meta text(24), 2–6. · Parts → actions: items `root swipe`.
-- Signature: `card_swipe`. · Aliases: deck, swipe, choices.
+- Signature: `card_swipe`.
 
 ### `Streak` · built · data · phone · body · weight 2
 Days in a row as a big count, with this week's days marked.
 - Pick: a habit kept day after day. Not a count with no days (`Counter`).
 - Writes: `count`, `label` text(24), `days` exactly 7 booleans. · Signature: `streak_flame`.
-- Aliases: habit, consecutive, consistency.
 
 ### `Route` · built · data · service · body · weight 2
 A path drawn through stops from start to end, with an optional distance.
 - Pick: a journey through stops. Not places without a path (`MapPins`), not a trip plan by day (trips
   `Itinerary`).
 - Writes: `stops` of label text(24), meta text(16), 2–6; `distance` text(12). · Signature: `route_draw`.
-- Aliases: journey, circuit, itinerary.
 
 ### Escape (1)
 
 ### `Canvas` · built · escape · phone · body · weight 3
 A framed area for an idea the library cannot express (a game, a drawing tool), with a caption. Every use is
 logged as a miss and feeds the catalog review.
-- Writes: `caption` text(80). · Aliases: custom, bespoke, unrepresented.
+- Writes: `caption` text(80).
 
 ## 5. Archetypes
 

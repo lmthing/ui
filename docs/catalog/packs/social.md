@@ -35,7 +35,7 @@ and like and comment counts, each opening the post.
 - Writes: `posts` of `name` text(24), `photo` (avatar), `time` text(12), `text` text(280), `image`
   optional, `likes` number, `comments` number, `liked` boolean, `goto`, 1–6.
 - Parts → actions: items `root press`, items `like toggle`. · States: filled, empty, loading.
-- Real path: posts in a shared app. · Aliases: feed, wall, posts, newsfeed.
+- Real path: posts in a shared app.
 
 ### `Post` · planned · content · people
 One post in full: author with avatar and time, the whole text, photos as a carousel, a reaction bar (like,
@@ -45,7 +45,7 @@ comment, share) with counts, and a "more" button for report, block or delete.
   `comments` number, `liked` boolean.
 - Parts → actions: `like toggle`, `comment press`, `share press`, `more press` (opens the screen's `Sheet`
   menu). · States: filled, loading.
-- Real path: a post in a shared app. · Aliases: post, status, update.
+- Real path: a post in a shared app.
 
 ### `Comments` · planned · content · people
 Replies under a post: avatar, name, time, the text, a like and a reply link, replies indented one level.
@@ -55,7 +55,6 @@ Replies under a post: avatar, name, time, the text, a like and a reply link, rep
   `reply` boolean (indented under the previous top-level one), 1–6.
 - Parts → actions: items `like toggle`, items `reply press`, items `more press`. · States: filled, empty.
 - Real path: comments in a shared app; new ones come from `Composer` style `reply` after it.
-- Aliases: comments, replies, thread, discussion.
 
 ### `Poll` · planned · input · people
 A question with two to five options; before voting each is a button, after voting each shows its share as a
@@ -65,7 +64,7 @@ bar with the person's choice ticked, and the vote count and closing date under i
 - Writes: `question` text(80), `options` of `label` text(32), `votes` number, 2–5; `voted` index
   optional; `closes` date optional. Shares and the total are computed.
 - Parts → actions: items `root select`. · States: filled, success (voted).
-- Real path: votes counted in a shared app. · Aliases: poll, vote, survey.
+- Real path: votes counted in a shared app.
 
 ### `Stories` · planned · content · people
 A row of round avatars with a ring for unseen stories, the person's own first with an add button.
@@ -74,7 +73,6 @@ A row of round avatars with a ring for unseen stories, the person's own first wi
 - Writes: `people` of `name` text(12), `photo`, `seen` boolean, `goto`, 1–10; `mine` boolean.
 - Parts → actions: items `root press`, `add press` (`partTiers`: `ok`, it opens the camera).
 - States: filled, empty. · Real path: stories in a shared app, gone after a day.
-- Aliases: stories, statusring, moments.
 
 ### `EventCard` · planned · content · people
 A community event as a card: date block (day and month), title, time and place, a photo, who is going as an
@@ -84,7 +82,7 @@ avatar stack, and "Going" or "Interested".
 - Writes: `title` text(40), `date`, `time` HH:MM, `place` text(40), `photo` optional, `going` number,
   `status` (`none`, `going`, `interested`), `goto`.
 - Parts → actions: `going press`, `interested press`, `root press`. · States: filled, loading.
-- Real path: an event in a shared app. · Aliases: event, meetup, gathering.
+- Real path: an event in a shared app.
 
 ### `Challenge` · planned · data · people
 A group challenge: its goal ("Walk 100 km in November"), days left, the group's total as a bar, the person's
@@ -96,7 +94,6 @@ own part, and the top three.
   computed.
 - Parts → actions: `join press`, `log press` (goes to `goto`, a screen with a `Counter` or `Field`).
 - States: filled, success (goal reached). · Real path: members' entries summed in a shared app.
-- Aliases: challenge, groupgoal, competition.
 
 ### `Invite` · planned · action · people
 Bringing others in: an invite code with copy and share, a QR code, and how many have joined from it.
@@ -105,7 +102,6 @@ Bringing others in: an invite code with copy and share, a QR code, and how many 
 - Writes: `title` text(32), `code` text(12), `joined` number optional, `qr` boolean.
 - Parts → actions: `copy press`, `share press`. · States: filled.
 - Real path: an invite code from a shared app; sharing uses the phone's share sheet.
-- Aliases: invite, sharelink, referral, invitecode.
 
 ## Archetypes (5)
 
@@ -123,10 +119,6 @@ A plant-swap community. The `feed` shows cuttings people are offering; `feed/pol
 next swap meet; the meet is an `EventCard` with 14 going; a November `Challenge` counts plants propagated;
 `swap/deck` lets a member swipe through cuttings to keep or skip; new members join from `members/invite`.
 Signature: `card_swipe` on the swap deck.
-
-## Aliases that shadow the core
-
-With `social`: `thread` → `Comments` (otherwise `Bubbles`). No other alias here matches a core alias.
 
 ## Tiers
 

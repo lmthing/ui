@@ -37,7 +37,6 @@ points to that person and moves its next date on.
   done-for-now are computed from `last`.
 - Parts → actions: items `done check`, items `root press`. · States: filled, empty, success.
 - Real path: chores on the device; each person ticking their own on their phone is `people` (`partTiers`).
-- Aliases: chores, chorechart, housework, cleaning.
 
 ### `Rewards` · planned · data · phone
 Each child's points or pocket money as a jar filling up, and a shelf of prizes with their cost; a prize is
@@ -47,7 +46,7 @@ claimable when the jar holds enough.
 - Writes: `kids` of `name` text(16), `photo`, `points` number, `goto`, 1–4; `prizes` of `title` text(24),
   `cost` number, `icon`, 1–6; `money` boolean (points are pocket money).
 - Parts → actions: prizes `claim press` (in `confirmParts`), kids `root press`. · States: filled, success.
-- Real path: points kept on the device by a parent. · Aliases: rewards, points, pocketmoney, stars, prizes.
+- Real path: points kept on the device by a parent.
 
 ### `CareSchedule` · planned · input · phone
 Recurring care for one thing or many: water, feed, walk, vet, flea treatment, oil change, boiler service;
@@ -60,7 +59,6 @@ each with when it was last done, when it is next due, overdue in `bad`, and a do
 - Signature: `check_burst` (the same moment as core `Checklist`).
 - Parts → actions: tasks `done press`, tasks `root press`. · States: filled, empty, success.
 - Real path: tasks on the device; reminders need notifications (`ok`).
-- Aliases: careschedule, care, maintenance, servicing, petcare, plantcare.
 
 ### `Turns` · planned · data · phone
 Whose turn it is: a rotation of people around a job (dishes, bins, cooking, driving), the current person
@@ -70,7 +68,6 @@ large, the next two after, and "Done, next".
 - Writes: `job` text(24), `people` of `name` text(16), `photo`, 2–6, `at` index.
 - Parts → actions: `next press`, `skip press`. · States: filled.
 - Real path: the rotation on the device; everyone seeing it on their own phone is `people` (`partTiers`).
-- Aliases: turns, whoseturn, rotation.
 
 ### `Agenda` · planned · data · phone
 The family's next days in one list: each day as a heading, its events with time, title and the coloured
@@ -81,7 +78,6 @@ initial of who it is for (or "everyone"), and conflicts flagged.
   1–6, 1–7; `goto` (the add-event screen). Conflicts are computed.
 - Parts → actions: events `root press`, `add press` (goes to `goto`). · States: filled, empty.
 - Real path: events on the device; a shared family calendar is `people`, a synced one `service`.
-- Aliases: familycalendar, familyweek, whatson.
 
 ### `BabyLog` · planned · input · phone
 Quick tiles for a baby's day (feed left, feed right, bottle, nappy, sleep) with a running timer for feeds and
@@ -92,7 +88,6 @@ sleeps, and today's log under them with the time since the last of each.
   `minutes` number optional, `amount` text(10) optional, 0–12; `running` (`none` or a kind).
 - Parts → actions: tiles `root start`, tiles `root stop`, log items `root press`. · States: filled, empty.
 - Real path: entries on the device; two parents sharing needs a shared app.
-- Aliases: babylog, babytracker, feeds, nappies.
 
 ### `Devices` · planned · input · service
 The home's devices by room as tiles: lights with a switch and brightness, a thermostat with the set
@@ -105,7 +100,6 @@ temperature, a plug, a lock; tapping a tile toggles it, holding opens its contro
 - Parts → actions: devices `root toggle` (`lock` in `confirmParts`), devices `controls press` (opens the
   screen's `Sheet` with its level), devices `level set`. · States: filled, loading.
 - Real path: a smart-home service controls the devices; without it this is a mock-up.
-- Aliases: devices, smarthome, lights, thermostat.
 
 ## Archetypes (5)
 
@@ -117,18 +111,12 @@ temperature, a plug, a lock; tapping a tile toggles it, holding opens its contro
 | `baby` | The baby's day | `today` | Header, BabyLog, Stats |
 | `house` | The house's devices | `rooms` | Header, Segmented, Devices, Note |
 
-
 ## Worked example: Ledge, extended
 
 Ledge, the core's plant-care example, as a household app. `care/all` shows today's waterings and the
 fortnightly feed for 12 plants, overdue ones first; a fern's `care/subject` page shows its photo, light and
 watering facts, and its care history. Flatmates share the jobs on `family/board`, with `Turns` for whose
 turn it is to mist. Signature: `check_burst` when today's care is done.
-
-## Aliases that shadow the core
-
-With `home`: `agenda` → `Agenda` (otherwise `Timeline`; `Agenda`'s id equals that core alias on purpose).
-The core alias `household` stays with `People`.
 
 ## Tiers
 

@@ -37,7 +37,7 @@ reps) and a tick per set; ticking a set starts a rest countdown under it; the se
 - Parts → actions: sets `weight type`, sets `reps type`, sets `done check`, `rest stop`, `finish press`
   (the screen's only primary action).
 - States: filled, empty, success (finished). · Real path: sets stored on the device.
-- Kit: `KitSetRow`. · Aliases: workout, workoutlog, sets, reps, gymlog.
+- Kit: `KitSetRow`.
 
 ### `Exercise` · planned · content · phone
 One exercise explained: a photo or looping clip, the muscles it works, three short cues, the equipment, and
@@ -47,7 +47,7 @@ the person's best and last result.
 - Writes: `name` text(28), `photo`, `muscles` text(16) each, 1–3; `cues` text(60) each, 1–3; `equipment`
   text(20) optional; `best` text(16) optional; `last` text(16) optional.
 - Parts → actions: `start press` (adds it to a workout). · States: filled, loading.
-- Real path: an exercise library bundled with the app. · Aliases: exercise, move, howto.
+- Real path: an exercise library bundled with the app.
 
 ### `Measurements` · planned · data · phone
 One body measurement over weeks as a line with a dashed goal line, the latest value large, the change since
@@ -58,7 +58,6 @@ the start, and range tabs (month, three months, year).
   `quarter`, `year`), `goto` (the add-a-measurement screen). The latest value and the change are computed.
 - Parts → actions: `range select`, `add press` (goes to `goto`). · States: filled, empty, loading.
 - Real path: measurements typed in on the device; reading a scale or the phone's health store is `ok`.
-- Aliases: measurements, weight, bodyweight, weighin.
 
 ### `Medication` · planned · input · phone
 Today's doses by time of day: each medicine with its dose, the time, a taken or skipped mark, pills left,
@@ -69,7 +68,6 @@ and a refill warning in `warn` when few remain.
   `left` number optional, 1–8; `refillAt` number optional. The refill warning is computed.
 - Parts → actions: doses `taken check`, doses `skip press`. · States: filled, empty, success (all taken).
 - Real path: doses stored on the device; reminders need notifications (`ok`).
-- Aliases: medication, meds, doses, supplements.
 
 ### `HabitGrid` · planned · input · phone
 Several habits down the side and this week's days across, a tick per cell, today's column highlighted, and
@@ -78,7 +76,7 @@ each habit's streak at the end of its row.
   (`Checklist`), not many weeks of activity (data `Heatmap`).
 - Writes: `habits` of `name` text(20), `icon`, `days` exactly 7 booleans, 1–6. Streaks are computed.
 - Parts → actions: cells `root check` (today and past days). · States: filled, empty.
-- Real path: habit records on the device. · Kit: `KitWeekMatrix`. · Aliases: habitgrid, habittracker, habitweek.
+- Real path: habit records on the device. · Kit: `KitWeekMatrix`.
 
 ### `Vitals` · planned · data · phone
 Readings with their healthy range: each as a value with unit, a band showing low, normal and high with the
@@ -90,7 +88,6 @@ reading placed on it, the time taken, and a status in `good`, `warn` or `bad`.
   "In range" or "outside range" is computed, shown in neutral and `warn`, never `bad`: it is not a verdict.
 - Parts → actions: readings `root press`, `add press` (goes to `goto`). · States: filled, empty.
 - Real path: readings typed in, or read from a device through the phone's health store (`ok`).
-- Aliases: vitals, readings, bloodpressure, heartrate, glucose.
 
 ### `SymptomLog` · planned · input · phone
 Today's symptoms as tappable chips grouped by area (head, stomach, skin, energy), each chosen one showing a
@@ -99,7 +96,7 @@ severity from one to five and an optional note.
   (`Chips`), not feelings (mind `Feelings`).
 - Writes: `groups` of `label` text(16), `symptoms` of `label` text(16), `severity` 0–5, 2–8, 1–4.
 - Parts → actions: symptoms `root toggle`, symptoms `severity set`. · States: filled.
-- Real path: symptom entries stored on the device. · Aliases: symptoms, symptomlog, flareups.
+- Real path: symptom entries stored on the device.
 
 ### `Cycle` · planned · data · phone
 A menstrual cycle as a ring of days: today's day number and phase in the middle, period days, the predicted
@@ -111,7 +108,6 @@ of contraception.
   Today's day, the phase, the next period and the fertile window are computed.
 - Parts → actions: `log press`. · States: filled, empty.
 - Real path: logged period dates on the device only; predictions computed locally, never shared.
-- Aliases: cycle, period, periodtracker, menstrual.
 
 ### `ActivityRings` · planned · data · phone
 Two or three concentric rings for the day's goals (move, exercise, stand; steps, minutes, water), each in
@@ -120,7 +116,6 @@ its own tone, with the values listed beside them.
 - Writes: `rings` of `label` text(16), `value` number, `of` number, `unit` text(8), 2–3.
 - States: filled, loading. · Signature: `ring_fill`.
 - Real path: totals from the device, or from the phone's health store (`ok`).
-- Aliases: activityrings, rings, dailygoals.
 
 ## Archetypes (4)
 
@@ -137,10 +132,6 @@ A home gym log. `today/rings` shows minutes, sessions this week and water; `work
 five exercises with weights and reps, rest counting down after each tick; `progress/measure` shows body
 weight falling toward a dashed goal on `body_trends/measure`. A second take swaps in `Medication` for someone on a supplement plan.
 Signature: `ring_fill` on `ActivityRings`.
-
-## Aliases that shadow the core
-
-No alias here matches a core alias.
 
 ## Tiers
 

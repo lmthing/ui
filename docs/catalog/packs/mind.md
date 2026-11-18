@@ -35,7 +35,7 @@ photo thumbnail, newest first, grouped by month.
 - Writes: `entries` of `date`, `mood` 1–5 optional, `text` text(160), `tags` text(12) each 0–3, `photo`
   optional, `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: entries stored on the device only. · Aliases: entries, journal, diary, journalentries.
+- Real path: entries stored on the device only.
 
 ### `Factors` · planned · input · phone
 What shaped today as a grid of icon tiles (slept well, exercise, friends, work, caffeine, outdoors), tap to
@@ -44,7 +44,7 @@ mark; several can be on.
   (`Chips`), not symptoms with severity (health `SymptomLog`), not shortcuts (`Actions`).
 - Writes: `items` of `label` text(14), `icon`, `on` boolean, 4–16.
 - Parts → actions: items `root toggle`. · States: filled.
-- Real path: tags stored with the day's entry. · Aliases: factors, activities, tags, daytags.
+- Real path: tags stored with the day's entry.
 
 ### `Feelings` · planned · input · phone
 Words for feelings grouped by family (calm, happy, sad, anxious, angry, tired), the family chosen first and
@@ -53,7 +53,7 @@ then up to three precise words within it.
   (`Factors`), not physical symptoms (health `SymptomLog`).
 - Writes: `families` of `label` text(14), `words` text(16) each, 3–8, 3–6; `chosen` text(16) each, 0–3.
 - Parts → actions: families `root select`, words `root toggle`. · States: filled.
-- Real path: chosen words stored with the day's entry. · Aliases: feelings, emotions, feelingswheel.
+- Real path: chosen words stored with the day's entry.
 
 ### `Breathe` · planned · action · phone
 A breathing exercise: a soft circle that grows on the in-breath, holds, and shrinks on the out-breath, the
@@ -63,7 +63,7 @@ phase word inside it, rounds left under it, and start and pause.
   only, `inhale`, `hold`, `exhale` and `rest` seconds 0–10.
 - Parts → actions: `circle play`, `circle pause`. · States: filled, success (done).
 - Real path: a paced animation on the device, with optional gentle haptics.
-- Kit: `KitBreath`. · Aliases: breathe, breathing, breathwork, boxbreathing.
+- Kit: `KitBreath`.
 
 ### `SleepLog` · planned · data · phone
 Last night's sleep: bedtime and wake time, the hours slept large, a bar across the night showing awake and
@@ -74,7 +74,7 @@ asleep, a quality face, and the week's average.
   numbers optional (hours per night, seed values), `goto` (the sleep entry screen). Hours and the average
   are computed.
 - Parts → actions: `edit press` (goes to `goto`). · States: filled, empty.
-- Real path: times typed in, or read from the phone's sleep data (`ok`). · Aliases: sleep, sleeplog, bedtime.
+- Real path: times typed in, or read from the phone's sleep data (`ok`).
 
 ### `Soundscape` · planned · input · phone
 Calming sounds to mix: tiles for rain, waves, wind, fire, birds and noise, each with its own volume slider,
@@ -83,7 +83,7 @@ a play button and a sleep timer.
   (media `Playlist`).
 - Writes: `sounds` of `label` text(14), `icon`, `level` 0–10, 2–6; `timer` minutes 0–120.
 - Parts → actions: sounds `level set`, `mix play`, `mix pause`, `timer set`. · States: filled.
-- Real path: sound loops bundled with the app, played on the device. · Aliases: soundscape, sounds, whitenoise, ambience.
+- Real path: sound loops bundled with the app, played on the device.
 
 ### `Patterns` · planned · data · phone
 What tends to go with good and bad days: up to four findings as short sentences ("Mood is higher on days
@@ -93,7 +93,6 @@ findings, writes the sentences from copy and computes the bars; a model only cho
   a general chart (`Bars`).
 - Writes: `factors` text(14) each, 1–4 (labels from the screen's `Factors`), `minDays` 7–60 (default 14).
 - States: filled, empty (too few days logged). · Real path: averages computed on the device from entries.
-- Aliases: patterns, insights, correlations.
 
 ## Archetypes (4)
 
@@ -112,10 +111,6 @@ Streak, Entries, Button) and gains `month`: Header, Calendar[month], Entries.
 A mood and sleep journal. Each evening `checkin/full` asks for a mood face, two feeling words and what
 shaped the day; the core `journal` shows a 9-day `Streak` and the entries; `settle/breathe` runs box breathing
 before bed; after two weeks `insights` shows "Mood is higher on days outdoors". Signature: `streak_flame`.
-
-## Aliases that shadow the core
-
-No alias here matches a core alias.
 
 ## Tiers
 
