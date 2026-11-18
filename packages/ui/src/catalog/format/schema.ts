@@ -50,6 +50,17 @@ export function strictSchema(raw: JsonSchema): JsonSchema {
     delete schema.minLength;
     delete schema.maxLength;
   }
+  if (typeof raw.multipleOf === "number") {
+    const step = raw.multipleOf;
+    // The deployment also rejects multipleOf. Finite vocabularies keep their exact values.
+    delete schema.multipleOf;
+    if (typeof raw.minimum === "number" && typeof raw.maximum === "number" && step > 0) {
+      const first = Math.ceil(raw.minimum / step);
+      const count = Math.floor(raw.maximum / step) - first + 1;
+      if (count >= 0 && count <= 1000)
+        schema.enum = Array.from({ length: count }, (_, index) => (first + index) * step);
+    }
+  }
   if (raw.properties) {
     schema.properties = Object.fromEntries(
       Object.entries(raw.properties).map(([key, prop]) => {

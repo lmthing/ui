@@ -13,4 +13,5 @@ Rules:
 - Consumers call `writerInput(def, props)` before the unchanged Zod validator.
 - Refinements and computed output stay in code; formats retain expressible input constraints.
 - Patterned strings keep their pattern; Azure rejects combined length bounds, so Zod checks those.
+- Bounded multipleOf constraints become exact numeric enums; other multipleOf checks stay in Zod.
 - Schema size uses JSON characters and the shared four-code-points-per-token estimate.

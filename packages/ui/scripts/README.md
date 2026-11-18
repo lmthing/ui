@@ -7,7 +7,6 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `check.ts` `pnpm catalog:check`
 - `contrast.ts` all 288 themes
 - `build-prompt.ts` writes prompt blocks
-- `count-tokens.ts` o200k tokenizer (dev dependency, scripts only)
 - `build-entries.ts`, `entries/` generate `src/entry/*`
 - `build-themes.ts` writes `themes.generated.ts` (`pnpm kit:themes`, `--check`, `--compact`)
 - `bundle-check.ts` catalog bundle has no React

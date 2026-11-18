@@ -42,3 +42,15 @@ it("relaxes only length bounds on patterned strings rejected by the Azure decode
   expect(schema.properties?.goto).toEqual({ type: "string", pattern: "^[a-z][a-z0-9_]*$" });
   expect(schema.properties?.label).toEqual({ type: "string", minLength: 1, maxLength: 16 });
 });
+
+it("preserves the half-step vocabulary as an exact enum without unsupported multipleOf", () => {
+  const schema = strictSchema(
+    inputSchema(z.strictObject({ value: z.number().min(0).max(5).multipleOf(0.5) })),
+  );
+  expect(schema.properties?.value).toEqual({
+    type: "number",
+    minimum: 0,
+    maximum: 5,
+    enum: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+  });
+});
