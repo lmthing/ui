@@ -59,7 +59,7 @@ describe("KitLinePlot", () => {
           id,
           mode,
         );
-        expect(html).toContain('d="M8,');
+        expect(html).toContain('d="M12,');
         expect(html).not.toContain("NaN");
         expect(html).toContain("Goal");
         expect(html).toContain("units");

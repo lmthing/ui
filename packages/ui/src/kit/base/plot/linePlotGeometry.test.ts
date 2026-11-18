@@ -20,6 +20,8 @@ describe("line plot geometry", () => {
       const geometry = plotGeometry([{ id: "one", label: "One", points: [{ ...points[0]!, value }] }]);
       expect([geometry.x(10), geometry.y(value)]).toEqual([0.5, 0.5]);
       expect(geometry.empty).toBe(false);
+      expect(geometry.ticks).toEqual([value]);
+      expect(geometry.last).toBeUndefined();
     }
   });
   it("breaks at missing and invalid readings instead of bridging them", () => {

@@ -7,7 +7,7 @@ type DrawingProps = LinePlotProps & { width: number; height: number };
 function PlotPoints({ series, goal, selected, loading, width, height }: DrawingProps) {
   const theme = useTheme(),
     geometry = plotGeometry(series, goal);
-  const pad = space.sm;
+  const pad = space.md;
   const x = (value: number) => pad + geometry.x(value) * (width - pad * 2);
   const y = (value: number) => pad + geometry.y(value) * (height - pad * 2);
   return (
@@ -31,8 +31,13 @@ function PlotPoints({ series, goal, selected, loading, width, height }: DrawingP
               <Circle
                 cx={x(p.x)}
                 cy={y(p.value!)}
-                r={p.id === selected ? space.xs : component.base.borderWidth}
-                fill={theme[loading ? "line" : (line.tone ?? "accent")]?.val}
+                r={
+                  p.id === selected || line.points.filter((point) => point.value !== null).length === 1
+                    ? space.xs
+                    : component.base.borderWidth
+                }
+                fill={theme[loading ? "muted" : (line.tone ?? "accent")]?.val}
+                opacity={loading ? component.base.disabledOpacity : 1}
               />
             </Svg>
           )),
@@ -45,23 +50,21 @@ export function PlotDrawing({ series, goal, ...props }: DrawingProps) {
   const theme = useTheme(),
     geometry = plotGeometry(series, goal);
   const { width, height, loading } = props;
-  const pad = space.sm;
+  const pad = space.md;
   const x = (value: number) => pad + geometry.x(value) * (width - pad * 2);
   const y = (value: number) => pad + geometry.y(value) * (height - pad * 2);
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
-    <Svg width={width} height={height} aria-hidden accessibilityElementsHidden>
+    <Svg width={width} height={height} aria-hidden>
       {geometry.ticks.map((value, index) => (
         <Line key={index} x1={pad} x2={width - pad} y1={y(value)} y2={y(value)} {...rule} />
       ))}
       {goal && Number.isFinite(goal.value) && (
-        <Line
-          x1={pad}
-          x2={width - pad}
-          y1={y(goal.value)}
-          y2={y(goal.value)}
+        <Path
+          d={`M${pad},${y(goal.value)} L${width - pad},${y(goal.value)}`}
+          fill="none"
           stroke={theme[loading ? "line" : "muted"]?.val}
-          strokeWidth={component.base.strongBorder}
+          strokeWidth={component.base.borderWidth}
           strokeDasharray={`${space.sm} ${space.xs}`}
         />
       )}
@@ -70,8 +73,9 @@ export function PlotDrawing({ series, goal, ...props }: DrawingProps) {
           key={line.id}
           d={plotPaths(line.points, x, y)}
           fill="none"
-          stroke={theme[loading ? "line" : (line.tone ?? "accent")]?.val}
-          strokeWidth={component.base.strongBorder}
+          stroke={theme[loading ? "muted" : (line.tone ?? "accent")]?.val}
+          opacity={loading ? component.base.disabledOpacity : 1}
+          strokeWidth={loading ? space.xs : component.base.strongBorder}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

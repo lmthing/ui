@@ -25,9 +25,9 @@ export function plotGeometry(series: LinePlotProps["series"], goal?: LinePlotPro
   const end = xs.length ? Math.max(...xs) : 1;
   return {
     empty: !finite.length,
-    ticks: [high, (high + low) / 2, low],
+    ticks: high === low ? [low] : [high, (high + low) / 2, low],
     first: points.find((point) => point.x === start)?.label,
-    last: points.find((point) => point.x === end)?.label,
+    last: end === start ? undefined : points.find((point) => point.x === end)?.label,
     x: (value: number) => (end === start ? 0.5 : (value - start) / (end - start)),
     y: (value: number) => (high === low ? 0.5 : 1 - (value - low) / (high - low)),
   };

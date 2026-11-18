@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, themeName } from "@lmthing/ui/catalog";
+import { component, presets, space, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitRadialTrack, KitText, KitAction } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -46,7 +46,7 @@ describe("KitRadialTrack", () => {
           id,
           mode,
         );
-        expect(styleAt(html, "home/c1/track")).toContain(`height:${component.base.ringLg}px`);
+        expect(styleAt(html, "home/c1/track")).toContain(`height:${component.base.ringLg + space.xl * 2}px`);
         expect(styleAt(html, "home/c1/track")).toContain("align-items:center");
         expect(elementAt(html, "home/c1/track").children[0]!.attributes).toContain('aria-hidden="true"');
         expect(html).toContain('data-testid="home/c1/value"');
@@ -100,7 +100,9 @@ describe("KitRadialTrack states", () => {
       { style: "days" as const, segments: [] },
     ]) {
       expect(render(props).match(/<circle /g)).toHaveLength(1);
-      expect(styleAt(render(props), "home/c1/root")).toContain(`width:${component.base.ringLg}px`);
+      expect(styleAt(render(props), "home/c1/root")).toContain(
+        `width:${component.base.ringLg + space.xl * 2}px`,
+      );
     }
   });
 });

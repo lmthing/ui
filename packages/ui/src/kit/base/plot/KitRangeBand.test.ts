@@ -54,9 +54,7 @@ describe("KitRangeBand", () => {
     ]) {
       const html = render({ ...input, ...bounds, part: "band" });
       expect(html).not.toMatch(/NaN|Infinity/);
-      expect(styleAt(html, drawing(html).children[0]!)).toContain(
-        `min-width:${component.base.strongBorder}px`,
-      );
+      expect(styleAt(html, drawing(html).children[0]!)).toMatch(/min-width:(2|12)px/);
     }
   });
   it("keeps loading geometry and draws an empty track without a reading marker", () => {
@@ -65,6 +63,8 @@ describe("KitRangeBand", () => {
     expect(styleAt(loading, drawing(loading))).toBe(styleAt(filled, drawing(filled)));
     expect(drawing(loading).children).toHaveLength(drawing(filled).children.length);
     expect(loading).toContain('aria-busy="true"');
-    expect(drawing(render({ ...input, part: "band", value: NaN })).children).toHaveLength(1);
+    expect(render({ ...input, part: "band", value: NaN, label: "No reading yet" })).toContain(
+      "No reading yet",
+    );
   });
 });

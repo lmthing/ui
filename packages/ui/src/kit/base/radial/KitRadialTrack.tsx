@@ -14,7 +14,7 @@ type RadialTrackProps = { part?: string; loading?: boolean } & (
       children?: ReactNode;
     }
 );
-const box = component.base.ringLg,
+const box = component.base.ringLg + space.xl * 2,
   stroke = space.sm;
 
 function RingDrawing({ rings, loading }: Extract<RadialTrackProps, { style: "rings" }>) {
@@ -34,7 +34,7 @@ function RingDrawing({ rings, loading }: Extract<RadialTrackProps, { style: "rin
               cy={box / 2}
               r={radius}
               fill="none"
-              stroke={theme[loading ? "raised" : "line"]?.val}
+              stroke={theme.line?.val}
               strokeWidth={width}
             />
             {ratio > 0 && (

@@ -1,5 +1,5 @@
 import { XStack, YStack } from "tamagui";
-import { component, size, space } from "../../../catalog";
+import { component, size, space, type as typography } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted, type TextRole, type TextTone } from "../text";
@@ -10,15 +10,21 @@ export function PlotLabel({
   loading,
   role = "label",
   tone = "muted",
+  align = "start",
 }: {
   label?: string;
   loading?: boolean;
   role?: TextRole;
   tone?: TextTone;
+  align?: "start" | "center" | "end";
 }) {
   const ks = useKitStyle();
   return (
-    <YStack backgroundColor={loading ? "$line" : "transparent"} borderRadius={shifted("sm", ks.radiusShift)}>
+    <YStack
+      position="relative"
+      alignSelf={align === "end" ? "flex-end" : align === "center" ? "center" : "flex-start"}
+      maxWidth="100%"
+    >
       <YStack
         opacity={loading ? component.base.none : 1}
         {...(loading ? { visibility: "hidden" as const } : {})}
@@ -27,6 +33,17 @@ export function PlotLabel({
           {label}
         </KitText>
       </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          top={(typography[role].lineHeight - typography[role].size * 0.6) / 2}
+          height={typography[role].size * 0.6}
+          width="100%"
+          backgroundColor="$line"
+          borderRadius={shifted("sm", ks.radiusShift)}
+          aria-hidden
+        />
+      )}
     </YStack>
   );
 }
@@ -81,7 +98,7 @@ function PointTarget({
       borderRadius={shifted("sm", ks.radiusShift)}
       borderWidth={component.base.borderWidth}
       borderColor={selected && !loading ? "$accent" : "$line"}
-      backgroundColor={loading ? "$line" : selected ? "$accentSoft" : "$surface"}
+      backgroundColor={selected && !loading ? "$accentSoft" : "$surface"}
     >
       <PlotLabel label={point.label} loading={!!loading} tone="text" />
     </YStack>
@@ -112,7 +129,7 @@ export function PlotTargets({ targets, series, selected, loading }: LinePlotProp
   );
 }
 
-export function PlotLabels({ series, unit, goal, loading }: LinePlotProps) {
+export function PlotLabels({ series, unit, goal, loading, style = "full" }: LinePlotProps) {
   const geometry = plotGeometry(series, goal);
   const labels = [
     ...series.map((line) => ({ label: line.label, tone: line.tone ?? "accent" })),
@@ -121,10 +138,20 @@ export function PlotLabels({ series, unit, goal, loading }: LinePlotProps) {
   ];
   return (
     <YStack gap={space.sm}>
-      <XStack justifyContent="space-between" gap={space.md}>
-        {[geometry.first, geometry.last].map((label, i) => (
-          <YStack key={i} flex={1} alignItems={i ? "flex-end" : "flex-start"}>
-            <PlotLabel {...(label ? { label } : {})} loading={!!loading} role="caption" />
+      <XStack
+        justifyContent="space-between"
+        gap={space.md}
+        paddingHorizontal={space.md}
+        marginLeft={style === "full" ? size.control.md + space.sm : component.base.none}
+      >
+        {(geometry.last ? [geometry.first, geometry.last] : [geometry.first]).map((label, i) => (
+          <YStack key={i} flex={1}>
+            <PlotLabel
+              {...(label ? { label } : {})}
+              loading={!!loading}
+              role="caption"
+              align={geometry.last ? (i ? "end" : "start") : "center"}
+            />
           </YStack>
         ))}
       </XStack>
