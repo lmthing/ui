@@ -26,14 +26,28 @@ export function Preview({
     <YStack
       width={responsive ? "100%" : component.Gallery.cardWidth}
       maxWidth={responsive ? component.Gallery.cardWidth : undefined}
+      {...(responsive && label
+        ? {
+            flexBasis: component.Gallery.variantWidth,
+            flexGrow: component.base.bodyFlex,
+            flexShrink: component.base.bodyFlex,
+          }
+        : {})}
       gap={space.sm}
       testID={`preview_${screen}`}
     >
       {label && (
-        <Text fontWeight="bold">{`${cell.id} · ${preset} / ${mode} · ${cell.state} ${cell.index + 1}`}</Text>
+        <Text
+          fontWeight="bold"
+          {...(responsive ? { fontFamily: "$humanist" } : {})}
+        >{`${cell.id} · ${preset} / ${mode} · ${cell.state} ${cell.index + 1}`}</Text>
       )}
       <KitProvider theme={theme} parts={galleryParts} resolvePhoto={resolvePhoto}>
-        <YStack padding={space.lg} minHeight={component.Gallery.previewHeight} backgroundColor="$bg">
+        <YStack
+          padding={space.lg}
+          minHeight={responsive ? component.base.none : component.Gallery.previewHeight}
+          backgroundColor={responsive ? "$bg" : undefined}
+        >
           <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
             <View {...props} />
           </PartScope>

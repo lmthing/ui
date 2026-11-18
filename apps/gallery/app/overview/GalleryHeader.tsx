@@ -8,6 +8,7 @@ const buttonProps = {
   backgroundColor: "$raised",
   color: "$text",
   borderColor: "$line",
+  fontFamily: "$humanist",
 } as const;
 
 function HeaderActions({ onExpand, onCollapse }: { onExpand: () => void; onCollapse: () => void }) {
@@ -20,6 +21,21 @@ function HeaderActions({ onExpand, onCollapse }: { onExpand: () => void; onColla
         Collapse all
       </Button>
     </XStack>
+  );
+}
+
+function GalleryBrand() {
+  return (
+    <YStack>
+      <Text fontFamily="$humanist" fontSize="$heading" fontWeight="bold" color="$text">
+        UI gallery
+      </Text>
+      <Text
+        fontFamily="$humanist"
+        fontSize="$caption"
+        color="$muted"
+      >{`${componentIds.length} components`}</Text>
+    </YStack>
   );
 }
 
@@ -47,19 +63,14 @@ export function GalleryHeader({
     >
       <XStack
         width="100%"
-        maxWidth={component.Gallery.maxWidth}
+        maxWidth={component.Gallery.overviewMaxWidth}
         alignSelf="center"
         padding={space.lg}
         gap={space.md}
         alignItems="center"
         flexWrap="wrap"
       >
-        <YStack>
-          <Text fontSize="$heading" fontWeight="bold" color="$text">
-            UI gallery
-          </Text>
-          <Text fontSize="$caption" color="$muted">{`${componentIds.length} components`}</Text>
-        </YStack>
+        <GalleryBrand />
         <Input
           value={filter}
           onChangeText={onFilter}
@@ -70,6 +81,7 @@ export function GalleryHeader({
           flexGrow={component.base.bodyFlex}
           minHeight={size.control.md}
           fontSize="$label"
+          fontFamily="$humanist"
           color="$text"
           backgroundColor="$bg"
           borderColor="$line"

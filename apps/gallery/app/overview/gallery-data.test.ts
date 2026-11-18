@@ -17,6 +17,7 @@ describe("gallery overview data", () => {
     expect(groupedIds(" liST ").flatMap(({ ids }) => ids)).toContain("List");
     expect(groupedIds("TAPPABLE").flatMap(({ ids }) => ids)).toContain("List");
     expect(groupedIds("no_such_component")).toEqual([]);
+    expect(groupedIds("List Several")).toEqual([]);
     expect(groupedIds(" \t ")).toEqual(groupedIds(""));
   });
 

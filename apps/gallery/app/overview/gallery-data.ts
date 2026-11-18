@@ -29,7 +29,10 @@ export function groupedIds(filter: string): { group: GalleryGroup; ids: Componen
       group,
       ids: componentIds.filter((id) => {
         const { meta } = components[id];
-        return meta.group === group && `${id} ${meta.purpose}`.toLowerCase().includes(text);
+        return (
+          meta.group === group &&
+          (id.toLowerCase().includes(text) || meta.purpose.toLowerCase().includes(text))
+        );
       }),
     }))
     .filter(({ ids }) => ids.length > 0);

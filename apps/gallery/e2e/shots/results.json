@@ -1,0 +1,90 @@
+{
+  "results": [
+    {
+      "width": 1280,
+      "components": 45,
+      "firstPreviews": 45,
+      "cardWidth": 360,
+      "expandedColumns": 3,
+      "metadata": "pass",
+      "multiExpand": "pass",
+      "filter": "pass",
+      "expandAll": "pass",
+      "collapseAll": "pass",
+      "anchors": "pass",
+      "open": "pass",
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "components": 45,
+      "firstPreviews": 45,
+      "cardWidth": 358,
+      "expandedColumns": 1,
+      "metadata": "pass",
+      "multiExpand": "pass",
+      "filter": "pass",
+      "expandAll": "pass",
+      "collapseAll": "pass",
+      "anchors": "pass",
+      "open": "pass",
+      "overflow": false
+    },
+    {
+      "query": "?c=List",
+      "originalRendering": "pass",
+      "previews": 48,
+      "frames": 0
+    },
+    {
+      "query": "?c=List&preset=calm&mode=light",
+      "originalRendering": "pass",
+      "previews": 8,
+      "frames": 0
+    },
+    {
+      "query": "?c=List&w=390&mode=light",
+      "originalRendering": "pass",
+      "previews": 0,
+      "frames": 24
+    },
+    {
+      "query": "?runtime=1",
+      "originalRendering": "pass",
+      "previews": 0,
+      "frames": 0
+    },
+    {
+      "query": "?controls=form",
+      "originalRendering": "pass",
+      "previews": 0,
+      "frames": 0
+    },
+    {
+      "query": "?motion=ring_fill",
+      "originalRendering": "pass",
+      "previews": 0,
+      "frames": 0
+    }
+  ],
+  "overviewConsoleErrors": [],
+  "legacyConsoleWarnings": [
+    {
+      "url": "?runtime=1",
+      "text": "React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element. accessibilityActions accessibilityactions"
+    },
+    {
+      "url": "?controls=form",
+      "text": "React does not recognize the `%s` prop on a DOM element. If you intentionally want it to appear in the DOM as a custom attribute, spell it as lowercase `%s` instead. If you accidentally passed it from a parent component, remove it from the DOM element. accessibilityActions accessibilityactions"
+    }
+  ],
+  "legacyWarningsMatchOriginal": true,
+  "paths": [
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/1280-overview.png",
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/1280-expanded.png",
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/1280-filtered.png",
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/390-overview.png",
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/390-expanded.png",
+    "/home/vasilis/Projects/lmthing/worktrees/ui-gallery-overview/apps/gallery/e2e/shots/390-filtered.png"
+  ]
+}

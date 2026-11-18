@@ -28,10 +28,12 @@ function ComponentGroup({
         tag="a"
         href={`#${group}`}
         accessibilityRole="header"
+        fontFamily="$humanist"
         fontSize="$title"
         fontWeight="bold"
         color="$text"
         textTransform="capitalize"
+        textDecorationLine="none"
       >
         {group}
       </Text>
@@ -66,7 +68,7 @@ export function Overview() {
       <YStack
         tag="main"
         width="100%"
-        maxWidth={component.Gallery.maxWidth}
+        maxWidth={component.Gallery.overviewMaxWidth}
         alignSelf="center"
         padding={space.lg}
         gap={space["2xl"]}
@@ -75,7 +77,7 @@ export function Overview() {
           <ComponentGroup key={group} group={group} ids={ids} expanded={expanded} toggle={toggle} />
         ))}
         {!sections.length && (
-          <Text color="$muted" fontSize="$body">
+          <Text fontFamily="$humanist" color="$muted" fontSize="$body">
             No components match this filter.
           </Text>
         )}
