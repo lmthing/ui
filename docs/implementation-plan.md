@@ -4,7 +4,7 @@ This repository holds the component system as one package, `@lmthing/ui`, with t
 
 The product context lives in the lmthing build spec (`docs/spec.md` in the lmthing repo). This plan covers current code and the requirements still to build here. Where the two disagree on something inside this repo, this plan wins.
 
-Built: 45 core components, 17 archetypes/35 layouts, browser controls and motion. **Pending:** full
+Built: 45 core components, 17 archetypes/35 layouts, browser controls and accepted browser motion/reduced-motion behaviour. **Pending:** full
 themes, 18 planned packs, surfaces, repair/reader APIs, runtime detectors, native and release gates.
 The scope table is the full requirement, not a claim that each row is complete.
 
@@ -80,7 +80,7 @@ packages/ui/
     motion/         animate, KitMotion, KitPresence, use-motion
   src/entry/        generated, gitignored: catalog.ts, renderers.ts, kit.ts
   scripts/          builds, checks, probes, look and shoot; entries/ scanner and generator
-  test/             render helper, conformance, reading, runtime, controls, probes, recordings/, known/
+  test/             render helper, conformance, reading, runtime, controls, motion, archetypes, probes, recordings/, known/
 apps/gallery/       Vite + React Native Web; query-selected previews, runtime and controls
 ```
 
@@ -218,7 +218,7 @@ globals (`MapPins`, `ClientHistory`, `EventCard`). Packs and archetypes use lowe
 `PackMeta` has `id`, `name`, `purpose`, `pick`, `example` and required `probes`. The generator collects
 a pack's components and at least two archetypes, so `pack.ts` does not import component files.
 Core archetypes export `meta` and compose `probes`. `CoreArchetypeMeta` has `id`, `purpose`,
-`layouts: { slots }` and `defaults` by layout; each slot has `id`, `allow`, `min`, `max` and optional
+`layouts: { slots, writeHints? }` and `defaults` by layout; each slot has `id`, `allow`, `min`, `max` and optional
 `variant`. The separate pack `ArchetypeMeta` contract still uses `job`, `layouts: { recipe, defaults }`
 and `defaultLayout`, with `allow`, `required`, `min` and `max` slots. Do not conflate these two APIs.
 
@@ -336,9 +336,10 @@ and populated casts. Recipe slots allow alternatives, variants and bounded repea
 repair in a host validator remains **pending**; defaults are already available while writing.
 
 **Signature moments.** The ten ids and target components live in `catalog/signatures.ts`. Shared
-hooks in `kit/motion` drive them from the chosen signature and cue. The host/Director chooses one
-that fits the loop; trailer orchestration stays outside this repo. Hand-tuning against reference
-mocks and real-phone visual acceptance remain **pending**.
+hooks in `kit/motion` drive them from the chosen signature and cue. Browser motion/reduced-motion
+acceptance is built in `test/motion.test.ts`; its ring-cue and end-state checks pass. The host/Director chooses one
+that fits the loop; trailer orchestration stays outside this repo. Native device visual/performance QA remains **pending**. Remaining core option details are listed
+in [catalog/core.md](catalog/core.md#remaining-core-work), not hidden by the built component count.
 
 **Outside surfaces.** `LockScreen` (consent), `Widget` (phone), `Message` (service) remain **pending**.
 Rules and flow steps name surfaces; Writers never place one on a screen.
@@ -603,7 +604,11 @@ design. Current transport is being updated in parallel; prose is not the output 
 `runComposeProbes` runs every layout with three independent samples. A mechanical majority must pass.
 With `rubric: true`, a model rates the first valid sample for clarity, focus, flow, content and
 structure (1–5); all ratings must be ≥3.5 and average ≥4.0. `llm:check --compose` enables it and records
-under `test/recordings/Archetypes/<model>.json`. Rich include/exclude/expected-primary checks, per-rule
+under `test/recordings/Archetypes/<model>.json`. All 35 current layout/rubric gates pass and
+`test/archetypes.test.ts` replays them in `pnpm test`. Layout `writeHints` and shared
+`scripts/compose-casts.ts` supply writing guidance and archetype/layout-specific content to live and
+replay runs. `--compose --layout archetype/layout,...` filters named layouts. Rich
+include/exclude/expected-primary checks, per-rule
 counts, repair counts, output-token metrics and confusion tables remain **pending**. Composition
 across a full app belongs to harness evals. Visual craft requires screenshots, not the text rubric.
 
@@ -627,7 +632,8 @@ then run once per change. Never weaken probes or edit another component to hide 
 
 `pnpm test` replays required component/pack recordings. `test/known/<Id>.md` skips component replay and
 marks its reading test `it.fails` until fixed. This is an explicit open-problem bypass, not a pass.
-Ordinary tests do not replay the live compose book; explicit `--compose --replay` does.
+`pnpm test` also replays all 35 compose/rubric gates from real recordings;
+`--compose --replay` can check them explicitly.
 
 **Pending aggregate/regression gates:** choose ≥90% overall/≥70% per component, write ≥90% first-time,
 read ≥95% including schema-valid values, compose ≥90% issue-free after repair, comparison with the
@@ -822,6 +828,11 @@ issues, not a renderer-specific missing-view report.
 | Reduced motion                 | Ordinary cross-fades; no displacement/height spring; signatures show end state               |
 | Agent mode                     | Immediate end state; removed nodes are not retained                                          |
 
+Browser motion and reduced-motion acceptance is done in `test/motion.test.ts` and the gallery
+Motion page. Chrome checks a ring cue animating once to 3/5, immediate signature end states under
+reduced motion and agent actions, and no page errors. These checks do not establish native device
+QA or exhaustive signature/performance coverage.
+
 Shared RAF interpolation uses catalog springs. It animates transform, opacity, signature values and
 morph/removal height; component timers are live controls, not idle decorative loops. Ten signatures
 have hooks in `kit/motion`, not individual scaffold `kit/signature` files. Native performance and
@@ -832,8 +843,9 @@ hand-polished visual acceptance remain **pending**.
 - Core `registry.defaultLines(archetype, layout, cast)` returns a validated cast-driven screen; it is
   catalog data, not a kit default renderer. Pack defaults are **pending**.
 - Outside surfaces are **pending**; they must use the host app name/icon and theme.
-- Signature metadata and shared motion hooks exist. The host passes signature/cue; reduce motion
-  and agent mode show end state. Reference-mock hand-tuning and real-phone judgment remain **pending**.
+- Signature metadata, shared hooks and browser motion/reduced-motion acceptance are built. The host
+  passes signature/cue; reduce motion and agent mode show end state. `test/motion.test.ts` checks cue
+  replay and end states in Chrome. Native device visual/performance QA remains **pending**.
 
 ### 5.8 Render reports
 
@@ -940,6 +952,7 @@ not file-based routes. It loads the same kit exports and Fontsource families.
 | `?preset=<id>&mode=<mode>` | Filter the general preview grid                                                                        |
 | `?runtime=1`               | Sheet, confirmation and local media runtime fixture                                                    |
 | `?controls=<kind>`         | Live field, choice, list, navigation, number, reply, photo and swipe fixtures                          |
+| `?motion=<signature>`      | Signature preview with cue replay; browser acceptance uses `ring_fill`                                 |
 
 **Pending pages/hosts:** index of all packs/archetypes/surfaces/signatures/themes, pack worked-app
 pages, every archetype/default with empty/full casts, all 288 theme swatches/ratios, JSON Lines
@@ -990,7 +1003,8 @@ Package-level builds already work; root `build` is not an existing command.
 | Reading/actions (Vitest/static HTML)         | Filled-example visible/read text agreement and offered action role/address agreement. **Pending:** every state, deltas, runtime marks, schema-valid read-probe values and reader budgets                                                                                                          |
 | Kit unit/controller (Vitest)                 | Store/planner, live controls, modal/confirmation/media, motion interpolation and defaults. **Pending:** runtime detector faults, revisions and settlement                                                                                                                                         |
 | Browser runtime (Vitest + Playwright Chrome) | Three runtime tests plus eight live-control tests: taps/keyboard/agent paths, fields/replies, timers, tabs, swipes and host photos. **Pending:** exhaustive action parity/logs, stale/settle/navigation and native gates                                                                          |
-| Probes                                       | Component/pack replay in Vitest; explicit live/replay compose and merge runners. **Pending:** aggregate/confusion/repair/token/regression gates and CI live scheduling                                                                                                                            |
+| Browser motion (Vitest + Playwright Chrome)  | **Done:** cue-triggered ring reveal and reduced-motion/agent end states, with a Motion gallery page. **Pending:** native device visual/performance QA and exhaustive signature coverage                                                                                                           |
+| Probes                                       | Component/pack and all 35 compose/rubric gates replay in Vitest; explicit live/replay compose and merge runners. **Pending:** aggregate/confusion/repair/token/regression gates and CI live scheduling                                                                                            |
 | Catalog bundle                               | Esbuild stubs, forbidden dependency checks, plain Node import/registry, examples/fallbacks                                                                                                                                                                                                        |
 | Look/visual                                  | Fresh phone PNGs, automated clipping/overflow/overlap/contrast/loading/text/targets/alignment/rhythm checks, marks and human rubric. **Pending:** pixel-baseline gate, all-accent/full-theme review                                                                                               |
 | Accessibility/native                         | Base roles and browser keyboard tests exist. **Pending:** axe-core no-violation suite, native RN testing/assistive-tech/device acceptance                                                                                                                                                         |
@@ -999,7 +1013,9 @@ Package-level builds already work; root `build` is not an existing command.
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those
 tests. `test/known/<Id>.md` bypasses replay and records expected reading failures (4.13).
-A suite that passes with these files does not prove those components' acceptance.
+A suite that passes with these files does not prove those components' acceptance. The UI suite has
+2,372 tests, including composition replay and browser motion. Chrome suites use `CHROME` or
+`/usr/bin/google-chrome`; set `CHROME` to an installed binary when that default is absent.
 
 ## 9. Budgets
 
@@ -1085,17 +1101,17 @@ Changesets release workflow stays pending/disabled until registry/licence decisi
 Each row has one status line. Existing implementations do not waive unfinished gates. Lists and
 pack waves live in [docs/catalog/](catalog/README.md), not duplicated here.
 
-| Step                                  | Status                                                                                                                                                                                                                             | Remaining gate and phase                                                                                                                                                         |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                         | Lint rejects forbidden imports/201-line fixture; bundle rejects a React fixture; CI green. Phase 0                                                                               |
-| **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers and probes exist; full themes, repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                    | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                             |
-| **U2. Kit foundations**               | **Partly done:** views/bases/provider/parts, browser controller, environment hooks and shared motion exist; native host/device acceptance, complete revisions/settle/registry coverage, full theme load, axe and size gates remain | Web/iOS/Android render and action parity; all declared parts, all themes and web size measured. Phase 0                                                                          |
-| **U3. Prompt entries for everything** | **Partly done:** core entries/probes/snapshots, estimated budgets, pack tooling and core compose/rubric runner exist; real pack/surface drafts, all passing compose layouts and aggregate/regression gates remain                  | All drafts have complete metadata/schema/actions/tiers/fallback/examples/probes, catalog check except draft views; real prompt budgets and required live gates. Phase 0 bake-off |
-| **U4. First 24 of the core**          | **Partly done:** the first 24 schemas/views and associated core archetypes exist; ten validated full-screen fixtures and complete interaction/visual acceptance remain                                                             | All 24 ready and every state/action/screenshot accepted in each preset. Phase 1                                                                                                  |
-| **U5. Booking and customers**         | **Not started** as pack content; shared infrastructure is ready                                                                                                                                                                    | Both packs ready with metadata, components, views, archetypes and Trot worked examples in three presets. Phase 1                                                                 |
-| **U6. Rest of the core**              | **Partly done:** all 45 core schemas/views, 17 archetypes, live controls, time migration and ten shared signature hooks exist; surfaces, measured render detectors, reference-mock/phone motion and exhaustive action gates remain | All core ready with agent/action parity; three surfaces, exact known-fault reports and real-phone signature judgment. Phase 1 end / Phase 2                                      |
-| **U7. Remaining packs**               | **Not started** as pack content                                                                                                                                                                                                    | Execute the remaining 18-pack-plan waves; each pack's live gates and worked app pass before live prompts. Phases 3/4 then ongoing                                                |
-| **U8. Release readiness**             | **Not started**                                                                                                                                                                                                                    | Blank Expo/web consumers of built entries, photos, public API docs/licence, registry workflow and first tag; no lmthing dependency. Second consumer                              |
+| Step                                  | Status                                                                                                                                                                                                                                                                                              | Remaining gate and phase                                                                                                                                                         |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Lint rejects forbidden imports/201-line fixture; bundle rejects a React fixture; CI green. Phase 0                                                                               |
+| **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers and probes exist; full themes, repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                                                                                     | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                             |
+| **U2. Kit foundations**               | **Partly done:** views/bases/provider/parts, browser controller, environment hooks, shared motion and browser motion/reduced-motion acceptance exist; native host/device acceptance, complete revisions/settle/registry coverage, full theme load, axe and size gates remain                        | Web/iOS/Android render and action parity; all declared parts, all themes and web size measured. Phase 0                                                                          |
+| **U3. Prompt entries for everything** | **Partly done:** core entries/probes/snapshots, estimated budgets, pack tooling and all 35 passing compose/rubric gates with test replay exist; real pack/surface drafts and aggregate/regression gates remain                                                                                      | All drafts have complete metadata/schema/actions/tiers/fallback/examples/probes, catalog check except draft views; real prompt budgets and required live gates. Phase 0 bake-off |
+| **U4. First 24 of the core**          | **Partly done:** the first 24 schemas/views and associated core archetypes exist; ten validated full-screen fixtures and complete interaction/visual acceptance remain                                                                                                                              | All 24 ready and every state/action/screenshot accepted in each preset. Phase 1                                                                                                  |
+| **U5. Booking and customers**         | **Not started** as pack content; shared infrastructure is ready                                                                                                                                                                                                                                     | Both packs ready with metadata, components, views, archetypes and Trot worked examples in three presets. Phase 1                                                                 |
+| **U6. Rest of the core**              | **Partly done:** all 45 core schemas/views, 17 archetypes, live controls, time migration and ten shared signature hooks and browser motion/reduced-motion acceptance exist; surfaces, measured render detectors, native device QA, remaining core option details and exhaustive action gates remain | All core ready with agent/action parity; three surfaces, exact known-fault reports and real-phone signature judgment. Phase 1 end / Phase 2                                      |
+| **U7. Remaining packs**               | **Not started** as pack content                                                                                                                                                                                                                                                                     | Execute the remaining 18-pack-plan waves; each pack's live gates and worked app pass before live prompts. Phases 3/4 then ongoing                                                |
+| **U8. Release readiness**             | **Not started**                                                                                                                                                                                                                                                                                     | Blank Expo/web consumers of built entries, photos, public API docs/licence, registry workflow and first tag; no lmthing dependency. Second consumer                              |
 
 Original planning estimates remain provisional: U0 0.5 week, U1 1, U2 1–1.5, U3 1, U4 2, U5 1,
 U6 1.5, U7 ongoing, U8 1 when a second consumer appears. U0–U3 sum to about 3.5–4 weeks alongside
