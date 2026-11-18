@@ -175,9 +175,12 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
         <KitGrid>
           {appointmentDetails(input)
             .filter(({ part }) => part !== "policy")
-            .map(({ part, text }) => (
-              <AppointmentLine key={part} value={text} part={part} loading={loading} />
-            ))}
+            .flatMap(({ part, text }, index) => [
+              ...(part === "price" && index % 2 === 0
+                ? [<KitContent key="price-gap">{null}</KitContent>]
+                : []),
+              <AppointmentLine key={part} value={text} part={part} loading={loading} />,
+            ])}
         </KitGrid>
         {input.policy && <AppointmentLine value={input.policy} part="policy" loading={loading} />}
       </KitContent>
