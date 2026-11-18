@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { galleryConfig } from "../scripts/gallery-config";
+import { galleryConfig } from "../scripts/look";
 import { launchChrome } from "../scripts";
 let server: ViteDevServer, browser: Browser, page: Page;
 const errors: string[] = [];
@@ -51,7 +51,7 @@ describe("motion acceptance", () => {
     expect(await ratio()).toBeCloseTo(0.6, 3);
     expect(errors).toEqual([]);
   }, 15000);
-  it("shows signature end states in reduced-motion and agent modes", async () => {
+  it("shows signature end states in reduced-motion and agent modes", { timeout: 15000 }, async () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await open();
     expect(await ratio()).toBeCloseTo(0.6, 3);

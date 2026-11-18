@@ -4,3 +4,5 @@ export { createInteractionStore, type InteractionStore } from "./store";
 export { createAgentAccess, type ActOptions, type ActReply, type ActLogEntry } from "./agent";
 export { useControlValue } from "./use-control";
 export { useSwipe, swipeDirection } from "./use-swipe";
+export { controlStep, selectedStep, type ControlChange } from "./control-step";
+export { projectScreen, valueKey, type TimerState } from "./live-screen";
