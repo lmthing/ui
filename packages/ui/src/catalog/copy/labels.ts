@@ -92,3 +92,6 @@ export function appointmentReading(
 }
 /** The cue on an offering that opens its booking flow. */
 export const bookLabel = "Book";
+
+/** A record's event kind and calendar date, kept together below its title. */
+export const historyDetailLine = (kind: string, date: string): string => `${kind} · ${date}`;
