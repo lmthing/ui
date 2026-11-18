@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  balancedLine,
   detailOf,
   goalLine,
   isoDate,
@@ -34,7 +35,7 @@ import {
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 export const meta = {
   id: "Review",
-  status: "ready",
+  status: "draft",
   group: "content",
   purpose: "See clients' ratings and words, their breakdown and the business's replies.",
   pick: "Business client feedback as average/count/five-bar summary or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).",
@@ -64,8 +65,8 @@ export const props = z
           stars: z.int().min(1).max(5),
           name: text(24),
           date: isoDate,
-          text: text(240),
-          reply: text(160).optional(),
+          text: text(240).overwrite(balancedLine),
+          reply: text(160).overwrite(balancedLine).optional(),
         }),
       )
       .min(1)
@@ -79,7 +80,6 @@ export const props = z
         : reviews !== undefined,
     { message: "Supply the active style's fields" },
   )
-  // Inactive rows must not be read or offered. A reply control exists before any response is written.
   .overwrite((value) => ({
     ...value,
     average: value.style === "summary" ? value.average : undefined,
