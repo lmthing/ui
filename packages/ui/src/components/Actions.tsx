@@ -17,7 +17,7 @@ export const meta = {
   id: "Actions",
   group: "action",
   purpose: "Two to four shortcuts to different things the person can do next.",
-  pick: "Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).",
+  pick: "Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).",
   region: "body",
   weight: 2,
   tier: "phone",

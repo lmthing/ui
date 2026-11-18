@@ -8,15 +8,13 @@ Files (exactly these):
 
 - `run.ts` `runProbes(probes, block, callModel)`: builds prompts, collects replies
 - `score.ts` scores `choose`, `write` and `read` replies
-- `confusion.ts` which wrong component won, per component
 - `compose.ts` builds and scores whole-screen probes with `checkScreen`
-- `rubric.ts` the text-first rubric (clarity, focus, flow, content, structure, 1 to 5)
+- `compose-format.ts`, `compose-format.test.ts` constrain screen lines to recipe-scoped Writer ids
 - `run-pack-probes.ts`, `run-pack-probes.test.ts`: Director prompt and sampled pack runs
 - `score-pack.ts`, `score-pack.test.ts`: exact pack sets, at most three ids
 - `index.ts`
 
 Rules:
-
 - Kinds: `choose`, `write`, `read` per component; `compose` per archetype layout; `pack` per pack.
-- `callModel(prompt) => text` is passed in. `scripts/llm-check.ts` and the harness bake-off each supply their own.
+- `callModel(prompt, sample?, format?) => text` is injected; only write/compose calls receive a strict format.
 - Gates in 4.13. Whole-app composition is tested in the harness, not here.

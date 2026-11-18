@@ -21,7 +21,7 @@ export async function check() {
         },
         ...webResolve.alias,
       ],
-      include: ["src/**/*.test.{ts,tsx}", "test/**/*.test.{ts,tsx}", "scripts/entries/*.test.ts"],
+      include: ["src/**/*.test.{ts,tsx}", "test/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     },
     { resolve: webResolve },
   );

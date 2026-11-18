@@ -1,4 +1,5 @@
 import type { Definition } from "./types";
+import { writerInput } from "../format";
 
 type Score = { pass: boolean; detail: string };
 
@@ -32,7 +33,7 @@ export function scoreWrite(reply: string, def: Definition): Score {
   if (!line || typeof line !== "object") return { pass: false, detail: "no JSON object" };
   const { c, ...rest } = line as Record<string, unknown>;
   if (c !== def.meta.id) return { pass: false, detail: `wrote c=${String(c)}` };
-  const parsed = def.props.safeParse(rest);
+  const parsed = def.props.safeParse(writerInput(def, rest));
   if (parsed.success) return { pass: true, detail: "valid first time" };
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
   return { pass: false, detail: issues.slice(0, 3).join("; ") };

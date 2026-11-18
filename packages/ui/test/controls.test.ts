@@ -1,13 +1,14 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { chromium, type Browser, type Page } from "playwright-core";
+import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig } from "../scripts/gallery-config";
+import { launchChrome } from "../scripts";
 let server: ViteDevServer, browser: Browser, page: Page;
 const errors: string[] = [];
 beforeAll(async () => {
   server = await createServer(galleryConfig(0));
   await server.listen();
-  browser = await chromium.launch({ executablePath: process.env.CHROME ?? "/usr/bin/google-chrome" });
+  browser = await launchChrome();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript(

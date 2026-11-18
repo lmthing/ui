@@ -1,8 +1,9 @@
 import { mkdirSync } from "node:fs";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { chromium, type Browser, type Page } from "playwright-core";
+import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { galleryConfig } from "../scripts/gallery-config";
+import { launchChrome } from "../scripts";
 
 let server: ViteDevServer, browser: Browser, page: Page;
 const errors: string[] = [];
@@ -11,8 +12,7 @@ mkdirSync(shots, { recursive: true });
 beforeAll(async () => {
   server = await createServer(galleryConfig(0));
   await server.listen();
-  browser = await chromium.launch({
-    executablePath: process.env.CHROME ?? "/usr/bin/google-chrome",
+  browser = await launchChrome({
     args: ["--autoplay-policy=no-user-gesture-required"],
   });
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });

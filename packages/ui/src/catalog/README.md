@@ -6,7 +6,7 @@ Built in step U1. Read plan 4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 
-- `meta/` `props/` `types/` `tokens/` `themes/` `archetypes/` `rules/` `address/` `lookup/` `lines/` `prompt/` `agent/` `probes/` `registry/` `migrations/`
+- `meta/` `props/` `types/` `tokens/` `themes/` `archetypes/` `rules/` `address/` `lookup/` `lines/` `prompt/` `format/` `agent/` `probes/` `registry/` `migrations/`
 - `icons.ts` curated icon names, `photos.ts` photo tags, `signatures.ts` signature ids and their component, `version.ts`, `index.ts`
 
 Rules:

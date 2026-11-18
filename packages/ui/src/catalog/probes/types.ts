@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import type { Meta, PackId } from "../meta";
 import type { CastLike } from "../types";
+import type { WriterFormat } from "../format";
 
 export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 export type WriteProbe = { kind: "write"; brief: string; expect: string };
@@ -23,7 +24,7 @@ export type Definition = {
 };
 
 /** One model call. `sample` numbers repeated calls with the same prompt (0, 1, 2, …). */
-export type CallModel = (prompt: string, sample?: number) => Promise<string>;
+export type CallModel = (prompt: string, sample?: number, format?: WriterFormat) => Promise<string>;
 
 export type ProbeResult = {
   component: string;

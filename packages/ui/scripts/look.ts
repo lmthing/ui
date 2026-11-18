@@ -7,32 +7,14 @@
 //  - writes packages/ui/shots/<Id>/issues.json and exits 1 if there are issues.
 // Starts its own gallery on a free port, so parallel agents never collide.
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { chromium } from "playwright-core";
+import { launchChrome } from "./index";
 import { createServer } from "vite";
 import { galleryConfig } from "./gallery-config";
 import { drawMarks, findIssues, type LookIssue } from "./look-checks";
 
-const chromes = [
-  process.env.CHROME,
-  "/usr/bin/google-chrome",
-  `${process.env.HOME}/.local/bin/google-chrome`,
-  "/usr/bin/chromium-browser",
-];
-
 function arg(name: string) {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] : undefined;
-}
-
-async function launch() {
-  for (const executablePath of chromes.filter((path): path is string => Boolean(path))) {
-    try {
-      return await chromium.launch({ executablePath, headless: true });
-    } catch {
-      /* try the next one */
-    }
-  }
-  throw new Error("No Chrome found. Set CHROME to a Chrome or Chromium binary.");
 }
 
 export async function look(id: string, widths: number[]) {
@@ -42,7 +24,7 @@ export async function look(id: string, widths: number[]) {
   const server = await createServer(galleryConfig(0));
   await server.listen();
   const base = server.resolvedUrls?.local[0];
-  const browser = await launch();
+  const browser = await launchChrome();
   const issues: (LookIssue & { width: number; mode: string })[] = [];
   try {
     for (const width of widths) {
