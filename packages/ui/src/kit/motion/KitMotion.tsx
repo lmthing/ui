@@ -4,17 +4,14 @@ import { durations, motion, springs } from "../../catalog";
 import { useKit } from "../provider";
 import { animateNumber } from "./animate";
 import { useReveal } from "./use-motion";
-export function KitMotion({
-  children,
-  index = 0,
-  exiting = false,
-  cue = "filled",
-}: {
+type MotionProps = {
   children: ReactNode;
   index?: number;
   exiting?: boolean;
   cue?: string;
-}) {
+};
+
+export function KitMotion({ children, index = 0, exiting = false, cue = "filled" }: MotionProps) {
   const { environment } = useKit();
   const measured = useRef<number | undefined>(undefined),
     cancel = useRef<(() => void) | undefined>(undefined);

@@ -1,17 +1,17 @@
 # kit/base
 
-The six bases that carry every visual decision. Views compose them and never style from scratch.
+The public building blocks for component views. Names and props are unchanged.
 
-Built in step U2. Read plan 5.4 first.
+Layers, imported only through each folder's `index.ts`:
+- `text/`: text, icons, content geometry and shared surface choices; no base dependencies.
+- `helpers/`: empty, loading, checks and trails; uses text.
+- `surface/`: frames, rows, tiles, grids, strips and overlays; uses text.
+- `input/`: controls, choices, scales and actions; uses text.
+- `data/`: charts, progress and ranks; uses text.
+- `time/`: days, weeks, hours and time labels; uses text.
+- `media/`: photos, playback, camera, maps, bubbles, stacks and tabs; uses text and input.
+- `composition/`: field controls, list treatments and sheets; composes lower layers.
 
-Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
-- `KitText.tsx` (`role`, `tone`, `maxLines`, `align`) `KitRow.tsx` (`density`, `pressable`) `KitCard.tsx` (`style`, `tone`)
-- `KitIcon.tsx` (`name`, `size`, `tone`) `KitPhoto.tsx` (`ref`, `ratio`, `radius`) `KitAction.tsx` (`kind`)
-- `style.ts` `shifted()` and `surfaceOf()`, `helpers/`, `index.ts`
-
-Rules:
-- Each is a Tamagui `styled` component. Fixed choices are variants. Preset-dependent bits read `useKitStyle()`.
-- Every value is a `$token` or a colour role. A preset-specific look needs a new `KitStyle` field, never `if (preset === ...)`.
-- Model text renders only inside `KitText`, as plain text.
-- Anything touchable goes through the dispatcher: no own `onPress` or `onChange` outside the bases.
-- Example and the per-component theming table: plan 5.4 and 5.4a.
+`index.ts` re-exports every layer's public bases. No lower layer imports composition.
+Use catalog tokens, colour roles and `useKitStyle()`, never preset names or raw presentation values.
+Model text renders only in `KitText`; interactive bases use the shared dispatcher.

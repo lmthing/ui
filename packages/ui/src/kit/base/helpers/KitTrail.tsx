@@ -1,10 +1,10 @@
 import { useKit } from "../../provider";
-import { useControlValue } from "../../interact/use-control";
+import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, styled } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
-import { KitText } from "../KitText";
+import { KitText } from "../text";
 
 const Frame = styled(YStack, {
   minWidth: size.control.md,
