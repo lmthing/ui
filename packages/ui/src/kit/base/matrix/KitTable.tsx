@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, parseAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -6,7 +6,9 @@ import { useKit, useKitStyle } from "../../provider";
 import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import {
   headingWidth,
+  disabledContent,
   matrixWidth,
+  MatrixSelectionContext,
   useMatrixHeights,
   type Column,
   type Drawing,
@@ -74,7 +76,7 @@ function TableCell(props: CellProps) {
   return (
     <YStack
       {...(target as object)}
-      minHeight={props.height}
+      minHeight={props.height + (props.cut ? component.base.borderWidth : component.base.none)}
       minWidth={size.control.md}
       paddingHorizontal={space.md}
       paddingVertical={space[ks.density.rowPad]}
@@ -89,7 +91,9 @@ function TableCell(props: CellProps) {
         pointerEvents={props.disabled ? "none" : "auto"}
         {...(props.disabled ? { inert: true } : {})}
       >
-        <MatrixContent loading={props.loading}>{props.children}</MatrixContent>
+        <MatrixContent loading={props.loading}>
+          {props.disabled ? disabledContent(props.children) : props.children}
+        </MatrixContent>
       </YStack>
     </YStack>
   );
@@ -98,7 +102,8 @@ function TableCell(props: CellProps) {
 function ScopedCell({ item, ...props }: CellProps & { item?: string }) {
   const { item: inherited, ...context } = usePartContext();
   const id = props.target ? props.target.item : (item ?? inherited);
-  const valid = id && parseAddress(`${context.screen}/${context.component}/${id}/root`)?.item === id;
+  const valid =
+    id && (props.target || parseAddress(`${context.screen}/${context.component}/${id}/root`)?.item === id);
   return (
     <PartContext.Provider value={{ ...context, ...(valid ? { item: id } : {}) }}>
       <TableCell {...props} />
@@ -119,6 +124,8 @@ function TableColumn({
 }) {
   const heading = !column,
     loading = Boolean(props.loading);
+  const selected = useContext(MatrixSelectionContext);
+  const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
   return (
     <YStack width={heading ? headingWidth : matrixWidth} flexShrink={component.base.none}>
       <ScopedCell
@@ -127,9 +134,9 @@ function TableColumn({
         height={heights.height("header")}
         measure={heights.measure("header", column?.id ?? "corner")}
         target={props.headerTargets?.find((entry) => entry.column === column?.id)?.target}
-        selected={column?.id === props.activeColumn}
+        selected={active}
       >
-        {column?.header ?? props.corner}
+        {heading ? props.corner : column.header}
       </ScopedCell>
       {props.rows.map((row) => {
         const cell = row.cells[index];
@@ -143,16 +150,13 @@ function TableColumn({
             measure={heights.measure(row.id, column?.id ?? "heading")}
             target={heading ? row.target : cell?.target}
             disabled={cell?.disabled && !heading}
-            selected={row.selected || column?.id === props.activeColumn}
+            selected={row.selected || active}
             cut={props.separators?.includes(row.id)}
           >
             {heading ? row.heading : cell?.content}
           </ScopedCell>
         );
       })}
-      {!props.rows.length && (
-        <YStack minHeight={size.control.md} backgroundColor={loading ? "$line" : "$surface"} />
-      )}
     </YStack>
   );
 }

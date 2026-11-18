@@ -1,30 +1,70 @@
 import { Children, isValidElement, useRef, type ReactNode } from "react";
 import { ScrollView, XStack, YStack } from "tamagui";
-import { component, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted, type TextRole } from "../text";
-import { matrixKey } from "./matrix-layout";
+import { KitRow } from "../surface";
+import { loadingGeometry, loadingRadius, matrixKey } from "./matrix-layout";
 
-type ContentProps = {
+type ContentProps = Parameters<typeof loadingGeometry>[0] & {
   children?: ReactNode;
-  label?: string;
-  hint?: string;
   value?: ReactNode;
   role?: TextRole;
   numberScale?: "display" | "compact";
   align?: "start" | "center" | "end";
   lines?: number;
   tabular?: boolean;
-  done?: boolean;
-  shape?: string;
-  photo?: string;
-  initials?: string;
   gap?: number;
   flex?: number;
   justifyContent?: "center" | "space-between";
   alignItems?: "center";
   flexDirection?: "row" | "column";
+  inline?: boolean;
+  inset?: "md" | "none";
+  leading?: ReactNode;
+  trailing?: ReactNode;
+  lineRole?: TextRole;
+  leadingAlign?: "line" | "row";
 };
+
+function LoadingRow(props: ContentProps) {
+  const ks = useKitStyle();
+  const pad = props.inline ? component.base.none : space[ks.density.rowPad];
+  const line = typography[props.lineRole ?? "body"].lineHeight;
+  return (
+    <YStack
+      minHeight={size.control.md}
+      paddingHorizontal={props.inline || props.inset === "none" ? component.base.none : space.md}
+      paddingVertical={pad}
+      justifyContent="center"
+    >
+      <XStack
+        gap={props.inline ? space.xs : space[ks.density.gap]}
+        alignItems="flex-start"
+        minHeight={props.inline ? line : Math.max(line, size.control.md - pad * 2)}
+      >
+        {props.leading && (
+          <YStack
+            {...(props.leadingAlign === "row"
+              ? { alignSelf: "center" as const }
+              : { height: typography[props.lineRole ?? "body"].lineHeight })}
+            justifyContent="center"
+          >
+            <MatrixContent loading>{props.leading}</MatrixContent>
+          </YStack>
+        )}
+        <YStack flex={component.base.bodyFlex}>
+          <MatrixContent loading>{props.children}</MatrixContent>
+        </YStack>
+        {props.trailing && (
+          <YStack height={typography[props.lineRole ?? "body"].lineHeight} justifyContent="center">
+            <MatrixContent loading>{props.trailing}</MatrixContent>
+          </YStack>
+        )}
+      </XStack>
+    </YStack>
+  );
+}
 
 function LoadingText({ children, role = "body", ...props }: ContentProps) {
   const ks = useKitStyle();
@@ -51,34 +91,38 @@ function LoadingText({ children, role = "body", ...props }: ContentProps) {
   );
 }
 
-/** Project caller text and child geometry into neutral drawings; never mount loading controls. */
-function loadingNode(node: ReactNode): ReactNode {
+function loadingNode(node: ReactNode, shift: ReturnType<typeof useKitStyle>["radiusShift"]): ReactNode {
   if (typeof node === "string" || typeof node === "number") return <LoadingText>{node}</LoadingText>;
   if (!isValidElement<ContentProps>(node)) return null;
   const props = node.props;
   if (node.type === KitText) return <LoadingText {...props} />;
-  if (props.done !== undefined || props.photo || props.initials || props.shape)
+  if (node.type === KitRow) return <LoadingRow {...props} />;
+  const geometry = loadingGeometry(props);
+  if (geometry)
     return (
       <YStack
-        width={props.shape === "avatar" ? size.avatar.lg : size.control.md}
-        height={props.shape === "avatar" ? size.avatar.lg : size.control.md}
-        backgroundColor="$line"
-      />
-    );
-  if (props.label || props.hint)
-    return (
-      <YStack
-        minWidth={size.control.md}
-        minHeight={size.control.md}
-        paddingHorizontal={space.md}
+        {...geometry}
+        borderRadius={loadingRadius(props, shift)}
         justifyContent="center"
-        backgroundColor="$line"
+        backgroundColor={props.done === undefined ? "$line" : "transparent"}
       >
-        <YStack opacity={component.base.none}>
-          <KitText role="label" part={null}>
-            {props.label ?? props.value ?? props.hint}
-          </KitText>
-        </YStack>
+        {props.done !== undefined && (
+          <YStack
+            width={size.icon.lg}
+            height={size.icon.lg}
+            borderRadius={radius.sm}
+            alignSelf="center"
+            backgroundColor="$line"
+          />
+        )}
+        {(props.hint || (props.label && props.done === undefined && !props.photo && !props.initials)) && (
+          <XStack opacity={component.base.none} alignItems="center" gap={space.sm}>
+            {props.icon && <YStack width={size.icon.sm} height={size.icon.sm} />}
+            <KitText role={props.hint ? "body" : "label"} lines={1} part={null}>
+              {props.hint ? (props.value ?? props.hint) : props.label}
+            </KitText>
+          </XStack>
+        )}
       </YStack>
     );
   return (
@@ -99,10 +143,11 @@ function loadingNode(node: ReactNode): ReactNode {
 }
 
 export function MatrixContent({ children, loading }: { children: ReactNode; loading?: boolean }) {
+  const ks = useKitStyle();
   return loading ? (
     <YStack aria-hidden>
       {Children.toArray(children).map((child, index) => (
-        <YStack key={index}>{loadingNode(child)}</YStack>
+        <YStack key={index}>{loadingNode(child, ks.radiusShift)}</YStack>
       ))}
     </YStack>
   ) : (

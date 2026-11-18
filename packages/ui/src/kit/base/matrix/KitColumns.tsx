@@ -45,9 +45,7 @@ function ColumnCard({
         </XStack>
       </MatrixContent>
       {column.summary && <MatrixContent loading={loading}>{column.summary}</MatrixContent>}
-      <YStack minHeight={empty ? size.control.md : component.base.none}>
-        <MatrixContent loading={loading}>{column.children}</MatrixContent>
-      </YStack>
+      {!empty && <MatrixContent loading={loading}>{column.children}</MatrixContent>}
     </YStack>
   );
 }
@@ -61,13 +59,13 @@ export function KitColumns({ part = "root", loading = false, columns, style = "c
   ));
   return (
     <YStack {...address} minWidth={component.base.none} width="100%" aria-busy={loading}>
-      {!columns.length ? (
-        <YStack minHeight={size.control.md} backgroundColor={loading ? "$line" : "$surface"} />
-      ) : stack ? (
+      {!columns.length ? null : stack ? (
         <YStack gap={space.md}>{cards}</YStack>
       ) : (
         <MatrixScroll loading={loading} label={columns.map((column) => column.label).join(", ")}>
-          <XStack gap={space.md}>{cards}</XStack>
+          <XStack gap={space.md} alignItems="flex-start">
+            {cards}
+          </XStack>
         </MatrixScroll>
       )}
     </YStack>

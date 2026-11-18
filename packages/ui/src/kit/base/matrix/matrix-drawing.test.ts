@@ -3,7 +3,15 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
 import { themeName, type ThemeChoice } from "@lmthing/ui/catalog";
-import { KitCheck, KitProvider, KitText, PartScope, type ScreenController } from "@lmthing/ui/kit";
+import {
+  KitCheck,
+  KitInput,
+  KitPhoto,
+  KitProvider,
+  KitText,
+  PartScope,
+  type ScreenController,
+} from "@lmthing/ui/kit";
 import { config } from "../../../../test/render";
 import { MatrixContent } from "./matrix-drawing";
 
@@ -40,6 +48,8 @@ describe("matrix loading content", () => {
         children: [
           text("Caller heading", "name"),
           createElement(KitCheck, { label: "Caller control", part: "check", done: true }),
+          createElement(KitInput, { hint: "Value", value: "3", part: "field" }),
+          createElement(KitPhoto, { photo: "lib:object", shape: "wide", part: "photo" }),
         ],
       }),
     );
@@ -47,6 +57,10 @@ describe("matrix loading content", () => {
     expect(html).not.toContain('role="checkbox"');
     expect(html).not.toContain('data-testid="home/c1/name"');
     expect(html).not.toContain('data-testid="home/c1/check"');
+    expect(html).not.toContain('role="textbox"');
+    expect(html).not.toContain('role="img"');
+    expect(html).not.toContain('data-testid="home/c1/field"');
+    expect(html).not.toContain('data-testid="home/c1/photo"');
     expect(html).toContain("Caller heading");
   });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { size } from "@lmthing/ui/catalog";
-import { matrixKey, transposeWeek } from "./matrix-layout";
+import { component, size } from "@lmthing/ui/catalog";
+import { loadingGeometry, matrixKey, transposeWeek } from "./matrix-layout";
 
 describe("matrix layout", () => {
   it("transposes headings and preserves caller cells, targets and disabled states", () => {
@@ -32,5 +32,33 @@ describe("matrix layout", () => {
     matrixKey({ key: "ArrowRight", target: {}, currentTarget: node, preventDefault });
     matrixKey({ key: "Escape", target: node, currentTarget: node, preventDefault });
     expect(node.scrollBy).toHaveBeenCalledTimes(6);
+  });
+});
+
+describe("matrix child loading geometry", () => {
+  it("matches controls, icons, initials and every photo aspect", () => {
+    expect(loadingGeometry({ done: false })).toEqual({ width: size.control.md, height: size.control.md });
+    expect(loadingGeometry({ hint: "Score" })?.minHeight).toBe(
+      size.control.md + component.base.borderWidth * 2,
+    );
+    expect(loadingGeometry({ name: "plus", scale: "lg" })).toEqual({
+      width: size.icon.lg,
+      height: size.icon.lg,
+    });
+    expect(loadingGeometry({ initials: "AB", shape: "wide" })).toEqual({
+      width: size.avatar.md,
+      height: size.avatar.md,
+    });
+    for (const [shape, ratio] of [
+      ["wide", component.base.wideRatio],
+      ["tall", component.base.tallRatio],
+      ["square", 1],
+    ] as const)
+      expect(loadingGeometry({ photo: "lib:object", shape })).toEqual({ width: "100%", aspectRatio: ratio });
+    expect(loadingGeometry({ photo: "lib:object", shape: "avatar" })).toEqual({
+      width: size.avatar.lg,
+      height: size.avatar.lg,
+    });
+    expect(loadingGeometry({})).toBeUndefined();
   });
 });
