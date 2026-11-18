@@ -126,12 +126,13 @@ export function People({ style, members, more }: Props<typeof props, typeof meta
       <KitCard part="root" padded>
         <KitAvatarStack
           members={members.map((member) => ({ id: member.id, label: member.name, photo: member.photo }))}
-        />
-        {more && (
-          <KitText role="label" tone="muted" part="more">
-            {moreLine(more)}
-          </KitText>
-        )}
+        >
+          {more && (
+            <KitText role="label" tone="muted" part="more">
+              {moreLine(more)}
+            </KitText>
+          )}
+        </KitAvatarStack>
       </KitCard>
     );
   }
@@ -140,6 +141,7 @@ export function People({ style, members, more }: Props<typeof props, typeof meta
       {members.map((member) => (
         <KitRow
           leadingAlign={member.photo ? "row" : "line"}
+          leadingWidth={members.some((person) => person.photo) ? "avatar" : undefined}
           key={member.id}
           item={member.id}
           label={member.name}

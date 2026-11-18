@@ -74,6 +74,7 @@ export function Header({ style, title, sub, action }: Props<typeof props, typeof
   return (
     <KitBlock
       label={title}
+      lineRole={style === "large" ? "title" : "heading"}
       leading={
         style === "back" ? (
           <KitAction kind="quiet" icon="chevron_left" part="back" a11y={title} goto="back" />

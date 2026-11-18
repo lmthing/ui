@@ -6,11 +6,12 @@ import { PartContext, usePart, usePartContext } from "../../part";
 import { CardStyleContext, shifted, surfaceOf, tintOf, type SurfaceTone } from "../text";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
+const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
 const Body = styled(YStack, { flex: component.base.bodyFlex });
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.
 // Taller items (a 44px touch target) overflow the line equally above and below.
 const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
-type LineRole = "body" | "heading" | "title" | "display" | "number";
+type LineRole = keyof typeof typography;
 type RowProps = {
   children: ReactNode;
   leading?: ReactNode;
@@ -24,6 +25,11 @@ type RowProps = {
   tone?: SurfaceTone | undefined;
   /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
   leadingAlign?: "line" | "row";
+  /** Reserve the same avatar-width leading column for every row in a mixed list. */
+  leadingWidth?: "avatar" | undefined;
+  /** An inset-free, tightly spaced row inside an already padded surface. */
+  inline?: boolean;
+  addressed?: boolean;
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
 };
@@ -39,20 +45,22 @@ export function Row({
   expanded,
   tone,
   leadingAlign = "line",
+  leadingWidth,
+  inline = false,
+  addressed = true,
   inset = "md",
 }: RowProps) {
   const line = typography[lineRole].lineHeight;
   const ks = useKitStyle(),
     kit = useKit(),
     style = useContext(CardStyleContext);
-  const part = usePart();
+  const part = usePart("root", addressed);
   return (
     <Frame
-      {...part}
+      {...(addressed ? part : {})}
       {...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(ks.surface) : {})}
-      paddingVertical={space[ks.density.rowPad]}
-      paddingHorizontal={inset === "none" ? component.base.none : space.md}
-      gap={space[ks.density.gap]}
+      paddingVertical={inline ? component.base.none : space[ks.density.rowPad]}
+      paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={goto ? "link" : (role ?? "listitem")}
       accessibilityLabel={label}
@@ -63,14 +71,25 @@ export function Row({
           ? { onPress: () => kit.onLink?.(goto, part.testID) }
           : {})}
     >
-      {leading &&
-        (leadingAlign === "row" ? (
-          <Edge alignSelf="center">{leading}</Edge>
-        ) : (
-          <Edge height={line}>{leading}</Edge>
-        ))}
-      <Body>{children}</Body>
-      {trailing && <Edge height={line}>{trailing}</Edge>}
+      <Content
+        gap={inline ? space.xs : space[ks.density.gap]}
+        minHeight={inline ? line : Math.max(line, size.control.md - space[ks.density.rowPad] * 2)}
+      >
+        {leading && (
+          <Edge
+            {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
+            {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
+          >
+            {leading}
+          </Edge>
+        )}
+        <Body>{children}</Body>
+        {trailing && (
+          <Edge height={line}>
+            <XStack alignItems="center">{trailing}</XStack>
+          </Edge>
+        )}
+      </Content>
     </Frame>
   );
 }
@@ -78,7 +97,7 @@ export function KitRow({
   item,
   ...props
 }: {
-  item: string;
+  item?: string;
   label: string;
   children: ReactNode;
   role?: "listitem" | "text" | "button";
@@ -89,9 +108,12 @@ export function KitRow({
   /** The text role of the first line (default body), so leading and trailing centre on it. */
   lineRole?: LineRole;
   leadingAlign?: "line" | "row";
+  leadingWidth?: "avatar" | undefined;
+  inline?: boolean;
   inset?: "md" | "none";
 }) {
   const context = usePartContext();
+  if (!item) return <Row addressed={false} role="text" {...props} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
       <Row {...props} />

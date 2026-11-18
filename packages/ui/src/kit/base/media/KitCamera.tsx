@@ -6,7 +6,8 @@ import { KitText } from "../text";
 import { shifted } from "../text";
 import { useKitStyle } from "../../provider";
 
-function Corner({ top, left }: { top: boolean; left: boolean }) {
+type MarkColor = "$bg" | "$text";
+function Corner({ top, left, color }: { top: boolean; left: boolean; color: MarkColor }) {
   const edge = component.base.strongBorder * 1.5;
   return (
     <YStack
@@ -15,14 +16,14 @@ function Corner({ top, left }: { top: boolean; left: boolean }) {
       {...(left ? { left: 0 } : { right: 0 })}
       width={space.lg}
       height={space.lg}
-      borderColor="$onAccent"
+      borderColor={color}
       {...(top ? { borderTopWidth: edge } : { borderBottomWidth: edge })}
       {...(left ? { borderLeftWidth: edge } : { borderRightWidth: edge })}
     />
   );
 }
 
-function ViewfinderMarks({ kind }: { kind: "photo" | "scan" }) {
+function ViewfinderMarks({ kind, color }: { kind: "photo" | "scan"; color: MarkColor }) {
   const third = (index: number) => `${(index * 100) / 3}%` as const;
   return kind === "photo" ? (
     [1, 2].flatMap((i) => [
@@ -33,7 +34,7 @@ function ViewfinderMarks({ kind }: { kind: "photo" | "scan" }) {
         top={0}
         bottom={0}
         width={component.base.borderWidth}
-        backgroundColor="$onAccent"
+        backgroundColor={color}
         opacity={component.base.gridOpacity}
         aria-hidden
       />,
@@ -44,17 +45,17 @@ function ViewfinderMarks({ kind }: { kind: "photo" | "scan" }) {
         left={0}
         right={0}
         height={component.base.borderWidth}
-        backgroundColor="$onAccent"
+        backgroundColor={color}
         opacity={component.base.gridOpacity}
         aria-hidden
       />,
     ])
   ) : (
     <YStack width="55%" aspectRatio={1} aria-hidden>
-      <Corner top left />
-      <Corner top left={false} />
-      <Corner top={false} left />
-      <Corner top={false} left={false} />
+      <Corner top left color={color} />
+      <Corner top left={false} color={color} />
+      <Corner top={false} left color={color} />
+      <Corner top={false} left={false} color={color} />
     </YStack>
   );
 }
@@ -88,7 +89,7 @@ export function KitViewfinder({
       alignItems="center"
       justifyContent="center"
     >
-      <ViewfinderMarks kind={kind} />
+      <ViewfinderMarks kind={kind} color={dark ? "$text" : "$bg"} />
       <XStack position="absolute" left={0} right={0} bottom={0} padding={space.md} justifyContent="center">
         <YStack
           backgroundColor="$surface"

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -10,7 +11,7 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
   return (
     <YStack
       {...address}
-      marginLeft={-space.sm}
+      marginLeft={-space.md}
       borderRadius={radius.pill}
       borderWidth={component.base.strongBorder}
       borderColor="$surface"
@@ -42,17 +43,21 @@ function Avatar({ label, photo }: { label: string; photo?: string | undefined })
  */
 export function KitAvatarStack({
   members,
+  children,
 }: {
   members: readonly { id: string; label: string; photo?: string | undefined }[];
+  /** Optional count or label, inline after the overlapping avatars. */
+  children?: ReactNode;
 }) {
   const context = usePartContext();
   return (
-    <XStack paddingLeft={space.sm} alignItems="center">
+    <XStack paddingLeft={space.md} alignItems="center">
       {members.map((member) => (
         <PartContext.Provider key={member.id} value={{ ...context, item: member.id }}>
           <Avatar label={member.label} photo={member.photo} />
         </PartContext.Provider>
       ))}
+      {children && <XStack marginLeft={space.sm}>{children}</XStack>}
     </XStack>
   );
 }
