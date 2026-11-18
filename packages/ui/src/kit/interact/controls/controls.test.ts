@@ -1,8 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { components, type ScreenLike } from "@lmthing/ui/catalog";
-import { createScreenController } from "./controller";
-import { createAgentAccess } from "./agent";
-import { createInteractionStore } from "./store";
+import { createScreenController, createAgentAccess, createInteractionStore } from "../index";
 const screen: ScreenLike = {
   id: "controls",
   components: [
