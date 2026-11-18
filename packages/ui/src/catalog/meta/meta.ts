@@ -25,6 +25,12 @@ export type Meta = {
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
    */
   items?: { key: string; parts: readonly string[]; prefix?: string; visible?: "all" | "first" };
+  select?: {
+    prop: string;
+    value: "index" | "position" | { field: string };
+    mode?: "one" | "flags";
+    parts?: Readonly<Record<string, unknown>>;
+  };
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

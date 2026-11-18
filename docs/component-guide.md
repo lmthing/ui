@@ -31,6 +31,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
      `dense` marks dense pack components. `codeOwned` excludes a component from choose/write prompts.
      No `meta.aliases`: strict `writerFormat(registry)` limits `c` and props to the scoped schemas
      (the 2026-11-18 design). Renamed or merged ids keep migration aliases through `legacyTarget`.
+   - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
 3. **`props`**: `z.strictObject`. Every string is `text(n)`, every array has `.min()` and `.max()`,
    icons are `icon`, photos `photo`, links `screenId` (`goto`). Choices are `z.enum([...])` with a
    `.default()` when one is usual. Visual variants are one `style` enum. Never colours, sizes, fonts,
