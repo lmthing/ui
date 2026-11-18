@@ -4,6 +4,7 @@ import {
   detailOf,
   durationLine,
   itemsOf,
+  loadingLabel,
   moneyLine,
   photo,
   placeholderTitle,
@@ -19,19 +20,22 @@ import {
 } from "../../../catalog";
 import {
   KitCard,
+  KitContent,
   KitEmpty,
   KitGrid,
   KitPhoto,
   KitRow,
   KitSkeleton,
   KitText,
+  type TextRole,
+  type TextTone,
   useComponentState,
 } from "../../../kit";
 
 // Core first: List/inset cannot group twelve services with numeric duration and price.
 export const meta = {
   id: "ServiceMenu",
-  status: "ready",
+  status: "draft",
   group: "content",
   purpose: "Choose a bookable service by duration and price, grouped by offering.",
   pick: "Services to book with numeric duration, price and optional group headings. Not plain things to browse (List), an existing booking (Appointment), or goods for sale (ProductGrid). Several ordinary things each with short details and their own link remain List.",
@@ -120,47 +124,60 @@ export const probes = [
   read("Book the plant care visit", { address: "s1/r1", action: "press" }),
 ] satisfies Probe[];
 
+function ServiceText({
+  value,
+  part,
+  role = "body",
+  tone = "text",
+}: {
+  value: string;
+  part: string | null;
+  role?: TextRole;
+  tone?: TextTone;
+}) {
+  const loading = useComponentState() === "loading";
+  const skeleton = (
+    <KitSkeleton shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
+  );
+  if (loading) return role === "number" ? <KitContent lead={skeleton}>{null}</KitContent> : skeleton;
+  return (
+    <KitText role={role} tone={tone} numberScale="compact" tabular={role === "number"} part={part}>
+      {value}
+    </KitText>
+  );
+}
+
 function ServiceRows({ services }: Props<typeof props, typeof meta>) {
+  const loading = useComponentState() === "loading";
   const photos = services.some((service) => service.photo);
   return (
     <>
       {services.map((service, index) => (
-        <KitRow key={service.id} item={service.id} label={service.name} goto={service.goto}>
-          {service.group && service.group !== services[index - 1]?.group && (
-            <KitText role="caption" tone="muted" part="group">
-              {service.group}
-            </KitText>
-          )}
-          <KitRow
-            label={service.name}
-            inline
-            lineRole="body"
-            leadingAlign="row"
-            leadingWidth={photos ? "avatar" : undefined}
-            leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
-            trailing={
-              <KitText role="label" tone="accent" part={null}>
-                {bookLabel}
-              </KitText>
-            }
-          >
-            <KitText part="name">{service.name}</KitText>
-            <KitGrid columns={2}>
-              <KitText role="number" numberScale="compact" tone="muted" tabular part="minutes">
-                {durationLine(service.minutes)}
-              </KitText>
-              {service.price !== undefined && (
-                <KitText role="number" numberScale="compact" align="end" tabular part="price">
-                  {moneyLine(service.price)}
-                </KitText>
+        <KitRow
+          key={service.id}
+          item={service.id}
+          label={loading ? loadingLabel : service.name}
+          goto={loading ? undefined : service.goto}
+          leadingAlign="row"
+          leadingWidth={photos ? "avatar" : undefined}
+          leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
+        >
+          <KitGrid columns={2} fitLast>
+            <KitContent>
+              {service.group && service.group !== services[index - 1]?.group && (
+                <ServiceText value={service.group} role="caption" tone="muted" part="group" />
               )}
-            </KitGrid>
-            {service.sub && (
-              <KitText role="caption" tone="muted" part="sub">
-                {service.sub}
-              </KitText>
-            )}
-          </KitRow>
+              <ServiceText value={service.name} part="name" />
+              <ServiceText value={durationLine(service.minutes)} role="number" tone="muted" part="minutes" />
+              {service.sub && <ServiceText value={service.sub} role="caption" tone="muted" part="sub" />}
+            </KitContent>
+            <KitContent>
+              <ServiceText value={bookLabel} role="label" tone="accent" part={null} />
+              {service.price !== undefined && (
+                <ServiceText value={moneyLine(service.price)} role="number" part="price" />
+              )}
+            </KitContent>
+          </KitGrid>
         </KitRow>
       ))}
     </>
@@ -169,31 +186,10 @@ function ServiceRows({ services }: Props<typeof props, typeof meta>) {
 
 export function ServiceMenu(input: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const { services, style } = input;
+  const { style } = input;
   return (
     <KitCard style={state === "empty" || style === "rows" ? "inset" : "cards"}>
-      {state === "empty" ? (
-        <KitEmpty decorativeIcon part="empty" />
-      ) : state === "loading" ? (
-        <KitSkeleton
-          rows={services.length}
-          lead={services.some((service) => service.photo) ? "box" : "none"}
-          items={services.map((service, index) => ({
-            photo: service.photo,
-            trail: "value",
-            lines: [
-              ...(service.group && service.group !== services[index - 1]?.group
-                ? [{ text: service.group, role: "caption" as const }]
-                : []),
-              { text: service.name, role: "body" as const },
-              { text: durationLine(service.minutes), role: "body" as const },
-              ...(service.sub ? [{ text: service.sub, role: "caption" as const }] : []),
-            ],
-          }))}
-        />
-      ) : (
-        <ServiceRows {...input} />
-      )}
+      {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} />}
     </KitCard>
   );
 }
