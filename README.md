@@ -2,10 +2,10 @@
 
 The component system used by lmthing, as one package, `@lmthing/ui`, with two entries:
 
-- **`@lmthing/ui/catalog`**: the component system as data. Tokens, presets, accents, components, domain packs, archetypes, surfaces, screen rules, the part address grammar, prompt entries and readers. TypeScript and Zod only, no React.
-- **`@lmthing/ui/kit`**: the Tamagui views for every catalog component, the screen layout, states, surfaces and signature motion.
+- **`@lmthing/ui/catalog`**: the component system as data. Tokens, themes, 45 core component definitions, 17 archetypes, screen rules, the part address grammar, prompt entries, readers and migrations. The 18 domain packs and outside surfaces are pending. TypeScript and Zod only, no React.
+- **`@lmthing/ui/kit`**: the Tamagui views for every catalog component, the screen layout, states, live controls and shared motion. Native device acceptance and runtime render detection are pending.
 
-Each component is ONE file holding its data and its view. lmthing loads this repo as a git submodule at `packages/ui`. Nothing is built yet.
+Each component is ONE file holding its data and its view. lmthing loads this repo as a git submodule at `packages/ui`. Core schemas and views, 35 archetype layouts, the browser runtime and the Vite gallery are built. See the [status of U0 to U8](docs/implementation-plan.md#13-implementation-steps) for unfinished gates.
 
 ## How to implement (for the agent that builds this)
 
@@ -22,7 +22,7 @@ Each component is ONE file holding its data and its view. lmthing loads this rep
 - Component names are PascalCase everywhere: file, view function, `meta.id`, and the `c` value a model writes (`List.tsx`, `ServiceMenu`). Other files are kebab-case. Archetype, pack, section, screen and flow ids are lowercase.
 - No raw values outside `src/catalog/tokens/` and `src/catalog/themes/`: no hex colours, pixel numbers or z-index.
 - `src/catalog` imports only `zod`. `src/kit` imports `src/catalog` and peers. `src/components`, `src/packs` and `src/surfaces` import both. `node:*` only in `scripts/`. Nothing imports from `apps/`.
-- A component never styles itself. Its look is a choice of variants on the six kit bases (plan 5.4a).
+- A component never styles itself. Its look comes from the exported kit bases ([component guide](docs/component-guide.md), plan 5.4a).
 - Every dependency gets a line in `docs/dependencies.md`.
 
 ## Exact structure
@@ -30,17 +30,21 @@ Each component is ONE file holding its data and its view. lmthing loads this rep
 ```text
 docs/                          implementation-plan.md, dependencies.md, catalog/ (core and pack plans)
 packages/ui/                   @lmthing/ui
-  src/catalog/                 meta props types tokens themes(presets) archetypes rules address lookup
-                               prompt agent registry migrations, icons.ts photos.ts signatures.ts version.ts
+  src/catalog/                 meta props types tokens themes(presets) archetypes rules address lookup(pending)
+                               cast prompt agent registry migrations, copy.ts icons.ts signatures.ts; photos.ts/version.ts pending
   src/components/              one file per core component (45 built; DayTimeline merged, Sparkline retained), PascalCase
-  src/packs/<pack>/            pack.ts example.jsonl components/ archetypes/   (18 planned)
-  src/surfaces/                LockScreen.tsx Widget.tsx Message.tsx
-  src/kit/                     provider tamagui base(helpers) part archetypes signature screen report registry interact
-  src/entry/                   generated: catalog.ts renderers.ts kit.ts
+  src/packs/<pack>/            pack.ts example.jsonl components/ archetypes/   (18 planned; content pending)
+  src/surfaces/                LockScreen.tsx Widget.tsx Message.tsx (pending)
+  src/kit/                     provider tamagui base(helpers) part motion screen registry interact; archetypes/signature/report pending
+  src/entry/                   generated, ignored: catalog.ts renderers.ts kit.ts
   scripts/ assets/fonts/ test/
 packages/photos/               optional, step U8
-apps/gallery/                  private Expo app: app/ fixtures/ e2e/ agent-hook.ts tamagui.config.ts
+apps/gallery/                  private Vite/React Native Web app: query-selected components, runtime and controls
 .github/workflows/  .changeset/
 ```
 
-Root files to create in step U0: `package.json`, `pnpm-workspace.yaml` (`packages/*`, `apps/*`), `tsconfig.base.json`, `eslint.config.js`, `.nvmrc`, `.github/workflows/ci.yml`.
+Built tooling: pnpm, strict TypeScript, Prettier, Vitest, esbuild and TypeScript declarations. `./catalog` and `./kit` both export `source`; Node agents use the built catalog. ESLint, Changesets config and CI/release YAML are pending. Folder README requirements remain binding; stale implementation details defer to the plan.
+
+Writers use strict structured output from `writerFormat(registry)` (2026-11-18 design). No component aliases, alias-conflict check or off-pack repair. Migration aliases stay.
+
+Checks: `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm build:catalog`. See plan 7.1 for package builds, probes and screenshots. Markdown is ignored by the root formatter; format edited documents explicitly.
