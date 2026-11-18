@@ -29,3 +29,32 @@ it("prints all rules on a clean tree", () => {
   expect(formatRules("/ui", [])).toContain("All rules pass.");
   expect(formatRules("/ui", []).split(": PASS")).toHaveLength(8);
 });
+it("audits source only and skips recordings, generated files and non-README markdown", async () => {
+  const folder = await mkdtemp(resolve(".rules-test-"));
+  folders.push(folder);
+  const root = join(folder, "packages/ui");
+  const ignored = [
+    "src/large.generated.ts",
+    "src/large.json",
+    "src/guide.md",
+    "src/script.js",
+    "src/script.cts",
+    "test/recordings/Example/deep/model.ts",
+    "test/recordings/Example/README.md",
+  ];
+  const included = ["src/a.ts", "src/a.tsx", "src/a.mts", "src/README.md"];
+  for (const path of [...ignored, ...included]) {
+    const file = join(root, path);
+    await mkdir(resolve(file, ".."), { recursive: true });
+    await writeFile(file, "x\n".repeat(201));
+  }
+  const violations = await checkRules(root);
+  expect(
+    violations
+      .filter(({ rule }) => rule === "file-lines")
+      .map(({ file }) => file)
+      .sort(),
+  ).toEqual(included.map((file) => join(root, file)).sort());
+  expect(violations.filter(({ rule }) => rule === "readme-lines")).toHaveLength(1);
+  expect(violations.every(({ file }) => !ignored.includes(file.slice(root.length + 1)))).toBe(true);
+});

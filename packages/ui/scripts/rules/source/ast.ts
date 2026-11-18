@@ -15,7 +15,7 @@ export function checkSource(
   source: string,
   files: ReadonlySet<string>,
 ): Violation[] {
-  if (!/\.[cm]?[jt]sx?$/.test(file)) return [];
+  if (!/\.(?:ts|tsx|mts)$/.test(file) || file.endsWith(".generated.ts")) return [];
   const ast = ts.createSourceFile(
     file,
     source,

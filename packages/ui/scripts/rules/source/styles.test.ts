@@ -32,3 +32,15 @@ it("reports wrapped numeric literals and each multiline colour's physical line",
   ]);
   expect(issues(`const colors = \`\n${hash}fff\n${hash}abcd\n\`;`).map(({ line }) => line)).toEqual([2, 3]);
 });
+it("allows rejection-input hex literals in .test.ts only, retaining other test rules", () => {
+  const source = `const style = { color: "${hash}fff", zIndex: 1 };`;
+  expect(issues(source, "/ui/src/example.test.ts").map(({ rule }) => rule)).toEqual(["numeric-zIndex"]);
+  expect(issues(source, "/ui/src/example.test.tsx").map(({ rule }) => rule)).toEqual([
+    "hex-colours",
+    "numeric-zIndex",
+  ]);
+  expect(issues(source, "/ui/src/example.test.mts").map(({ rule }) => rule)).toEqual([
+    "hex-colours",
+    "numeric-zIndex",
+  ]);
+});

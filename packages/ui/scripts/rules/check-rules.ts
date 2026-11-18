@@ -1,11 +1,12 @@
 import { join, relative } from "node:path";
-import { roots, ruleNames, type Violation } from "./config";
+import { roots, ignoredFolders, ruleNames, type Violation } from "./config";
 import { readSources } from "./files";
 import { checkLimits } from "./limits";
 import { checkSource } from "./source";
 
 export async function checkRules(root: string): Promise<Violation[]> {
-  const sources = (await Promise.all(roots.map((folder) => readSources(join(root, folder))))).flat();
+  const ignored = ignoredFolders.map((folder) => join(root, folder));
+  const sources = (await Promise.all(roots.map((folder) => readSources(join(root, folder), ignored)))).flat();
   const paths = new Set(sources.map(({ file }) => file));
   return [
     ...checkLimits(root, sources),

@@ -1,9 +1,8 @@
 import { URL } from "node:url";
 import { readFileSync, writeFileSync } from "node:fs";
 import type { Definition } from "@lmthing/ui/catalog";
-import { mergePairs, mergeDecision } from "../../src/catalog/probes/merge-pairs";
 import type * as Catalog from "@lmthing/ui/catalog";
-const { runProbes } = (await import(
+const { runProbes, mergePairs, mergeDecision } = (await import(
   new URL("../../dist/catalog.js", import.meta.url).href
 )) as typeof Catalog;
 import { keyOf, readBook, writeBook, replayCall } from "./recordings";

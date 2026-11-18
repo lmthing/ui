@@ -49,10 +49,11 @@ export function checkStyles(root: string, file: string, node: ts.Node, line: num
   if (styleExemptions.some((folder) => path.startsWith(folder + "/"))) return [];
   const violations: Violation[] = [];
   if (
-    ts.isStringLiteralLike(node) ||
-    ts.isTemplateHead(node) ||
-    ts.isTemplateMiddle(node) ||
-    ts.isTemplateTail(node)
+    !file.endsWith(".test.ts") &&
+    (ts.isStringLiteralLike(node) ||
+      ts.isTemplateHead(node) ||
+      ts.isTemplateMiddle(node) ||
+      ts.isTemplateTail(node))
   ) {
     for (const match of node.getText().matchAll(hexColour)) {
       const at = node.getSourceFile().getLineAndCharacterOfPosition(node.getStart() + match.index!).line + 1;
