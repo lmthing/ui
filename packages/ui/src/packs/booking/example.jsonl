@@ -1,0 +1,7 @@
+{"id":"h1","c":"Header","title":"Book a walk"}
+{"id":"s1","c":"ServiceMenu","services":[{"name":"Park walk","minutes":30,"price":15,"goto":"time"},{"name":"Long walk","minutes":60,"price":25,"goto":"time"},{"name":"Home visit","minutes":30,"price":15,"goto":"time"}]}
+{"id":"a1","c":"Appointment","service":"Park walk","with":"Sam","date":"2026-11-20","time":"09:00","minutes":30,"price":15,"status":"confirmed","goto":"time"}
+{"id":"s2","c":"StaffPicker","staff":[{"name":"Sam","photo":"lib:people","role":"Walker"}],"anyone":true,"at":1}
+{"id":"s3","c":"Slots","times":[{"time":"09:00","taken":false},{"time":"09:30","taken":true}],"minutes":30}
+{"id":"a2","c":"Availability","days":[{"day":"mon","on":true,"from":"09:00","to":"17:00"},{"day":"tue","on":true,"from":"09:00","to":"17:00"},{"day":"wed","on":true,"from":"09:00","to":"17:00"},{"day":"thu","on":true,"from":"09:00","to":"17:00"},{"day":"fri","on":true,"from":"09:00","to":"17:00"},{"day":"sat","on":false,"from":"09:00","to":"17:00"},{"day":"sun","on":false,"from":"09:00","to":"17:00"}]}
+{"id":"w1","c":"Waitlist","position":3,"ahead":2,"joined":true}

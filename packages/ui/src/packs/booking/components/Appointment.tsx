@@ -20,6 +20,7 @@ export const meta = {
   group: "content",
   purpose: "See, change or confirm one booking with its time and terms.",
   pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
+  writeHints: ['policy is only allowed with style: "summary". For style: "card", omit policy or write null.'],
   region: "body",
   weight: 2,
   tier: "phone",

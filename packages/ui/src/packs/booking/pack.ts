@@ -15,5 +15,10 @@ export const pack = {
     },
     { kind: "pack", idea: "A shop selling goods, not appointments or time", expect: ["commerce"] },
     { kind: "pack", idea: "Track how far along I am toward my personal daily goal", expect: [] },
+    {
+      kind: "choose",
+      need: "Show how full the class is: eight of twelve places filled, without a waiting queue",
+      expect: "Progress",
+    },
   ],
 } as const satisfies PackMeta;

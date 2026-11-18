@@ -20,13 +20,13 @@ export const meta = {
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
   read: (input, state) =>
     state === "filled"
-      ? props.parse(input).times.map(({ time, taken }) => `${time}${taken ? " (taken)" : ""}`)
+      ? (input as z.output<typeof props>).times.map(({ time, taken }) => `${time}${taken ? " (taken)" : ""}`)
       : [],
 } as const satisfies Meta;
 export const props = z
   .strictObject({
     times: z
-      .array(z.strictObject({ time: clock, taken: z.boolean() }))
+      .array(z.strictObject({ time: clock.meta({ kind: "text" }), taken: z.boolean() }))
       .min(1)
       .max(24),
     at: clock.optional(),

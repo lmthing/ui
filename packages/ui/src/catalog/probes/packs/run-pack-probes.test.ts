@@ -29,9 +29,10 @@ it("explicitly includes draft packs in the full index and uses majority scoring"
     only: ["booking"],
     samples: 3,
     callModel: async (prompt, sample) => {
-      expect(prompt).toBe(
+      expect(prompt).toContain(
         `${buildPackIndex(packs, { includeDrafts: true })}\n\nIdea: I need a haircut\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`,
       );
+      expect(prompt).toContain("Choose the domain packs this app needs");
       expect(prompt).toContain("commerce:");
       expect(prompt).toContain("I need a haircut");
       return sample === 0 ? "[]" : '["booking"]';

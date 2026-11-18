@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { basename, join, relative } from "node:path";
+import { basename, dirname, join, relative } from "node:path";
 import ts from "typescript";
 import { packIds, type PackId } from "../../../src/catalog";
 
@@ -40,7 +40,8 @@ async function definition(file: string, entryDir: string, pack: PackId | undefin
   const missing: string[] = dataExports.filter((key) => !names.includes(key));
   if (!draft && !names.includes(name)) missing.push(name);
   if (missing.length) throw new Error(`${file} is missing exports: ${missing.join(", ")}`);
-  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack };
+  const door = pack && (await readdir(dirname(file))).includes("index.ts");
+  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack, door };
 }
 
 async function packEntry(folder: string, id: PackId) {
@@ -72,7 +73,7 @@ async function packEntry(folder: string, id: PackId) {
   const example = files.includes(join(folder, "example.jsonl"))
     ? await readFile(join(folder, "example.jsonl"), "utf8")
     : undefined;
-  return { id, meta, archetypes, example };
+  return { id, meta, archetypes, example, door: files.includes(join(folder, "archetypes/index.ts")) };
 }
 
 export async function scanEntries(root: string) {

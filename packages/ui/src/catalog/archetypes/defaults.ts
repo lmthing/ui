@@ -44,6 +44,12 @@ function inputOf(
   } else {
     input[["Field", "Camera"].includes(line.c) ? "kind" : "style"] = variant;
     if (line.c === "Field" && ["date", "time"].includes(variant)) input.value = undefined;
+    if (line.c === "Timeline" && variant === "hours")
+      input.items = (input.items as { title: string }[]).map((item, index) => ({
+        title: item.title,
+        time: `${String(9 + index * 2).padStart(2, "0")}:00`,
+        end: `${String(10 + index * 2).padStart(2, "0")}:00`,
+      }));
   }
   return input;
 }

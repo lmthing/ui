@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, it } from "vitest";
 import { packIds, type PackId, type PackMeta, type ArchetypeMeta } from "./index";
-import type { PackProbe } from "../probes";
+import type { PackProbe, ChooseProbe } from "../probes";
 
 it("exposes exactly the 27 unique pack ids, excluding the old content id", () => {
   expect(packIds).toHaveLength(27);
@@ -8,7 +8,7 @@ it("exposes exactly the 27 unique pack ids, excluding the old content id", () =>
   expect(packIds).toContain("media");
   expect(packIds).not.toContain("content");
   expectTypeOf<PackMeta["id"]>().toEqualTypeOf<PackId>();
-  expectTypeOf<PackMeta["probes"]>().toEqualTypeOf<readonly PackProbe[]>();
+  expectTypeOf<PackMeta["probes"]>().toEqualTypeOf<readonly (PackProbe | ChooseProbe)[]>();
   expectTypeOf<ArchetypeMeta["layouts"][string]["defaults"][number]["c"]>().toEqualTypeOf<string>();
 });
 

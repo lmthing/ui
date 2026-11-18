@@ -1,10 +1,19 @@
 import { z } from "zod";
-import { probesFor, type CastLike, type Meta, type Probe } from "../../../catalog";
+import {
+  probesFor,
+  queueAhead,
+  queueLabels,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { KitAction, KitCard, KitContent, KitText } from "../../../kit";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
 export const meta = {
   id: "Waitlist",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Join or leave the queue for a full session and see your place.",
   pick: "A full session's waiting queue: join, leave, place in line and people ahead. Not capacity or progress toward a target (Progress).",
@@ -12,12 +21,22 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
-  parts: ["root", "position", "ahead", "join", "leave"],
+  parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
   confirmParts: ["leave"],
   states: ["filled", "success"],
   actions: {
     parts: { join: ["press"], leave: ["press"] },
     when: { join: { joined: false }, leave: { joined: true } },
+  },
+  read: (input, state) => {
+    if (state !== "filled") return [];
+    const { joined, position, ahead } = props.parse(input);
+    return [
+      joined ? queueLabels.joined : queueLabels.waiting,
+      ...(joined && position !== undefined ? [String(position), queueLabels.position] : []),
+      queueAhead(ahead),
+      joined ? queueLabels.leave : queueLabels.join,
+    ];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
@@ -31,6 +50,9 @@ export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   { position: 3, ahead: 2, joined: true },
   { ahead: 4, joined: false },
+  { ahead: 0, joined: true },
+  { ahead: 0, joined: false },
+  { position: Number.MAX_SAFE_INTEGER, ahead: Number.MAX_SAFE_INTEGER, joined: true },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
@@ -40,3 +62,39 @@ export const probes = [
   read("Leave the waiting queue", { address: "w1/leave", action: "press" }),
   { ...read("Join the waiting queue", { address: "w1/join", action: "press" }), screen: 1 },
 ] satisfies Probe[];
+
+export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof meta>) {
+  return (
+    <KitCard style="inset" padded part="root">
+      <KitContent lineRole="heading">
+        <KitText role="heading" part="title">
+          {joined ? queueLabels.joined : queueLabels.waiting}
+        </KitText>
+        {joined && position !== undefined && (
+          <>
+            <KitText
+              role="number"
+              numberScale={position > 999 ? "compact" : "display"}
+              tabular
+              part="position"
+            >
+              {position}
+            </KitText>
+            <KitText role="body" tone="muted" part="label">
+              {queueLabels.position}
+            </KitText>
+          </>
+        )}
+        <KitText role="body" tone="muted" part="ahead">
+          {queueAhead(ahead)}
+        </KitText>
+      </KitContent>
+      <KitAction
+        label={joined ? queueLabels.leave : queueLabels.join}
+        kind={joined ? "secondary" : "primary"}
+        part={joined ? "leave" : "join"}
+        full
+      />
+    </KitCard>
+  );
+}

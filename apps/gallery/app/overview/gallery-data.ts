@@ -1,8 +1,15 @@
-import { components, presets, type ComponentName, type Meta, type StateName } from "@lmthing/ui/catalog";
+import {
+  components,
+  packOf,
+  presets,
+  type ComponentName,
+  type Meta,
+  type StateName,
+} from "@lmthing/ui/catalog";
 
 export const modes = ["light", "dark"] as const;
 export const groups = ["structure", "content", "data", "input", "action", "beyond", "escape"] as const;
-export type GalleryGroup = (typeof groups)[number];
+export type GalleryGroup = string;
 export type Cell = { id: ComponentName; example: unknown; index: number; state: StateName };
 export const componentIds = (Object.keys(components) as ComponentName[]).sort();
 
@@ -22,18 +29,26 @@ export function variantCount(id: ComponentName): number {
   return cellsOf(id).length * presets.length * modes.length;
 }
 
-export function groupedIds(filter: string): { group: GalleryGroup; ids: ComponentName[] }[] {
+export function groupedIds(
+  filter: string,
+  pack?: string | null,
+): { group: GalleryGroup; ids: ComponentName[] }[] {
   const text = filter.trim().toLowerCase();
-  return groups
+  const ownership = packOf as Record<string, string | undefined>;
+  const packGroups = [...new Set(Object.values(ownership))].filter((id): id is string => !!id).sort();
+  return [...groups, ...packGroups]
     .map((group) => ({
       group,
       ids: componentIds.filter((id) => {
         const { meta } = components[id];
         return (
-          meta.group === group &&
+          (ownership[id] ? ownership[id] === group : meta.group === group) &&
+          (!pack || ownership[id] === pack) &&
           (id.toLowerCase().includes(text) || meta.purpose.toLowerCase().includes(text))
         );
       }),
     }))
     .filter(({ ids }) => ids.length > 0);
 }
+
+export const draftLabel = (id: string) => `${id} · draft`;
