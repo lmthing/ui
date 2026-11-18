@@ -25,7 +25,7 @@ import { KitAction, KitCard, KitContent, KitGrid, KitRow, KitText, useComponentS
 // Core first: KeyValue/rows cannot show quantity-price lines, computed tax totals and bill/quote actions.
 export const meta = {
   id: "Invoice",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Bill a client or quote work before they accept it.",
   pick: "A business's bill or quote to a client, with quantity-price lines, tax and sending. Not plain details (KeyValue), personal bills to pay (Bills), or a shop order (OrderSummary).",
