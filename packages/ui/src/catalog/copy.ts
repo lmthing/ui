@@ -90,3 +90,8 @@ export const repeatLabels = {
 
 /** The two small actions a message can offer. */
 export const messageLabels = { retry: "Try again", undo: "Undo", dismiss: "Dismiss" } as const;
+
+/** The people beyond those shown: "+3". */
+export function moreLine(count: number): string {
+  return `+${count}`;
+}

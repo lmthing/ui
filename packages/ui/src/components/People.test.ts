@@ -21,13 +21,17 @@ describe("People schema", () => {
   );
   it("trims text and derives root presence without adding optional inputs", () => {
     expect(props.parse({ members: [{ name: " Anna " }] })).toEqual({
+      style: "rows",
       members: [{ name: "Anna", root: undefined }],
     });
     expect(props.parse({ members: [{ name: " Anna ", role: " Owner ", goto: "anna" }] })).toEqual({
+      style: "rows",
       members: [{ name: "Anna", role: "Owner", goto: "anna", root: "anna" }],
     });
   });
   it.each([
+    { style: "stack", more: 0, members: [{ name: "Anna" }] },
+    { style: "grid", members: [{ name: "Anna" }] },
     {},
     { members: [] },
     { members: Array.from({ length: 7 }, () => ({ name: "Anna" })) },
@@ -120,7 +124,7 @@ describe("People fallback and metadata", () => {
   it("has the contract metadata and well-formed choose, write and read probes", () => {
     expect(meta).toMatchObject({ id: "People", group: "content", region: "body", weight: 2, tier: "people" });
     expect(meta.items).toEqual({ key: "members", parts: ["root", "photo", "name", "role"] });
-    expect(meta.parts).toEqual(["root"]);
+    expect(meta.parts).toEqual(["root", "more"]);
     expect(meta.states).toEqual(["filled", "empty"]);
     expect(meta.actions).toEqual({ items: { root: ["press"] } });
     expect(meta.realPath).not.toBe("");
@@ -131,7 +135,7 @@ describe("People fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "People")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "People" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 1,
@@ -184,5 +188,29 @@ describe("People view and actions", () => {
     expect(html).not.toContain('role="link"');
     expect(html).not.toContain('data-testid="home/c1/r1/');
     expect(readComponent(components.People, input, "p1", "empty")).toEqual(["p1 People (empty)"]);
+  });
+});
+
+describe("People stack", () => {
+  it("makes a count of more people a stack that does not open anyone", () => {
+    const parsed = props.parse({ more: 2, members: [{ name: "Anna", goto: "anna" }] });
+    expect(parsed.style).toBe("stack");
+    expect(parsed.members).toEqual([{ name: "Anna" }]);
+    expect(affordancesOf(meta, parsed, "p1")).toEqual([]);
+    expect(props.parse({ style: "stack", members: [{ name: "Ben", goto: "ben" }] }).members).toEqual([
+      { name: "Ben" },
+    ]);
+  });
+  it("draws overlapping avatars, one addressable item each, and a count of the rest", () => {
+    const input = examples[2]!;
+    const parsed = props.parse(input);
+    const reads = readComponent(components.People, input, "p1").join("\n");
+    expect(reads).toContain("+3");
+    expect(affordancesOf(meta, parsed, "p1")).toEqual([]);
+    const html = renderInstance("People", input, "filled", theme);
+    for (const index of [1, 2, 3]) expect(html).toContain(`data-testid="home/c1/r${index}/root"`);
+    expect(html).not.toContain('data-testid="home/c1/r4/root"');
+    expect(html).toContain('data-testid="home/c1/more"');
+    expect(html).toContain("+3");
   });
 });

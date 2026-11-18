@@ -11,6 +11,7 @@ export { KitMapTile } from "./KitMapTile";
 export { KitViewfinder, KitShutter } from "./KitCamera";
 export { KitRouteStop } from "./KitRouteStop";
 export { KitSwipeStack } from "./KitSwipeStack";
+export { KitAvatarStack } from "./KitAvatarStack";
 export { KitBubble } from "./KitBubble";
 export { KitHours, type HourBlock } from "./KitHours";
 export { KitSlider } from "./KitSlider";
