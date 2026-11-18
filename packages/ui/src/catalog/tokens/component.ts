@@ -70,5 +70,15 @@ export const component = {
     brown: "#87654c",
     beige: "#d3c2a3",
   } satisfies Record<Swatch, string>,
-  Gallery: { cardWidth: 360, minWidth: 320, previewHeight: 288, maxWidth: 1200 },
+  Gallery: {
+    cardWidth: 360,
+    minWidth: 320,
+    previewHeight: 288,
+    maxWidth: 1200,
+    overviewMaxWidth: 1160,
+    variantWidth: 344,
+    filterWidth: 240,
+    headerLayer: 1,
+    anchorOffset: 192,
+  },
 } as const;
