@@ -3661,6 +3661,789 @@
       "Field"
     ]
   },
+  "4646dde2174dc755": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: appointments/upcoming. Job: My upcoming and past bookings.\n\nRecipe slots: [{\"id\":\"slot_0\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot_1\",\"allow\":[\"Segmented\"],\"min\":1,\"max\":1},{\"id\":\"slot_2\",\"allow\":[\"Appointment\"],\"min\":1,\"max\":1},{\"id\":\"slot_3\",\"allow\":[\"List\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nLayout rule: Always include the required List after Appointment, even with an empty cast. Its 1–6 rows summarize past appointments: short service titles, dates or status in meta, and optional goto links. Do not omit this slot; use the valid default List when no past records are supplied.\n\nLayout rule: List must use style: \"inset\", not shelf, expand or ranked. On every row, me is false or null, photo is null and body is null. These are past appointment records, never a personal \"me\" row, a photo shelf or expandable answers.\n\nReal app content: {\"things\":[],\"items\":[]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nSegmented: Switch between two to four views of the same screen.\nprops: { options: [2..4 { label: text≤14 }], at?: int 0..9007199254740991=0 }\nexample: {\"c\":\"Segmented\",\"options\":[{\"label\":\"Today\"},{\"label\":\"Week\"},{\"label\":\"All\"}],\"at\":0}\nweight: 1\n\nAppointment: See, change or confirm one booking with its time and terms.\nprops: { service: text≤28, with?: text≤24, date: date YYYY-MM-DD, time: time HH:MM, minutes: int 5..600, place?: text≤40, price?: num 0.., status: confirmed|pending|cancelled|done, policy?: text≤100, goto: id snake_case, style?: card|summary=\"card\" }\nRule: policy is only allowed with style: \"summary\". For style: \"card\", omit policy.\nexample: {\"c\":\"Appointment\",\"style\":\"card\",\"service\":\"Plant care visit\",\"with\":\"Anna\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":\"Home\",\"price\":20,\"status\":\"confirmed\",\"goto\":\"time\"}\nweight: 2\n\nList: Several things of the same kind, each one tappable.\nprops: { style?: plain|inset|cards|shelf|expand|ranked=\"inset\", rows: [1..6 { title: text≤28, meta?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: none|chevron|check|toggle|value|badge=\"chevron\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean }] }\nRule: For questions that open in place, use style: \"expand\" and a body on every row. Do not add goto or meta saying tap for an answer.\nRule: Photo values are references like \"lib:plants\" or \"local:1\". Never put the word photo or a space inside the value.\nRule: Icons are optional; omit them when not needed. The water icon is \"drop\", never \"droplet\".\nRule: A sideways photo rail uses style: \"shelf\" and photo on every row; a ranking uses style: \"ranked\" with each score in value.\nexample: {\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"trail\":\"toggle\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":\"check\",\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"appointments_upcoming\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Item one\"},{\"id\":\"s1\",\"c\":\"Segmented\",\"options\":[{\"label\":\"Item one\"},{\"label\":\"Item two\"}],\"at\":0},{\"id\":\"a1\",\"c\":\"Appointment\",\"service\":\"Item one\",\"date\":\"2026-11-18\",\"time\":\"09:00\",\"minutes\":30,\"status\":\"pending\",\"goto\":\"details\"},{\"id\":\"l1\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Item one\"},{\"title\":\"Item two\"},{\"title\":\"Item three\"}]}]}\n\nWrite a useful screen for the supplied content, using the recipe. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "large",
+                              "inline",
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Segmented",
+                        "enum": [
+                          "Segmented"
+                        ]
+                      },
+                      "options": {
+                        "minItems": 2,
+                        "maxItems": 4,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 14
+                            }
+                          },
+                          "required": [
+                            "label"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "at": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "options",
+                      "at"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Appointment",
+                        "enum": [
+                          "Appointment"
+                        ]
+                      },
+                      "service": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "with": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 24
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "date": {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      "time": {
+                        "type": "string",
+                        "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                      },
+                      "minutes": {
+                        "type": "integer",
+                        "minimum": 5,
+                        "maximum": 600
+                      },
+                      "place": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "price": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "confirmed",
+                          "pending",
+                          "cancelled",
+                          "done"
+                        ]
+                      },
+                      "policy": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 100
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "card",
+                              "summary"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "service",
+                      "with",
+                      "date",
+                      "time",
+                      "minutes",
+                      "place",
+                      "price",
+                      "status",
+                      "policy",
+                      "goto",
+                      "style"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "List",
+                        "enum": [
+                          "List"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "plain",
+                              "inset",
+                              "cards",
+                              "shelf",
+                              "expand",
+                              "ranked"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rows": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "meta": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 36
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "trail": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "chevron",
+                                    "check",
+                                    "toggle",
+                                    "value",
+                                    "badge"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 10
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "me": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "meta",
+                            "icon",
+                            "photo",
+                            "trail",
+                            "value",
+                            "goto",
+                            "body",
+                            "me"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "rows"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"id\":\"appointments_upcoming\",\"title\":null,\"components\":[{\"id\":\"header_upcoming\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"My bookings\",\"sub\":\"Upcoming and past appointments\",\"action\":{\"icon\":\"calendar\",\"label\":\"Book\",\"goto\":\"book_appointment\"}},{\"id\":\"segment_view\",\"c\":\"Segmented\",\"options\":[{\"label\":\"Upcoming\"},{\"label\":\"Past\"}],\"at\":0},{\"id\":\"appointment_next\",\"c\":\"Appointment\",\"service\":\"Consultation\",\"with\":\"Dr. Smith\",\"date\":\"2026-12-05\",\"time\":\"14:00\",\"minutes\":45,\"place\":\"Clinic\",\"price\":50,\"status\":\"confirmed\",\"policy\":\"Please arrive 10 minutes early.\",\"goto\":\"appointment_details\",\"style\":\"summary\"},{\"id\":\"past_appointments_list\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Consultation\",\"meta\":\"2026-11-02 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_1\",\"body\":null,\"me\":null},{\"title\":\"Pet checkup\",\"meta\":\"2026-10-15 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_2\",\"body\":null,\"me\":null},{\"title\":\"Vaccination\",\"meta\":\"2026-09-20 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_3\",\"body\":null,\"me\":null}]}]}",
+    "replies": [
+      "{\"id\":\"appointments_upcoming\",\"title\":null,\"components\":[{\"id\":\"header_upcoming\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"My bookings\",\"sub\":\"Upcoming and past appointments\",\"action\":{\"icon\":\"calendar\",\"label\":\"Book\",\"goto\":\"book_appointment\"}},{\"id\":\"segment_view\",\"c\":\"Segmented\",\"options\":[{\"label\":\"Upcoming\"},{\"label\":\"Past\"}],\"at\":0},{\"id\":\"appointment_next\",\"c\":\"Appointment\",\"service\":\"Consultation\",\"with\":\"Dr. Smith\",\"date\":\"2026-12-05\",\"time\":\"14:00\",\"minutes\":45,\"place\":\"Clinic\",\"price\":50,\"status\":\"confirmed\",\"policy\":\"Please arrive 10 minutes early.\",\"goto\":\"appointment_details\",\"style\":\"summary\"},{\"id\":\"past_appointments_list\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Consultation\",\"meta\":\"2026-11-02 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_1\",\"body\":null,\"me\":null},{\"title\":\"Pet checkup\",\"meta\":\"2026-10-15 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_2\",\"body\":null,\"me\":null},{\"title\":\"Vaccination\",\"meta\":\"2026-09-20 · Done\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"appointment_3\",\"body\":null,\"me\":null}]}]}",
+      "{\"id\":\"appointments_upcoming\",\"title\":\"My upcoming and past bookings\",\"components\":[{\"id\":\"header_main\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Bookings\",\"sub\":\"Upcoming and past appointments\",\"action\":{\"icon\":\"calendar_days\",\"label\":\"Schedule\",\"goto\":\"schedule\"}},{\"id\":\"segmented_views\",\"c\":\"Segmented\",\"options\":[{\"label\":\"Upcoming\"},{\"label\":\"Past\"}],\"at\":0},{\"id\":\"appointment_upcoming\",\"c\":\"Appointment\",\"service\":\"Consultation\",\"with\":\"Jane Smith\",\"date\":\"2026-11-20\",\"time\":\"09:00\",\"minutes\":30,\"place\":\"123 Main St\",\"price\":50,\"status\":\"confirmed\",\"policy\":\"Free cancellation up to 24h before\",\"goto\":\"appointment_details\",\"style\":\"summary\"},{\"id\":\"list_past_appointments\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Consultation\",\"meta\":\"Nov 10, 2026 · Completed\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"past_consultation\",\"body\":null,\"me\":false},{\"title\":\"Follow-up visit\",\"meta\":\"Nov 3, 2026 · Completed\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"past_followup\",\"body\":null,\"me\":false},{\"title\":\"Initial consult\",\"meta\":\"Oct 26, 2026 · Completed\",\"icon\":\"check\",\"photo\":null,\"trail\":\"chevron\",\"value\":null,\"goto\":\"past_initial\",\"body\":null,\"me\":false}]}]}",
+      "{\n  \"id\": \"appointments_upcoming\",\n  \"title\": \"Appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_appointments\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"My appointments\",\n      \"sub\": \"Your upcoming and past bookings\",\n      \"action\": {\n        \"icon\": \"plus\",\n        \"label\": \"Book\",\n        \"goto\": \"new_booking\"\n      }\n    },\n    {\n      \"id\": \"segmented_views\",\n      \"c\": \"Segmented\",\n      \"options\": [\n        {\"label\": \"Upcoming\"},\n        {\"label\": \"Past\"}\n      ],\n      \"at\": 0\n    },\n    {\n      \"id\": \"appointment_upcoming\",\n      \"c\": \"Appointment\",\n      \"service\": \"Consultation\",\n      \"with\": \"Dr. Smith\",\n      \"date\": \"2026-11-20\",\n      \"time\": \"09:00\",\n      \"minutes\": 30,\n      \"place\": \"Online\",\n      \"price\": 50,\n      \"status\": \"confirmed\",\n      \"policy\": \"Free cancellation up to 24 hours before\",\n      \"goto\": \"appointment_details\",\n      \"style\": \"summary\"\n    },\n    {\n      \"id\": \"past_appointments_list\",\n      \"c\": \"List\",\n      \"style\": \"inset\",\n      \"rows\": [\n        {\n          \"title\": \"Consultation\",\n          \"meta\": \"2026-11-10 · Completed\",\n          \"icon\": \"check\",\n          \"photo\": null,\n          \"trail\": \"chevron\",\n          \"value\": null,\n          \"goto\": \"past_appointment_1\",\n          \"body\": null,\n          \"me\": false\n        },\n        {\n          \"title\": \"Follow-up\",\n          \"meta\": \"2026-10-25 · Cancelled\",\n          \"icon\": \"close\",\n          \"photo\": null,\n          \"trail\": \"chevron\",\n          \"value\": null,\n          \"goto\": \"past_appointment_2\",\n          \"body\": null,\n          \"me\": false\n        },\n        {\n          \"title\": \"Initial visit\",\n          \"meta\": \"2026-10-05 · Completed\",\n          \"icon\": \"check\",\n          \"photo\": null,\n          \"trail\": \"chevron\",\n          \"value\": null,\n          \"goto\": \"past_appointment_3\",\n          \"body\": null,\n          \"me\": false\n        }\n      ]\n    }\n  ]\n}"
+    ]
+  },
   "47996582e3eb3dad": {
     "prompt": "Choose the domain packs this app needs from the index below. Match the app's purpose to the pack's purpose and pick line. Include a matching domain even when core components cover some screens. Choose [] only for a core-only app with no matching domain.\n\n- booking: Offer services and book appointments, classes and free start times. Pick: Booking time with someone: appointments, classes, slots. Not selling goods (commerce).\n- books: Keeping a small business's books: record money received and spent, retain receipts, separate business costs from owner withdrawals, and understand a period's profit and tax provision. The default is local cash-basis bookkeeping for one business, not banking, certified accounts or automatic tax filing. Pick: A small business's own accounts: income, expenses, profit, tax set aside. Not personal money (money), client invoices (customers), or selling goods (commerce)\n- commerce: Goods on offer, a basket, an order and its progress, from both sides: the buyer browsing and ordering, and the seller seeing orders come in, moving them on and keeping products up to date. It covers small sellers (a bakery taking pre-orders, a market stall, a maker selling prints). Taking payment is always a service part. Pick: Selling things for money: a shop, a bakery, a stall. Not booking time (booking)\n- community: The continuing work of a member-run group: who belongs and can vote, subscriptions collected by the treasurer, motions decided under the group's rules, contributions people claim, and the agreed record of decisions and actions. Notices use the core; this pack adds governance, not another social feed. Pick: A club, association or neighbourhood group run by its members: dues, notices, votes, sign-ups, minutes. Not sharing posts (social), not organising one gathering (events), not staff shifts (team)\n- customers: Keep a business's client records, history, invoices, reviews, rewards and signed agreements. Pick: A business keeping track of the people it serves: client records, history, invoices and rewards. Past visits alone do not need scheduling (booking). Not people sharing posts, comments and follows with each other (social). Friends sharing with each other belong to social, not a core-only app.\n- data: The back office of a small operation: many records at once, sorted and filtered, moved through stages, changed in bulk, and summarised in charts. Any pack component allowed by the README's density rule may be dense. Pick: Running something behind the scenes: tables, boards, reports. Not personal tracking (core)\n- events: Running one event from the organiser's side and the guest's: who is invited and coming, what they will eat, where they sit, who supplies what and what it costs, tickets and the door on the day, the gift list, and finding a date that suits everyone. Weddings, parties, reunions, fundraisers, small conferences. Pick: Organising one gathering: guests, RSVPs, seating, tickets, suppliers, gifts. Not travel (trips)\n- health: The most-asked personal app family: logging workouts set by set, taking medication on time, watching a body measurement move toward a goal, keeping several healthy habits, tracking symptoms, vitals and a menstrual cycle. Everything stays on the phone; nothing here is medical advice, and \"what's real?\" says so. Pick: The body: workouts, medication, measurements, symptoms, cycles. Not the mind (mind), not food (kitchen)\n- hiring: Before someone joins a team, a small employer tracks openings and applicants, reviews evidence, arranges interviews and records offers. A job seeker tracks the same process from the other side. Both can keep records on one phone; this pack does not promise a job board, shared recruiting system or automatic hiring. Pick: Finding people or work: job posts, applicants, interviews, offers and your own applications. Not staff already hired (team), not clients (customers), not a generic kanban (data)\n- home: The work of a home shared among the people in it: chores and whose turn it is, rewards for kids, the family's week, recurring care for pets, plants, the car and the house, a baby's feeds and sleeps, and the devices in the rooms, including set points, one-tap scenes and sensor readings. Pick: Running a household: chores, family, pets, plants, cars, the house and its devices. Not a business team (team)\n- inventory: Knowing what you have, where it is, who has it, when its warranty ends and what you still want, from a garage of boxes to a small shop's stock room, a record collection or a few rental flats. For rentals it covers the listing, the lease and a single rental-repair summary only; any request workflow (queue, triage, thread, work order) belongs to the requests pack. The tenants themselves are customers. Pick: Keeping track of things owned: stock, collections, storage, loans, warranties, rentals. Not selling them (commerce)\n- invest: Following money set aside for the future: what is owned, how its value changes apart from contributions, what income it pays, and how close it brings a savings target. It records investments, not advice or orders to a broker. A first showcase uses local records and dated quotes; live prices need a service. Pick: Investments over time: holdings, allocation, watchlists, performance, dividends, savings goals. Not day-to-day spending and bills (money), not a business's books (books, proposed)\n- kitchen: Everything about food in a household: cooking from a recipe with the right amounts and timers, planning the week's meals, the shopping list that follows from it, what is in the cupboard and when it goes off, and a simple log of what was eaten. Pick: Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (commerce)\n- learning: Learning something step by step and checking it stuck: lessons, questions with feedback, flashcards with spaced review, a path through units, results and badges, and a student's week of classes and homework. Pick: Teaching and practising: lessons, quizzes, flashcards, classes and homework. Not a team's training rota (team)\n- media: A library of things to read, hear or watch: articles, books, podcasts, albums, sermons, video courses. The core Player plays one recording; this pack adds what a library needs around it: the reading view, a show's page, episode lists, chapters, a player that follows the person between screens, and saved highlights. Pick: Reading, listening and watching a library. Not one recording on one screen (core Player)\n- mind: Looking after how one feels: a daily check-in of mood and what affected it, a journal, naming feelings, breathing exercises, sleep, calming sounds, and the patterns that show up over weeks. It is calm by design: soft presets, no red alarms, nothing competitive. Pick: The mind: mood, journaling, feelings, breathing, sleep. Not the body (health)\n- money: Personal and household money: what is in each account, where it went, what is due, who owes whom, how to clear debts, and how a holding is doing. It never moves money in a first showcase; bank links and payments are service, and \"what's real?\" says so. Pick: The person's own money: balances, budgets, bills, splitting costs, debts and repayment plans. Not a business's sales (commerce)\n- paperwork: IDs, insurance, tax evidence, certificates and personal contracts, with action dates and proof files. The pack is a local filing cabinet, not a bank, travel wallet, warranty book or client-consent workflow. Its hand-drawn signature pad for personal forms does not promise legally verified e-signing. Pick: Life admin: documents, renewals, receipts, forms to sign and deadlines. Not travel documents (trips), owned things' warranties (inventory), client agreements (customers) or payments to track (money)\n- places: Real places and moving between them: a venue's card and opening hours, an address to copy or navigate to, a map with a list beside it, a delivery coming to the door, and the next departures from a stop. Maps and live data need a service. Pick: Where things are and getting there: venues, addresses, deliveries, departures. Not planning a trip (trips)\n- play: Tools for playing around one phone: keep a board game's round scores, roll dice, spin for a random choice, take turns, reveal a trivia answer and split the players into teams. It supports the game at the table, not a general game engine, a sports season or a course. No wagers, prizes for money or payments. Pick: Playing a game together: round scores, dice, a spinner, turns, host-led trivia and random teams. Not league fixtures and standings (sports), not graded practice (learning), not household duties (home)\n- projects: Delivering a bounded piece of work: agree what is included, break it into assigned tasks, meet milestone gates, see dependencies across dates, and record the time spent on each task. It serves one person managing their own work first; collaborators and clients do not have to use the app. Pick: Work with deliverables: projects, tasks, milestones, time spent. Not running day-to-day operations (data), not staff shifts (team)\n- property: The operating view of rented homes: which independently lettable units are occupied, who owes rent for which period, who is viewing, what condition each room was in, and how meters changed. A landlord or host can keep these records on one phone; tenant accounts, automatic payments and booking-platform sync are not implied. This pack does not replace inventory's Lease or Listing. Pick: Running rented property: units, occupancy, rent, viewings, inspections, meters. Not owned things or one listing or lease (inventory), not repairs and maintenance requests (requests)\n- requests: An operator takes a reported problem through triage, assigned work, updates and verified resolution. Reports can span visits, have several work orders, wait for parts or information, and reopen after a failed fix. Pick: Requests moving through a service queue: repairs, maintenance, support tickets, work orders. Not booking time (booking), not a simple repair attached to something owned (inventory), not arbitrary records on a board (data)\n- social: A small community in one app: a club, a class, a neighbourhood, friends with a shared hobby. People post, react, comment, vote, join challenges and events, and invite others. Everything here needs other people, so the pack is tier people throughout. Pick: People sharing with each other: posts, comments, follows. Not a business's clients (customers)\n- sports: Amateur and grassroots sport, run by volunteers: the next match and who is available, the lineup, keeping the score live, what happened in the match, the league table and a knockout cup. It works for any sport with sides, scores and fixtures; football is the default for positions and periods. Pick: A sports team or league: fixtures, scores, standings, lineups, availability. Not a workout (health)\n- team: A small group that works together on a schedule: who is on when, who can cover a gap, hours worked, what the last shift handed over, and requests waiting for a manager. It suits cafés, salons, clinics, volunteer groups and family businesses. Pick: Staff or volunteers: shifts, hours, handovers, approvals. Not a sports squad (sports)\n- trips: One trip from planning to coming home: the plan day by day, the confirmations for flights, trains, stays and tickets, what to pack, the documents to carry, the weather where you are going, money in the local currency and the time back home. Shared costs on a trip come from money; places to visit from places. Pick: Travelling: itineraries, reservations, packing, documents, weather. Not organising an event (events)\n\nIdea: A private habit tracker showing completion toward today's own goal. No appointments, classes, bookable services or sales.\nReply with a JSON array of up to 3 pack ids, or [] when none fit.",
     "reply": "[]",

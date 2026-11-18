@@ -6,6 +6,10 @@ export const appointments = {
   defaultLayout: "upcoming",
   layouts: {
     upcoming: {
+      writeHints: [
+        "Always include the required List after Appointment, even with an empty cast. Its 1–6 rows summarize past appointments: short service titles, dates or status in meta, and optional goto links. Do not omit this slot; use the valid default List when no past records are supplied.",
+        'List must use style: "inset", not shelf, expand or ranked. On every row, me is false or null, photo is null and body is null. These are past appointment records, never a personal "me" row, a photo shelf or expandable answers.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
