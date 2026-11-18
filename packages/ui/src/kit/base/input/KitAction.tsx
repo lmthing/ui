@@ -69,7 +69,7 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
-  const tone = toneOf[kind];
+  const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const [pressed, setPressed] = useState(false);
   const pressScale = useAnimatedValue(
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,

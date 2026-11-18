@@ -22,17 +22,7 @@ const Frame = styled(YStack, {
     },
   } as const,
 });
-export function KitCard({
-  children,
-  style = "inset",
-  part = "root",
-  look = "surface",
-  tone = "neutral",
-  clip = false,
-  goto,
-  label,
-  padded = false,
-}: {
+type CardProps = {
   children: ReactNode;
   style?: CardStyle;
   part?: string;
@@ -46,7 +36,21 @@ export function KitCard({
   label?: string;
   /** Insets the children like a row's content (for a component built from text and icons, not rows). */
   padded?: boolean;
-}) {
+  /** Horizontal padding for padded content; `none` keeps form controls at the screen gutter. */
+  inset?: "md" | "none";
+};
+export function KitCard({
+  children,
+  style = "inset",
+  part = "root",
+  look = "surface",
+  tone = "neutral",
+  clip = false,
+  goto,
+  label,
+  padded = false,
+  inset = "md",
+}: CardProps) {
   const ks = useKitStyle();
   const kit = useKit();
   const root = usePart(part);
@@ -66,6 +70,7 @@ export function KitCard({
         cardStyle={style}
         borderRadius={shifted("md", ks.radiusShift)}
         padding={padded ? space.md : style === "inset" ? space.xs : component.base.none}
+        {...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {})}
         gap={style === "cards" ? space[ks.density.gap] : padded ? space.sm : component.base.none}
         {...(clip ? { overflow: "hidden" as const } : {})}
         accessibilityRole={goto ? "link" : "list"}

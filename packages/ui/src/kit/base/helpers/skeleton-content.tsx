@@ -6,6 +6,8 @@ export type SkeletonLine = { text: string; role: TextRole; align?: "start" | "ce
 export type SkeletonItem = {
   lines?: SkeletonLine[];
   title?: string;
+  value?: string | undefined;
+  badge?: string | undefined;
   sub?: string | undefined;
   meta?: string | undefined;
   photo?: string | undefined;

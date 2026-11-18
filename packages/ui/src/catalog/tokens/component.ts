@@ -32,6 +32,8 @@ export const component = {
     pageShare: 0.9,
     dot: 8,
     grabberWidth: 40,
+    grabberHitOffset: -20,
+    optionLead: 36,
     meter: 8,
     meterSlim: 4,
     shareStep: 0.18,

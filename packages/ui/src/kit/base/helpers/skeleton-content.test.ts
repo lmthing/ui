@@ -101,3 +101,18 @@ describe("skeleton loading through the real entry", () => {
     expect(styleAt(html, root.children[0]!)).toContain(`padding-left:${space.md - space.xs}px`);
   });
 });
+
+describe("choice loading after filled-layout polish", () => {
+  it("keeps the un-inset root, caption details and reserved icon gutter", () => {
+    const input = components.Choice.examples[0]!;
+    const html = renderInstance("Choice", input, "loading", theme);
+    const root = elementAt(html, "home/c1/root");
+    expect(styleAt(html, root)).toContain("padding-left:0px");
+    expect(styles(html)).toContain("line-height:18px");
+    const columns = descendants(root).filter((node) => {
+      const css = styleAt(html, node);
+      return css.includes("width:24px") && css.includes("height:22px");
+    });
+    expect(columns).toHaveLength(input.options.length);
+  });
+});

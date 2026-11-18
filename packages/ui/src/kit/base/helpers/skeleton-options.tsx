@@ -1,38 +1,65 @@
 import { XStack, YStack } from "tamagui";
-import { component, loadingLabel, size, space } from "../../../catalog";
+import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
 import { useKitStyle } from "../../provider";
-import { shifted } from "../text";
+import { shifted, surfaceOf } from "../text";
 import { Bar } from "./skeleton-shapes";
-import { SkeletonContent, SkeletonText, linesOf, type ShapeProps } from "./skeleton-content";
+import { SkeletonText, type ShapeProps, type SkeletonItem } from "./skeleton-content";
+
+function SkeletonOption({
+  item,
+  look,
+  reserveIcon,
+}: {
+  item: SkeletonItem;
+  look: "cards" | "list";
+  reserveIcon: boolean;
+}) {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      minHeight={size.control.md}
+      paddingVertical={space[ks.density.rowPad]}
+      paddingHorizontal={space.md}
+      borderRadius={shifted("md", ks.radiusShift)}
+      {...(look === "cards" ? surfaceOf(ks.surface) : {})}
+    >
+      <XStack gap={space.md} alignItems="flex-start">
+        {reserveIcon && (
+          <YStack width={size.icon.lg} height={typography.body.lineHeight} justifyContent="center">
+            {item.icon && <Bar width={size.icon.lg} height={size.icon.lg} />}
+          </YStack>
+        )}
+        <YStack flex={1}>
+          <SkeletonText text={item.title ?? ""} role="body" />
+        </YStack>
+        <XStack gap={space.sm} height={typography.body.lineHeight} alignItems="center">
+          {item.value && <SkeletonText text={item.value} role="body" />}
+          {(look === "list" || item.on) && (
+            <Bar
+              width={size.icon.md}
+              height={size.icon.md}
+              borderRadius={look === "list" ? radius.pill : radius.sm}
+            />
+          )}
+        </XStack>
+      </XStack>
+      {(item.badge || item.sub) && (
+        <YStack gap={space.xs} paddingLeft={reserveIcon ? component.base.optionLead : component.base.none}>
+          {item.badge && <SkeletonText text={item.badge} role="caption" />}
+          {item.sub && <SkeletonText text={item.sub} role="caption" />}
+        </YStack>
+      )}
+    </YStack>
+  );
+}
 
 export function SkeletonOptions({ items = [], question, look = "cards" }: ShapeProps) {
-  const ks = useKitStyle();
+  const reserveIcon = items.some((item) => item.icon !== undefined);
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm}>
       {question && <SkeletonText text={question} role="heading" />}
       {items.map((item, index) => (
-        <XStack
-          key={index}
-          alignItems="center"
-          gap={space.md}
-          minHeight={size.control.lg}
-          padding={space.md}
-          borderRadius={shifted("md", ks.radiusShift)}
-          {...(look === "cards"
-            ? {
-                borderWidth: item.on ? component.base.strongBorder : component.base.borderWidth,
-                borderColor: "$line",
-                backgroundColor: "$surface",
-              }
-            : {})}
-        >
-          {look === "list" && <Bar width={size.icon.md} height={size.icon.md} borderRadius={size.icon.md} />}
-          {item.icon && <Bar width={size.icon.lg} height={size.icon.lg} />}
-          <YStack flex={1}>
-            <SkeletonContent lines={linesOf(item, true)} />
-          </YStack>
-          {look === "cards" && item.on && <Bar width={size.icon.md} height={size.icon.md} />}
-        </XStack>
+        <SkeletonOption key={index} item={item} look={look} reserveIcon={reserveIcon} />
       ))}
     </YStack>
   );

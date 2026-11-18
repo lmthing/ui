@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { components } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../test/render";
+import { components, size, space } from "@lmthing/ui/catalog";
+import { elementAt, renderInstance, styleAt } from "../../test/render";
 
 const { examples } = components.Field;
 
@@ -24,5 +24,30 @@ describe("Field rendering", () => {
   it.each(["-12", "0", "5.5", "25"])("preserves slider value %s instead of clamping it", (value) => {
     const html = renderInstance("Field", { kind: "slider", label: "Level", value }, "filled", theme);
     expect(html).toContain(`aria-valuenow="${value}"`);
+  });
+  it("keeps controls at the outer gutter without changing other padded cards", () => {
+    const html = renderInstance("Field", examples[0], "filled", theme);
+    expect(styleAt(html, "home/c1/root")).toContain("padding-left:0px");
+    expect(styleAt(html, "home/c1/root")).toContain("padding-right:0px");
+    const card = renderInstance("Card", { title: "A title" }, "filled", theme);
+    expect(styleAt(card, "home/c1/root")).toContain(`padding-left:${space.md}px`);
+  });
+  it("shows a real date in the date example", () => {
+    const date = examples.find((example) => example.kind === "date")!;
+    expect(date).toHaveProperty("value", "2026-11-19");
+    expect(renderInstance("Field", date, "filled", theme)).toContain('value="2026-11-19"');
+  });
+  it("uses visible 44px repeat pills and 8px gaps between rows", () => {
+    const html = renderInstance(
+      "Field",
+      examples.find((example) => example.kind === "repeat"),
+      "filled",
+      theme,
+    );
+    expect(styleAt(html, "home/c1/field")).toContain(`row-gap:${space.sm}px`);
+    for (const target of elementAt(html, "home/c1/field").children) {
+      expect(styleAt(html, target)).toContain(`min-height:${size.control.md}px`);
+      expect(styleAt(html, target.children[0]!)).toContain(`min-height:${size.control.md}px`);
+    }
   });
 });
