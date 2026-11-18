@@ -2,15 +2,13 @@
 
 The fixed scales. The only place, with `themes/`, where raw numbers and colours may appear.
 
-Built in step U1. Read plan 4.3 first.
-
-Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
+Built in step U1; read plan 4.3. Import through `index.ts`.
 
 - `space.ts` 4 8 12 16 20 24 32 48
 - `size.ts` control, icon, avatar
 - `radius.ts` sm md lg xl pill
 - `type.ts` seven roles with size, line height, weight
-- `elevation.ts` flat card sheet
+- `elevation.ts`, `elevation.test.ts`: flat/card/sheet shadows and base/overlay/sheet z-index
 - `motion.ts` durations and springs
 - `roles.ts` the 12 colour role names
 - `component.ts`, `component.test.ts`: component tokens, fixed swatches and dot outline contrast
