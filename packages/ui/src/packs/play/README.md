@@ -2,7 +2,7 @@
 
 Pack `play`: Playing a game together: round scores, dice, a spinner, turns, host-led trivia and random teams.
 
-Built in step U5 (drafts in U3), wave to be decided. Read `docs/catalog/packs/play.md` (every component, archetype and the worked example) and plan 4.4 first.
+Built in step U7 (drafts in U3), wave to be decided. Read `docs/catalog/packs/play.md` (every component, archetype and the worked example) and plan 4.4 first.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
