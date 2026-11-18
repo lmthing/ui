@@ -1,21 +1,11 @@
-import type { Values } from "../../../catalog";
+import { selectionAt, selectionError, selectionChanges } from "../../../catalog";
 import type { ControlChange } from "../index";
 import type { ControlContext } from "./types";
-const labelOf = (item: Values | undefined) => item?.label ?? item?.title ?? item?.day;
 export function selectControl(ctx: ControlContext): ControlChange {
-  const { step, index, def, input, entry, put, bad, values } = ctx;
-  if (step.action !== "select" || index < 0) return { values };
-  const key = def.meta.items?.key;
-  const item = key ? (input[key] as Values[])[index] : undefined;
-  if (!item) return bad("No option at this address");
-  const expected = entry.c === "Calendar" ? item.day : index;
-  if (step.value !== expected && step.value !== index && step.value !== labelOf(item))
-    return bad("Select the option at this address");
-  if (entry.c === "Calendar") put("$selected", expected);
-  else if (["Choice", "Segmented", "TabBar", "Sheet"].includes(entry.c)) {
-    put("$at", index);
-    if (entry.c === "Sheet") put("at", index);
-  } else if (entry.c === "Chips")
-    (input.items as Values[]).forEach((_row, at) => put(`r${at + 1}`, at === index));
-  return { values, value: expected };
+  const { step, def, input, target, put, bad, values } = ctx;
+  if (step.action !== "select" || !def.meta.select) return { values };
+  const error = selectionError(def.meta, input, target, step.value);
+  if (error) return bad(error);
+  Object.entries(selectionChanges(def.meta, input, target)).forEach(([part, value]) => put(part, value));
+  return { values, value: selectionAt(def.meta, input, target)!.value };
 }

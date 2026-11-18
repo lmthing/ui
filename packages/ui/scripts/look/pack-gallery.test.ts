@@ -1,6 +1,12 @@
 import { expect, it } from "vitest";
 import { createServer } from "vite";
+import { components, packOf } from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "./index";
+
+// Any pack component still without a view; none once every pack is built.
+const draft = Object.keys(packOf).find(
+  (id) => (components[id as keyof typeof components].meta as { status?: string }).status === "draft",
+);
 
 it("renders a pack-only overview and draft grids without a missing-view crash", async () => {
   const server = await createServer(galleryConfig(0));
@@ -15,10 +21,11 @@ it("renders a pack-only overview and draft grids without a missing-view crash", 
     await page.locator('[data-testid="component_Waitlist"]').waitFor();
     expect(await page.locator('[data-testid^="component_"]').count()).toBe(6);
     expect(await page.locator('[data-testid="component_List"]').count()).toBe(0);
-    expect(await page.locator('[data-testid="component_ServiceMenu"]').innerText()).toContain("draft");
-    await page.goto(`${base}?c=ServiceMenu&w=320&mode=light`);
-    await page.locator("[data-look-frame]").first().waitFor();
-    expect(await page.locator("[data-look-frame]").first().innerText()).toContain("ServiceMenu · draft");
+    if (draft) {
+      await page.goto(`${base}?c=${draft}&w=320&mode=light`);
+      await page.locator("[data-look-frame]").first().waitFor();
+      expect(await page.locator("[data-look-frame]").first().innerText()).toContain(`${draft} · draft`);
+    }
     await page.goto(`${base}?c=Waitlist&w=320&mode=light`);
     await page.locator("[data-look-frame]").first().waitFor();
     expect(await page.locator("[data-look-frame]").first().innerText()).toContain("Your place in line");

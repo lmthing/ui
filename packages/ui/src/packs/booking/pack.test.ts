@@ -16,7 +16,7 @@ import {
 } from "@lmthing/ui/catalog";
 
 describe("booking scaffold", () => {
-  it("keeps the five drafts and ready Waitlist out of the live registry", () => {
+  it("keeps booking out of the live registry until every component is ready", () => {
     expect(packReady("booking")).toBe(false);
     const live = createRegistry({ packs: ["booking"] });
     expect(live.ids).toEqual(createRegistry().ids);
@@ -26,10 +26,11 @@ describe("booking scaffold", () => {
     expect(draft.defaultLines("book", "service", { things: [], items: [] }).components[1]?.c).toBe(
       "ServiceMenu",
     );
-    expect(draft.ids.filter((id) => id in packOf)).toHaveLength(6);
+    const booking = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "booking");
+    expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(6);
     const format = JSON.stringify(writerFormat(draft));
     const liveFormat = JSON.stringify(writerFormat(live));
-    for (const id of Object.keys(packOf)) {
+    for (const id of booking) {
       expect(format).toContain(`"const":"${id}"`);
       expect(liveFormat).not.toContain(`"const":"${id}"`);
     }

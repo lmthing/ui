@@ -25,6 +25,7 @@ export const meta = {
   tier: "phone",
   realPath: "The chosen option is stored on one record in the on-device database.",
   items: { key: "options", parts: ["root", "icon", "title", "badge", "sub", "value"] },
+  select: { prop: "at", value: "index" },
   parts: ["root", "question"],
   states: ["filled", "loading"],
   actions: {
