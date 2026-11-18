@@ -37,7 +37,6 @@ up to three tags (VIP, new, allergic to…), and call, message and directions bu
 - Parts → actions: `call press`, `message press`, `directions press`; all three in `partTiers` as
   `service`. · States: filled, loading.
 - Real path: a client record on the device; calling and messaging use the phone's own apps.
-- Aliases: client, customer, clientcard, contactcard.
 
 ### `ClientHistory` · planned · data · phone
 Everything this client has had, newest first: visits, orders, payments and notes as one feed with an icon
@@ -47,7 +46,7 @@ per kind and an amount where money moved.
 - Writes: `entries` of `date`, `kind` (`visit`, `order`, `payment`, `note`, `message`), `title` text(32),
   `amount` number optional, `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: records linked to one client on the device. · Aliases: clienthistory, visits, clientlog.
+- Real path: records linked to one client on the device.
 
 ### `Invoice` · planned · content · phone
 A bill or a quote as a document: who from, who to, number and dates, line items with quantity and price,
@@ -61,7 +60,6 @@ subtotal, tax and total, status, and a send button.
 - Parts → actions: `send press` (`partTiers`: `service`), `accept press`, `decline press` (in
   `confirmParts`). · States: filled, success (sent).
 - Real path: a document made on the device; sending it needs email or SMS.
-- Aliases: invoice, bill, quote, estimate.
 
 ### `PaymentStatus` · planned · data · phone
 Whether one payment arrived: a big status (paid, due, overdue, part paid) with the amount, the date, the
@@ -72,7 +70,6 @@ method, and "Mark as paid" or "Remind".
   text(16) optional. The status is computed from `paid`, `amount` and `due`.
 - Parts → actions: `mark press`, `remind press` (`partTiers`: `service`). · States: filled, success.
 - Real path: a payment flag stored on the device; card payments need a payment service.
-- Aliases: payment, paymentstatus, owed, outstanding.
 
 ### `Review` · planned · content · people
 What clients said: as a summary (average stars, count and a five-bar breakdown) or as a list of up to five
@@ -82,7 +79,7 @@ reviews (stars, name, date, text, and the business's reply).
 - Writes (`summary`): `average` 0–5, `count` number, `bars` exactly 5 numbers. Writes (`list`): `reviews`
   of `stars` 1–5, `name` text(24), `date`, `text` text(240), `reply` text(160) optional, 1–5. `style`.
 - Styles: `summary`, `list`. · Parts → actions: reviews `reply press`. · States: filled, empty.
-- Real path: reviews left by clients in a shared app. · Aliases: reviews, testimonials, feedback.
+- Real path: reviews left by clients in a shared app.
 
 ### `Loyalty` · planned · data · phone
 A stamp card: four to twelve circles with the earned ones stamped, the reward written under it ("Your 10th
@@ -92,7 +89,6 @@ coffee is free"), and redeem when full.
 - Writes: `stamps` number, `of` 4–12, `reward` text(40), `name` text(24) optional.
 - Parts → actions: `stamp press` (the business adds one), `redeem press` (when full).
 - States: filled, success (reward earned). · Real path: a count per client on the device.
-- Aliases: loyalty, stampcard, punchcard, rewardscard.
 
 ### `Agreement` · planned · input · phone
 Terms the client accepts: a short scrollable text, an "I agree" tick, the typed name and the date signed.
@@ -101,7 +97,7 @@ Terms the client accepts: a short scrollable text, an "I agree" tick, the typed 
 - Writes: `title` text(32), `terms` text(600), `signed` boolean, `name` text(28) optional, `date` optional.
 - Parts → actions: `agree check`, `name type`. · States: filled, success (signed).
 - Real path: a signed copy kept with the client record, signed on the business's phone; signing on the
-  client's own phone needs a shared app. · Aliases: agreement, waiver, consent, terms.
+  client's own phone needs a shared app.
 
 ## Archetypes (4)
 
@@ -118,11 +114,6 @@ The walker's client list shows each owner with their dogs and anything owed. Ope
 `ClientCard`, the dogs as a `List`, a `Loyalty` card (every tenth walk free), `ClientHistory` of walks and
 payments, an `Invoice` for last month's walks sent with one press, and the owner's key-holding consent as an
 `Agreement`.
-
-## Aliases that shadow the core
-
-With `customers`: `client`, `customer` → `ClientCard` (otherwise `Profile`); `invoice`, `bill` → `Invoice`
-(otherwise `KeyValue`); `reviews` → `Review` (otherwise `Scale` readonly).
 
 ## Tiers
 

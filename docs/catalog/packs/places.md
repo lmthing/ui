@@ -34,7 +34,6 @@ A venue summarised: photo, name, category, rating, price level, distance from th
   computed from the times and the clock; distance from the person's location.
 - Parts → actions: `root press`. · States: filled, loading.
 - Real path: place details stored with the app; distance needs location permission.
-- Aliases: placecard, venue, spot, locationcard.
 
 ### `Address` · planned · content · phone
 An address on two or three lines with a small map tile, and copy, directions and call buttons.
@@ -44,7 +43,6 @@ An address on two or three lines with a small map tile, and copy, directions and
   door").
 - Parts → actions: `copy press`, `directions press` and `call press` (`partTiers`: `service`).
 - States: filled. · Real path: the address stored with the place; directions open the phone's maps app.
-- Aliases: address, findus, directions.
 
 ### `Hours` · planned · data · phone
 Opening hours by weekday with today in bold, "Open now · closes 18:00" at the top, and special days flagged.
@@ -52,7 +50,7 @@ Opening hours by weekday with today in bold, "Open now · closes 18:00" at the t
   (team `Roster`).
 - Writes: `days` of `day` (mon…sun), `from` HH:MM, `to` HH:MM, `closed` boolean, exactly 7; `special` of
   `date`, `text` text(24), 0–3. "Open now" is computed.
-- States: filled. · Real path: hours stored with the place. · Aliases: hours, openinghours, opentimes.
+- States: filled. · Real path: hours stored with the place.
 
 ### `DeliveryTracker` · planned · data · service
 A delivery on its way: a map with the courier and the destination, the ETA large, the current step (picked
@@ -62,7 +60,7 @@ up, on the way, nearby, delivered), the courier's name and a call button.
 - Writes: `step` (`preparing`, `picked_up`, `on_the_way`, `nearby`, `delivered`), `courier` text(20)
   optional, `photo` optional. The ETA comes from the delivery service.
 - Parts → actions: `call press`. · States: filled, loading, success (delivered).
-- Real path: live courier location from a delivery service. · Aliases: delivery, tracking, courier, eta.
+- Real path: live courier location from a delivery service.
 
 ### `MapList` · planned · content · service
 A map on top and the same places as a list below, kept in step: tapping a pin highlights its row; a toggle
@@ -72,7 +70,7 @@ switches to list only.
 - Writes: `places` of `name` text(28), `meta` text(32), `goto`, 1–6 (and "N more" beyond). Distances come
   from the person's location.
 - Parts → actions: items `root press`, `view select` (map or list). · States: filled, empty, loading.
-- Real path: a map service draws the map and places. · Aliases: maplist, nearby, mapview, explore.
+- Real path: a map service draws the map and places.
 
 ### `Departures` · planned · data · service
 The next departures from one stop: line badge, destination, minutes to go (live ones in `good`), delays in
@@ -82,7 +80,7 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 - Writes: `stop` text(32), `rows` of `line` text(6), `to` text(28), 1–6. Minutes and delays come from the
   transit service.
 - Parts → actions: items `root press`. · States: filled, empty, loading.
-- Real path: live times from a transit data service. · Aliases: departures, nextbus, transit, livetimes.
+- Real path: live times from a transit data service.
 
 ## Archetypes (3)
 
@@ -97,10 +95,6 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 Dog-friendly places nearby. `places/map` shows parks and cafés in a `MapList` filtered by "water bowl" and
 "off lead"; a café opens as `place/venue` with photos, its `PlaceCard` (no photo), `Hours` and `Address`;
 `place/walk` suggests a route between two parks. Signature: `route_draw`.
-
-## Aliases that shadow the core
-
-With `places`: `nearby` → `MapList` (otherwise `MapPins`). No other alias here matches a core alias.
 
 ## Tiers
 

@@ -37,7 +37,7 @@ paragraphs with headings, quotes and lists, set for comfortable reading.
   `[text](screen:id)`), `style`. Reading time is computed.
 - Styles: `article` (default, with header), `plain` (body only: about pages, instructions, policies).
 - Parts → actions: links `root press` (to their screen). · States: filled, loading.
-- Real path: text stored on or bundled with the app. · Aliases: article, blogpost, richtext, reader.
+- Real path: text stored on or bundled with the app.
 
 ### `Library` · planned · content · phone
 The person's library as a grid of covers (books, shows, albums), a progress bar under each started one and a
@@ -47,7 +47,7 @@ badge for new episodes.
 - Writes: `items` of `title` text(32), `by` text(24) optional, `photo`, `progress` 0–1 optional, `badge`
   text(8) optional, `goto`, 1–12.
 - Parts → actions: items `root press`. · States: filled, empty, loading. · Dense.
-- Real path: saved items on the device. · Aliases: library, bookshelf, saved.
+- Real path: saved items on the device.
 
 ### `Collection` · planned · content · phone
 The head of a show, album, book or course: large artwork, title, author, a line about it, a count ("12
@@ -57,7 +57,7 @@ episodes · 5 h"), and play-all and follow buttons.
 - Writes: `title` text(40), `by` text(32), `photo`, `about` text(200) optional, `followed` boolean. The
   count and total length are computed from the `Playlist` on the screen.
 - Parts → actions: `play press`, `follow toggle`. · States: filled, loading.
-- Real path: collection details stored with the app's media. · Aliases: collection, show, series, courseheader.
+- Real path: collection details stored with the app's media.
 
 ### `Playlist` · planned · content · phone
 Tracks or episodes in order: number or artwork, title, date, length, a played bar, and a download or done
@@ -68,8 +68,7 @@ mark; the playing one shows a level icon.
   optional, `goto` (the player screen), 1–6; `playing` index optional; `style`.
 - Styles: `tracks` (default, numbered), `episodes` (with date and a description line).
 - Parts → actions: items `root press` (goes to `goto`), items `trail press` (download).
-- States: filled, empty, loading. · Real path: media files on the device. · Aliases: playlist, tracks,
-  episodes, tracklist.
+- States: filled, empty, loading. · Real path: media files on the device.
 
 ### `ChapterList` · planned · content · phone
 Chapters of the recording or book on the same screen, with start times and titles; the current one marked;
@@ -80,7 +79,7 @@ pressing one seeks the screen's `Player` there.
 - Parts → actions: items `root press`. · States: filled. · Dense.
 - Rule: only on a screen with a `Player`; the kit forwards the press as `seek` to it (a wiring the catalog
   declares in `meta.drives: "Player"`).
-- Real path: chapter marks stored with the file. · Aliases: chapters, sections, contents, tableofcontents.
+- Real path: chapter marks stored with the file.
 
 ### `MiniPlayer` · planned · action · phone · code-owned
 A slim bar above the tab bar while something plays: artwork, title, a thin progress line and play or pause,
@@ -91,7 +90,7 @@ model never writes it.
 - Writes (code): `title`, `photo`, `at`, `seconds`, `playing`, `goto`.
 - Parts → actions: `root press`, `play play`, `play pause`. · Region: bottom, between the primary `Button`
   and the `TabBar`; hidden on a screen that has a `Player`.
-- Real path: the device's current playback. · Aliases: miniplayer, nowplayingbar, playbar.
+- Real path: the device's current playback.
 
 ### `Highlights` · planned · content · phone
 Saved passages and moments: the quoted text or a clip time, where it is from, the date and an optional note,
@@ -101,7 +100,7 @@ each opening the source at that spot.
 - Writes: `items` of `text` text(240), `from` text(36), `at` text(12) optional, `note` text(120)
   optional, `goto`, 1–6.
 - Parts → actions: items `root press`. · States: filled, empty.
-- Real path: highlights stored on the device. · Aliases: highlights, quotes, clips.
+- Real path: highlights stored on the device.
 
 ## Archetypes (3)
 
@@ -118,10 +117,6 @@ a series opens as a `Collection` with its `Playlist`; a sermon plays on `reader/
 for the readings; the code-owned `MiniPlayer` follows across tabs; saved lines are `reader/highlights`.
 Signature: `count_up` on minutes listened.
 
-## Aliases that shadow the core
-
-No alias here matches a core alias.
-
 ## Tiers
 
 All `phone` for files on the device. Streaming from a service would make `Library`, `Collection` and
@@ -137,5 +132,5 @@ All `phone` for files on the device. Streaming from a service would make `Librar
 ## Open questions
 
 - **The first plan's name `content`?** Renamed because "content" reads as anything on a screen; `content`
-  stays a pack alias for one minor version.
+  → `media` is a planned migration for one minor version, pending implementation.
 - **Downloads screen?** Default: `Playlist` filtered by `Chips` ("Downloaded"); no component.

@@ -7,9 +7,9 @@ point here.
 
 | File | Holds |
 | --- | --- |
-| [core.md](core.md) | The core: every component in every prompt. Changes from the first 40, all 44 entries, archetypes, build order |
+| [core.md](core.md) | The core: 45 components available to every app, 44 model choices, 17 archetypes, build order |
 | [packs/README.md](packs/README.md) | The pack index: all 18 packs, the one-line pick for each, common combinations, build waves |
-| `packs/<pack>.md` | One pack in full: purpose, apps it serves, every component, archetypes, worked example, aliases, build notes |
+| `packs/<pack>.md` | One pack in full: purpose, apps it serves, every component, archetypes, worked example, build notes |
 
 ## Where this came from
 
@@ -23,9 +23,9 @@ with an option on an existing component before a new id is added.
 
 ## What belongs where
 
-- **Core** (in every prompt): needed by apps in at least three unrelated domains, or by three or more packs
-  (a pack never depends on another pack), cannot be an option on an existing core component, and has a
-  one-line `pick` that separates it from every neighbour.
+- **Core** (available to every app; model choices omit code-owned `TabBar`): needed by apps in at least
+  three unrelated domains, or by three or more packs (a pack never depends on another pack), cannot be an
+  option on an existing core component, and has a one-line `pick` that separates it from every neighbour.
 - **Pack** (loaded when the Director picks it, up to 3 per app): needed by one family of apps, or needs
   domain words in its schema (sets and reps, beds and baths, RSVP).
 - **Option** (a `style`, `kind` or prop on an existing component): looks different but answers the same
@@ -33,6 +33,11 @@ with an option on an existing component before a new id is added.
 - **Canvas**: everything else, logged as a miss. Misses decide what is added next.
 
 ## How an entry reads
+
+**Decision, 2026-11-18:** Writers use strict structured output. `writerFormat(registry)` in
+`@lmthing/ui/catalog` limits `c` to the scoped registry's model-writable ids and takes props from each
+component's Zod schema. A wrong or off-pack id cannot be written. Components have no alias lists;
+only migrations keep old names for renamed or merged components. The format implementation is pending.
 
 Every component in these files has the same block, matching the fields of `meta` and `props`
 (`component-guide.md`):
@@ -46,11 +51,11 @@ Two or three sentences: what the person sees and does.
 - Parts → actions: addressable parts and what they accept.
 - States: which of filled, empty, loading, success, error it draws.
 - Real path: one sentence on what makes it work for real.
-- Aliases: words a model might write that resolve to it.
 ```
 
-- **Status:** `built` (exists and passes its gate), `changed` (built, gets new options), `new`, `merged`
-  (folded into another id), `planned` (pack component not yet drafted).
+- **Status:** `built` (schema and view exist), `built · pending: <what>` (parts of the spec still need work),
+  `merged` (folded into another id), `planned` (pack component not yet drafted). Shared acceptance gates
+  are listed in Status, not implied by a built heading.
 - **Group:** structure, content, data, input, action, beyond, escape (core); packs use the same groups.
 - **Tier:** `phone` (works on the device alone), `ok` (needs the person's permission: camera, notifications,
   location), `people` (needs other people using it), `service` (needs an outside service: maps, payments,

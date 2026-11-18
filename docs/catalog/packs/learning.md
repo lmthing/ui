@@ -21,7 +21,7 @@ flashcards.
 - Units to scan: `List`; a timer for a test: `Timer`; place in a lesson: `Steps`.
 
 The first plan's `Leaderboard` (then in `social`) is core `List` style `ranked`, and its `Score` is renamed
-`Result` so it is not confused with core `Scale` (alias `score`).
+`Result` so a practice outcome is distinct from core `Scale`, which logs a rating.
 
 ## Components (8)
 
@@ -31,7 +31,7 @@ One lesson step: a short explanation, an optional picture, an example in a tinte
 - Writes: `title` text(40), `text` text(400), `example` text(160) optional, `photo` optional. The step
   number is a `Steps` above it.
 - Parts → actions: `next press`. · States: filled.
-- Real path: lesson content stored with the app. · Aliases: lesson, explanation, teach.
+- Real path: lesson content stored with the app.
 
 ### `Quiz` · planned · input · phone
 One to six questions shown one at a time, each with its answer area (options to tap, true or false, a blank
@@ -45,7 +45,6 @@ explanation, then moves to the next.
 - Parts → actions: options `root select`, `field type`, pairs `left select` then `right select` (by index),
   `check press`, `next press`. · States: filled, success (right), error (wrong).
 - Real path: questions stored with the app; checked on the device.
-- Aliases: quiz, question, test, practice.
 
 ### `Flashcard` · planned · input · phone
 A deck session: the front of the current card; a tap flips it to the answer, then "Again", "Hard", "Good"
@@ -57,7 +56,6 @@ and "Easy" schedule its next review; the cards left today show at the top.
 - Parts → actions: `card flip`; after a flip, `again press`, `hard press`, `good press`, `easy press`
   (`actions.when` on the flipped state). · States: filled, empty (nothing due), success (done for today).
 - Real path: cards and their review dates on the device. · Kit: `KitFlip`.
-- Aliases: flashcard, recall, spacedrepetition, deck.
 
 ### `Path` · planned · data · phone
 A winding path of units as round nodes: done ones filled, the current one large with a start button,
@@ -67,7 +65,7 @@ locked ones dim, a trophy at milestones.
 - Writes: `units` of `title` text(24), `state` (`done`, `current`, `locked`), `icon`, `goto`, 3–12;
   `milestones` indexes optional.
 - Parts → actions: items `root press` (done and current only). · States: filled, loading. · Dense.
-- Real path: progress per unit stored on the device. · Aliases: path, coursemap, units, roadmap.
+- Real path: progress per unit stored on the device.
 
 ### `Result` · planned · data · phone
 How a practice went: the score large, right and wrong counts, time taken, points earned, and the mistakes to
@@ -77,7 +75,7 @@ review.
 - Writes: `right` number, `of` number, `seconds` optional, `points` number optional, `mistakes` of question
   text(60), answer text(40), 0–5.
 - Parts → actions: `review press`, `again press`. · States: filled, success (perfect).
-- Real path: results stored on the device. · Aliases: result, results, grade, mark.
+- Real path: results stored on the device.
 
 ### `Achievements` · planned · data · phone
 Badges as a grid of round icons, earned ones in colour with the date, locked ones grey with what earns them.
@@ -85,7 +83,7 @@ Badges as a grid of round icons, earned ones in colour with the date, locked one
   kids' points (home `Rewards`).
 - Writes: `badges` of `title` text(20), `icon`, `earned` date optional, `how` text(48) optional, 2–12.
 - Parts → actions: items `root press`. · States: filled, empty. · Dense.
-- Real path: milestones checked on the device. · Aliases: badges, achievements, trophies, awards.
+- Real path: milestones checked on the device.
 
 ### `Timetable` · planned · data · phone
 The student's week of classes: periods by weekday with subject, room and teacher, today first and the
@@ -95,7 +93,7 @@ current period highlighted.
 - Writes: `days` of `day` (mon…sun), `periods` of `time` HH:MM, `subject` text(24), `room` text(12)
   optional, `tone` optional, 1–8, 1–7.
 - Parts → actions: `day select`, periods `root press`. · States: filled, empty. · Dense.
-- Real path: a timetable stored on the device. · Aliases: timetable, classschedule, periods.
+- Real path: a timetable stored on the device.
 
 ### `Assignments` · planned · data · phone
 Homework and coursework: subject colour, title, due date with "in 2 days" or overdue in `bad`, status (to
@@ -105,7 +103,7 @@ do, handed in, graded) and the grade.
 - Writes: `items` of `title` text(28), `subject` text(20), `due` date, `status` (`todo`, `done`,
   `graded`), `grade` text(6) optional, `goto`, 1–6. "In 2 days" and overdue are computed.
 - Parts → actions: items `done check`, items `root press`. · States: filled, empty.
-- Real path: assignments stored on the device. · Aliases: homework, assignments, coursework, duework.
+- Real path: assignments stored on the device.
 
 ## Archetypes (4)
 
@@ -121,10 +119,6 @@ do, handed in, graded) and the grade.
 Japanese kanji practice. The `course` path shows unit 4 of 12; a lesson teaches 水 with an example word; a
 `Quiz` of five questions asks readings; `Flashcard` reviews the day's due cards; `Result` shows 9 of 10 with
 one mistake; a 12-day `Streak` and `Achievements` keep it going. Signature: `streak_flame`.
-
-## Aliases that shadow the core
-
-With `learning`: `deck` → `Flashcard` (otherwise `SwipeStack`). No other alias here matches a core alias.
 
 ## Tiers
 
