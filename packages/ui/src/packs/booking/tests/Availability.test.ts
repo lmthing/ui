@@ -1,8 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
-  availabilityDefaults,
-  breakLine,
   components,
   planAct,
   readComponent,
@@ -11,6 +9,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { availabilityDefaults, breakLine } from "../copy";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 import { createScreenController } from "@lmthing/ui/kit";
 

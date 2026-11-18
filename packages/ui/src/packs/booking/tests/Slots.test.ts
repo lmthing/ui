@@ -3,16 +3,15 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  durationLine,
   emptyLine,
   loadingLabel,
   readComponent,
-  slotDurationLine,
-  slotEndLine,
-  slotLabels,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { slotEndLine, slotLabels } from "../copy";
 import { elementAt, renderInstance } from "../../../../test/render";
 import { createScreenController } from "@lmthing/ui/kit";
 
@@ -166,7 +165,7 @@ describe("Slots selectable item parts", () => {
         expect(root.attributes).toContain(`aria-pressed="${index === 0}"`);
         expect(elementAt(html, `${base}/time`)).toEqual(root.children[0]!.children[0]);
       }
-      expect(readComponent(components.Slots, input, "s1").join("\n")).toContain(slotDurationLine(30));
+      expect(readComponent(components.Slots, input, "s1").join("\n")).toContain(durationLine(30));
     }
   });
   it("keeps all-taken times readable but offers no selection", () => {
@@ -189,7 +188,7 @@ describe("Slots selectable item parts", () => {
     const input = examples[2]!;
     const html = renderInstance("Slots", input, "filled", theme);
     const reading = readComponent(components.Slots, input, "s1").join("\n");
-    for (const line of [slotDurationLine(600), slotEndLine("23:59", 600), slotLabels.taken]) {
+    for (const line of [durationLine(600), slotEndLine("23:59", 600), slotLabels.taken]) {
       expect(html).toContain(line);
       expect(reading).toContain(line);
     }

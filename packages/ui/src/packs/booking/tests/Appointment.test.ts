@@ -1,13 +1,13 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   affordancesOf,
-  appointmentLabels,
   components,
   createRegistry,
   readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { appointmentLabels } from "../copy";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Appointment;

@@ -1,8 +1,5 @@
 import { z } from "zod";
 import {
-  availabilityDefaults,
-  availabilityLabels,
-  breakLine,
   clock,
   probesFor,
   weekdayNames,
@@ -11,6 +8,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { availabilityDefaults, availabilityLabels, breakLine } from "../copy";
 import {
   KitCard,
   KitGrid,
