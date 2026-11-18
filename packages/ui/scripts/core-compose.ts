@@ -6,7 +6,7 @@ import type { CastLike } from "../src/catalog/types";
 const { archetypes, components, runComposeProbes } = (await import(
   new URL("../dist/catalog.js", import.meta.url).href
 )) as typeof Catalog;
-import { compositionCast } from "./compose-casts";
+import { compositionHistoryCast } from "./compose-history-cast";
 export async function checkCoreComposition(
   model: ProbeModel,
   liveCall: (prompt: string, format?: WriterFormat) => Promise<string>,
@@ -27,7 +27,7 @@ export async function checkCoreComposition(
   const results = await runComposeProbes({
     archetypes: Object.values(archetypes).map((def) => def.meta),
     defs: components,
-    cast: compositionCast,
+    cast: compositionHistoryCast,
     callModel: call,
     samples: model.samples,
     rubric: true,

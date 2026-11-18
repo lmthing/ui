@@ -5,7 +5,7 @@ Node scripts. The only place `node:*` may be imported.
 Built in step U0 (skeletons), filled from U1. Read plan 4.10 and 10 first.
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `check.ts` `pnpm catalog:check`
-- `contrast.ts` all 288 themes
+- `compose-scale-cast.ts`, `compose-history-cast.ts` supply coherent rating and dated probe fixtures.
 - `build-prompt.ts` writes prompt blocks
 - `build-entries.ts`, `entries/` generate `src/entry/*`
 - `build-themes.ts` writes `themes.generated.ts` (`pnpm kit:themes`, `--check`, `--compact`)

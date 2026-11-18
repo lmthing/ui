@@ -10,6 +10,7 @@ export const meta = createMeta(
   {
     photo: [
       "Camera kind must be photo. Its hint is at most 48 characters; a short instruction such as Aim at the leaves is enough.",
+      "Only describe taking a photo, not scanning a code. Header action is null. Camera takes the picture; the final Button accepts the photo and goes to photo_review, without duplicating the shutter action. Note gives one useful capture tip, not unrelated activity data. Emit compact JSON without formatting whitespace.",
     ],
   },
 ) satisfies ArchetypeMeta;
