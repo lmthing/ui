@@ -18,6 +18,7 @@ describe("Checklist loading row geometry", () => {
         expect(styleAt(loading, skeleton)).toContain("padding-top:0px");
         expect(skeleton.children).toHaveLength(input.items.length);
         input.items.forEach((item, index) => {
+          const meta = "meta" in item ? item.meta : undefined;
           const row = skeleton.children[index]!;
           const content = row.children[1]!;
           const filledRow = elementAt(filled, `home/c1/r${index + 1}/root`);
@@ -26,14 +27,14 @@ describe("Checklist loading row geometry", () => {
             expect(styleAt(loading, row).match(rule)?.[0]).toBe(styleAt(filled, filledRow).match(rule)?.[0]);
           }
           expect(row.children).toHaveLength(2);
-          expect(content.children).toHaveLength(item.meta ? 2 : 1);
+          expect(content.children).toHaveLength(meta ? 2 : 1);
           expect(styleAt(loading, row.children[0]!)).toContain(`width:${size.control.md}px`);
           expect(styleAt(loading, row.children[0]!)).toContain(`height:${typography.body.lineHeight}px`);
           expect(styleAt(loading, row.children[0]!.children[0]!)).toContain(`width:${size.icon.lg}px`);
           expect(styleAt(loading, content.children[0]!.children[0]!.children[0]!)).toContain(
             `line-height:${typography.body.lineHeight}px`,
           );
-          if (item.meta) {
+          if (meta) {
             expect(styleAt(loading, content.children[1]!.children[0]!.children[0]!)).toContain(
               `line-height:${typography.caption.lineHeight}px`,
             );
