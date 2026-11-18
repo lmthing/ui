@@ -1,7 +1,7 @@
 import type { PackId, PackMeta } from "../../meta";
 import { buildPackIndex } from "../../prompt";
 import { scorePack } from "./score-pack";
-import type { CallModel, ProbeResult } from "../types";
+import type { CallModel, ProbeResult } from "..";
 
 /** Director probes use the complete index, even when only one pack's probes are selected. */
 export async function runPackProbes(options: {

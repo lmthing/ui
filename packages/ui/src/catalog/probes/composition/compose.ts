@@ -3,7 +3,7 @@ import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../../arc
 import { checkScreen } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { buildEntry } from "../../prompt";
-import type { CallModel, Definition } from "../types";
+import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 export type ComposeResult = {
   archetype: string;

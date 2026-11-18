@@ -1,7 +1,7 @@
 import type { CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
 import { writerFormat, writerInput, type WriterFormat } from "../../format";
 import type { ScreenLike } from "../../agent";
-import type { Definition } from "../types";
+import type { Definition } from "..";
 
 /** A compose probe writes a screen whose component lines use the same scoped Writer branches. */
 export function composeFormat(
