@@ -3,14 +3,20 @@ import { screenId, text } from "../../catalog";
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
+const deviceKey = z.string().trim().min(1).max(24);
+const thermostatBounds = { min: 5, max: 30 } as const;
+export const thermostatAdjust = {
+  "minus.decrement": { prop: "temp", delta: -0.5, ...thermostatBounds },
+  "plus.increment": { prop: "temp", delta: 0.5, ...thermostatBounds },
+} as const;
 const settings = {
   on: z.boolean().optional(),
   level: z.number().min(0).max(100).optional(),
-  temp: z.number().min(5).max(30).optional(),
+  temp: z.number().min(thermostatBounds.min).max(thermostatBounds.max).optional(),
 };
 const device = z
   .strictObject({
-    key: text(24),
+    key: deviceKey,
     name: text(16),
     kind: z.enum(["light", "heat", "plug", "lock", "fan", "blind", "sensor"]),
     ...settings,
@@ -30,7 +36,7 @@ const device = z
     "Settings and readings must match the device kind; sensor readings/units and heat set points are required",
   );
 const target = z
-  .strictObject({ key: text(24), ...settings })
+  .strictObject({ key: deviceKey, ...settings })
   .refine(
     (row) => row.on !== undefined || row.level !== undefined || row.temp !== undefined,
     "A scene target must set at least one value",
@@ -58,7 +64,7 @@ export const deviceProps = z
       .min(0)
       .max(6)
       .default([]),
-    focus: text(24).optional(),
+    focus: deviceKey.optional(),
     style: z.enum(["tiles", "focused"]).default("tiles"),
   })
   .refine(({ rooms, scenes, focus }) => {

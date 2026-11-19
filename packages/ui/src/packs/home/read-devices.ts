@@ -1,18 +1,19 @@
 import type { z } from "zod";
-import type { StateName } from "../../catalog";
+import { numberLine, type StateName } from "../../catalog";
 import { homeWordsFor } from "./lang";
-import { numberLine } from "../../catalog";
 import type { deviceProps } from ".";
 
 /** Keep each nested device/scene's label beside its validator-owned addressed row. */
 export function readDevices(input: unknown, state: StateName, lang?: string): string[] {
-  const { deviceUnits, deviceLabels } = homeWordsFor(lang);
+  const { deviceUnits, deviceLabels, deviceFocus } = homeWordsFor(lang);
   if (state !== "filled") return [];
-  const { rooms, scenes, entries } = input as z.output<typeof deviceProps> & {
-    entries: { id?: string }[];
+  const { rooms, scenes, entries, focus, style } = input as z.output<typeof deviceProps> & {
+    entries: { id?: string; temp?: number }[];
   };
   const devices = rooms.flatMap((room) => room.devices.map((row) => ({ ...row, room: room.label })));
+  const focused = style === "focused" ? (devices.find((row) => row.key === focus) ?? devices[0]) : undefined;
   return [
+    ...(focused ? [deviceFocus(JSON.stringify(focused.name))] : []),
     ...devices.map((row, index) =>
       [
         entries[index]?.id,
@@ -27,7 +28,7 @@ export function readDevices(input: unknown, state: StateName, lang?: string): st
             : String(row.on),
         row.temp === undefined
           ? ""
-          : `${deviceLabels.setPoint} ${numberLine(row.temp, lang)} ${deviceUnits.celsius}`,
+          : `${deviceLabels.setPoint} ${numberLine(entries[index]?.temp ?? row.temp, lang)} ${deviceUnits.celsius}`,
         row.reading === undefined
           ? ""
           : `${deviceLabels.reading} ${numberLine(row.reading, lang)} ${deviceUnits[row.unit ?? "celsius"]}`,

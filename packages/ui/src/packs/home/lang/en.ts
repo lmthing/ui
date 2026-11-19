@@ -68,6 +68,7 @@ export const en = {
     ppm: "ppm",
     lux: "lux",
   },
+  deviceFocus: (name: string) => `Focused device: ${name}`,
   rewardLabels: {
     units: { one: "point", other: "points" },
     heading: "Rewards",

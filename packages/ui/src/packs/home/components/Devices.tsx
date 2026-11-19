@@ -9,7 +9,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
-import { deviceProps, readDevices } from "..";
+import { deviceProps, readDevices, thermostatAdjust } from "..";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
@@ -32,6 +32,7 @@ export const meta = {
     "A host adapter maps device keys to a smart-home service, supplies readings and command acknowledgements; without it this is a labelled mock.",
   items: {
     key: "entries",
+    adjust: thermostatAdjust,
     parts: [
       "root",
       "name",

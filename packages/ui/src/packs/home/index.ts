@@ -1,4 +1,4 @@
-export { deviceProps } from "./device-contract";
+export { deviceProps, thermostatAdjust } from "./device-contract";
 export { readDevices } from "./read-devices";
 export { pack } from "./pack";
 export * from "./components";
