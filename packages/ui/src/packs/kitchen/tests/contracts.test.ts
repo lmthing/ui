@@ -1,3 +1,4 @@
+import { selectedIds } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
@@ -30,7 +31,7 @@ const casts: CastLike[] = [
   { things: [], items: [{ id: "one", type: "record", sample: true, label: 4 }] },
 ];
 
-describe.each(ids)("%s contract", (id) => {
+describe.each(selectedIds(ids))("%s contract", (id) => {
   const def = defs[id]!;
   it("accepts domain examples and neutral, populated and malformed cast fallbacks", () => {
     expect(def.examples.length).toBeGreaterThanOrEqual(2);

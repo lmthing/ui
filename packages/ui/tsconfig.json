@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "tsBuildInfoFile": "../../node_modules/.cache/ui.tsbuildinfo",
     "paths": {
       "@lmthing/ui/catalog": ["./src/entry/catalog.ts"],
       "@lmthing/ui/kit": ["./src/entry/kit.ts"]

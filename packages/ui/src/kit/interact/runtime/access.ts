@@ -48,7 +48,7 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
       id,
       localValues,
     );
-    return affordancesOf(ctx.defs[entry.c]!.meta, props, id)
+    return affordancesOf(ctx.defs[entry.c]!.meta, props, id, localValues)
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {
