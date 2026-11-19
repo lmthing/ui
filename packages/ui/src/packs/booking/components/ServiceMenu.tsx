@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  bookLabel,
   detailOf,
   durationLine,
   itemsOf,
@@ -18,6 +17,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { bookLabel } from "../copy";
 import {
   KitCard,
   KitContent,

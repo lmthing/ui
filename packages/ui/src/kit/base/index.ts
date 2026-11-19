@@ -1,4 +1,5 @@
 export { KitCard } from "./surface";
+export { KitDiceFace, KitWheel, KitOrbit } from "./game";
 export { KitOverlay } from "./surface";
 export { KitDay, KitDayMark } from "./time";
 export { KitWeekGrid, KitWeekStrip } from "./time";
@@ -17,6 +18,8 @@ export { KitSpark } from "./data";
 export { KitTime } from "./time";
 export { KitSlotGrid } from "./time";
 export { KitRing } from "./data";
+export { KitLinePlot, KitRangeBand } from "./plot";
+export { KitRadialTrack } from "./radial";
 export { KitTabBar } from "./media";
 export { KitMapTile } from "./media";
 export { KitViewfinder, KitShutter } from "./media";

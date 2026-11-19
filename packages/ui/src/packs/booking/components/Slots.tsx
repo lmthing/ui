@@ -3,14 +3,11 @@ import {
   clock,
   clockLine,
   detailOf,
+  durationLine,
   emptyLine,
   itemsOf,
   placeholderValue,
   probesFor,
-  slotDurationLine,
-  slotDetailLine,
-  slotLabels,
-  slotLoadingLine,
   thingOf,
   titleOf,
   type CastLike,
@@ -18,6 +15,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { slotDetailLine, slotLabels, slotLoadingLine } from "../copy";
 import {
   KitCard,
   KitEmpty,
@@ -53,7 +51,7 @@ export const meta = {
     if (state !== "filled") return [];
     const { times, minutes, style } = input as z.output<typeof props>;
     return [
-      slotDurationLine(minutes),
+      durationLine(minutes),
       ...times.flatMap(({ time, taken }) => [
         `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
         slotDetailLine(time, minutes, style, taken),
@@ -138,7 +136,7 @@ export const probes = [
 export function Slots({ times, at, minutes, style }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const thing = useEmptyThing();
-  const duration = slotDurationLine(minutes);
+  const duration = durationLine(minutes);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
