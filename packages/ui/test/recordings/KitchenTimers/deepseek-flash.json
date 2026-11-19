@@ -98,7 +98,7 @@
     "replies": [
       "{\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
       "{\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
-      "{\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}"
+      "{\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":false,\"running\":true}]}"
     ]
   },
   "5027e5f4eac9eef0": {
