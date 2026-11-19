@@ -126,14 +126,17 @@ describe("Transactions states, parts and read/act", () => {
   const filled = () => renderInstance("Transactions", examples[0], "filled", theme);
 
   it("draws one heading at each day boundary and addresses every interactive row and its content", () => {
-    const html = filled();
+    const entries = [...examples[0]!.entries, examples[1]!.entries[1]!];
+    const html = renderInstance("Transactions", { entries }, "filled", theme);
     expect(elementAt(html, "home/c1/root").attributes).toContain('role="list"');
-    for (const [index] of examples[0]!.entries.entries()) {
+    for (const [index] of entries.entries()) {
       const item = `home/c1/r${index + 1}`;
       for (const part of ["payee", "category", "icon", "amount"])
         expect(elementAt(html, `${item}/${part}`)).toBeDefined();
-      expect(elementAt(html, `${item}/root`).attributes).toContain('role="link"');
-      expect(html.includes(`data-testid="${item}/date"`)).toBe(index !== 1);
+      const link = elementAt(html, `${item}/root`);
+      expect(link.attributes).toContain('role="link"');
+      expect(JSON.stringify(link)).not.toContain(`${item}/date`);
+      expect(html.includes(`data-testid="${item}/date"`)).toBe(index === 0 || index === 3);
     }
   });
 

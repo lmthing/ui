@@ -26,6 +26,7 @@ describe("Transaction copy", () => {
   it("reads grouped and signed amounts using the pack language and locale", () => {
     const original = moneyWordsFor();
     const unregister = registerMoneyWords("de-DE", {
+      ...original,
       transactions: { ...original.transactions, today: "Heute", yesterday: "Gestern" },
     });
     try {

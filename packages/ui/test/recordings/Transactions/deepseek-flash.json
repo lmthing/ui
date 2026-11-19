@@ -243,6 +243,232 @@
       "Bars"
     ]
   },
+  "67ef271bfced6369": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nTransactions: See where your money went, entry by entry.\nprops: { entries: [1..6 { date: date YYYY-MM-DD, payee: text≤28, category: text≤16, icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, amount: number, goto: id snake_case }] }\nRule: Amounts are signed numbers: negative spending, positive income. Dates use YYYY-MM-DD; never write totals or currency.\nexample: {\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-17\",\"payee\":\"Ledge Potting\",\"category\":\"Plant care\",\"icon\":\"leaf\",\"amount\":-24.5,\"goto\":\"supplies\"},{\"date\":\"2026-11-17\",\"payee\":\"Returned plant pot\",\"category\":\"Refund\",\"icon\":\"banknote\",\"amount\":8,\"goto\":\"refund\"},{\"date\":\"2026-11-17\",\"payee\":\"Garden centre seeds\",\"category\":\"Plant care\",\"icon\":\"leaf\",\"amount\":-12,\"goto\":\"seeds\"}]}\n\nBrief: Personal entries: groceries at Corner Shop on 2026-11-19 for minus 24.50, category Food, shopping_bag, opening groceries; salary on 2026-11-18 for plus 1200, category Income, banknote, opening salary",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Transactions",
+              "enum": [
+                "Transactions"
+              ]
+            },
+            "entries": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "payee": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "category": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "dot",
+                      "leaf",
+                      "drop",
+                      "dog",
+                      "cat",
+                      "calendar",
+                      "calendar_days",
+                      "clock",
+                      "check",
+                      "chevron_right",
+                      "plus",
+                      "minus",
+                      "close",
+                      "search",
+                      "settings",
+                      "bell",
+                      "bell_off",
+                      "heart",
+                      "star",
+                      "bookmark",
+                      "share",
+                      "send",
+                      "message",
+                      "mail",
+                      "phone",
+                      "camera",
+                      "image",
+                      "video",
+                      "mic",
+                      "music",
+                      "play",
+                      "pause",
+                      "square",
+                      "undo",
+                      "timer",
+                      "alarm_clock",
+                      "sun",
+                      "moon",
+                      "cloud",
+                      "cloud_rain",
+                      "thermometer",
+                      "wind",
+                      "flame",
+                      "zap",
+                      "battery",
+                      "wifi",
+                      "pin",
+                      "map",
+                      "navigation",
+                      "compass",
+                      "home",
+                      "building",
+                      "store",
+                      "shopping_cart",
+                      "shopping_bag",
+                      "tag",
+                      "gift",
+                      "credit_card",
+                      "wallet",
+                      "banknote",
+                      "piggy_bank",
+                      "receipt",
+                      "trending_up",
+                      "trending_down",
+                      "bar_chart",
+                      "pie_chart",
+                      "activity",
+                      "target",
+                      "trophy",
+                      "medal",
+                      "award",
+                      "flag",
+                      "user",
+                      "users",
+                      "user_plus",
+                      "baby",
+                      "smile",
+                      "dumbbell",
+                      "bike",
+                      "footprints",
+                      "heart_pulse",
+                      "pill",
+                      "stethoscope",
+                      "apple",
+                      "coffee",
+                      "utensils",
+                      "wine",
+                      "pizza",
+                      "carrot",
+                      "sprout",
+                      "flower",
+                      "tree",
+                      "mountain",
+                      "waves",
+                      "car",
+                      "bus",
+                      "plane",
+                      "train",
+                      "briefcase",
+                      "graduation_cap",
+                      "book_open",
+                      "book",
+                      "pencil",
+                      "file_text",
+                      "clipboard",
+                      "clipboard_list",
+                      "checklist",
+                      "lock",
+                      "unlock",
+                      "key",
+                      "shield",
+                      "eye",
+                      "link",
+                      "paperclip",
+                      "download",
+                      "upload",
+                      "trash",
+                      "edit",
+                      "filter",
+                      "sliders",
+                      "info",
+                      "alert",
+                      "help",
+                      "sparkles",
+                      "lightbulb",
+                      "palette",
+                      "scissors",
+                      "wrench",
+                      "hammer",
+                      "package",
+                      "truck",
+                      "recycle",
+                      "globe",
+                      "languages",
+                      "gamepad",
+                      "ticket",
+                      "paw",
+                      "shirt",
+                      "bed",
+                      "bath",
+                      "sofa",
+                      "lamp",
+                      "chevron_left",
+                      "arrow_left",
+                      "more",
+                      "external_link",
+                      "quote",
+                      "circle_check"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "date",
+                  "payee",
+                  "category",
+                  "icon",
+                  "amount",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "entries"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop groceries\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Monthly salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
+    "replies": [
+      "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop groceries\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Monthly salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
+      "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
+      "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}"
+    ]
+  },
   "765ae00177422c33": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Transactions Tue 17 Nov — r1 Ledge Potting · Plant care · -$24.50 — r2 Returned plant pot · Refund · +$8 — Mon 16 Nov — r3 Garden centre seeds · Plant care · -$12\n  r1 \"Ledge Potting\" · \"Plant care\" [t1/r1 press→supplies]\n  r2 \"Returned plant pot\" · \"Refund\" [t1/r2 press→refund]\n  r3 \"Garden centre seeds\" · \"Plant care\" [t1/r3 press→seeds]\n\nTask: Open the Ledge potting supplies transaction\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"t1/r1\", \"action\": \"press\"}",
@@ -259,6 +485,15 @@
       "Transactions",
       "Transactions",
       "Transactions"
+    ]
+  },
+  "b9848f173735ac6c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Transactions Tue 17 Nov — r1 Ledge Potting · Plant care · -$24.50 — r2 Returned plant pot · Refund · +$8 — r3 Garden centre seeds · Plant care · -$12\n  r1 \"Ledge Potting\" · \"Plant care\" [t1/r1 press→supplies]\n  r2 \"Returned plant pot\" · \"Refund\" [t1/r2 press→refund]\n  r3 \"Garden centre seeds\" · \"Plant care\" [t1/r3 press→seeds]\n\nTask: Open the Ledge potting supplies transaction\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"t1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"t1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"t1/r1\", \"action\": \"press\"}"
     ]
   },
   "f40efead0b14d6ae": {

@@ -24,7 +24,9 @@ import {
   KitRow,
   KitSkeleton,
   KitText,
+  PartScope,
   useComponentState,
+  usePartContext,
   useWords,
 } from "../../../kit";
 import { transactionAmount, transactionDay, transactionGroups, transactionReading } from "../copy";
@@ -94,7 +96,7 @@ export const examples = [
         icon: "leaf", amount: -24.5, goto: "supplies" },
       { date: "2026-11-17", payee: "Returned plant pot", category: "Refund",
         icon: "banknote", amount: 8, goto: "refund" },
-      { date: "2026-11-16", payee: "Garden centre seeds", category: "Plant care",
+      { date: "2026-11-17", payee: "Garden centre seeds", category: "Plant care",
         icon: "leaf", amount: -12, goto: "seeds" },
     ],
   },
@@ -126,42 +128,41 @@ export const probes = [
 type TransactionsProps = Props<typeof props, typeof meta>;
 type Entry = TransactionsProps["entries"][number];
 
-function TransactionRow({ entry, date, later }: { entry: Entry; date?: string; later: boolean }) {
+function TransactionRow({ entry }: { entry: Entry }) {
   const { lang, words } = useWords(moneyWordsFor);
-  const loading = useComponentState() === "loading";
   const amount = transactionAmount(entry.amount, lang);
-  const label = words.transactions.entry(entry.payee, entry.category, amount);
-  const heading = date && (
-    <KitContent group={later ? "response" : "content"}>
-      {loading ? (
-        <KitSkeleton shape="figure" inset="none" content={[["label", date]]} />
-      ) : (
-        <KitText part="date" tone="muted" role="label" lines={1}>
-          {date}
-        </KitText>
-      )}
-    </KitContent>
+  // prettier-ignore
+  if (useComponentState() === "loading") return (
+    <KitRow part={null} inline label="" trailing={<KitSkeleton shape="figure" inset="none"
+      content={[["number", amount, "end", "compact"]]} />}>
+      <KitSkeleton shape="figure" inset="none" lead="dot"
+        content={[["body", entry.payee], ["caption", entry.category]]} />
+    </KitRow>
   );
   const icon = <KitIcon name={entry.icon} part="icon" tone="muted" />;
   // prettier-ignore
   return (
-    <KitRow {...(loading ? {} : { item: entry.id, goto: entry.goto })} label={loading ? "" : label} inset="none" inline={loading}>
-      <KitContent>
-        {heading}
-        {loading ? (
-          <KitSkeleton rows={1} inset="none" items={[{ title: entry.payee, meta: entry.category, trail: "value" }]} />
-        ) : (
-          <KitContent lead={icon} lineRole="body">
-            <KitGrid fitLast>
-              <KitText part="payee">{entry.payee}</KitText>
-              <KitText part="amount" role="number" numberScale="compact" tone={entry.amount > 0 ? "good" : "text"}
-                tabular align="end" lines={1}>{amount}</KitText>
-            </KitGrid>
-            <KitText part="category" tone="muted" role="caption">{entry.category}</KitText>
-          </KitContent>
-        )}
+    <KitRow item={entry.id} goto={entry.goto} label={words.transactions.entry(entry.payee, entry.category, amount)} inline>
+      <KitContent lead={icon} lineRole="body">
+        <KitGrid fitLast>
+          <KitText part="payee">{entry.payee}</KitText>
+          <KitText part="amount" role="number" numberScale="compact" tone={entry.amount > 0 ? "good" : "text"}
+            tabular align="end" lines={1}>{amount}</KitText>
+        </KitGrid>
+        <KitText part="category" tone="muted" role="caption">{entry.category}</KitText>
       </KitContent>
     </KitRow>
+  );
+}
+
+function DateHeading({ item, day }: { item: string; day: string }) {
+  const scope = usePartContext();
+  return scope.state === "loading" ? (
+    <KitSkeleton shape="figure" inset="none" content={[["caption", day]]} />
+  ) : (
+    <PartScope {...scope} item={item}>
+      <KitText part="date" role="caption" lines={1} children={day} />
+    </PartScope>
   );
 }
 
@@ -172,18 +173,14 @@ export function Transactions({ entries }: TransactionsProps) {
     return <KitCard part="root" children={<KitEmpty part="empty" icon="banknote" decorativeIcon />} />;
   return (
     <KitCard part="root" padded>
-      <KitContent>
-        {transactionGroups(entries).flatMap((group, day) =>
-          group.entries.map((entry, index) => (
-            <TransactionRow
-              key={entry.id}
-              entry={entry}
-              later={day > 0}
-              {...(index === 0 ? { date: transactionDay(group.date, lang) } : {})}
-            />
-          )),
-        )}
-      </KitContent>
+      {transactionGroups(entries).map(({ date, entries }, index) => (
+        <KitContent key={date} group={index === 0 ? "content" : "response"}>
+          <DateHeading item={entries[0]!.id} day={transactionDay(date, lang)} />
+          {entries.map((entry) => (
+            <TransactionRow key={entry.id} entry={entry} />
+          ))}
+        </KitContent>
+      ))}
     </KitCard>
   );
 }
