@@ -2,8 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, size, themeName } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, KitDiceFace, KitWheel, KitOrbit, KitText } from "@lmthing/ui/kit";
+import { component, presets, size, space, themeName } from "@lmthing/ui/catalog";
+import { KitProvider, PartScope, KitDiceFace } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
 function render(props: Parameters<typeof KitDiceFace>[0], preset = "calm", mode = "light") {
@@ -68,12 +68,18 @@ describe("KitDiceFace", () => {
     const html = render({ item: "r2", sides: 6, value: 3, held: false, label: "Static face" });
     expect(elementAt(html, "home/c1/r2/root").attributes).not.toContain('role="button"');
   });
-  it("keeps a valid pip pattern and a distinct numeric loading footprint", () => {
-    const pips = render({ ...die, value: 6, loading: true });
-    const numbers = render({ ...die, value: 6, style: "numbers", loading: true });
-    expect(pips).toContain("var(--line)");
-    expect(numbers).toContain(`height:${size.control.md - 8}px`);
-    expect(numbers).not.toEqual(render({ ...die, style: "numbers" }));
-    expect(pips).not.toContain("First face");
+  it.each(presets)("uses one value-independent loading bar and a softer edge in $id", ({ id }) => {
+    for (const mode of ["light", "dark"]) {
+      const loading = render({ ...die, loading: true }, id, mode);
+      expect(loading).toEqual(render({ ...die, value: 1, loading: true }, id, mode));
+      expect(loading).toEqual(
+        render({ ...die, sides: 20, value: 20, style: "numbers", loading: true }, id, mode),
+      );
+      expect(loading).toContain("border-top-color:var(--line)");
+      expect(loading).toContain(`width:${size.control.md * 2}px`);
+      expect(loading).toContain(`width:${size.icon.lg + space.md}px`);
+      expect(loading).toContain(`height:${space.sm}px`);
+      expect(loading).not.toEqual(render(die, id, mode));
+    }
   });
 });

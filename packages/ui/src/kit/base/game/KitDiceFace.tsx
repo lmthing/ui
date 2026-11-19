@@ -1,5 +1,5 @@
 import { YStack, XStack } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
@@ -51,7 +51,7 @@ function useHold(props: DiceFaceProps) {
   };
 }
 
-function Pips({ value, loading }: { value: number | undefined; loading: boolean | undefined }) {
+function Pips({ value }: { value: number }) {
   const dots: Record<number, readonly number[]> = {
     1: [4],
     2: [0, 8],
@@ -60,7 +60,7 @@ function Pips({ value, loading }: { value: number | undefined; loading: boolean 
     5: [0, 2, 4, 6, 8],
     6: [0, 2, 3, 5, 6, 8],
   };
-  const face = dots[value ?? 0] ?? dots[5]!;
+  const face = dots[value]!;
   return (
     <YStack gap={space.sm} aria-hidden>
       {[0, 1, 2].map((row) => (
@@ -71,7 +71,7 @@ function Pips({ value, loading }: { value: number | undefined; loading: boolean 
               width={component.base.dot}
               height={component.base.dot}
               borderRadius={radius.pill}
-              backgroundColor={loading ? "$line" : "$text"}
+              backgroundColor="$text"
               opacity={face.includes(row * 3 + column) ? 1 : component.base.none}
             />
           ))}
@@ -107,21 +107,21 @@ function Face(props: DiceFaceProps) {
         justifyContent="center"
         borderRadius={shifted("lg", ks.radiusShift)}
         borderWidth={component.base.strongBorder}
-        borderColor={props.held && !props.loading ? "$accent" : "$muted"}
+        borderColor={props.loading ? "$line" : props.held ? "$accent" : "$muted"}
         backgroundColor={props.held && !props.loading ? "$accentSoft" : "$surface"}
         aria-busy={!!props.loading}
         opacity={props.disabled && !props.loading ? component.base.disabledOpacity : 1}
       >
-        {pips && (valid || props.loading) ? (
-          <Pips value={props.value} loading={props.loading} />
-        ) : props.loading || !valid ? (
+        {props.loading || !valid ? (
           <YStack
-            width={props.loading ? String(props.value ?? props.sides).length * size.icon.lg : size.icon.lg}
-            height={props.loading ? typography.number.lineHeight - space.sm : component.base.dot}
-            borderRadius={props.loading ? shifted("sm", ks.radiusShift) : radius.pill}
+            width={props.loading ? size.icon.lg + space.md : size.icon.lg}
+            height={props.loading ? space.sm : component.base.dot}
+            borderRadius={radius.pill}
             backgroundColor="$line"
             aria-hidden
           />
+        ) : pips ? (
+          <Pips value={props.value!} />
         ) : (
           <KitText role="number" align="center" part={null} tabular>
             {props.value}

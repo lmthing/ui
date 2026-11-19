@@ -2,42 +2,46 @@ import { Text, YStack } from "tamagui";
 import { accents, component, components, space, stampItemIds } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { variantSheet } from "../../../../packages/ui/scripts/variants";
-import { galleryParts, resolvePhoto } from "../../index";
-import type { Cell, modes } from "./gallery-data";
+import {
+  createSeededDraw,
+  drawPreviewEnvironment,
+  galleryParts,
+  previewComponent,
+  resolvePhoto,
+} from "../../index";
+import { cellKey, cellLabel, type Cell, type modes } from "./gallery-data";
 import { DraftPreview } from "./DraftPreview";
 
-export function Preview({
-  cell,
-  preset,
-  mode,
-  responsive = false,
-  label = true,
-  variant,
-}: {
+const responsiveCard = {
+  flexBasis: component.Gallery.variantWidth,
+  flexGrow: component.base.bodyFlex,
+  flexShrink: component.base.bodyFlex,
+};
+
+type PreviewProps = {
   cell: Cell;
   preset: string;
   mode: (typeof modes)[number];
   responsive?: boolean;
   label?: boolean;
   variant?: { label: string; index: number; sheet: boolean };
-}) {
+};
+
+export function Preview({ cell, preset, mode, responsive = false, label = true, variant }: PreviewProps) {
   const def = components[cell.id];
   const View = renderers[cell.id as keyof typeof renderers] as (props: object) => React.ReactNode;
-  const props = stampItemIds(def.meta, def.props.parse(cell.example) as Record<string, unknown>);
-  const legacyScreen = `${cell.id.toLowerCase()}_${preset}_${mode}_${cell.index}_${cell.state}`;
+  const input = def.props.parse(cell.example) as Record<string, unknown>;
+  const props = stampItemIds(def.meta, input);
+  const legacyScreen = `${cell.id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
   const screen = variant ? `${cell.id.toLowerCase()}_variant_${variant.index}` : legacyScreen;
   const theme = { preset, mode, accent: accents[0]!.id } as never;
+  const controller = cell.drawn ? createSeededDraw(def, input, screen) : undefined;
+  if (cell.drawn && !controller) return null;
   return (
     <YStack
       width={variant?.sheet ? variantSheet.width : responsive ? "100%" : component.Gallery.cardWidth}
       maxWidth={responsive ? component.Gallery.cardWidth : undefined}
-      {...(responsive && label
-        ? {
-            flexBasis: component.Gallery.variantWidth,
-            flexGrow: component.base.bodyFlex,
-            flexShrink: component.base.bodyFlex,
-          }
-        : {})}
+      {...(responsive && label ? responsiveCard : {})}
       gap={space.sm}
       testID={`${variant ? "variant_preview" : "preview"}_${screen}`}
     >
@@ -47,10 +51,15 @@ export function Preview({
           {...(responsive ? { fontFamily: "$humanist" } : {})}
           {...(variant?.sheet ? { "data-look-label": true } : {})}
         >
-          {variant?.label ?? `${cell.id} · ${preset} / ${mode} · ${cell.state} ${cell.index + 1}`}
+          {variant?.label ?? `${cell.id} · ${preset} / ${mode} · ${cellLabel(cell)}`}
         </Text>
       )}
-      <KitProvider theme={theme} parts={galleryParts} resolvePhoto={(ref) => resolvePhoto(ref, theme)}>
+      <KitProvider
+        theme={theme}
+        parts={galleryParts}
+        resolvePhoto={(ref) => resolvePhoto(ref, theme)}
+        {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
+      >
         <YStack
           paddingHorizontal={variant?.sheet ? space.gutter : space.lg}
           paddingVertical={space.lg}
@@ -58,7 +67,7 @@ export function Preview({
           backgroundColor={responsive || variant?.sheet ? "$bg" : undefined}
           {...(variant?.sheet ? { "data-look-frame": screen } : {})}
         >
-          <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
+          <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
             {View ? <View {...props} /> : <DraftPreview id={cell.id} />}
           </PartScope>
         </YStack>

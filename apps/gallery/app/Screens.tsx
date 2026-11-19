@@ -2,33 +2,12 @@
 // per preset, every example and state stacked. Used by `pnpm look` to check sizes automatically.
 // Each screen frame carries data-look-frame and each label data-look-label, so checks can find them.
 import { TamaguiProvider, Text, XStack, YStack } from "tamagui";
-import {
-  accents,
-  components,
-  presets,
-  space,
-  stampItemIds,
-  type ComponentName,
-  type StateName,
-} from "@lmthing/ui/catalog";
+import { accents, components, presets, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
-import { config } from "../index";
+import { config, createSeededDraw, drawPreviewEnvironment, previewComponent } from "../index";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
-import { DraftPreview } from "./overview";
-
-type Cell = { example: unknown; index: number; state: StateName };
-
-function cellsOf(id: ComponentName): Cell[] {
-  const { meta, examples } = components[id];
-  const states = (meta as { states?: readonly StateName[] }).states ?? ["filled"];
-  return [
-    ...examples.map((example, index) => ({ example, index, state: "filled" as const })),
-    ...states
-      .filter((state) => state !== "filled")
-      .map((state) => ({ example: examples[0], index: 0, state })),
-  ];
-}
+import { cellKey, cellLabel, cellsOf, DraftPreview, type Cell } from "./overview";
 
 function Screen({
   id,
@@ -45,15 +24,19 @@ function Screen({
 }) {
   const def = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
-  const props = stampItemIds(def.meta, def.props.parse(cell.example) as Record<string, unknown>);
-  const screen = `${id.toLowerCase()}_${preset}_${mode}_${cell.index}_${cell.state}`;
+  const input = def.props.parse(cell.example) as Record<string, unknown>;
+  const props = stampItemIds(def.meta, input);
+  const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
+  const controller = cell.drawn ? createSeededDraw(def, input, screen) : undefined;
+  if (cell.drawn && !controller) return null;
   return (
     <YStack gap={space.xs}>
-      <Text fontSize={12} data-look-label>{`${preset} · ${cell.state} ${cell.index + 1}`}</Text>
+      <Text fontSize={12} data-look-label>{`${preset} · ${cellLabel(cell)}`}</Text>
       <KitProvider
         theme={{ preset, mode, accent: accents[0]!.id } as never}
         parts={galleryParts}
         resolvePhoto={(ref) => resolvePhoto(ref, { preset, mode, accent: accents[0]!.id } as never)}
+        {...(controller ? { controller, environment: drawPreviewEnvironment } : {})}
       >
         <YStack
           width={width}
@@ -62,7 +45,7 @@ function Screen({
           paddingVertical={space.lg}
           data-look-frame={screen}
         >
-          <PartScope screen={screen} component="c1" rev={1} state={cell.state}>
+          <PartScope screen={screen} component={previewComponent} rev={1} state={cell.state}>
             {View ? <View {...props} /> : <DraftPreview id={id} />}
           </PartScope>
         </YStack>
@@ -84,14 +67,7 @@ export function Screens({ id, width, mode }: { id: ComponentName; width: number;
         {presets.map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
             {cellsOf(id).map((cell) => (
-              <Screen
-                key={`${cell.index}_${cell.state}`}
-                id={id}
-                cell={cell}
-                preset={preset.id}
-                mode={mode}
-                width={width}
-              />
+              <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
             ))}
           </YStack>
         ))}
