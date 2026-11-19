@@ -17,6 +17,14 @@ export const kcalLine = (value: number): string => `${value} kcal`;
 export const targetLine = (target: number): string => `${goalLine(target)} kcal`;
 export const foodLogTotal = (meals: readonly Meal[]): number =>
   meals.reduce((sum, meal) => sum + meal.items.reduce((subtotal, item) => subtotal + item.kcal, 0), 0);
+export function foodLogGroups<T>(meals: readonly Meal[], rows: readonly T[]): T[][] {
+  let start = 0;
+  return meals.map((meal) => {
+    const group = rows.slice(start, start + meal.items.length + 1);
+    start += group.length;
+    return group;
+  });
+}
 
 export function foodLogRead({
   meals,

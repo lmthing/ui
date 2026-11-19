@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { foodLogLabels, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../../copy";
+import { foodLogGroups } from "../../copy";
 
 describe("FoodLog copy", () => {
+  it("groups addressed rows without changing order, including empty meals", () => {
+    const meals = [
+      { meal: "breakfast" as const, items: [{ name: "Food", kcal: 1 }] },
+      { meal: "lunch" as const, items: [] },
+    ];
+    expect(foodLogGroups(meals, ["r1", "r2", "r3"])).toEqual([["r1", "r2"], ["r3"]]);
+  });
   it("labels each meal and its add action", () => {
     for (const meal of ["breakfast", "lunch", "dinner", "snack"] as const) {
       expect(foodLogLabels.meals[meal].toLowerCase()).toBe(meal);
