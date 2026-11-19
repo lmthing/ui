@@ -5,3 +5,14 @@ export { planAct, type ActStep, type ActResult, type Values } from "./act";
 export { liveProps } from "./live-props";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
 export { nestedControls, nestedAt, projectNested } from "./selection";
+export {
+  clockTargets,
+  clockKey,
+  clockPropKey,
+  clockSeed,
+  clockTime,
+  clockEnded,
+  clockTriggerTarget,
+  projectClocks,
+  clockActionValid,
+} from "./clocks";
