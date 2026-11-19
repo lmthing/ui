@@ -32,11 +32,11 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   const segment = look === "segment";
   const box = look === "box";
   const custom = box || Boolean(swatch) || disabled;
-  const edge = custom ? (on ? "$accent" : "$muted") : segment ? "$line" : on ? "$accent" : "$muted";
+  const edge = disabled ? "$line" : on ? "$accent" : "$muted";
   const idleFill = disabled ? "$raised" : "$surface";
   const onFill = segment ? "$surface" : "$accent";
   const fill = custom ? (on ? "$accentSoft" : idleFill) : on ? onFill : "transparent";
-  const dim = !loading && (disabled || (segment && !on));
+  const dim = !loading && !disabled && segment && !on;
   const accent = !loading && on && !custom && !segment;
   const tone = dim ? "muted" : accent ? "onAccent" : "text";
   const text = (
@@ -56,10 +56,10 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       borderWidth={
         custom ? component.base.strongBorder : segment && !on ? undefined : component.base.borderWidth
       }
-      borderColor={segment && !custom && !on ? undefined : loading ? "$line" : edge}
+      borderColor={segment && !custom && !on ? undefined : loading || (segment && !custom) ? "$line" : edge}
       backgroundColor={loading ? "$line" : fill}
     >
-      {swatch && <SwatchMark swatch={swatch} loading={loading} />}
+      {swatch && <SwatchMark swatch={swatch} loading={loading} dim={disabled ?? false} />}
       {icon &&
         !segment &&
         (loading ? (
@@ -81,7 +81,7 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   );
 }
 
-function SwatchMark({ swatch, loading }: { swatch: Swatch; loading: boolean }) {
+function SwatchMark({ swatch, loading, dim }: { swatch: Swatch; loading: boolean; dim: boolean }) {
   return (
     <YStack
       width={size.icon.sm}
@@ -90,6 +90,7 @@ function SwatchMark({ swatch, loading }: { swatch: Swatch; loading: boolean }) {
       borderWidth={component.base.borderWidth}
       borderColor={loading ? "$line" : component.swatchBorder}
       backgroundColor={loading ? "$line" : component.swatch[swatch]}
+      opacity={!loading && dim ? component.base.disabledOpacity : undefined}
       aria-hidden
     />
   );
@@ -98,7 +99,8 @@ function SwatchMark({ swatch, loading }: { swatch: Swatch; loading: boolean }) {
 function Chip(input: ChipProps & { stamped: boolean }) {
   const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
   const state = useComponentState();
-  const loading = state === "loading" && (look === "box" || disabled !== undefined || Boolean(props.swatch));
+  const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
+  const loading = state === "loading" && variant;
   const addressed = stamped && part !== null && !loading;
   const address = usePart(part ?? "root", addressed);
   const kit = useKit();
@@ -115,6 +117,7 @@ function Chip(input: ChipProps & { stamped: boolean }) {
     <Hit
       {...(addressed ? address : {})}
       {...(look === "segment" ? { flex: component.base.bodyFlex } : {})}
+      paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
       {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
       {...(press ? { onPress: press } : {})}
       aria-hidden={loading || undefined}

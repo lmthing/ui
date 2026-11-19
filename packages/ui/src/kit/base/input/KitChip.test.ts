@@ -3,7 +3,7 @@ import * as jsx from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { component, components, size, themeName } from "@lmthing/ui/catalog";
+import { component, components, size, space, themeName } from "@lmthing/ui/catalog";
 import {
   KitChip,
   KitProvider,
@@ -126,6 +126,18 @@ describe("KitChip variant options", () => {
       expect(html).toContain("line-through");
       expect((await capture(input, controller, true)).onPress).toBeUndefined();
     }
+  });
+  it("softens disabled decoration and leaves room between variant segments", () => {
+    const input = { ...chip, look: "segment", swatch: "navy", disabled: true } as const;
+    const html = render(input);
+    const hit = elementAt(html, "home/c1/r1/root");
+    const face = hit.children[0]!;
+    expect(styleAt(html, hit)).toContain(`padding-left:${space.xs}px`);
+    expect(styleAt(html, face)).toContain("border-left-color:var(--line)");
+    expect(styleAt(html, face.children[0]!)).toContain(`opacity:${component.base.disabledOpacity}`);
+    expect(styleAt(html, "home/c1/r1/label")).toContain("color:var(--text)");
+    const normal = render({ ...chip, look: "segment" });
+    expect(styleAt(normal, "home/c1/r1/root")).not.toContain(`padding-left:${space.xs}px`);
   });
   it("renders loading variants without a control and lets callers omit the control part", async () => {
     const controller = { press: vi.fn() } as unknown as ScreenController;

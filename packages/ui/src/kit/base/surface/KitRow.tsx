@@ -1,5 +1,5 @@
 import { useContext, type ReactNode } from "react";
-import { XStack, YStack, styled } from "tamagui";
+import { XStack, YStack, styled, useThemeName } from "tamagui";
 import { component, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -51,7 +51,7 @@ function useRowSurface(tone: RowProps["tone"], rowTone: RowProps["rowTone"]) {
   return { ...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(surface) : {}), ...rowTint(rowTone) };
 }
 
-function RowOutline() {
+function RowDecoration({ fade = false }: { fade?: boolean }) {
   const ks = useKitStyle();
   return (
     <YStack
@@ -60,13 +60,41 @@ function RowOutline() {
       right={component.base.none}
       bottom={component.base.none}
       left={component.base.none}
+      borderRadius={shifted("md", ks.radiusShift)}
+      {...(fade
+        ? { backgroundColor: "$raised", opacity: component.base.stackFade }
+        : { borderWidth: component.base.strongBorder, borderColor: "$accent" })}
       pointerEvents="none"
       aria-hidden
-      borderRadius={shifted("md", ks.radiusShift)}
-      borderWidth={component.base.strongBorder}
-      borderColor="$accent"
     />
   );
+}
+
+function RowStatusRule({ tone }: { tone: "good" | "warn" | "bad" }) {
+  return (
+    <YStack
+      position="absolute"
+      left={space.xs}
+      top={space.sm}
+      bottom={space.sm}
+      width={component.base.strongBorder}
+      backgroundColor={tintOf(tone).borderColor}
+      pointerEvents="none"
+      aria-hidden
+    />
+  );
+}
+
+function useRowStatus(tone: TextTone | undefined, inset: boolean) {
+  const dark = useThemeName().includes("dark");
+  return dark && inset && (tone === "good" || tone === "warn" || tone === "bad") ? tone : null;
+}
+
+function useRowPress(address: string, part: RowProps["part"], goto: RowProps["goto"]) {
+  const kit = useKit();
+  if (part === null || !kit.interactive) return undefined;
+  if (kit.controller) return () => kit.controller!.press(address);
+  if (goto) return () => kit.onLink?.(goto, address);
 }
 
 export function Row({
@@ -88,9 +116,9 @@ export function Row({
   part = "root",
   inset = "md",
 }: RowProps) {
-  const line = typography[lineRole].lineHeight,
-    ks = useKitStyle(),
-    kit = useKit();
+  const line = typography[lineRole].lineHeight;
+  const ks = useKitStyle();
+  const status = useRowStatus(rowTone, !inline && inset === "md");
   const address = usePart(part ?? "root", addressed && part !== null);
   return (
     <Frame
@@ -103,12 +131,9 @@ export function Row({
       accessibilityLabel={label}
       aria-current={selected || undefined}
       aria-expanded={expanded}
-      {...(part !== null && kit.interactive && kit.controller
-        ? { onPress: () => kit.controller!.press(address.testID) }
-        : part !== null && kit.interactive && goto
-          ? { onPress: () => kit.onLink?.(goto, address.testID) }
-          : {})}
+      onPress={useRowPress(address.testID, part, goto)}
     >
+      {status && <RowDecoration fade />}
       <Content
         gap={inline ? space.xs : space[ks.density.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[ks.density.rowPad] * 2)}
@@ -124,7 +149,8 @@ export function Row({
         <Body>{children}</Body>
         {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
       </Content>
-      {selected && <RowOutline />}
+      {status && <RowStatusRule tone={status} />}
+      {selected && <RowDecoration />}
     </Frame>
   );
 }
