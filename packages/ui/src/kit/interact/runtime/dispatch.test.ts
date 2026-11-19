@@ -1,172 +1,150 @@
-import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { planAct, projectAdjustments, readScreen, stampItemIds, type Definition } from "../../../catalog";
-import { createScreenController } from "../index";
+import { describe, expect, it } from "vitest";
+import { text, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
+import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
 
-const base = {
-  id: "DispatchFixture",
-  group: "input",
-  purpose: "Edit values.",
-  pick: "A controller fixture.",
-  region: "body",
-  weight: 1,
-  tier: "phone",
-  realPath: "Local controls.",
-} as const;
-function setup(meta: Definition["meta"], props: Definition["props"], raw: Record<string, unknown> = {}) {
-  const def = { meta, props, fallback: () => raw, probes: [], examples: [] };
-  const screen = { id: "test", components: [{ id: "p1", c: meta.id, ...raw }] };
-  const defs = { [meta.id]: def };
-  const onAction = vi.fn();
-  const runtime = createScreenController({ defs, screen, onAction });
-  return { runtime, screen, defs, onAction };
-}
-const step = (target: string, action: string, value?: unknown) => ({
-  address: `p1/${target}`,
-  action,
-  value,
-});
-const accept = { address: "confirm/confirm", action: "press" };
-const matrix = {
-  key: "cells",
-  parts: ["score"],
-  set: { score: { prop: "score", matrix: { rows: "rows", values: "points" } } },
-} as const;
-const matrixProps = z
-  .strictObject({
-    mode: z.string().trim().default("edit"),
-    rows: z.array(z.strictObject({ points: z.array(z.number().nullable()).default([4, 5]) })),
-  })
-  .overwrite((props) => ({
-    ...props,
-    cells: props.rows.flatMap(({ points }) => points.map((score) => ({ score }))),
-  }));
-const matrixMeta = {
-  ...base,
-  items: matrix,
-  confirmParts: ["reset"],
-  clearItems: { reset: "score" },
-  actions: { parts: { reset: ["press"] }, items: { score: ["set"] } },
-} as const satisfies Definition["meta"];
-
-it("requires explicit confirmation even after schema normalization changes reset availability", () => {
-  const { runtime, onAction } = setup(
-    {
-      ...matrixMeta,
-      select: { prop: "mode", choices: { pick: [" clear "] } },
-      actions: {
-        ...matrixMeta.actions,
-        parts: { pick: ["select"], reset: ["press"] },
-        when: { reset: { mode: "clear" } },
-      },
+const definition: Definition = {
+  meta: {
+    id: "Fixture",
+    group: "input",
+    purpose: "Enter a number",
+    pick: "Enter a number",
+    region: "body",
+    weight: 1,
+    tier: "phone",
+    realPath: "Local entry",
+    parts: ["root", "value", "amount", "pad"],
+    actions: { parts: { amount: ["type"], pad: ["type"] } },
+    read: (input) => {
+      const { value } = input as { value?: number | string };
+      return value === undefined || value === "" ? [] : [`Value ${value}`];
     },
-    matrixProps,
-    { rows: [{ points: [4, 5] }] },
-  );
-  expect(runtime.act(step("pick", "select", " clear "))).toMatchObject({ ok: true });
-  onAction.mockClear();
-  expect(runtime.act(step("reset", "press"))).toMatchObject({ ok: true });
-  expect(runtime.confirmation?.source).toBe("test/p1/reset");
-  expect(runtime.snapshotScreen().components[0]?.rows).toEqual([{ points: [4, 5] }]);
-  expect(onAction).not.toHaveBeenCalled();
-  expect(runtime.act(accept)).toMatchObject({ ok: true });
-  expect(runtime.snapshotScreen().components[0]?.rows).toEqual([{ points: [null, null] }]);
-});
-
-it("rejects a nested control value that violates the enclosing row schema", () => {
-  const { runtime, screen, defs, onAction } = setup(
-    {
-      ...base,
-      items: {
-        key: "rows",
-        parts: ["root"],
-        nested: { key: "children", parts: { amount: { action: "set", prop: "value", min: 0, max: 10 } } },
-      },
-      select: { prop: "mode", choices: { pick: ["edit"] } },
-      actions: { parts: { pick: ["select"] } },
-    },
-    z.strictObject({
-      mode: z.string(),
-      rows: z.array(
-        z
-          .strictObject({ children: z.array(z.strictObject({ value: z.number() })) })
-          .refine(({ children }) => children.every(({ value }) => value <= 5)),
-      ),
-    }),
-    { mode: "edit", rows: [{ children: [{ value: 1 }] }] },
-  );
-  const edit = step("r1/amount_1", "set", 7);
-  expect(planAct(screen, defs, {}, [edit])).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
-  expect(planAct(screen, defs, {}, [edit, step("pick", "select", "edit")])).toMatchObject({
-    ok: false,
-    at: 0,
-  });
-  expect(runtime.act(edit)).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
-  expect(runtime.snapshotScreen()).toEqual(screen);
-  expect(onAction).not.toHaveBeenCalled();
-});
-
-it("saves edits and clears to matrices with defaulted cells inside an existing row", () => {
-  const { runtime } = setup(matrixMeta, matrixProps, { rows: [{}] });
-  expect(runtime.snapshotScreen().components[0]?.rows).toEqual([{}]);
-  expect(runtime.act(step("r1/score", "set", 10))).toMatchObject({ ok: true });
-  expect(runtime.snapshotScreen().components[0]?.rows).toEqual([{ points: [10, 5] }]);
-  expect(runtime.act([step("reset", "press"), accept])).toMatchObject({ ok: true });
-  expect(runtime.snapshotScreen().components[0]?.rows).toEqual([{ points: [null, null] }]);
-});
-
-it.each([
-  [10, 2.46, 2.5],
-  [1, 2.6, 3],
-])("keeps normalized item scores in render props and reads", (scale, edit, expected) => {
-  const meta = {
-    ...base,
-    items: {
-      key: "rows",
-      parts: ["amount", "plus"],
-      set: { amount: { prop: "amount", max: 3 } },
-      adjust: { "plus.increment": { prop: "amount", delta: 0.5 } },
-    },
-    actions: { items: { amount: ["set"], plus: ["increment"] } },
-    read: (input: unknown) => [`Total ${(input as { total: number }).total}`],
-  } as const satisfies Definition["meta"];
-  const schema = z
+  },
+  props: z
     .strictObject({
-      rows: z.array(
-        z.strictObject({ amount: z.number().overwrite((value) => Math.round(value * scale) / scale) }),
-      ),
+      label: text(20),
+      value: z.number().nonnegative().optional(),
+      max: z.number().optional(),
+      decimals: z.int().nonnegative().optional(),
     })
-    .overwrite((props) => ({ ...props, total: props.rows.reduce((total, row) => total + row.amount, 0) }));
-  const { runtime } = setup(meta, schema, { rows: [{ amount: 1 }] });
-  expect(runtime.act(step("r1/amount", "set", edit))).toMatchObject({ ok: true });
-  const { id: _id, c: _c, ...input } = runtime.snapshotScreen().components[0]!;
-  const parsed = stampItemIds(meta, schema.parse(input));
-  const rendered = projectAdjustments(meta, parsed, (part) => runtime.store.get(`test/p1/${part}`));
-  expect(rendered.rows).toMatchObject([{ amount: expected }]);
-  expect(runtime.read()).toContain(`Total ${expected}`);
-  expect(runtime.read()).toContain(`[p1/r1/amount set = ${expected}]`);
-  if (expected === 3) {
-    expect(runtime.actionsAt("p1/r1/plus")).toEqual([]);
-    expect(runtime.act(step("r1/plus", "increment"))).toMatchObject({ ok: false, code: "not_actionable" });
-  }
+    .meta({ keypadParts: ["amount"] }),
+  fallback: () => ({ label: "Value" }),
+  examples: [],
+  probes: [],
+};
+const defs = { Fixture: definition };
+const screen: ScreenLike = {
+  id: "home",
+  components: [{ id: "c1", c: "Fixture", label: "Value", value: 2, max: 50, decimals: 2 }],
+};
+const pad = "home/c1/amount";
+const type = (value: unknown, address = pad) => ({ address, action: "type", value });
+
+function setup(mounted: boolean, definitions = defs) {
+  const store = createInteractionStore();
+  const runtime = mounted
+    ? createScreenController({ screen, defs: definitions, store, requireMounted: true })
+    : undefined;
+  for (const part of [pad, "home/c1/pad", "home/c1/seed"]) runtime?.registerPart(part);
+  const agent = createAgentAccess({
+    defs: definitions,
+    current: () => screen,
+    store,
+    ...(runtime ? { runtime } : {}),
+  });
+  return { act: runtime?.act ?? agent.act, agent, store, runtime };
+}
+
+describe.each([true, false])("numeric typing with controller: %s", (mounted) => {
+  it("edits the initial value and preserves the exact committed draft", () => {
+    const { act, agent, store } = setup(mounted);
+    expect(agent.read()).toContain("Value 2");
+    expect(act(type({ append: "4" }))).toMatchObject({ ok: true, changed: 'c1/amount type = "24"' });
+    expect(agent.act([type({ append: "." }), type({ append: "5" }), type({ append: "0" })])).toMatchObject({
+      ok: true,
+      changed: 'c1/amount type = "24."\nc1/amount type = "24.5"\nc1/amount type = "24.50"',
+    });
+    expect(agent.read()).toContain('Value 24.50 — "Value" [c1/amount type = "24.50"]');
+    expect(store.get(pad)).toBe("24.50");
+    expect(act(type({ backspace: true })).ok).toBe(true);
+    expect(store.get(pad)).toBe("24.5");
+    expect(act(type({ clear: true })).ok).toBe(true);
+    expect(store.get(pad)).toBe("");
+    expect(agent.read()).toContain('Fixture "Value" [c1/amount type = ""]');
+    expect(act(type({ append: "7" })).ok).toBe(true);
+    expect(store.get(pad)).toBe("7");
+    expect(agent.act(type("50")).ok).toBe(true);
+    expect(store.get(pad)).toBe("50");
+  });
+
+  it("rejects invalid edits and replacements atomically without affecting text controls", () => {
+    const { act, agent, store } = setup(mounted);
+    const before = store.snapshot();
+    expect(act([type({ append: "9" }), type({ append: "0" })])).toMatchObject({
+      ok: false,
+      code: "invalid_value",
+      at: 1,
+    });
+    expect(agent.act(type("50.01"))).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+    expect(agent.act(type("2.123"))).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+    expect(agent.act(type("90", "c1/value"))).toMatchObject({ ok: false, code: "not_actionable" });
+    expect(agent.act(type({ clear: true }, "c1/pad"))).toMatchObject({ ok: false, code: "invalid_value" });
+    expect(store.snapshot()).toEqual(before);
+    expect(agent.act(type("backspace", "c1/pad")).ok).toBe(true);
+    expect(store.get("home/c1/pad")).toBe("backspace");
+    expect(store.get(pad)).toBeUndefined();
+  });
 });
 
-it("resolves row selections against edited derived items in both planners", () => {
-  const { runtime, screen, defs } = setup(
-    {
-      ...base,
-      items: { key: "rows", parts: ["root", "amount"], set: { amount: { prop: "amount" } } },
-      select: { prop: "picked", value: { field: "amount" } },
-      actions: { items: { root: ["select"], amount: ["set"] } },
-      read: (input) => [`Picked ${(input as { picked: number }).picked}`],
-    },
-    z.strictObject({ picked: z.number() }).overwrite((props) => ({ ...props, rows: [{ amount: 1 }] })),
-    { picked: 1 },
-  );
-  const steps = [step("r1/amount", "set", 9), step("r1", "select")];
-  const plan = planAct(screen, defs, {}, steps);
-  expect(plan).toMatchObject({ ok: true, values: { "test/p1/$picked": 9 } });
-  if (plan.ok) expect(readScreen(screen, defs, plan.values)).toContain("Picked 9");
-  expect(runtime.act(steps)).toMatchObject({ ok: true });
-  expect(runtime.read()).toContain("Picked 9");
+it.each([true, false])(
+  "uses a staged numeric set as the first keypad edit's seed (mounted: %s)",
+  (mounted) => {
+    const { act, agent, store } = setup(mounted, {
+      Fixture: {
+        ...definition,
+        meta: {
+          ...definition.meta,
+          parts: [...definition.meta.parts!, "seed"],
+          actions: { parts: { ...definition.meta.actions?.parts, seed: ["set"] } },
+          set: { seed: { prop: "value", min: 0, max: 9, integer: true } },
+        },
+      },
+    });
+    const set = { address: "home/c1/seed", action: "set", value: 4 };
+    expect(act([set, type({ append: "2" }), type({ append: "0" })])).toMatchObject({
+      ok: false,
+      code: "invalid_value",
+      at: 2,
+    });
+    expect(store.get(pad)).toBeUndefined();
+    expect(agent.read()).toContain("Value 2");
+    expect(act([set, type({ append: "2" })])).toMatchObject({ ok: true });
+    expect(agent.read()).toContain('Value 42 — "Value" [c1/amount type = "42"]');
+    expect(agent.read()).toContain("[c1/seed set = 4]");
+  },
+);
+
+it("blocks agent edits to a mounted disabled keypad and allows edits after cleanup", () => {
+  const { agent, store, runtime } = setup(true);
+  expect(agent.act(type("24.50")).ok).toBe(true);
+  const enable = runtime!.registerDisabledPart(pad);
+  for (const edit of [type({ append: "4" }), type("5")])
+    expect(agent.act(edit)).toMatchObject({ ok: false, code: "disabled", at: 0 });
+  expect(runtime!.actionsAt(pad)).toEqual([]);
+  expect(agent.read()).toContain('Value 24.50 — "Value" [c1/pad type]');
+  expect(agent.read()).not.toContain("[c1/amount type");
+  expect(store.get(pad)).toBe("24.50");
+  enable();
+  expect(agent.read()).toContain('[c1/amount type = "24.50"]');
+  expect(agent.act(type({ backspace: true })).ok).toBe(true);
+  expect(store.get(pad)).toBe("24.5");
+});
+
+it("does not publish an invalid keypad replacement as a draft through controller.edit", () => {
+  const { agent, store, runtime } = setup(true);
+  expect(agent.act(type("24.50")).ok).toBe(true);
+  expect(runtime!.edit(pad, "51")).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(store.get(pad)).toBe("24.50");
+  expect(store.get(`${pad}/$draft`)).toBeUndefined();
+  expect(agent.read()).toContain('Value 24.50 — "Value" [c1/amount type = "24.50"]');
 });

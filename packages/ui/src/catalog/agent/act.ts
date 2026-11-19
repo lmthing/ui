@@ -3,7 +3,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { validateActionValue } from "./validate-value";
+import { resolveKeypadValue, validateActionValue } from "./validate-value";
 import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "./clocks";
 
@@ -61,6 +61,27 @@ function controlsAreValid(
   const { id: _id, c: _c, state: _state, ...raw } = entry;
   const projected = projectControlInput(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
   return projected === raw || def.props.safeParse(projected).success;
+}
+
+/** An opted-in part's owner supplies the initial value and optional bounds. */
+function keypadInput(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  found: Affordance,
+  values: Values,
+) {
+  const [id, item, part] = found.address.split("/");
+  const entry = screen.components.find((entry) => entry.id === id)!;
+  const { id: _id, c, state: _state, ...raw } = entry;
+  const def = defs[c]!;
+  const keypadParts = def.props.meta()?.keypadParts;
+  if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
+  const get = (target: string) => values[`${screen.id}/${id}/${target}`];
+  const parsed = parseControlProps(def, raw, get);
+  const input = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;
+  if (!part && !(item && found.part === "root")) return input;
+  const rows = input[def.meta.items?.key ?? ""];
+  return (rows as Values[] | undefined)?.find((row) => row.id === item) ?? {};
 }
 
 function affordancesOfScreen(
@@ -145,9 +166,12 @@ export function planAct(
     const limits = number?.set
       ? { ...number.set.spec, numeric: true as const }
       : nestedSpec(screen, defs, address);
-    const error = validateActionValue(step.action, step.value, limits);
-    if (error) return { ok: false, at, ...error };
     const key = `${screen.id}/${address}`;
+    const keypad = step.action === "type" ? keypadInput(screen, defs, found, next) : undefined;
+    const result = keypad
+      ? resolveKeypadValue(step.value, next[key] ?? keypad.value, keypad)
+      : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
+    if ("code" in result) return { ok: false, at, ...result };
     if (number?.adjustment) {
       const { next: amount, atSet } = number.adjustment;
       if (amount === undefined) return { ok: false, code: "not_actionable", at };
@@ -157,15 +181,15 @@ export function planAct(
       next[key] = amount;
     } else if (step.action === "toggle" || step.action === "check") {
       const now = (next[key] as boolean | undefined) ?? initialOn(found);
-      next[key] = (step.value as boolean | undefined) ?? !now;
+      next[key] = (result.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
       next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
     } else if (step.action === "press" || step.action === "select") {
       if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
-      if (step.action === "select") next[key] = step.value;
+      if (step.action === "select") next[key] = result.value;
     } else {
-      next[key] = step.value;
-      if (number?.set) next[`${screen.id}/${number.id}/${number.slot}`] = step.value;
+      next[key] = result.value;
+      if (number?.set) next[`${screen.id}/${number.id}/${number.slot}`] = result.value;
     }
     Object.assign(next, selected.changes);
     if ((limits || number?.adjustment || selected.declared) && !controlsAreValid(screen, defs, address, next))
