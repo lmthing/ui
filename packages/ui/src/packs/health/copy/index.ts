@@ -1,3 +1,3 @@
 export { cycleLabels } from "./Cycle";
 export { activityRingLine } from "./ActivityRings";
-export { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalUnitLine } from "./Vitals";
+export { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalStatusLine, vitalUnitLine } from "./Vitals";

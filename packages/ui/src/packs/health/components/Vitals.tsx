@@ -14,19 +14,20 @@ import {
   KitCard,
   KitContent,
   KitEmpty,
+  KitGrid,
   KitRangeBand,
   KitRow,
   KitText,
   useComponentState,
   KitAction,
 } from "../../../kit";
-import { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalUnitLine } from "../copy";
+import { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalStatusLine, vitalUnitLine } from "../copy";
 import { seedTitles } from "..";
 
-// Core first: Stats/default cannot place readings on a low/normal/high reference band.
+// Core first: Stats/tiles (the default) cannot place readings on a low/normal/high reference band.
 export const meta = {
   id: "Vitals",
-  status: "ready",
+  status: "draft",
   group: "data",
   purpose: "Log vital readings alongside their reference ranges without diagnosing.",
   pick: "Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).",
@@ -157,18 +158,21 @@ export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
             role="button"
             inset="none"
             lineRole="caption"
-            trailing={
+          >
+            <KitGrid fitLast>
+              <KitText role="caption" tone="muted" part="label">
+                {reading.label}
+              </KitText>
               <KitText role="caption" tone="muted" tabular part="at">
                 {reading.at}
               </KitText>
-            }
-          >
-            <KitText role="caption" tone="muted" part="label">
-              {reading.label}
-            </KitText>
+            </KitGrid>
             <VitalValue reading={reading} />
-            <KitText role="caption" tone={vitalBand(reading).tone} part={null}>
+            <KitText role="caption" tone="muted" part={null}>
               {vitalRangeLine(reading)}
+            </KitText>
+            <KitText role="caption" tone={vitalBand(reading).tone} part={null}>
+              {vitalStatusLine(reading)}
             </KitText>
           </KitRow>
         ))

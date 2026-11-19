@@ -24,12 +24,15 @@ export function vitalUnitLine({ value2, unit }: Pick<Vital, "value2" | "unit">):
   return value2 === undefined ? unit : `/ ${value2} ${unit}`;
 }
 
-export function vitalRangeLine(reading: Pick<Vital, "value" | "low" | "high">): string {
-  const status = vitalBand(reading).tone === "warn" ? "Outside range" : "In range";
-  return `Reference ${reading.low}–${reading.high} · ${status}`;
+export function vitalStatusLine(reading: Pick<Vital, "value" | "low" | "high">): string {
+  return vitalBand(reading).tone === "warn" ? "Outside range" : "In range";
+}
+
+export function vitalRangeLine(reading: Pick<Vital, "low" | "high">): string {
+  return `Reference ${reading.low}–${reading.high}`;
 }
 
 /** Read exactly the supplied values and reference, never a diagnosis or rounded measurement. */
 export function vitalLine(reading: Vital): string {
-  return `${reading.label}: ${reading.value} ${vitalUnitLine(reading)} · ${vitalRangeLine(reading)} · ${reading.at}`;
+  return `${reading.label}: ${reading.value} ${vitalUnitLine(reading)} · ${vitalRangeLine(reading)} · ${vitalStatusLine(reading)} · ${reading.at}`;
 }

@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalUnitLine } from "../../copy";
+import {
+  vitalBand,
+  vitalLabels,
+  vitalLine,
+  vitalRangeLine,
+  vitalStatusLine,
+  vitalUnitLine,
+} from "../../copy";
 
 const reading = {
   label: "Blood pressure",
@@ -26,9 +33,7 @@ describe("Vitals copy and reference geometry", () => {
     [121, "warn"],
   ] as const)("computes the primary status at %s using %s only", (value, tone) => {
     expect(vitalBand({ ...reading, value }).tone).toBe(tone);
-    expect(vitalRangeLine({ ...reading, value })).toBe(
-      `Reference 90–120 · ${tone === "warn" ? "Outside range" : "In range"}`,
-    );
+    expect(vitalStatusLine({ ...reading, value })).toBe(tone === "warn" ? "Outside range" : "In range");
   });
   it.each([
     { value: 0, low: 0, high: 0 },
@@ -47,6 +52,7 @@ describe("Vitals copy and reference geometry", () => {
   it("does not compare the second reading with the primary range or round values", () => {
     expect(vitalLine({ ...reading, value2: -1000000 })).toContain("In range");
     expect(vitalLine({ ...reading, value: -0.125, value2: 0 })).toContain("-0.125 / 0 mmHg");
-    expect(vitalRangeLine({ value: -2, low: -2, high: -2 })).toBe("Reference -2–-2 · In range");
+    expect(vitalRangeLine({ low: -2, high: -2 })).toBe("Reference -2–-2");
+    expect(vitalStatusLine({ value: -2, low: -2, high: -2 })).toBe("In range");
   });
 });
