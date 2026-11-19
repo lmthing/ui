@@ -38,3 +38,19 @@ it("migrates saved Card props through catalog reading and action planning", () =
   });
   expect(screen.components[0]?.style).toBe("outlined");
 });
+
+it("recognizes normalized adopted ids even without old style props", () => {
+  const saved = { ...screen, components: [{ c: "c-a_r d", id: "c1", title: "One", goto: "details" }] };
+  expect(readScreen(saved, { Card: card })).toContain("[c1 press→details]");
+  expect(planAct(saved, { Card: card }, {}, [{ address: "c1", action: "press" }]).ok).toBe(true);
+});
+
+it("ignores malformed retired lines during reading and action planning", () => {
+  const saved = {
+    ...screen,
+    components: [...screen.components, { c: "DayTimeline", id: "bad", blocks: [null] }],
+  };
+  expect(planAct(saved, { Card: card }, {}, []).ok).toBe(true);
+  expect(planAct(saved, { Card: card }, {}, [{ address: "c1", action: "press" }]).ok).toBe(true);
+  expect(readScreen(saved, { Card: card })).toContain("bad DayTimeline (unknown)");
+});

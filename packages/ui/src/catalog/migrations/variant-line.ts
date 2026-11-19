@@ -22,7 +22,14 @@ export function effectiveLegacyList(props: Line): Line {
   if (!legacy || (alreadyAdopted && style !== "ranked" && style !== "inset" && style !== "plain"))
     return props;
   const rows = props.rows.filter((row): row is Line => !!row && typeof row === "object");
-  const effective = rows.some((row) => row.body) ? "expand" : rows.some((row) => row.me) ? "ranked" : style;
+  const hasBody = rows.some((row) => row.body);
+  // Mixed rows inferred expansion after validation; explicit expand would fail its all-bodies check.
+  if (hasBody && rows.some((row) => !row.body) && style !== "expand") {
+    if (style === undefined) return props;
+    const { style: _style, ...rest } = props;
+    return rest;
+  }
+  const effective = hasBody ? "expand" : rows.some((row) => row.me) ? "ranked" : style;
   return effective === style ? props : { ...props, style: effective };
 }
 

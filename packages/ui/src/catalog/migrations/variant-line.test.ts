@@ -104,6 +104,15 @@ it("replays List's legacy body and me inference in that order", () => {
   });
 });
 
+it("preserves Lists that inferred expansion from only some rows", () => {
+  const rows = [{ title: "With answer", body: "Answer" }, { title: "Without answer" }];
+  const original = { c: "List", style: "inset", rows };
+  expect(components.List.props.parse({ style: "inset", rows }).style).toBe("expand");
+  const { c: _c, ...migrated } = migrateLine(original, options);
+  expect(migrated).toEqual({ rows });
+  expect(components.List.props.parse(migrated).style).toBe("expand");
+});
+
 it.each(["list", "l-i_s t"])("migrates normalizable List id %s before validation", (c) => {
   expect(migrateLine({ ...list, c, style: "inset" }, options)).toEqual({
     id: list.id,

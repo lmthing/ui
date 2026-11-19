@@ -5,6 +5,9 @@ import { effectiveLegacyList, migrateVariantProps, variantMoves } from "./varian
 export type MigrationOptions = { variantComponents?: readonly string[] };
 // Enable each staged migration here in the same change that adopts the component schema.
 const adoptedVariants: readonly string[] = [];
+const isBlock = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === "object" && !Array.isArray(value);
+
 /** Preserve component ids, state, links, tones and time ordering while migrating the retired shape. */
 export function migrateLine<T extends Record<string, unknown>>(
   line: T,
@@ -18,15 +21,20 @@ export function migrateLine<T extends Record<string, unknown>>(
   if (c && Object.hasOwn(variantMoves, c)) {
     const source = c === "List" ? effectiveLegacyList(props) : props;
     const migrated = migrateVariantProps(source, variantMoves[c] ?? []);
-    if (migrated !== props) return { ...migrated, c };
+    if (migrated !== props || c !== name) return { ...migrated, c };
   }
-  if (legacyTarget(String(line.c)) !== "Timeline" || !Array.isArray(line.blocks)) return line;
+  if (
+    legacyTarget(String(line.c)) !== "Timeline" ||
+    !Array.isArray(line.blocks) ||
+    !line.blocks.every(isBlock)
+  )
+    return line;
   const { blocks, c: _c, ...rest } = line;
   return {
     ...rest,
     c: "Timeline",
     style: "hours",
-    items: (blocks as Record<string, unknown>[]).map(({ start, end, root: _root, ...item }) => ({
+    items: blocks.map(({ start, end, root: _root, ...item }) => ({
       ...item,
       time: start,
       end,

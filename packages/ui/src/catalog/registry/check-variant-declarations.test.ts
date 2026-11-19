@@ -42,9 +42,9 @@ it("rejects helper-generated variant fields absent from component or item metada
       rows: z.array(z.strictObject(itemVariantProps({ ...itemAxes, tone: ["neutral", "good"] }))),
     }),
   };
-  expect(checkVariantDeclarations(extra)).toEqual([
-    "VariantFixture: schema exposes undeclared variant align",
+  expect(checkVariantDeclarations(extra).sort()).toEqual([
     "VariantFixture items: schema exposes undeclared variant tone",
+    "VariantFixture: schema exposes undeclared variant align",
   ]);
 });
 
@@ -66,6 +66,30 @@ it("accepts inherited item trail only when the collection declares a trail", () 
       meta: { ...inherited.meta, variants: { ...variants, ...trail } },
     }),
   ).toEqual([]);
+});
+
+it("rejects variant fields inside nested objects and item sub-objects", () => {
+  const nested = z.strictObject(variantProps({ align: ["start", "center"] }));
+  const def = {
+    ...fixture,
+    props: fixture.props.extend({
+      preview: nested,
+      rows: z.array(z.strictObject({ ...itemVariantProps(itemAxes), preview: nested })),
+    }),
+  };
+  expect(checkVariantDeclarations(def).sort()).toEqual([
+    "VariantFixture items.preview: schema exposes undeclared variant align",
+    "VariantFixture.preview: schema exposes undeclared variant align",
+  ]);
+});
+
+it("rejects an axis that offers only its default", () => {
+  const def = {
+    ...fixture,
+    meta: { ...fixture.meta, variants: { ...variants, surface: ["plain"] } as const },
+    props: fixture.props.extend(variantProps({ surface: ["plain"] })),
+  };
+  expect(checkVariantDeclarations(def)).toEqual(["VariantFixture: variant surface has no alternative"]);
 });
 
 it("rejects unknown axes, empty options, bad values and disallowed item axes", () => {
