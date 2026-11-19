@@ -1,8 +1,13 @@
 import {
+  drawKey,
+  liveProps,
+  stampItemIds,
+  staleDraw,
   migrateScreen,
   resolveDefinition,
   type ActStep,
   type Definition,
+  type RandomSource,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -28,6 +33,7 @@ export type ControllerOptions = {
   media?: MediaAdapter | undefined;
   store?: InteractionStore | undefined;
   now?: (() => number) | undefined;
+  random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: ((text: string, address: string) => void) | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
@@ -54,6 +60,26 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
   }
   return initial;
 }
+function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
+  const expired: Values = {};
+  const candidates = screen.components.filter(
+    (entry) => values[valueKey(screen.id, entry.id, drawKey)] !== undefined,
+  );
+  if (!candidates.length) return expired;
+  const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
+  const local = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key.replace(`${screen.id}/`, ""), value]),
+  );
+  for (const { id, c, state: _state, ...input } of projected.components) {
+    const def = defs[c];
+    const key = valueKey(screen.id, id, drawKey);
+    const props = def?.props.safeParse(input);
+    if (!def || !props?.success) continue;
+    const live = liveProps(def.meta, stampItemIds(def.meta, props.data as Values), id, local, true);
+    if (staleDraw(def.meta, live, values[key])) expired[key] = undefined;
+  }
+  return expired;
+}
 export function createControllerContext(options: ControllerOptions) {
   const { defs } = options;
   const migrated = migrateScreen(options.screen);
@@ -72,13 +98,13 @@ export function createControllerContext(options: ControllerOptions) {
     openSheet: store.get(`${screen.id}/$sheet`) as string | undefined,
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const valuesOf = () => ({
+  const valuesOf = (at = now()) => ({
     ...initial,
     ...store.snapshot(),
-    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), now()])),
+    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at])),
   });
-  const liveScreen = (values: Values, sheet: string | undefined, covered = false): ScreenLike => {
-    const projected = projectScreen(screen, defs, values, now(), sheet, false, false);
+  const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
+    const projected = projectScreen(screen, defs, values, at, sheet, false, false);
     return covered
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
@@ -92,6 +118,7 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
+    expiredDraws: (values: Values, at = now()) => expiredDraws(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },
@@ -112,3 +139,18 @@ export function createControllerContext(options: ControllerOptions) {
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
+
+export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+  const at = ctx.now();
+  const values = ctx.valuesOf(at);
+  return {
+    ...ctx,
+    now: () => at,
+    valuesOf: () => values,
+    status: { ...ctx.status },
+    mounted: new Map(ctx.mounted),
+    disabledParts: new Map(ctx.disabledParts),
+    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    expiredDraws: (next) => ctx.expiredDraws(next, at),
+  };
+}

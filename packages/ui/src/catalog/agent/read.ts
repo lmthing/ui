@@ -8,6 +8,7 @@ import { affordancesOf, formatAffordance, type Affordance } from "./affordances"
 import { numericSetAt, projectClocks } from "./clocks";
 import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
+import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { migrateLine, migrateScreen } from "../migrations";
 
 type Json = {
@@ -92,7 +93,8 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props)
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
-  return runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
+  const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
+  return projectDraw(meta, timed, get);
 }
 
 function migrateInput(component: string, input: unknown) {
@@ -117,26 +119,28 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const validated = parseControlProps(
-    def,
-    migrateInput(def.meta.id, input),
-    (part) => values[`${instance}/${part}`],
-  );
+  const get = (part: string) => values[`${instance}/${part}`];
+  const validated = parseControlProps(def, migrateInput(def.meta.id, input), get);
   const props = liveProps(def.meta, validated, instance, values, true);
-  state = (props.state as StateName | undefined) ?? state;
+  state = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
-  if (state !== "filled") return [head];
+  const draw = drawState(def.meta, props, get);
   const affordances = withValues(
-    affordancesOf(def.meta, props, instance, values),
+    affordancesOf(def.meta, props, instance, values, state),
     values,
     def,
     props,
     instance,
   );
+  if (state !== "filled" && !(draw && state === "success"))
+    return [
+      [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
+    ];
   const key = def.meta.items?.key;
   const own = [
     ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),
+    ...readDraw(draw),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,

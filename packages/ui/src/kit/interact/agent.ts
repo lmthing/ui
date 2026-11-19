@@ -1,4 +1,4 @@
-import { planAct, type ActStep, type Definition, type ScreenLike } from "../../catalog";
+import { planAct, type ActStep, type Definition, type RandomSource, type ScreenLike } from "../../catalog";
 import { readControls } from "./runtime";
 import type { InteractionStore } from "./store";
 
@@ -17,6 +17,7 @@ export function createAgentAccess(options: {
   defs: Record<string, Definition>;
   lang?: string | undefined;
   store: InteractionStore;
+  random?: RandomSource | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
@@ -35,7 +36,13 @@ export function createAgentAccess(options: {
       }
       const screen = current();
       const list = Array.isArray(steps) ? steps : [steps];
-      const plan = planAct(screen, defs, store.snapshot(screen.id), list);
+      const plan = planAct(
+        screen,
+        defs,
+        store.snapshot(screen.id),
+        list,
+        opts.dryRun ? null : options.random,
+      );
       if (!plan.ok) return plan;
       const reply = { ok: true as const, screen: screen.id, changed: plan.changed.join("\n") };
       if (opts.dryRun) return { ...reply, dryRun: true };

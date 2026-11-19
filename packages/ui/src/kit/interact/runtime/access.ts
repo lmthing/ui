@@ -1,5 +1,5 @@
-import { wordsFor, affordancesOf, liveProps, parseAddress, stampItemIds } from "../../../catalog";
-import type { ActStep } from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, parseAddress, parseControlProps } from "../../../catalog";
+import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import type { ControllerContext } from "./context";
@@ -27,21 +27,28 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
       : ["confirm/cancel", "confirm/close"].includes(local)
         ? ["dismiss"]
         : [];
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
   const entry = ctx
-    .liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet))
+    .liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now)
     .components.find((item) => item.id === id);
-  if (!entry || (entry.state && entry.state !== "filled") || !ctx.defs[entry.c]) return [];
+  const def = entry && ctx.defs[entry.c];
+  if (!entry || !def) return [];
+  if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length) return [];
   try {
     const localValues = Object.fromEntries(
-      Object.entries(ctx.valuesOf()).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
+      Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
-    const props = liveProps(
-      ctx.defs[entry.c]!.meta,
-      stampItemIds(ctx.defs[entry.c]!.meta, ctx.inputOf(entry)),
+    const { id: _id, c: _c, state: _state, ...raw } = entry;
+    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
+    const props = liveProps(def.meta, parsed, id, localValues, true);
+    return affordancesOf(
+      def.meta,
+      props,
       id,
       localValues,
-    );
-    return affordancesOf(ctx.defs[entry.c]!.meta, props, id, localValues)
+      (props.state as StateName | undefined) ?? entry.state,
+    )
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {

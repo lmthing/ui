@@ -1,106 +1,88 @@
-import { controlValueKey, liveProps, parseControlProps, projectControlInput } from "./live-props";
+import { liveProps, parseControlProps } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
-import { repairVariants } from "../rules";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { resolveKeypadValue, validateActionValue } from "./validate-value";
-import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
-import { adjustmentAt, numericSetAt, projectAdjustments } from "./clocks";
+import { selectionAt, selectionChanges, selectionError } from "./selection";
+import { projectAdjustments } from "./clocks";
+import { controlsAreValid, keypadInput, nestedSpec, numericStep, stageValue } from "./action-input";
+import {
+  deviceRandom,
+  drawKey,
+  drawRole,
+  holdIndex,
+  performDraw,
+  staleDraw,
+  storeDraw,
+  type RandomSource,
+} from "./draw";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
 export type ActResult =
   | { ok: true; values: Values; changed: string[]; links: { goto: string; address: string }[] }
-  | { ok: false; code: "not_actionable" | "invalid_value"; at: number; hint?: string };
+  | { ok: false; code: "not_actionable" | "invalid_value" | "random_unavailable"; at: number; hint?: string };
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
 
-function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!def?.meta.items?.nested) return undefined;
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  return nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
-}
-
-function numericStep(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  address: string,
-  action: string,
-  values: Values,
-) {
-  if (!["set", "increment", "decrement"].includes(action)) return;
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!def || (!def.meta.items?.set && !def.meta.set)) return;
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
-  const props = parseControlProps(def, raw, get);
-  const target = parts.join("/") || "root";
-  if (action === "set") {
-    const set = numericSetAt(def.meta, props, target);
-    if (set) return { id, set, slot: controlValueKey(def, set.key) };
-  }
-  const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
-  if (adjustment?.atSet) return { id, adjustment, slot: controlValueKey(def, adjustment.key) };
-}
-
-function controlsAreValid(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  address: string,
-  values: Values,
-) {
-  const [id] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id)!;
-  const def = defs[entry.c]!;
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const repaired = repairVariants(def, raw).props as Values;
-  const projected = projectControlInput(def, repaired, (part) => values[`${screen.id}/${id}/${part}`]);
-  return projected === repaired || def.props.safeParse(projected).success;
-}
-
-/** An opted-in part's owner supplies the initial value and optional bounds. */
-function keypadInput(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  found: Affordance,
-  values: Values,
-) {
-  const [id, item, part] = found.address.split("/");
-  const entry = screen.components.find((entry) => entry.id === id)!;
-  const { id: _id, c, state: _state, ...raw } = entry;
-  const def = defs[c]!;
-  const keypadParts = def.props.meta()?.keypadParts;
-  if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
-  const get = (target: string) => values[`${screen.id}/${id}/${target}`];
-  const parsed = parseControlProps(def, raw, get);
-  const input = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;
-  if (!part && !(item && found.part === "root")) return input;
-  const rows = input[def.meta.items?.key ?? ""];
-  return (rows as Values[] | undefined)?.find((row) => row.id === item) ?? {};
-}
-
-function affordancesOfScreen(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-): Affordance[] {
-  const local = Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
+function localValues(screen: string, values: Values): Values {
+  return Object.fromEntries(
+    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
   );
-  return screen.components.flatMap(({ id, c, state: _state, ...input }) => {
+}
+
+function liveInput(def: Definition, input: Values, id: string, local: Values) {
+  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
+  return liveProps(def.meta, parsed, id, local, true);
+}
+
+function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+  const local = localValues(screen.id, values);
+  return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, local, true);
-    return affordancesOf(def.meta, props, id, local);
+    const props = liveInput(def, input, id, local);
+    const liveState =
+      (props.state as typeof state) ?? (def.meta.draw || def.meta.emptyActions ? state : undefined);
+    return affordancesOf(def.meta, props, id, local, liveState);
   });
+}
+
+function expireDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+  for (const { id, c, state: _state, ...raw } of screen.components) {
+    const def = defs[c];
+    const key = `${screen.id}/${id}/${drawKey}`;
+    if (!def?.meta.draw || values[key] === undefined) continue;
+    const props = liveInput(def, raw, id, localValues(screen.id, values));
+    if (staleDraw(def.meta, props, values[key])) values[key] = undefined;
+  }
+}
+
+function stageDraw(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  address: string,
+  step: ActStep,
+  next: Values,
+  random: RandomSource | null,
+): string | undefined {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id)!;
+  const def = defs[entry.c]!;
+  const target = parts.join("/") || "root";
+  const role = drawRole(def.meta, target, step.action);
+  if (!role) return;
+  const { id: _id, c: _c, state: _state, ...raw } = entry;
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const props = liveInput(def, raw, entry.id, localValues(screen.id, next));
+  const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
+  next[`${screen.id}/${id}/${drawKey}`] = storeDraw(def.meta, props, outcome);
+  if (!random && (role === "draw" || role === "redraw")) return "";
+  const value =
+    role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
+  return ` = ${JSON.stringify(value)}`;
 }
 
 function selectStep(
@@ -137,18 +119,23 @@ function selectStep(
 /**
  * Plans a list of steps against a screen without changing anything: every step must name an offered
  * action with a valid value. All or nothing: the first bad step returns its index and no values, so
- * a caller commits `values` only when `ok` (atomic batches; a dry run is simply not committing).
+ * a caller commits `values` only when `ok`. Pass `null` to validate draws without using entropy.
  */
 export function planAct(
   input: ScreenLike,
   defs: Record<string, Definition>,
   values: Values,
   steps: ActStep[],
+  random: RandomSource | null = deviceRandom,
 ): ActResult {
   const screen = migrateScreen(input, { variantOnly: true });
+  if (random && steps.length > 1) {
+    const preview = planAct(input, defs, values, steps, null);
+    if (!preview.ok) return preview;
+  }
   const next: Values = { ...values };
   const changed: string[] = [];
-  const links: { goto: string; address: string }[] = [];
+  const links: Extract<ActResult, { ok: true }>["links"] = [];
   for (const [at, original] of steps.entries()) {
     const offered = affordancesOfScreen(screen, defs, next);
     const address = relative(screen.id, original.address);
@@ -171,29 +158,21 @@ export function planAct(
       ? resolveKeypadValue(step.value, next[key] ?? keypad.value, keypad)
       : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
     if ("code" in result) return { ok: false, at, ...result };
-    if (number?.adjustment) {
-      const { next: amount, atSet } = number.adjustment;
-      if (amount === undefined) return { ok: false, code: "not_actionable", at };
-      const base = `${screen.id}/${number.id}`;
-      next[`${base}/${number.slot}`] = amount;
-      next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
-      next[key] = amount;
-    } else if (step.action === "toggle" || step.action === "check") {
-      const initial = found.detail === ":on" || found.detail === ":done";
-      const now = (next[key] as boolean | undefined) ?? initial;
-      next[key] = (result.value as boolean | undefined) ?? !now;
-    } else if (step.action === "increment" || step.action === "decrement") {
-      next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
-    } else if (step.action === "press" || step.action === "select") {
-      if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
-      if (step.action === "select") next[key] = result.value;
-    } else {
-      next[key] = result.value;
-      if (number?.set) next[`${screen.id}/${number.id}/${number.slot}`] = result.value;
+    try {
+      const draw = stageDraw(screen, defs, address, step, next, random);
+      if (draw !== undefined) {
+        changed.push(`${address} ${step.action}${draw}`);
+        continue;
+      }
+    } catch {
+      return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
+    if (!stageValue(next, key, found, result.value, number, screen.id, links))
+      return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
     if ((limits || number?.adjustment || selected.declared) && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
+    expireDraws(screen, defs, next);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return { ok: true, values: next, changed, links };

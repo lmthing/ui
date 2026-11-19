@@ -22,6 +22,33 @@ import { peekForExample } from "./variants";
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const modes = ["light", "dark"] as const;
 
+function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
+  const { draw, items } = meta;
+  if (draw?.kind === "faces" && items) {
+    // The Writer gives the number of dice, not item rows.
+    const rows = Array.from({ length: Number(props[draw.count]) }, () => ({}));
+    props = { ...props, [items.key]: rows };
+  }
+  return stampItemIds(meta, props);
+}
+
+it("stamps runtime faces from the declared count without a Writer item array", () => {
+  const meta: Meta = {
+    ...components.List.meta,
+    items: { key: "dice", parts: ["root", "hold"], prefix: "d" },
+    draw: { kind: "faces", press: "roll", count: "quantity", sides: "sides", hold: "hold" },
+  };
+  expect(stampExampleItems(meta, { quantity: 3, sides: 6 }).dice).toEqual([
+    { id: "d1" },
+    { id: "d2" },
+    { id: "d3" },
+  ]);
+  expect(stampExampleItems(components.List.meta, { rows: [{}, {}] }).rows).toEqual([
+    { id: "r1" },
+    { id: "r2" },
+  ]);
+});
+
 describe("themes", () => {
   it("generates every preset × mode × accent with all roles", () => {
     expect(Object.keys(kitThemes)).toHaveLength(presets.length * modes.length * accents.length);
@@ -40,7 +67,7 @@ describe("themes", () => {
 describe.each(ready)("%s conformance", (id) => {
   const { meta, examples } = components[id];
   const states = (meta as { states?: readonly string[] }).states ?? ["filled"];
-  const items = (meta as { items?: { key: string; visible?: "all" | "first" } }).items;
+  const items = (meta as Meta).items;
 
   it.each(presets.flatMap((preset) => modes.map((mode) => ({ preset: preset.id, mode }))))(
     "renders every example and state in $preset $mode",
@@ -53,11 +80,15 @@ describe.each(ready)("%s conformance", (id) => {
           if (state === "empty") expect(html).toContain(emptyLine("walk"));
           if (state === "loading") expect(html).toContain(loadingLabel);
           if (state === "filled" && items) {
-            const props = stampItemIds(meta, components[id].props.parse(example) as Record<string, unknown>);
+            const props = stampExampleItems(
+              meta,
+              components[id].props.parse(example) as Record<string, unknown>,
+            );
             const rows = props[items.key] as { id: string }[];
             const { hidden, issues } = peekForExample(meta, props, html);
             expect(issues).toEqual([]);
-            if (items.visible === "first") expect(html).not.toContain('data-testid="home/c1/r2/root"');
+            if (items.visible === "first")
+              expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
             const pageHidesRoots =
               props.overflow === "page" &&
               (meta as Meta).variantParts?.["overflow.page"]?.hides?.includes("root");
