@@ -77,10 +77,21 @@ export function SkeletonControl({ label, kind = "primary", full = false }: Shape
       alignSelf={full ? "stretch" : "flex-start"}
       justifyContent="center"
       alignItems="center"
-      backgroundColor={kind === "quiet" ? "transparent" : "$line"}
+      backgroundColor="transparent"
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
       {...(kind === "danger" ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
     >
+      {kind !== "quiet" && (
+        <Bar
+          position="absolute"
+          top={component.base.none}
+          bottom={component.base.none}
+          left={component.base.none}
+          right={component.base.none}
+          borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
+          aria-hidden
+        />
+      )}
       {label && (
         <YStack position="relative" aria-hidden>
           <YStack opacity={component.base.none}>

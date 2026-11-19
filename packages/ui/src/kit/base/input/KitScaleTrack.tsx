@@ -1,18 +1,19 @@
 import { useKit } from "../../provider";
 import { Angry, Frown, Laugh, Meh, Smile, Star } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb } from "tamagui";
-import { component, radius, size } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 
 const faces = [Angry, Frown, Meh, Smile, Laugh] as const;
 
-function HalfStar({ fill }: { fill: number }) {
+function HalfStar({ fill, compact = false }: { fill: number; compact?: boolean }) {
+  const icon = compact ? size.icon.sm : size.icon.lg;
   return (
-    <YStack width={size.icon.lg} height={size.icon.lg} aria-hidden>
-      <Star size={size.icon.lg} color="$muted" fill="none" />
+    <YStack width={icon} height={icon} aria-hidden>
+      <Star size={icon} color="$muted" fill="none" />
       {fill > 0 && (
         <YStack position="absolute" top={0} left={0} width={`${fill * 100}%`} overflow="hidden">
-          <Star size={size.icon.lg} color="$accent" fill="currentColor" />
+          <Star size={icon} color="$accent" fill="currentColor" />
         </YStack>
       )}
     </YStack>
@@ -103,23 +104,39 @@ export function KitScaleTrack({
   value,
   labels,
   readonly = false,
+  compact = false,
 }: {
   style: "mood" | "stars" | "dots";
   value: number;
   labels: readonly [string, string, string, string, string];
   /** A rating that is only shown: no targets or addresses, one image named by the value. */
   readonly?: boolean;
+  /** Readonly stars only: intrinsic-width small icons, without the control-sized cells. */
+  compact?: boolean;
 }) {
+  const small = readonly && style === "stars" && compact;
   return (
     <XStack
       {...(readonly
         ? { accessibilityRole: "image" as const, accessibilityLabel: `${value} ${labels[4].slice(2)}` }
         : { accessibilityRole: "radiogroup" as const })}
       justifyContent="space-between"
+      {...(small ? { alignSelf: "flex-start" as const, gap: space.xs } : {})}
     >
-      {labels.map((label, index) => (
-        <Level key={label} level={index + 1} style={style} value={value} label={label} readonly={readonly} />
-      ))}
+      {labels.map((label, index) =>
+        small ? (
+          <HalfStar key={label} fill={Math.min(1, Math.max(0, value - index))} compact />
+        ) : (
+          <Level
+            key={label}
+            level={index + 1}
+            style={style}
+            value={value}
+            label={label}
+            readonly={readonly}
+          />
+        ),
+      )}
     </XStack>
   );
 }
