@@ -9,7 +9,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance, styleAt } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Vitals;
 const reading = examples[2]!.readings[0]!;
 const input = { readings: [reading], goto: "add_reading" };
