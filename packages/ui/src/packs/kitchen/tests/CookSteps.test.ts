@@ -5,10 +5,11 @@ import {
   placeholderDetail,
   readComponent,
   stampItemIds,
+  type as typography,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.CookSteps;
 const step = { text: "Follow this instruction", uses: ["First", "Second"], minutes: 20 };
@@ -123,6 +124,21 @@ describe("CookSteps fallback and contract", () => {
 });
 
 describe("CookSteps states, parts and read/act", () => {
+  it("uses glanceable timer numbers and preserves the longest instruction and ingredient limits", () => {
+    const text = "Stir the mixture gently until it thickens. ".repeat(5).slice(0, 200);
+    const input = { steps: [{ text, uses: Array(4).fill("Ingredient".repeat(2)), minutes: 240 }] };
+    const html = renderInstance("CookSteps", input, "filled", theme);
+    expect(html.replace(/\u00a0/g, " ")).toContain(text.trim());
+    expect(html).toContain("4:00:00");
+    const clock = elementAt(html, "home/c1/timer").attributes;
+    expect(clock).toContain('role="button"');
+    const timer = html.match(/<span[^>]*>4:00:00<\/span>/)?.[0];
+    expect(timer).toBeDefined();
+    expect(styleAt(html, { tag: "span", attributes: timer!, children: [] })).toContain(
+      `font-size:${typography.number.size}px`,
+    );
+    expect(styleAt(html, "home/c1/text")).toContain(`font-size:${typography.title.size}px`);
+  });
   it.each([1, 2, 3])("offers navigation only within the recipe at step %s", (at) => {
     const input = { steps: [step, { text: "Untimed instruction" }, step], at };
     const parsed = props.parse(input);
@@ -140,8 +156,10 @@ describe("CookSteps states, parts and read/act", () => {
   });
   it.each(examples)("renders the current text, ingredients and conditional timer", (input) => {
     const current = input.steps[input.at - 1]!;
-    const html = renderInstance("CookSteps", input, "filled", theme);
-    const read = readComponent(components.CookSteps, input, "c1").join("\n");
+    const html = renderInstance("CookSteps", input, "filled", theme).replace(/\u00a0/g, " ");
+    const read = readComponent(components.CookSteps, input, "c1")
+      .join("\n")
+      .replace(/\u00a0/g, " ");
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html).toContain(current.text);
     expect(read).toContain(current.text);

@@ -15,7 +15,7 @@ import {
   type Props,
 } from "../../../catalog";
 import { KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
-import { cookStepsLabels, cookStepsReading } from "../copy";
+import { cookStepText, cookStepsLabels, cookStepsReading } from "../copy";
 
 // Core first: Steps/numbered cannot show one cooking instruction with ingredients and an optional timer.
 export const meta = {
@@ -83,7 +83,11 @@ export const examples = [
   // Ledge: the plant keeper's household supper.
   {
     steps: [
-      { text: "Simmer the tomato sauce.", uses: ["Tomatoes", "Olive oil"], minutes: 20 },
+      {
+        text: "Gently simmer the tomato sauce until thickened.",
+        uses: ["Tomatoes", "Olive oil"],
+        minutes: 20,
+      },
       { text: "Layer the sauce and pasta.", uses: ["Lasagne sheets"] },
       { text: "Bake until golden.", uses: [], minutes: 40 },
     ],
@@ -93,7 +97,7 @@ export const examples = [
   {
     steps: [
       { text: "Mix the oats and milk.", uses: ["Oats", "Milk"] },
-      { text: "Warm gently and stir.", uses: ["Cinnamon"], minutes: 5 },
+      { text: "Warm gently, stirring until the oats turn creamy.", uses: ["Cinnamon"], minutes: 5 },
     ],
     at: 2,
   },
@@ -117,26 +121,26 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
-        <KitText role="caption" tone={done ? "good" : "muted"} part={null}>
+        <KitText role="label" tone={done ? "good" : "muted"} part={null}>
           {done ? cookStepsLabels.done : stepLine(at, steps.length)}
         </KitText>
         <KitText role="title" part="text">
-          {done ? cookStepsLabels.finished : step.text}
+          {done ? cookStepsLabels.finished : cookStepText(step.text)}
         </KitText>
       </KitContent>
       {!done && step.uses.length > 0 && (
         <KitContent group="response">
-          <KitText role="caption" tone="muted" part="uses">
+          <KitText role="label" tone="muted" part="uses">
             {step.uses.join(" · ")}
           </KitText>
         </KitContent>
       )}
       {!done && step.minutes !== undefined && (
         <KitContent group="response">
-          <KitText role="caption" tone="muted" part={null}>
+          <KitText role="label" tone="muted" part={null}>
             {cookStepsLabels.timer}
           </KitText>
-          <KitText role="number" numberScale="compact" tabular part={null}>
+          <KitText role="number" tabular part={null}>
             {clockLine(step.minutes * 60)}
           </KitText>
           <KitGrid columns={2}>
