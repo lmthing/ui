@@ -126,6 +126,16 @@ describe("Loan states and parts", () => {
     expect(html).toContain(addr("edit"));
     expect(readComponent(def, failing, "l1")[0]).toContain(labels.insufficient);
   });
+
+  it.each([
+    ["filled", { ...simple, firstDue: "2026-01-31", payments: [{ due: "2026-01-31", amount: 120 }] }],
+    ["success", simple],
+  ] as const)("puts payoff status above past terms in %s", (state, input) => {
+    const html = renderInstance("Loan", input, state, theme);
+    expect(html.indexOf(simple.name)).toBeLessThan(html.indexOf(labels.cleared));
+    expect(html.indexOf(labels.cleared)).toBeLessThan(html.indexOf(labels.principal));
+    expect(html).not.toContain(addr("balance"));
+  });
 });
 
 describe("Loan read, act and readiness", () => {

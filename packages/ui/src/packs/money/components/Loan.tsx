@@ -14,6 +14,7 @@ import {
   KitAction,
   KitCard,
   KitContent,
+  KitGrid,
   KitRow,
   KitSkeleton,
   KitText,
@@ -100,7 +101,7 @@ const { choose, write, read } = probesFor("Loan");
 export const probes = [
   choose("Given my car debt's opening principal, annual interest rate and monthly payment, calculate the next principal and interest split and projected instalment schedule"),
   choose("Show one big figure for the amount I owe my friend; no interest terms or repayment forecast", "Amount"),
-  choose("Show recorded payments against several fixed repayment targets as separate progress bars, no interest or future schedule", "Progress"),
+  choose("Show how much I've already paid toward each fixed repayment target: $120 of $500 and $80 of $200. Give each target its own bar that fills toward its goal, with no interest or forecast", "Progress"),
   choose("Show a tiny line of my recent outstanding balances beside the latest value, no forecast or loan terms", "Sparkline"),
   choose("Remind me about upcoming electricity and rent payments with paid ticks, no debt interest", "Bills"),
   choose("Prioritise several debts and allocate extra monthly money until all are cleared", "Payoff"),
@@ -109,86 +110,90 @@ export const probes = [
 ] satisfies Probe[];
 
 type LoanCopy = ReturnType<typeof loanCopy>;
-type LoanLabels = ReturnType<typeof moneyWordsFor>["loanLabels"];
+type LoanWords = ReturnType<typeof moneyWordsFor>;
 
-function Forecast({ copy, loanLabels }: { copy: LoanCopy; loanLabels: LoanLabels }) {
+// The filled and loading versions share line roles and layout, including wrap height.
+type LineProps = {
+  role: "label" | "caption" | "number" | "title";
+  children: string;
+  part?: string | null;
+  tone?: "muted" | "good";
+  tabular?: boolean;
+};
+function LoanLine({ role, part = null, children, ...props }: LineProps) {
+  return useComponentState() === "loading" ? (
+    <KitSkeleton shape="figure" inset="none" content={[[role, children]]} />
+  ) : (
+    <KitText {...{ role, part, children, ...props }} />
+  );
+}
+
+function Forecast({ copy, words, loading }: { copy: LoanCopy; words: LoanWords; loading: boolean }) {
+  const { loanLabels } = words;
+  // prettier-ignore
   return (
     <>
       <KitContent group="response">
         {copy.next && (
-          <KitRow inline part="next" label={copy.next.headline}>
-            <KitText role="label" part={null} children={copy.next.headline} />
-            <KitText role="caption" tone="muted" part={null} children={copy.next.split} />
+          <KitRow inline part={loading ? null : "next"} label={loading ? "" : copy.next.headline} lineRole="label">
+            <LoanLine role="label" children={copy.next.headline} />
+            <LoanLine role="caption" tone="muted" children={copy.next.split} />
           </KitRow>
         )}
-        <KitText role="label" part="finish" children={copy.finish} />
+        <LoanLine role="label" part="finish" children={copy.finish} />
       </KitContent>
       {copy.schedule.length > 0 && (
         <KitContent group="response">
-          <KitText role="label" part="schedule" children={loanLabels.schedule} />
-          {copy.schedule.map(({ due, headline, split }) => (
-            <KitRow key={due} inline label={headline}>
-              <KitText role="label" part={null} children={headline} />
-              <KitText role="caption" tone="muted" part={null} children={split} />
+          <LoanLine role="label" part="schedule" children={loanLabels.schedule} />
+          {copy.schedule.map(({ due, date, remaining, split }) => (
+            <KitRow key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split)}>
+              <KitGrid fitLast>
+                <LoanLine role="label" children={date} />
+                <LoanLine role="label" tabular children={remaining} />
+              </KitGrid>
+              <LoanLine role="caption" tone="muted" children={split} />
             </KitRow>
           ))}
-          {copy.more && <KitText role="caption" tone="muted" part={null} children={copy.more} />}
+          {copy.more && <LoanLine role="caption" tone="muted" children={copy.more} />}
         </KitContent>
       )}
-      <KitText role="caption" tone="muted" part={null} children={loanLabels.estimate} />
+      <LoanLine role="caption" tone="muted" children={loanLabels.estimate} />
     </>
   );
 }
 
 export function Loan(input: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const {
-    lang,
-    words: { loanLabels },
-  } = useWords(moneyWordsFor);
+  const { lang, words } = useWords(moneyWordsFor);
+  const { loanLabels } = words;
   const copy = loanCopy(input, state, lang);
-  const edit = state === "filled" && input.goto;
-  if (state === "loading") {
-    return (
-      <KitCard part="root" padded>
-        <KitSkeleton
-          shape="figure"
-          inset="none"
-          content={[
-            ["label", input.name],
-            ["number", copy.balance],
-            ["caption", loanLabels.balance],
-          ]}
-        />
-        <KitSkeleton rows={input.style === "schedule" ? 6 : 4} lead="none" inset="none" />
-        {input.goto && <KitSkeleton shape="control" kind="secondary" label={loanLabels.edit} full />}
-      </KitCard>
-    );
-  }
+  const { goto } = input;
+  const loading = state === "loading";
+  // prettier-ignore
   return (
     <KitCard part="root" padded>
       <KitContent>
-        <KitText role="label" part="name" children={input.name} />
+        <LoanLine role="label" part="name" children={input.name} />
+        {copy.paidOff && <LoanLine role="title" tone="good" children={loanLabels.cleared} />}
         {copy.balance !== undefined && (
           <>
-            <KitText role="number" part="balance" tabular children={copy.balance} />
-            <KitText role="caption" tone="muted" part={null} children={loanLabels.balance} />
+            <LoanLine role="number" part="balance" tabular children={copy.balance} />
+            <LoanLine role="caption" tone="muted" children={loanLabels.balance} />
           </>
         )}
       </KitContent>
       <KitContent group="response">
         {copy.terms.map(({ part, text }) => (
-          <KitText key={part} part={part} role="caption" tone="muted" children={text} />
+          <LoanLine key={part} part={part} role="caption" tone="muted" children={text} />
         ))}
       </KitContent>
-      {copy.notice ? (
+      {!copy.paidOff && (copy.notice ? (
         <KitContent group="response">
-          <KitText part={null} role="label" children={copy.notice} />
+          <LoanLine role="label" children={copy.notice} />
         </KitContent>
-      ) : (
-        <Forecast copy={copy} loanLabels={loanLabels} />
-      )}
-      {edit && <KitAction kind="secondary" part="edit" label={loanLabels.edit} goto={edit} full />}
+      ) : <Forecast {...{ copy, words, loading }} />)}
+      {goto && loading && <KitSkeleton shape="control" kind="secondary" label={loanLabels.edit} full />}
+      {goto && state === "filled" && <KitAction kind="secondary" part="edit" label={loanLabels.edit} goto={goto} full />}
     </KitCard>
   );
 }

@@ -22,12 +22,13 @@ export const en = {
     insufficient: "The monthly payment must exceed the interest to reduce the balance.",
     unavailable: "No payoff date in this estimate",
     outOfRange: "This balance is too large to estimate.",
-    estimate: "Fixed-rate estimate. No fees or new borrowing.",
+    estimate: "Fixed-rate estimate. No fees or new debt.",
   },
   loanField: (label: string, value: string) => `${label}: ${value}`,
   loanNext: (label: string, date: string, amount: string) => `${label} · ${date} · ${amount}`,
   loanSplit: (principal: string, interest: string) => `Principal ${principal} · Interest ${interest}`,
-  loanRow: (date: string, balance: string) => `${date} · ${balance} left`,
+  loanRemaining: (balance: string) => `${balance} left`,
+  loanRow: (date: string, balance: string, split: string) => `${date} · ${balance} · ${split}`,
   loanMore: (count: string, plural: Intl.LDMLPluralRule) =>
     `And ${count} more ${plural === "one" ? "payment" : "payments"}`,
 };

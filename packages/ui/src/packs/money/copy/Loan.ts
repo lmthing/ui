@@ -50,17 +50,17 @@ export function loanCopy(
   ];
   const next = rows[0];
   const more = rows.length - rowLimit;
+  const paidOff = state === "success" || status === "cleared";
   return {
     terms,
-    balance: balance === undefined || state === "success" ? undefined : money(balance),
+    paidOff,
+    balance: balance === undefined || paidOff ? undefined : money(balance),
     notice:
-      state === "success" || status === "cleared"
-        ? labels.cleared
-        : state === "error" || status === "insufficient"
-          ? labels.insufficient
-          : status === "outOfRange"
-            ? labels.outOfRange
-            : undefined,
+      state === "error" || status === "insufficient"
+        ? labels.insufficient
+        : status === "outOfRange"
+          ? labels.outOfRange
+          : undefined,
     next: next
       ? {
           headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
@@ -72,7 +72,8 @@ export function loanCopy(
       input.style === "schedule"
         ? rows.slice(0, rowLimit).map((row) => ({
             due: row.due,
-            headline: words.loanRow(date(row.due), money(row.balance)),
+            date: date(row.due),
+            remaining: words.loanRemaining(money(row.balance)),
             split: words.loanSplit(money(row.principal), money(row.interest)),
           }))
         : [],
@@ -86,21 +87,27 @@ export function loanCopy(
 export function loanReading(input: LoanInput, state: string, lang?: string): string[] {
   if (state === "loading") return [];
   const { loanLabels } = moneyWordsFor(lang);
-  const { balance, terms, notice, next, finish, schedule, more } = loanCopy(input, state, lang);
+  const { balance, terms, paidOff, notice, next, finish, schedule, more } = loanCopy(input, state, lang);
   return [
+    ...(paidOff ? [loanLabels.cleared] : []),
     ...(balance === undefined ? [] : [loanLabels.balance, balance]),
     ...terms.map(({ text }) => text),
-    ...(notice
-      ? [notice]
-      : [
-          ...(next ? [next.headline, next.split] : []),
-          finish,
-          ...(schedule.length
-            ? [loanLabels.schedule, ...schedule.flatMap(({ headline, split }) => [headline, split])]
-            : []),
-          ...(more ? [more] : []),
-          loanLabels.estimate,
-        ]),
+    ...(paidOff
+      ? []
+      : notice
+        ? [notice]
+        : [
+            ...(next ? [next.headline, next.split] : []),
+            finish,
+            ...(schedule.length
+              ? [
+                  loanLabels.schedule,
+                  ...schedule.flatMap(({ date, remaining, split }) => [date, remaining, split]),
+                ]
+              : []),
+            ...(more ? [more] : []),
+            loanLabels.estimate,
+          ]),
     ...(input.goto && state === "filled" ? [loanLabels.edit] : []),
   ];
 }
