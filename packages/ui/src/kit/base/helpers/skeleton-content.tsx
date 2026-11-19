@@ -31,6 +31,7 @@ export type ShapeProps = {
   ring?: "md" | "lg";
   inset?: "md" | "none" | "card";
   aspect?: "wide" | "square" | "tall" | "none" | "avatar";
+  contentGap?: "xs" | "sm";
   lines?: SkeletonLine[] | undefined;
   content?: [TextRole, string | undefined, ("start" | "center" | "end")?, ("display" | "compact")?][];
   kind?: "primary" | "secondary" | "quiet" | "danger";
