@@ -5,4 +5,4 @@ export { tier } from "./tier";
 export { isoDate, clock } from "./date";
 export { secret } from "./secret";
 export { swatch } from "./swatch";
-export { variantProps, itemVariantProps } from "./variant-props";
+export { variantProps, itemVariantProps, variantAxes } from "./variants";

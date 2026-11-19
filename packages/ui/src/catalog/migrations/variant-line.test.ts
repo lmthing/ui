@@ -15,7 +15,10 @@ const list = {
   c: "List",
   state: "filled",
   style: "ranked",
-  rows: [{ title: "One", value: "42", trail: "toggle", goto: "details" }],
+  rows: [
+    { title: "One", value: "42", trail: "toggle", goto: "details" },
+    { title: "Two", trail: "badge" },
+  ],
 } as const;
 const card = { id: "card_one", c: "Card", style: "media", title: "One", photo: "lib:plants" } as const;
 const options = { variantComponents: ["List", "Card"] };
@@ -29,15 +32,15 @@ it("leaves live List and Card lines intact while the fixtures are staged", () =>
   expect(components.Card.props.safeParse(oldCard).success).toBe(true);
 });
 
-it("migrates before strict validation without changing data or explicit destinations", () => {
+it("preserves the old ranked display before strict validation, not the unused row trail", () => {
   const schema = z.strictObject({
     ...variantProps({ lead: ["none", "number"], trail: ["chevron", "value"] }),
     rows: z.array(
       z.strictObject({
         title: z.string(),
-        value: z.string(),
-        goto: z.string(),
-        ...itemVariantProps({ trail: ["chevron", "toggle"] }, { inheritTrail: true }),
+        value: z.string().optional(),
+        goto: z.string().optional(),
+        ...itemVariantProps({ trail: ["chevron", "none"] }, { inheritTrail: true }),
       }),
     ),
   });
@@ -47,18 +50,24 @@ it("migrates before strict validation without changing data or explicit destinat
     state: "filled",
     lead: "number",
     trail: "value",
-    rows: list.rows,
+    rows: [
+      { title: "One", value: "42", goto: "details" },
+      { title: "Two", trail: "none" },
+    ],
   });
   const { id: _id, c: _c, state: _state, ...raw } = migrateLine(list, options);
-  expect(schema.parse(raw)).toMatchObject({ lead: "number", trail: "value", rows: list.rows });
+  const parsed = schema.parse(raw);
+  expect(parsed.rows.map((row) => row.trail ?? parsed.trail)).toEqual(["value", "none"]);
+  expect(parsed.rows[0]?.goto).toBe("details");
   expect(migrateLine({ ...list, trail: "badge" }, options)).toMatchObject({ trail: "badge" });
   expect(list.style).toBe("ranked");
+  expect(list.rows[0].trail).toBe("toggle");
 });
 
 it.each([
   ["List", "plain", { surface: "plain" }],
   ["List", "inset", { surface: "card" }],
-  ["List", "cards", { surface: "card" }],
+  ["List", "cards", { style: "cards", surface: "card" }],
   ["Card", "plain", { surface: "plain" }],
   ["Card", "outlined", { surface: "outlined" }],
   ["Card", "tinted", { surface: "tinted" }],
@@ -67,6 +76,22 @@ it.each([
   const migrated = migrateLine({ c, style, id: "entry" }, options);
   expect(migrated).toEqual({ c, id: "entry", ...patch });
   expect(migrateLine(migrated, options)).toBe(migrated);
+});
+
+it("retains separate row-card structure without overriding an explicit surface", () => {
+  const entry = { ...list, style: "cards", surface: "outlined" };
+  expect(migrateLine(entry, options)).toBe(entry);
+  expect(migrateLine({ ...list, style: "inset" }, options)).not.toHaveProperty("style");
+});
+
+it.each(["list", "l-i_s t"])("migrates normalizable List id %s before validation", (c) => {
+  expect(migrateLine({ ...list, c, style: "inset" }, options)).toEqual({
+    id: list.id,
+    c: "List",
+    state: list.state,
+    rows: list.rows,
+    surface: "card",
+  });
 });
 
 it("supports tone moves without touching unknown or structural values", () => {

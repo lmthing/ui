@@ -2,7 +2,7 @@ import { expect, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { buildEntry, writerFormatFor } from "@lmthing/ui/catalog";
 import { variantProps, itemVariantProps } from "./variant-props";
-import type { Definition } from "../probes";
+import type { Definition } from "../../probes";
 
 const props = z.strictObject({
   ...variantProps({

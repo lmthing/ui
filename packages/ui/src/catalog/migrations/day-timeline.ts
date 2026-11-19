@@ -1,5 +1,5 @@
 import type { ScreenLike } from "../agent";
-import { legacyTarget } from "./aliases";
+import { legacyTarget, normalizeComponentId } from "./aliases";
 import { migrateVariantProps, variantMoves } from "./variant-line";
 
 export type MigrationOptions = { variantComponents?: readonly string[] };
@@ -10,12 +10,12 @@ export function migrateLine<T extends Record<string, unknown>>(
   line: T,
   { variantComponents = adoptedVariants }: MigrationOptions = {},
 ): T | (Record<string, unknown> & { c: string }) {
-  if (
-    typeof line.c === "string" &&
-    variantComponents.includes(line.c) &&
-    Object.hasOwn(variantMoves, line.c)
-  ) {
-    const { c, ...props } = line;
+  const { c: name, ...props } = line;
+  const c =
+    typeof name === "string"
+      ? variantComponents.find((id) => normalizeComponentId(id) === normalizeComponentId(name))
+      : undefined;
+  if (c && Object.hasOwn(variantMoves, c)) {
     const migrated = migrateVariantProps(props, variantMoves[c] ?? []);
     if (migrated !== props) return { ...migrated, c };
   }

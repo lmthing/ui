@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Definition } from "../probes";
-import { variantAxes, type Axis, type ItemVariants, type Variants } from "../types";
+import { variantAxes } from "../props";
+import type { Axis, ItemVariants, Variants } from "../types";
 
 type Schema = {
   properties?: Record<string, Schema>;
@@ -11,13 +12,27 @@ type Schema = {
   default?: unknown;
 };
 
-const duplicateStyles = new Set(["compact", "tinted", "outlined", "centered", "hero"]);
+const duplicateStyles = new Set([
+  "compact",
+  "tinted",
+  "outlined",
+  "centered",
+  "hero",
+  "square",
+  "wide",
+  "tall",
+]);
 const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, string>>>>> = {
   Card: {
     tinted: "Pending surface migration in ui-variants-refs",
     outlined: "Pending surface migration in ui-variants-refs",
   },
   Profile: { centered: "Pending align migration in core adoption" },
+  Photo: {
+    square: "Pending aspect migration in core adoption",
+    wide: "Pending aspect migration in core adoption",
+    tall: "Pending aspect migration in core adoption",
+  },
   Player: { compact: "Pending density migration in core adoption" },
   Progress: { compact: "Pending density migration in core adoption" },
   Payoff: { compact: "Pending density migration in money pack adoption" },

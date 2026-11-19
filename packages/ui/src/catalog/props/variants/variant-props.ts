@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Axis, ItemVariants, Variants } from "../types";
+import type { Axis, ItemVariants, Variants } from "../../types";
 
 type Enum<V extends string> = z.ZodEnum<{ [K in V]: K }>;
 type Shape<D extends Variants, Inherited extends Axis> = {
