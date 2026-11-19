@@ -1,9 +1,11 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { projectSelection } from "./selection";
+import { projectNested } from "./selection";
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(meta: Meta, props: Values, instance: string, values: Values): Values {
   props = projectSelection(meta, props, (part) => values[`${instance}/${part}`]);
+  props = projectNested(meta, props, (part) => values[`${instance}/${part}`]);
   if (values[`${instance}/$runtime`]) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
       props = { ...props, minus: undefined };

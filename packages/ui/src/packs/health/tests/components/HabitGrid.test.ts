@@ -9,7 +9,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.HabitGrid;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
