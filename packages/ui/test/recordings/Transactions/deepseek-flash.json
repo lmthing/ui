@@ -462,10 +462,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop groceries\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Monthly salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
+    "reply": "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
     "replies": [
-      "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop groceries\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Monthly salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
       "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
+      "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop groceries\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Monthly salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}",
       "{\"c\":\"Transactions\",\"entries\":[{\"date\":\"2026-11-19\",\"payee\":\"Corner Shop\",\"category\":\"Food\",\"icon\":\"shopping_bag\",\"amount\":-24.5,\"goto\":\"groceries\"},{\"date\":\"2026-11-18\",\"payee\":\"Salary\",\"category\":\"Income\",\"icon\":\"banknote\",\"amount\":1200,\"goto\":\"salary\"}]}"
     ]
   },

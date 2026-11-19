@@ -176,8 +176,10 @@ export function Transactions({ entries }: TransactionsProps) {
       {transactionGroups(entries).map(({ date, entries }, index) => (
         <KitContent key={date} group={index === 0 ? "content" : "response"}>
           <DateHeading item={entries[0]!.id} day={transactionDay(date, lang)} />
-          {entries.map((entry) => (
-            <TransactionRow key={entry.id} entry={entry} />
+          {entries.map((entry, row) => (
+            <KitContent key={entry.id} group={row === 0 ? "content" : "response"}>
+              <TransactionRow entry={entry} />
+            </KitContent>
           ))}
         </KitContent>
       ))}
