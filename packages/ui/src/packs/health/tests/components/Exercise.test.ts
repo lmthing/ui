@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  packReady,
   readComponent,
   type CastLike,
   type Props,
@@ -116,7 +117,7 @@ describe("Exercise fallback and metadata", () => {
       screen: 0,
       expect: { address: "e1/start", action: "press" },
     });
-    expect(createRegistry({ packs: ["health"] }).ids).not.toContain("Exercise");
+    expect(createRegistry({ packs: ["health"] }).ids.includes("Exercise")).toBe(packReady("health"));
     expect(createRegistry({ packs: ["health"], includeDrafts: true }).ids).toContain("Exercise");
   });
 });

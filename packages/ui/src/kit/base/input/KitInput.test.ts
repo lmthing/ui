@@ -84,14 +84,51 @@ async function captureInput(input: Parameters<typeof KitInput>[0], controller: S
   }
   return captured;
 }
-describe("KitInput wave 2 set and bounded edits", () => {
+describe("KitInput numeric set accessibility", () => {
   it.each(["number", "date", "time"] as const)("draws disabled %s set controls", (kind) => {
     const html = render({ hint: "Value", kind, action: "set", disabled: true, min: 1, max: 5, step: 0.5 });
     const field = elementAt(html, "home/c1/field");
     expect(field.attributes).toContain('aria-disabled="true"');
     expect(field.attributes).toContain('disabled=""');
-    expect(field.attributes).toContain('role="textbox"');
+    expect(field.attributes).toContain(`role="${kind === "number" ? "spinbutton" : "textbox"}"`);
   });
+  it.each([
+    [undefined, undefined],
+    ["", undefined],
+    ["not a number", undefined],
+    ["0", "0"],
+    ["2.5", "2.5"],
+  ] as const)("exposes numeric set value %s and finite bounds on the same addressed part", (value, now) => {
+    const attrs = elementAt(
+      render({ hint: "Weight", kind: "number", action: "set", value, min: 0, max: 1000, part: "weight_1" }),
+      "home/c1/weight_1",
+    ).attributes;
+    expect(attrs).toContain('role="spinbutton"');
+    expect(attrs).toContain('aria-valuemin="0"');
+    expect(attrs).toContain('aria-valuemax="1000"');
+    if (now === undefined) expect(attrs).not.toContain("aria-valuenow");
+    else expect(attrs).toContain(`aria-valuenow="${now}"`);
+  });
+  it.each(["text", "search", "number", "date", "time"] as const)(
+    "keeps %s type semantics and range attributes unchanged",
+    (kind) => {
+      const attrs = elementAt(
+        render({ hint: "Value", kind, action: "type", min: 0, max: 5 }),
+        "home/c1/field",
+      ).attributes;
+      expect(attrs).toContain(`role="${kind === "search" ? "searchbox" : "textbox"}"`);
+      expect(attrs).not.toMatch(/aria-value(?:min|max|now)/);
+    },
+  );
+  it("leaves unspecified bounds out", () => {
+    const html = render({ hint: "Weight", kind: "number", action: "set", value: "4.5" });
+    const attrs = elementAt(html, "home/c1/field").attributes;
+    expect(attrs).toContain('aria-valuenow="4.5"');
+    expect(attrs).not.toMatch(/aria-value(?:min|max)/);
+  });
+});
+
+describe("KitInput wave 2 set and bounded edits", () => {
   it("keeps type as default, sends numeric/date set values and clamps stepped edits", async () => {
     const act = vi.fn(),
       edit = vi.fn();

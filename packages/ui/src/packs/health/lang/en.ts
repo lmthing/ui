@@ -51,6 +51,23 @@ export const en = {
     start: "Start",
     latest: "Latest",
   },
+  workout: {
+    elapsed: "Elapsed time",
+    timeLine: (time: string) => `Elapsed time · ${time}`,
+    set: (position: string) => `Set ${position}`,
+    timedSet: (label: string, time: string) => `${label} · ${time}`,
+    completeSet: (label: string) => `Complete ${label.toLowerCase()}`,
+    weight: (unit: string) => `Weight (${unit})`,
+    units: { kg: "kg", lb: "lb" },
+    reps: "Reps",
+    duration: (time: string) => `Duration · ${time}`,
+    remaining: (time: string) => `Rest · ${time}`,
+    stopRest: "Stop rest",
+    finish: "Finish workout",
+    success: "Workout complete",
+    done: "Complete",
+    pending: "Not complete",
+  },
 };
 
 export type HealthWords = typeof en;

@@ -58,6 +58,15 @@ function useInputEdit(props: InputProps, address: string) {
   };
 }
 
+function numericRange(value: string | undefined, { min, max }: Pick<InputProps, "min" | "max">) {
+  const now = String(value ?? "").trim() ? Number(value) : NaN;
+  return {
+    "aria-valuenow": Number.isFinite(now) ? now : undefined,
+    "aria-valuemin": Number.isFinite(min) ? min : undefined,
+    "aria-valuemax": Number.isFinite(max) ? max : undefined,
+  };
+}
+
 function TextControl({
   address,
   hint,
@@ -77,12 +86,16 @@ function TextControl({
   const loading = useComponentState() === "loading";
   const edit = useInputEdit({ hint, kind, ...options }, address.testID);
   const editable = kit.interactive && !options.disabled && !loading;
+  const numericSet = kind === "number" && options.action === "set";
+  const shown = editable && kit.controller ? (draft ?? stored) : value;
+  const role = loading ? undefined : numericSet ? "spinbutton" : kind === "search" ? "searchbox" : "textbox";
   return (
     <Input
       {...(address as Record<string, unknown>)}
       flex={1}
       unstyled
-      role={(loading ? undefined : kind === "search" ? "searchbox" : "textbox") as never}
+      role={role as never}
+      {...(numericSet && !loading ? numericRange(shown, options) : {})}
       aria-label={label ?? hint}
       placeholder={hint}
       placeholderTextColor="$muted"
@@ -97,19 +110,13 @@ function TextControl({
       {...(options.disabled || loading ? { disabled: true } : {})}
       aria-disabled={options.disabled || undefined}
       onFocus={() => kit.nativeHost?.ensureVisible?.(address.ref.current)}
-      {...(editable && kit.controller
-        ? {
-            onChangeText: edit,
-            value: draft ?? stored,
-          }
-        : value === undefined
-          ? {}
-          : { value })}
+      {...(editable && kit.controller ? { onChangeText: edit } : {})}
+      value={shown}
       {...({
         type: kind === "search" ? "search" : kind === "date" || kind === "time" ? kind : "text",
         inputMode: kind === "number" ? "decimal" : undefined,
         keyboardType: kind === "number" ? "decimal-pad" : "default",
-        ...(options.action === "set" && kind === "number" ? { type: "number" } : {}),
+        ...(numericSet ? { type: "number" } : {}),
         min: options.min,
         max: options.max,
         step: options.step,
@@ -120,8 +127,8 @@ function TextControl({
 }
 
 /**
- * A one-line text box (role textbox, or searchbox for `kind="search"`): optional leading icon, a hint
- * shown as placeholder, at least 44px tall. The box is the part (default `field`) that `type` acts on.
+ * A one-line input with textbox, searchbox, or numeric set spinbutton semantics.
+ * It can show a leading icon and placeholder and is at least 44px tall (default part `field`).
  * Read-only unless the host is interactive.
  */
 export function KitInput({

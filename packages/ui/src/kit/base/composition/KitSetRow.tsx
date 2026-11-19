@@ -10,6 +10,8 @@ type SetRowProps = {
   loading?: boolean;
   item: string;
   label: string;
+  /** Override the label address, or pass null to draw it without registering a part. */
+  labelPart?: string | null;
   fields: readonly { id: string; label: string; control: ReactNode }[];
   done: ReactNode;
   detail?: ReactNode;
@@ -103,6 +105,7 @@ function SetContent({
   part = "root",
   loading = false,
   label,
+  labelPart = "label",
   fields,
   done,
   detail,
@@ -117,7 +120,7 @@ function SetContent({
       aria-busy={loading || undefined}
     >
       <LoadingSlot loading={loading} text>
-        <KitText role="label" part={loading ? null : "label"}>
+        <KitText role="label" part={loading ? null : labelPart}>
           {label}
         </KitText>
       </LoadingSlot>

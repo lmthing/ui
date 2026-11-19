@@ -148,3 +148,19 @@ describe("nested declarations", () => {
     expect(validateActionValue("toggle", undefined, nestedMeta.items!.nested!.parts.active!)).toBeNull();
   });
 });
+
+it("guards nested controls on a sub-item boolean without requiring another control", () => {
+  const nested = nestedMeta.items!.nested!;
+  const guarded = {
+    ...nestedMeta,
+    items: {
+      ...nestedMeta.items!,
+      nested: {
+        ...nested,
+        parts: { amount: { ...nested.parts.amount!, when: { prop: "editable", equals: true } } },
+      },
+    },
+  };
+  const input = { rows: [{ children: [{ editable: true }, { editable: false }, {}, { editable: 1 }] }] };
+  expect(nestedControls(guarded, input).map(({ enabled }) => enabled)).toEqual([true, false, false, false]);
+});

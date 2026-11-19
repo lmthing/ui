@@ -50,7 +50,8 @@ export type Meta = {
             min?: number;
             max?: number;
             integer?: boolean;
-            when?: string;
+            /** A named control's true value, or a boolean property on the sub-item. */
+            when?: string | { prop: string; equals: boolean };
           }
         >
       >;
