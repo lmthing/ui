@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  affordancesOf,
   components,
   placeholderTitle,
   readComponent,
+  stampItemIds,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
@@ -82,4 +84,14 @@ describe("play contracts", () => {
     expect(lines).not.toContain(input.questions[1]!.question);
     expect(lines).toContain("[t1/reveal press]");
   });
+});
+
+it.each(ids)("retains every declared %s action in its example readings", (id) => {
+  const def = defs[id]!;
+  for (const example of def.examples) {
+    const input = stampItemIds(def.meta, def.props.parse(example));
+    const read = readComponent(def, example, "c1").join("\n");
+    for (const action of affordancesOf(def.meta, input, "c1"))
+      expect(read).toContain(`[${action.address} ${action.action}`);
+  }
 });
