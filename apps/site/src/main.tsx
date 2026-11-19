@@ -1,10 +1,12 @@
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 import "./styles/base.css";
+import "./styles/sections.css";
 import "./styles/parts.css";
 import "./styles/chrome.css";
 import "./styles/phone.css";
 import "./styles/home.css";
+import "./styles/pipeline.css";
 import "./styles/packs.css";
 import "./styles/specimens.css";
 import "./styles/try.css";

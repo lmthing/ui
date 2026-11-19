@@ -1,21 +1,31 @@
 import type { Pack } from "../../scripts/site-types";
+import { lazy, Suspense } from "react";
 import { shotOf } from "../data/site";
 import { hrefOf } from "../router";
 import { cap } from "../shared/status";
 
-const thumbs = 4;
+const more = 3;
+const MiniPack = lazy(() => import("./MiniPack"));
 
-/** A live pack on the shelf: thumbnails of its components, what it is for, and a link to its page. */
+/** A live pack on the shelf: one drawing at phone proportions, the rest on hover or focus, and what it is for. */
 export function PackCard({ pack }: { pack: Pack }) {
-  const shown = pack.items.filter((i) => i.state !== "draft").slice(0, thumbs);
+  const shown = pack.items.filter((i) => i.state !== "draft");
+  const [lead, ...rest] = shown;
   return (
     <a className="pack" href={hrefOf("p", pack.id)}>
-      <span className="strip" aria-hidden="true">
-        {shown.map((i) => (
-          <span key={i.id} className="thumb">
-            <img src={shotOf(i.id)} alt="" loading="lazy" />
-          </span>
-        ))}
+      <span className="lead" inert>
+        {pack.lines.length > 0 ? (
+          <Suspense fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
+            <MiniPack id={pack.id} />
+          </Suspense>
+        ) : (
+          lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />
+        )}
+        <span className="rest">
+          {rest.slice(0, more).map((i) => (
+            <img key={i.id} src={shotOf(i.id)} alt="" loading="lazy" />
+          ))}
+        </span>
       </span>
       <h3>{cap(pack.id)}</h3>
       <span className="pick">{pack.pick}</span>

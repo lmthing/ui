@@ -1,8 +1,12 @@
 import { lazy } from "react";
 import { Lazy } from "../shared/Lazy";
 import { site } from "../data/site";
+import { HeroFrame } from "./HeroFrame";
 
-const CreateDemo = lazy(() => import("../create/CreateDemo"));
+// Start loading the live demo now; the static first frame is on screen until it is ready.
+const load = () => import("../create/CreateDemo");
+void load();
+const CreateDemo = lazy(load);
 
 export function Hero() {
   const { stats } = site;
@@ -29,7 +33,7 @@ export function Hero() {
           {stats.themesBuilt} themes built
         </p>
       </div>
-      <Lazy view={CreateDemo} fallback={<div className="demo-skel" aria-busy="true" />} />
+      <Lazy view={CreateDemo} fallback={<HeroFrame />} />
     </section>
   );
 }
