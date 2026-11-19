@@ -138,12 +138,10 @@ it("arranges the same addressed cells as rows, grid or strip", () => {
     render(<KitGrid arrange={arrange}>{content}</KitGrid>),
   );
   expect(new Set(layouts).size).toBe(3);
-  expectTypeOf<{ arrange: "rows"; overflow: "page"; children: null }>().not.toExtend<
-    Parameters<typeof KitGrid>[0]
-  >();
-  expectTypeOf<{ arrange: "strip"; overflow: "page"; children: null }>().toExtend<
-    Parameters<typeof KitGrid>[0]
-  >();
+  type Page<A> = { arrange: A; overflow: "page"; children: null };
+  type Grid = Parameters<typeof KitGrid>[0];
+  expectTypeOf<Page<"rows">>().not.toExtend<Grid>();
+  expectTypeOf<Page<"strip">>().toExtend<Grid>();
   for (const html of layouts) expect(addresses(html)).toEqual(["home/base/one", "home/base/two"]);
 });
 
@@ -179,6 +177,8 @@ it("keeps shelf and expanded accessory choices, including the component's densit
   const photo = render(<KitListItem row={row} style="shelf" index={0} lead="avatar" />, compact);
   const lead = elementAt(photo, "home/base/r1/root").children[0]!.children[0]!;
   expect(styleAt(photo, lead)).toContain("align-self:center");
+  const cover = render(<KitListItem row={row} style="shelf" index={0} trail="value" />);
+  expect(elementAt(cover, "home/base/r1/root").children[0]!.children).toHaveLength(1);
 });
 
 it("applies list detail, lead and trail choices at their original part addresses", () => {

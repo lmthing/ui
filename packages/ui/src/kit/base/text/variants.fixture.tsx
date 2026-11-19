@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import {
+  KitListItem,
   KitProvider,
   KitStrip,
   KitText,
@@ -34,6 +35,14 @@ createRoot(document.getElementById("root")!).render(
           <KitText part="second">Second</KitText>
           <KitText part="third">Third</KitText>
         </KitStrip>
+      </PartScope>
+      <PartScope screen="preview" component="shelf" rev={1} state="filled">
+        <KitListItem
+          row={{ id: "r1", title: "Entry", photo: "lib:sample", value: "12" }}
+          style="shelf"
+          index={0}
+          trail="value"
+        />
       </PartScope>
     </KitProvider>
   </TamaguiProvider>,

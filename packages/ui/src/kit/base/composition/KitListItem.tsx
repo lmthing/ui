@@ -57,6 +57,8 @@ function ItemText(props: ItemProps) {
 function ShelfItem(props: ItemProps) {
   const { row, density, lead, mark, surface } = props;
   const leading = lead === undefined ? undefined : itemLead(props);
+  const cover = lead === undefined ? row.photo : undefined;
+  const trailing = itemTrail(props);
   return (
     <KitRow
       item={row.id}
@@ -64,14 +66,18 @@ function ShelfItem(props: ItemProps) {
       goto={row.goto}
       inset="none"
       leadingAlign={row.photo && (lead === "thumb" || lead === "avatar") ? "row" : "line"}
-      trailing={itemTrail(props)}
+      trailing={cover ? undefined : trailing}
       {...{ density, mark, surface, leading }}
     >
       <KitContent lineRole="body" density={density}>
-        {lead === undefined && row.photo && (
-          <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />
+        {cover && <KitPhoto photo={cover} shape="wide" part="icon" label={row.title} />}
+        {cover && trailing ? (
+          <KitRow label={row.title} density={density} inline trailing={trailing}>
+            <ItemText {...props} />
+          </KitRow>
+        ) : (
+          <ItemText {...props} />
         )}
-        <ItemText {...props} />
       </KitContent>
     </KitRow>
   );

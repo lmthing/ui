@@ -72,3 +72,12 @@ it("snaps to the second and last strip pages rather than settling between cells"
       .toBe(0);
   }
 });
+
+it("keeps an addressed shelf cover full width above its title and trail", async () => {
+  const part = (name: string) => page.getByTestId(`preview/shelf/r1/${name}`).boundingBox();
+  const [row, cover, title, trail] = await Promise.all(["root", "icon", "title", "trail"].map(part));
+  expect(cover!.width).toBeCloseTo(row!.width, 0);
+  expect(title!.y).toBeGreaterThanOrEqual(cover!.y + cover!.height);
+  expect(trail!.x).toBeGreaterThan(title!.x);
+  expect(trail!.y + trail!.height / 2).toBeCloseTo(title!.y + title!.height / 2, 0);
+});
