@@ -3,6 +3,7 @@ import {
   projectNested,
   projectClocks,
   projectAdjustments,
+  drawStatus,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -77,6 +78,10 @@ function projectEntry(
   Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));
   if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
+  if (defs[entry.c]!.meta.draw) {
+    const state = drawStatus(defs[entry.c]!.meta, parsed, result.state ?? "filled", get);
+    if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
+  }
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));
   if (entry.c === "Bubbles" && Array.isArray(get("$messages"))) result.messages = get("$messages");

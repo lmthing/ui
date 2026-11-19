@@ -1,5 +1,5 @@
 import { wordsFor } from "../../../catalog";
-import { planAct, type ActStep, type Values } from "../../../catalog";
+import { drawRole, planAct, type ActStep, type RandomSource, type Values } from "../../../catalog";
 import { selectedStep, type ActOptions, type ActReply } from "../index";
 import {
   actionFailure,
@@ -25,7 +25,9 @@ function prepareStep(
   const entry = active.components.find((item) => item.id === id);
   const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
-  if (entry.state && entry.state !== "filled") return fail("not_actionable", "This component is not filled");
+  const meta = ctx.defs[entry.c]!.meta;
+  if (entry.state && entry.state !== "filled" && !meta.draw && !meta.emptyActions?.length)
+    return fail("not_actionable", "This component is not filled");
   let input: Values;
   try {
     input = ctx.inputOf(entry);
@@ -37,7 +39,7 @@ function prepareStep(
   if (entry.c === "Counter" && action.action === "decrement" && Number(input.value) < Number(input.step))
     return fail("disabled", "The counter cannot go below zero");
   const selected = selectedStep(action, entry, input, ctx.defs[entry.c]!);
-  const plan = planAct(active, ctx.defs, state.values, [selected]);
+  const plan = planAct(active, ctx.defs, state.values, [selected], null);
   if (!plan.ok) return { error: { ...plan, at } };
   const introduced =
     (entry.c === "Sheet" && state.sheet !== ctx.status.openSheet) ||
@@ -65,11 +67,18 @@ function prepareStep(
     },
   };
 }
+function isDraw({ entry, defs, selected }: ActionContext) {
+  const target = selected.address.split("/").slice(1).join("/") || "root";
+  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
+  return role === "draw" || role === "redraw";
+}
+
 function planSteps(
   list: ActStep[],
   ctx: ControllerContext,
   media: MediaRuntime,
-): ActionResult & { performed: ActStep[] } {
+  random?: RandomSource | null,
+): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: ctx.valuesOf(),
     sheet: ctx.status.openSheet,
@@ -78,6 +87,7 @@ function planSteps(
   };
   const effects: (() => void)[] = [];
   const performed: ActStep[] = [];
+  let drew = false;
   for (const [at, step] of list.entries()) {
     const action = { ...step, address: ctx.relative(step.address) };
     const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
@@ -87,14 +97,25 @@ function planSteps(
       const pending = !confirmed && confirmationFor(before, selected, prepared.context);
       if (pending) return pending;
       performed.push(selected);
+      if (isDraw(prepared.context)) {
+        drew = true;
+        if (random !== null) {
+          const { active, selected: planned } = prepared.context;
+          const plan = planAct(active, ctx.defs, before.values, [planned], random);
+          if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
+          prepared.state.values = plan.values;
+          prepared.state.changes = [...before.changes, ...plan.changed];
+        }
+      }
       const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
+      const links = prepared.context.links.map((link) => ({
+        ...link,
+        address: `${ctx.screen.id}/${address}`,
+      }));
       return handlerFor(selected.action)(
         prepared.state,
         { ...selected, address },
-        {
-          ...prepared.context,
-          links: prepared.context.links.map((link) => ({ ...link, address: `${ctx.screen.id}/${address}` })),
-        },
+        { ...prepared.context, links },
       );
     };
     let result: ActionResult;
@@ -107,7 +128,7 @@ function planSteps(
     state = result.state;
     effects.push(...result.effects);
   }
-  return { state, effects, performed };
+  return { state, effects, performed, drew };
 }
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
@@ -116,7 +137,11 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
-    const result = planSteps(list, ctx, media);
+    const preview = opts.dryRun || list.length > 1 ? planSteps(list, ctx, media, null) : undefined;
+    const result =
+      preview && (opts.dryRun || preview.error || !preview.drew)
+        ? preview
+        : planSteps(list, ctx, media, ctx.options.random);
     if (result.error) return result.error;
     const { state, effects } = result;
     const reply = {

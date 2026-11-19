@@ -3,6 +3,7 @@ import {
   resolveDefinition,
   type ActStep,
   type Definition,
+  type RandomSource,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -28,6 +29,7 @@ export type ControllerOptions = {
   media?: MediaAdapter | undefined;
   store?: InteractionStore | undefined;
   now?: (() => number) | undefined;
+  random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: ((text: string, address: string) => void) | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;

@@ -7,6 +7,11 @@ export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
 
+type Draw =
+  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
+  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
+  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
+
 export type Meta = {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
@@ -27,6 +32,10 @@ export type Meta = {
   confirmParts?: readonly string[];
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
+  /** Part/action pairs from `actions` that are also available in `empty`. */
+  emptyActions?: readonly `${string}.${ActionName}`[];
+  /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
+  draw?: Draw;
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.

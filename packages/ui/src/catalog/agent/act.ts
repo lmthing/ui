@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { nestedAt } from "./selection";
+import { deviceRandom, drawKey, drawRole, holdIndex, performDraw, type RandomSource } from "./draw";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -33,12 +34,47 @@ function affordancesOfScreen(
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
-  return screen.components.flatMap(({ id, c, state: _state, ...input }) => {
+  return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
     const props = liveProps(def.meta, stampItemIds(def.meta, def.props.parse(input) as Values), id, local);
-    return affordancesOf(def.meta, props, id, local);
+    const liveState = props.state as typeof state;
+    return affordancesOf(
+      def.meta,
+      props,
+      id,
+      local,
+      liveState ?? (def.meta.draw || def.meta.emptyActions ? state : undefined),
+    );
   });
+}
+
+function drawStep(screen: ScreenLike, defs: Record<string, Definition>, address: string, action: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!def?.meta.draw) return;
+  const target = parts.join("/") || "root";
+  const role = drawRole(def.meta, target, action);
+  return role ? { def, entry: entry!, target, role } : undefined;
+}
+
+function stageDraw(
+  screen: string,
+  { def, entry, target, role }: NonNullable<ReturnType<typeof drawStep>>,
+  next: Values,
+  step: ActStep,
+  random: RandomSource | null,
+): string {
+  const { id, c: _c, state: _state, ...raw } = entry;
+  const get = (part: string) => next[`${screen}/${id}/${part}`];
+  const props = def.props.parse(raw) as Values;
+  const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
+  next[`${screen}/${id}/${drawKey}`] = outcome;
+  if (!random && (role === "draw" || role === "redraw")) return "";
+  const value =
+    role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
+  return ` = ${JSON.stringify(value)}`;
 }
 
 function initialOn(found: Affordance) {
@@ -70,14 +106,19 @@ function selectStep(screen: ScreenLike, defs: Record<string, Definition>, step: 
 /**
  * Plans a list of steps against a screen without changing anything: every step must name an offered
  * action with a valid value. All or nothing: the first bad step returns its index and no values, so
- * a caller commits `values` only when `ok` (atomic batches; a dry run is simply not committing).
+ * a caller commits `values` only when `ok`. Pass `null` to validate draws without using entropy.
  */
 export function planAct(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   values: Values,
   steps: ActStep[],
+  random: RandomSource | null = deviceRandom,
 ): ActResult {
+  if (random && steps.length > 1) {
+    const preview = planAct(screen, defs, values, steps, null);
+    if (!preview.ok) return preview;
+  }
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];
@@ -95,6 +136,11 @@ export function planAct(
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
     const error = validateActionValue(step.action, step.value, nestedSpec(screen, defs, address));
     if (error) return { ok: false, at, ...error };
+    const draw = drawStep(screen, defs, address, step.action);
+    if (draw) {
+      changed.push(`${address} ${step.action}${stageDraw(screen.id, draw, next, step, random)}`);
+      continue;
+    }
     const key = `${screen.id}/${address}`;
     if (step.action === "toggle" || step.action === "check") {
       const now = (next[key] as boolean | undefined) ?? initialOn(found);

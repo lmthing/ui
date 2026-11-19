@@ -1,5 +1,5 @@
 import { wordsFor, affordancesOf, liveProps, stampItemIds, readScreen } from "../../../catalog";
-import type { ActStep } from "../../../catalog";
+import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import type { ControllerContext } from "./context";
@@ -29,18 +29,21 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
   const entry = ctx
     .liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet))
     .components.find((item) => item.id === id);
-  if (!entry || (entry.state && entry.state !== "filled") || !ctx.defs[entry.c]) return [];
+  const def = entry && ctx.defs[entry.c];
+  if (!entry || !def) return [];
+  if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length) return [];
   try {
     const localValues = Object.fromEntries(
       Object.entries(ctx.valuesOf()).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
-    const props = liveProps(
-      ctx.defs[entry.c]!.meta,
-      stampItemIds(ctx.defs[entry.c]!.meta, ctx.inputOf(entry)),
+    const props = liveProps(def.meta, stampItemIds(def.meta, ctx.inputOf(entry)), id, localValues);
+    return affordancesOf(
+      def.meta,
+      props,
       id,
       localValues,
-    );
-    return affordancesOf(ctx.defs[entry.c]!.meta, props, id, localValues)
+      (props.state as StateName | undefined) ?? entry.state,
+    )
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {

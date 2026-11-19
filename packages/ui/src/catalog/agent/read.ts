@@ -9,6 +9,7 @@ import { affordancesOf, formatAffordance, type Affordance } from "./affordances"
 import { projectSelection, projectNested } from "./selection";
 import { projectAdjustments, projectClocks } from "./clocks";
 import type { Meta } from "../meta";
+import { drawState, drawStatus, projectDraw, type DrawState } from "./draw";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -79,9 +80,26 @@ function withValues(
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
   const reading = projectNested(meta, projectSelection(meta, props, get), get);
-  return values[`${instance}/$runtime`]
-    ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
-    : reading;
+  return projectDraw(
+    meta,
+    values[`${instance}/$runtime`]
+      ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
+      : reading,
+    get,
+  );
+}
+
+function readDraw(state: DrawState | undefined): string[] {
+  if (state?.kind === "pick")
+    return [
+      ...(state.index === undefined ? [] : [`index=${state.index}`]),
+      `used=${JSON.stringify(state.used)}`,
+      `remaining=${state.remaining}`,
+    ];
+  if (state?.kind === "faces" && state.faces.length)
+    return [`faces=${JSON.stringify(state.faces)}`, `held=${JSON.stringify(state.held)}`];
+  if (state?.kind === "partition" && state.teams.length) return [`teams=${JSON.stringify(state.teams)}`];
+  return [];
 }
 
 /**
@@ -99,19 +117,23 @@ export function readComponent(
 ): string[] {
   const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
   const props = liveProps(def.meta, validated, instance, values);
-  state = (props.state as StateName | undefined) ?? state;
+  const get = (part: string) => values[`${instance}/${part}`];
+  state = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
-  if (state !== "filled") return [head];
+  const draw = drawState(def.meta, props, get);
   const affordances = withValues(
-    affordancesOf(def.meta, props, instance, values),
+    affordancesOf(def.meta, props, instance, values, state),
     values,
     def.meta.tier,
     def.meta.partTiers,
   );
+  if (state !== "filled" && !(draw && state === "success"))
+    return [[head, ...readDraw(draw), ...affordances.map(formatAffordance)].join(" ")];
   const key = def.meta.items?.key;
   const own = [
     ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),
+    ...readDraw(draw),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,
