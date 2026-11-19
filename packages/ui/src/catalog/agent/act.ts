@@ -3,7 +3,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { validateActionValue } from "./validate-value";
+import { resolveKeypadValue, validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { nestedAt } from "./selection";
 
@@ -23,6 +23,36 @@ function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, addres
   if (!def?.meta.items?.nested) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
+}
+
+/** `pad` is the numeric type part. Its owner provides the initial value and optional bounds. */
+function keypadInput(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, item, part] = address.split("/");
+  const entry = screen.components.find((entry) => entry.id === id)!;
+  const { id: _id, c, state: _state, ...raw } = entry;
+  const def = defs[c]!;
+  const input = stampItemIds(def.meta, def.props.parse(raw) as Values);
+  if (!part) return input;
+  const rows = input[def.meta.items?.key ?? ""];
+  return (rows as Values[] | undefined)?.find((row) => row.id === item) ?? {};
+}
+
+function actionValue(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  step: ActStep,
+  found: Affordance,
+  current: unknown,
+) {
+  if (step.action === "type" && found.part === "pad") {
+    const input = keypadInput(screen, defs, found.address);
+    return resolveKeypadValue(step.value, current ?? input.value, input);
+  }
+  return (
+    validateActionValue(step.action, step.value, nestedSpec(screen, defs, found.address)) ?? {
+      value: step.value,
+    }
+  );
 }
 
 function affordancesOfScreen(
@@ -93,19 +123,19 @@ export function planAct(
       return { ok: false, code: "not_actionable", at, hint };
     }
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const error = validateActionValue(step.action, step.value, nestedSpec(screen, defs, address));
-    if (error) return { ok: false, at, ...error };
     const key = `${screen.id}/${address}`;
+    const result = actionValue(screen, defs, step, found, next[key]);
+    if ("code" in result) return { ok: false, at, ...result };
     if (step.action === "toggle" || step.action === "check") {
       const now = (next[key] as boolean | undefined) ?? initialOn(found);
-      next[key] = (step.value as boolean | undefined) ?? !now;
+      next[key] = (result.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
       next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
     } else if (step.action === "press" || step.action === "select") {
       if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
-      if (step.action === "select") next[key] = step.value;
+      if (step.action === "select") next[key] = result.value;
     } else {
-      next[key] = step.value;
+      next[key] = result.value;
     }
     Object.assign(next, selected.changes);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);

@@ -36,6 +36,7 @@ describe("KitNumberPad", () => {
   it("draws addressed values, three equal columns and unavailable keys", () => {
     const html = render(input);
     expect(elementAt(html, "home/c1/value").attributes).not.toContain('role="button"');
+    expect(html).not.toContain('role="textbox"');
     expect(html).toContain("12.5");
     for (const key of keys) {
       const node = elementAt(html, `home/c1/${key.id}/root`);
@@ -47,6 +48,28 @@ describe("KitNumberPad", () => {
     }
     expect(elementAt(html, "home/c1/r2/root").children[0]!.attributes).toContain('aria-disabled="true"');
   });
+  it.each([undefined, "r4"])("mounts a separate value and textbox at target item %s", (item) => {
+    const target = item ? { item, part: "pad" } : { part: "pad" };
+    const html = render({ ...input, part: "pad", displayPart: "value", target });
+    const destination = item ? `home/c1/${item}/pad` : "home/c1/pad";
+    const display = elementAt(html, "home/c1/value");
+    const keypad = elementAt(html, destination);
+    expect(html).toContain(`${display.attributes}12.5`);
+    expect(display.attributes).not.toContain('role="textbox"');
+    expect(keypad.attributes).toContain('role="textbox"');
+    expect(keypad.attributes).toContain('aria-label="Value"');
+    expect(keypad.children).toHaveLength(keys.length);
+    const addresses = [...html.matchAll(/data-testid="([^"]+)"/g)].map((match) => match[1]);
+    expect(new Set(addresses).size).toBe(addresses.length);
+    const loading = render({ ...input, part: "pad", displayPart: "value", target, loading: true });
+    expect(loading).not.toContain('role="textbox"');
+    expect(loading).not.toContain(`data-testid="${destination}"`);
+  });
+  it("keeps one value address in legacy mode even if the wrapper uses the same part", () => {
+    const html = render({ ...input, part: "value" });
+    expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
+    expect(html).not.toContain('role="textbox"');
+  });
   it.each(["", "12.5"])("keeps %s value geometry and removes loading key actions", (value) => {
     const filled = render({ ...input, value });
     const loading = render({ ...input, value, loading: true });
@@ -57,30 +80,50 @@ describe("KitNumberPad", () => {
     expect(loading).toContain('aria-busy="true"');
     expect(render({ ...input, keys: [], value: "" })).toContain('data-testid="home/c1/value"');
   });
-  it("dispatches caller key values to the supplied item target on press and keyboard", async () => {
+});
+
+describe("KitNumberPad dispatch", () => {
+  it.each([false, true])("dispatches the caller's keys on press and keyboard (split: %s)", async (split) => {
     const act = vi.fn();
     const controller = { act } as unknown as ScreenController;
     const handlers: {
+      role?: string;
       onPress?: () => void;
       onKeyDown?: (event: { key: string; preventDefault(): void }) => void;
     }[] = [];
+    let textKey: (typeof handlers)[number]["onKeyDown"];
     const { jsxDEV } = await vi.importActual<typeof runtime>("react/jsx-dev-runtime");
     const spy = vi.spyOn(runtime, "jsxDEV").mockImplementation((...args) => {
       const props = args[1] as (typeof handlers)[number];
       if (props.onPress) handlers.push(props);
+      if (props.role === "textbox") textKey = props.onKeyDown;
       return jsxDEV(...args);
     });
+    const digit = split ? { append: "1" } : "1";
+    const erase = split ? { backspace: true as const } : "backspace";
     try {
-      render({ ...input, target: { item: "r4", part: "field" } }, controller);
+      render(
+        {
+          ...input,
+          ...(split ? { displayPart: "value" } : {}),
+          keys: [{ ...keys[0]!, value: digit }, keys[1]!, { ...keys[2]!, value: erase }],
+          target: { item: "r4", part: split ? "pad" : "field" },
+        },
+        controller,
+      );
     } finally {
       spy.mockRestore();
     }
     expect(handlers).toHaveLength(2);
     handlers[0]!.onPress!();
     handlers[1]!.onKeyDown!({ key: "Enter", preventDefault: vi.fn() });
+    textKey?.({ key: "1", preventDefault: vi.fn() });
+    textKey?.({ key: ".", preventDefault: vi.fn() });
+    const address = `home/c1/r4/${split ? "pad" : "field"}`;
     expect(act.mock.calls).toEqual([
-      [{ address: "home/c1/r4/field", action: "type", value: "1" }],
-      [{ address: "home/c1/r4/field", action: "type", value: "backspace" }],
+      [{ address, action: "type", value: digit }],
+      [{ address, action: "type", value: erase }],
+      ...(split ? [[{ address, action: "type", value: digit }]] : []),
     ]);
   });
 });
