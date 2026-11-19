@@ -1,7 +1,7 @@
 export const en = {
   bills: {
     month: "Monthly estimate",
-    year: "Yearly subscription total",
+    year: "Yearly total",
     separator: "\u00a0· ",
     due: (date: string) => `Due ${date}`,
     overdue: (name: string) => `${name}, overdue`,

@@ -46,7 +46,7 @@ describe("Bills copy", () => {
       amount: "$80.75",
     });
     expect(billTotalLine({ bills, style: "subscriptions" }, today)).toEqual({
-      label: "Yearly subscription total",
+      label: "Yearly total",
       amount: "$816",
     });
   });

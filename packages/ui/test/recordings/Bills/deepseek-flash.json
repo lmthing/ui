@@ -8,6 +8,15 @@
       "{\"address\": \"b1/r1/paid check\", \"action\": \"check\"}"
     ]
   },
+  "293ce2daaa51e782": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 Bills Ledge supplies — $24.50 — Monthly · Due 24 Nov 2026 — Grow-light power — $18 — Monthly · Due 28 Nov 2026 — Monthly estimate — $42.50\n  r1 \"Ledge supplies\" [b1/r1/paid check:todo] [b1/r1 press]\n  r2 \"Grow-light power\" [b1/r2/paid check:done] [b1/r2 press]\n\nTask: Check off Ledge supplies as paid, without opening the bill\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"b1/r1/paid\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"b1/r1/paid\", \"action\": \"check\"}",
+      "{\"address\": \"b1/r1/paid\", \"action\": \"check\"}",
+      "{\"address\": \"b1/r1/paid\", \"action\": \"check\"}"
+    ]
+  },
   "4a6ca4f71068b63a": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 Bills Ledge supplies delivery — $24.50 — Due 24 Nov 2026 — Monthly — Grow-light electricity — $18 — Due 28 Nov 2026 — Monthly — Monthly estimate — $42.50\n  r1 \"Ledge supplies delivery\" [b1/r1/paid check:todo] [b1/r1 press]\n  r2 \"Grow-light electricity\" [b1/r2/paid check:done] [b1/r2 press]\n\nTask: Tick the paid checkbox for Ledge supplies delivery\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"b1/r1/paid check\", \"action\": \"check\"}",
@@ -15,6 +24,259 @@
       "{\"address\": \"b1/r1/paid check\", \"action\": \"check\"}",
       "{\"address\": \"b1/r1/paid check\", \"action\": \"check\"}",
       "{\"address\": \"b1/r1/paid check\", \"action\": \"todo\"}"
+    ]
+  },
+  "5af694771ca7ebc9": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nBills: Keep on top of upcoming bills and recurring subscriptions.\nprops: { bills: [1..6 { name: text≤24, amount: num 0..999999999.99, due?: date YYYY-MM-DD, repeat: never|weekly|monthly|yearly, paid: boolean, icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }], style?: due|subscriptions=\"due\" }\nRule: Write stored paid flags and numeric amounts, never totals, overdue flags or currency. due is optional; repeat is never, weekly, monthly or yearly.\nexample: {\"c\":\"Bills\",\"style\":\"due\",\"bills\":[{\"name\":\"Ledge supplies\",\"amount\":24.5,\"due\":\"2026-11-24\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"leaf\"},{\"name\":\"Grow-light power\",\"amount\":18,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}]}\n\nBrief: Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bills",
+              "enum": [
+                "Bills"
+              ]
+            },
+            "bills": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "amount": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 999999999.99
+                  },
+                  "due": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "repeat": {
+                    "type": "string",
+                    "enum": [
+                      "never",
+                      "weekly",
+                      "monthly",
+                      "yearly"
+                    ]
+                  },
+                  "paid": {
+                    "type": "boolean"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "enum": [
+                      "dot",
+                      "leaf",
+                      "drop",
+                      "dog",
+                      "cat",
+                      "calendar",
+                      "calendar_days",
+                      "clock",
+                      "check",
+                      "chevron_right",
+                      "plus",
+                      "minus",
+                      "close",
+                      "search",
+                      "settings",
+                      "bell",
+                      "bell_off",
+                      "heart",
+                      "star",
+                      "bookmark",
+                      "share",
+                      "send",
+                      "message",
+                      "mail",
+                      "phone",
+                      "camera",
+                      "image",
+                      "video",
+                      "mic",
+                      "music",
+                      "play",
+                      "pause",
+                      "square",
+                      "undo",
+                      "timer",
+                      "alarm_clock",
+                      "sun",
+                      "moon",
+                      "cloud",
+                      "cloud_rain",
+                      "thermometer",
+                      "wind",
+                      "flame",
+                      "zap",
+                      "battery",
+                      "wifi",
+                      "pin",
+                      "map",
+                      "navigation",
+                      "compass",
+                      "home",
+                      "building",
+                      "store",
+                      "shopping_cart",
+                      "shopping_bag",
+                      "tag",
+                      "gift",
+                      "credit_card",
+                      "wallet",
+                      "banknote",
+                      "piggy_bank",
+                      "receipt",
+                      "trending_up",
+                      "trending_down",
+                      "bar_chart",
+                      "pie_chart",
+                      "activity",
+                      "target",
+                      "trophy",
+                      "medal",
+                      "award",
+                      "flag",
+                      "user",
+                      "users",
+                      "user_plus",
+                      "baby",
+                      "smile",
+                      "dumbbell",
+                      "bike",
+                      "footprints",
+                      "heart_pulse",
+                      "pill",
+                      "stethoscope",
+                      "apple",
+                      "coffee",
+                      "utensils",
+                      "wine",
+                      "pizza",
+                      "carrot",
+                      "sprout",
+                      "flower",
+                      "tree",
+                      "mountain",
+                      "waves",
+                      "car",
+                      "bus",
+                      "plane",
+                      "train",
+                      "briefcase",
+                      "graduation_cap",
+                      "book_open",
+                      "book",
+                      "pencil",
+                      "file_text",
+                      "clipboard",
+                      "clipboard_list",
+                      "checklist",
+                      "lock",
+                      "unlock",
+                      "key",
+                      "shield",
+                      "eye",
+                      "link",
+                      "paperclip",
+                      "download",
+                      "upload",
+                      "trash",
+                      "edit",
+                      "filter",
+                      "sliders",
+                      "info",
+                      "alert",
+                      "help",
+                      "sparkles",
+                      "lightbulb",
+                      "palette",
+                      "scissors",
+                      "wrench",
+                      "hammer",
+                      "package",
+                      "truck",
+                      "recycle",
+                      "globe",
+                      "languages",
+                      "gamepad",
+                      "ticket",
+                      "paw",
+                      "shirt",
+                      "bed",
+                      "bath",
+                      "sofa",
+                      "lamp",
+                      "chevron_left",
+                      "arrow_left",
+                      "more",
+                      "external_link",
+                      "quote",
+                      "circle_check"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "amount",
+                  "due",
+                  "repeat",
+                  "paid",
+                  "icon"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "due",
+                    "subscriptions"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "bills",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}] ,\"style\":\"due\"}",
+    "replies": [
+      "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}] ,\"style\":\"due\"}",
+      "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}],\"style\":\"due\"}",
+      "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}] ,\"style\":\"due\"}"
     ]
   },
   "692ccf6ea67c0989": {

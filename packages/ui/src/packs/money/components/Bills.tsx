@@ -30,7 +30,6 @@ import {
 } from "../../../kit";
 import { billLines, billsReading, billTotalLine, localBillDate, orderedBills } from "../copy";
 import { moneyWordsFor } from "../lang";
-
 // Core first: Checklist/plain cannot show recurring payment amounts, due dates and computed cost totals.
 export const meta = {
   id: "Bills",
@@ -88,8 +87,8 @@ export const examples = [
   {
     style: "due",
     bills: [
-      { name: "Ledge supplies delivery", amount: 24.5, due: "2026-11-24", repeat: "monthly", paid: false, icon: "leaf" },
-      { name: "Grow-light electricity", amount: 18, due: "2026-11-28", repeat: "monthly", paid: true, icon: "zap" },
+      { name: "Ledge supplies", amount: 24.5, due: "2026-11-24", repeat: "monthly", paid: false, icon: "leaf" },
+      { name: "Grow-light power", amount: 18, due: "2026-11-28", repeat: "monthly", paid: true, icon: "zap" },
     ],
   },
   {
@@ -100,7 +99,6 @@ export const examples = [
     ],
   },
 ] satisfies z.input<typeof props>[];
-
 const { choose, write, read } = probesFor("Bills");
 export const probes = [
   choose(
@@ -113,7 +111,7 @@ export const probes = [
   write(
     "Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
   ),
-  read("Check off Ledge supplies delivery as paid, without opening the bill", {
+  read("Check off Ledge supplies as paid, without opening the bill", {
     address: "b1/r1/paid",
     action: "check",
   }),
@@ -145,27 +143,27 @@ function BillRow({ bill, today }: { bill: Bill; today: string }) {
         inline
         leading={<KitIcon part="icon" name={bill.icon} tone="muted" />}
       >
-        <KitText role="body" part="name">
-          {bill.name}
-        </KitText>
         <KitGrid fitLast>
-          <KitText role="caption" tone="muted" part={null}>
-            {repeat && (
-              <KitText role="caption" tone="muted" part="repeat">
-                {repeat.replace(/\s/g, "\u00a0")}
-              </KitText>
-            )}
-            {shortDue && repeat && words.bills.separator}
-            {shortDue && (
-              <KitText role="caption" tone={overdue ? "bad" : paid ? "muted" : "text"} part="due">
-                {shortDue.replace(/\s/g, "\u00a0")}
-              </KitText>
-            )}
+          <KitText role="label" part="name">
+            {bill.name}
           </KitText>
           <KitText role="number" numberScale="compact" align="end" tabular part="amount">
             {amount}
           </KitText>
         </KitGrid>
+        <KitText role="caption" tone="muted" part={null}>
+          {repeat && (
+            <KitText role="caption" tone="muted" part="repeat">
+              {repeat}
+            </KitText>
+          )}
+          {shortDue && repeat && words.bills.separator}
+          {shortDue && (
+            <KitText role="caption" tone={overdue ? "bad" : paid ? "muted" : "text"} part="due">
+              {shortDue.replace(/\s/g, "\u00a0")}
+            </KitText>
+          )}
+        </KitText>
       </KitRow>
     </KitRow>
   );
@@ -186,12 +184,14 @@ export function Bills({ bills, style }: Props<typeof props, typeof meta>) {
             <BillRow key={bill.id} bill={bill} today={today} />
           ))}
           <KitContent group="response">
-            <KitText role="caption" tone="muted" part={null}>
-              {total.label}
-            </KitText>
-            <KitText role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">
-              {total.amount}
-            </KitText>
+            <KitGrid fitLast>
+              <KitText role="caption" tone="muted" part={null}>
+                {total.label}
+              </KitText>
+              <KitText role={style === "due" ? "heading" : "number"} tabular part="total">
+                {total.amount}
+              </KitText>
+            </KitGrid>
           </KitContent>
         </>
       )}
