@@ -1,4 +1,7 @@
 export { KitCard } from "./surface";
+export { KitNumberPad } from "./keys";
+export { KitSetRow } from "./composition";
+export { KitJar } from "./data";
 export { KitDiceFace, KitWheel, KitOrbit } from "./game";
 export { KitOverlay } from "./surface";
 export { KitDay, KitDayMark } from "./time";
@@ -28,7 +31,7 @@ export { KitSwipeStack } from "./media";
 export { KitAvatarStack } from "./media";
 export { KitBubble } from "./media";
 export { KitHours, type HourBlock } from "./time";
-export { KitSlider } from "./input";
+export { KitSlider } from "./slider";
 export { KitInput } from "./input";
 export { KitStrip } from "./surface";
 export { KitScroll } from "./surface";
