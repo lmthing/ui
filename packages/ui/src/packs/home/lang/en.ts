@@ -65,6 +65,8 @@ export const en = {
   },
   rewardPoints: (value: string, unit: string) => `${value} ${unit}`,
   rewardEntry: (name: string, amount: string) => `${name}: ${amount}`,
+  rewardNeeds: (amount?: string) => (amount ? `Needs ${amount} more` : "Needs more"),
+  rewardPrizeStatus: (line: string, reason: string) => `${line} · ${reason}`,
   turnLabels: { next: "Done, next", skip: "Skip" },
 };
 

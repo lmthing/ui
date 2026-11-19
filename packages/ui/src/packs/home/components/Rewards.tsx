@@ -1,15 +1,6 @@
 import { z } from "zod";
-import {
-  icon,
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-} from "../../../catalog";
+import { icon, itemsOf, photo, screenId, text } from "../../../catalog";
+import { placeholderTitle, probesFor, thingOf, titleOf } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import {
   KitAction,
@@ -26,7 +17,7 @@ import {
   usePartContext,
   useWords,
 } from "../../../kit";
-import { rewardAmount, rewardJarRatio, rewardReading } from "../copy";
+import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
 
 // Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
@@ -45,7 +36,7 @@ export const meta = {
   realPath: "A parent keeps points and prize claims on the device.",
   items: {
     key: "entries",
-    parts: ["root", "jar", "name", "photo", "points", "unit", "title", "cost", "icon", "claim"],
+    parts: ["root", "jar", "name", "photo", "points", "unit", "title", "cost", "icon", "claim", "reason"],
   },
   parts: ["root", "heading", "shelf", "message"],
   confirmParts: ["claim"],
@@ -127,19 +118,22 @@ export const probes = [
 type RewardsProps = Props<typeof props, typeof meta>;
 type Entry<K> = Extract<RewardsProps["entries"][number], { entryKind: K }>;
 
-type JarProps = { kid: Entry<"kid">; target: number; money: boolean; compact: boolean };
-function RewardJar({ kid, target, money, compact }: JarProps) {
+type Balance = ReturnType<typeof rewardAmount> & ReturnType<typeof rewardBalanceParts>;
+type JarProps = { kid: Entry<"kid">; target: number; balance: Balance; compact: boolean };
+function RewardJar({ kid, target, balance, compact }: JarProps) {
   const context = usePartContext();
-  const { lang, words } = useWords(homeWordsFor);
-  const { value, unit, label } = rewardAmount(kid.points, money, lang);
+  const { words } = useWords(homeWordsFor);
+  const { value, unit, label, major, minor } = balance;
   const portrait = kid.photo ? { photo: kid.photo } : { initials: Array.from(kid.name)[0] ?? "" };
   const numberScale = compact ? "compact" : "display";
+  const cents = <KitText key="fraction" role="body" part={null} children={minor} />;
+  const figure = compact || !minor ? value : [major, cents];
   return (
     <PartScope {...context} item={kid.id}>
       <KitCard style="plain" part="root" goto={kid.goto} label={words.rewardEntry(kid.name, label)}>
         <KitJar part="jar" ratio={rewardJarRatio(kid.points, target)} label={label}>
           <KitPhoto {...portrait} shape="avatar" part="photo" label={kid.name} />
-          <KitText role="number" {...{ numberScale }} align="center" part="points" children={value} />
+          <KitText role="number" {...{ numberScale }} align="center" part="points" children={figure} />
           {unit && <KitText role="label" tone="muted" align="center" part="unit" children={unit} />}
         </KitJar>
         <KitText role="body" align="center" part="name" lines={1} children={kid.name} />
@@ -148,23 +142,23 @@ function RewardJar({ kid, target, money, compact }: JarProps) {
   );
 }
 
-function RewardPrize({ prize, money }: { prize: Entry<"prize">; money: boolean }) {
+function RewardPrize({ prize, money, best }: { prize: Entry<"prize">; money: boolean; best: number }) {
   const context = usePartContext();
   const { lang, words } = useWords(homeWordsFor);
   const cost = rewardAmount(prize.cost, money, lang).label;
   const claim = { label: words.rewardLabels.claim, disabled: !prize.claimable };
+  const reason = rewardShortfall(prize.cost, best, money, lang);
+  const lead = <KitIcon name={prize.icon} part="icon" scale="sm" tone="muted" />;
   return (
     <PartScope {...context} item={prize.id}>
       <KitCard part="root" style="plain">
         <KitGrid fitLast>
-          <KitContent
-            lead={<KitIcon name={prize.icon} part="icon" scale="sm" tone="muted" />}
-            lineRole="body"
-          >
+          <KitContent lead={lead} lineRole="body">
             <KitText role="label" part="title" children={prize.title} />
             <KitText role="label" tone="muted" part="cost" children={cost} />
+            {reason && <KitText role="label" tone="muted" part="reason" children={reason} />}
           </KitContent>
-          <KitAction part="claim" kind="secondary" {...claim} full />
+          <KitAction part="claim" kind={claim.disabled ? "quiet" : "secondary"} {...claim} full />
         </KitGrid>
       </KitCard>
     </PartScope>
@@ -183,9 +177,16 @@ export function Rewards({ entries, money }: RewardsProps) {
   const prizes = entries.filter((entry) => entry.entryKind === "prize");
   const target = Math.max(0, ...prizes.map(({ cost }) => cost));
   const kids = entries.filter((entry) => entry.entryKind === "kid");
-  const compact = kids.some(({ points }) => rewardAmount(points, money, lang).value.length > 4);
-  const jars = kids.map((kid) => <RewardJar key={kid.id} {...{ kid, target, money, compact }} />);
-  const shelf = prizes.map((prize) => <RewardPrize key={prize.id} {...{ prize, money }} />);
+  const balances = kids.map((kid) => {
+    const amount = rewardAmount(kid.points, money, lang);
+    return { kid, balance: { ...amount, ...rewardBalanceParts(amount.value, money, lang) } };
+  });
+  const compact = balances.some(({ balance }) => balance.compact);
+  const best = Math.max(...kids.map(({ points }) => points));
+  const jars = balances.map(({ kid, balance }) => (
+    <RewardJar key={kid.id} {...{ kid, target, balance, compact }} />
+  ));
+  const shelf = prizes.map((prize) => <RewardPrize key={prize.id} {...{ prize, money, best }} />);
   return (
     <KitCard part="root" padded>
       <KitText role="body" tone="muted" part="heading" children={words.rewardLabels.heading} />

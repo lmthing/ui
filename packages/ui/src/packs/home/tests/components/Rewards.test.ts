@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { components, readComponent, type CastLike, type Props, type ThemeChoice } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Rewards;
 const points = examples[0]!;
 const money = examples[1]!;
@@ -118,33 +118,25 @@ describe("Rewards fallback", () => {
 describe("Rewards states and parts", () => {
   it("renders addressed jar links, prize details and the disabled claim", () => {
     const html = renderInstance("Rewards", points, "filled", theme);
-    for (const path of [
-      "root",
-      "heading",
-      "r1/root",
-      "r1/jar",
-      "r1/name",
-      "r1/photo",
-      "r1/points",
-      "r1/unit",
-      "r2/root",
-      "r2/title",
-      "r2/cost",
-      "r2/icon",
-      "r2/claim",
-      "r3/claim",
-    ]) {
+    const kidParts = ["root", "jar", "name", "photo", "points", "unit"].map((part) => `r1/${part}`);
+    const prizeParts = ["root", "title", "cost", "icon", "claim"].map((part) => `r2/${part}`);
+    for (const path of ["root", "heading", ...kidParts, ...prizeParts, "r3/reason"]) {
       expect(elementAt(html, `home/c1/${path}`)).toBeDefined();
     }
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('role="link"');
     expect(elementAt(html, "home/c1/r2/claim").attributes).toContain('role="button"');
     expect(elementAt(html, "home/c1/r2/claim").attributes).not.toContain('aria-disabled="true"');
     expect(elementAt(html, "home/c1/r3/claim").attributes).toContain('aria-disabled="true"');
+    expect(html).toContain("Needs 10 more");
+    expect(html).not.toContain("home/c1/r2/reason");
   });
   it("draws a portrait fallback and pocket money without a points unit", () => {
     const html = renderInstance("Rewards", money, "filled", theme, { lang: "de-DE" });
     expect(elementAt(html, "home/c1/r1/photo").attributes).toContain('aria-label="Leo"');
-    expect(html).toContain("8,50\u00a0$");
+    expect(elementAt(html, "home/c1/r1/jar").attributes).toContain('aria-label="8,50\u00a0$"');
+    expect(elementAt(html, "home/c1/r1/points").children).toHaveLength(1);
+    expect(styleAt(html, "home/c1/r1/points")).toContain("font-size:40px");
+    expect(styleAt(html, "home/c1/r2/points")).toContain("font-size:40px");
     expect(html).not.toContain("home/c1/r1/unit");
   });
   it("replaces jar links and claims with a success message", () => {
@@ -167,6 +159,7 @@ describe("Rewards read and act", () => {
     expect(read).toContain("r1 Mia: 20 points");
     expect(read).toContain("r2 Choose a new plant: 15 points");
     expect(read).toContain("r3 Paint a planter: 30 points");
+    expect(read).toContain("Needs 10 more");
     expect(read).toContain("[r1/r1 press→mia]");
     expect(read).toContain("[r1/r2/claim press]");
     expect(read).not.toContain("[r1/r3/claim");
