@@ -71,3 +71,52 @@ export function projectSelection(meta: Meta, props: Values, get: (part: string) 
   const value = get(`$${select.prop}`);
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
+
+/** Enumerate controls from real sub-items, never from a fixed maximum count. */
+export function nestedControls(meta: Meta, props: Values) {
+  const nested = meta.items?.nested;
+  if (!nested) return [];
+  return rowsOf(meta, props).flatMap((row, index) => {
+    const id = idOf(meta, row, index);
+    const children = row[nested.key];
+    if (!Array.isArray(children)) return [];
+    return (children as Values[]).flatMap((item, at) =>
+      Object.entries(nested.parts).map(([name, spec]) => ({
+        target: `${id}/${name}_${at + 1}`,
+        part: `${name}_${at + 1}`,
+        spec,
+        item,
+        enabled: !spec.when || item[nested.parts[spec.when]?.prop ?? ""] === true,
+      })),
+    );
+  });
+}
+
+export function nestedAt(meta: Meta, props: Values, target: string) {
+  return nestedControls(meta, props).find((control) => control.target === target);
+}
+
+/** Keep wire data immutable while replacing only declared sub-item props. */
+export function projectNested(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  const items = meta.items;
+  const nested = items?.nested;
+  if (!items || !nested || !Array.isArray(props[items.key])) return props;
+  return {
+    ...props,
+    [items.key]: rowsOf(meta, props).map((row, index) => {
+      if (!Array.isArray(row[nested.key])) return row;
+      const id = idOf(meta, row, index);
+      return {
+        ...row,
+        [nested.key]: (row[nested.key] as Values[]).map((item, at) => {
+          const next = { ...item };
+          for (const [part, spec] of Object.entries(nested.parts)) {
+            const value = get(`${id}/${part}_${at + 1}`);
+            if (value !== undefined) next[spec.prop] = value;
+          }
+          return next;
+        }),
+      };
+    }),
+  };
+}

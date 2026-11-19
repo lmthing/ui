@@ -1,4 +1,11 @@
-import { selectionAt, type ActStep, type Definition, type ScreenLike, type Values } from "../../catalog";
+import {
+  selectionAt,
+  nestedAt,
+  type ActStep,
+  type Definition,
+  type ScreenLike,
+  type Values,
+} from "../../catalog";
 import { valueKey } from "./live-screen";
 import { selectControl, fieldControl, valueControl, type ControlContext } from "./controls";
 type Entry = ScreenLike["components"][number];
@@ -49,6 +56,7 @@ export function controlStep(
   };
   const selection = selectControl(ctx);
   if (selection.error) return selection;
+  if (nestedAt(ctx.def.meta, input, target)) return { values: next, value: ctx.get(target) };
   const result = entry.c === "Field" ? fieldControl(ctx) : valueControl(ctx);
   if (result.error || result.send || result.requestPhoto) return result;
   let changed = "value" in result ? result.value : selection.value;
