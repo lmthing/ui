@@ -68,9 +68,9 @@ describe("GroceryList schema and boundaries", () => {
     const parsed = valueOf(maximum);
     expect(parsed.rows).toHaveLength(96);
     const html = render(maximum);
+    const addresses = new Set(html.match(/home\/g1\/r\d+\/\w+/g));
     for (const row of parsed.rows)
-      for (const part of meta.items.parts)
-        expect(() => elementAt(html, `home/g1/${row.id}/${part}`)).not.toThrow();
+      for (const part of meta.items.parts) expect(addresses.has(`home/g1/${row.id}/${part}`)).toBe(true);
     expect(affordancesOf(meta, parsed, "g1")).toHaveLength(97);
   });
 });

@@ -26,7 +26,6 @@ import {
   usePartContext,
 } from "../../../kit";
 import { groceryLabels, groceryRead } from "../copy";
-
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
@@ -82,11 +81,8 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     name: titleOf(item, 28, thing) ?? placeholderTitle(index),
     got: false,
   }));
-  return {
-    aisles: [
-      { label: placeholderDetail, items: items.length ? items : [{ name: placeholderTitle(0), got: false }] },
-    ],
-  };
+  const rows = items.length ? items : [{ name: placeholderTitle(0), got: false }];
+  return { aisles: [{ label: placeholderDetail, items: rows }] };
 }
 export const examples = [
   // Ledge: the plant keeper's household supper.
@@ -119,37 +115,34 @@ export const probes = [
   read("Mark tomatoes as bought", { address: "g1/r1/got", action: "check" }),
   read("Add another grocery item", { address: "g1/add", action: "type" }),
 ] satisfies Probe[];
-
 type GroceryRow = z.output<typeof props>["aisles"][number]["items"][number] & {
   id: string;
   aisleIndex: number;
 };
-
 function GroceryItem({ row }: { row: GroceryRow }) {
   return (
     <KitRow
       item={row.id}
       label={row.name}
       inline
-      leading={<KitCheck done={row.got} part="got" label={row.name} />}
+      trailing={<KitCheck done={row.got} part="got" label={row.name} />}
     >
-      <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
-        {row.name}
-      </KitText>
-      {row.qty && (
-        <KitText role="caption" tone="muted" lines={1} part="qty">
-          {row.qty}
+      <KitContent>
+        <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
+          {row.name}
         </KitText>
-      )}
-      {row.by && (
-        <KitText role="caption" tone="muted" lines={1} part="by">
-          {row.by}
-        </KitText>
-      )}
+        {(["qty", "by"] as const).map(
+          (part) =>
+            row[part] && (
+              <KitText key={part} role="caption" tone="muted" lines={1} part={part}>
+                {row[part]}
+              </KitText>
+            ),
+        )}
+      </KitContent>
     </KitRow>
   );
 }
-
 export function GroceryList(value: Props<typeof props, typeof meta>) {
   const { aisles, rows } = value as typeof value & { rows: GroceryRow[] };
   const state = useComponentState();
