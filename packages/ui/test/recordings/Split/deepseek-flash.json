@@ -127,6 +127,24 @@
       "{\"address\": \"s1/add\", \"action\": \"press\"}"
     ]
   },
+  "7c5416a0786005d4": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Split Settle up — r2: Record settlement for Sam — Sam pays Ana $18 — Record payment — Balances — Ana: +$18 — Gets back — Sam: -$18 — Owes — Expenses — Ledge potting mix · Paid by Ana · $48 — Terracotta pots · Paid by Sam · $12 — Add expense [s1/add press→entry !needs-people]\n  r1 \"Ana\" · photo:people\n  r2 \"Sam\" · photo:local:1 [s1/r2/settle press !needs-people]\n\nTask: Record Sam's settlement with Ana\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r2/settle\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/r2/settle\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r2/settle\", \"action\": \"press\"}",
+      "{\"address\": \"s1/r2/settle\", \"action\": \"press\"}"
+    ]
+  },
+  "aad7bd846b2a0509": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Split Settle up — r2: Record settlement for Sam — Sam pays Ana $18 — Record payment — Balances — Ana: +$18 — Gets back — Sam: -$18 — Owes — Expenses — Ledge potting mix · Paid by Ana · $48 — Terracotta pots · Paid by Sam · $12 — Add expense [s1/add press→entry !needs-people]\n  r1 \"Ana\" · photo:people\n  r2 \"Sam\" · photo:local:1 [s1/r2/settle press !needs-people]\n\nTask: Add a shared expense\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/add\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/add\", \"action\": \"press\"}",
+      "{\"address\": \"s1/add\", \"action\": \"press\"}",
+      "{\"address\": \"s1/add\", \"action\": \"press\"}"
+    ]
+  },
   "ad17793c2cd6cc0f": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Split Settle up — r2: Record settlement for Sam — Sam pays Ana $18 — Record — Balances — Ana: +$18 — Gets back — Sam: -$18 — Owes — Expenses — Ledge potting mix · Paid by Ana · $48 — Terracotta pots · Paid by Sam · $12 — Add expense [s1/add press→entry !needs-people]\n  r1 \"Ana\" · photo:people\n  r2 \"Sam\" · photo:local:1 [s1/r2/settle press !needs-people]\n\nTask: Add a shared expense\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"s1/add\", \"action\": \"press\"}",

@@ -81,6 +81,12 @@ export function splitCopy({ people, expenses }: Ledger, lang?: string) {
             {
               from,
               label: words.recordFor(name),
+              action:
+                paymentsForPerson.length === 1
+                  ? words.record
+                  : paymentsForPerson.length === 2
+                    ? words.recordBoth
+                    : words.recordAll,
               payments: paymentsForPerson.map(({ to, cents }) => ({
                 to,
                 route: words.pays(name, people[to]!.name),
@@ -105,10 +111,10 @@ export function splitReading(input: Ledger, lang?: string) {
     ...(settlements.length
       ? [
           words.settleUp,
-          ...settlements.flatMap(({ from, label, payments }) => [
+          ...settlements.flatMap(({ from, label, action, payments }) => [
             input.people[from]!.id ? `${input.people[from]!.id}: ${label}` : label,
             ...payments.map(({ route, amount }) => words.paymentLine(route, amount)),
-            words.record,
+            action,
           ]),
         ]
       : [expenses.length ? words.settled : words.empty]),
