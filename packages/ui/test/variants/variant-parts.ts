@@ -1,5 +1,5 @@
 import { variantAxes, type Meta } from "@lmthing/ui/catalog";
-import type { variantChoices } from "../scripts/variants";
+import type { variantChoices } from "../../scripts/variants";
 
 type Choice = ReturnType<typeof variantChoices>[number];
 const prefix = "home/c1/";

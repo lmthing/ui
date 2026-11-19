@@ -3,6 +3,7 @@ import { component, components, presets, radius, size, space, type ComponentName
 import { cellsOf, variantCount } from "./gallery-data";
 import { Preview } from "./Preview";
 import { VariantGrid } from "./VariantGrid";
+import { SharedVariants } from "./SharedVariants";
 
 const buttonProps = {
   minHeight: size.control.md,
@@ -101,7 +102,10 @@ export function ComponentCard({
       <ComponentTitle id={id} />
       {expanded && <ComponentActions id={id} expanded={expanded} onToggle={onToggle} />}
       {expanded ? (
-        <VariantGrid id={id} responsive />
+        <>
+          <SharedVariants id={id} />
+          <VariantGrid id={id} responsive />
+        </>
       ) : (
         <Preview cell={cellsOf(id)[0]!} preset={presets[0]!.id} mode="light" responsive label={false} />
       )}

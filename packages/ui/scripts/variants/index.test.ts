@@ -79,5 +79,7 @@ it("uses a valid authored example once and does not mutate the examples", () => 
 });
 
 it("omits a sheet when there are no alternatives", () => {
-  expect(variantPreviews(components.List)).toEqual([]);
+  expect(variantPreviews({ ...fixture, meta: { ...fixture.meta, variants: {}, items: undefined } })).toEqual(
+    [],
+  );
 });

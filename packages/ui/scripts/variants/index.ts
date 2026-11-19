@@ -1,17 +1,17 @@
-import { variantAxes, type Axis, type Definition, type Variants } from "@lmthing/ui/catalog";
+import type { Axis, Definition, Variants } from "@lmthing/ui/catalog";
 
 type Input = Record<string, unknown>;
 type Choice = { axis: Axis; value: string; item: boolean };
 type Pair = { baseline: Input; input: Input; itemIndex?: number };
 
-const axes = Object.keys(variantAxes) as Axis[];
-
 export const variantSheet = { width: 390, preset: "calm", mode: "light", accent: "moss" } as const;
+
+const entriesOf = (variants?: Variants) => Object.entries(variants ?? {}) as [Axis, readonly string[]][];
 
 export function variantChoices(meta: Definition["meta"], includeDefaults = false): Choice[] {
   const choicesOf = (declarations: Variants | undefined, item: boolean) =>
-    axes.flatMap((axis) =>
-      (declarations?.[axis] ?? []).slice(includeDefaults ? 0 : 1).map((value) => ({ axis, value, item })),
+    entriesOf(declarations).flatMap(([axis, values]) =>
+      values.slice(includeDefaults ? 0 : 1).map((value) => ({ axis, value, item })),
     );
   return [...choicesOf(meta.variants, false), ...choicesOf(meta.items?.variants, true)];
 }
@@ -19,7 +19,7 @@ export function variantChoices(meta: Definition["meta"], includeDefaults = false
 function withDefaults(input: Input, variants?: Variants) {
   return {
     ...input,
-    ...Object.fromEntries(axes.flatMap((axis) => (variants?.[axis] ? [[axis, variants[axis][0]]] : []))),
+    ...Object.fromEntries(entriesOf(variants).map(([axis, values]) => [axis, values[0]])),
   };
 }
 

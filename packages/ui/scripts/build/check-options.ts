@@ -67,7 +67,7 @@ export function relatedIncludes(ids: readonly string[], packs: readonly string[]
       `test/**/${id}*.test.{ts,tsx}`,
     ]),
     ...packs.map((pack) => `src/packs/${pack}/tests/**/[a-z]*.test.{ts,tsx}`),
-    "test/{conformance,variant-conformance,probes,archetypes,reading,nested,selection}.test.{ts,tsx}",
+    "test/{conformance,probes,archetypes,reading,nested,selection,variants/conformance}.test.{ts,tsx}",
   ];
 }
 

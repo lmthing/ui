@@ -1,9 +1,9 @@
 import { expect, it } from "vitest";
 import { components, readComponent, stampItemIds, type Definition } from "@lmthing/ui/catalog";
 import { renderers } from "@lmthing/ui/kit";
-import { selectedIds } from "../scripts/build";
-import { variantChoices, variantLabel, variantPairs, variantSheet } from "../scripts/variants";
-import { renderInstance } from "./render";
+import { selectedIds } from "../../scripts/build";
+import { variantChoices, variantLabel, variantPairs, variantSheet } from "../../scripts/variants";
+import { renderInstance } from "../render";
 import { renderedAddresses, variantPartIssues } from "./variant-parts";
 import { peekHiddenItems, variantPeekIssues } from "./variant-peek";
 
