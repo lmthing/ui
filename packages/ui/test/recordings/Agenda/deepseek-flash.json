@@ -112,8 +112,8 @@
     "reply": "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]}],\"goto\":\"add_event\"}",
     "replies": [
       "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]}],\"goto\":\"add_event\"}",
-      "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]}],\"goto\":\"add_event\"}",
-      "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]},{\"date\":\"2026-11-21\",\"events\":[{\"time\":\"11:30\",\"title\":\"Repot the Monstera\",\"who\":[\"Sam\"]}]}],\"goto\":\"add_event\"}"
+      "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]},{\"date\":\"2026-11-21\",\"events\":[{ \"time\":null, \"title\":\"Repot the Monstera\",\"who\":[\"Sam\"]}]}],\"goto\":\"add_event\"}",
+      "{\"c\":\"Agenda\",\"days\":[{\"date\":\"2026-11-20\",\"events\":[{\"time\":\"09:00\",\"title\":\"Visit the garden centre\",\"who\":[\"Sam\",\"Mia\"]},{\"time\":null,\"title\":\"Bring the fern inside\",\"who\":[\"Alex\"]}]}],\"goto\":\"add_event\"}"
     ]
   },
   "815c053a00e8a20b": {
