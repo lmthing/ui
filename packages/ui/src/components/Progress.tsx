@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   probesFor,
   goalLine,
+  numberLine,
   itemsOf,
   placeholderTitle,
   screenId,
@@ -59,7 +60,7 @@ export const props = z
 const amountLine = (
   { value, of, unit }: { value: number; of: number; unit?: string | undefined },
   lang?: string,
-) => `${value} ${goalLine(of, lang)}${unit ? ` ${unit}` : ""}`;
+) => `${numberLine(value, lang)} ${goalLine(of, lang)}${unit ? ` ${unit}` : ""}`;
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);

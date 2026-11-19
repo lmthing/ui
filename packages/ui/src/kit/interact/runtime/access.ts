@@ -1,13 +1,4 @@
-import {
-  wordsFor,
-  affordancesOf,
-  liveProps,
-  stampItemIds,
-  readScreen,
-  cancelLabel,
-  confirmLabel,
-  mediaUnavailable,
-} from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, stampItemIds, readScreen } from "../../../catalog";
 import type { ActStep } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
@@ -78,6 +69,7 @@ function press(ctx: ControllerContext, act: Act, address: string) {
     : actionFailure(0, "not_actionable", "No press action at this address");
 }
 function read(ctx: ControllerContext) {
+  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
   if (ctx.status.confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));

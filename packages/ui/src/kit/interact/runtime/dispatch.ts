@@ -1,3 +1,4 @@
+import { wordsFor } from "../../../catalog";
 import { planAct, type ActStep, type Values } from "../../../catalog";
 import { selectedStep, type ActOptions, type ActReply } from "../index";
 import {
@@ -132,7 +133,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(
         0,
         "media_unavailable",
-        error instanceof Error ? error.message : "Recording unavailable",
+        error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
     ctx.status.openSheet = state.sheet;

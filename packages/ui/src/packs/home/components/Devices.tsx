@@ -86,9 +86,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
         label: placeholderTitle(0, lang),
         devices: (items.length ? items : [undefined]).map((item, index) => ({
           key: `device_${index + 1}`,
-          name: item
-            ? (titleOf(item, 16, thing) ?? placeholderTitle(index, lang))
-            : placeholderTitle(index, lang),
+          name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
           kind: "light",
           on: false,
         })),

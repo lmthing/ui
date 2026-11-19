@@ -1,6 +1,7 @@
 import { XStack, YStack } from "tamagui";
-import { component, radius, space } from "../../../catalog";
+import { component, numberLine, radius, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { useWords } from "../../provider";
 import { KitText } from "../text";
 
 // One accent, fading by step in the order the parts are written.
@@ -17,6 +18,7 @@ function Entry({
   percent: string;
   index: number;
 }) {
+  const { lang } = useWords();
   return (
     <XStack {...usePart()} alignItems="center" gap={space.sm}>
       <YStack
@@ -32,7 +34,7 @@ function Entry({
       </KitText>
       <YStack flex={1} />
       <KitText role="number" numberScale="compact" tabular part={null}>
-        {`${value}`}
+        {numberLine(value, lang)}
       </KitText>
       <KitText role="body" tone="muted" tabular part={null}>
         {percent}

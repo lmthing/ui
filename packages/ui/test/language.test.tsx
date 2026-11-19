@@ -11,6 +11,7 @@ import {
   type Words,
 } from "@lmthing/ui/catalog";
 import { bookingWordsFor, registerBookingWords, type BookingWords } from "../src/packs/booking/lang";
+import { createScreenController } from "@lmthing/ui/kit";
 import { renderInstance, type Theme } from "./render";
 
 const lang = "en-XA-u-nu-fullwide";
@@ -32,6 +33,7 @@ const pseudo = {
   perWords: { ...english.perWords, hour: bracket(english.perWords.hour) },
   duration: (minutes: string) => bracket(english.duration(minutes)),
   cancelLabel: bracket(english.cancelLabel),
+  repeatLabels: { ...english.repeatLabels, daily: bracket(english.repeatLabels.daily) },
 } satisfies Words;
 const pseudoBooking = {
   ...booking,
@@ -99,7 +101,7 @@ it("switches booking-specific words and date formatting in the view and reader",
   const html = renderInstance("Appointment", input, "filled", theme, { lang });
   const date = appointmentDate(input.date, lang);
   expect(date).toContain("２０２６");
-  for (const word of [date, "[Confirmed]", "[３０ min]", "[Reschedule]", "[Cancel]"]) {
+  for (const word of [date, "１０:００", "[Confirmed]", "[３０ min]", "[Reschedule]", "[Cancel]"]) {
     expect(html).toContain(word);
     expect(readComponent(components.Appointment, input, "a1", undefined, undefined, lang).join()).toContain(
       word,
@@ -110,4 +112,22 @@ it("switches booking-specific words and date formatting in the view and reader",
   });
   expect(service).toContain("[Book]");
   expect(service).toContain("[３０ min]");
+});
+
+it("keeps localized repeat choices actionable without changing the stored enum", () => {
+  const controller = createScreenController({
+    lang,
+    defs: components,
+    screen: {
+      id: "home",
+      components: [{ id: "f1", c: "Field", kind: "repeat", label: "Fern", repeat: "weekly" }],
+    },
+  });
+  try {
+    expect(controller.act({ address: "f1/field", action: "select", value: "[Daily]" }).ok).toBe(true);
+    expect(controller.snapshotScreen().components[0]?.repeat).toBe("daily");
+    expect(controller.read()).toContain("[Daily] chosen");
+  } finally {
+    controller.dispose();
+  }
 });

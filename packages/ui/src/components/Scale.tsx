@@ -3,6 +3,7 @@ import {
   wordsFor,
   probesFor,
   goalLine,
+  numberLine,
   itemsOf,
   text,
   thingOf,
@@ -42,7 +43,7 @@ export const meta = {
   },
   read: (input: unknown, _state, lang?: string) => {
     const { value, meta: note } = props.parse(input);
-    return [`${value} ${goalLine(5, lang)}`, ...(note ? [JSON.stringify(note)] : [])];
+    return [`${numberLine(value, lang)} ${goalLine(5, lang)}`, ...(note ? [JSON.stringify(note)] : [])];
   },
 } as const satisfies Meta;
 
@@ -101,7 +102,7 @@ export const probes = [
 
 export function Scale({ style, label, value, readonly, meta: note }: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
-  const labels = [1, 2, 3, 4, 5].map((level) => `${level} ${goalLine(5, lang)}`) as [
+  const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,
     string,
     string,

@@ -1,5 +1,5 @@
 import { bookingWordsFor } from "../lang";
-import { appointmentDate, wordsFor, compactMoneyLine, durationLine } from "../../../catalog";
+import { appointmentDate, wordsFor, compactMoneyLine, durationLine, timeOfDayLine } from "../../../catalog";
 
 export const { appointmentLabels } = bookingWordsFor();
 
@@ -36,7 +36,7 @@ export function appointmentReading(
   return [
     appointmentDate(input.date, lang),
     input.date,
-    input.time,
+    timeOfDayLine(input.time, lang),
     ...appointmentDetails(input, lang).map((line) => line.text),
     ...(input.price !== undefined ? [String(input.price)] : []),
     ...(input.style === "card"

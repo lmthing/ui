@@ -21,6 +21,7 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
     state.values,
     ctx.selected,
     ctx.now(),
+    ctx.options.lang,
   );
   if (control.error)
     return rejected(state, ctx.at, control.disabled ? "disabled" : "invalid_value", control.error);

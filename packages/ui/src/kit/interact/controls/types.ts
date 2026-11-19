@@ -8,6 +8,7 @@ export type ControlContext = {
   values: Values;
   step: ActStep;
   now: number;
+  lang?: string | undefined;
   target: string;
   index: number;
   get(part: string): unknown;

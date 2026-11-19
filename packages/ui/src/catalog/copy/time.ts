@@ -1,5 +1,5 @@
 import { digitsLine, numberLine, pluralForm } from "../format";
-import { dateLocaleOf, wordsFor } from "../lang";
+import { dateLocaleOf, defaultLang, localeOf, wordsFor } from "../lang";
 
 /** A duration as a clock: "4:05", "21:00", "1:02:03". */
 export function clockLine(seconds: number, lang?: string): string {
@@ -48,4 +48,18 @@ export function dateFormatter(lang?: string) {
 /** Provider-local dates, independent of the viewer's timezone. */
 export function appointmentDate(date: string, lang?: string): string {
   return dateFormatter(lang).format(new Date(`${date}T00:00:00Z`));
+}
+
+/** Format a stored local clock without changing its value or timezone. */
+export function timeOfDayLine(time: string, lang?: string): string {
+  const locale = localeOf(lang);
+  const date = new Date(`2000-01-01T${time}:00Z`);
+  return locale === defaultLang || !Number.isFinite(date.getTime())
+    ? time
+    : new Intl.DateTimeFormat(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+        timeZone: "UTC",
+      }).format(date);
 }

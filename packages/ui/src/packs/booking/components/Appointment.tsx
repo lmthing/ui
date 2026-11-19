@@ -20,6 +20,7 @@ import {
   probesFor,
   screenId,
   text,
+  timeOfDayLine,
   thingOf,
   titleOf,
   type FallbackInput,
@@ -163,7 +164,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
     <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service}>
       <AppointmentLine value={date} part="date" loading={loading} />
       <KitGrid>
-        <AppointmentLine value={input.time} part="time" loading={loading} />
+        <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" loading={loading} />
         {card && (
           <KitContent
             lead={<KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />}

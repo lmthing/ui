@@ -4,6 +4,7 @@ import {
   probesFor,
   clip,
   goalLine,
+  numberLine,
   placeholderTitle,
   text,
   thingOf,
@@ -27,7 +28,7 @@ export const meta = {
   states: ["filled", "loading"],
   read: (input, state, lang?: string) => {
     const { value, of } = props.parse(input);
-    return state === "filled" ? [`${value} ${goalLine(of, lang)}`] : [];
+    return state === "filled" ? [`${numberLine(value, lang)} ${goalLine(of, lang)}`] : [];
   },
 } as const satisfies Meta;
 
@@ -74,7 +75,7 @@ export function Ring({ style, value, of, label, sub }: Props<typeof props, typeo
     <KitCard style="inset" part="root" padded>
       <KitRing value={value} of={of} scale={style} part="ring">
         <KitText role="number" align="center" part="value">
-          {value}
+          {numberLine(value, lang)}
         </KitText>
         <KitText role="body" tone="muted" align="center" part={null}>
           {goalLine(of, lang)}

@@ -35,11 +35,12 @@ function ChoiceField({ kind, label, choices = [], chosen }: FieldProps) {
   );
 }
 function ToggleField({ value }: FieldProps) {
+  const { fieldToggle } = useWords().words;
   return (
     <KitContent lineRole="body" lead={<KitTrail kind="toggle" on={value === "on"} part="field" />}>
       {value && (
         <KitText role="body" part={null}>
-          {value}
+          {value === "on" || value === "off" ? fieldToggle[value] : value}
         </KitText>
       )}
     </KitContent>
@@ -65,9 +66,8 @@ function SliderField({ value, label }: FieldProps) {
   );
 }
 function PhotoField({ value, label }: FieldProps) {
-  const { lang, words } = useWords();
-  const { photoLabels } = words;
-  const photo = value ?? `lib:${placeholderTitle(0, lang).toLowerCase().replace(/ /g, "_")}`;
+  const { photoLabels } = useWords().words;
+  const photo = value ?? `lib:${placeholderTitle(0).toLowerCase().replace(/ /g, "_")}`;
   return (
     <>
       <KitPhoto photo={photo} label={label} shape="wide" part="photo" />

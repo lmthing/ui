@@ -21,6 +21,7 @@ import {
   thingOf,
   titleOf,
   totalLine,
+  numberLine,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -53,7 +54,7 @@ export const meta = {
       points
         .map(
           (point) =>
-            `${point.label} ${point.value}${style === "share" ? ` ${percentLine(point.value, total, lang)}` : ""}`,
+            `${point.label} ${numberLine(point.value, lang)}${style === "share" ? ` ${percentLine(point.value, total, lang)}` : ""}`,
         )
         .join(", "),
     ];
@@ -144,15 +145,13 @@ export const probes = [
     "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
   ),
 ] satisfies Probe[];
-
 type TotalProps = { value: number; unit?: string | undefined; compact?: boolean };
 function Total({ value, unit, compact = false }: TotalProps) {
   const { lang, words } = useWords();
-  const label = words.moneyLabels.total;
   return (
     <KitContent>
       <KitText role={compact ? "body" : "caption"} tone="muted" align="end" part={null}>
-        {label}
+        {words.moneyLabels.total}
       </KitText>
       <KitText
         role="number"
@@ -161,7 +160,7 @@ function Total({ value, unit, compact = false }: TotalProps) {
         align="end"
         part="total"
       >
-        {value}
+        {numberLine(value, lang)}
         {unit && (
           <KitText role={compact ? "body" : "caption"} tone="muted" part={null}>
             {` ${unit}`}
@@ -173,6 +172,7 @@ function Total({ value, unit, compact = false }: TotalProps) {
 }
 
 export function Bars({ style, title, unit, points }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading" || state === "empty") {
     return (
@@ -186,6 +186,7 @@ export function Bars({ style, title, unit, points }: Props<typeof props, typeof 
     );
   }
   const total = points.reduce((sum, point) => sum + point.value, 0);
+  const shareOf = (value: number, total: number) => percentLine(value, total, lang);
   return (
     <KitCard style="inset" part="root" padded>
       <KitGrid columns={2}>
@@ -194,7 +195,7 @@ export function Bars({ style, title, unit, points }: Props<typeof props, typeof 
         </KitText>
         <Total value={total} unit={unit} compact={style === "share"} />
       </KitGrid>
-      {style === "share" ? <KitShare points={points} percentOf={percentLine} /> : <KitBars points={points} />}
+      {style === "share" ? <KitShare points={points} percentOf={shareOf} /> : <KitBars points={points} />}
     </KitCard>
   );
 }

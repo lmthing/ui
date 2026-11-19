@@ -1,10 +1,12 @@
 import { useSignatureProgress } from "../../motion";
 import { XStack, YStack } from "tamagui";
-import { component, radius, space, type as typography } from "../../../catalog";
+import { component, numberLine, radius, space, type as typography } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { useWords } from "../../provider";
 import { KitText } from "../text";
 
 function Bar({ label, value, max, high }: { label: string; value: number; max: number; high: boolean }) {
+  const { lang } = useWords();
   const progress = useSignatureProgress("bars_grow");
   const share = max > 0 ? Math.max(0, value) / max : 0;
   return (
@@ -24,7 +26,7 @@ function Bar({ label, value, max, high }: { label: string; value: number; max: n
         gap={space.xs}
       >
         <KitText role="caption" tone={high ? "text" : "muted"} part={null} tabular>
-          {String(value)}
+          {numberLine(value, lang)}
         </KitText>
         <YStack
           width="70%"

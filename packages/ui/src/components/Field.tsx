@@ -43,7 +43,7 @@ export const meta = {
     },
   },
   read: (input, state, lang?: string) => {
-    const { repeatLabels, photoLabels } = wordsFor(lang);
+    const { repeatLabels, photoLabels, chosen } = wordsFor(lang);
 
     const { kind, options } = input as z.output<typeof props>;
     if (state !== "filled") return [];
@@ -51,7 +51,7 @@ export const meta = {
       const { repeat } = input as z.output<typeof props>;
       return [
         ...repeatOptions.map((option) => repeatLabels[option]),
-        ...(repeat ? [`${repeatLabels[repeat]} chosen`] : []),
+        ...(repeat ? [chosen(repeatLabels[repeat])] : []),
       ];
     }
     return kind === "choice" ? (options ?? []) : kind === "photo" ? [photoLabels.add] : [kind];

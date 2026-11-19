@@ -133,7 +133,7 @@ export const probes = [
   read("Add another food to dinner", { address: "f1/r1/add", action: "press" }),
   read("Open the logged lasagne entry", { address: "f1/r2", action: "press" }),
 ] satisfies Probe[];
-function foodLogRow(row: Props<typeof props, typeof meta>["rows"][number], lang: string) {
+function FoodLogRow(row: Props<typeof props, typeof meta>["rows"][number], lang: string) {
   const { foodLogLabels } = kitchenWordsFor(lang);
   if (row.entry === "meal") {
     const label = foodLogLabels.meals[row.meal];
@@ -187,7 +187,7 @@ export function FoodLog({ meals, rows, target }: Props<typeof props, typeof meta
       )}
       {foodLogGroups(meals, rows).map((group, index) => (
         <KitContent key={index} inset="md" group={index > 0 ? "response" : "content"}>
-          {group.map((row) => foodLogRow(row, lang))}
+          {group.map((row) => FoodLogRow(row, lang))}
         </KitContent>
       ))}
     </KitCard>
