@@ -2,7 +2,9 @@ import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
+import { repairVariants } from "../rules";
 import type { Values } from "./act";
+import { projectDraw } from "./draw";
 import { projectNested, projectSelection } from "./selection";
 import { projectAdjustments, projectClocks, projectComponentSets, projectMatrix } from "./clocks";
 
@@ -67,11 +69,12 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
 }
 
 /** Recompute derived props from the wire after applying staged edits, never from draft input. */
-export function parseControlProps(def: Definition, input: unknown, get: (part: string) => unknown): Values {
+export function parseControlProps(def: Definition, input: unknown, get?: (part: string) => unknown): Values {
+  const repaired = repairVariants(def, input).props;
   const source =
-    input && typeof input === "object" && !Array.isArray(input)
-      ? projectControlInput(def, input as Values, get)
-      : input;
+    get && repaired && typeof repaired === "object" && !Array.isArray(repaired)
+      ? projectControlInput(def, repaired as Values, get)
+      : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
 
@@ -108,9 +111,14 @@ export function liveProps(
     props = projectControls(meta, props, get);
     if (meta.items?.set || runtime) props = projectAdjustments(meta, props, get);
   }
-  if (values[`${instance}/$runtime`])
-    props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
-  if (values[`${instance}/$runtime`]) {
+  if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
+  else if (
+    (meta.draw || meta.emptyActions?.length || meta.successActions?.length || meta.session) &&
+    get("$state") !== undefined
+  )
+    props = { ...props, state: get("$state") };
+  props = projectDraw(meta, props, get);
+  if (runtime) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
       props = { ...props, minus: undefined };
   }

@@ -1,10 +1,11 @@
-import { lazy } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
+import { WhenNear } from "../shared/WhenNear";
 import { Reveal } from "../shared/Reveal";
 import { site } from "../data/site";
 
-const ThemeShowcase = lazy(() => import("./ThemeShowcase"));
+const ThemeShowcase = lazyChunk(() => import("./ThemeShowcase"));
 
 export function ThemesSection() {
   const s = site.stats;
@@ -19,7 +20,9 @@ export function ThemesSection() {
           planned, with density and motion as two more enums in step U6a. Use the Theme control in the header
           to restyle this page and every phone on it.
         </p>
-        <Lazy view={ThemeShowcase} />
+        <WhenNear fallback={<div className="skeleton" style={{ minHeight: 500 }} />}>
+          <Lazy view={ThemeShowcase} />
+        </WhenNear>
       </Reveal>
     </section>
   );

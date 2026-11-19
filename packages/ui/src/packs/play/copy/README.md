@@ -1,3 +1,3 @@
 # Play copy
 
-Score calculations and reading strings shared by the view and the agent. Built-in words live in the play language folder.
+Pure helpers for formatting values and composing the words from `../lang`. Import through `index.ts`.

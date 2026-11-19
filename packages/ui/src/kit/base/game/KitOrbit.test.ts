@@ -60,6 +60,15 @@ describe("KitOrbit", () => {
     expect(getOrder(true)).toEqual(["r2", "r1", "r4", "r3"]);
     expect(nodes.map((n) => n.id)).toEqual(["r1", "r2", "r3", "r4"]);
   });
+  it.each(["ring", "queue"] as const)("only addresses visible %s labels when opted in", (style) => {
+    const props = { nodes, at: "r2", style };
+    expect(render(props)).not.toMatch(/data-testid="home\/c1\/r\d+\/name"/);
+    const html = render({ ...props, namePart: true });
+    for (const { id, label } of nodes) {
+      expect(html).toMatch(new RegExp(`data-testid="home/c1/${id}/name"[^>]*>${label}<`));
+    }
+    expect(render({ ...props, namePart: true, loading: true })).not.toMatch(/\/name"/);
+  });
   it.each(["ring", "queue"] as const)("preserves %s node frames and removes loading content", (style) => {
     const html = render({ nodes, at: "r2", loading: true, style });
     expect(html).toContain('aria-busy="true"');

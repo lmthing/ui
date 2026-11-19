@@ -123,18 +123,34 @@
   margin-top: 24px;
 }
 .filters {
-  display: flex;
+  display: grid;
   gap: 10px;
-  flex-wrap: wrap;
   margin: 28px 0 8px;
-  align-items: center;
 }
 .filters input[type="search"] {
-  flex: 1 1 240px;
+  max-width: 420px;
+}
+.filter-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+.filter-row .name {
+  padding-top: 9px;
 }
 .count {
   color: var(--muted);
   font: 500 0.75rem var(--mono);
+}
+@media (max-width: 520px) {
+  .filter-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+  }
+  .filter-row .name {
+    padding-top: 0;
+  }
 }
 .showcase {
   display: flex;
