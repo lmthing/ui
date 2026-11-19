@@ -121,11 +121,13 @@ describe("Medication state, parts and read/act", () => {
         : [],
     );
     const html = renderInstance("Medication", input, "filled", theme, { component: "m1" });
-    for (const part of ["root", "name", "dose", "time", "taken", "left"])
+    for (const part of ["root", "name", "dose", "time", "left"])
       expect(html).toContain(`data-testid="home/m1/r1/${part}"`);
-    expect(elementAt(html, "home/m1/r1/taken").attributes).toContain(
-      `role="${status === "due" ? "checkbox" : "img"}"`,
-    );
+    if (status === "skipped") expect(html).not.toContain('data-testid="home/m1/r1/taken"');
+    else
+      expect(elementAt(html, "home/m1/r1/taken").attributes).toContain(
+        `role="${status === "due" ? "checkbox" : "img"}"`,
+      );
     if (status === "due") expect(elementAt(html, "home/m1/r1/skip").attributes).toContain('role="button"');
     expect(html).toContain("0 left");
     const read = readComponent(components.Medication, input, "m1").join("\n");
@@ -135,19 +137,24 @@ describe("Medication state, parts and read/act", () => {
     if (status === "due") expect(read).toContain("[m1/r1/skip press]");
     else expect(read).not.toContain("[m1/r1/skip press]");
   });
-  it("renders a neutral empty state and success only for all taken, never for skipped doses", () => {
+  it("renders neutral empty and completed success states, with no due or skip controls", () => {
     const empty = renderInstance("Medication", examples[0], "empty", theme);
     expect(empty).toContain("Nothing here yet");
     expect(empty).not.toContain('role="checkbox"');
-    for (const state of ["filled", "success"] as const) {
-      expect(renderInstance("Medication", { doses: [{ ...dose, status: "taken" }] }, state, theme)).toContain(
-        medicationLabels.success,
-      );
-      expect(
-        renderInstance("Medication", { doses: [{ ...dose, status: "skipped" }] }, state, theme),
-      ).not.toContain(medicationLabels.success);
-    }
+    expect(
+      renderInstance("Medication", { doses: [{ ...dose, status: "taken" }] }, "filled", theme),
+    ).toContain(medicationLabels.success);
+    expect(
+      renderInstance("Medication", { doses: [{ ...dose, status: "skipped" }] }, "filled", theme),
+    ).not.toContain(medicationLabels.success);
+    const success = renderInstance("Medication", examples[0], "success", theme);
+    expect(success).toContain(medicationLabels.success);
+    expect(success).not.toContain('role="checkbox"');
+    expect(success).not.toContain('data-testid="home/c1/r1/skip"');
   });
+});
+
+describe("Medication ordered and optional parts", () => {
   it("orders time groups without changing addresses and omits unknown stock or inactive refill", () => {
     const input = {
       doses: [

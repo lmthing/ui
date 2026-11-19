@@ -15,10 +15,10 @@ import {
   KitAction,
   KitCard,
   KitCheck,
+  KitContent,
   KitEmpty,
   KitRow,
   KitText,
-  KitTime,
   useComponentState,
 } from "../../../kit";
 
@@ -93,48 +93,56 @@ export const probes = [
 ] satisfies Probe[];
 
 type Dose = Props<typeof props, typeof meta>["doses"][number];
+function MedicationStatus({ dose }: { dose: Dose }) {
+  return (
+    <KitContent lineRole="body">
+      <KitText
+        role="caption"
+        tone={dose.status === "taken" ? "good" : "muted"}
+        part={dose.status === "skipped" ? "skip" : null}
+      >
+        {medicationLabels[dose.status]}
+      </KitText>
+      {dose.left !== undefined && (
+        <KitText role="caption" tabular tone="muted" part="left">
+          {stockLine(dose.left)}
+        </KitText>
+      )}
+    </KitContent>
+  );
+}
 function MedicationDose({ dose }: { dose: Dose }) {
   const due = dose.status === "due";
   return (
-    <KitRow item={dose.id} label={dose.name}>
-      <KitText role="body" part="name">
-        {dose.name}
-      </KitText>
-      <KitRow
-        inline
-        label={dose.dose}
-        leading={<KitTime value={dose.time} part="time" />}
-        trailing={
-          <KitCheck
-            done={dose.status === "taken"}
-            readonly={!due}
-            part="taken"
-            label={medicationLabels.taken}
-          />
-        }
-      >
+    <KitRow
+      item={dose.id}
+      label={dose.name}
+      trailing={
+        <>
+          {due && <KitAction icon="close" a11y={medicationLabels.skip} kind="quiet" part="skip" />}
+          {dose.status !== "skipped" && (
+            <KitCheck
+              done={dose.status === "taken"}
+              readonly={!due}
+              part="taken"
+              label={medicationLabels.taken}
+            />
+          )}
+        </>
+      }
+    >
+      <KitContent lineRole="body">
+        <KitText role="body" part="name">
+          {dose.name}
+        </KitText>
+        <KitText role="number" numberScale="compact" tabular part="time">
+          {dose.time}
+        </KitText>
         <KitText role="caption" tone="muted" part="dose">
           {dose.dose}
         </KitText>
-      </KitRow>
-      <KitRow
-        inline
-        label={medicationLabels[dose.status]}
-        trailing={due ? <KitAction label={medicationLabels.skip} kind="quiet" part="skip" /> : undefined}
-      >
-        <KitText
-          role="caption"
-          tone={due ? "muted" : dose.status === "taken" ? "good" : "muted"}
-          part={dose.status === "skipped" ? "skip" : null}
-        >
-          {medicationLabels[dose.status]}
-        </KitText>
-        {dose.left !== undefined && (
-          <KitText role="number" numberScale="compact" tabular tone="muted" part="left">
-            {stockLine(dose.left)}
-          </KitText>
-        )}
-      </KitRow>
+        <MedicationStatus dose={dose} />
+      </KitContent>
     </KitRow>
   );
 }
@@ -148,7 +156,7 @@ export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>
       </KitCard>
     );
   const refill = refillLine(doses, refillAt);
-  const complete = doses.every((dose) => dose.status === "taken");
+  const complete = state === "success" || doses.every((dose) => dose.status === "taken");
   return (
     <KitCard style="inset" part="root">
       {complete && (
@@ -159,7 +167,7 @@ export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>
         </KitRow>
       )}
       {orderedDoses(doses).map((dose) => (
-        <MedicationDose key={dose.id} dose={dose} />
+        <MedicationDose key={dose.id} dose={state === "success" ? { ...dose, status: "taken" } : dose} />
       ))}
       {refill && (
         <KitRow label={refill}>
