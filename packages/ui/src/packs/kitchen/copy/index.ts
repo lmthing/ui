@@ -1,3 +1,4 @@
+export { pantryLabels, pantryToday, pantryDates, pantryOrder, pantryReading } from "./Pantry";
 export {
   ingredientAmount,
   ingredientsLabels,
