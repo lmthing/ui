@@ -6,7 +6,13 @@ import type { YStackProps } from "tamagui";
 export type Drawing = { part?: string; loading?: boolean };
 export type Target = { item?: string; part: string };
 export type Column = { id: string; label: string; header: ReactNode };
-export type Cell = { id: string; content: ReactNode; target?: Target; disabled?: boolean };
+export type Cell = {
+  id: string;
+  content: ReactNode;
+  compactContent?: ReactNode;
+  target?: Target;
+  disabled?: boolean;
+};
 export type MatrixRow = {
   id: string;
   label: string;
@@ -15,9 +21,30 @@ export type MatrixRow = {
   selected?: boolean;
   target?: Target;
 };
-export const matrixWidth = size.control.md * 3;
-export const headingWidth = matrixWidth;
+const scrollColumnWidth = size.control.md * 3;
 export const MatrixSelectionContext = createContext<readonly string[]>([]);
+
+export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps {
+  if (!fit) return { width: scrollColumnWidth, flexShrink: component.base.none };
+  if (heading) return { flexShrink: component.base.none };
+  // Start at the intrinsic width so a column with more content gets more room than a short one.
+  return {
+    flexGrow: component.base.bodyFlex,
+    flexShrink: component.base.bodyFlex,
+    minWidth: size.control.md + space.xs * 2,
+  };
+}
+
+export function useCompactMatrix(fit: boolean) {
+  const [compact, setCompact] = useState(false);
+  return {
+    compact: fit && compact,
+    onLayout: fit
+      ? (event: { nativeEvent: { layout: { width: number } } }) =>
+          setCompact(event.nativeEvent.layout.width < size.control.md * 7)
+      : undefined,
+  };
+}
 
 export function loadingRadius(props: Parameters<typeof loadingGeometry>[0], shift: KitStyle["radiusShift"]) {
   if (props.photo || props.initials || props.shape) {

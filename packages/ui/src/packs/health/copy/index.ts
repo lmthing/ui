@@ -28,3 +28,11 @@ export {
   vitalStatusLine,
   vitalUnitLine,
 } from "./Vitals";
+export {
+  symptomChosen,
+  symptomSeverity,
+  symptomSeverityLine,
+  symptomLevelLine,
+  symptomReading,
+  symptomTargets,
+} from "./SymptomLog";
