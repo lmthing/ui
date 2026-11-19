@@ -90,7 +90,7 @@ export const packIndex = [
     name: "Kitchen",
     purpose:
       "Everything about food in a household: cooking from a recipe with the right amounts and timers, planning the week's meals, the shopping list that follows from it, what is in the cupboard and when it goes off, and a simple log of what was eaten.",
-    pick: "Food at home: recipes, meal plans, groceries, the pantry, food logs. Kitchen alone covers a family recipe box, shopping for household groceries and tracking fridge food; family recipes do not imply household chores (home), buying groceries is not selling goods (commerce), and pantry food does not need generic owned inventory (inventory). Not selling food: a bakery's bread basket and orders belong to commerce, never kitchen; buyers alone do not imply separate client records (customers). Add another pack only for a separately requested job.",
+    pick: "Food at home: recipes, meal plans, groceries, the pantry, food logs. Not selling food (commerce)",
   },
   {
     id: "home",
