@@ -71,18 +71,16 @@ const withEntries = (value: z.output<typeof schema>) => ({
       kind,
       entryKind: "tile" as const,
       active: value.running === kind,
-      last: value.log
-        .filter((row) => row.kind === kind)
-        .map((row) => row.time)
-        .sort()
-        .at(-1),
+      last: value.log.reduce<string | undefined>(
+        (last, row) => (row.kind === kind && (!last || row.time > last) ? row.time : last),
+        undefined,
+      ),
     })),
     ...value.log.map((row) => ({ ...row, entryKind: "log" as const })),
   ],
 });
 export const props = schema.overwrite(withEntries) as typeof schema &
   z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
-
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
   const log = itemsOf(cast, logLimit).flatMap((item) => {
@@ -124,9 +122,7 @@ export const probes = [
   read("Start a left-side feed", { address: "b1/r1", action: "start" }),
   read("Open the feed recorded at 07:30", { address: "b1/r6", action: "press" }),
 ] satisfies Probe[];
-
 type BabyLogProps = Props<typeof props, typeof meta>;
-
 function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }>) {
   return (
     <KitRow
@@ -138,17 +134,27 @@ function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "
       leading={<KitTime value={row.time} />}
     >
       <KitText role="label" part="kind" children={babyLabels[row.kind]} />
-      {row.minutes !== undefined && <BabyNote part="minutes" text={babyCopy.duration(row.minutes)} />}
-      {row.amount && <BabyNote part="amount" text={row.amount} />}
+      {row.minutes !== undefined && <BabyValue part="minutes" text={babyCopy.duration(row.minutes)} />}
+      {row.amount && <BabyValue part="amount" text={row.amount} />}
     </KitRow>
   );
 }
-
-function BabyNote({ text, part = null }: { text: string; part?: string | null }) {
-  const align = !part || part === "running" ? "center" : "start";
-  return <KitText role="caption" tone="muted" align={align} part={part} children={text} />;
+function BabyValue({ text, part }: { text: string; part: string }) {
+  const elapsed = part === "elapsed";
+  const tone = elapsed ? "accent" : "text";
+  const align = elapsed ? "center" : "start";
+  return (
+    <KitText role="number" numberScale="compact" tabular {...{ part, tone, align }}>
+      {text}
+    </KitText>
+  );
 }
-
+function BabyNote({ text, part = null, active }: { text: string; part?: string | null; active?: boolean }) {
+  const align = !part || part === "running" ? "center" : "start";
+  return (
+    <KitText role="label" tone={active ? "accent" : "muted"} align={align} part={part} children={text} />
+  );
+}
 export function BabyLog({ entries, running }: BabyLogProps) {
   if (useComponentState() === "empty") {
     return (
@@ -157,10 +163,12 @@ export function BabyLog({ entries, running }: BabyLogProps) {
       </KitCard>
     );
   }
-  const log = entries.filter((row) => row.entryKind === "log");
+  const log = entries
+    .filter((row) => row.entryKind === "log")
+    .map((row) => <BabyLogRow key={row.id} {...row} />);
   return (
     <KitCard part="root" padded>
-      <KitText role="label" part="heading" children={babyCopy.title} />
+      <KitText role="heading" part="heading" children={babyCopy.title} />
       <KitGrid columns={2}>
         {entries
           .filter((row) => row.entryKind === "tile")
@@ -174,7 +182,7 @@ export function BabyLog({ entries, running }: BabyLogProps) {
               action={row.active ? "stop" : "start"}
               detail={
                 <>
-                  <BabyNote text={babyCopy.action(row.active)} />
+                  <BabyNote active={row.active} text={babyCopy.action(row.active)} />
                   <BabyNote text={babyCopy.last(row.last)} />
                 </>
               }
@@ -182,18 +190,10 @@ export function BabyLog({ entries, running }: BabyLogProps) {
           ))}
         <KitContent group="response">
           <BabyNote part="running" text={babyCopy.running(running)} />
-          {running !== "none" && (
-            <KitText role="number" tone="accent" align="center" tabular part="elapsed">
-              {babyCopy.clock}
-            </KitText>
-          )}
+          {running !== "none" && <BabyValue part="elapsed" text={babyCopy.clock} />}
         </KitContent>
       </KitGrid>
-      {log.length ? (
-        log.map((row) => <BabyLogRow key={row.id} {...row} />)
-      ) : (
-        <BabyNote part="empty" text={babyCopy.empty} />
-      )}
+      {log.length ? log : <BabyNote part="empty" text={babyCopy.empty} />}
     </KitCard>
   );
 }
