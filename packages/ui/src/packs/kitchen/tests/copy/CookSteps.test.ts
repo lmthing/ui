@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { cookStepText, cookStepsLabels, cookStepsReading } from "../../copy";
+import { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "../../copy";
 
 it("reads only the current instruction and its timer controls", () => {
   const steps = [
@@ -32,6 +32,8 @@ it("quotes instruction text and preserves the longest timer", () => {
   expect(cookStepsReading([{ text: "Wait", uses: [], minutes: 240 }], 1)).toContain("4:00:00");
   expect(cookStepsLabels.done).toBe("Recipe complete");
   expect(cookStepText("Stir until thickened.")).toBe("Stir until\u00a0thickened.");
+  expect(cookStepUses([])).toBe("");
+  expect(cookStepUses(["First", "Second"])).toBe("First · Second");
 });
 
 it.each([

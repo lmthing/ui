@@ -1,6 +1,7 @@
 import { balancedLine, clockLine, stepLine, timerLabels } from "../../../catalog";
 
 export const cookStepText = balancedLine;
+export const cookStepUses = (uses: readonly string[]): string => uses.join(" · ");
 
 export const cookStepsLabels = {
   timer: "Cooking timer",
@@ -19,7 +20,7 @@ export function cookStepsReading(
   return [
     stepLine(at, steps.length),
     JSON.stringify(cookStepText(step.text)),
-    ...(step.uses.length ? [JSON.stringify(step.uses.join(" · "))] : []),
+    ...(step.uses.length ? [JSON.stringify(cookStepUses(step.uses))] : []),
     ...(step.minutes === undefined
       ? []
       : [

@@ -15,7 +15,7 @@ import {
   type Props,
 } from "../../../catalog";
 import { KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
-import { cookStepText, cookStepsLabels, cookStepsReading } from "../copy";
+import { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "../copy";
 
 // Core first: Steps/numbered cannot show one cooking instruction with ingredients and an optional timer.
 export const meta = {
@@ -131,7 +131,7 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
       {!done && step.uses.length > 0 && (
         <KitContent group="response">
           <KitText role="label" tone="muted" part="uses">
-            {step.uses.join(" · ")}
+            {cookStepUses(step.uses)}
           </KitText>
         </KitContent>
       )}

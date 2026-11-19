@@ -1,1 +1,1 @@
-export { cookStepText, cookStepsLabels, cookStepsReading } from "./CookSteps";
+export { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "./CookSteps";
