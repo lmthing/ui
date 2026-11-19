@@ -3,6 +3,7 @@ import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../../arc
 import { checkScreen } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { buildEntry, variantVocabulary } from "../../prompt";
+import { migrateScreen } from "../../migrations";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 export type ComposeResult = {
@@ -81,7 +82,7 @@ export function scoreComposition(
     !decoded.components.every((entry) => entry && typeof entry.id === "string" && typeof entry.c === "string")
   )
     return { issues: ["Expected a screen object with component ids"] };
-  decoded = compositionInput(decoded, defs);
+  decoded = migrateScreen(compositionInput(decoded, defs), { variantOnly: true });
   const issues = checkScreen(decoded, defs).map((issue) => `${issue.code}: ${issue.message}`);
   let available = [...decoded.components];
   for (const slot of meta.layouts[layout]!.slots) {

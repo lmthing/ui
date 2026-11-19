@@ -163,7 +163,7 @@ const bars = variantFixture(
     [
       { axis: "figures", value: "short" },
       "Chart 1,240 steps Monday and 2,300 Tuesday. Abbreviate thousands as k, but keep the exact source values.",
-      "Chart 1,240 steps Monday and 2,300 Tuesday.",
+      "Make a bar chart of cups of tea: Monday four, Tuesday three.",
     ],
     [
       { axis: "labels", value: "all" },

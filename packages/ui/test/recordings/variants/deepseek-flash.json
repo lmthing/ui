@@ -1,98 +1,4 @@
 {
-  "00f13ae6188d893a": {
-    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Chart 1,240 steps Monday and 2,300 Tuesday.",
-    "format": {
-      "type": "json_schema",
-      "json_schema": {
-        "name": "writer_line",
-        "strict": true,
-        "schema": {
-          "type": "object",
-          "properties": {
-            "c": {
-              "type": "string",
-              "const": "Bars",
-              "enum": [
-                "Bars"
-              ]
-            },
-            "figures": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "exact",
-                    "short"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "labels": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "key",
-                    "none",
-                    "all"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "title": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 32
-            },
-            "points": {
-              "minItems": 2,
-              "maxItems": 7,
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "label": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 4
-                  },
-                  "value": {
-                    "type": "number",
-                    "minimum": 0
-                  }
-                },
-                "required": [
-                  "label",
-                  "value"
-                ],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": [
-            "c",
-            "figures",
-            "labels",
-            "title",
-            "points"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    "reply": "{\"c\":\"Bars\",\"figures\":\"exact\",\"labels\":\"all\",\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
-    "replies": [
-      "{\"c\":\"Bars\",\"figures\":\"exact\",\"labels\":\"all\",\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
-      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}",
-      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}"
-    ]
-  },
   "058bde1c73644921": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: Show one thing with a title and a little detail.\nprops: { emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", align?: start|center=\"start\", detail?: full|brief=\"full\", media?: thumb|none|icon|cover=\"thumb\", title: text≤40, body?: text≤120, photo?: photo lib:<tag>|local:<n> }\nRule: Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.\nRule: Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.\nRule: A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.\nexample: {\"c\":\"Card\",\"emphasis\":null,\"surface\":null,\"align\":null,\"detail\":null,\"media\":null,\"title\":\"Fern\",\"body\":\"Water on Fridays\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a plant care card titled Fern Schedule with the body Water on Friday.",
     "format": {
@@ -377,6 +283,100 @@
       "{\"c\":\"Card\",\"emphasis\":null,\"surface\":null,\"align\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}",
       "{\"c\":\"Card\",\"emphasis\":null,\"surface\":null,\"align\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}",
       "{\"c\":\"Card\",\"emphasis\":null,\"surface\":null,\"align\":null,\"detail\":null,\"media\":null,\"title\":\"Fern Care\",\"body\":null,\"photo\":\"lib:plants\"}"
+    ]
+  },
+  "0ef026563b934b24": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare amounts across days or categories.\nprops: { figures?: exact|short=\"exact\", labels?: key|none|all=\"key\", title: text≤32, points: [2..7 { label: text≤4, value: num 0.. }] }\nRule: Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.\nexample: {\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Steps\",\"points\":[{\"label\":\"Mon\",\"value\":1240},{\"label\":\"Tue\",\"value\":2300}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a bar chart of cups of tea: Monday four, Tuesday three.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "labels": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "key",
+                    "none",
+                    "all"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "figures",
+            "labels",
+            "title",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Tea cups\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Tea cups\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}",
+      "{\"c\":\"Bars\",\"figures\":null,\"labels\":null,\"title\":\"Cups of Tea\",\"points\":[{\"label\":\"Mon\",\"value\":4},{\"label\":\"Tue\",\"value\":3}]}"
     ]
   },
   "0f5303320b856e93": {
