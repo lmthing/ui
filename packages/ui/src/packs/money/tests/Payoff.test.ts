@@ -24,7 +24,6 @@ const defs = { Payoff: def };
 const screen: ScreenLike = { id: "home", components: [{ id: "p1", c: "Payoff", ...example }] };
 const theme: ThemeChoice = { preset: "calm", mode: "light", accent: "moss" };
 const words = moneyWordsFor().payoff;
-const strategyCodes = words.strategyCodes("high_rate", "small_balance");
 const hasPart = (html: string, part: string) => html.includes(`data-testid="home/c1/${part}"`);
 
 describe("Payoff schema", () => {
@@ -57,6 +56,7 @@ describe("Payoff schema", () => {
       { extra: Infinity },
       { extra: "50" },
       { strategy: "random" },
+      { strategyChoice: "high_rate" },
       { style: "wide" },
       { goto: "Bad ID" },
       { currency: "USD" },
@@ -103,7 +103,9 @@ describe("Payoff states and parts", () => {
     for (const item of ["r1", "r2"])
       for (const part of meta.items.parts) expect(hasPart(html, `${item}/${part}`)).toBe(true);
     expect(elementAt(html, "home/c1/strategy").attributes).toContain('role="radiogroup"');
-    expect(html).toContain(strategyCodes);
+    expect(html).toContain(words.choice.high_rate);
+    expect(html).toContain(words.choice.small_balance);
+    expect(html).not.toMatch(/high_rate|small_balance/);
     expect(elementAt(html, "home/c1/extra").attributes).toContain('role="spinbutton"');
     expect(elementAt(html, "home/c1/edit").attributes).toContain('role="button"');
   });
@@ -156,15 +158,17 @@ describe("Payoff read and act", () => {
   it("projects both choices and the extra amount into the recalculated reading", () => {
     const controller = createScreenController({ screen, defs });
     try {
-      for (const value of ["small_balance", "high_rate"] as const)
-        expect(controller.act({ address: "p1/strategy", action: "select", value })).toMatchObject({
-          ok: true,
-        });
+      const select = (value: string) => ({ address: "p1/strategy", action: "select", value });
+      expect(controller.act(select(words.choice.small_balance))).toMatchObject({ ok: true });
+      const { id: _id, c: _c, ...edited } = controller.snapshotScreen().components[0]!;
+      expect(props.parse(edited).strategy).toBe("small_balance");
+      expect(controller.read()).toContain('[p1/strategy select = "Smallest balance";');
+      expect(controller.act(select(words.choice.high_rate))).toMatchObject({ ok: true });
       expect(controller.act({ address: "p1/extra", action: "set", value: 100 })).toMatchObject({ ok: true });
       const reading = readScreen(screen, defs, controller.store.snapshot("home"));
       expect(reading).toContain("$1,300 monthly budget");
-      expect(reading).toContain(strategyCodes);
-      expect(reading).toContain('[p1/strategy select = "high_rate"; choices ["high_rate","small_balance"]]');
+      expect(reading).toContain('[p1/strategy select = "Highest rate";');
+      expect(reading).toContain('choices ["Highest rate","Smallest balance"]');
       expect(reading).toContain("[p1/extra set = 100]");
       expect(screen.components[0]).toMatchObject(example);
     } finally {
@@ -174,7 +178,7 @@ describe("Payoff read and act", () => {
   it("rejects unsupported or absent actions and invalid values", () => {
     for (const [part, action, value] of [
       ["strategy", "select", undefined],
-      ["strategy", "select", "highest"],
+      ["strategy", "select", "high_rate"],
       ["extra", "set", -1],
       ["extra", "set", "50"],
       ["extra", "set", Infinity],

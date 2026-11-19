@@ -2,7 +2,7 @@ import { z } from "zod";
 import { itemsOf, placeholderTitle, probesFor, screenId, thingOf, titleOf } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
-import { payoffCopy, payoffReading, payoffStrategies } from "../copy";
+import { payoffChoices, payoffCopy, payoffReading, payoffSelection, payoffStrategies } from "../copy";
 import { moneyWordsFor } from "../lang";
 import { examples as loanExamples, loanSource } from "./Loan";
 
@@ -15,7 +15,7 @@ export const meta = {
   pick: "Allocate regular payments plus extra across debts and forecast clearance by high rate or small balance. Not one debt's instalment breakdown (Loan), static repayment progress (Progress), a recent balance trend (Sparkline), or group settle-ups (Split).",
   writeHints: [
     "Each debt uses name, opening principal > 0, annual rate 0–100, payment > 0, firstDue YYYY-MM-DD and 0–6 positive payment records with due and amount. Never write currency, balances, budget, allocation, order, clearance dates or chart points.",
-    "extra is a nonnegative additional monthly amount. strategy is high_rate or small_balance and changes the calculation; style is plan or compact. Fixed-rate estimates never transfer money.",
+    "extra is a nonnegative additional monthly amount. strategy is high_rate or small_balance; never write the runtime-only strategyChoice. style is plan or compact. Fixed-rate estimates never transfer money.",
   ],
   region: "body",
   weight: 2,
@@ -24,7 +24,7 @@ export const meta = {
   parts: ["root", "total", "budget", "finish", "line", "strategy", "extra", "edit", "empty", "sub"],
   items: { key: "debts", parts: ["root", "name", "balance", "clearance", "order"] },
   states: ["filled", "empty", "loading", "success", "error"],
-  select: { prop: "strategy", choices: { strategy: ["high_rate", "small_balance"] } },
+  select: { prop: "strategyChoice", choices: { strategy: payoffChoices } },
   set: { extra: { prop: "extra", min: 0 } },
   actions: {
     parts: { strategy: ["select"], extra: ["set"], edit: ["press"] },
@@ -39,10 +39,11 @@ export const props = z
     debts: z.array(loanSource).min(1).max(6),
     extra: z.number().nonnegative().default(0),
     strategy: z.enum(payoffStrategies).default("high_rate"),
+    strategyChoice: z.enum(payoffChoices).optional(),
     goto: screenId.optional(),
     style: z.enum(["plan", "compact"]).default("plan"),
   })
-  .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
+  .overwrite((v) => ({ ...v, ...payoffSelection(v.strategy, v.strategyChoice), linked: !!v.goto }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -87,8 +88,9 @@ export const probes = [
 
 type PayoffProps = Props<typeof props, typeof meta>;
 type Summary = ReturnType<typeof payoffCopy>;
+type ControlProps = Pick<PayoffProps, "strategyChoice" | "extra" | "goto">;
 
-function PayoffControls({ strategy, extra, goto }: Pick<PayoffProps, "strategy" | "extra" | "goto">) {
+function PayoffControls({ strategyChoice, extra, goto }: ControlProps) {
   const labels = kit.useWords(moneyWordsFor).words.payoff;
   const state = kit.useComponentState();
   const inactive = state === "filled" ? {} : { disabled: true };
@@ -99,12 +101,10 @@ function PayoffControls({ strategy, extra, goto }: Pick<PayoffProps, "strategy" 
     <kit.KitContent group="response">
       <PayoffText text={labels.strategy} />
       <kit.KitTrack part="strategy" look="segments" role="radiogroup" label={labels.strategy}>
-        {payoffStrategies.map((value) => {
-          const option = { ...chip, label: labels.choice[value], value, on: strategy === value };
-          return <kit.KitChip key={value} {...option} />;
-        })}
+        {payoffChoices.map((label) => (
+          <kit.KitChip key={label} {...chip} label={label} on={strategyChoice === label} />
+        ))}
       </kit.KitTrack>
-      <PayoffText text={labels.strategyCodes(...payoffStrategies)} />
       <kit.KitContent group="response">
         <PayoffText text={labels.extra} />
         {state === "loading" ? (

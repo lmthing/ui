@@ -26,6 +26,15 @@
       "Sparkline"
     ]
   },
+  "6ef3ea467b7eb233": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Payoff Estimated debt-free — May 2044 — Total owed — $181K — Monthly budget — $1,250 monthly budget — Projected balance — Starting balance — May 2044 — 1. — $1,118.90 — Clears Jul 2027 — 2. — $180K — Clears May 2044 — Repayment priority — Highest rate — Smallest balance — Highest rate first — Smallest balance first — Extra monthly repayment — 50 — Open terms editor [p1/strategy select = \"Highest rate\"; choices [\"Highest rate\",\"Smallest balance\"]] [p1/extra set] [p1/edit press→debts]\n  r1 \"Ledge card\"\n  r2 \"Home mortgage\"\n\nTask: Change the debt repayment priority\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/strategy\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"p1/strategy\", \"action\": \"select\"}",
+      "{\"address\": \"p1/strategy\", \"action\": \"select\"}",
+      "{\"address\": \"p1/strategy\", \"action\": \"select\"}"
+    ]
+  },
   "7b1c8ba54c127f2f": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Payoff Estimated debt-free — May 2044 — Total owed — $181K — Monthly budget — $1,250 monthly budget — Projected balance — Starting balance — May 2044 — 1. — $1,118.90 — Clears Jul 2027 — 2. — $180K — Clears May 2044 — Repayment priority — Highest rate — Highest rate first — Smallest balance — Smallest balance first — Extra monthly repayment — Open terms editor [p1/strategy select = \"high_rate\"; choices [\"high_rate\",\"small_balance\"]] [p1/extra set] [p1/edit press→debts]\n  r1 \"Ledge card\"\n  r2 \"Home mortgage\"\n\nTask: Change the debt repayment priority\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/strategy\", \"action\": \"select\"}",
@@ -362,6 +371,172 @@
       "Progress",
       "Progress",
       "Progress"
+    ]
+  },
+  "db394deef5fc41c0": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nPayoff: Plan a monthly budget and repayment priority to clear your debts.\nprops: { debts: [1..6 { name: text≤24, principal: number, rate: num 0..100, payment: number, firstDue: date YYYY-MM-DD, payments: [0..6 { due: date YYYY-MM-DD, amount: number }] }], extra?: num 0..=0, strategy?: high_rate|small_balance=\"high_rate\", strategyChoice?: Highest rate|Smallest balance, goto?: id snake_case, style?: plan|compact=\"plan\" }\nRule: Each debt uses name, opening principal > 0, annual rate 0–100, payment > 0, firstDue YYYY-MM-DD and 0–6 positive payment records with due and amount. Never write currency, balances, budget, allocation, order, clearance dates or chart points.\nRule: extra is a nonnegative additional monthly amount. strategy is high_rate or small_balance; never write the runtime-only strategyChoice. style is plan or compact. Fixed-rate estimates never transfer money.\nexample: {\"c\":\"Payoff\",\"debts\":[{\"name\":\"Ledge card\",\"principal\":1200,\"rate\":18.9,\"payment\":100,\"firstDue\":\"2026-11-01\",\"payments\":[{\"due\":\"2026-11-01\",\"amount\":100}]},{\"name\":\"Home mortgage\",\"principal\":180000,\"rate\":4.5,\"payment\":1100,\"firstDue\":\"2026-12-01\",\"payments\":[]}],\"extra\":50,\"strategy\":\"high_rate\",\"goto\":\"debts\",\"style\":\"plan\"}\n\nBrief: Plan repayment of Card: principal 1200, rate 18.9, payment 100; Friend: principal 480, rate zero, payment 40. Both first due 2026-12-01 with no recorded payments. Extra monthly 50, high rate priority, plan style, edit opens debts. No computed totals",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Payoff",
+              "enum": [
+                "Payoff"
+              ]
+            },
+            "debts": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "principal": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "rate": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "payment": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "firstDue": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  },
+                  "payments": {
+                    "minItems": 0,
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "due": {
+                          "type": "string",
+                          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                        },
+                        "amount": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "required": [
+                        "due",
+                        "amount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "principal",
+                  "rate",
+                  "payment",
+                  "firstDue",
+                  "payments"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "extra": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "strategy": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "high_rate",
+                    "small_balance"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "strategyChoice": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "Highest rate",
+                    "Smallest balance"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plan",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "debts",
+            "extra",
+            "strategy",
+            "strategyChoice",
+            "goto",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Payoff\",\"debts\":[{\"name\":\"Card\",\"principal\":1200,\"rate\":18.9,\"payment\":100,\"firstDue\":\"2026-12-01\",\"payments\":[]},{\"name\":\"Friend\",\"principal\":480,\"rate\":0,\"payment\":40,\"firstDue\":\"2026-12-01\",\"payments\":[]}],\"extra\":50,\"strategy\":\"high_rate\",\"strategyChoice\":null,\"goto\":\"debts\",\"style\":\"plan\"}",
+    "replies": [
+      "{\"c\":\"Payoff\",\"debts\":[{\"name\":\"Card\",\"principal\":1200,\"rate\":18.9,\"payment\":100,\"firstDue\":\"2026-12-01\",\"payments\":[]},{\"name\":\"Friend\",\"principal\":480,\"rate\":0,\"payment\":40,\"firstDue\":\"2026-12-01\",\"payments\":[]}],\"extra\":50,\"strategy\":\"high_rate\",\"strategyChoice\":null,\"goto\":\"debts\",\"style\":\"plan\"}",
+      "{\"c\":\"Payoff\",\"debts\":[{\"name\":\"Card\",\"principal\":1200,\"rate\":18.9,\"payment\":100,\"firstDue\":\"2026-12-01\",\"payments\":[]},{\"name\":\"Friend\",\"principal\":480,\"rate\":0,\"payment\":40,\"firstDue\":\"2026-12-01\",\"payments\":[]}],\"extra\":50,\"strategy\":\"high_rate\",\"strategyChoice\":null,\"goto\":\"debts\",\"style\":\"plan\"}",
+      "{\"c\":\"Payoff\",\"debts\":[{\"name\":\"Card\",\"principal\":1200,\"rate\":18.9,\"payment\":100,\"firstDue\":\"2026-12-01\",\"payments\":[]},{\"name\":\"Friend\",\"principal\":480,\"rate\":0,\"payment\":40,\"firstDue\":\"2026-12-01\",\"payments\":[]}],\"extra\":50,\"strategy\":\"high_rate\",\"strategyChoice\":null,\"goto\":\"debts\",\"style\":\"plan\"}"
     ]
   },
   "e2ef1feed81e3fe2": {

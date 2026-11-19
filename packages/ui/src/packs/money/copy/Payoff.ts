@@ -1,10 +1,19 @@
 import { compactMoneyLine, dateLocaleOf, numberLine } from "../../../catalog";
 import { moneyWordsFor } from "../lang";
-import { projectPayoff, type PayoffSource } from "./PayoffProjection";
+import { projectPayoff, type PayoffSource, type PayoffStrategy } from "./PayoffProjection";
 
 export const payoffStrategies = ["high_rate", "small_balance"] as const;
+const { choice } = moneyWordsFor().payoff;
+export const payoffChoices = [choice.high_rate, choice.small_balance] as const;
 type Input = PayoffSource & { style: "plan" | "compact"; goto?: string | undefined };
 type Projection = ReturnType<typeof projectPayoff>;
+
+/** The visible choices double as action values; authored plans still use strategy codes. */
+export function payoffSelection(strategy: PayoffStrategy, strategyChoice?: string) {
+  const selected =
+    payoffStrategies[strategyChoice === undefined ? -1 : payoffChoices.indexOf(strategyChoice)];
+  return { strategy: selected ?? strategy, strategyChoice: choice[selected ?? strategy] };
+}
 
 function monthLine(month: number, lang?: string): string {
   const date = new Date(0);
@@ -77,8 +86,8 @@ export function payoffReading(input: Input, lang?: string): string[] {
       : []),
     ...rows.flatMap(({ order, balance, clearance }) => [order, balance, clearance]),
     words.strategy,
-    ...payoffStrategies.flatMap((option) => [words.choice[option], words[option]]),
-    words.strategyCodes(...payoffStrategies),
+    ...payoffChoices,
+    ...payoffStrategies.map((option) => words[option]),
     words.extra,
     numberLine(input.extra, lang),
     ...(input.goto ? [words.edit] : []),
