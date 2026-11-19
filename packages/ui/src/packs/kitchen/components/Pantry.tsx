@@ -14,6 +14,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { pantryReading } from "../copy";
 
 // Core first: List/cards cannot order food by use-by date or expose a confirmed used-up removal.
 export const meta = {
@@ -35,21 +36,28 @@ export const meta = {
   states: ["filled", "empty"],
   confirmParts: ["used"],
   actions: { items: { root: ["press"], used: ["press"] } },
+  read: (input, state) => (state === "filled" ? pantryReading(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
-export const props = z.strictObject({
-  items: z
-    .array(
-      z.strictObject({
-        name: text(24),
-        qty: text(12),
-        place: z.enum(["cupboard", "fridge", "freezer"]).meta({ kind: "text" }),
-        useBy: isoDate.optional(),
-        goto: screenId,
-      }),
-    )
-    .min(1)
-    .max(20),
-});
+export const props = z
+  .strictObject({
+    items: z
+      .array(
+        z.strictObject({
+          name: text(24),
+          qty: text(12),
+          place: z.enum(["cupboard", "fridge", "freezer"]).meta({ kind: "text" }),
+          useBy: isoDate.optional(),
+          goto: screenId,
+        }),
+      )
+      .min(1)
+      .max(20),
+  })
+  .overwrite((value) => ({
+    ...value,
+    // The destructive part must not inherit the item's details navigation.
+    items: value.items.map((item) => ({ ...item, used: {} })),
+  }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
