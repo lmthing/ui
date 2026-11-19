@@ -1,18 +1,7 @@
 import * as catalog from "../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../catalog";
 import { z } from "zod";
-import {
-  KitCard,
-  KitContent,
-  KitGrid,
-  KitIcon,
-  KitPhoto,
-  KitSkeleton,
-  KitText,
-  useComponentState,
-  useKit,
-  useVariant,
-} from "../kit";
+import * as kit from "../kit";
 
 export const meta = {
   id: "Card",
@@ -89,22 +78,22 @@ export const examples = [
   },
   {
     surface: "tinted",
-    title: "Morning park walk",
+    title: "Park walk itinerary",
     body: "Clover and Pip · 09:00",
-    meta: "Booking confirmed",
+    meta: "South gate",
     icon: "dog",
-    tone: "good",
   },
-  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
+  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants", density: "compact" },
   {
     surface: "outlined",
-    media: "icon",
     title: "Basil",
     body: "Kitchen · freshly watered",
     icon: "leaf",
     goto: "basil",
   },
   { title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
+  { title: "Fern care", body: "Water on Friday", media: "icon", icon: "leaf" },
+  { title: "Walk confirmed", body: "Clover · Sunday", surface: "tinted", tone: "good" },
   { title: "Booking pending", body: "Pip · awaiting confirmation", surface: "tinted", tone: "warn" },
   { title: "Walk cancelled", body: "Clover · Friday morning", surface: "tinted", tone: "bad" },
 ] satisfies z.input<typeof props>[];
@@ -124,34 +113,44 @@ export const probes = [
 ] satisfies Probe[];
 
 type CardProps = Props<typeof props, typeof meta>;
-
-function CardText({ title, badge, density, emphasis, body, meta }: CardProps) {
+function CardText({ title, badge, density, emphasis, body, meta, goto }: CardProps) {
   const heading = (
-    <KitText role="heading" part="title" {...{ density, emphasis }}>
+    <kit.KitText role="heading" part="title" {...{ density, emphasis }}>
       {title}
-    </KitText>
+    </kit.KitText>
+  );
+  const label = badge && (
+    <kit.KitText role="label" tone="muted" part="badge" {...{ density }}>
+      {badge}
+    </kit.KitText>
+  );
+  const header = label ? (
+    <kit.KitGrid fitLast {...{ density }}>
+      {heading}
+      {label}
+    </kit.KitGrid>
+  ) : (
+    heading
   );
   return (
     <>
-      {badge ? (
-        <KitGrid fitLast {...{ density }}>
-          {heading}
-          <KitText role="label" tone="muted" part="badge" {...{ density }}>
-            {badge}
-          </KitText>
-        </KitGrid>
+      {goto ? (
+        <kit.KitGrid fitLast {...{ density }}>
+          {header}
+          <kit.KitIcon name="chevron_right" decorative />
+        </kit.KitGrid>
       ) : (
-        heading
+        header
       )}
       {body && (
-        <KitText role="body" tone="muted" part="body" {...{ density }}>
+        <kit.KitText role="body" tone="muted" part="body" {...{ density }}>
           {body}
-        </KitText>
+        </kit.KitText>
       )}
       {meta && (
-        <KitText role="caption" tone="muted" part="meta" {...{ density }}>
+        <kit.KitText role="caption" tone="muted" part="meta" {...{ density }}>
           {meta}
-        </KitText>
+        </kit.KitText>
       )}
     </>
   );
@@ -159,23 +158,23 @@ function CardText({ title, badge, density, emphasis, body, meta }: CardProps) {
 
 export function Card(input: CardProps) {
   const { media, title, icon, photo, surface, tone, emphasis, goto } = input;
-  const density = useVariant("density", meta.variants.density, input.density);
-  const loading = useComponentState() === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const loading = kit.useComponentState() === "loading";
+  const { resolvePhoto } = kit.useKit();
   const cover = media === "cover";
-  const { resolvePhoto } = useKit();
   const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
   const finish = { density, emphasis };
   const frame = { surface, tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
   const thumbnail = !cover && photo;
   const lead = icon ? (
-    <KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
+    <kit.KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
   ) : (
-    thumbnail && <KitPhoto photo={thumbnail} part="photo" />
+    thumbnail && <kit.KitPhoto photo={thumbnail} part="photo" />
   );
   return (
-    <KitCard {...frame} part="root" label={title}>
+    <kit.KitCard {...frame} part="root" label={title}>
       {loading ? (
-        <KitSkeleton
+        <kit.KitSkeleton
           shape={coverPhoto ? "media" : "figure"}
           lead={icon ? "dot" : thumbnail ? "box" : "none"}
           {...finish}
@@ -189,12 +188,12 @@ export function Card(input: CardProps) {
         />
       ) : (
         <>
-          {coverPhoto && <KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
-          <KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
+          {coverPhoto && <kit.KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
+          <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
             <CardText {...input} density={density} />
-          </KitContent>
+          </kit.KitContent>
         </>
       )}
-    </KitCard>
+    </kit.KitCard>
   );
 }

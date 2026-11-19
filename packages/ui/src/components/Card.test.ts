@@ -141,7 +141,7 @@ describe("Card view and actions", () => {
     expect(html).toContain(example.title);
     if (example.media === "cover") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
     if (example.surface === "tinted")
-      expect(styleAt(html, "home/c1/root")).toContain(`--${example.tone}Soft`);
+      expect(styleAt(html, "home/c1/root")).toContain(`--${example.tone ?? "accent"}Soft`);
     if (example.surface === "outlined") expect(styleAt(html, "home/c1/root")).toMatch(/border[^;]*:/);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {
@@ -166,7 +166,7 @@ describe("Card actions and loading", () => {
       expect(html).toContain(text);
     }
     expect(read.includes("[c1 press")).toBe(Boolean(goto));
-    expect(readComponent(components.Card, input, "c1", "loading")[0]).not.toContain('"');
+    expect(html.includes("<svg")).toBe(Boolean(goto));
   });
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
@@ -186,7 +186,6 @@ describe("Card actions and loading", () => {
     }
   });
 });
-
 it("keeps the title, badge and link when brief hides body and metadata from the view and reader", () => {
   const input = { ...examples[0], detail: "brief", badge: "Due today" };
   const html = renderInstance("Card", input, "filled", theme);
