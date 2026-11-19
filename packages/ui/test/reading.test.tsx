@@ -92,6 +92,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     }
     const props = stampItemIds(def.meta, def.props.parse(example) as Record<string, unknown>);
     for (const affordance of affordancesOf(def.meta, props, "c1")) {
+      expect(read, `${affordance.address} is missing from the read`).toContain(
+        `[${affordance.address} ${affordance.action}`,
+      );
       const testId = `home/${affordance.address}${affordance.part === "root" ? "/root" : ""}`;
       const { found, role } = roleAt(html, testId);
       expect(found, `${affordance.address} offers ${affordance.action} but is not on screen`).toBe(true);

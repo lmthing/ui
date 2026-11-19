@@ -98,7 +98,7 @@ export function readComponent(
       props,
     ),
   ];
-  const ownAff = affordances.filter((a) => !a.address.startsWith(`${instance}/r`) || !key);
+  const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // A stack shows only its first item; the rest are counted, not read.

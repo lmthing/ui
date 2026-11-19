@@ -66,6 +66,15 @@ export function changeLine(
 /** The label a total carries when none is written. */
 export const moneyLabels = { total: "Total" } as const;
 
+/** Shared labels distinguish local debt controls from opening the terms form. */
+export const debtControlLabels = {
+  edit: "Open terms editor",
+  strategy: "Repayment priority",
+  high_rate: "Highest rate first",
+  small_balance: "Smallest balance first",
+  extra: "Extra monthly repayment",
+} as const;
+
 /** Shared document copy for bills and estimates. */
 export const documentLabels = {
   invoice: "Invoice",
