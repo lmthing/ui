@@ -16,7 +16,7 @@ import { homeWordsFor } from "../lang";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Read and control connected household devices and apply saved settings together.",
   pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",

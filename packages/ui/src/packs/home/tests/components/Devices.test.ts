@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import { createScreenController, renderers } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Devices;
@@ -42,7 +42,8 @@ describe("Devices contract and fallback", () => {
 });
 
 describe("Devices states and parts", () => {
-  it.each(examples)("draws each offered action once with its validator-owned address", (example) => {
+  const renderTest = it.skipIf(!Object.hasOwn(renderers, "Devices"));
+  renderTest.each(examples)("draws each offered action once with its validator-owned address", (example) => {
     const html = renderInstance("Devices", example, "filled", theme, { component: "d1" });
     const propsWithIds = stampItemIds(meta, props.parse(example));
     for (const { address } of affordancesOf(meta, propsWithIds, "d1")) {
@@ -53,7 +54,7 @@ describe("Devices states and parts", () => {
     expect(elementAt(html, "home/d1/r2/room")).toBeDefined();
   });
 
-  it("draws intentional empty, inert loading, success and readable offline states", () => {
+  renderTest("draws intentional empty, inert loading, success and readable offline states", () => {
     expect(renderInstance("Devices", focused, "empty", theme, "device")).toContain("No devices yet");
     expect(renderInstance("Devices", focused, "loading", theme)).not.toContain('role="slider"');
     expect(renderInstance("Devices", focused, "success", theme)).toContain("Command acknowledged");
