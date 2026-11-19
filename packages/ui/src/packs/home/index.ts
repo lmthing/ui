@@ -1,11 +1,5 @@
-export {
-  deviceControls,
-  deviceFallback,
-  deviceProps,
-  thermostatBounds,
-  type DeviceEntry,
-} from "./device-contract";
-export { deviceExamples, deviceProbes, deviceWriteHints } from "./device-fixtures";
+export { deviceControls, deviceProps, thermostatBounds, type DeviceEntry } from "./device-contract";
+export { deviceExamples, deviceFallback, deviceProbes, deviceWriteHints } from "./device-fixtures";
 export { readDevices } from "./read-devices";
 export { pack } from "./pack";
 export * from "./components";

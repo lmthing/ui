@@ -1,13 +1,5 @@
 import { z } from "zod";
-import {
-  itemsOf,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-} from "../../catalog";
+import { screenId, text } from "../../catalog";
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
@@ -126,63 +118,67 @@ export const deviceProps = schema.overwrite(withEntries) as typeof schema &
 
 export type DeviceEntry = Extract<ReturnType<typeof withEntries>["entries"][number], { entryKind: "device" }>;
 
-export const deviceControls = {
-  parts: [
-    "root",
-    "name",
-    "room",
-    "reading",
-    "level",
-    "temp",
-    "minus",
-    "plus",
-    "lock",
-    "controls",
-    "apply",
-    "secure",
-  ],
-  actions: {
-    items: {
-      root: ["toggle"],
-      lock: ["toggle"],
-      controls: ["press"],
-      level: ["set"],
-      temp: ["set"],
-      minus: ["decrement"],
-      plus: ["increment"],
-      apply: ["press"],
-      secure: ["press"],
-    },
-    when: {
-      root: { entryKind: "device", switchable: true },
-      lock: { kind: "lock" },
-      controls: { entryKind: "device", linked: true },
-      level: { entryKind: "device", adjustable: true },
-      temp: { kind: "heat" },
-      minus: { kind: "heat" },
-      plus: { kind: "heat" },
-      apply: { entryKind: "scene", secure: false },
-      secure: { entryKind: "scene", secure: true },
-    },
+const deviceParts = [
+  "root",
+  "name",
+  "room",
+  "reading",
+  "level",
+  "temp",
+  "minus",
+  "plus",
+  "lock",
+  "controls",
+  "apply",
+  "secure",
+] as const;
+
+const deviceActions = {
+  items: {
+    root: ["toggle"],
+    lock: ["toggle"],
+    controls: ["press"],
+    level: ["set"],
+    temp: ["set"],
+    minus: ["decrement"],
+    plus: ["increment"],
+    apply: ["press"],
+    secure: ["press"],
+  },
+  when: {
+    root: { entryKind: "device", switchable: true },
+    lock: { kind: "lock" },
+    controls: { entryKind: "device", linked: true },
+    level: { entryKind: "device", adjustable: true },
+    temp: { kind: "heat" },
+    minus: { kind: "heat" },
+    plus: { kind: "heat" },
+    apply: { entryKind: "scene", secure: false },
+    secure: { entryKind: "scene", secure: true },
   },
 } as const;
 
-export function deviceFallback({ cast, lang }: FallbackInput): z.input<typeof deviceProps> {
-  const thing = thingOf(cast);
-  const items = itemsOf(cast, 6);
-  return {
-    rooms: [
-      {
-        label: placeholderTitle(0, lang),
-        devices: (items.length ? items : [undefined]).map((item, index) => ({
-          key: `device_${index + 1}`,
-          name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
-          kind: "light",
-          on: false,
-        })),
-      },
-    ],
-    scenes: [],
-    style: "tiles",
-  };
-}
+export const deviceControls = {
+  group: "input",
+  purpose: "Read and control connected household devices and apply saved settings together.",
+  pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",
+  region: "body",
+  weight: 3,
+  dense: true,
+  tier: "service",
+  realPath:
+    "A host adapter maps device keys to a smart-home service, supplies readings and command acknowledgements; without it this is a labelled mock.",
+  items: {
+    key: "entries",
+    set: { temp: { prop: "temp", min: 5, max: 30 } },
+    adjust: {
+      "plus.increment": { prop: "temp", delta: 0.5 },
+      "minus.decrement": { prop: "temp", delta: -0.5 },
+    },
+    parts: deviceParts,
+  },
+  parts: ["root"],
+  confirmParts: ["lock", "secure"],
+  states: ["filled", "empty", "loading", "success", "error"],
+  actions: deviceActions,
+} as const;

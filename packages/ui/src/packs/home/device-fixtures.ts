@@ -1,5 +1,13 @@
 import type { z } from "zod";
-import { probesFor, type Probe } from "../../catalog";
+import {
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Probe,
+} from "../../catalog";
 import type { deviceProps } from ".";
 
 export const deviceWriteHints = [
@@ -111,3 +119,23 @@ export const deviceProbes = [
   read("Change the front door lock", { address: "d1/r2/lock", action: "toggle" }, 1),
   read("Apply Leave for a walk, which changes the lock", { address: "d1/r8/secure", action: "press" }, 1),
 ] satisfies Probe[];
+
+export function deviceFallback({ cast, lang }: FallbackInput): z.input<typeof deviceProps> {
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
+  return {
+    rooms: [
+      {
+        label: placeholderTitle(0, lang),
+        devices: (items.length ? items : [undefined]).map((item, index) => ({
+          key: `device_${index + 1}`,
+          name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
+          kind: "light",
+          on: false,
+        })),
+      },
+    ],
+    scenes: [],
+    style: "tiles",
+  };
+}
