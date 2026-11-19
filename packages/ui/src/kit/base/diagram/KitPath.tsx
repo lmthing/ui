@@ -79,7 +79,8 @@ function PathNode({ node, index, loading }: { node: Node; index: number; loading
   const target = useNodeTarget(node, loading);
   const current = !loading && node.state === "current";
   const reached = !loading && node.state !== "locked";
-  const icon = node.milestone ? "trophy" : current ? "chevron_right" : reached ? "check" : "lock";
+  const locked = node.state === "locked";
+  const icon = locked ? "lock" : node.milestone ? "trophy" : current ? "chevron_right" : "check";
   return (
     <XStack
       {...target}
@@ -119,7 +120,40 @@ function PathNode({ node, index, loading }: { node: Node; index: number; loading
           node.content
         )}
       </YStack>
+      {locked && node.milestone && <MilestoneMark loading={loading} />}
     </XStack>
+  );
+}
+
+function MilestoneMark({ loading }: { loading: boolean }) {
+  return (
+    <YStack
+      width={size.icon.sm}
+      height={size.icon.sm}
+      flexShrink={component.base.none}
+      borderRadius={radius.sm}
+      backgroundColor={loading ? "$line" : undefined}
+      aria-hidden
+    >
+      {!loading && <KitIcon name="trophy" scale="sm" decorative />}
+    </YStack>
+  );
+}
+
+function EmptyPath({ loading }: { loading: boolean }) {
+  return (
+    <YStack
+      alignSelf="center"
+      width={size.avatar.md}
+      height={size.avatar.md}
+      alignItems="center"
+      justifyContent="center"
+      borderRadius={radius.pill}
+      backgroundColor={loading ? "$line" : "$raised"}
+      aria-hidden
+    >
+      {!loading && <Route size={size.icon.lg} color="$muted" />}
+    </YStack>
   );
 }
 
@@ -127,7 +161,6 @@ function PathNode({ node, index, loading }: { node: Node; index: number; loading
 export function KitPath({ part = "root", loading = false, nodes }: PathProps) {
   const context = usePartContext();
   const address = usePart(part ?? "root", part !== null);
-  const ks = useKitStyle();
   return (
     <YStack
       {...(part === null ? {} : address)}
@@ -135,21 +168,7 @@ export function KitPath({ part = "root", loading = false, nodes }: PathProps) {
       aria-busy={loading || undefined}
     >
       {!nodes.length ? (
-        <YStack
-          minHeight={component.base.ringMd}
-          alignItems="center"
-          justifyContent="center"
-          padding={space.md}
-          borderRadius={shifted("md", ks.radiusShift)}
-          backgroundColor="$raised"
-          aria-hidden
-        >
-          {loading ? (
-            <YStack width="40%" height={space.sm} backgroundColor="$line" borderRadius={radius.sm} />
-          ) : (
-            <Route size={size.icon.lg} color="$muted" />
-          )}
-        </YStack>
+        <EmptyPath loading={loading} />
       ) : (
         nodes.map((node, index) => (
           <PartContext.Provider key={node.id} value={{ ...context, item: node.target?.item ?? node.id }}>

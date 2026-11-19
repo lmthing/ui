@@ -2,9 +2,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
-import { themeName } from "@lmthing/ui/catalog";
+import { size, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitPath, KitText } from "@lmthing/ui/kit";
-import { config, elementAt } from "../../../../test/render";
+import { config, elementAt, styleAt } from "../../../../test/render";
 
 function render(props: Parameters<typeof KitPath>[0]) {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -44,14 +44,20 @@ it("connects items, marks a current step, and disables locked targets", () => {
   const html = render({ nodes });
   expect(elementAt(html, "home/c1/r1/root").attributes).not.toContain('role="button"');
   expect(elementAt(html, "home/c1/r2/open").attributes).toContain('aria-current="step"');
-  expect(elementAt(html, "home/c1/r4/open").attributes).toContain('aria-disabled="true"');
+  const lockedMilestone = elementAt(html, "home/c1/r4/open");
+  expect(lockedMilestone.attributes).toContain('aria-disabled="true"');
+  expect(lockedMilestone.children).toHaveLength(3);
+  expect(lockedMilestone.children[0]!.children[0]!.children[0]!.tag).toBe("svg");
+  const trophy = lockedMilestone.children[2]!;
+  expect(trophy.attributes).toContain('aria-hidden="true"');
+  expect(styleAt(html, trophy)).toContain(`width:${size.icon.sm}px`);
   expect(html).toContain('data-testid="home/c1/r4/title"');
   expect(html).toContain('data-testid="home/c1/r5/title"');
   expect(html).not.toContain("home/c1/r5/root");
   expect(html.match(/vector-effect="non-scaling-stroke"/g)).toHaveLength(nodes.length - 1);
 });
 
-it("keeps connector count in loading, and draws an unaddressed empty track", () => {
+it("keeps connector count in loading, and draws a compact empty badge", () => {
   const html = render({ nodes, loading: true });
   expect(html).toContain('aria-busy="true"');
   expect(html.match(/vector-effect="non-scaling-stroke"/g)).toHaveLength(nodes.length - 1);
@@ -59,4 +65,8 @@ it("keeps connector count in loading, and draws an unaddressed empty track", () 
   const empty = render({ nodes: [], part: null });
   expect(empty).toContain("<svg");
   expect(empty).not.toContain("data-testid=");
+  const emptyWithPart = render({ nodes: [] });
+  expect(styleAt(emptyWithPart, elementAt(emptyWithPart, "home/c1/root").children[0]!)).toContain(
+    `height:${size.avatar.md}px`,
+  );
 });
