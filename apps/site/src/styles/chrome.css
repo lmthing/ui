@@ -2,101 +2,180 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(14px);
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
-.site-header .wrap {
+.site-header .bar {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px 28px;
   min-height: 60px;
-  flex-wrap: wrap;
 }
 .brand {
-  font: 700 1.1rem var(--serif);
   color: var(--text);
-  text-decoration: none;
+  display: inline-flex;
   margin-right: auto;
+  padding: 6px 0;
 }
-.brand b {
-  color: var(--accent);
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 .nav {
   display: flex;
-  gap: 4px;
+  gap: 4px 22px;
 }
 .nav a {
-  padding: 8px 10px;
-  color: var(--muted);
+  color: var(--text);
   text-decoration: none;
-  font-weight: 500;
   font-size: 0.9rem;
-  border-radius: 8px;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
 }
 .nav a:hover {
-  color: var(--text);
-  background: var(--raised);
+  border-bottom-color: var(--accent);
 }
-.theme-switcher {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.mark .part {
+  transform-box: fill-box;
 }
-.seg {
+.mark.animate .part {
+  animation: snap 0.5s var(--ease) both;
+}
+.mark.animate .p1 {
+  animation-delay: 0.14s;
+}
+.mark.animate .p2 {
+  animation-delay: 0.28s;
+}
+@keyframes snap {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(1.5px);
+  }
+  100% {
+    transform: none;
+  }
+}
+.theme-pop {
+  position: relative;
+}
+.theme-pop > button {
   display: inline-flex;
-  background: var(--raised);
-  border-radius: 999px;
-  padding: 2px;
-}
-.seg button {
-  border: 0;
-  background: transparent;
-  color: var(--muted);
-  font: 600 0.75rem var(--sans);
-  padding: 6px 10px;
-  border-radius: 999px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--text);
+  font: 500 0.72rem var(--mono);
+  padding: 8px 12px;
+  min-height: 40px;
   cursor: pointer;
-  min-height: 32px;
+}
+.theme-pop > button:hover {
+  border-color: var(--accent);
+}
+.swatch {
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(90deg, var(--text) 50%, var(--accent) 50%);
+}
+.pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  width: min(300px, 86vw);
+  background: var(--surface);
+  border: 1px solid var(--text);
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+.pop p {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.choice {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.choice legend {
+  font: 500 0.68rem var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 0;
+  margin-bottom: 6px;
+  float: left;
+  width: 100%;
+}
+.choice label {
+  position: relative;
+  border: 1px solid var(--line);
+  padding: 5px 12px;
+  font: 500 0.78rem var(--mono);
+  cursor: pointer;
   text-transform: capitalize;
 }
-.seg button[aria-checked="true"] {
-  background: var(--surface);
+.choice label.on {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.choice input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  cursor: pointer;
+}
+.choice label:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 40px 0 72px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.site-footer .wrap {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0;
   color: var(--text);
-  box-shadow: 0 1px 3px color-mix(in srgb, var(--text) 18%, transparent);
+}
+.site-footer .mark {
+  color: var(--text);
 }
 @media (max-width: 760px) {
+  .site-header .bar {
+    flex-wrap: wrap;
+    padding-block: 6px;
+  }
   .nav {
-    order: 2;
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-    white-space: nowrap;
-  }
-  .brand {
-    margin-right: 0;
-  }
-  .theme-switcher {
     order: 3;
     width: 100%;
-    flex-wrap: nowrap;
     overflow-x: auto;
+    white-space: nowrap;
     scrollbar-width: none;
-    padding-bottom: 8px;
   }
-  .site-header .wrap {
-    gap: 4px 16px;
-  }
-  .seg button {
-    padding: 6px 9px;
+  .theme-pop > button {
+    font-size: 0.68rem;
+    padding: 8px;
   }
   .site-header {
     position: static;
   }
-}
-footer.site-footer {
-  border-top: 1px solid var(--line);
-  padding: 40px 0 64px;
-  color: var(--muted);
-  font-size: 0.9rem;
 }

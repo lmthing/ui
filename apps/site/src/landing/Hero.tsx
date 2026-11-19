@@ -2,39 +2,34 @@ import { lazy } from "react";
 import { Lazy } from "../shared/Lazy";
 import { site } from "../data/site";
 
-const CreateDemo = lazy(() => import("../create/CreateDemo").then((m) => ({ default: m.CreateDemo })));
+const CreateDemo = lazy(() => import("../create/CreateDemo"));
 
 export function Hero() {
   const { stats } = site;
   return (
-    <header className="hero wrap">
+    <section className="hero wrap" aria-labelledby="hero-h">
       <div className="hero-copy">
-        <p className="eyebrow">lmthing/ui</p>
-        <h1>Models pick. The kit renders.</h1>
+        <p className="label">01 / Watch</p>
+        <h1 id="hero-h">Components a model can't misuse</h1>
         <p className="lede">
-          A fixed, typed catalog of {stats.core} core components that a model chooses from and fills in as
-          JSON lines, and a kit that draws them. The model never writes code, a colour or a size, so even a
-          small model cannot produce a broken screen.
+          lmthing/ui is the component catalog behind lmthing. A model picks from {stats.core} core components
+          and up to three of {site.packs.length} domain packs, and writes each one as a JSON line. Code checks
+          the line and the kit draws it. There is no code, colour or size in a line to get wrong.
         </p>
-        <div className="cta">
+        <p className="actions">
           <a className="btn primary" href="#try">
-            Try it live
+            Try it with a model
           </a>
-          <a className="btn" href="#components">
-            Browse components
+          <a className="textlink" href="#/components">
+            Browse {stats.built} components
           </a>
-          <a className="textlink" href="gallery/">
-            Static gallery &rarr;
-          </a>
-        </div>
-        <p className="hero-note">
-          Live below: a real kit screen assembling from real recorded output. {stats.shipped} components are
-          ready, {stats.packsReady} of {site.packs.length} packs are live, the rest are planned.
+        </p>
+        <p className="facts">
+          {stats.shipped} components ready · {stats.packsReady} of {site.packs.length} packs live ·{" "}
+          {stats.themesBuilt} themes built
         </p>
       </div>
-      <div className="hero-demo">
-        <Lazy view={CreateDemo} compact />
-      </div>
-    </header>
+      <Lazy view={CreateDemo} fallback={<div className="demo-skel" aria-busy="true" />} />
+    </section>
   );
 }

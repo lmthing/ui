@@ -1,30 +1,28 @@
 import { lazy } from "react";
 import { Lazy } from "../shared/Lazy";
 import { packById } from "../data/site";
-import { ComponentTile } from "../landing/ComponentTile";
+import { Specimen } from "../index/Specimen";
+import { NotFound } from "../shell/NotFound";
 import { cap, shotLabel, statusOf } from "../shared/status";
 
 const WorkedExample = lazy(() => import("./WorkedExample"));
 
-/** One pack: its status, its components (links to live playgrounds), its worked app in three presets. */
+/** One pack: status, its worked app in three presets, its components, then what is still planned. */
 export default function PackPage({ id }: { id: string }) {
   const pack = packById.get(id);
-  if (!pack)
-    return (
-      <div className="wrap block">
-        <h2>No pack called {id}</h2>
-        <a href="#/">Back</a>
-      </div>
-    );
+  if (!pack) return <NotFound what={`pack called ${id}`} />;
   const status = statusOf(pack);
+  const planned = pack.planned.filter((p) => !pack.items.some((i) => i.id === p.id));
   return (
-    <main className="wrap block">
+    <main id="main" className="wrap page">
       <a href="#packs">&larr; All packs</a>
-      <h1>{cap(pack.id)}</h1>
-      <p className="chips">
-        <span className={`chip ${status === "live" ? "" : "warn"}`}>{status}</span>
-        <span className="chip muted">wave {pack.wave}</span>
+      <p className="caption">
+        <span>
+          Pack · wave {pack.wave} · {status}
+        </span>
+        <span>{shotLabel(pack)}</span>
       </p>
+      <h1>{cap(pack.id)}</h1>
       <p className="lede">{pack.pick}</p>
       {pack.example && (
         <p className="pickline">
@@ -33,23 +31,23 @@ export default function PackPage({ id }: { id: string }) {
       )}
       {pack.lines.length > 0 && <Lazy view={WorkedExample} id={pack.id} />}
       <h2>Components</h2>
-      <div className="index-grid">
+      <div className="specimens all">
         {pack.items.map((item) => (
-          <ComponentTile key={item.id} item={item} />
+          <Specimen key={item.id} item={item} />
         ))}
-        {pack.planned
-          .filter((p) => !pack.items.some((i) => i.id === p.id))
-          .map((p) => (
-            <div key={p.id} className="tile card planned">
-              <span className="tile-body">
-                <b>{p.id}</b>
-                <span className="chip muted">planned · {p.group}</span>
-                <span className="purpose">{p.summary}</span>
+        {planned.map((p) => (
+          <article key={p.id} className="specimen planned">
+            <p className="spec-head">
+              <span>planned</span>
+              <span>
+                {pack.id} · {p.group}
               </span>
-            </div>
-          ))}
+            </p>
+            <h3>{p.id}</h3>
+            <span className="purpose">{p.summary}</span>
+          </article>
+        ))}
       </div>
-      <p className="muted">{shotLabel(pack)}</p>
     </main>
   );
 }

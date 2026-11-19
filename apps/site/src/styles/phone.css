@@ -8,10 +8,9 @@
 .phone-screen {
   width: 100%;
   overflow: auto;
-  border: 8px solid var(--text);
-  border-radius: 38px;
+  border: 6px solid var(--text);
+  border-radius: 32px;
   background: var(--bg);
-  box-shadow: 0 24px 60px -24px color-mix(in srgb, var(--text) 45%, transparent);
   display: flex;
   justify-content: center;
   scrollbar-width: none;
@@ -20,22 +19,22 @@
   display: none;
 }
 .phone figcaption {
-  font: 500 0.78rem var(--sans);
+  font: 500 0.72rem var(--mono);
   color: var(--muted);
 }
 .addr-hit {
-  outline: 3px solid var(--accent) !important;
+  outline: 2px solid var(--accent) !important;
   outline-offset: 2px;
-  border-radius: 10px;
-  animation: pulse 1.2s ease-in-out infinite;
-}
-@keyframes pulse {
-  50% {
-    outline-color: transparent;
-  }
+  border-radius: 6px;
 }
 .addr-tip {
-  font: 500 0.78rem var(--mono);
+  font: 500 0.75rem var(--mono);
   color: var(--muted);
   min-height: 1.4em;
+}
+.phone-skel {
+  border: 6px solid var(--line);
+  border-radius: 32px;
+  background: var(--raised);
+  animation: shimmer 1.4s linear infinite;
 }

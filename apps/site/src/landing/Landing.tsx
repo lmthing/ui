@@ -1,22 +1,19 @@
-import { ComponentIndex } from "./ComponentIndex";
 import { Hero } from "./Hero";
-import { IdeasSection } from "./IdeasSection";
-import { LlmSection } from "./LlmSection";
-import { PacksSection } from "./PacksSection";
-import { StatsStrip } from "./StatsStrip";
+import { PacksShelf } from "./PacksShelf";
+import { Pipeline } from "./Pipeline";
+import { Specimens } from "./Specimens";
 import { ThemesSection } from "./ThemesSection";
 import { TrySection } from "./TrySection";
 
+/** Watch, try, browse: the home page tells one story in that order. */
 export function Landing() {
   return (
-    <main>
+    <main id="main">
       <Hero />
-      <StatsStrip />
-      <IdeasSection />
-      <LlmSection />
+      <Pipeline />
       <TrySection />
-      <PacksSection />
-      <ComponentIndex />
+      <PacksShelf />
+      <Specimens />
       <ThemesSection />
     </main>
   );

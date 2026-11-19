@@ -36,7 +36,7 @@ export function TierBar({ chrome, gpu, local, choice, engine, onChoice, onDownlo
   ];
   return (
     <div className="tiers">
-      <div className="tabs" role="radiogroup" aria-label="Where the model runs">
+      <div className="seg tier" role="radiogroup" aria-label="Where the model runs">
         {options.map(([value, label, note, enabled]) => (
           <button
             key={value}

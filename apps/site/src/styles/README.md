@@ -1,6 +1,7 @@
 # src/styles
 
-Plain CSS. Colours come only from CSS variables that `theme/ThemeContext.tsx` sets from the catalog's
-theme roles, so there are no colour literals here beyond the pre-JS defaults in `base.css`. Transitions on
-those variables are what make a theme switch morph. `prefers-reduced-motion` turns all motion off.
-Files: `base.css` (tokens, type, reveal), `parts.css` (buttons, chips, cards, code), `chrome.css` (header, footer), `packs.css`, `landing.css`, `playground.css`, `phone.css`, `try.css`.
+Plain CSS. Colours come only from CSS variables that `theme/ThemeContext.tsx` sets from the catalog's theme
+roles (the literals in `base.css` are the pre-JS defaults). Transitions on those variables make a theme
+switch morph, and `prefers-reduced-motion` turns motion off. Files: `base.css` (tokens, type, sections),
+`parts.css`, `chrome.css` (header, logo, theme popover), `phone.css`, `home.css`, `packs.css`,
+`specimens.css`, `try.css`, `playground.css`.

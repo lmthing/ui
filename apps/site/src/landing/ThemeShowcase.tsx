@@ -17,8 +17,8 @@ export default function ThemeShowcase() {
         <Phone
           key={preset.id}
           screen={screen}
-          width={300}
-          height={520}
+          width={280}
+          height={440}
           theme={{ preset: preset.id }}
           label={`${preset.id}: ${preset.mood}, ${preset.shape} shapes`}
         />

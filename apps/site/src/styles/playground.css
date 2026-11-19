@@ -67,7 +67,7 @@
 }
 .list-field .item {
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 0;
   padding: 8px;
   margin-bottom: 8px;
 }
@@ -82,7 +82,7 @@
   border: 1px solid var(--line);
   background: var(--raised);
   color: var(--text);
-  border-radius: 8px;
+  border-radius: 0;
   padding: 4px 10px;
   cursor: pointer;
 }

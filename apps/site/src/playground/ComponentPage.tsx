@@ -3,6 +3,7 @@ import { itemById } from "../data/site";
 import { Phone } from "../live/Phone";
 import { Json } from "../shared/Json";
 import { Controls } from "./Controls";
+import { NotFound } from "../shell/NotFound";
 import { PageHead } from "./PageHead";
 import { usePlayground } from "./usePlayground";
 
@@ -12,15 +13,9 @@ export default function ComponentPage({ id }: { id: string }) {
   const [width, setWidth] = useState(390);
   const [hover, setHover] = useState<string | null>(null);
   const item = itemById.get(id);
-  if (!pg.def || !item)
-    return (
-      <div className="wrap block">
-        <h2>No component called {id}</h2>
-        <a href="#/">Back</a>
-      </div>
-    );
+  if (!pg.def || !item) return <NotFound what={`component called ${id}`} />;
   return (
-    <main className="wrap block playground">
+    <main id="main" className="wrap page playground">
       <PageHead id={id} item={item} />
       <div className="pg-grid">
         <Controls id={id} pg={pg} width={width} setWidth={setWidth} />
