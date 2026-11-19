@@ -1,4 +1,5 @@
 export { accountCopy, accountReading } from "./AccountCard";
+export { amountPadKeys, amountPadReading, amountPadText } from "./AmountPad";
 export { billLines, billsReading, billTotalLine, localBillDate, orderedBills } from "./Bills";
 export { loanCopy, loanReading } from "./Loan";
 export {
