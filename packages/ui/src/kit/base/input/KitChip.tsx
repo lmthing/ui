@@ -34,7 +34,8 @@ function ChipContent({
   icon,
   look,
   stamped,
-}: Pick<Parameters<typeof Chip>[0], "label" | "on" | "icon" | "look" | "stamped">) {
+  labelPart = "label",
+}: Pick<Parameters<typeof Chip>[0], "label" | "on" | "icon" | "look" | "stamped" | "labelPart">) {
   const ks = useKitStyle();
   if (look === "segment") {
     return (
@@ -47,7 +48,7 @@ function ChipContent({
         backgroundColor={on ? "$surface" : "transparent"}
         {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
       >
-        <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? "label" : null} lines={1}>
+        <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? labelPart : null} lines={1}>
           {label}
         </KitText>
       </XStack>
@@ -56,7 +57,7 @@ function ChipContent({
   return (
     <Pill on={on}>
       {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
-      <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? "label" : null} lines={1}>
+      <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? labelPart : null} lines={1}>
         {label}
       </KitText>
     </Pill>
@@ -70,6 +71,8 @@ function Chip({
   icon,
   look,
   stamped,
+  part = "root",
+  labelPart = "label",
 }: {
   label: string;
   on: boolean;
@@ -77,16 +80,18 @@ function Chip({
   icon?: IconName | undefined;
   look: "pill" | "segment";
   stamped: boolean;
+  part?: string;
+  labelPart?: string | null;
 }) {
-  const address = usePart("root", stamped);
+  const address = usePart(part, stamped);
   const kit = useKit();
   const parent = useContext(ChoiceTarget);
   const target = stamped ? address.testID : parent;
-  const part = stamped ? address : {};
+  const hit = stamped ? address : {};
   const segment = look === "segment";
   return (
     <Hit
-      {...part}
+      {...hit}
       {...(segment ? { flex: 1 } : {})}
       accessibilityRole={role}
       {...(kit.interactive && kit.controller && target
@@ -101,7 +106,7 @@ function Chip({
       aria-selected={role === "tab" ? on : undefined}
       accessibilityLabel={label}
     >
-      <ChipContent label={label} on={on} icon={icon} look={look} stamped={stamped} />
+      <ChipContent label={label} on={on} icon={icon} look={look} stamped={stamped} labelPart={labelPart} />
     </Hit>
   );
 }
@@ -122,6 +127,10 @@ export function KitChip({
   role: "checkbox" | "radio" | "tab";
   icon?: IconName | undefined;
   look?: "pill" | "segment";
+  /** Named control under this item; omitted callers retain the item root. */
+  part?: string;
+  /** Label address; null leaves caller-owned group labels untouched. */
+  labelPart?: string | null;
 }) {
   const context = usePartContext();
   if (item === null) return <Chip {...props} look={look} stamped={false} />;
