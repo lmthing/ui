@@ -82,9 +82,13 @@ async function checkEdges(browser: Browser) {
 
 /** A tab open across a deploy asks for a chunk that is gone: reload once, then show the chrome and a Reload button. */
 async function checkStaleChunk(browser: Browser) {
-  const page = await open(browser, 1280);
+  const page = await open(browser, 1280, undefined, /Failed to fetch dynamically imported module/);
   let loads = 0;
-  page.on("load", () => (loads += 1));
+  // Count document requests, not load events: the chunk fails before the first load event, so the reload
+  // replaces that navigation and only one load event fires.
+  page.on("request", (request) => {
+    if (request.resourceType() === "document") loads += 1;
+  });
   await page.route(/ComponentPage-[^/]*\.js/, (route) => route.abort());
   await page.goto(`${base}#/c/Amount`);
   await page.getByRole("button", { name: "Reload" }).waitFor({ timeout: 15000 });

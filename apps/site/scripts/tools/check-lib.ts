@@ -15,7 +15,8 @@ export const expect = (ok: boolean, what: string) => (
   ok || failures.push(what)
 );
 
-export async function open(browser: Browser, width: number, init?: string) {
+/** `allow` matches console errors a check provokes on purpose (e.g. a blocked chunk). */
+export async function open(browser: Browser, width: number, init?: string, allow?: RegExp) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
   page.on("pageerror", (e) => failures.push(`pageerror: ${e.message.slice(0, 200)}`));
   page.on(
@@ -23,6 +24,7 @@ export async function open(browser: Browser, width: number, init?: string) {
     (m) =>
       m.type() === "error" &&
       !/Failed to load resource/.test(m.text()) &&
+      !(allow && allow.test(m.text())) &&
       failures.push(`console: ${m.text().slice(0, 200)}`),
   );
   if (init) await page.addInitScript(init);
