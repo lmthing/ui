@@ -1,6 +1,6 @@
 import { YStack } from "tamagui";
 import { component, radius, space, type as typography } from "../../../catalog";
-import { KitContent, KitText, type TextRole } from "../text";
+import { KitContent, KitText, useTextStep, type TextFinish, type TextRole } from "../text";
 
 export type SkeletonLine = {
   text: string;
@@ -56,8 +56,16 @@ export function linesOf(item: SkeletonItem, heading = false): SkeletonLine[] {
 }
 
 /** Hidden text reserves the real wrapping height; clipped bars occupy each line. */
-export function SkeletonText({ text, role, align = "start", numberScale = "display" }: SkeletonLine) {
-  const scale = typography[role === "number" && numberScale === "compact" ? "body" : role];
+export function SkeletonText({
+  text,
+  role,
+  align = "start",
+  numberScale = "display",
+  density,
+  emphasis,
+}: SkeletonLine & TextFinish) {
+  const stepOf = useTextStep({ density, emphasis });
+  const scale = typography[stepOf(role === "number" && numberScale === "compact" ? "body" : role)];
   const line = scale.lineHeight;
   const height = scale.size * 0.6;
   return (
@@ -73,6 +81,7 @@ export function SkeletonText({ text, role, align = "start", numberScale = "displ
         <KitText
           role={role}
           numberScale={numberScale}
+          {...{ density, emphasis }}
           align={align}
           part={null}
           {...(/^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text) ? { lines: 1 } : {})}

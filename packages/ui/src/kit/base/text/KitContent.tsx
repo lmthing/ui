@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { XStack, YStack, styled } from "tamagui";
-import { component, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { component, space, type as typography, variants, type AxisValue } from "../../../catalog";
+import { useVariantDensity } from "../../provider";
+import { useTextStep, type TextFinish } from "./text-step";
 
 const Frame = styled(XStack, { alignItems: "flex-start" });
 const Edge = styled(YStack, { justifyContent: "center", alignItems: "center" });
@@ -18,6 +19,9 @@ export function KitContent({
   leadingAlign = "line",
   inset = "none",
   group = "content",
+  align = "start",
+  density,
+  emphasis,
   children,
 }: {
   lead?: ReactNode;
@@ -29,22 +33,22 @@ export function KitContent({
   inset?: "none" | "md";
   /** A response group separates from the preceding content without changing its internal gap. */
   group?: "content" | "response";
+  align?: AxisValue<"align">;
   children: ReactNode;
-}) {
-  const ks = useKitStyle();
+} & TextFinish) {
+  const gap = space[useVariantDensity(density).gap];
+  const line = typography[useTextStep({ density, emphasis })(lineRole)].lineHeight;
   return (
     <Frame
-      gap={space[ks.density.gap]}
+      gap={gap}
       paddingHorizontal={inset === "md" ? space.md : component.base.none}
       {...(group === "response" ? { marginTop: space.md - space.xs } : {})}
     >
       {lead &&
-        (leadingAlign === "row" ? (
-          <Edge alignSelf="center">{lead}</Edge>
-        ) : (
-          <Edge height={typography[lineRole].lineHeight}>{lead}</Edge>
-        ))}
-      <Text gap={space.xs}>{children}</Text>
+        (leadingAlign === "row" ? <Edge alignSelf="center">{lead}</Edge> : <Edge height={line}>{lead}</Edge>)}
+      <Text gap={space.xs} {...(align === "center" ? { alignItems: variants.align.center.content } : {})}>
+        {children}
+      </Text>
     </Frame>
   );
 }

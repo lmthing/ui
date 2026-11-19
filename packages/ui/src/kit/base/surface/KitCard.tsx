@@ -1,17 +1,17 @@
 import { Theme, YStack, createVariable, getThemes, isWeb, styled, useThemeName } from "tamagui";
 import type { ReactNode } from "react";
-import { component, presets, space, type Swatch } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
-import { useComponentState, usePart } from "../../part";
 import {
-  CardStyleContext,
-  outlined,
-  shifted,
-  surfaceOf,
-  tintOf,
-  type CardStyle,
-  type SurfaceTone,
-} from "../text";
+  component,
+  presets,
+  space,
+  variants,
+  type AxisValue,
+  type Swatch,
+  type ThemeDensity,
+} from "../../../catalog";
+import { useKit, useKitStyle, useVariantDensity } from "../../provider";
+import { useComponentState, usePart } from "../../part";
+import { CardStyleContext, shifted, variantSurfaceOf, type CardStyle, type SurfaceTone } from "../text";
 
 const Frame = styled(YStack, {
   variants: {
@@ -28,6 +28,12 @@ type CardProps = {
   part?: string;
   /** `inset` cards only: the preset surface (default), a `tinted` fill in the tone, or an `outlined` rule. */
   look?: "surface" | "tinted" | "outlined";
+  /** Finish of the enclosing card. `style="cards"` stays a transparent wrapper for individual rows. */
+  surface?: AxisValue<"surface">;
+  density?: ThemeDensity;
+  align?: AxisValue<"align">;
+  /** `edge` cancels the phone gutter when this card is the screen-level frame. */
+  bleed?: AxisValue<"bleed">;
   tone?: SurfaceTone;
   /** Clip children to the rounded corners (a photo at the top of a card). */
   clip?: boolean;
@@ -81,53 +87,51 @@ function CardChildren({ loading, children }: { loading: boolean; children: React
   );
 }
 
-export function KitCard({
-  children,
-  style = "inset",
-  part = "root",
-  look = "surface",
-  tone = "neutral",
-  clip = false,
-  goto,
-  label,
-  padded = false,
-  inset = "md",
-  swatch,
-}: CardProps) {
+function useCardFinish({ style, look, surface, tone, density, align, bleed, padded, inset }: CardProps) {
   const ks = useKitStyle();
+  const spacing = useVariantDensity(density);
+  const finish =
+    style === "cards"
+      ? "plain"
+      : (surface ?? (style === "plain" ? "plain" : look === "surface" ? "card" : look));
+  const gutter = variants.bleed[bleed ?? "inset"];
+  return {
+    ...variantSurfaceOf(finish ?? "card", ks.surface, tone ?? "neutral"),
+    borderRadius: shifted("md", ks.radiusShift),
+    padding: padded ? space.md : style === "inset" ? space.xs : component.base.none,
+    ...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {}),
+    gap: style === "cards" ? space[spacing.gap] : padded ? space[spacing.contentGap] : component.base.none,
+    ...(align === "center" ? { alignItems: variants.align.center.content } : {}),
+    ...(gutter ? { marginHorizontal: -space[gutter] } : {}),
+  };
+}
+
+function useCardPress(address: string, goto: CardProps["goto"], loading: boolean) {
   const kit = useKit();
+  if (!kit.interactive || loading || !goto) return {};
+  return { onPress: () => (kit.controller ? kit.controller.press(address) : kit.onLink?.(goto, address)) };
+}
+
+export function KitCard(props: CardProps) {
+  const { children, style = "inset", part = "root", clip = false, goto, label, swatch } = props;
   const root = usePart(part);
   const loading = useComponentState() === "loading" && Boolean(swatch);
   const theme = swatchTheme(useThemeName(), swatch);
-  const surface =
-    style !== "inset"
-      ? {}
-      : look === "tinted"
-        ? tintOf(tone)
-        : look === "outlined"
-          ? outlined
-          : surfaceOf(ks.surface);
+  const finish = useCardFinish({ ...props, style });
+  const action = useCardPress(root.testID, goto, loading);
   return (
     <CardStyleContext.Provider value={style}>
       <Theme name={theme}>
         <Frame
           {...root}
-          {...surface}
+          cardStyle={style}
+          {...finish}
           {...(swatch ? { backgroundColor: loading ? "$line" : component.swatch[swatch] } : {})}
           {...(swatch && isWeb ? { className: `kit-swatch-${swatch}` } : {})}
-          cardStyle={style}
-          borderRadius={shifted("md", ks.radiusShift)}
-          padding={padded ? space.md : style === "inset" ? space.xs : component.base.none}
-          {...(padded && inset === "none" ? { paddingHorizontal: component.base.none } : {})}
-          gap={style === "cards" ? space[ks.density.gap] : padded ? space.sm : component.base.none}
           {...(clip ? { overflow: "hidden" as const } : {})}
           accessibilityRole={loading ? undefined : goto ? "link" : "list"}
           {...(label ? { accessibilityLabel: label } : {})}
-          {...(kit.interactive && !loading && kit.controller && goto
-            ? { onPress: () => kit.controller!.press(root.testID) }
-            : kit.interactive && !loading && goto
-              ? { onPress: () => kit.onLink?.(goto, root.testID) }
-              : {})}
+          {...action}
         >
           {swatch && isWeb && (
             <style>{`.kit-swatch-${swatch}{${["text", "muted", "accent", "good", "warn", "bad", "onAccent"].map((role) => `--${role}:${getThemes()[theme]![role]!.val}`).join(";")}}`}</style>

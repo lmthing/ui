@@ -1,4 +1,4 @@
-import type { Axis, AxisValue } from "../../catalog";
+import { variantAxes, variants, type Axis, type AxisValue, type ThemeDensity } from "../../catalog";
 import { useKit } from "./useKit";
 
 /** Resolve only values declared by the caller. The first declared value is its local default. */
@@ -21,4 +21,11 @@ export function resolveVariant<const D extends readonly [string, ...string[]]>(
     declared.find((choice) => choice === appValue) ??
     declared[0]
   );
+}
+
+export function useVariantDensity(value?: ThemeDensity) {
+  const { style } = useKit();
+  const { text, contentGap, columnGap, stripGap, ...spacing } =
+    variants.density[useVariant("density", variantAxes.density.values, value)];
+  return { ...spacing[style.densityKind], text, contentGap, columnGap, stripGap };
 }

@@ -2,7 +2,7 @@ import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
-import { component, radius, size, space } from "../../../catalog";
+import { component, radius, size, space, type AxisValue } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
 
@@ -47,7 +47,7 @@ const Knob = styled(YStack, {
   } as const,
 });
 
-export type TrailKind = "none" | "chevron" | "check" | "toggle" | "value" | "badge";
+export type TrailKind = AxisValue<"trail">;
 type TrailProps = {
   kind: TrailKind;
   value?: string | undefined;

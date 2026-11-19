@@ -1,8 +1,7 @@
 import { expect, it } from "vitest";
-import { variantAxes } from "../props";
-import { presets } from "../themes";
-import { space } from "./space";
-import { variants } from "./variants";
+import { variantAxes } from "../../props";
+import { presets } from "../../themes";
+import { space, variants } from "../index";
 
 it("maps every finish choice to tokens", () => {
   for (const [axis, declaration] of Object.entries(variantAxes)) {

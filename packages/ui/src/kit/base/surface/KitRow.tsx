@@ -1,9 +1,18 @@
 import { useContext, type ReactNode } from "react";
 import { XStack, YStack, styled, useThemeName } from "tamagui";
-import { component, size, space, type as typography } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
+import { component, size, space, type as typography, type AxisValue } from "../../../catalog";
+import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { CardStyleContext, shifted, surfaceOf, tintOf, type SurfaceTone, type TextTone } from "../text";
+import {
+  CardStyleContext,
+  shifted,
+  tintOf,
+  useTextStep,
+  variantSurfaceOf,
+  type SurfaceTone,
+  type TextFinish,
+  type TextTone,
+} from "../text";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
@@ -24,7 +33,9 @@ type RowProps = {
   expanded?: boolean;
   selected?: boolean;
   tone?: SurfaceTone | undefined;
-  rowTone?: TextTone | undefined;
+  rowTone?: TextTone | "neutral" | undefined;
+  surface?: AxisValue<"surface"> | undefined;
+  mark?: AxisValue<"mark"> | undefined;
   /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
   leadingAlign?: "line" | "row";
   /** Reserve the same avatar-width leading column for every row in a mixed list. */
@@ -35,7 +46,7 @@ type RowProps = {
   part?: string | null;
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
-};
+} & TextFinish;
 
 function rowTint(tone: TextTone | undefined) {
   if (!tone) return {};
@@ -45,13 +56,18 @@ function rowTint(tone: TextTone | undefined) {
   };
 }
 
-function useRowSurface(tone: RowProps["tone"], rowTone: RowProps["rowTone"]) {
+function useRowSurface(tone: RowProps["tone"], rowTone: TextTone | undefined, surface: RowProps["surface"]) {
   const style = useContext(CardStyleContext);
-  const { surface } = useKitStyle();
-  return { ...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(surface) : {}), ...rowTint(rowTone) };
+  const preset = useKitStyle().surface;
+  const finish = surface ?? (tone ? "tinted" : style === "cards" ? "card" : "plain");
+  const semantic = rowTone === "good" || rowTone === "warn" || rowTone === "bad" ? rowTone : undefined;
+  return {
+    ...variantSurfaceOf(finish, preset, tone ?? (surface ? semantic : undefined) ?? "neutral"),
+    ...(surface === undefined ? rowTint(rowTone) : {}),
+  };
 }
 
-function RowDecoration({ fade = false }: { fade?: boolean }) {
+function RowDecoration({ fade = false, fresh = false }: { fade?: boolean; fresh?: boolean }) {
   const ks = useKitStyle();
   return (
     <YStack
@@ -63,7 +79,10 @@ function RowDecoration({ fade = false }: { fade?: boolean }) {
       borderRadius={shifted("md", ks.radiusShift)}
       {...(fade
         ? { backgroundColor: "$raised", opacity: component.base.stackFade }
-        : { borderWidth: component.base.strongBorder, borderColor: "$accent" })}
+        : {
+            borderWidth: fresh ? component.base.borderWidth : component.base.strongBorder,
+            borderColor: "$accent",
+          })}
       pointerEvents="none"
       aria-hidden
     />
@@ -97,34 +116,23 @@ function useRowPress(address: string, part: RowProps["part"], goto: RowProps["go
   if (goto) return () => kit.onLink?.(goto, address);
 }
 
-export function Row({
-  children,
-  leading,
-  trailing,
-  goto,
-  label,
-  lineRole = "body",
-  role,
-  expanded,
-  selected,
-  tone,
-  rowTone,
-  leadingAlign = "line",
-  leadingWidth,
-  inline = false,
-  addressed = true,
-  part = "root",
-  inset = "md",
-}: RowProps) {
-  const line = typography[lineRole].lineHeight;
+export function Row(props: RowProps) {
+  const { children, leading, trailing, goto, label, role, expanded, selected } = props;
+  const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
+  const { leadingAlign = "line", leadingWidth, inline = false, addressed = true } = props;
+  const { part = "root", inset = "md" } = props;
+  const line = typography[useTextStep({ density, emphasis })(lineRole)].lineHeight;
   const ks = useKitStyle();
-  const status = useRowStatus(rowTone, !inline && inset === "md");
+  const spacing = useVariantDensity(density);
+  const semanticTone = rowTone === "neutral" ? undefined : rowTone;
+  const status = useRowStatus(semanticTone, !inline && inset === "md" && surface === undefined);
+  const dimmed = !selected && mark === "muted";
   const address = usePart(part ?? "root", addressed && part !== null);
   return (
     <Frame
       {...(addressed && part !== null ? address : {})}
-      {...useRowSurface(tone, rowTone ?? (selected ? "accent" : undefined))}
-      paddingVertical={inline ? component.base.none : space[ks.density.rowPad]}
+      {...useRowSurface(tone, semanticTone ?? (selected ? "accent" : undefined), surface)}
+      paddingVertical={inline ? component.base.none : space[spacing.rowPad]}
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={goto ? "link" : (role ?? "listitem")}
@@ -133,10 +141,10 @@ export function Row({
       aria-expanded={expanded}
       onPress={useRowPress(address.testID, part, goto)}
     >
-      {status && <RowDecoration fade />}
+      {(status || dimmed) && <RowDecoration fade />}
       <Content
-        gap={inline ? space.xs : space[ks.density.gap]}
-        minHeight={inline ? line : Math.max(line, size.control.md - space[ks.density.rowPad] * 2)}
+        gap={inline ? space.xs : space[spacing.gap]}
+        minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >
         {leading && (
           <Edge
@@ -150,7 +158,9 @@ export function Row({
         {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
       </Content>
       {status && <RowStatusRule tone={status} />}
-      {selected && <RowDecoration />}
+      {(selected || mark === "highlight" || mark === "new") && (
+        <RowDecoration fresh={!selected && mark === "new"} />
+      )}
     </Frame>
   );
 }
@@ -163,30 +173,12 @@ function RowTrailing({ line, children }: { line: number; children: ReactNode }) 
   );
 }
 
-export function KitRow({
-  item,
-  tone,
-  ...props
-}: {
+type KitRowProps = Omit<RowProps, "addressed" | "rowTone" | "tone"> & {
   item?: string;
-  /** Named control; omit for the item root or pass null to leave the row unaddressed. */
-  part?: string | null;
-  label: string;
-  children: ReactNode;
-  role?: "listitem" | "text" | "button";
-  expanded?: boolean;
-  selected?: boolean;
-  tone?: TextTone;
-  leading?: ReactNode;
-  trailing?: ReactNode;
-  goto?: string | undefined;
-  /** The text role of the first line (default body), so leading and trailing centre on it. */
-  lineRole?: LineRole;
-  leadingAlign?: "line" | "row";
-  leadingWidth?: "avatar" | undefined;
-  inline?: boolean;
-  inset?: "md" | "none";
-}) {
+  tone?: RowProps["rowTone"];
+};
+
+export function KitRow({ item, tone, ...props }: KitRowProps) {
   const context = usePartContext();
   if (!item) return <Row addressed={props.part !== undefined} role="text" rowTone={tone} {...props} />;
   return (

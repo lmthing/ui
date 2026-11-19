@@ -1,12 +1,17 @@
 import type { PresetMeta } from "../meta";
 import type { AxisValue } from "../types";
 import { component } from "./component";
+import type { elevation } from "./elevation";
 import { motion } from "./motion";
+import type { roles } from "./roles";
 import type { type as typography } from "./type";
 
 type TextStep = keyof typeof typography;
 type Surface = AxisValue<"surface">;
 type Tone = AxisValue<"tone">;
+type Role = (typeof roles)[number];
+type Border = keyof Pick<typeof component.base, "none" | "borderWidth" | "strongBorder">;
+type CardSurface = { fill: Role; rule: Role | null; border: Border; elevation: keyof typeof elevation };
 
 const identity = {
   display: "display",
@@ -65,13 +70,13 @@ export const variants = {
       soft: { ...card, elevation: "card" },
       solid: card,
       hairline: { ...card, rule: "line", border: "borderWidth" },
-    } satisfies Record<PresetMeta["surface"], unknown>,
+    } satisfies Record<PresetMeta["surface"], CardSurface>,
     tinted: {
       fill: { neutral: "accentSoft", good: "goodSoft", warn: "warnSoft", bad: "badSoft" },
       rule: { neutral: "accent", good: "good", warn: "warn", bad: "bad" },
       border: "borderWidth",
-    } satisfies { fill: Record<Tone, string>; rule: Record<Tone, string>; border: string },
-    outlined: { rule: "line", border: "strongBorder" },
+    } satisfies { fill: Record<Tone, Role>; rule: Record<Tone, Role>; border: Border },
+    outlined: { rule: "line", border: "strongBorder" } as const,
   } satisfies Record<Surface, unknown>,
   align: {
     start: { text: "left", content: "stretch" },

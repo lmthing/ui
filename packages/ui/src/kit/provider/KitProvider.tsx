@@ -54,15 +54,7 @@ export function KitProvider({
       environment: osReduced ? { ...environment, reduceMotion: true } : environment,
       ...(nativeHost ? { nativeHost } : {}),
       ...(controller ? { controller } : {}),
-      ...(controller
-        ? {
-            onLink: (_goto: string, address: string) => {
-              controller.press(address);
-            },
-          }
-        : onLink
-          ? { onLink }
-          : {}),
+      ...linkHandler(controller, onLink),
       ...(resolvePhoto ? { resolvePhoto } : {}),
     }),
     [
@@ -89,4 +81,9 @@ export function KitProvider({
       </KitContext.Provider>
     </Theme>
   );
+}
+
+function linkHandler(controller: KitContextValue["controller"], onLink: KitContextValue["onLink"]) {
+  if (controller) return { onLink: (_goto: string, address: string) => void controller.press(address) };
+  return onLink ? { onLink } : {};
 }
