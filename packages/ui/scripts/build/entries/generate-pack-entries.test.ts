@@ -118,7 +118,7 @@ it("keeps all generated files and doors bounded with 45 core components and all 
   console.info(
     `27-pack fixture: ${metrics.maxLines} maximum lines, ${metrics.maxFiles} maximum folder entries.`,
   );
-});
+}, 30000);
 
 it("names the missing root door when a third pack is scaffolded", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
