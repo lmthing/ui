@@ -20,6 +20,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -31,18 +32,25 @@ export const meta = {
   group: "content",
   purpose: "Browse several pictures together, optionally opening one.",
   pick: "Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).",
+  writeHints: [
+    'Leave all axes null unless requested. For a sideways strip showing several pictures at once use arrange "strip"; for swiping one large picture at a time use style "carousel" and leave arrange null.',
+    'A sideways strip by itself changes only arrange. Explicitly write "aspect":null and "detail":null unless the request also asks for wide crops or hidden captions. Keep supplied captions visible by default.',
+  ],
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "Photo references on records in the on-device database, with optional navigation links.",
   items: { key: "photos", parts: ["root", "photo", "caption"] },
   parts: ["root"],
+  variants: { arrange: ["grid", "strip"], aspect: ["auto", "wide"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["caption"] } },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  style: z.enum(["grid", "strip", "carousel"]).default("grid"),
+const frame = z.strictObject({
+  ...variantProps(meta.variants),
+  style: z.literal("carousel").optional(),
   photos: z
     .array(
       z
@@ -58,6 +66,12 @@ export const props = z.strictObject({
     .max(6),
 });
 
+export const props = frame.overwrite((value) =>
+  value.detail === "brief"
+    ? { ...value, photos: value.photos.map((entry) => ({ ...entry, caption: undefined })) }
+    : value,
+);
+
 function neutralPhoto(index: number, lang?: string) {
   const caption = placeholderTitle(index);
   return { photo: `lib:${caption.toLowerCase().replace(/ /g, "_")}`, caption: placeholderTitle(index, lang) };
@@ -72,12 +86,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     };
   });
   while (photos.length < 2) photos.push(neutralPhoto(photos.length, lang));
-  return { style: "grid", photos };
+  return { photos };
 }
 
 export const examples = [
   {
-    style: "grid",
     photos: [
       { photo: "lib:plants", caption: "Fern", goto: "fern" },
       { photo: "lib:plants", caption: "Monstera", goto: "monstera" },
@@ -86,7 +99,7 @@ export const examples = [
     ],
   },
   {
-    style: "strip",
+    arrange: "strip",
     photos: [
       { photo: "lib:dogs", caption: "Park walk", goto: "morning_walk" },
       { photo: "lib:dogs", caption: "River walk" },
@@ -101,6 +114,13 @@ export const examples = [
       { photo: "lib:plants", caption: "Garden" },
     ],
   },
+  {
+    aspect: "wide",
+    photos: [
+      { photo: "lib:fern", caption: "Fern" },
+      { photo: "lib:basil", caption: "Basil" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Gallery");
@@ -109,41 +129,32 @@ export const probes = [
   choose("Show just one shot of my fern with a short description underneath", "Photo"),
   write("Show four plant shots together, captioned Fern, Monstera, Basil and Aloe, opening fern from Fern"),
   write("Show three shots of the flat to swipe through one at a time: Front room, Kitchen and Garden"),
+  {
+    ...write(
+      "Show photos of Fern, Basil, and Aloe with those captions underneath in a sideways swipeable strip. Keep the usual crops and show several at once, not one picture per page.",
+    ),
+    variant: { axis: "arrange", value: "strip" },
+  },
   read("Open the Fern picture", { address: "g1/r1", action: "press" }),
 ] satisfies Probe[];
 
 type Entry = Props<typeof props, typeof meta>["photos"][number];
 
-function GalleryItem({ entry, index, wide }: { entry: Entry; index: number; wide: boolean }) {
+// prettier-ignore
+function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; shape: "wide" | "square" }) {
   const { lang } = useWords();
-
-  return (
-    <KitRow
-      item={entry.id}
-      label={entry.caption ?? placeholderTitle(index, lang)}
-      goto={entry.goto}
-      inset="none"
-    >
-      <KitContent lineRole="body">
-        <KitPhoto
-          photo={entry.photo}
-          shape={wide ? "wide" : "square"}
-          part="photo"
-          {...(entry.caption ? { label: entry.caption } : {})}
-        />
-        {entry.caption && (
-          <KitText role="caption" tone="muted" part="caption">
-            {entry.caption}
-          </KitText>
-        )}
-      </KitContent>
-    </KitRow>
-  );
+  return <KitRow item={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} goto={entry.goto} inset="none">
+    <KitContent lineRole="body">
+      <KitPhoto photo={entry.photo} shape={shape} part="photo" {...(entry.caption ? { label: entry.caption } : {})} />
+      {entry.caption && <KitText role="caption" tone="muted" part="caption">{entry.caption}</KitText>}
+    </KitContent>
+  </KitRow>;
 }
 
-export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
+export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
   const state = useComponentState();
+  const shape = style === "carousel" || aspect === "wide" ? "wide" : "square";
   if (state === "empty") {
     return (
       <KitCard style="plain" part="root">
@@ -156,22 +167,24 @@ export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
       <KitRow key={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} inset="none">
         <KitSkeleton
           shape="media"
-          aspect={style === "carousel" ? "wide" : "square"}
+          aspect={shape}
           inset="none"
           contentGap="xs"
           content={entry.caption ? [["caption", entry.caption]] : []}
         />
       </KitRow>
     ) : (
-      <GalleryItem key={entry.id} entry={entry} index={index} wide={style === "carousel"} />
+      <GalleryItem key={entry.id} entry={entry} index={index} shape={shape} />
     ),
   );
   return (
     <KitCard style="plain" part="root" padded inset="none">
-      {style === "strip" || style === "carousel" ? (
-        <KitStrip pages={style === "carousel"}>{cells}</KitStrip>
+      {style === "carousel" ? (
+        <KitStrip pages>{cells}</KitStrip>
       ) : (
-        <KitGrid columns={photos.length === 3 || photos.length === 6 ? 3 : 2}>{cells}</KitGrid>
+        <KitGrid arrange={arrange} columns={photos.length === 3 || photos.length === 6 ? 3 : 2}>
+          {cells}
+        </KitGrid>
       )}
     </KitCard>
   );
