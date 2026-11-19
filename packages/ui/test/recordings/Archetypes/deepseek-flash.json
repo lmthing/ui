@@ -20417,6 +20417,608 @@
       "{\"clarity\": 4, \"focus\": 5, \"flow\": 4, \"content\": 4, \"structure\": 4}"
     ]
   },
+  "1fa66435702bcade": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: journal/photos. Job: Entries over time and room to write.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"Gallery\"],\"min\":1,\"max\":1},{\"id\":\"slot3\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nLayout rule: Name the subject and photo journal in the Header. Its subtitle tells the person to open a photo to see the entry. Set Header action to literal null; never put a camera or New entry shortcut there. The final Button, labeled Write entry, is the only creation action and goes to new_entry.\n\nLayout rule: Use each supplied photo with a distinct caption and a goto to its entry. When photos share a reference, make their captions useful with the record name and a short supplied fact, such as its care interval. Keep the fact readable and the full caption within 24 characters; do not use a clipped word or invent a photo or date.\n\nReal app content: {\"things\":[{\"type\":\"plant\",\"fields\":[\"name\",\"room\",\"care\"]}],\"items\":[{\"id\":\"fern\",\"type\":\"plant\",\"sample\":true,\"name\":\"Fern\",\"room\":\"Bathroom\",\"care\":\"Water every seven days\",\"photo\":\"lib:plants\"},{\"id\":\"basil\",\"type\":\"plant\",\"sample\":true,\"name\":\"Basil\",\"room\":\"Kitchen\",\"care\":\"Water every three days\",\"photo\":\"lib:plants\"},{\"id\":\"monstera\",\"type\":\"plant\",\"sample\":true,\"name\":\"Monstera\",\"room\":\"Living room\",\"care\":\"Water every ten days\",\"photo\":\"lib:plants\"}]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nGallery: Browse several pictures together, optionally opening one.\nprops: { style?: grid|strip|carousel=\"grid\", photos: [2..6 { photo: photo lib:<tag>|local:<n>, caption?: text≤24, goto?: id snake_case }] }\nexample: {\"c\":\"Gallery\",\"style\":\"grid\",\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:plants\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:plants\",\"caption\":\"Basil\"},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\"}]}\nweight: 3\n\nButton: One main thing the person does next.\nprops: { label: text≤24, kind?: primary|secondary|quiet|danger=\"primary\", icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"kind\":\"primary\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"journal_photos\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Plant\"},{\"id\":\"g1\",\"c\":\"Gallery\",\"style\":\"grid\",\"photos\":[{\"photo\":\"lib:plant\",\"caption\":\"Fern\"},{\"photo\":\"lib:plant\",\"caption\":\"Basil\"},{\"photo\":\"lib:plant\",\"caption\":\"Monstera\"}]},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\",\"kind\":\"primary\"}]}\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "large",
+                              "inline",
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Gallery",
+                        "enum": [
+                          "Gallery"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "grid",
+                              "strip",
+                              "carousel"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "photos": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "photo": {
+                              "type": "string",
+                              "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                            },
+                            "caption": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "photo",
+                            "caption",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "photos"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Button",
+                        "enum": [
+                          "Button"
+                        ]
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      "kind": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "primary",
+                              "secondary",
+                              "quiet",
+                              "danger"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "icon": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "dot",
+                              "leaf",
+                              "drop",
+                              "dog",
+                              "cat",
+                              "calendar",
+                              "calendar_days",
+                              "clock",
+                              "check",
+                              "chevron_right",
+                              "plus",
+                              "minus",
+                              "close",
+                              "search",
+                              "settings",
+                              "bell",
+                              "bell_off",
+                              "heart",
+                              "star",
+                              "bookmark",
+                              "share",
+                              "send",
+                              "message",
+                              "mail",
+                              "phone",
+                              "camera",
+                              "image",
+                              "video",
+                              "mic",
+                              "music",
+                              "play",
+                              "pause",
+                              "square",
+                              "undo",
+                              "timer",
+                              "alarm_clock",
+                              "sun",
+                              "moon",
+                              "cloud",
+                              "cloud_rain",
+                              "thermometer",
+                              "wind",
+                              "flame",
+                              "zap",
+                              "battery",
+                              "wifi",
+                              "pin",
+                              "map",
+                              "navigation",
+                              "compass",
+                              "home",
+                              "building",
+                              "store",
+                              "shopping_cart",
+                              "shopping_bag",
+                              "tag",
+                              "gift",
+                              "credit_card",
+                              "wallet",
+                              "banknote",
+                              "piggy_bank",
+                              "receipt",
+                              "trending_up",
+                              "trending_down",
+                              "bar_chart",
+                              "pie_chart",
+                              "activity",
+                              "target",
+                              "trophy",
+                              "medal",
+                              "award",
+                              "flag",
+                              "user",
+                              "users",
+                              "user_plus",
+                              "baby",
+                              "smile",
+                              "dumbbell",
+                              "bike",
+                              "footprints",
+                              "heart_pulse",
+                              "pill",
+                              "stethoscope",
+                              "apple",
+                              "coffee",
+                              "utensils",
+                              "wine",
+                              "pizza",
+                              "carrot",
+                              "sprout",
+                              "flower",
+                              "tree",
+                              "mountain",
+                              "waves",
+                              "car",
+                              "bus",
+                              "plane",
+                              "train",
+                              "briefcase",
+                              "graduation_cap",
+                              "book_open",
+                              "book",
+                              "pencil",
+                              "file_text",
+                              "clipboard",
+                              "clipboard_list",
+                              "checklist",
+                              "lock",
+                              "unlock",
+                              "key",
+                              "shield",
+                              "eye",
+                              "link",
+                              "paperclip",
+                              "download",
+                              "upload",
+                              "trash",
+                              "edit",
+                              "filter",
+                              "sliders",
+                              "info",
+                              "alert",
+                              "help",
+                              "sparkles",
+                              "lightbulb",
+                              "palette",
+                              "scissors",
+                              "wrench",
+                              "hammer",
+                              "package",
+                              "truck",
+                              "recycle",
+                              "globe",
+                              "languages",
+                              "gamepad",
+                              "ticket",
+                              "paw",
+                              "shirt",
+                              "bed",
+                              "bath",
+                              "sofa",
+                              "lamp",
+                              "chevron_left",
+                              "arrow_left",
+                              "more",
+                              "external_link",
+                              "quote",
+                              "circle_check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "goto": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]*$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "confirm": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 60
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "label",
+                      "kind",
+                      "icon",
+                      "goto",
+                      "confirm"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"journal_photos\",\n  \"title\": \"Plant Journal\",\n  \"components\": [\n    {\n      \"id\": \"journal_header\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plant Journal\",\n      \"sub\": \"Open a photo to see the entry\",\n      \"action\": null\n    },\n    {\n      \"id\": \"plant_gallery\",\n      \"c\": \"Gallery\",\n      \"style\": \"grid\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Fern, 7 days\",\n          \"goto\": \"fern\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Basil, 3 days\",\n          \"goto\": \"basil\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Monstera, 10 days\",\n          \"goto\": \"monstera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"write_entry\",\n      \"c\": \"Button\",\n      \"label\": \"Write entry\",\n      \"kind\": \"primary\",\n      \"icon\": \"pencil\",\n      \"goto\": \"new_entry\"\n   \n   \n   \n  ,\n      \"confirm\": null\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"journal_photos\",\n  \"title\": \"Plant Journal\",\n  \"components\": [\n    {\n      \"id\": \"journal_header\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plant Journal\",\n      \"sub\": \"Open a photo to see the entry\",\n      \"action\": null\n    },\n    {\n      \"id\": \"plant_gallery\",\n      \"c\": \"Gallery\",\n      \"style\": \"grid\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Fern, 7 days\",\n          \"goto\": \"fern\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Basil, 3 days\",\n          \"goto\": \"basil\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Monstera, 10 days\",\n          \"goto\": \"monstera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"write_entry\",\n      \"c\": \"Button\",\n      \"label\": \"Write entry\",\n      \"kind\": \"primary\",\n      \"icon\": \"pencil\",\n      \"goto\": \"new_entry\"\n   \n   \n   \n  ,\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"journal_photos\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_journal\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plant Journal\",\n      \"sub\": \"Open a photo to see the entry\",\n      \"action\": null\n    },\n    {\n      \"id\": \"gallery_plants\",\n      \"c\": \"Gallery\",\n      \"style\": \"grid\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Fern - water 7d\",\n          \"goto\": \"fern\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Basil - water 3d\",\n          \"goto\": \"basil\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Monstera - 10d\",\n          \"goto\": \"monstera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"button_write_entry\",\n      \"c\": \"Button\",\n      \"label\": \"Write entry\",\n      \"kind\": \"primary\",\n      \"icon\": null,\n      \"goto\": \"new_entry\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"plant_photo_journal\",\n  \"title\": \"Plant Photo Journal\",\n  \"components\": [\n    {\n      \"id\": \"journal_header\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plant Photo Journal\",\n      \"sub\": \"Open a photo to see the entry\",\n      \"action\": null\n    },\n    {\n      \"id\": \"plant_gallery\",\n      \"c\": \"Gallery\",\n      \"style\": \"grid\",\n      \"photos\": [\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Fern · 7d care\",\n          \"goto\": \"fern\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Basil · 3d care\",\n          \"goto\": \"basil\"\n        },\n        {\n          \"photo\": \"lib:plants\",\n          \"caption\": \"Monstera · 10d\",\n          \"goto\": \"monstera\"\n        }\n      ]\n    },\n    {\n      \"id\": \"write_entry_button\",\n      \"c\": \"Button\",\n      \"label\": \"Write entry\",\n      \"kind\": \"primary\",\n      \"icon\": \"pencil\",\n      \"goto\": \"new_entry\"\n   \n   \n   \n   \n   \n\n\n\n \n\n\n  \n  \n  \n \n\n\n\n   \n\n\n  \n \n\n \n\n      \n      \n    \n   \n\n\n \n   \n  \n \n\n\n    \n    \n   \n \n\n      \n   \n \n\n   \n  \n\n   \n\n  \n \n\n\n    \n    \n  \n\n \n\n\n    \n    \n   \n\n\n    \n   \n\n\n \n\n   \n \n    \n \n   \n  \n\n   \n  \n\n    \n   \n\n   \n\n \n   \n   \n \n \n\n  \n\n \n\n\n  \n     \n    \n   \n   \n\n\n\n\n  \n   \n \n \n\n\n   \n \n   \n \n   \n\n\n \n   \n    \n \n  \n \n    \n \n  \n \n\n    \n   \n \n    \n \n\n \n    \n \n   \n  \n\n  \n   \n    \n \n\n \n  \n\n \n   \n    \n \n  \n \n\n \n   \n    \n \n\n\n    \n    \n \n\n\n    \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n \n  \n\n  \n \n   \n \n   \n \n   \n \n\n \n    \n \n\n \n   \n \n   \n \n\n   \n \n\n   \n \n\n \n   \n \n\n \n\n   \n\n\n\n  \n\n    \n \n   \n \n\n \n    \n   \n \n\n  \n \n \n   \n\n\n\n  \n\n    \n \n   \n    \n \n\n    \n \n   \n    \n \n\n    \n \n   \n \n\n    \n\n\n    \n \n   \n \n\n    \n    \n \n\n \n    \n    \n   \n \n\n   \n \n\n \n    \n \n \n \n\n \n    \n    \n \n \n   \n \n\n \n    \n \n \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n  \n \n \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n\n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n\n \n   \n \n\n   \n\n\n    \n    \n\n \n    \n \n    \n \n    \n \n    \n \n\n  \n \n \n \n \n\n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n  \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n \n   \n"
+    ]
+  },
   "1fe5117c66a7ce8d": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: success/summary. Job: Proof that an action worked.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Success\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"KeyValue\"],\"min\":1,\"max\":1},{\"id\":\"slot3\",\"allow\":[\"Card\"],\"min\":1,\"max\":1},{\"id\":\"slot4\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nVariant limits: one hero emphasis and one cover collection per screen; highlight at most one third of each component's items.\n\nLayout rule: Show one consistent saved result: Success uses screen style and undo false, KeyValue gives its facts, Card previews that same saved item, and Button opens it. A Card never has both icon and photo: use icon null with a photo, or photo null with an icon. Do not invent unused badge or confirmation text.\n\nReal app content: {\"things\":[{\"type\":\"plant\",\"fields\":[\"name\",\"room\",\"care\"]}],\"items\":[{\"id\":\"fern\",\"type\":\"plant\",\"sample\":true,\"name\":\"Fern\",\"room\":\"Bathroom\",\"care\":\"Water every seven days\",\"photo\":\"lib:plants\"},{\"id\":\"basil\",\"type\":\"plant\",\"sample\":true,\"name\":\"Basil\",\"room\":\"Kitchen\",\"care\":\"Water every three days\",\"photo\":\"lib:plants\"},{\"id\":\"monstera\",\"type\":\"plant\",\"sample\":true,\"name\":\"Monstera\",\"room\":\"Living room\",\"care\":\"Water every ten days\",\"photo\":\"lib:plants\"}]}\n\nSuccess: Know an action worked, with its result and the saved item's details.\nprops: { style?: screen|toast=\"screen\", title: text≤40, sub?: text≤100, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check=\"circle_check\", undo?: boolean=false }\nexample: {\"c\":\"Success\",\"title\":\"Fern watered\",\"sub\":\"Bathroom, just now\",\"icon\":\"circle_check\"}\nweight: 2\n\nKeyValue: Label and value details of one single thing, like its room or schedule.\nprops: { style?: rows|grid=\"rows\", pairs: [1..6 { label: text≤20, value: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }] }\nexample: {\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\"},{\"label\":\"Bright light\",\"value\":\"Indirect\",\"icon\":\"sun\"},{\"label\":\"Water (days)\",\"value\":\"7\",\"icon\":\"drop\"},{\"label\":\"Last watered\",\"value\":\"Mon, 16 Nov\",\"icon\":\"calendar\"}]}\nweight: 2\n\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\nweight: 2\n\nButton: One main thing the person does next.\nprops: { label: text≤24, kind?: primary|secondary|quiet|danger=\"primary\", icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"kind\":\"primary\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"success_summary\",\"components\":[{\"id\":\"s1\",\"c\":\"Success\",\"title\":\"Saved\",\"sub\":\"Fern\"},{\"id\":\"k1\",\"c\":\"KeyValue\",\"style\":\"rows\",\"pairs\":[{\"label\":\"Name\",\"value\":\"Fern\"},{\"label\":\"Room\",\"value\":\"Bathroom\"},{\"label\":\"Care\",\"value\":\"Water every seven days\"}]},{\"id\":\"c1\",\"c\":\"Card\",\"title\":\"Fern\",\"body\":\"Bathroom\"},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\",\"kind\":\"primary\"}]}\n\nWrite a useful screen for the supplied content, using the recipe. Reply with JSON only.",
     "format": {
@@ -46673,6 +47275,1083 @@
       "{\"clarity\": 4, \"focus\": 4, \"flow\": 5, \"content\": 4, \"structure\": 4}"
     ]
   },
+  "72337ec04b3a13bd": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: browse/shelves. Job: Explore shelves of things to open.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"Search\"],\"min\":1,\"max\":1},{\"id\":\"slot3\",\"allow\":[\"Chips\"],\"min\":1,\"max\":1},{\"id\":\"slot4\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot5\",\"allow\":[\"List\"],\"min\":1,\"max\":1,\"variant\":\"shelf\"},{\"id\":\"slot6\",\"allow\":[\"SectionTitle\"],\"min\":1,\"max\":1},{\"id\":\"slot7\",\"allow\":[\"List\"],\"min\":1,\"max\":1,\"variant\":\"shelf\"}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Header names the collection; its action is literal null because Search already finds records by name. Chips filter by a supplied category. Use two Lists with style \"shelf\", and leave unrequested axes null. Each shelf needs at least two rows with a supplied photo and a goto to its record.\n\nLayout rule: Make the first shelf the full collection, with its supplied location or category in row meta. Make the second a two-record shortlist based on a useful supplied fact, such as the two shortest care intervals. Name that reason in the second heading and show the fact in those rows. If records overlap, use a different detail in the shortlist; do not repeat the full collection or invent recency or status.\n\nReal app content: {\"things\":[{\"type\":\"plant\",\"fields\":[\"name\",\"room\",\"care\"]}],\"items\":[{\"id\":\"fern\",\"type\":\"plant\",\"sample\":true,\"name\":\"Fern\",\"room\":\"Bathroom\",\"care\":\"Water every seven days\",\"photo\":\"lib:plants\"},{\"id\":\"basil\",\"type\":\"plant\",\"sample\":true,\"name\":\"Basil\",\"room\":\"Kitchen\",\"care\":\"Water every three days\",\"photo\":\"lib:plants\"},{\"id\":\"monstera\",\"type\":\"plant\",\"sample\":true,\"name\":\"Monstera\",\"room\":\"Living room\",\"care\":\"Water every ten days\",\"photo\":\"lib:plants\"}]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nSearch: Find one thing among many by typing words from its name.\nprops: { hint: text≤40 }\nexample: {\"c\":\"Search\",\"hint\":\"Search plants\"}\nweight: 1\n\nChips: Filter things or pick one value from a few short options.\nprops: { style?: filter|choose=\"filter\", items: [2..6 { label: text≤16, on?: boolean=false, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check }] }\nexample: {\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"All rooms\",\"on\":true},{\"label\":\"Bathroom\"},{\"label\":\"Kitchen\"},{\"label\":\"Living room\"}]}\nweight: 1\n\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\nweight: 1\n\nList: Several things of the same kind, each one tappable.\nprops: { density?: comfortable|compact, surface?: card|plain|outlined=\"card\", detail?: full|brief=\"full\", group?: none|sections=\"none\", overflow?: all|peek=\"all\", lead?: icon|none|thumb|number=\"icon\", trail?: chevron|none|value|badge|toggle|check=\"chevron\", style?: cards|shelf|expand, rows: [1..6 { title: text≤28, meta?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: chevron|none|value|badge|toggle|check, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean, section?: text≤24 }] }\nRule: Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark \"highlight\" on at most one in three rows (none in a one- or two-row list).\nRule: Use style \"expand\" with a body on every FAQ row or \"shelf\" with a photo on every sideways rail row. Photos use references like \"lib:plants\" or \"local:1\". The water icon is \"drop\".\nRule: Rankings use style null (never expand), lead \"number\", trail \"value\", and each score in value. Only the person’s row gets me.\nRule: For grouped headings use group \"sections\" and a section label on every row; keep rows in section order.\nRule: For See all: overflow \"peek\"; style and all other axes null unless requested. Output every row, including hidden ones. If asked for names only, write title and leave all other row fields null.\nexample: {\"c\":\"List\",\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"trail\":\"chevron\",\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":\"check\",\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"browse_shelves\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Plant\"},{\"id\":\"s1\",\"c\":\"Search\",\"hint\":\"Search plants\"},{\"id\":\"c1\",\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"Fern\",\"on\":true},{\"label\":\"Basil\",\"on\":false},{\"label\":\"Monstera\",\"on\":false}]},{\"id\":\"s2\",\"c\":\"SectionTitle\",\"text\":\"Plant\"},{\"id\":\"l1\",\"c\":\"List\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom\",\"photo\":\"lib:plant\"},{\"title\":\"Basil\",\"meta\":\"Kitchen\",\"photo\":\"lib:plant\"},{\"title\":\"Monstera\",\"meta\":\"Living room\",\"photo\":\"lib:plant\"}],\"style\":\"shelf\"},{\"id\":\"s3\",\"c\":\"SectionTitle\",\"text\":\"Plant\"},{\"id\":\"l2\",\"c\":\"List\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom\",\"photo\":\"lib:plant\"},{\"title\":\"Basil\",\"meta\":\"Kitchen\",\"photo\":\"lib:plant\"},{\"title\":\"Monstera\",\"meta\":\"Living room\",\"photo\":\"lib:plant\"}],\"style\":\"shelf\"}]}\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "large",
+                              "inline",
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Search",
+                        "enum": [
+                          "Search"
+                        ]
+                      },
+                      "hint": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "hint"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Chips",
+                        "enum": [
+                          "Chips"
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "filter",
+                              "choose"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 2,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "label": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 16
+                            },
+                            "on": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "label",
+                            "on",
+                            "icon"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "style",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "SectionTitle",
+                        "enum": [
+                          "SectionTitle"
+                        ]
+                      },
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 32
+                      },
+                      "link": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "text",
+                      "link"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "List",
+                        "enum": [
+                          "List"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "surface": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "card",
+                              "plain",
+                              "outlined"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "group": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "sections"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "overflow": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "all",
+                              "peek"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "lead": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "icon",
+                              "none",
+                              "thumb",
+                              "number"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "trail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "chevron",
+                              "none",
+                              "value",
+                              "badge",
+                              "toggle",
+                              "check"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "cards",
+                              "shelf",
+                              "expand"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "rows": {
+                        "minItems": 1,
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 28
+                            },
+                            "meta": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 36
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "icon": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "dot",
+                                    "leaf",
+                                    "drop",
+                                    "dog",
+                                    "cat",
+                                    "calendar",
+                                    "calendar_days",
+                                    "clock",
+                                    "check",
+                                    "chevron_right",
+                                    "plus",
+                                    "minus",
+                                    "close",
+                                    "search",
+                                    "settings",
+                                    "bell",
+                                    "bell_off",
+                                    "heart",
+                                    "star",
+                                    "bookmark",
+                                    "share",
+                                    "send",
+                                    "message",
+                                    "mail",
+                                    "phone",
+                                    "camera",
+                                    "image",
+                                    "video",
+                                    "mic",
+                                    "music",
+                                    "play",
+                                    "pause",
+                                    "square",
+                                    "undo",
+                                    "timer",
+                                    "alarm_clock",
+                                    "sun",
+                                    "moon",
+                                    "cloud",
+                                    "cloud_rain",
+                                    "thermometer",
+                                    "wind",
+                                    "flame",
+                                    "zap",
+                                    "battery",
+                                    "wifi",
+                                    "pin",
+                                    "map",
+                                    "navigation",
+                                    "compass",
+                                    "home",
+                                    "building",
+                                    "store",
+                                    "shopping_cart",
+                                    "shopping_bag",
+                                    "tag",
+                                    "gift",
+                                    "credit_card",
+                                    "wallet",
+                                    "banknote",
+                                    "piggy_bank",
+                                    "receipt",
+                                    "trending_up",
+                                    "trending_down",
+                                    "bar_chart",
+                                    "pie_chart",
+                                    "activity",
+                                    "target",
+                                    "trophy",
+                                    "medal",
+                                    "award",
+                                    "flag",
+                                    "user",
+                                    "users",
+                                    "user_plus",
+                                    "baby",
+                                    "smile",
+                                    "dumbbell",
+                                    "bike",
+                                    "footprints",
+                                    "heart_pulse",
+                                    "pill",
+                                    "stethoscope",
+                                    "apple",
+                                    "coffee",
+                                    "utensils",
+                                    "wine",
+                                    "pizza",
+                                    "carrot",
+                                    "sprout",
+                                    "flower",
+                                    "tree",
+                                    "mountain",
+                                    "waves",
+                                    "car",
+                                    "bus",
+                                    "plane",
+                                    "train",
+                                    "briefcase",
+                                    "graduation_cap",
+                                    "book_open",
+                                    "book",
+                                    "pencil",
+                                    "file_text",
+                                    "clipboard",
+                                    "clipboard_list",
+                                    "checklist",
+                                    "lock",
+                                    "unlock",
+                                    "key",
+                                    "shield",
+                                    "eye",
+                                    "link",
+                                    "paperclip",
+                                    "download",
+                                    "upload",
+                                    "trash",
+                                    "edit",
+                                    "filter",
+                                    "sliders",
+                                    "info",
+                                    "alert",
+                                    "help",
+                                    "sparkles",
+                                    "lightbulb",
+                                    "palette",
+                                    "scissors",
+                                    "wrench",
+                                    "hammer",
+                                    "package",
+                                    "truck",
+                                    "recycle",
+                                    "globe",
+                                    "languages",
+                                    "gamepad",
+                                    "ticket",
+                                    "paw",
+                                    "shirt",
+                                    "bed",
+                                    "bath",
+                                    "sofa",
+                                    "lamp",
+                                    "chevron_left",
+                                    "arrow_left",
+                                    "more",
+                                    "external_link",
+                                    "quote",
+                                    "circle_check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "photo": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "trail": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "chevron",
+                                    "none",
+                                    "value",
+                                    "badge",
+                                    "toggle",
+                                    "check"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "mark": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "none",
+                                    "highlight",
+                                    "muted",
+                                    "new"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "value": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 10
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "body": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 200
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "me": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "section": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 24
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "title",
+                            "meta",
+                            "icon",
+                            "photo",
+                            "trail",
+                            "tone",
+                            "mark",
+                            "value",
+                            "goto",
+                            "body",
+                            "me",
+                            "section"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "surface",
+                      "detail",
+                      "group",
+                      "overflow",
+                      "lead",
+                      "trail",
+                      "style",
+                      "rows"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"browse_shelves\",\n  \"title\": \"Plant shelves\",\n  \"components\": [\n    { \"id\": \"header_plants\", \"c\": \"Header\", \"style\": \"large\", \"title\": \"Plants\", \"sub\": null, \"action\": null },\n    { \"id\": \"search_plants\", \"c\": \"Search\", \"hint\": \"Search plants\" },\n    { \"id\": \"chips_rooms\", \"c\": \"Chips\", \"style\": \"filter\", \"items\": [ { \"label\": \"Bathroom\" , \"on\": false, \"icon\": null }, { \"label\": \"Kitchen\", \"on\": false, \"icon\": null }, { \"label\": \"Living room\", \"on\": false, \"icon\": null } ] },\n    { \"id\": \"section_all\", \"c\": \"SectionTitle\", \"text\": \"All plants\", \"link\": null },\n    { \"id\": \"list_all\", \"c\": \"List\", \"density\": null, \"surface\": null, \"detail\": null, \"group\": null, \"overflow\": null, \"lead\": null, \"trail\": null, \"style\": \"shelf\", \"rows\": [ { \"title\": \"Fern\", \"meta\": \"Bathroom\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"fern\" , \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Basil\", \"meta\": \"Kitchen\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"basil\", \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Monstera\", \"meta\": \"Living room\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"monstera\", \"body\": null, \"me\": null, \"section\": null } ] },\n    { \"id\": \"section_shortlist\", \"c\": \"SectionTitle\", \"text\": \"Quickest to water\", \"link\": null },\n    { \"id\": \"list_shortlist\", \"c\": \"List\", \"density\": null, \"surface\": null, \"detail\": null, \"group\": null, \"overflow\": null, \"lead\": null, \"trail\": null, \"style\": \"shelf\", \"rows\": [ { \"title\": \"Basil\", \"meta\": \"Water every three days\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"basil\", \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Fern\", \"meta\": \"Water every seven days\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"fern\", \"body\": null, \"me\": null, \"section\": null } ] }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"browse_shelves\",\n  \"title\": \"Plant shelves\",\n  \"components\": [\n    { \"id\": \"header_plants\", \"c\": \"Header\", \"style\": \"large\", \"title\": \"Plants\", \"sub\": null, \"action\": null },\n    { \"id\": \"search_plants\", \"c\": \"Search\", \"hint\": \"Search plants\" },\n    { \"id\": \"chips_rooms\", \"c\": \"Chips\", \"style\": \"filter\", \"items\": [ { \"label\": \"Bathroom\" , \"on\": false, \"icon\": null }, { \"label\": \"Kitchen\", \"on\": false, \"icon\": null }, { \"label\": \"Living room\", \"on\": false, \"icon\": null } ] },\n    { \"id\": \"section_all\", \"c\": \"SectionTitle\", \"text\": \"All plants\", \"link\": null },\n    { \"id\": \"list_all\", \"c\": \"List\", \"density\": null, \"surface\": null, \"detail\": null, \"group\": null, \"overflow\": null, \"lead\": null, \"trail\": null, \"style\": \"shelf\", \"rows\": [ { \"title\": \"Fern\", \"meta\": \"Bathroom\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"fern\" , \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Basil\", \"meta\": \"Kitchen\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"basil\", \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Monstera\", \"meta\": \"Living room\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"monstera\", \"body\": null, \"me\": null, \"section\": null } ] },\n    { \"id\": \"section_shortlist\", \"c\": \"SectionTitle\", \"text\": \"Quickest to water\", \"link\": null },\n    { \"id\": \"list_shortlist\", \"c\": \"List\", \"density\": null, \"surface\": null, \"detail\": null, \"group\": null, \"overflow\": null, \"lead\": null, \"trail\": null, \"style\": \"shelf\", \"rows\": [ { \"title\": \"Basil\", \"meta\": \"Water every three days\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"basil\", \"body\": null, \"me\": null, \"section\": null }, { \"title\": \"Fern\", \"meta\": \"Water every seven days\", \"icon\": null, \"photo\": \"lib:plants\", \"trail\": null, \"tone\": null, \"mark\": null, \"value\": null, \"goto\": \"fern\", \"body\": null, \"me\": null, \"section\": null } ] }\n  ]\n}",
+      "{\n  \"id\": \"browse_shelves\",\n  \"title\": \"Plant Shelves\",\n  \"components\": [\n    {\n      \"id\": \"header_shelf\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plant shelves\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"search_plants\",\n      \"c\": \"Search\",\n      \"hint\": \"Search plants\"\n    },\n    {\n      \"id\": \"filter_chips\",\n      \"c\": \"Chips\",\n      \"style\": \"filter\",\n      \"items\": [\n        { \"label\": \"All\", \"on\": true, \"icon\": null },\n        { \"label\": \"Bathroom\", \"on\": false, \"icon\": null },\n        { \"label\": \"Kitchen\", \"on\": false, \"icon\": null },\n        { \"label\": \"Living room\", \"on\": false, \"icon\": null }\n      ]\n    },\n    {\n      \"id\": \"all_plants_title\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"All plants\",\n      \"link\": null\n    },\n    {\n      \"id\": \"all_plants_list\",\n      \"c\": \"List\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": null,\n      \"trail\": null,\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Bathroom\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"fern\",\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Kitchen\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"basil\",\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Monstera\",\n          \"meta\": \"Living room\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"monstera\",\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"quick_care_title\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"Quickest to water\",\n      \"link\": null\n    },\n    {\n      \"id\": \"quick_care_list\",\n      \"c\": \"List\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": null,\n      \"trail\": null,\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Water every three days\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"basil\",\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Water every seven days\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"fern\",\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"browse_shelves\",\n  \"title\": \"Plant Care\",\n  \"components\": [\n    {\n      \"id\": \"header_collection\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"My Plants\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"search_plants\",\n      \"c\": \"Search\",\n      \"hint\": \"Search plants\"\n    },\n    {\n      \"id\": \"filter_chips\",\n      \"c\": \"Chips\",\n      \"style\": \"filter\",\n      \"items\": [\n        {\n          \"label\": \"All\",\n          \"on\": true\n       ,\n        \"icon\": null\n        },\n        {\n          \"label\": \"Bathroom\",\n          \"on\": false,\n          \"icon\": null\n        },\n        {\n          \"label\": \"Kitchen\",\n          \"on\": false,\n          \"icon\": null\n        },\n        {\n          \"label\": \"Living room\",\n          \"on\": false,\n          \"icon\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"section_full_collection\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"All Plants\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_all_plants\",\n      \"c\": \"List\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": null,\n      \"trail\": null,\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Bathroom\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"fern\"\n        ,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Kitchen\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"basil\"\n        ,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Monstera\",\n          \"meta\": \"Living room\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"monstera\"\n        ,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"section_shortlist\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"Quickest to Water\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_shortlist\",\n      \"c\": \"List\",\n      \"density\": null,\n      \"surface\": null,\n      \"detail\": null,\n      \"group\": null,\n      \"overflow\": null,\n      \"lead\": null,\n      \"trail\": null,\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Water every three days\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"basil\"\n        ,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Water every seven days\",\n          \"icon\": null,\n          \"photo\": \"lib:plants\",\n          \"trail\": null,\n          \"tone\": null,\n          \"mark\": null,\n          \"value\": null,\n          \"goto\": \"fern\"\n        ,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    }\n  ]\n}"
+    ]
+  },
   "7282b16a7cd8faae": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Omit absent optional fields, never write empty strings.\n\nLayout: dashboard/rings. Job: How things are going.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"Stats\"],\"min\":1,\"max\":1},{\"id\":\"slot3\",\"allow\":[\"Ring\"],\"min\":1,\"max\":1},{\"id\":\"slot4\",\"allow\":[\"List\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nReal app content: {\"things\":[{\"type\":\"plant\",\"fields\":[\"name\",\"room\",\"care\"]}],\"items\":[{\"id\":\"fern\",\"type\":\"plant\",\"sample\":true,\"name\":\"Fern\",\"room\":\"Bathroom\",\"care\":\"Water every seven days\",\"photo\":\"lib:plants\"},{\"id\":\"basil\",\"type\":\"plant\",\"sample\":true,\"name\":\"Basil\",\"room\":\"Kitchen\",\"care\":\"Water every three days\",\"photo\":\"lib:plants\"},{\"id\":\"monstera\",\"type\":\"plant\",\"sample\":true,\"name\":\"Monstera\",\"room\":\"Living room\",\"care\":\"Water every ten days\",\"photo\":\"lib:plants\"}]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { style?: large|inline|back=\"large\", title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nexample: {\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nStats: Two to four independent summary numbers, with labels, units and optional change arrows.\nprops: { style?: tiles|inline=\"tiles\", tiles: [2..4 { label: text≤20, value: text≤8, unit?: text≤8, trend?: up|down|flat }] }\nexample: {\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Plants\",\"value\":\"12\"},{\"label\":\"Watered\",\"value\":\"3\"},{\"label\":\"Due\",\"value\":\"2\"}]}\nweight: 2\n\nRing: How far you are toward one goal.\nprops: { style?: md|lg=\"md\", value: num 0.., of: number, label: text≤24, sub?: text≤48 }\nexample: {\"c\":\"Ring\",\"style\":\"md\",\"value\":3,\"of\":5,\"label\":\"Watered today\"}\nweight: 2\n\nList: Several things of the same kind, each one tappable.\nprops: { style?: plain|inset|cards|shelf|expand|ranked=\"inset\", rows: [1..6 { title: text≤28, meta?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: none|chevron|check|toggle|value|badge=\"chevron\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean }] }\nRule: For questions that open in place, use style: \"expand\" and a body on every row. Do not add goto or meta saying tap for an answer.\nRule: Photo values are references like \"lib:plants\" or \"local:1\". Never put the word photo or a space inside the value.\nRule: Icons are optional; omit them when not needed. The water icon is \"drop\", never \"droplet\".\nRule: A sideways photo rail uses style: \"shelf\" and photo on every row; a ranking uses style: \"ranked\" with each score in value.\nexample: {\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"trail\":\"toggle\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":\"check\",\"goto\":\"basil\"}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"dashboard_rings\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"style\":\"large\",\"title\":\"Plant\"},{\"id\":\"s1\",\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Item one\",\"value\":\"0\"},{\"label\":\"Item two\",\"value\":\"0\"}]},{\"id\":\"r1\",\"c\":\"Ring\",\"style\":\"md\",\"value\":0,\"of\":1,\"label\":\"plant\"},{\"id\":\"l1\",\"c\":\"List\",\"style\":\"inset\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom\"},{\"title\":\"Basil\",\"meta\":\"Kitchen\"},{\"title\":\"Monstera\",\"meta\":\"Living room\"}]}]}\n\nWrite a useful screen for the supplied content, using the recipe. Reply with JSON only.",
     "reply": "```json\n{\n  \"id\": \"dashboard_rings\",\n  \"components\": [\n    {\n      \"id\": \"header_plants\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"My plants\",\n      \"sub\": \"3 plants in your care\",\n      \"action\": {\n        \"icon\": \"leaf\",\n        \"label\": \"Care\",\n        \"goto\": \"care_overview\"\n      }\n    },\n    {\n      \"id\": \"stats_plant_summary\",\n      \"c\": \"Stats\",\n      \"style\": \"tiles\",\n      \"tiles\": [\n        {\n          \"label\": \"Total\",\n          \"value\": \"3\"\n        },\n        {\n          \"label\": \"Rooms\",\n          \"value\": \"3\"\n        },\n        {\n          \"label\": \"Need care\",\n          \"value\": \"1\"\n        }\n      ]\n    },\n    {\n      \"id\": \"ring_watering_progress\",\n      \"c\": \"Ring\",\n      \"value\": 1,\n      \"of\": 3,\n      \"label\": \"Watered today\"\n    },\n    {\n      \"id\": \"list_my_plants\",\n      \"c\": \"List\",\n      \"style\": \"inset\",\n      \"rows\": [\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Bathroom · Water every seven days\",\n          \"icon\": \"leaf\",\n          \"trail\": \"check\",\n          \"goto\": \"fern\"\n        },\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Kitchen · Water every three days\",\n          \"icon\": \"drop\",\n          \"trail\": \"value\",\n          \"value\": \"due\",\n          \"goto\": \"basil\"\n        },\n        {\n          \"title\": \"Monstera\",\n          \"meta\": \"Living room · Water every ten days\",\n          \"icon\": \"sprout\",\n          \"trail\": \"chevron\",\n          \"goto\": \"monstera\"\n        }\n      ]\n    }\n  ]\n}\n```",
@@ -64528,6 +66207,13 @@
       "{\n  \"id\": \"browse_shelves\",\n  \"title\": \"Plant shelves\",\n  \"components\": [\n    {\n      \"id\": \"header_plants\",\n      \"c\": \"Header\",\n      \"style\": \"large\",\n      \"title\": \"Plants\",\n      \"sub\": \"Three plants in your home\",\n      \"action\": {\n        \"icon\": \"leaf\",\n        \"label\": \"Care\",\n        \"goto\": \"plant_care\"\n      }\n    },\n    {\n      \"id\": \"search_plants\",\n      \"c\": \"Search\",\n      \"hint\": \"Search plants\"\n    },\n    {\n      \"id\": \"chips_rooms\",\n      \"c\": \"Chips\",\n      \"style\": \"filter\",\n      \"items\": [\n        {\n          \"label\": \"All rooms\",\n          \"on\": true\n        \t,\n        \"icon\": null\n        },\n        {\n          \"label\": \"Bathroom\",\n          \"on\": false,\n          \"icon\": null\n        },\n        {\n          \"label\": \"Kitchen\",\n          \"on\": false,\n          \"icon\": null\n        },\n        {\n          \"label\": \"Living room\",\n          \"on\": false,\n          \"icon\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"section_by_room\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"Plants by room\"\n    \t,\n      \"link\": null\n    },\n    {\n      \"id\": \"list_by_room\",\n      \"c\": \"List\",\n      \"density\": \"comfortable\",\n      \"surface\": \"card\",\n      \"detail\": \"full\",\n      \"group\": \"none\",\n      \"overflow\": \"all\",\n      \"lead\": \"icon\",\n      \"trail\": \"chevron\",\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Bathroom\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"fern\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Kitchen\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"basil\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Monstera\",\n          \"meta\": \"Living room\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"monstera\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    },\n    {\n      \"id\": \"section_care\",\n      \"c\": \"SectionTitle\",\n      \"text\": \"Care routines\",\n      \"link\": null\n    },\n    {\n      \"id\": \"list_care\",\n      \"c\": \"List\",\n      \"density\": \"comfortable\",\n      \"surface\": \"card\",\n      \"detail\": \"full\",\n      \"group\": \"none\",\n      \"overflow\": \"all\",\n      \"lead\": \"icon\",\n      \"trail\": \"chevron\",\n      \"style\": \"shelf\",\n      \"rows\": [\n        {\n          \"title\": \"Fern\",\n          \"meta\": \"Water every seven days\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"fern\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Basil\",\n          \"meta\": \"Water every three days\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"basil\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        },\n        {\n          \"title\": \"Monstera\",\n          \"meta\": \"Water every ten days\",\n          \"icon\": \"leaf\",\n          \"photo\": \"lib:plants\",\n          \"trail\": \"chevron\",\n          \"tone\": \"neutral\",\n          \"mark\": \"none\",\n          \"value\": null,\n          \"goto\": \"monstera\"\n        \t,\n          \"body\": null,\n          \"me\": null,\n          \"section\": null\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
+  "a52078fd2a64bcc2": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen journal_photos \"Plant Journal\"\njournal_header Header \"Plant Journal\" — \"Open a photo to see the entry\"\nplant_gallery Gallery\n  r1 photo:plants · \"Fern, 7 days\" [plant_gallery/r1 press→fern]\n  r2 photo:plants · \"Basil, 3 days\" [plant_gallery/r2 press→basil]\n  r3 photo:plants · \"Monstera, 10 days\" [plant_gallery/r3 press→monstera]\nwrite_entry Button \"Write entry\" [write_entry press→new_entry]",
+    "reply": "{\"clarity\":4,\"focus\":4,\"flow\":4,\"content\":4,\"structure\":4}",
+    "replies": [
+      "{\"clarity\":4,\"focus\":4,\"flow\":4,\"content\":4,\"structure\":4}"
+    ]
+  },
   "a5cab65e01fa950d": {
     "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen list_grouped \"My Plants\"\nheader Header \"My Plants\" — \"3 plants to care for\" — \"Add Plant\" [header/action press→new_plant]\nfilter_chips Chips\n  r1 \"All\" [filter_chips/r1 toggle:on]\n  r2 \"Bathroom\" [filter_chips/r2 toggle:off]\n  r3 \"Kitchen\" [filter_chips/r3 toggle:off]\n  r4 \"Living room\" [filter_chips/r4 toggle:off]\nsection_bathroom SectionTitle \"Bathroom\" — \"See all\" [section_bathroom/link press→plants]\nlist_bathroom List\n  r1 \"Fern\" · \"Care: Water every seven days\" · photo:plants [list_bathroom/r1 press→fern]\nsection_kitchen SectionTitle \"Kitchen\" — \"See all\" [section_kitchen/link press→plants]\nlist_kitchen List\n  r1 \"Basil\" · \"Care: Water every three days\" · photo:plants [list_kitchen/r1 press→basil]\nsection_living_room SectionTitle \"Living room\" — \"See all\" [section_living_room/link press→plants]\nlist_living_room List\n  r1 \"Monstera\" · \"Care: Water every ten days\" · photo:plants [list_living_room/r1 press→monstera]\nbutton_add_plant Button \"Add a Plant\" [button_add_plant press→new_plant]",
     "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}",
@@ -69080,6 +70766,13 @@
     "reply": "{\"clarity\":4,\"focus\":4,\"flow\":4,\"content\":4,\"structure\":4}",
     "replies": [
       "{\"clarity\":4,\"focus\":4,\"flow\":4,\"content\":4,\"structure\":4}"
+    ]
+  },
+  "b2d16e9feeb1f073": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen browse_shelves \"Plant shelves\"\nheader_plants Header \"Plants\"\nsearch_plants Search \"Search plants\" [search_plants/field type]\nchips_rooms Chips\n  r1 \"Bathroom\" [chips_rooms/r1 toggle:off]\n  r2 \"Kitchen\" [chips_rooms/r2 toggle:off]\n  r3 \"Living room\" [chips_rooms/r3 toggle:off]\nsection_all SectionTitle \"All plants\"\nlist_all List[shelf]\n  r1 \"Fern\" · \"Bathroom\" · photo:plants [list_all/r1 press→fern]\n  r2 \"Basil\" · \"Kitchen\" · photo:plants [list_all/r2 press→basil]\n  r3 \"Monstera\" · \"Living room\" · photo:plants [list_all/r3 press→monstera]\nsection_shortlist SectionTitle \"Quickest to water\"\nlist_shortlist List[shelf]\n  r1 \"Basil\" · \"Water every three days\" · photo:plants [list_shortlist/r1 press→basil]\n  r2 \"Fern\" · \"Water every seven days\" · photo:plants [list_shortlist/r2 press→fern]",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 3,\n  \"content\": 4,\n  \"structure\": 3\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 3,\n  \"content\": 4,\n  \"structure\": 3\n}"
     ]
   },
   "b30882a0b3073c30": {
