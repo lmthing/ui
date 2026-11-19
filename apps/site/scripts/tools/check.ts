@@ -2,7 +2,16 @@
 // Chromium and asserts the live parts work (create stream, playground, packs, try-it replay and a mocked tier 1).
 import { launchChrome } from "../../../../packages/ui/scripts/look/launch-chrome";
 import { checkLocalModel, checkLocalRun } from "./check-local";
-import { base, data, expect, failures, open, shots, type Browser } from "./check-lib";
+import {
+  base,
+  data as siteData,
+  expect,
+  failures,
+  open,
+  recordedData,
+  shots,
+  type Browser,
+} from "./check-lib";
 
 async function checkCreate(browser: Browser, width: number) {
   const page = await open(browser, width);
@@ -137,14 +146,14 @@ async function checkPack(browser: Browser, width: number) {
   await page.goto(`${base}#/p/booking`, { waitUntil: "networkidle" });
   await page.waitForSelector(".showcase .phone");
   expect(
-    (await page.locator(".showcase .phone").count()) === data.presets.length,
+    (await page.locator(".showcase .phone").count()) === siteData.presets.length,
     "pack page: worked example in every preset",
   );
   await page.screenshot({ path: `${shots}/pack-${width}.png`, fullPage: true });
   await page.close();
 }
 
-const recorded = data.screens.find((s) => s.pack === null && s.screen.components.length >= 4)!;
+const recorded = recordedData.screens.find((s) => s.pack === null && s.screen.components.length >= 4)!;
 const mock = `globalThis.LanguageModel = { availability: async () => "available", create: async () => ({ destroy() {}, promptStreaming: () => new ReadableStream({ async start(c) { const t = ${JSON.stringify(JSON.stringify({ lines: recorded.screen.components }))}; for (let i = 0; i < t.length; i += 40) { c.enqueue(t.slice(i, i + 40)); await new Promise((r) => setTimeout(r, 15)); } c.close(); } }) }) };`;
 
 const browser = await launchChrome();

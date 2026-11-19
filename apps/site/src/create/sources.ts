@@ -1,4 +1,5 @@
 import { packById, site } from "../data/site";
+import type { RecordedData } from "../../scripts/site-types";
 import { cap } from "../shared/status";
 
 export type Source = {
@@ -13,7 +14,7 @@ export type Source = {
 const lineOf = (c: Record<string, unknown>) => JSON.stringify(c);
 
 /** Worked examples of every pack that has one, and screens real models wrote in recorded runs. */
-export function sources(): Source[] {
+export function sources(data?: RecordedData | null): Source[] {
   const worked = site.packs
     .filter((pack) => pack.lines.length)
     .map((pack): Source => ({
@@ -23,7 +24,7 @@ export function sources(): Source[] {
       title: pack.example,
       lines: pack.lines,
     }));
-  const recorded = site.screens
+  const recorded = (data?.screens ?? [])
     .filter((entry) => entry.screen.components.length >= 4)
     .slice(0, 40)
     .map((entry, at): Source => ({
