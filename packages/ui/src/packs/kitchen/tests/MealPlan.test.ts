@@ -9,15 +9,13 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
-
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.MealPlan;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const cell = { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" };
 const input = { week: "2026-11-16", meals: ["lunch", "dinner"], cells: [cell] };
 type Row = Partial<typeof cell> & { id: string; day: number; meal: string; filled: boolean };
 const parsedRows = (value: unknown) => (value as { rows: Row[] }).rows;
-
 describe("MealPlan schema and boundaries", () => {
   it.each(examples)("accepts each domain example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -82,7 +80,6 @@ describe("MealPlan maximum boundaries", () => {
     expectTypeOf<View>().not.toHaveProperty("color");
   });
 });
-
 describe("MealPlan fallback and contract", () => {
   const casts: CastLike[] = [
     { things: [], items: [] },
@@ -149,8 +146,11 @@ describe("MealPlan states, parts, reading and conditional actions", () => {
         : { address: `m1/${row.id}/add`, part: "add", action: "press", detail: "" };
       expect(offered).toContainEqual(action);
       if (row.filled) {
-        expect(() => elementAt(html, `home/m1/${row.id}/title`)).not.toThrow();
-        expect(() => elementAt(html, `home/m1/${row.id}/photo`)).not.toThrow();
+        const [lead, body] = elementAt(html, root).children[0]!.children;
+        expect(styleAt(html, lead!)).toContain("align-self:center");
+        expect(lead!.children[0]!.attributes).toContain(`data-testid="home/m1/${row.id}/photo"`);
+        expect(body!.children[0]!.attributes).toContain(`data-testid="home/m1/${row.id}/title"`);
+        expect(styleAt(html, `home/m1/${row.id}/title`)).toContain("-webkit-line-clamp:2");
         expect(html).not.toContain(`data-testid="home/m1/${row.id}/add"`);
       } else expect(elementAt(html, `home/m1/${row.id}/add`).attributes).toContain('role="button"');
     }

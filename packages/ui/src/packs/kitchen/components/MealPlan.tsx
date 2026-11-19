@@ -15,16 +15,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitPhoto,
-  KitRow,
-  KitText,
-  KitWeekMatrix,
-  useComponentState,
-} from "../../../kit";
+import { KitCard, KitEmpty, KitPhoto, KitRow, KitText, KitWeekMatrix, useComponentState } from "../../../kit";
 import { mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
@@ -142,15 +133,21 @@ function MatrixLabel({ label }: { label: string }) {
 }
 function MealCell({ cell }: { cell: Cell }) {
   const photo = cell.filled && cell.photo ? { photo: cell.photo } : {};
+  const leading =
+    cell.filled && cell.photo ? <KitPhoto {...photo} part="photo" label={cell.title} /> : undefined;
   return (
-    <KitRow item={cell.id} label={mealPlanReading("", [cell])[0]!} inline goto={cell.goto}>
+    <KitRow
+      item={cell.id}
+      label={mealPlanReading("", [cell])[0]!}
+      inline
+      goto={cell.goto}
+      leading={leading}
+      leadingAlign="row"
+    >
       {cell.filled ? (
-        <KitContent lineRole="body">
-          {cell.photo && <KitPhoto {...photo} part="photo" label={cell.title} />}
-          <KitText part="title" role="body" lines={3}>
-            {cell.title}
-          </KitText>
-        </KitContent>
+        <KitText part="title" role="body" lines={2}>
+          {cell.title}
+        </KitText>
       ) : (
         <KitRow part="add" role="button" label={mealPlanLabels.add} inline>
           <KitText part="title" role="caption" tone="accent">
