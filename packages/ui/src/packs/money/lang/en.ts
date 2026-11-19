@@ -110,6 +110,7 @@ export const en = {
     today: "Today",
     yesterday: "Yesterday",
     date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
+    compactAmount: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
     entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
   },
 };

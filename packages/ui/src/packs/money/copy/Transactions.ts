@@ -41,7 +41,8 @@ export function transactionDay(date: string, lang?: string, now = new Date()): s
 export function transactionAmount(amount: number, lang?: string): string {
   const magnitude = Math.abs(amount);
   if (magnitude < 1e7) return changeLine(amount, "money", undefined, lang);
-  return `${amount < 0 ? "-" : "+"}${compactMoneyLine(magnitude, undefined, lang)}`;
+  const { compactAmount } = moneyWordsFor(lang).transactions;
+  return compactAmount(compactMoneyLine(magnitude, undefined, lang), amount < 0);
 }
 
 export function transactionReading(

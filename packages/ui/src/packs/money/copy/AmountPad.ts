@@ -12,6 +12,12 @@ export function amountPadText(value: Amount): string {
   return typeof value === "number" ? plainDecimal.format(value === 0 ? 0 : value) : (value ?? "");
 }
 
+/** Translate each glyph so an unfinished edit and trailing zeros survive formatting. */
+export function amountPadDisplay(draft: string, lang?: string): string {
+  const { decimal, digits } = moneyWordsFor(lang).amountPad;
+  return draft.replace(/[0-9.]/g, (glyph) => (glyph === "." ? decimal : digits[Number(glyph)]!));
+}
+
 export function amountPadKeys(words: KeypadWords): Key[] {
   const digits = words.digits.map((label, digit) => ({
     label,
@@ -31,7 +37,7 @@ export function amountPadReading(
   lang?: string,
 ): string[] {
   const words = moneyWordsFor(lang).amountPad;
-  const amount = amountPadText(value);
+  const amount = amountPadDisplay(amountPadText(value), lang);
   const keys = amountPadKeys(words).map(({ label }) => label);
   return [...(amount ? [amount] : []), keys.join(" "), ...(note ? [words.note] : [])];
 }

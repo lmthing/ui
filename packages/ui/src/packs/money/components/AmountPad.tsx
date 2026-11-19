@@ -23,7 +23,7 @@ import {
   usePartContext,
   useWords,
 } from "../../../kit";
-import { amountPadKeys, amountPadReading, amountPadText } from "../copy";
+import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../copy";
 import { moneyWordsFor } from "../lang";
 
 // Core first: Field/number cannot provide a screen-dominant amount with a decimal keypad and backspace.
@@ -89,7 +89,7 @@ export const probes = [
 export function AmountPad(input: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const { screen, component } = usePartContext();
-  const { words } = useWords(moneyWordsFor);
+  const { lang, words } = useWords(moneyWordsFor);
   const initialText = amountPadText(input.value);
   const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
   const keys = amountPadKeys(words.amountPad);
@@ -104,7 +104,7 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
             displayPart="value"
             target={{ part: "pad" }}
             label={input.label}
-            value={draft}
+            value={amountPadDisplay(draft, lang)}
             keys={keys}
           />
           {input.note && (

@@ -89,7 +89,6 @@ export const probes = [
 type PayoffProps = Props<typeof props, typeof meta>;
 type Summary = ReturnType<typeof payoffCopy>;
 type ControlProps = Pick<PayoffProps, "strategyChoice" | "extra" | "goto">;
-
 function PayoffControls({ strategyChoice, extra, goto }: ControlProps) {
   const labels = kit.useWords(moneyWordsFor).words.payoff;
   const state = kit.useComponentState();
@@ -97,12 +96,13 @@ function PayoffControls({ strategyChoice, extra, goto }: ControlProps) {
   const chip = { item: null, role: "radio", look: "segment", ...inactive } as const;
   const field = { kind: "number", action: "set", min: 0, part: "extra", ...inactive } as const;
   const editor = { part: "edit", label: labels.edit, goto, kind: "secondary", ...inactive } as const;
+  // prettier-ignore
   return (
     <kit.KitContent group="response">
       <PayoffText text={labels.strategy} />
       <kit.KitTrack part="strategy" look="segments" role="radiogroup" label={labels.strategy}>
-        {payoffChoices.map((label) => (
-          <kit.KitChip key={label} {...chip} label={label} on={strategyChoice === label} />
+        {payoffChoices.map((value, index) => (
+          <kit.KitChip key={value} {...chip} value={value} label={labels.choice[payoffStrategies[index]!]} on={strategyChoice === value} />
         ))}
       </kit.KitTrack>
       <kit.KitContent group="response">

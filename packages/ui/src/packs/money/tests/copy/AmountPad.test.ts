@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { amountPadKeys, amountPadReading, amountPadText } from "../../copy";
+import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../../copy";
 import { moneyWordsFor, registerMoneyWords } from "../../lang";
 
 describe("AmountPad copy", () => {
@@ -28,10 +28,11 @@ describe("AmountPad copy", () => {
         { backspace: true },
       ]);
       expect(amountPadReading({ value: "25.00", note: true }, "fr")).toEqual([
-        "25.00",
+        "25,00",
         "1 2 3 4 5 6 7 8 9 , 0 Effacer",
         "Ajouter une note",
       ]);
+      expect(amountPadDisplay("25.", "fr")).toBe("25,");
       expect(amountPadReading({ value: "", note: false })).toEqual(["1 2 3 4 5 6 7 8 9 . 0 Delete"]);
     } finally {
       unregister();
