@@ -1,5 +1,8 @@
 # kitchen/copy
 
+MealPlan's display labels, addressed reading, week title and local today lookup.
+Import through this folder's index.ts door.
+Component-owned kitchen labels and data-only reading text.
 Pure copy owned by kitchen components. Import through `index.ts`.
 
 - `FoodLog.ts`: meal labels, calorie totals, target copy, and addressed reading lines.

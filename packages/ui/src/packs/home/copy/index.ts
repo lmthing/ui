@@ -1,8 +1,17 @@
 export { choreLabels } from "./Chores";
 export { rewardLabels } from "./Rewards";
-export { careLabels } from "./CareSchedule";
+export { careLabels, careLines, careReading, careTaskLabel, careToday, nextCareDate } from "./CareSchedule";
 export { turnLabels } from "./Turns";
-export { agendaLabels } from "./Agenda";
+export {
+  agendaLabels,
+  agendaAttendees,
+  agendaDay,
+  agendaEntries,
+  agendaInitial,
+  agendaPeople,
+  agendaReading,
+  agendaScheduleReading,
+} from "./Agenda";
 export {
   babyClock,
   babyCopy,

@@ -14,8 +14,9 @@ import {
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
 import { config, renderInstance } from "./render";
+import { selectedIds } from "../scripts/build";
 
-const ready = Object.keys(renderers) as ComponentName[];
+const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const modes = ["light", "dark"] as const;
 
 describe("themes", () => {

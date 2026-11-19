@@ -1,3 +1,4 @@
+import { selectedIds } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
@@ -32,7 +33,7 @@ const casts: CastLike[] = [
   { things: [], items: [{ id: "one", type: "record", sample: true, name: 42, value: false }] },
 ];
 
-describe.each(ids)("%s contract", (id) => {
+describe.each(selectedIds(ids))("%s contract", (id) => {
   const def = (components as Record<string, Definition>)[id]!;
   it("accepts examples and empty, matching, oversized and malformed cast fallbacks", () => {
     expect(def.examples.length).toBeGreaterThanOrEqual(2);
@@ -71,7 +72,7 @@ describe.each(ids)("%s contract", (id) => {
 });
 
 it("offers optional note and debt edit actions only when enabled", () => {
-  for (const id of ["Loan", "Payoff"]) {
+  for (const id of selectedIds(["Loan", "Payoff"])) {
     const def = (components as Record<string, Definition>)[id]!;
     const input = def.fallback({ cast: casts[0]! }) as Record<string, unknown>;
     for (const goto of [undefined, "terms"]) {

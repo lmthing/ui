@@ -1,3 +1,4 @@
+import { selectedIds, selectedLayouts } from "../../../../scripts/build";
 import { readFile } from "node:fs/promises";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
@@ -7,6 +8,7 @@ import {
   checkArchetypes,
   checkPacks,
   checkScreen,
+  packComposition,
   components,
   createRegistry,
   packs,
@@ -56,7 +58,7 @@ it("keeps an incomplete pack out of live registries and core prompts", () => {
   expect(Object.hasOwn(live.archetypes, "family")).toBe(ready);
   expect(/^- home:/m.test(buildPackIndex())).toBe(ready);
   const format = JSON.stringify(writerFormat(draft));
-  for (const id of ids) {
+  for (const id of selectedIds(ids)) {
     expect(format).toContain(`"const":"${id}"`);
     expect(JSON.stringify(writerFormat(live)).includes(`"const":"${id}"`)).toBe(ready);
   }
@@ -74,6 +76,7 @@ it("validates all archetypes, their neutral defaults and core-first pack probes"
     expect(meta).not.toHaveProperty("status");
     for (const [layout, { recipe, defaults }] of Object.entries(meta.layouts)) {
       layouts++;
+      if (selectedLayouts([packComposition(meta)])?.includes(`${meta.id}/${layout}`) === false) continue;
       expect(defaults).toHaveLength(recipe.length);
       for (const slot of recipe)
         for (const id of slot.allow)
