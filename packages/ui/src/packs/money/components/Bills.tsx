@@ -99,7 +99,7 @@ export const examples = [
   {
     style: "due",
     bills: [
-      { name: "Ledge supplies delivery", amount: 24.5, due: "2026-11-24", repeat: "never", paid: false, icon: "leaf" },
+      { name: "Ledge supplies delivery", amount: 24.5, due: "2026-11-24", repeat: "monthly", paid: false, icon: "leaf" },
       { name: "Grow-light electricity", amount: 18, due: "2026-11-28", repeat: "monthly", paid: true, icon: "zap" },
     ],
   },
@@ -124,7 +124,7 @@ export const probes = [
   write(
     "Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
   ),
-  read("Mark the Ledge supplies delivery bill as paid", { address: "b1/r1/paid", action: "check" }),
+  read("Tick the paid checkbox for Ledge supplies delivery", { address: "b1/r1/paid", action: "check" }),
 ] satisfies Probe[];
 
 type Bill = Props<typeof props, typeof meta>["bills"][number];
@@ -169,13 +169,13 @@ function BillRow({ bill, today }: { bill: Bill; today: string }) {
 
 export function Bills({ bills, style }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const { lang, words } = useWords(moneyWordsFor);
+  const { lang } = useWords(moneyWordsFor);
   const today = localBillDate();
   const total = billTotalLine({ bills, style }, today, lang);
   return (
     <KitCard part="root" padded={state === "filled"}>
       {state === "empty" ? (
-        <KitEmpty part="empty" title={words.bills.empty} decorativeIcon />
+        <KitEmpty part="empty" decorativeIcon />
       ) : (
         <>
           {orderedBills(bills, style).map((bill) => (

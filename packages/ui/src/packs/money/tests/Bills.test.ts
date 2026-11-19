@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from "v
 import {
   components,
   createRegistry,
+  emptyLine,
   packReady,
   readComponent,
   type CastLike,
@@ -124,7 +125,7 @@ describe("Bills states and parts", () => {
     const html = render("empty");
     expect(elementAt(html, part("root"))).toBeDefined();
     expect(elementAt(html, part("empty"))).toBeDefined();
-    expect(html).toContain("No bills yet");
+    expect(html).toContain(emptyLine());
     expect(html).not.toContain(part("r2/"));
     expect(html).not.toContain(part("total"));
     const empty = { id: "b1", c: "Bills", state: "empty", ...sample } as const;
