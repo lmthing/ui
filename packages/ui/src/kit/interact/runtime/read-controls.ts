@@ -1,5 +1,8 @@
 import { readComponent, readScreen, type Definition, type ScreenLike, type Values } from "../../../catalog";
 
+// Match quoted content as one token so a label cannot be mistaken for an affordance.
+const typeTokens = /"(?:\\.|[^"\\])*"| \[([\w/-]+) type(?: = "(?:\\.|[^"\\])*")?(?: !needs-[a-z]+)?\]/g;
+
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
     const draft = values[part === "root" ? address : `${address}/${part}`];
@@ -44,9 +47,16 @@ export function readControls(
   defs: Record<string, Definition>,
   values: Values,
   lang?: string,
+  disabled?: ReadonlyMap<string, symbol>,
 ): string {
-  if (!screen.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts)))
-    return readScreen(screen, defs, values, lang);
+  const hasKeypads = screen.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
+  const read = hasKeypads ? readKeypads(screen, defs, values, lang) : readScreen(screen, defs, values, lang);
+  return disabled?.size
+    ? read.replace(typeTokens, (token, address) => (disabled.has(address) ? "" : token))
+    : read;
+}
+
+function readKeypads(screen: ScreenLike, defs: Record<string, Definition>, values: Values, lang?: string) {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );

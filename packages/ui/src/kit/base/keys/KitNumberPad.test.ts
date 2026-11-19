@@ -65,6 +65,9 @@ describe("KitNumberPad", () => {
     expect(display.attributes).not.toContain('role="textbox"');
     expect(keypad.attributes).toContain('role="textbox"');
     expect(keypad.attributes).toContain('aria-label="Value"');
+    const description = keypad.attributes.match(/aria-describedby="([^"]+)"/)?.[1];
+    expect(description).toBeTruthy();
+    expect(html).toContain(`id="${description}"`);
     expect(keypad.children).toHaveLength(keys.length);
     const addresses = [...html.matchAll(/data-testid="([^"]+)"/g)].map((match) => match[1]);
     expect(new Set(addresses).size).toBe(addresses.length);
@@ -135,8 +138,10 @@ describe("KitNumberPad dispatch", () => {
   });
 });
 
-it("keeps the rendered value and controller reading in sync after typing and clearing", () => {
-  const address = "home/c1/amount";
+it.each(["amount", "root"])("keeps the %s display and reading in sync after typing and clearing", (part) => {
+  const address = `home/c1/${part}`;
+  const draftKey = address.replace(/\/root$/, "");
+  const relative = draftKey.replace("home/", "");
   const definition: Definition = {
     meta: {
       id: "Fixture",
@@ -147,13 +152,13 @@ it("keeps the rendered value and controller reading in sync after typing and cle
       weight: 1,
       tier: "phone",
       realPath: "Local entry",
-      actions: { parts: { amount: ["type"] } },
+      actions: { parts: { [part]: ["type"] } },
       read: (input) => {
         const { value } = input as { value?: string | number };
         return value === "" ? [] : [`Current ${value}`];
       },
     },
-    props: z.strictObject({ label: text(20), value: z.number() }).meta({ keypadParts: ["amount"] }),
+    props: z.strictObject({ label: text(20), value: z.number() }).meta({ keypadParts: [part] }),
     fallback: () => ({ label: "Value", value: 2 }),
     examples: [],
     probes: [],
@@ -166,9 +171,9 @@ it("keeps the rendered value and controller reading in sync after typing and cle
     const html = render(
       {
         ...input,
-        target: { part: "amount" },
+        target: { part },
         displayPart: "value",
-        value: String(controller.store.get(address) ?? 2),
+        value: String(controller.store.get(draftKey) ?? 2),
       },
       controller,
     );
@@ -179,8 +184,8 @@ it("keeps the rendered value and controller reading in sync after typing and cle
   expect(controller.read()).toContain("Current 2");
   expect(controller.act({ address, action: "type", value: "24.50" }).ok).toBe(true);
   expect(shown()).toBe("24.50");
-  expect(controller.read()).toContain('Current 24.50 — "Value" [c1/amount type = "24.50"]');
+  expect(controller.read()).toContain(`Current 24.50 — "Value" [${relative} type = "24.50"]`);
   expect(controller.act({ address, action: "type", value: { clear: true } }).ok).toBe(true);
   expect(shown()?.trim()).toBe("");
-  expect(controller.read()).toContain('Fixture "Value" [c1/amount type = ""]');
+  expect(controller.read()).toContain(`Fixture "Value" [${relative} type = ""]`);
 });

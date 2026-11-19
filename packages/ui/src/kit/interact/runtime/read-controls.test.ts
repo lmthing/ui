@@ -44,3 +44,24 @@ it("projects drafts for only the matching component instance and item", () => {
   expect(read).toContain("other Unknown (unknown)");
   expect(screen.components[0]!.rows).toEqual([{ value: 2 }, { value: 3 }]);
 });
+
+it("hides only the disabled row's action and preserves the amount and quoted content", () => {
+  const props = def.props
+    .extend({ label: z.string().meta({ kind: "text" }) })
+    .meta({ keypadParts: ["amount"] });
+  const label = 'Read [first/r2/amount type = "3."]';
+  const screen: ScreenLike = {
+    id: "home",
+    components: [{ id: "first", c: "Fixture", rows: [{ value: 2 }, { value: 3 }], label }],
+  };
+  const read = readControls(
+    screen,
+    { Fixture: { ...def, props } },
+    { "home/first/r2/amount": "3." },
+    undefined,
+    new Map([["first/r2/amount", Symbol()]]),
+  );
+  expect(read).toContain(`first Fixture 2 — 3. — ${JSON.stringify(label)}`);
+  expect(read).toContain("[first/r1/amount type]");
+  expect(read).not.toContain('[first/r2/amount type = "3."]');
+});

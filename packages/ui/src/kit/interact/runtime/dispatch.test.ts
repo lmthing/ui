@@ -91,12 +91,16 @@ describe.each([true, false])("numeric typing with controller: %s", (mounted) => 
 
 it("blocks agent edits to a mounted disabled keypad and allows edits after cleanup", () => {
   const { agent, store, runtime } = setup(true);
+  expect(agent.act(type("24.50")).ok).toBe(true);
   const enable = runtime!.registerDisabledPart(pad);
   for (const edit of [type({ append: "4" }), type("5")])
     expect(agent.act(edit)).toMatchObject({ ok: false, code: "disabled", at: 0 });
   expect(runtime!.actionsAt(pad)).toEqual([]);
-  expect(store.get(pad)).toBeUndefined();
+  expect(agent.read()).toContain('Value 24.50 — "Value" [c1/pad type]');
+  expect(agent.read()).not.toContain("[c1/amount type");
+  expect(store.get(pad)).toBe("24.50");
   enable();
-  expect(agent.act(type({ append: "4" })).ok).toBe(true);
-  expect(store.get(pad)).toBe("24");
+  expect(agent.read()).toContain('[c1/amount type = "24.50"]');
+  expect(agent.act(type({ backspace: true })).ok).toBe(true);
+  expect(store.get(pad)).toBe("24.5");
 });

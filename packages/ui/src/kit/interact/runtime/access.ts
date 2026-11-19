@@ -75,7 +75,7 @@ function read(ctx: ControllerContext) {
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
   return [
-    readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang),
+    readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang, ctx.disabledParts),
     ...visible.components
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
