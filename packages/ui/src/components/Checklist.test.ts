@@ -17,7 +17,8 @@ describe("Checklist schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ items: [{ text: "  First job  ", meta: "  Today  " }] })).toEqual({
-      items: [{ text: "First job", done: false, meta: "Today" }],
+      detail: "full",
+      items: [{ text: "First job", done: false, meta: "Today", mark: "none" }],
     });
   });
   it.each([
@@ -36,6 +37,8 @@ describe("Checklist schema", () => {
     { items: [{ text: 4 }] },
     { items: [{ text: "First job", meta: 4 }] },
     { style: "inset", items: [{ text: "First job" }] },
+    { detail: "none", items: [{ text: "First job" }] },
+    { items: [{ text: "First job", mark: "warn" }] },
     { color: "red", items: [{ text: "First job" }] },
     { items: [{ text: "First job", pixels: 4 }] },
     { items: [{ text: "First job", color: "red" }] },
@@ -54,6 +57,14 @@ describe("Checklist schema", () => {
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expect(props.safeParse({ items: [{ text: "First job", id: "r1" }] }).success).toBe(false);
+  });
+  it("hides notes without changing item addresses or actions", () => {
+    const input = { items: [{ text: "First job", meta: "Later", mark: "highlight" }] };
+    const full = stampItemIds(meta, props.parse(input));
+    const brief = stampItemIds(meta, props.parse({ ...input, detail: "brief", density: "compact" }));
+    expect(brief.items[0]).toMatchObject({ id: "r1", meta: undefined, mark: "highlight" });
+    expect(affordancesOf(meta, brief, "k1")).toEqual(affordancesOf(meta, full, "k1"));
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["meta"] });
   });
 });
 
