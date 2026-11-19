@@ -2,7 +2,7 @@ import { useKit } from "../../provider";
 import { Angry, Frown, Laugh, Meh, Smile, Star } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
-import { usePart } from "../../part";
+import { useComponentState, usePart } from "../../part";
 
 const faces = [Angry, Frown, Meh, Smile, Laugh] as const;
 
@@ -94,6 +94,43 @@ function Level({ level, style, value, label, readonly }: LevelProps) {
   );
 }
 
+function SingleMood({ value, labels, part }: Pick<ScaleProps, "value" | "labels" | "part">) {
+  const loading = useComponentState() === "loading";
+  const Face = Number.isInteger(value) ? faces[value - 1] : undefined;
+  const label = Face && !loading ? labels[value - 1] : undefined;
+  const addressed = label !== undefined && part != null;
+  const address = usePart(part ?? "root", addressed);
+  return (
+    <YStack
+      {...(addressed ? address : {})}
+      alignSelf="flex-start"
+      width={size.icon.lg}
+      height={size.icon.lg}
+      borderRadius={radius.pill}
+      backgroundColor={loading ? "$line" : undefined}
+      accessibilityRole={label === undefined ? undefined : "image"}
+      accessibilityLabel={label}
+      aria-hidden={label === undefined || undefined}
+    >
+      {Face && !loading && <Face size={size.icon.lg} color="$accent" aria-hidden />}
+    </YStack>
+  );
+}
+
+type ScaleProps = {
+  style: "mood" | "stars" | "dots";
+  value: number;
+  labels: readonly [string, string, string, string, string];
+  /** A rating that is only shown: no targets, one image named by the value. */
+  readonly?: boolean;
+  /** Readonly stars only: intrinsic-width small icons, without the control-sized cells. */
+  compact?: boolean;
+  /** Readonly mood only: show just the supplied value's face. */
+  single?: boolean;
+  /** Readable part for the single face; omit or pass null to leave it unaddressed. */
+  part?: string | null | undefined;
+};
+
 /**
  * Five equal 44px targets for a 1 to 5 level, the component parts `l1`..`l5`, each a radio named by
  * `labels`. `stars` and `dots` fill in accent up to `value`; `mood` shows five faces (angry to laughing)
@@ -105,15 +142,10 @@ export function KitScaleTrack({
   labels,
   readonly = false,
   compact = false,
-}: {
-  style: "mood" | "stars" | "dots";
-  value: number;
-  labels: readonly [string, string, string, string, string];
-  /** A rating that is only shown: no targets or addresses, one image named by the value. */
-  readonly?: boolean;
-  /** Readonly stars only: intrinsic-width small icons, without the control-sized cells. */
-  compact?: boolean;
-}) {
+  single = false,
+  part,
+}: ScaleProps) {
+  if (single && readonly && style === "mood") return <SingleMood value={value} labels={labels} part={part} />;
   const small = readonly && style === "stars" && compact;
   return (
     <XStack

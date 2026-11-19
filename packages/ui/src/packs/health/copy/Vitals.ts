@@ -14,7 +14,7 @@ type Vital = {
 export const { vitalLabels } = healthWordsFor();
 
 export function vitalPairLine(value: number, lang?: string): string {
-  return ` / ${numberLine(value, lang)}`;
+  return healthWordsFor(lang).vitalPair(numberLine(value, lang));
 }
 
 /** Only the primary value has a supplied reference range, including both endpoints. */
@@ -28,7 +28,7 @@ export function vitalBand({ value, low, high }: Pick<Vital, "value" | "low" | "h
 }
 
 export function vitalUnitLine({ value2, unit }: Pick<Vital, "value2" | "unit">, lang?: string): string {
-  return value2 === undefined ? unit : `/ ${numberLine(value2, lang)} ${unit}`;
+  return healthWordsFor(lang).vitalUnit(unit, value2 === undefined ? undefined : numberLine(value2, lang));
 }
 
 export function vitalStatusLine(
@@ -51,5 +51,12 @@ export function vitalRangeLine(reading: Pick<Vital, "low" | "high" | "value2">, 
 
 /** Read exactly the supplied values and reference, never a diagnosis or rounded measurement. */
 export function vitalLine(reading: Vital, lang?: string): string {
-  return `${reading.label}: ${numberLine(reading.value, lang)} ${vitalUnitLine(reading, lang)} · ${vitalRangeLine(reading, lang)} · ${vitalStatusLine(reading, lang)} · ${reading.at}`;
+  return healthWordsFor(lang).vitalReading(
+    reading.label,
+    numberLine(reading.value, lang),
+    vitalUnitLine(reading, lang),
+    vitalRangeLine(reading, lang),
+    vitalStatusLine(reading, lang),
+    reading.at,
+  );
 }

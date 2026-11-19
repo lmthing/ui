@@ -2,7 +2,8 @@ import { kitchenWordsFor } from "../lang";
 import { balancedLine, clockLine, stepLine, wordsFor } from "../../../catalog";
 
 export const cookStepText = balancedLine;
-export const cookStepUses = (uses: readonly string[]): string => uses.join(" · ");
+export const cookStepUses = (uses: readonly string[], lang?: string): string =>
+  kitchenWordsFor(lang).cookStepUses(uses);
 
 export const { cookStepsLabels } = kitchenWordsFor();
 
@@ -18,7 +19,7 @@ export function cookStepsReading(
   return [
     stepLine(at, steps.length, lang),
     JSON.stringify(cookStepText(step.text)),
-    ...(step.uses.length ? [JSON.stringify(cookStepUses(step.uses))] : []),
+    ...(step.uses.length ? [JSON.stringify(cookStepUses(step.uses, lang))] : []),
     ...(step.minutes === undefined
       ? []
       : [

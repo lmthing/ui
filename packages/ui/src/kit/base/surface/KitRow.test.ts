@@ -144,6 +144,28 @@ describe("KitRow avatar choice geometry", () => {
   });
 });
 
+describe("KitRow status and selection", () => {
+  it.each(["text", "muted", "accent", "onAccent", "good", "warn", "bad"] as const)(
+    "keeps the %s tint and geometry on selection",
+    (tone) => {
+      const input = { label: "Choice", children: label, tone, item: "r1", part: "summary" };
+      const html = renderRow(input);
+      const selected = renderRow({ ...input, selected: true });
+      const row = elementAt(selected, "home/s1/r1/summary");
+      expect(row.attributes).toContain('aria-current="true"');
+      expect(styleAt(selected, row)).toBe(styleAt(html, "home/s1/r1/summary"));
+      expect(styleAt(selected, row)).toContain("background-color:");
+      expect(styleAt(selected, row.children[1]!)).toContain("position:absolute");
+      expect(elementAt(selected, "home/s1/r1/name")).toBeDefined();
+    },
+  );
+  it("can draw a selected static row without an item root address", () => {
+    const html = renderRow({ label: "Choice", children: null, selected: true, item: "r1", part: null });
+    expect(html).toContain('aria-current="true"');
+    expect(html).not.toContain('data-testid="home/s1/r1/root"');
+  });
+});
+
 describe("KitRow inline static composition", () => {
   it.each([false, true])("keeps toast controls together, undo=%s", (undo) => {
     for (const title of ["Saved", "The requested changes have been saved"]) {
