@@ -14,7 +14,8 @@ export const meta = createMeta(
       "These are dated journal entries, not a catalog of objects. Show each supplied entry's title, date and actual summary in a Card, newest first. Photo and unused badge are null. Header action is null; the only new-entry action is the final Button navigating to new_entry.",
     ],
     photos: [
-      "Make this a photo journal, not a catalog of interchangeable images. Use the supplied photos and name each record in its Gallery caption. If the same photo reference is shared, use a short supplied detail beside the name to distinguish the entries; keep each caption within 24 characters. Tapping a photo opens that record. The final Button writes a photo journal entry; it is the only creation action.",
+      "Name the subject and photo journal in the Header. Its subtitle tells the person to open a photo to see the entry. Set Header action to literal null; never put a camera or New entry shortcut there. The final Button, labeled Write entry, is the only creation action and goes to new_entry.",
+      "Use each supplied photo with a distinct caption and a goto to its entry. When photos share a reference, make their captions useful with the record name and a short supplied fact, such as its care interval. Keep the fact readable and the full caption within 24 characters; do not use a clipped word or invent a photo or date.",
     ],
   },
 ) satisfies ArchetypeMeta;

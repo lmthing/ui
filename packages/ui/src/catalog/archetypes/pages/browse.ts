@@ -6,8 +6,8 @@ export const meta = createMeta(
   { shelves: "Header Search Chips SectionTitle List:shelf SectionTitle List:shelf" },
   {
     shelves: [
-      'Write two Lists with style "shelf". Each shelf needs at least two rows, each with its supplied photo and a goto to the record. An icon or lead value cannot replace a photo. If the records cannot fill two shelves separately, reuse supplied photo records rather than making a photo-less or single-row shelf.',
-      "Give the shelves different jobs. For example, the first can help find records by location and the second can show their supplied care routines. Match each heading to that shelf's row meta; if a record appears twice, the second row must add a different supplied fact. Search and Chips help find records; do not use the second shelf for a copy of the first or invent recency or status.",
+      'Header names the collection; its action is literal null because Search already finds records by name. Chips filter by a supplied category. Use two Lists with style "shelf", and leave unrequested axes null. Each shelf needs at least two rows with a supplied photo and a goto to its record.',
+      "Make the first shelf the full collection, with its supplied location or category in row meta. Make the second a two-record shortlist based on a useful supplied fact, such as the two shortest care intervals. Name that reason in the second heading and show the fact in those rows. If records overlap, use a different detail in the shortlist; do not repeat the full collection or invent recency or status.",
     ],
   },
 ) satisfies ArchetypeMeta;
