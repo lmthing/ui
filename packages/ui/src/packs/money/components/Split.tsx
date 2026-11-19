@@ -154,10 +154,9 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
         return <kit.KitRow key={id} item={id} label={name} inset="none" leadingAlign="row"
           leading={<kit.KitPhoto part="photo" shape="round" label={name}
             {...(photo === "lib:people" ? { initials: Array.from(name)[0]! } : { photo })} />}
-          trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular
-            tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}>{balance.value}</kit.KitText>}>
+          trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular tone="muted">{balance.value}</kit.KitText>}>
           <kit.KitText part="name" lines={1}>{name}</kit.KitText>
-          <kit.KitText part="status" role="label" tone="muted">{balance.status}</kit.KitText>
+          <kit.KitText part="status" role="label" tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}>{balance.status}</kit.KitText>
         </kit.KitRow>;
       })}
     </kit.KitContent>
@@ -165,7 +164,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
       <kit.KitText part="expenses" role="label" tone="muted">{w.expenses}</kit.KitText>
       {ledger.expenses.map(({ title, paidBy, amount }, index) => (
         <kit.KitRow key={index} label={title} inline
-          trailing={<kit.KitText part={null} role="number" numberScale="compact" tabular>{amount}</kit.KitText>}>
+          trailing={<kit.KitText part={null} role="number" numberScale="compact" tabular tone="muted">{amount}</kit.KitText>}>
           <kit.KitText part={null}>{title}</kit.KitText>
           <kit.KitText part={null} role="label" tone="muted">{paidBy}</kit.KitText>
         </kit.KitRow>
