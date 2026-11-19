@@ -126,7 +126,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
   const columns = visible.map((round) => ({
     id: roundKey(round), label: rounds[round]!.label,
     header: <KitRow item={cellId(round, 0)} inline part="round" label={rounds[round]!.label}>
-      {line("label", rounds[round]!.label, round === selected ? "accent" : "text", "center")}
+      {line("label", rounds[round]!.label, round === selected ? "accent" : "text")}
     </KitRow>,
   }));
   const rows = totals.map(({ name, total, standing, winner }, player) => ({
@@ -142,15 +142,16 @@ function ScoreTable({ input, selected, loading, readonly }: {
       const value = score == null ? "" : String(score);
       return { id: cellId(round, player), content:
         <KitRow item={cellId(round, player)} inline label={label}>
-          {loading ? <KitSkeleton shape="control" kind="secondary" full />
+          {loading ? <KitSkeleton shape="control" kind="secondary" label={labels.unplayed} full />
             : readonly
-            ? <KitText align="center" role="number" numberScale="compact" tabular part="score">{score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
+            ? <KitContent inset="md"><KitText role="number" numberScale="compact" tabular part="score">
+                {score == null ? labels.unplayed : numberLine(score, lang)}</KitText></KitContent>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
         </KitRow> };
     }),
   }));
-  function line(role: "label" | "caption" | "number", text: string, tone: "accent" | "text" | "good" | "muted" = "text", align: "start" | "center" | "end" = "start") {
+  function line(role: "label" | "caption" | "number", text: string, tone: "accent" | "text" | "good" | "muted" = "text", align: "start" | "end" = "start") {
     return loading ? <KitSkeleton shape="figure" inset="none" content={[[role, text, align, "compact"]]} /> :
       <KitText {...{ role, tone, align }} part={null} numberScale="compact" tabular={role === "number"} lines={1}>{text}</KitText>;
   }
