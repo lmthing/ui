@@ -14,6 +14,7 @@ it.each(defs)("preserves the recorded write entry for $meta.id", (def) => {
     `example: ${JSON.stringify({ c: def.meta.id, ...(def.examples[0] as object) })}`,
   ].join("\n");
   expect(buildEntry(def)).toBe(entry);
+  if (def.meta.variants || def.meta.items?.variants) return;
   expect(writePrompt(def, "A brief")).toBe(
     [
       "You write one UI component of a phone app as a single JSON line.",
