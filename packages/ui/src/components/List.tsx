@@ -156,14 +156,14 @@ export const probes = [
 type ListProps = c.Props<typeof props, typeof meta>;
 // prettier-ignore
 function ListRows({ rows, style, surface, group, density, lead, trail }: ListProps) {
-  const layout = style === "shelf" ? (rows.length <= 2 ? "grid" : "strip") : "rows";
+  const layout = style === "shelf" ? (rows.length <= 2 ? "grid" : "strip") : "rows", listRowGap = group === "sections" ? "group" : style === "cards" ? "cards" : undefined;
   const children = rows.map((row, index) => {
     const finish = { density, tone: row.tone, mark: row.mark, surface: style === "cards" ? surface : undefined };
     const leading = lead === "icon" && (style === "shelf" || !row.icon) ? undefined : lead;
     return <kit.KitListItem key={row.id} {...{ row, index, trail }} {...finish} lead={leading} style={style ?? "inset"} />;
   });
   const groups: { id: string; heading: string; children: typeof children }[] = [];
-  const draw = (items: typeof children) => <kit.KitGrid arrange={layout} {...{ density }}>{items}</kit.KitGrid>;
+  const draw = (items: typeof children) => <kit.KitGrid list arrange={layout} {...{ density, listRowGap }}>{items}</kit.KitGrid>;
   if (group === "none") return draw(children);
   rows.forEach(({ id, section }, index) => {
     const current = groups.at(-1);

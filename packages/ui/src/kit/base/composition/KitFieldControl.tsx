@@ -34,10 +34,13 @@ function ChoiceField({ kind, label, choices = [], chosen }: FieldProps) {
     </KitTrack>
   );
 }
-function ToggleField({ value }: FieldProps) {
+function ToggleField({ value, label }: FieldProps) {
   const { fieldToggle } = useWords().words;
   return (
-    <KitContent lineRole="body" lead={<KitTrail kind="toggle" on={value === "on"} part="field" />}>
+    <KitContent
+      lineRole="body"
+      lead={<KitTrail kind="toggle" label={label} on={value === "on"} part="field" />}
+    >
       {value && (
         <KitText role="body" part={null}>
           {value === "on" || value === "off" ? fieldToggle[value] : value}

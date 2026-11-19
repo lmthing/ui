@@ -129,8 +129,8 @@ export function KitCard(props: CardProps) {
           {...(swatch ? { backgroundColor: loading ? "$line" : component.swatch[swatch] } : {})}
           {...(swatch && isWeb ? { className: `kit-swatch-${swatch}` } : {})}
           {...(clip ? { overflow: "hidden" as const } : {})}
-          accessibilityRole={loading ? undefined : goto ? "link" : "list"}
-          {...(label ? { accessibilityLabel: label } : {})}
+          accessibilityRole={loading ? undefined : goto ? "link" : label ? "group" : undefined}
+          accessibilityLabel={loading ? undefined : label}
           {...action}
         >
           {swatch && isWeb && (

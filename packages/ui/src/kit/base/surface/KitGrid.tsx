@@ -10,6 +10,9 @@ type GridProps = {
   /** Let the final column fit a short label, leaving the remaining width to the main content. */
   fitLast?: boolean;
   density?: ThemeDensity | undefined;
+  /** Cells are list items; headings and controls outside the cells are not. */
+  list?: boolean;
+  listRowGap?: "group" | "cards" | undefined;
   group?: AxisValue<"group">;
   /** Group membership and headings come from the caller; no group IDs are used to address items. */
   groups?: readonly { id: string; heading: string; children: ReactNode }[];
@@ -19,12 +22,24 @@ type GridProps = {
   | { arrange: "strip"; overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined }
 );
 
+function ListRows({ cells, gap }: { cells: ReactNode[]; gap?: number | undefined }) {
+  return (
+    <YStack accessibilityRole="list" gap={gap}>
+      {cells.map((cell, index) => (
+        <YStack key={index} accessibilityRole="listitem">
+          {cell}
+        </YStack>
+      ))}
+    </YStack>
+  );
+}
+
 /**
  * Cells in equal-width columns (default 2). Cells in one row share a top edge; columns share left
  * edges; rows are spaced evenly. Wrap each cell's content in its own part (`KitRow` or `KitText`).
  */
 export function KitGrid(props: GridProps) {
-  const { columns = 2, fitLast = false, density, children, group = "none", groups } = props;
+  const { columns = 2, fitLast = false, density, children, group = "none", groups, list } = props;
   const spacing = useVariantDensity(density);
   if (group !== "none" && groups?.length) {
     return (
@@ -42,24 +57,54 @@ export function KitGrid(props: GridProps) {
       </YStack>
     );
   }
-  if (props.arrange === "rows") return <>{children}</>;
+  const cells = Children.toArray(children);
+  const listRole = list && cells.length ? "list" : undefined;
+  const listGaps = { cards: space[spacing.gap], group: space.xs };
+  if (props.arrange === "rows")
+    return listRole ? (
+      <ListRows cells={cells} gap={props.listRowGap && listGaps[props.listRowGap]} />
+    ) : (
+      <>{children}</>
+    );
   if (props.arrange === "strip")
     return (
-      <KitStrip density={density} overflow={props.overflow}>
+      <KitStrip density={density} overflow={props.overflow} list={listRole !== undefined}>
         {children}
       </KitStrip>
     );
-  const cells = Children.toArray(children);
+  return <ColumnGrid {...{ cells, columns, fitLast, spacing, listRole }} />;
+}
+
+function ColumnGrid({
+  cells,
+  columns,
+  fitLast,
+  spacing,
+  listRole,
+}: {
+  cells: ReactNode[];
+  columns: 2 | 3;
+  fitLast: boolean;
+  spacing: ReturnType<typeof useVariantDensity>;
+  listRole: "list" | undefined;
+}) {
   const rows = Array.from({ length: Math.ceil(cells.length / columns) }, (_, row) =>
     cells.slice(row * columns, row * columns + columns),
   );
   return (
-    <YStack width="100%" gap={space[spacing.gap]}>
+    <YStack width="100%" gap={space[spacing.gap]} accessibilityRole={listRole}>
       {rows.map((row, index) => (
-        <XStack key={index} alignItems={fitLast ? "center" : "flex-start"} gap={space[spacing.columnGap]}>
+        <XStack
+          key={index}
+          {...(listRole ? { role: "presentation" as const } : {})}
+          alignItems={fitLast ? "center" : "flex-start"}
+          gap={space[spacing.columnGap]}
+        >
           {Array.from({ length: columns }, (_, column) => (
             <YStack
               key={column}
+              accessibilityRole={listRole && row[column] !== undefined ? "listitem" : undefined}
+              aria-hidden={listRole && row[column] === undefined ? true : undefined}
               {...(fitLast && column === columns - 1
                 ? { flexShrink: component.base.none }
                 : { flex: component.base.bodyFlex, flexBasis: component.base.none })}
