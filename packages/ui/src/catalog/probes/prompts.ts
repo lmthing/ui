@@ -1,6 +1,6 @@
 import type { Definition } from "./types";
 import { readComponent } from "../agent";
-import { buildBlock, buildEntry } from "../prompt";
+import { buildBlock, buildEntry, variantVocabulary } from "../prompt";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
   return [
@@ -18,12 +18,19 @@ export function choosePrompt(defs: readonly Definition[], need: string): string 
 }
 
 export function writePrompt(def: Definition, brief: string): string {
+  const hasVariants = def.meta.variants || def.meta.items?.variants;
   return [
     "You write one UI component of a phone app as a single JSON line.",
     "Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).",
     "Use null for an optional prop (name?) when you have nothing for it: never write an empty string.",
+    ...(hasVariants ? [variantVocabulary] : []),
     buildEntry(def),
     "",
+    ...(hasVariants
+      ? [
+          "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.",
+        ]
+      : []),
     `Brief: ${brief}`,
   ].join("\n");
 }

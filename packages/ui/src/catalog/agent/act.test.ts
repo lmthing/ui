@@ -160,7 +160,7 @@ const card = {
     })
     .overwrite((props) => ({ ...props, amount: Math.round(props.amount) })),
 } as const;
-const oldCard = { style: "outlined", title: "One", goto: "details" };
+const oldCard = { style: "outlined", title: "One", goto: "details", density: "compact" };
 const saved = { id: "home", components: [{ c: "c-a_r d", id: "c1", ...oldCard }] };
 const press = { address: "home/c1", action: "press" };
 const cardDefs = { Card: card, Timeline: components.Timeline };
@@ -186,7 +186,7 @@ it.each([null, {}])("leaves retired component lines out of variant migration: %j
   expect(readScreen(current, cardDefs)).toContain("bad DayTimeline (unknown)");
 });
 
-it("validates and reads staged numeric edits on migrated props", () => {
+it("validates and reads staged numeric edits on migrated and repaired props", () => {
   const step = { address: "home/c1/amount", action: "set", value: 2.6 };
   const result = planAct(saved, cardDefs, {}, [step]);
   if (!result.ok) throw new Error(`Expected the migrated control to be actionable: ${result.code}`);
