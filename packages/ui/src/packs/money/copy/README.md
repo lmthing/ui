@@ -1,5 +1,4 @@
-# money/copy
+# Money copy
 
-Shared display and reading projections for the money pack. Import through `index.ts`.
-Keep labels and grammar in `../lang/`; pass `lang` to formatters.
-Tests live in `../tests/copy/`.
+Data-only formatting shared by the money components and their readers.
+Built-in words live in `../lang/`; import these helpers through `index.ts`.
