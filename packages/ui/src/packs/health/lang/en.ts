@@ -1,5 +1,12 @@
 export const en = {
+  activityRing: (label: string, value: string, goal: string, unit: string) =>
+    `${label}: ${value} ${goal} ${unit}`,
   symptomLevel: (value: string, max: string) => `${value}/${max}`,
+  symptomSeverity: (label: string, level: string) => `${label} · ${level}`,
+  vitalPair: (value: string) => ` / ${value}`,
+  vitalUnit: (unit: string, value?: string) => (value === undefined ? unit : `/ ${value} ${unit}`),
+  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at: string) =>
+    `${label}: ${value} ${unit} · ${range} · ${status} · ${at}`,
   vitalLabels: {
     add: "Add reading",
     outside: "Outside range",
@@ -17,12 +24,16 @@ export const en = {
   },
   medicationStock: (count: string) => `${count} left`,
   medicationRefill: (names: readonly string[]) => `Refill: ${names.join(", ")}`,
+  medicationReading: (name: string, time: string, status: string) => `${name}: ${time} · ${status}`,
   cycleDay: (day: string) => `Day ${day}`,
   cycleNotStarted: "Not started",
   cycleNext: (date: string) => `Next period · ${date} (est.)`,
   cycleWindow: (dates: string) => `Fertile window (est.) · ${dates}`,
   measurementChange: (value: string, unit: string) => `${value} ${unit} since first reading`,
   measurementGoal: (value: string, unit: string) => `Goal ${value} ${unit}`,
+  measurementLatest: (label: string, unit: string) => `${label} · ${unit}`,
+  measurementValue: (value: string, unit: string) => `${value} ${unit}`,
+  exerciseDetail: (label: string, value: string) => `${label}: ${value}`,
   exerciseStart: (label: string) => `start button: ${label}`,
   cycleLabels: {
     log: "Log period",
@@ -67,6 +78,8 @@ export const en = {
     success: "Workout complete",
     done: "Complete",
     pending: "Not complete",
+    field: (label: string, value?: string) => (value === undefined ? label : `${label} ${value}`),
+    reading: (parts: readonly string[]) => parts.join(" · "),
   },
 };
 

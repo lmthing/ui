@@ -8,6 +8,7 @@ import {
   vitalStatusLine,
   vitalUnitLine,
 } from "../../copy";
+import { healthWordsFor, registerHealthWords } from "../../lang";
 
 const reading = {
   label: "Blood pressure",
@@ -65,4 +66,21 @@ describe("Vitals copy and reference geometry", () => {
     expect(vitalRangeLine({ low: -2, high: -2 })).toBe("Reference -2–-2");
     expect(vitalStatusLine({ value: -2, low: -2, high: -2 })).toBe("In range");
   });
+});
+
+it("uses the registered pair and row formats and the requested number locale", () => {
+  const unregister = registerHealthWords("de", {
+    ...healthWordsFor(),
+    vitalPair: (value) => ` und ${value}`,
+    vitalUnit: (unit, value) => `${unit} ${value}`,
+    vitalReading: (label, value, unit) => `${value} ${unit} (${label})`,
+  });
+  try {
+    expect(vitalPairLine(76.5, "de-DE")).toBe(" und 76,5");
+    expect(vitalLine({ ...reading, value: 118.5, value2: 76.5 }, "de-DE")).toBe(
+      "118,5 mmHg 76,5 (Blood pressure)",
+    );
+  } finally {
+    unregister();
+  }
 });
