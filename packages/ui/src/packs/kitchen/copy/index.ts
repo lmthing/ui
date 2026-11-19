@@ -1,2 +1,2 @@
-export { foodLogLabels, foodLogRead, foodLogTotal, kcalLine, targetLine } from "./FoodLog";
-export { foodLogGroups } from "./FoodLog";
+export { foodLogLabels, foodLogRead, foodLogTotal, kcalLine, targetLine, foodLogGroups } from "./FoodLog";
+export { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "./CookSteps";

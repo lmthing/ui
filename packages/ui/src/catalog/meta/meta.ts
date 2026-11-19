@@ -24,7 +24,28 @@ export type Meta = {
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
    */
-  items?: { key: string; parts: readonly string[]; prefix?: string; visible?: "all" | "first" };
+  items?: {
+    key: string;
+    parts: readonly string[];
+    prefix?: string;
+    visible?: "all" | "first";
+    nested?: {
+      key: string;
+      parts: Readonly<
+        Record<
+          string,
+          {
+            action: "toggle" | "set";
+            prop: string;
+            min?: number;
+            max?: number;
+            integer?: boolean;
+            when?: string;
+          }
+        >
+      >;
+    };
+  };
   select?: {
     prop: string;
     value: "index" | "position" | { field: string };

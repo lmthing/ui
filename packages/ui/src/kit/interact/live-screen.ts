@@ -1,4 +1,10 @@
-import { projectSelection, type Definition, type ScreenLike, type Values } from "../../catalog";
+import {
+  projectSelection,
+  projectNested,
+  type Definition,
+  type ScreenLike,
+  type Values,
+} from "../../catalog";
 export type TimerState = { running: boolean; from: number; seconds: number };
 export const valueKey = (screen: string, id: string, part: string) => `${screen}/${id}/${part}`;
 export function timerSeconds(
@@ -71,6 +77,7 @@ function projectEntry(
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
   Object.assign(result, projectSelection(defs[entry.c]!.meta, result, get));
+  Object.assign(result, projectNested(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   if (entry.c === "Timer" && parsed.style !== "until")
