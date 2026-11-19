@@ -51,7 +51,7 @@ function useHold(props: DiceFaceProps) {
   };
 }
 
-function Pips({ value }: { value: number }) {
+function Pips({ value, hasHold }: { value: number; hasHold: boolean }) {
   const dots: Record<number, readonly number[]> = {
     1: [4],
     2: [0, 8],
@@ -62,7 +62,7 @@ function Pips({ value }: { value: number }) {
   };
   const face = dots[value]!;
   return (
-    <YStack gap={space.sm} aria-hidden>
+    <YStack gap={space.sm} position="relative" top={hasHold ? space.sm : undefined} aria-hidden>
       {[0, 1, 2].map((row) => (
         <XStack key={row} gap={space.sm}>
           {[0, 1, 2].map((column) => (
@@ -81,7 +81,7 @@ function Pips({ value }: { value: number }) {
   );
 }
 
-function FaceValue({ loading, value, sides, style }: DiceFaceProps) {
+function FaceValue({ loading, value, sides, style, holdPart }: DiceFaceProps) {
   if (loading || value === undefined || !Number.isInteger(value) || value < 1 || value > sides)
     return (
       <YStack
@@ -92,7 +92,7 @@ function FaceValue({ loading, value, sides, style }: DiceFaceProps) {
         aria-hidden
       />
     );
-  if (sides === 6 && style !== "numbers") return <Pips value={value} />;
+  if (sides === 6 && style !== "numbers") return <Pips value={value} hasHold={!!holdPart} />;
   return (
     <KitText role="number" numberScale="compact" emphasis="hero" align="center" part={null} tabular>
       {value}

@@ -44,7 +44,9 @@ describe("KitDiceFace", () => {
         expect(hold.attributes).toContain('aria-pressed="true"');
         expect(styleAt(html, hold)).toContain(`width:${size.control.md * 2}px`);
         expect(styleAt(html, hold)).toContain("var(--accent)");
-        const dots = hold.children[0]!.children.flatMap((row) => row.children);
+        const pips = hold.children[0]!;
+        expect(styleAt(html, pips)).toContain(`top:${space.sm}px`);
+        const dots = pips.children.flatMap((row) => row.children);
         expect(dots.filter((dot) => styleAt(html, dot).includes("opacity:1"))).toHaveLength(value);
       }
   });
