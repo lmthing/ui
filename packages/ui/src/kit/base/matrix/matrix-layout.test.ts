@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { component, size } from "@lmthing/ui/catalog";
-import { loadingGeometry, matrixKey, transposeWeek } from "./matrix-layout";
+import { Children, createElement, isValidElement, type ReactNode } from "react";
+import { YStack } from "tamagui";
+import { component, radius, size } from "@lmthing/ui/catalog";
+import { KitCheck, KitText } from "@lmthing/ui/kit";
+import { disabledContent, loadingGeometry, loadingRadius, matrixKey, transposeWeek } from "./matrix-layout";
 
 describe("matrix layout", () => {
   it("transposes headings and preserves caller cells, targets and disabled states", () => {
@@ -32,6 +35,45 @@ describe("matrix layout", () => {
     matrixKey({ key: "ArrowRight", target: {}, currentTarget: node, preventDefault });
     matrixKey({ key: "Escape", target: node, currentTarget: node, preventDefault });
     expect(node.scrollBy).toHaveBeenCalledTimes(6);
+  });
+});
+
+describe("matrix loading radii", () => {
+  it.each([
+    { shift: -1 as const, input: radius.sm, photo: radius.md },
+    { shift: 0 as const, input: radius.md, photo: radius.lg },
+    { shift: 1 as const, input: radius.lg, photo: radius.xl },
+  ])("retains themed input and photo corners at shift $shift", ({ shift, input, photo }) => {
+    expect(loadingRadius({ hint: "Score", compact: true }, shift)).toBe(input);
+    expect(loadingRadius({ label: "Add", icon: "plus" }, shift)).toBe(input);
+    for (const shape of ["wide", "square", "tall"])
+      expect(loadingRadius({ photo: "lib:object", shape }, shift)).toBe(photo);
+    expect(loadingRadius({ initials: "AB" }, shift)).toBe(radius.pill);
+    expect(loadingRadius({ photo: "lib:object", shape: "round" }, shift)).toBe(radius.pill);
+    expect(loadingRadius({ photo: "lib:object", shape: "avatar" }, shift)).toBe(radius.pill);
+    expect(loadingRadius({ icon: "plus" }, shift)).toBe(radius.pill);
+  });
+});
+
+describe("matrix disabled content", () => {
+  it("mutes nested text and disables children without changing their parts or source props", () => {
+    const text = createElement(KitText, { part: "name", tone: "accent", children: "Caller label" });
+    const check = createElement(KitCheck, { part: "check", done: false, label: "Caller check" });
+    const source = createElement(YStack, { children: [text, check] });
+    const disabled = Children.toArray(disabledContent(source))[0];
+    if (!isValidElement<{ children: ReactNode; disabled?: boolean }>(disabled))
+      throw new Error("Expected the caller's wrapper");
+    expect(disabled.props.disabled).toBe(true);
+    const children = Children.toArray(disabled.props.children);
+    expect(children[0]).toMatchObject({ props: { part: "name", tone: "muted", children: "Caller label" } });
+    expect(children[1]).toMatchObject({ props: { part: "check", done: false, disabled: true } });
+    expect(text.props.tone).toBe("accent");
+    expect(check.props.disabled).toBeUndefined();
+    expect(source.props.children).toEqual([text, check]);
+  });
+  it("preserves caller text and numeric values, including zero", () => {
+    expect(disabledContent(["Caller value", 0, false, null])).toEqual(["Caller value", 0]);
+    expect(disabledContent(null)).toBeNull();
   });
 });
 

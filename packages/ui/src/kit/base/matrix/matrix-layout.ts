@@ -29,9 +29,17 @@ export function loadingRadius(props: Parameters<typeof loadingGeometry>[0], shif
 export function disabledContent(content: ReactNode): ReactNode {
   return Children.map(content, (node) => {
     if (!isValidElement<{ children?: ReactNode; tone?: string; disabled?: boolean }>(node)) return node;
+    const children = node.props.children;
     return cloneElement(node, {
       ...(node.type === KitText ? { tone: "muted" } : { disabled: true }),
-      ...(node.props.children === undefined ? {} : { children: disabledContent(node.props.children) }),
+      ...(children === undefined
+        ? {}
+        : {
+            children:
+              typeof children === "string" || typeof children === "number"
+                ? children
+                : disabledContent(children),
+          }),
     });
   });
 }
