@@ -1,0 +1,12 @@
+Layout: dashboard/rings. Job: How things are going.
+Layout rule: Make the List a way to open the underlying records: include each record's supplied detail and a goto for that record. Keep the default navigation trail unless another trail is explicitly requested.
+
+Layout: dashboard/charts. Job: How things are going.
+Layout rule: Bars columns have labels of at most four characters, even when the source name is longer. Abbreviate every category consistently; keep full names in the following List. Compare one meaningful measured unit.
+Layout rule: The List explains the abbreviated bars. Show each full name and its supplied detail. Leave detail and row mark null unless explicitly requested; a larger or smaller bar does not request a highlight.
+
+Layout: browse/shelves. Job: Explore shelves of things to open.
+Layout rule: Write two Lists with style "shelf". Each shelf needs at least two rows, each with its supplied photo and a goto to the record. An icon or lead value cannot replace a photo. If the records cannot fill two shelves separately, reuse supplied photo records rather than making a photo-less or single-row shelf.
+
+Layout: tracker/timer. Job: Log an activity again and again.
+Layout rule: The Timer measures the current supplied session, using seconds. A short Note explains Start, Stop and saving the finished session. Bars show exactly the supplied completed sessions, using each record's minutes and three-letter day label. Do not pad the chart with missing days or zeroes; Today belongs only in the Timer. The Header may link to completed-session history; leave its action null if there is no useful history destination. The Button saves the finished session; it does not duplicate Start or Stop.

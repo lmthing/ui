@@ -30,6 +30,25 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
   expect(prompt).toContain("one hero emphasis and one cover collection per screen");
 });
 
+it("snapshots the layout guidance that keeps dashboard rows, shelves and timer history useful", async () => {
+  const { browse, dashboard, tracker } = archetypes;
+  const prompts = [
+    composePrompt(dashboard.meta, "rings", cast, components),
+    composePrompt(dashboard.meta, "charts", cast, components),
+    composePrompt(browse.meta, "shelves", cast, components),
+    composePrompt(tracker.meta, "timer", cast, components),
+  ];
+  const guidance = prompts
+    .map((prompt) =>
+      prompt
+        .split("\n")
+        .filter((line) => /^Layout[: ]/.test(line))
+        .join("\n"),
+    )
+    .join("\n\n");
+  await expect(`${guidance}\n`).toMatchFileSnapshot("../../../../test/snapshots/compose-layout-guidance.txt");
+});
+
 it("uses the effective List trail for toggle recipes and respects row overrides", () => {
   const meta = archetypes.settings.meta;
   const trail = { trail: ["chevron", "toggle"] } as const;
