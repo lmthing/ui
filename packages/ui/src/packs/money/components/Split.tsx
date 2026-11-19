@@ -34,7 +34,7 @@ export const meta = {
   partTiers: { settle: "people" },
   confirmParts: ["settle"],
   parts: ["root", "add", "add_label", "empty", "settled", "settlements", "balances", "expenses"],
-  items: { key: "people", parts: ["root", "name", "photo", "balance", "settle", "settle_label"] },
+  items: { key: "people", parts: ["root", "name", "photo", "balance", "status", "settle", "settle_label"] },
   states: ["filled", "empty", "success"],
   actions: {
     parts: { add: ["press"] },
@@ -156,6 +156,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
           trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular
             tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}>{balance.value}</kit.KitText>}>
           <kit.KitText part="name" lines={1}>{name}</kit.KitText>
+          <kit.KitText part="status" role="caption" tone="muted">{balance.status}</kit.KitText>
         </kit.KitRow>;
       })}
     </kit.KitContent>

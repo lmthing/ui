@@ -3,7 +3,7 @@ import { moneyWordsFor } from "../lang";
 
 type Expense = { amount: number; by: number };
 type Ledger = {
-  people: readonly { name: string }[];
+  people: readonly { name: string; id?: string }[];
   expenses: readonly (Expense & { title: string })[];
 };
 type Payment = { from: number; to: number; cents: bigint };
@@ -69,7 +69,11 @@ export function splitCopy({ people, expenses }: Ledger, lang?: string) {
   const balances = splitBalances(people.length, expenses);
   const payments = splitPayments(balances);
   return {
-    balances: balances.map((cents) => ({ cents, value: words.balance(splitMoney(cents, lang), cents) })),
+    balances: balances.map((cents) => ({
+      cents,
+      value: words.balance(splitMoney(cents, lang), cents),
+      status: cents > 0n ? words.getsBack : cents < 0n ? words.owes : words.even,
+    })),
     settlements: people.flatMap(({ name }, from) => {
       const paymentsForPerson = payments.filter((payment) => payment.from === from);
       return paymentsForPerson.length
@@ -101,15 +105,18 @@ export function splitReading(input: Ledger, lang?: string) {
     ...(settlements.length
       ? [
           words.settleUp,
-          ...settlements.flatMap(({ label, payments }) => [
+          ...settlements.flatMap(({ from, label, payments }) => [
+            input.people[from]!.id ? `${input.people[from]!.id}: ${label}` : label,
             ...payments.map(({ route, amount }) => words.paymentLine(route, amount)),
             words.record,
-            label,
           ]),
         ]
       : [expenses.length ? words.settled : words.empty]),
     words.balances,
-    ...balances.map(({ value }, index) => words.balanceLine(input.people[index]!.name, value)),
+    ...balances.flatMap(({ status, value }, index) => [
+      words.balanceLine(input.people[index]!.name, value),
+      status,
+    ]),
     ...(expenses.length
       ? [
           words.expenses,

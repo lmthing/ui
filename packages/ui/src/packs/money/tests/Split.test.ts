@@ -133,6 +133,7 @@ describe("Split states, parts and read/act", () => {
     const reading = readComponent(components.Split, first, "s1").join("\n");
     for (const line of [
       "Sam pays Ana $18",
+      "r2: Record settlement for Sam",
       "Ana: +$18",
       "Sam: -$18",
       "Terracotta pots · Paid by Sam · $12",
