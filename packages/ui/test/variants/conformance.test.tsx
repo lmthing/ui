@@ -13,7 +13,12 @@ type Choice = ReturnType<typeof variantChoices>[number];
 type Pair = ReturnType<typeof variantPairs>[number];
 type Id = keyof typeof renderers;
 
-function checkPair(id: Id, def: Definition, choice: Choice, { baseline, input, itemIndex }: Pair) {
+function checkPair(
+  id: Id,
+  def: Definition,
+  choice: Choice,
+  { baseline, input, itemIndex, inheritsTrail }: Pair,
+) {
   const baseProps = stampItemIds(def.meta, def.props.parse(baseline) as Props);
   const props = stampItemIds(def.meta, def.props.parse(input) as Props);
   const key = def.meta.items?.key;
@@ -35,10 +40,17 @@ function checkPair(id: Id, def: Definition, choice: Choice, { baseline, input, i
         issues: choice.axis === "overflow" && input.overflow === "all" ? overflowAllIssues(items, after) : [],
       };
   const item = itemIndex === undefined ? undefined : items[itemIndex];
+  const inheritedTrail =
+    inheritsTrail && itemIndex !== undefined ? (rows[itemIndex]?.trail ?? baseProps.trail) : undefined;
   expect([
     ...issues,
     ...rowAddressIssues(rows, beforeHTML, afterHTML),
-    ...variantPartIssues(def.meta, choice, before, after, { ...(item ? { item } : {}), items, hidden }),
+    ...variantPartIssues(def.meta, choice, before, after, {
+      ...(item ? { item } : {}),
+      ...(typeof inheritedTrail === "string" ? { inheritedTrail } : {}),
+      items,
+      hidden,
+    }),
     ...(hidden.length
       ? variantPeekIssues(
           def,

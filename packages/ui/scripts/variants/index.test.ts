@@ -70,6 +70,7 @@ it("compares an explicit trail override with the inherited collection trail", ()
   const pairs = variantPairs(fixture.meta, omitted, { axis: "trail", value: "none", item: true });
   expect(pairs).toContainEqual({
     itemIndex: 0,
+    inheritsTrail: true,
     baseline: omitted,
     input: { ...omitted, rows: [{ title: "First", trail: "none" }, omitted.rows[1]] },
   });
@@ -101,4 +102,37 @@ it("preserves explicitly authored row actions and other axes when exercising ove
   expect(variantPairs(meta, example, { axis: "overflow", value: "peek", item: false })).toEqual([
     { baseline: { ...example, overflow: "all" }, input: { ...example, overflow: "peek" } },
   ]);
+});
+
+it("previews an item override on a visible row even when its authored example marks a hidden row", () => {
+  const peek = { overflow: ["peek", "page"] } as const;
+  const def: Definition = {
+    ...fixture,
+    meta: { ...fixture.meta, variants: { ...variants, ...peek } },
+    props: fixture.props.extend(variantProps(peek)),
+    examples: [{ rows: [{ title: "Visible" }, { title: "Hidden", mark: "highlight" }] }],
+  };
+  const mark = variantPreviews(def).find(({ axis }) => axis === "mark");
+  expect(mark?.input).toMatchObject({
+    rows: [
+      { title: "Visible", mark: "highlight" },
+      { title: "Hidden", mark: "highlight" },
+    ],
+  });
+});
+
+it("uses all rows if only a hidden row can take an item alternative", () => {
+  const overflow = { overflow: ["peek", "all"] } as const;
+  const def: Definition = {
+    ...fixture,
+    meta: { ...fixture.meta, variants: { ...variants, ...overflow } },
+    props: fixture.props
+      .extend(variantProps(overflow))
+      .refine((input) => (input.rows as { mark?: string }[])[0]?.mark !== "highlight"),
+    examples: [{ rows: [{ title: "Visible" }, { title: "Hidden", mark: "highlight" }] }],
+  };
+  expect(variantPreviews(def).find(({ axis }) => axis === "mark")?.input).toMatchObject({
+    overflow: "all",
+    rows: [{ title: "Visible" }, { title: "Hidden", mark: "highlight" }],
+  });
 });

@@ -2,7 +2,7 @@ import type { Axis, Definition, Variants } from "@lmthing/ui/catalog";
 
 type Input = Record<string, unknown>;
 type Choice = { axis: Axis; value: string; item: boolean };
-type Pair = { baseline: Input; input: Input; itemIndex?: number };
+type Pair = { baseline: Input; input: Input; itemIndex?: number; inheritsTrail?: true };
 
 export const variantSheet = { width: 390, preset: "calm", mode: "light", accent: "moss" } as const;
 
@@ -55,7 +55,9 @@ export function variantPairs(meta: Definition["meta"], example: unknown, choice:
   return rows.flatMap((_, itemIndex) => {
     const input = at(itemIndex, choice.value);
     const explicit = { baseline: at(itemIndex, defaultValue), input, itemIndex };
-    return canInherit ? [explicit, { baseline: at(itemIndex), input, itemIndex }] : [explicit];
+    return canInherit
+      ? [explicit, { baseline: at(itemIndex), input, itemIndex, inheritsTrail: true }]
+      : [explicit];
   });
 }
 
@@ -67,18 +69,32 @@ function previewScore(def: Definition, example: Input, choice: Choice, itemIndex
   return Number(authored?.[choice.axis] === choice.value);
 }
 
+function visiblePreview(def: Definition, input: Input, itemIndex?: number) {
+  const parsed = def.props.safeParse(input);
+  if (!parsed.success) return [];
+  if (itemIndex === undefined || itemIndex === 0) return [{ input, expanded: false }];
+  if (def.meta.items?.visible === "first") return [];
+  if (parsed.data.overflow !== "peek") return [{ input, expanded: false }];
+  // Peek guarantees the first row only. Expand the collection as a fallback when possible.
+  const all = { ...input, overflow: "all" };
+  return def.meta.variants?.overflow?.includes("all") && def.props.safeParse(all).success
+    ? [{ input: all, expanded: true }]
+    : [];
+}
+
 /** Show each alternative once, preferring a valid example authored for that value. */
 export function variantPreviews(def: Definition) {
   return variantChoices(def.meta).map((choice) => {
     const candidates = def.examples
       .flatMap((example) =>
-        variantPairs(def.meta, example, choice).map(({ input, itemIndex }) => ({
-          input,
-          score: previewScore(def, example as Input, choice, itemIndex),
-        })),
+        variantPairs(def.meta, example, choice).flatMap(({ input, itemIndex }) =>
+          visiblePreview(def, input, itemIndex).map((preview) => ({
+            ...preview,
+            score: previewScore(def, example as Input, choice, itemIndex),
+          })),
+        ),
       )
-      .filter(({ input }) => def.props.safeParse(input).success)
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => Number(a.expanded) - Number(b.expanded) || b.score - a.score);
     const preview = candidates[0];
     if (!preview) throw new Error(`${def.meta.id}: no example for ${variantLabel(choice)}`);
     return { ...choice, input: preview.input };

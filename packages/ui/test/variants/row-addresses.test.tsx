@@ -60,3 +60,27 @@ it("catches renumbered rows whose only identifying content is their image", () =
     "Item content moved from r2 to r1",
   ]);
 });
+
+it("catches renumbered rows whose only identifying content is a number", () => {
+  const amounts = [
+    { id: "r1", amount: 24 },
+    { id: "r2", amount: 36 },
+  ];
+  const render = (items: typeof amounts) =>
+    renderToStaticMarkup(
+      <div>
+        {items.map(({ id, amount }) => (
+          <div key={id} data-testid={`home/c1/${id}/root`}>
+            <span data-testid={`home/c1/${id}/amount`}>{amount}</span>
+          </div>
+        ))}
+      </div>,
+    );
+  const reordered = [...amounts].reverse();
+  expect(rowAddressIssues(amounts, render(amounts), render(reordered))).toEqual([]);
+  const swapped = reordered.map((row, index) => ({ ...row, id: `r${index + 1}` }));
+  expect(rowAddressIssues(amounts, render(amounts), render(swapped))).toEqual([
+    "Item content moved from r1 to r2",
+    "Item content moved from r2 to r1",
+  ]);
+});

@@ -1,4 +1,5 @@
 import { addressedElements, type AddressedElement } from "../render";
+import { numberLine } from "@lmthing/ui/catalog";
 
 type Row = Record<string, unknown> & { id: string };
 
@@ -11,7 +12,7 @@ const encoded = (text: string) =>
 function rowText(node: AddressedElement, item: string): string[] {
   const address = node.attributes.match(/\bdata-testid="home\/c1\/([^/]+)\/[^"]+"/)?.[1];
   if (address && address !== item) return [];
-  const values = [...node.attributes.matchAll(/ (?:aria-label|value|src)="([^"]+)"/g)].map(
+  const values = [...node.attributes.matchAll(/ (?:aria-label|aria-valuenow|value|src)="([^"]+)"/g)].map(
     (match) => match[1]!,
   );
   return [
@@ -19,6 +20,13 @@ function rowText(node: AddressedElement, item: string): string[] {
     ...values,
     ...node.children.flatMap((child) => rowText(child, item)),
   ];
+}
+
+function authoredTokens(value: unknown) {
+  if (typeof value === "string" && value) return [encoded(value)];
+  if (typeof value === "number" && Number.isFinite(value))
+    return [...new Set([String(value), numberLine(value)])];
+  return [];
 }
 
 function textByItem(html: string) {
@@ -37,9 +45,7 @@ export function rowAddressIssues(rows: Row[], before: string, after: string) {
   const newText = textByItem(after);
   const owners = new Map<string, Set<string>>();
   for (const { id, ...row } of rows)
-    for (const value of Object.values(row)) {
-      if (typeof value !== "string" || !value) continue;
-      const text = encoded(value);
+    for (const text of Object.values(row).flatMap(authoredTokens)) {
       const ids = owners.get(text) ?? new Set<string>();
       ids.add(id);
       owners.set(text, ids);

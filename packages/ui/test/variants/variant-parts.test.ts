@@ -48,3 +48,25 @@ it("allows declared pagination to hide item roots, but not the component root", 
     `Unexpected missing address: ${root}`,
   ]);
 });
+
+it("reverses inherited trail part changes only at the overridden row", () => {
+  const toggles: Meta = {
+    ...meta,
+    variantParts: { "trail.toggle": { adds: ["toggle"], hides: ["summary"] } },
+  };
+  const choice = { axis: "trail", value: "none", item: true } as const;
+  const other = "home/c1/r2/root";
+  const html = (toggle: boolean, otherToggle: boolean) =>
+    renderedAddresses(`
+    <div data-testid="${root}">
+      <div data-testid="${row}"><span data-testid="home/c1/r1/${toggle ? "toggle" : "summary"}"></span></div>
+      <div data-testid="${other}"><span data-testid="home/c1/r2/${otherToggle ? "toggle" : "summary"}"></span></div>
+    </div>
+  `);
+  const options = { items: ["r1", "r2"], item: "r1", inheritedTrail: "toggle" };
+  expect(variantPartIssues(toggles, choice, html(true, true), html(false, true), options)).toEqual([]);
+  expect(variantPartIssues(toggles, choice, html(true, true), html(false, false), options)).toEqual([
+    "Unexpected added address: home/c1/r2/summary",
+    "Unexpected missing address: home/c1/r2/toggle",
+  ]);
+});
