@@ -31,7 +31,7 @@ export const meta = {
   purpose: "Things to do, with each job ticked off when done.",
   pick: "Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).",
   writeHints: [
-    'For task names and checkboxes only, set detail to "brief"; keep any supplied notes in meta. This does not change density or mark. When they are not requested, write "density":null and "mark":null, not their named defaults.',
+    'Set "detail":null for normal task lists, even when there are no notes. Only an explicit request to hide notes means "detail":"brief"; keep any supplied notes in meta. Without a request for density or mark, write "density":null and "mark":null, not their named defaults.',
   ],
   region: "body",
   weight: 2,
