@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { site } from "../data/site";
 import { Logo } from "../brand/Logo";
 import { ThemePopover } from "../theme/ThemePopover";
@@ -9,7 +10,8 @@ const links: [string, string][] = [
   ["gallery/", "Gallery"],
 ];
 
-export function Header() {
+/** `themeSlot` lets the build draw a static stand-in for the theme control when it writes the first HTML. */
+export function Header({ themeSlot }: { themeSlot?: ReactNode }) {
   return (
     <header className="site-header">
       <a className="skip" href="#main">
@@ -27,7 +29,7 @@ export function Header() {
           ))}
           <a href={`https://github.com/${site.repo}`}>GitHub</a>
         </nav>
-        <ThemePopover />
+        {themeSlot ?? <ThemePopover />}
       </div>
     </header>
   );

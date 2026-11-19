@@ -1,11 +1,13 @@
 export {
   createControllerContext,
+  introducedPart,
   type ControllerContext,
   type ControllerOptions,
   type Confirmation,
+  type ScreenComponent,
 } from "./context";
 export { createClock } from "./clock";
-export { createMediaRuntime } from "./media";
+export { createMediaRuntime, type MediaRuntime } from "./media";
 export { createAct } from "./dispatch";
-export { createAccess } from "./access";
+export { createAccess, createStandaloneAccess } from "./access";
 export { readControls } from "./read-controls";

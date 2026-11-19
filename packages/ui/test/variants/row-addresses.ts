@@ -1,0 +1,60 @@
+import { addressedElements, type AddressedElement } from "../render";
+import { numberLine } from "@lmthing/ui/catalog";
+
+type Row = Record<string, unknown> & { id: string };
+
+const encoded = (text: string) =>
+  text.replace(
+    /[&<>"']/g,
+    (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#x27;" })[char]!,
+  );
+
+function rowText(node: AddressedElement, item: string): string[] {
+  const address = node.attributes.match(/\bdata-testid="home\/c1\/([^/]+)\/[^"]+"/)?.[1];
+  if (address && address !== item) return [];
+  const values = [...node.attributes.matchAll(/ (?:aria-label|aria-valuenow|value|src)="([^"]+)"/g)].map(
+    (match) => match[1]!,
+  );
+  return [
+    ...node.text.map((text) => text.trim()),
+    ...values,
+    ...node.children.flatMap((child) => rowText(child, item)),
+  ];
+}
+
+function authoredTokens(value: unknown) {
+  if (typeof value === "string" && value) return [encoded(value)];
+  if (typeof value === "number" && Number.isFinite(value))
+    return [...new Set([String(value), numberLine(value)])];
+  return [];
+}
+
+function textByItem(html: string) {
+  const text = new Map<string, Set<string>>();
+  for (const [address, node] of addressedElements(html)) {
+    const id = address.match(/^home\/c1\/([^/]+)\/root$/)?.[1];
+    if (id) text.set(id, new Set(rowText(node, id)));
+  }
+  return text;
+}
+
+/** A unique authored value still visible in the variant must belong to its original row. */
+export function rowAddressIssues(rows: Row[], before: string, after: string) {
+  if (rows.length < 2) return [];
+  const oldText = textByItem(before);
+  const newText = textByItem(after);
+  const owners = new Map<string, Set<string>>();
+  for (const { id, ...row } of rows)
+    for (const text of Object.values(row).flatMap(authoredTokens)) {
+      const ids = owners.get(text) ?? new Set<string>();
+      ids.add(id);
+      owners.set(text, ids);
+    }
+  return [...owners].flatMap(([value, ids]) => {
+    if (ids.size !== 1) return [];
+    const [id] = ids;
+    if (!oldText.get(id!)?.has(value) || newText.get(id!)?.has(value)) return [];
+    const moved = [...newText].find(([other, text]) => text.has(value) && !oldText.get(other)?.has(value));
+    return moved ? [`Item content moved from ${id} to ${moved[0]}`] : [];
+  });
+}

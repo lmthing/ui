@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { text, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
 
@@ -147,4 +147,40 @@ it("does not publish an invalid keypad replacement as a draft through controller
   expect(store.get(pad)).toBe("24.50");
   expect(store.get(`${pad}/$draft`)).toBeUndefined();
   expect(agent.read()).toContain('Value 24.50 — "Value" [c1/amount type = "24.50"]');
+});
+
+it("commits a draw and exact keypad edit together only when both are allowed", () => {
+  const chance: Definition = {
+    ...definition,
+    meta: {
+      ...definition.meta,
+      id: "DrawFixture",
+      parts: ["roll"],
+      actions: { parts: { roll: ["press"] } },
+      emptyActions: ["roll.press"],
+      draw: { kind: "faces", press: "roll", count: "count", sides: "sides" },
+      read: () => [],
+    },
+    props: z.strictObject({ count: z.int(), sides: z.int() }),
+  };
+  const combined: ScreenLike = {
+    ...screen,
+    components: [...screen.components, { id: "c2", c: "DrawFixture", state: "empty", count: 1, sides: 6 }],
+  };
+  const random = vi.fn(() => 4);
+  const runtime = createScreenController({
+    screen: combined,
+    defs: { ...defs, DrawFixture: chance },
+    random,
+  });
+  const steps = [{ address: "c2/roll", action: "press" }, type({ append: "." })];
+  const enable = runtime.registerDisabledPart(pad);
+  expect(runtime.act(steps)).toMatchObject({ ok: false, code: "disabled", at: 1 });
+  expect(runtime.snapshotScreen().components[1]?.state).toBe("empty");
+  expect(random).not.toHaveBeenCalled();
+  enable();
+  expect(runtime.act(steps).ok).toBe(true);
+  expect(runtime.read()).toContain('Value 2. — "Value" [c1/amount type = "2."]');
+  expect(runtime.read()).toContain("faces=[5]");
+  expect(random).toHaveBeenCalledOnce();
 });

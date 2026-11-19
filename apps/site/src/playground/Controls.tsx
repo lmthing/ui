@@ -1,15 +1,12 @@
+import { Segmented } from "./controls/Segmented";
+import { Select } from "./controls/Select";
 import { Field } from "./SchemaForm";
+import type { Node } from "./schema";
+import { ThemeBar } from "./ThemeBar";
 import type { usePlayground } from "./usePlayground";
+import { axesOf, VariantBar } from "./VariantBar";
 
-const widths = [320, 390, 430];
-
-function Variants({ meta }: { meta: Record<string, unknown> }) {
-  const v = meta.variants;
-  if (!v)
-    return <p className="muted">This component declares no shared variant axes yet (planned, step U6a).</p>;
-  const axes = Array.isArray(v) ? v.map(String) : Object.keys(v as object);
-  return <p className="muted">Shared variant axes: {axes.join(", ")}.</p>;
-}
+const widths = ["320", "390", "430"];
 
 type Props = {
   id: string;
@@ -18,42 +15,55 @@ type Props = {
   setWidth: (width: number) => void;
 };
 
-/** Example, state and width pickers, then a control for every prop in the component's schema. */
+/** The schema without the variant axes, which have their own segmented controls above it. */
+function withoutAxes(schema: Node, axes: string[]): Node {
+  const properties = Object.fromEntries(
+    Object.entries(schema.properties ?? {}).filter(([k]) => !axes.includes(k)),
+  );
+  return { ...schema, properties };
+}
+
+/** Example, state and width, then theme, variant axes and a control for every other prop in the schema. */
 export function Controls({ id, pg, width, setWidth }: Props) {
-  const states = pg.def?.meta.states ?? ["filled"];
+  const states = (pg.def?.meta.states ?? ["filled"]).map(String);
+  const axes = axesOf(pg.def?.meta);
   return (
-    <section className="card pg-controls" aria-label="Controls">
+    <section className="pg-controls" aria-label="Controls">
       <div className="pg-bar">
-        <label>
-          Example{" "}
-          <select value={pg.example} onChange={(e) => pg.pick(Number(e.target.value))}>
-            {pg.def!.examples.map((_, i) => (
-              <option key={i} value={i}>
-                Example {i + 1}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          State{" "}
-          <select value={pg.state} onChange={(e) => pg.setState(e.target.value)}>
-            {states.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </label>
-        <span className="seg" role="radiogroup" aria-label="Phone width">
-          {widths.map((w) => (
-            <button key={w} role="radio" aria-checked={w === width} onClick={() => setWidth(w)}>
-              {w}
-            </button>
-          ))}
-        </span>
+        <span className="name">example</span>
+        <Select
+          label="Example"
+          value={`example ${pg.example + 1}`}
+          options={pg.def!.examples.map((_, i) => `example ${i + 1}`)}
+          onChange={(v) => pg.pick(Number(v.replace("example ", "")) - 1)}
+        />
+        <span className="name">state</span>
+        {states.length <= 4 ? (
+          <Segmented label="State" value={pg.state} options={states} onChange={pg.setState} wrap />
+        ) : (
+          <Select label="State" value={pg.state} options={states} onChange={pg.setState} />
+        )}
+        <span className="name">phone</span>
+        <Segmented
+          label="Phone width"
+          value={String(width)}
+          options={widths}
+          onChange={(v) => setWidth(Number(v))}
+        />
       </div>
-      <Variants meta={pg.def!.meta} />
+      <ThemeBar />
+      <div className="vblock">
+        <p className="label">variants</p>
+        <VariantBar
+          meta={pg.def!.meta}
+          props={pg.props}
+          onChange={(axis, value) => pg.setProps({ ...pg.props, [axis]: value })}
+        />
+      </div>
+      <p className="label">props</p>
       {pg.schema ? (
         <Field
-          node={pg.schema}
+          node={withoutAxes(pg.schema, axes)}
           value={pg.props}
           label={id}
           onChange={(v) => pg.setProps(v as Record<string, unknown>)}

@@ -1,15 +1,18 @@
 import { useMemo, useState } from "react";
 import { Phone } from "../live/Phone";
 import { Json } from "../shared/Json";
+import { useRecorded } from "../data/recorded";
 import { matchedProbes } from "./probes";
 
 /** View: the compact text a model reads. Act: the address and action it answered, resolved on the phone. */
 export default function ViewActDemo() {
-  const all = useMemo(() => matchedProbes(), []);
+  const recorded = useRecorded();
+  const all = useMemo(() => (recorded ? matchedProbes(recorded.readProbes) : []), [recorded]);
   const [at, setAt] = useState(0);
   const [hover, setHover] = useState<string | null>(null);
   const [answered, setAnswered] = useState(false);
   const current = all[at];
+  if (!recorded) return <div className="skeleton" aria-busy="true" />;
   if (!current) return <p className="lede">No recorded read probes matched at build time.</p>;
   const { probe, screen } = current;
   const answer = JSON.stringify({ address: probe.address, action: probe.action });

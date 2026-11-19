@@ -3,6 +3,10 @@ import {
   projectControlInput,
   projectClocks,
   projectAdjustments,
+  liveProps,
+  parseControlProps,
+  drawStatus,
+  sessionStatus,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -64,7 +68,11 @@ function projectEntry(
   const { id: _id, c: _c, state: _state, ...input } = entry;
   const def = defs[entry.c];
   if (!def) return result;
+  const { meta } = def;
   const parsed = def.props.parse(input) as Values;
+  if (meta.draw)
+    for (const key of Object.keys(def.props.shape))
+      if (result[key] === undefined && parsed[key] !== undefined) result[key] = parsed[key];
   Object.assign(result, projectControlInput(def, input, get));
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
@@ -72,12 +80,25 @@ function projectEntry(
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  Object.assign(result, projectControls(defs[entry.c]!.meta, result, get));
+  Object.assign(result, projectControls(meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
-  Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));
-  if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
+  Object.assign(result, projectAdjustments(meta, result, get));
+  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
+  if (meta.draw) {
+    const local = Object.fromEntries(
+      Object.entries(values).map(([key, value]) => [key.replace(`${screen.id}/`, ""), value]),
+    );
+    const props = liveProps(meta, parseControlProps(def, input, get), entry.id, local, true);
+    const state = drawStatus(meta, props, (props.state as Entry["state"]) ?? result.state ?? "filled", get);
+    if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
+  }
+  if (meta.session) {
+    const { id: _id, c: _c, state: _state, ...wire } = result;
+    const state = sessionStatus(meta, parseControlProps(def, wire, get), result.state ?? "filled", get);
+    if (result.state !== undefined || state !== "filled") result.state = state;
+  }
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));
   if (entry.c === "Bubbles" && Array.isArray(get("$messages"))) result.messages = get("$messages");

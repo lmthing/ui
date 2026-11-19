@@ -22,7 +22,11 @@ export function createScreenController(options: ControllerOptions) {
     mountMedia: media.mountMedia,
     tick: clock.tick,
     ...createAccess(ctx, act),
-    mount: clock.scheduleClock,
+    mount() {
+      const expired = ctx.expiredProgress(ctx.valuesOf());
+      if (Object.keys(expired).length) ctx.store.setMany(expired);
+      clock.scheduleClock();
+    },
     get openSheet() {
       return ctx.status.openSheet;
     },

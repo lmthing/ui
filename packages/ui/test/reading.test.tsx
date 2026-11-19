@@ -12,6 +12,7 @@ import { renderers } from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
 import { renderInstance } from "./render";
 import { selectedIds } from "../scripts/build";
+import { peekForExample } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
@@ -92,7 +93,10 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
       expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
     }
     const props = stampItemIds(def.meta, def.props.parse(example) as Record<string, unknown>);
+    const { hidden, issues } = peekForExample(def.meta, props, html);
+    expect(issues).toEqual([]);
     for (const affordance of affordancesOf(def.meta, props, "c1")) {
+      if (hidden.includes(affordance.address.split("/")[1]!)) continue;
       expect(read, `${affordance.address} is missing from the read`).toContain(
         `[${affordance.address} ${affordance.action}`,
       );
