@@ -39,16 +39,16 @@ const delay = (ms: number, signal: AbortSignal) =>
 /** Streams a recorded reply back as text, as if a model were writing it. Tier 3: nothing runs locally. */
 export function replayEngine(request: string): Engine {
   const plan = planReplay(request);
+  const note = isSuggestion(request)
+    ? undefined
+    : `Nothing was recorded for "${request.trim()}". Replaying the closest recording: ${plan.title} (${plan.origin}).`;
   return {
     tier: 3,
     label: "Recorded replay",
+    ...(note ? { note } : {}),
     model: plan.origin,
     async run({ signal, onText, onStatus }) {
-      onStatus(
-        isSuggestion(request)
-          ? `Replaying a real output, ${plan.origin}`
-          : `Nothing was recorded for "${request.trim()}". Replaying the closest recording: ${plan.title} (${plan.origin}).`,
-      );
+      onStatus(note ?? `Replaying a real output, ${plan.origin}`);
       const text = `{"lines":[${plan.lines.join(",")}]}`;
       const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
       for (let at = 0; at < text.length && !signal.aborted; at += 9) {
