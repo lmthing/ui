@@ -112,7 +112,10 @@ export function liveProps(
     if (meta.items?.set || runtime) props = projectAdjustments(meta, props, get);
   }
   if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
-  else if ((meta.draw || meta.emptyActions?.length) && get("$state") !== undefined)
+  else if (
+    (meta.draw || meta.emptyActions?.length || meta.successActions?.length || meta.session) &&
+    get("$state") !== undefined
+  )
     props = { ...props, state: get("$state") };
   props = projectDraw(meta, props, get);
   if (runtime) {

@@ -3,6 +3,8 @@ import {
   liveProps,
   stampItemIds,
   staleDraw,
+  sessionKey,
+  staleSession,
   migrateScreen,
   resolveDefinition,
   type ActStep,
@@ -60,10 +62,12 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
   }
   return initial;
 }
-function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
+function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
   const candidates = screen.components.filter(
-    (entry) => values[valueKey(screen.id, entry.id, drawKey)] !== undefined,
+    (entry) =>
+      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
+      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -72,11 +76,13 @@ function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, valu
   );
   for (const { id, c, state: _state, ...input } of projected.components) {
     const def = defs[c];
-    const key = valueKey(screen.id, id, drawKey);
+    const draw = valueKey(screen.id, id, drawKey);
+    const session = valueKey(screen.id, id, sessionKey);
     const props = def?.props.safeParse(input);
     if (!def || !props?.success) continue;
     const live = liveProps(def.meta, stampItemIds(def.meta, props.data as Values), id, local, true);
-    if (staleDraw(def.meta, live, values[key])) expired[key] = undefined;
+    if (staleDraw(def.meta, live, values[draw])) expired[draw] = undefined;
+    if (staleSession(def.meta, live, values[session])) expired[session] = undefined;
   }
   return expired;
 }
@@ -118,7 +124,7 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
-    expiredDraws: (values: Values, at = now()) => expiredDraws(screen, defs, values, at),
+    expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },
@@ -151,6 +157,6 @@ export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredDraws: (next) => ctx.expiredDraws(next, at),
+    expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
 }

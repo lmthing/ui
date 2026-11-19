@@ -3,6 +3,7 @@ import type { StateName } from "../types";
 import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
+import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
@@ -105,14 +106,15 @@ export function affordancesOf(
   const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
   const runtime = values[`${instance}/$runtime`];
   const get = (part: string) => values[`${instance}/${part}`];
-  state = drawStatus(meta, props, state, get);
+  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
   return offered.filter(({ address, action, part }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
-    if (state === "empty") {
-      if (!meta.emptyActions?.some((allowed) => allowed === `${part}.${action}`)) return false;
-    } else if (state !== "filled" && !(state === "success" && role)) return false;
+    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role))) return false;
+    const event = sessionEvent(meta, target, action);
+    if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (!runtime && !meta.set && !meta.items?.set) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
@@ -122,6 +124,12 @@ export function affordancesOf(
       clockActionValid(meta, props, target, action, get, now)
     );
   });
+}
+
+function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
+  if (state === "filled") return true;
+  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
+  return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
 }
 
 function ownActions(meta: Meta, props: Props, instance: string, when: When) {

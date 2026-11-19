@@ -40,8 +40,6 @@ function prepareStep(
   const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
   const def = ctx.defs[entry.c]!;
-  if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length)
-    return fail("not_actionable", "This component is not filled");
   if (ctx.disabledParts.has(action.address)) return fail("disabled", "This control is disabled");
   let input: Values;
   try {
@@ -144,7 +142,7 @@ function planSteps(
     else result = run(state, action);
     if (result.error) return { ...result, performed: [] };
     state = result.state;
-    Object.assign(state.values, ctx.expiredDraws(state.values));
+    Object.assign(state.values, ctx.expiredProgress(state.values));
     effects.push(...result.effects);
   }
   return { state, effects, performed, drew };

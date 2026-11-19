@@ -34,7 +34,6 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
     .components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
-  if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length) return [];
   try {
     const localValues = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),

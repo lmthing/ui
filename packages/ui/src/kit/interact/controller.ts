@@ -23,7 +23,7 @@ export function createScreenController(options: ControllerOptions) {
     tick: clock.tick,
     ...createAccess(ctx, act),
     mount() {
-      const expired = ctx.expiredDraws(ctx.valuesOf());
+      const expired = ctx.expiredProgress(ctx.valuesOf());
       if (Object.keys(expired).length) ctx.store.setMany(expired);
       clock.scheduleClock();
     },

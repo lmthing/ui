@@ -21,6 +21,14 @@ export {
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
 export { nestedControls, nestedAt, projectNested } from "./selection";
 export {
+  sessionAvailable,
+  sessionKey,
+  sessionState,
+  sessionStatus,
+  staleSession,
+  type SessionState,
+} from "./session";
+export {
   clockTargets,
   clockKey,
   clockPropKey,
