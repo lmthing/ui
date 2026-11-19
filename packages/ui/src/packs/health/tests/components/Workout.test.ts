@@ -102,7 +102,6 @@ describe("Workout fallback and probes", () => {
   });
 });
 
-// The shared renderer door only includes ready components.
 describe.runIf(String(meta.status) === "ready")("Workout states and parts", () => {
   it("draws every set part once and preserves duration, rest and unit readings", () => {
     for (const example of examples) {
@@ -122,8 +121,9 @@ describe.runIf(String(meta.status) === "ready")("Workout states and parts", () =
     const duration = renderInstance("Workout", examples[0], "filled", theme);
     const resting = renderInstance("Workout", examples[1], "filled", theme);
     expect(duration).toMatch(/data-testid="home\/c1\/r2\/label_1"[^>]*>Set 1 · 0:45/);
+    expect(elementAt(duration, "home/c1/r2/done_1").attributes).toContain('role="checkbox"');
+    expect(duration).not.toMatch(/data-testid="home\/c1\/r2\/(?:weight|reps)_1/);
     expect(resting).toContain("Rest · 0:36");
-    expect(resting).not.toContain("Duration");
   });
   it.each(["empty", "success"] as const)("replaces the workout with a non-interactive %s state", (state) => {
     const html = renderInstance("Workout", { ...input, elapsed: 65 }, state, theme);

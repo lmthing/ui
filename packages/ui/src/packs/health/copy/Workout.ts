@@ -15,6 +15,10 @@ type Workout = {
   elapsed?: number | undefined;
 };
 
+export function hasWorkoutSetFields({ seconds, weight, reps }: Pick<Set, "seconds" | "weight" | "reps">) {
+  return seconds === undefined || weight !== undefined || reps !== undefined;
+}
+
 export function activeWorkoutRest(
   exercises: readonly { id: string; sets: readonly Set[] }[],
   running?: (id: string, pos: number) => boolean,
@@ -53,8 +57,12 @@ export function workoutReading(input: Workout, lang?: string): string[] {
         [
           name,
           workoutSetLabel(at + 1, set.seconds, lang),
-          `${weightLabel}${set.weight === undefined ? "" : ` ${numberLine(set.weight, lang)}`}`,
-          `${words.reps}${set.reps === undefined ? "" : ` ${numberLine(set.reps, lang)}`}`,
+          ...(hasWorkoutSetFields(set)
+            ? [
+                `${weightLabel}${set.weight === undefined ? "" : ` ${numberLine(set.weight, lang)}`}`,
+                `${words.reps}${set.reps === undefined ? "" : ` ${numberLine(set.reps, lang)}`}`,
+              ]
+            : []),
           set.done ? words.done : words.pending,
           ...workoutSetTimes(set, lang).map(([, line]) => line),
         ].join(" · "),

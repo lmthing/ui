@@ -3,10 +3,11 @@ import { clockLine, probesFor, text } from "../../../catalog";
 import type { ClockState, FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
-import { activeWorkoutRest, workoutReading, workoutSetLabel } from "../copy";
+import { activeWorkoutRest, hasWorkoutSetFields, workoutReading, workoutSetLabel } from "../copy";
 import { healthWordsFor } from "../lang";
 
 // Core first: Checklist/plain cannot edit weights and reps per set or attach a rest countdown.
+const setFields = { prop: "hasFields", equals: true } as const;
 export const meta = {
   id: "Workout",
   status: "draft",
@@ -35,8 +36,8 @@ export const meta = {
       key: "sets",
       parts: {
         done: { action: "toggle", prop: "done" },
-        weight: { action: "set", prop: "weight", min: 0, max: 1000 },
-        reps: { action: "set", prop: "reps", min: 0, max: 999, integer: true },
+        weight: { action: "set", prop: "weight", min: 0, max: 1000, when: setFields },
+        reps: { action: "set", prop: "reps", min: 0, max: 999, integer: true, when: setFields },
       },
       // prettier-ignore
       clocks: [{
@@ -56,13 +57,14 @@ export const meta = {
     state === "filled" ? workoutReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 
+// prettier-ignore
 const setProps = z.strictObject({
   weight: z.number().min(0).max(1000).optional(),
   reps: z.int().min(0).max(999).optional(),
   seconds: z.int().min(0).max(86400).optional(),
   done: z.boolean(),
   remaining: z.int().min(0).max(600).optional(),
-});
+}).overwrite((set) => ({ ...set, hasFields: hasWorkoutSetFields(set) }));
 export const props = z
   .strictObject({
     exercises: z
@@ -127,22 +129,25 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   ] as const;
   const fields = limits.map(({ name, label, ...bounds }) => {
     const id = `${name}_${pos}`;
-    const inactive = set.seconds !== undefined && set[name] === undefined;
-    const input = { part: id, label, hint: "", value: set[name]?.toString(), min: 0, inactive, ...bounds };
+    const input = { part: id, label, hint: "", value: set[name]?.toString(), min: 0, ...bounds };
     return { id, label, control: <kit.KitInput kind="number" action="set" compact {...input} /> };
   });
   const rest = (stop || set.done) && set.remaining ? w.remaining(clockLine(set.remaining, lang)) : undefined;
+  const done = <kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />;
+  const row = { item, part: `set_${pos}`, label };
+  const labelPart = `label_${pos}`;
   // prettier-ignore
-  return (
-    <kit.KitSetRow item={item} part={`set_${pos}`} label={label} labelPart={`label_${pos}`} fields={fields}
-      done={<kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />}
-      detail={rest && <kit.KitRow label={rest} inline trailing={stop && <kit.PartContext.Provider value={scope}>
-        <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />
-      </kit.PartContext.Provider>}>
-        <kit.KitText part={`remaining_${pos}`} role="number" numberScale="compact" tabular>{rest}</kit.KitText>
-      </kit.KitRow>}
-    />
-  );
+  const detail = rest && <kit.KitRow label={rest} inline trailing={stop && <kit.PartContext.Provider value={scope}>
+    <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />
+  </kit.PartContext.Provider>}>
+    <kit.KitText part={`remaining_${pos}`} role="number" numberScale="compact" tabular>{rest}</kit.KitText>
+  </kit.KitRow>;
+  // prettier-ignore
+  return hasWorkoutSetFields(set)
+    ? <kit.KitSetRow {...row} labelPart={labelPart} fields={fields} done={done} detail={detail} />
+    : <><kit.KitRow {...row} inline role="text" lineRole="label" trailing={done}>
+        <kit.KitText part={labelPart} role="label">{label}</kit.KitText>
+      </kit.KitRow>{detail}</>;
 }
 
 export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {

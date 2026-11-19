@@ -33,7 +33,14 @@ it("projects bounded named parts and conditions without changing Writer input co
 
 it("offers only existing sets and reads each set's own done mark, including timed-only inputs", () => {
   const def = components.Workout;
-  const input = { exercises: [{ name: "Timed hold", sets: [{ seconds: 45, done: false }, { done: true }] }] };
+  const input = {
+    exercises: [
+      {
+        name: "Timed hold",
+        sets: [{ seconds: 45, done: false }, { done: true }, { seconds: 0, weight: 0, done: false }],
+      },
+    ],
+  };
   const parsed = stampItemIds(def.meta, def.props.parse(input));
   const actions = affordancesOf(def.meta, parsed, "w1");
   expect(actions.find((a) => a.address === "w1/r1/done_1")).toMatchObject({
@@ -44,8 +51,12 @@ it("offers only existing sets and reads each set's own done mark, including time
     action: "toggle",
     detail: ":on",
   });
-  expect(actions.some((a) => a.address === "w1/r1/weight_1")).toBe(true);
-  expect(actions.some((a) => a.address === "w1/r1/done_3")).toBe(false);
+  for (const part of ["weight", "reps"]) {
+    expect(actions.some((a) => a.address === `w1/r1/${part}_1`)).toBe(false);
+    expect(actions.some((a) => a.address === `w1/r1/${part}_2`)).toBe(true);
+    expect(actions.some((a) => a.address === `w1/r1/${part}_3`)).toBe(true);
+  }
+  expect(actions.some((a) => a.address === "w1/r1/done_4")).toBe(false);
   expect(def.props.safeParse({ exercises: [{ ...input.exercises[0], has_1: true }] }).success).toBe(false);
 });
 
