@@ -5,11 +5,13 @@ import {
   clock,
   detailOf,
   itemsOf,
+  itemVariantProps,
   placeholderTitle,
   screenId,
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -25,6 +27,7 @@ import {
   KitText,
   KitTime,
   useComponentState,
+  useVariant,
 } from "../kit";
 
 export const meta = {
@@ -33,9 +36,9 @@ export const meta = {
   purpose: "Events in time order, or activities sized by duration on an hour rail.",
   pick: "Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).",
   writeHints: [
-    "Use day or history for up to six events with time and title, optionally meta and done.",
-    "Use hours for duration blocks on an hour rail: up to eight items, time as the start in HH:MM and a later end in HH:MM. Only hours uses end, tone and goto; omit meta and done in hours.",
-    'Example hours: {"style":"hours","items":[{"time":"09:00","end":"10:00","title":"Water the fern","goto":"fern"},{"time":"11:00","end":"12:30","title":"Repot basil","tone":"warn"}]}.',
+    "Use day for a schedule of events with only single times, even if some are already done. Use history for an explicitly past-only log. Either takes up to six items. To show time and title only, set detail brief and keep supplied notes in meta.",
+    "Use hours for duration blocks on an hour rail: up to eight items, time as the start in HH:MM and a later end in HH:MM. Only hours uses end and goto; omit meta and done in hours.",
+    "Set density, detail and each event tone to null unless explicitly requested. Times, notes, completion and scheduling are data, not requests for a variant.",
   ],
   region: "body",
   weight: 2,
@@ -43,7 +46,13 @@ export const meta = {
   signatureByStyle: { hours: "day_unfold" },
   tier: "phone",
   realPath: "Time-stamped events or activity start and end times stored on the device.",
-  items: { key: "items", parts: ["root", "time", "title", "meta"] },
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  items: {
+    key: "items",
+    parts: ["root", "time", "title", "meta"],
+    variants: { tone: ["neutral", "good", "warn", "bad"] },
+  },
+  variantParts: { "detail.brief": { hides: ["meta"] } },
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { style: "hours" } } },
@@ -53,23 +62,21 @@ export const meta = {
       : [],
 } as const satisfies Meta;
 
+const event = z.strictObject({
+  ...itemVariantProps(meta.items.variants),
+  time: text(12),
+  title: text(32),
+  meta: text(32).optional(),
+  done: z.boolean().default(false),
+  end: clock.optional(),
+  goto: screenId.optional(),
+});
+
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["day", "history", "hours"]).default("day"),
-    items: z
-      .array(
-        z.strictObject({
-          time: text(12),
-          title: text(32),
-          meta: text(32).optional(),
-          done: z.boolean().default(false),
-          end: clock.optional(),
-          tone: z.enum(["neutral", "good", "warn", "bad"]).optional(),
-          goto: screenId.optional(),
-        }),
-      )
-      .min(1)
-      .max(8),
+    items: z.array(event).min(1).max(8),
   })
   .refine(({ style, items }) => style === "hours" || items.length <= 6, {
     path: ["items"],
@@ -84,11 +91,11 @@ export const props = z
             item.time < item.end &&
             item.meta === undefined &&
             !item.done
-          : item.end === undefined && item.tone === undefined && item.goto === undefined,
+          : item.end === undefined && item.goto === undefined,
       ),
     {
       path: ["items"],
-      message: "Hours needs a start and later end in HH:MM; end, tone and goto belong only to hours",
+      message: "Hours needs a start and later end in HH:MM; end and goto belong only to hours",
     },
   )
   .overwrite((value) =>
@@ -99,7 +106,9 @@ export const props = z
             .sort((a, b) => a.time.localeCompare(b.time))
             .map((item) => ({ ...item, root: item.goto })),
         }
-      : value,
+      : value.detail === "brief"
+        ? { ...value, items: value.items.map((item) => ({ ...item, meta: undefined })) }
+        : value,
   );
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -137,6 +146,7 @@ export const examples = [
       { time: "14:00", end: "15:00", title: "Check the orchid", tone: "bad" },
     ],
   },
+  { density: "compact", items: sampleWalks },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Timeline");
@@ -151,50 +161,40 @@ export const probes = [
   write(
     "Saturday plant care by the hour: Water the fern 09:00–10:00, Repot basil 11:00–12:30, Check the orchid 14:00–15:00. Show the free gaps and let me open the fern's screen fern.",
   ),
+  {
+    ...write(
+      "Show today's walks in time order: Park walk at 09:00 and River walk at 17:00. On screen, show only the time and title for each; hide their meetup notes.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open the fern scheduled for watering", { address: "t1/r1", action: "press" }, 2),
 ] satisfies Probe[];
 
-export function Timeline({ style, items }: Props<typeof props, typeof meta>) {
+type TimelineProps = Props<typeof props, typeof meta>;
+
+// prettier-ignore
+function Events({ style, items, density }: Pick<TimelineProps, "style" | "items" | "density">) {
+  return items.map((item) => {
+    const complete = style === "history" && item.done;
+    return <KitRow key={item.id} item={item.id} label={item.title} tone={item.tone} density={density}
+      leading={<KitTime value={item.time} part="time" />}
+      trailing={complete ? <KitIcon name="check" decorative /> : undefined}>
+      <KitText role="body" tone={complete ? "muted" : "text"} part="title" density={density}>{item.title}</KitText>
+      {item.meta && <KitText role="caption" tone="muted" part="meta" density={density}>{item.meta}</KitText>}
+    </KitRow>;
+  });
+}
+
+// prettier-ignore
+export function Timeline({ style, items, density: requested }: TimelineProps) {
   const state = useComponentState();
-  const loading = <KitSkeleton rows={items.length} lead="time" items={items} />;
-  const waiting = state === "loading" ? loading : <KitEmpty part="title" />;
-  if (state === "loading" || state === "empty")
-    return <KitCard style="inset" part="root" children={waiting} />;
-  if (style === "hours")
-    return (
-      <KitCard style="inset" part="root" padded>
-        <KitHours
-          blocks={items.map((item) => ({
-            id: item.id,
-            start: item.time,
-            end: item.end!,
-            title: item.title,
-            tone: item.tone ?? "neutral",
-            ...(item.goto ? { goto: item.goto } : {}),
-          }))}
-        />
-      </KitCard>
-    );
-  return (
-    <KitCard style="inset" part="root">
-      {items.map((item) => (
-        <KitRow
-          key={item.id}
-          item={item.id}
-          label={item.title}
-          leading={<KitTime value={item.time} part="time" />}
-          trailing={style === "history" && item.done ? <KitIcon name="check" decorative /> : undefined}
-        >
-          <KitText role="body" tone={style === "history" && item.done ? "muted" : "text"} part="title">
-            {item.title}
-          </KitText>
-          {item.meta && (
-            <KitText role="caption" tone="muted" part="meta">
-              {item.meta}
-            </KitText>
-          )}
-        </KitRow>
-      ))}
-    </KitCard>
-  );
+  const density = useVariant("density", meta.variants.density, requested);
+  const hours = style === "hours";
+  return <KitCard style="inset" part="root" density={density} padded={state === "filled" && hours}>
+    {state === "loading" ? <KitSkeleton rows={items.length} lead="time" items={items} density={density} /> :
+      state === "empty" ? <KitEmpty part="title" /> :
+      hours ? <KitHours blocks={items.map(({ id, time, end, title, tone, goto }) => ({
+        id, start: time, end: end!, title, tone, ...(goto ? { goto } : {}),
+      }))} /> : <Events {...{ items, style, density }} />}
+  </KitCard>;
 }
