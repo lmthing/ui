@@ -51,7 +51,22 @@ describe("Devices states and parts", () => {
       expect(html.split(`data-testid="${full}"`)).toHaveLength(2);
     }
     expect(elementAt(html, "home/d1/r2/name")).toBeDefined();
-    expect(elementAt(html, "home/d1/r2/room")).toBeDefined();
+  });
+
+  renderTest("shows one heading for a room grid rather than repeating it on every device", () => {
+    const html = renderInstance("Devices", tiles, "filled", theme, { component: "d1" });
+    expect(html.match(/>Hall</g)).toHaveLength(1);
+    expect(elementAt(html, "home/d1/r1/room")).toBeDefined();
+  });
+
+  renderTest("keeps focused room devices together before scenes and puts scenes first in tiles", () => {
+    const input = { ...focused, rooms: [...tiles.rooms, ...focused.rooms] };
+    const focusedHtml = renderInstance("Devices", input, "filled", theme);
+    const tilesHtml = renderInstance("Devices", tiles, "filled", theme);
+    expect(focusedHtml).toMatch(
+      />Thermostat<[\s\S]*>Humidity<[\s\S]*>Plant lamp<[\s\S]*>Hall<[\s\S]*>Saved scenes</,
+    );
+    expect(tilesHtml).toMatch(/>Saved scenes<[\s\S]*>Hall<[\s\S]*>Hall light</);
   });
 
   renderTest("draws intentional empty, inert loading, success and readable offline states", () => {
