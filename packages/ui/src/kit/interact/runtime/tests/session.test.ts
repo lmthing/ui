@@ -9,7 +9,6 @@ import {
   type Meta,
 } from "../../../../catalog";
 import { createInteractionStore, createScreenController } from "../../index";
-
 const base = {
   id: "SequenceFixture",
   group: "data",
@@ -118,7 +117,6 @@ function game(def: Definition, input: Record<string, unknown>, requireMounted = 
   };
   return { screen, defs, store, runtime, onAction, view };
 }
-
 it("keeps the turn cursor, skipped turns, lap, direction, reader, and completion in sync", () => {
   const { runtime, view, onAction } = game(roster, {
     people: [{ name: "One" }, { name: "Two" }, { name: "Three" }],
@@ -191,6 +189,8 @@ it("validates newly offered mounted-batch actions, rolls them back, and honors l
   const invalid = [press("show"), press("reset"), confirm, press("go")];
   expect(runtime.act(invalid)).toMatchObject({ ok: false, at: 3 });
   expect(runtime.confirmation).toBeUndefined();
+  runtime.registerPart("game/go");
+  runtime.registerDisabledPart("game/go");
   expect(runtime.act([press("show"), press("go"), press("show")]).ok).toBe(true);
   store.set("s/game/$state", "loading");
   expect(runtime.read()).toBe("screen s\ngame SequenceFixture (loading)");

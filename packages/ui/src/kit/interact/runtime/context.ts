@@ -176,17 +176,18 @@ export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   };
 }
 
-/** The planner has accepted this action against the staged state; check if it was newly offered. */
+/** Check whether an earlier step introduced the part before the view could update. */
 export function introducedPart(
   ctx: ControllerContext,
   staged: { sheet: string | undefined; values: Values },
   entry: ScreenComponent,
   action: ActStep,
+  sessionOnly = false,
 ) {
   const initial = ctx.valuesOf();
   const cursor = ctx.key(entry.id, "$cursor");
-  if (entry.c === "Sheet" && staged.sheet !== ctx.status.openSheet) return true;
-  if (entry.c === "SwipeStack" && staged.values[cursor] !== initial[cursor]) return true;
+  if (!sessionOnly && entry.c === "Sheet" && staged.sheet !== ctx.status.openSheet) return true;
+  if (!sessionOnly && entry.c === "SwipeStack" && staged.values[cursor] !== initial[cursor]) return true;
   const target = action.address.split("/").slice(1).join("/") || "root";
   const key = ctx.key(entry.id, sessionKey);
   if (staged.values[key] === initial[key] || !sessionEvent(ctx.defs[entry.c]!.meta, target, action.action))
