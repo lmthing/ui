@@ -25,6 +25,7 @@ import {
   KitIcon,
   KitRow,
   KitText,
+  KitTrack,
   PartContext,
   useComponentState,
   usePartContext,
@@ -173,7 +174,6 @@ function CareTile({ task, today, wide }: { task: CareTask; today: string; wide: 
     </PartContext.Provider>
   );
 }
-
 export function CareSchedule({ tasks }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   if (state === "empty" || state === "success")
@@ -192,9 +192,9 @@ export function CareSchedule({ tasks }: Props<typeof props, typeof meta>) {
     <CareTile key={task.id} task={task} today={today} wide={index === pairs} />
   ));
   return (
-    <KitCard style="cards" part="root">
+    <KitTrack>
       {pairs > 0 && <KitGrid columns={2}>{tiles.slice(0, pairs)}</KitGrid>}
       {tiles.slice(pairs)}
-    </KitCard>
+    </KitTrack>
   );
 }
