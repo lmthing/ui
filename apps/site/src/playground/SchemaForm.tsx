@@ -1,54 +1,52 @@
 import { useState } from "react";
+import { Segmented } from "./controls/Segmented";
+import { Select } from "./controls/Select";
+import { Switch } from "./controls/Switch";
 import { blank, plain, type Node } from "./schema";
 
 type Change = (value: unknown) => void;
 type FieldProps = { node: Node; value: unknown; onChange: Change; label: string };
 
+const segmentedMax = 4;
+
 function Scalar({ node, value, onChange, label }: FieldProps) {
   if (node.enum) {
-    return (
-      <select
-        aria-label={label}
-        value={String(value ?? "")}
-        onChange={(e) => onChange(node.enum!.find((o) => String(o) === e.target.value))}
-      >
-        {node.enum.map((o) => (
-          <option key={String(o)}>{String(o)}</option>
-        ))}
-      </select>
+    const options = node.enum.map(String);
+    const pick = (v: string) => onChange(node.enum!.find((o) => String(o) === v));
+    return options.length <= segmentedMax ? (
+      <Segmented label={label} value={String(value ?? "")} options={options} onChange={pick} wrap />
+    ) : (
+      <Select label={label} value={String(value ?? "")} options={options} onChange={pick} />
     );
   }
-  if (node.type === "boolean")
-    return (
-      <input
-        type="checkbox"
-        aria-label={label}
-        checked={Boolean(value)}
-        onChange={(e) => onChange(e.target.checked)}
-      />
-    );
+  if (node.type === "boolean") return <Switch label={label} on={Boolean(value)} onChange={onChange} />;
   if (node.type === "number" || node.type === "integer") {
+    const step = node.type === "integer" ? 1 : "any";
     return (
       <input
+        className="in"
         type="number"
         aria-label={label}
         value={Number(value ?? 0)}
         min={node.minimum}
         max={node.maximum}
-        step={node.type === "integer" ? 1 : "any"}
+        step={step}
         onChange={(e) => onChange(Number(e.target.value))}
       />
     );
   }
   if (node.type === "string") {
-    const long = (node.maxLength ?? 0) > 80;
     const props = {
       "aria-label": label,
       value: String(value ?? ""),
       maxLength: node.maxLength,
       onChange: (e: { target: { value: string } }) => onChange(e.target.value),
     };
-    return long ? <textarea rows={2} {...props} /> : <input type="text" {...props} />;
+    return (node.maxLength ?? 0) > 80 ? (
+      <textarea className="in" rows={2} {...props} />
+    ) : (
+      <input className="in" type="text" {...props} />
+    );
   }
   return <RawJson label={label} value={value} onChange={onChange} />;
 }
@@ -58,6 +56,7 @@ function RawJson({ label, value, onChange }: { label: string; value: unknown; on
   const [bad, setBad] = useState(false);
   return (
     <input
+      className="in"
       type="text"
       aria-label={label}
       aria-invalid={bad}
@@ -77,7 +76,6 @@ function RawJson({ label, value, onChange }: { label: string; value: unknown; on
 
 function List({ node, value, onChange, label }: FieldProps) {
   const items = Array.isArray(value) ? value : [];
-  const set = (next: unknown[]) => onChange(next);
   return (
     <div className="list-field">
       {items.map((item, i) => (
@@ -87,7 +85,7 @@ function List({ node, value, onChange, label }: FieldProps) {
             <button
               type="button"
               aria-label={`Remove ${label} ${i + 1}`}
-              onClick={() => set(items.filter((_, j) => j !== i))}
+              onClick={() => onChange(items.filter((_, j) => j !== i))}
             >
               Remove
             </button>
@@ -96,13 +94,13 @@ function List({ node, value, onChange, label }: FieldProps) {
             node={node.items ?? {}}
             value={item}
             label={`${label} ${i + 1}`}
-            onChange={(v) => set(items.map((x, j) => (j === i ? v : x)))}
+            onChange={(v) => onChange(items.map((x, j) => (j === i ? v : x)))}
           />
         </div>
       ))}
       {(node.maxItems === undefined || items.length < node.maxItems) && (
-        <button type="button" className="add" onClick={() => set([...items, blank(node.items ?? {})])}>
-          Add {label}
+        <button type="button" className="add" onClick={() => onChange([...items, blank(node.items ?? {})])}>
+          + Add {label}
         </button>
       )}
     </div>
@@ -116,24 +114,18 @@ function ObjectFields({ node, value, onChange }: FieldProps) {
       {Object.entries(node.properties ?? {}).map(([key, child]) => {
         const required = node.required?.includes(key);
         const present = key in obj && obj[key] !== undefined;
+        const include = (on: boolean) => {
+          const next = { ...obj };
+          if (on) next[key] = blank(child);
+          else delete next[key];
+          onChange(next);
+        };
         return (
           <div key={key} className="row">
-            <label className="name">
-              {!required && (
-                <input
-                  type="checkbox"
-                  aria-label={`Include ${key}`}
-                  checked={present}
-                  onChange={(e) => {
-                    const next = { ...obj };
-                    if (e.target.checked) next[key] = blank(child);
-                    else delete next[key];
-                    onChange(next);
-                  }}
-                />
-              )}
+            <span className="name">
+              {!required && <Switch label={`Include ${key}`} on={present} onChange={include} />}
               {key}
-            </label>
+            </span>
             {(required || present) && (
               <Field
                 node={child}
@@ -149,15 +141,16 @@ function ObjectFields({ node, value, onChange }: FieldProps) {
   );
 }
 
-/** A control for any JSON-schema node: enums, text, numbers, booleans, lists and nested objects. */
+/** A control for any JSON-schema node: choices, text, numbers, switches, lists and nested objects. */
 export function Field(props: FieldProps) {
   const node = plain(props.node);
   if (node.type === "array") return <List {...props} node={node} />;
-  if (node.type === "object" && node.properties)
+  if (node.type === "object" && node.properties) {
     return (
       <div className="object">
         <ObjectFields {...props} node={node} />
       </div>
     );
+  }
   return <Scalar {...props} node={node} />;
 }

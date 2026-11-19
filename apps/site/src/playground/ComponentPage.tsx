@@ -20,7 +20,7 @@ export default function ComponentPage({ id }: { id: string }) {
       <div className="pg-grid">
         <Controls id={id} pg={pg} width={width} setWidth={setWidth} />
         <div className="pg-stage">
-          <Phone screen={pg.screen} width={width} height={620} onHover={setHover} />
+          <Phone screen={pg.screen} width={width} height={640} minHeight={120} onHover={setHover} />
           <p className="addr-tip" aria-live="polite">
             {hover ? `address: ${hover}` : "hover a part to see its address"}
           </p>

@@ -1,11 +1,11 @@
-import { lazy } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { packById } from "../data/site";
 import { Specimen } from "../index/Specimen";
 import { NotFound } from "../shell/NotFound";
 import { cap, shotLabel, statusOf } from "../shared/status";
 
-const WorkedExample = lazy(() => import("./WorkedExample"));
+const WorkedExample = lazyChunk(() => import("./WorkedExample"));
 
 /** One pack: status, its worked app in three presets, its components, then what is still planned. */
 export default function PackPage({ id }: { id: string }) {

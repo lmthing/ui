@@ -1,11 +1,13 @@
+import { lazyChunk } from "../shared/lazyChunk";
 import type { Pack } from "../../scripts/site-types";
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
+import { WhenNear } from "../shared/WhenNear";
 import { shotOf } from "../data/site";
 import { hrefOf } from "../router";
 import { cap } from "../shared/status";
 
 const more = 3;
-const MiniPack = lazy(() => import("./MiniPack"));
+const MiniPack = lazyChunk(() => import("./MiniPack"));
 
 /** A live pack on the shelf: one drawing at phone proportions, the rest on hover or focus, and what it is for. */
 export function PackCard({ pack }: { pack: Pack }) {
@@ -15,9 +17,11 @@ export function PackCard({ pack }: { pack: Pack }) {
     <a className="pack" href={hrefOf("p", pack.id)}>
       <span className="lead" inert>
         {pack.lines.length > 0 ? (
-          <Suspense fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
-            <MiniPack id={pack.id} />
-          </Suspense>
+          <WhenNear inline fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
+            <Suspense fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
+              <MiniPack id={pack.id} />
+            </Suspense>
+          </WhenNear>
         ) : (
           lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />
         )}

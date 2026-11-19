@@ -1,10 +1,13 @@
 import type { z } from "zod";
 import type { Meta, PackId } from "../meta";
-import type { CastLike } from "../types";
+import type { Axis, AxisValue, CastLike } from "../types";
 import type { WriterFormat } from "../format";
 
 export type ChooseProbe = { kind: "choose"; need: string; expect: string };
-export type WriteProbe = { kind: "write"; brief: string; expect: string };
+type VariantExpectation = {
+  [A in Axis]: { axis: A; value: AxisValue<A> | null; item?: number; itemTitles?: readonly string[] };
+}[Axis];
+export type WriteProbe = { kind: "write"; brief: string; expect: string; variant?: VariantExpectation };
 export type ReadProbe = {
   kind: "read";
   screen: number;

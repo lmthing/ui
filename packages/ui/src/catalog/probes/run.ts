@@ -2,6 +2,7 @@ import { choosePrompt, readPrompt, writePrompt } from "./prompts";
 import { scoreChoose, scoreRead, scoreWrite } from "./score";
 import type { CallModel, Definition, Probe, ProbeResult } from "./types";
 import { writerFormatFor } from "../format";
+import { variantProbeDefinitions } from "./variants";
 
 async function runOne(
   def: Definition,
@@ -31,7 +32,7 @@ async function runOne(
   }
   const prompt = writePrompt(def, probe.brief);
   const reply = await callModel(prompt, 0, writerFormatFor(def));
-  const { pass, detail } = scoreWrite(reply, def);
+  const { pass, detail } = scoreWrite(reply, def, probe.variant);
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
 
@@ -79,5 +80,10 @@ export async function runProbes(options: {
   for (const def of selected) {
     for (const probe of def.probes) results.push(await sampled(def, probe, defs, callModel, samples));
   }
+  // The CLI sends this selector as its component id and records into its own book.
+  if (only?.includes("variants"))
+    for (const def of variantProbeDefinitions)
+      for (const probe of def.probes)
+        results.push(await sampled(def, probe, variantProbeDefinitions, callModel, samples));
   return results;
 }
