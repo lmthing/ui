@@ -19,10 +19,10 @@ import {
   KitCheck,
   KitContent,
   KitEmpty,
+  KitGrid,
   KitIcon,
   KitRow,
   KitText,
-  PartContext,
   useComponentState,
   useControlValue,
   usePartContext,
@@ -52,7 +52,6 @@ export const meta = {
   read: (input, state, lang) =>
     state === "filled" ? billsReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-
 export const props = z.strictObject({
   bills: z
     .array(
@@ -72,25 +71,15 @@ export const props = z.strictObject({
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
-  const bills = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) || placeholderTitle(index, lang),
-    amount: 0,
-    repeat: "never" as const,
-    paid: false,
-    icon: "dot" as const,
-  }));
+  const items = itemsOf(cast, 3);
   return {
-    bills: bills.length
-      ? bills
-      : [
-          {
-            name: placeholderTitle(0, lang),
-            amount: 0,
-            repeat: "never",
-            paid: false,
-            icon: "dot",
-          },
-        ],
+    bills: (items.length ? items : [undefined]).map((item, index) => ({
+      name: (item && titleOf(item, 24, thing)) || placeholderTitle(index, lang),
+      amount: 0,
+      repeat: "never",
+      paid: false,
+      icon: "dot",
+    })),
   };
 }
 
@@ -124,46 +113,61 @@ export const probes = [
   write(
     "Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
   ),
-  read("Tick the paid checkbox for Ledge supplies delivery", { address: "b1/r1/paid", action: "check" }),
+  read("Check off Ledge supplies delivery as paid, without opening the bill", {
+    address: "b1/r1/paid",
+    action: "check",
+  }),
 ] satisfies Probe[];
 
 type Bill = Props<typeof props, typeof meta>["bills"][number];
-
 function BillRow({ bill, today }: { bill: Bill; today: string }) {
   const scope = usePartContext();
   const { lang, words } = useWords(moneyWordsFor);
   const target = formatAddress({ ...scope, item: bill.id, part: "paid" });
   const paid = useControlValue(target, bill.paid);
-  const { amount, due, repeat, overdue } = billLines({ ...bill, paid }, today, lang);
-  const label = overdue ? words.bills.overdue(bill.name) : bill.name;
+  const { amount, due, shortDue, repeat, overdue } = billLines({ ...bill, paid }, today, lang);
+  const name = overdue ? words.bills.overdue(bill.name) : bill.name;
+  const label = [name, amount, due && words.bills.due(due), repeat]
+    .filter(Boolean)
+    .join(words.bills.separator);
   return (
-    <PartContext.Provider value={{ ...scope, item: bill.id }}>
+    <KitRow
+      item={bill.id}
+      part={null}
+      label={bill.name}
+      inline
+      trailing={<KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
+    >
       <KitRow
-        label={bill.name}
+        part="root"
+        role="button"
+        label={label}
         inline
         leading={<KitIcon part="icon" name={bill.icon} tone="muted" />}
-        trailing={<KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
       >
-        <KitRow part="root" role="button" label={label} inline>
-          <KitText role="body" part="name">
-            {bill.name}
+        <KitText role="body" part="name">
+          {bill.name}
+        </KitText>
+        <KitGrid fitLast>
+          <KitText role="caption" tone="muted" part={null}>
+            {repeat && (
+              <KitText role="caption" tone="muted" part="repeat">
+                {repeat.replace(/\s/g, "\u00a0")}
+              </KitText>
+            )}
+            {shortDue && repeat && words.bills.separator}
+            {shortDue && (
+              <KitText role="caption" tone={overdue ? "bad" : paid ? "muted" : "text"} part="due">
+                {shortDue.replace(/\s/g, "\u00a0")}
+              </KitText>
+            )}
           </KitText>
-          <KitText role="number" numberScale="compact" tabular part="amount">
+          <KitText role="number" numberScale="compact" align="end" tabular part="amount">
             {amount}
           </KitText>
-          {due && (
-            <KitText role="caption" tone={overdue ? "bad" : "muted"} part="due">
-              {due}
-            </KitText>
-          )}
-          {repeat && (
-            <KitText role="caption" tone="muted" part="repeat">
-              {repeat}
-            </KitText>
-          )}
-        </KitRow>
+        </KitGrid>
       </KitRow>
-    </PartContext.Provider>
+    </KitRow>
   );
 }
 
@@ -185,7 +189,7 @@ export function Bills({ bills, style }: Props<typeof props, typeof meta>) {
             <KitText role="caption" tone="muted" part={null}>
               {total.label}
             </KitText>
-            <KitText role="number" tabular part="total">
+            <KitText role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">
               {total.amount}
             </KitText>
           </KitContent>

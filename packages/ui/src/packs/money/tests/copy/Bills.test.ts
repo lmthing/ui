@@ -21,12 +21,14 @@ describe("Bills copy", () => {
     expect(localBillDate(new Date(2026, 10, 19, 0, 1))).toBe(today);
     expect(billLines(past, today)).toEqual({
       amount: "$10",
-      due: "Due 18 Nov 2026",
+      due: "18 Nov 2026",
+      shortDue: "18 Nov",
       repeat: undefined,
       overdue: true,
     });
     expect(billLines({ ...past, paid: true }, today).overdue).toBe(false);
     expect(billLines(base, today).overdue).toBe(false);
+    expect(billLines({ ...base, due: "2027-01-01" }, today).shortDue).toBe("1 Jan 2027");
     expect(billLines({ ...base, due: undefined }, today)).toMatchObject({ due: undefined, overdue: false });
   });
 
@@ -48,16 +50,19 @@ describe("Bills copy", () => {
       amount: "$816",
     });
   });
+});
 
+describe("Bills localization", () => {
   it("passes the locale to money, dates and the pack's words", () => {
     const defaults = moneyWordsFor();
     const unregister = registerMoneyWords("de", {
       ...defaults,
-      bills: { ...defaults.bills, due: (date) => `Fällig ${date}` },
+      bills: { ...defaults.bills, repeat: { ...defaults.bills.repeat, monthly: "Monatlich" } },
     });
     try {
-      const line = billLines({ ...base, amount: 1234.5 }, today, "de-DE");
-      expect(line.due).toBe("Fällig 19. Nov. 2026");
+      const line = billLines({ ...base, amount: 1234.5, repeat: "monthly" }, today, "de-DE");
+      expect(line.due).toBe("19. Nov. 2026");
+      expect(line.repeat).toBe("Monatlich");
       expect(line.amount).toBe("1.234,50\u00a0$");
     } finally {
       unregister();

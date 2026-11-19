@@ -143,7 +143,7 @@ describe("Bills read and act", () => {
     const onAction = vi.fn(),
       onLink = vi.fn();
     const controller = createScreenController({ screen, defs: components, onAction, onLink });
-    expect(controller.read()).toContain("Power — $18.50 — Due 18 Nov 2026 — Every month");
+    expect(controller.read()).toContain("Power — $18.50 — Monthly\u00a0· Due 18\u00a0Nov\u00a02026");
     expect(controller.read()).toContain("Monthly estimate — $37");
     expect(controller.read()).toContain("[b1/r2 press]");
     expect(controller.press(part("r2/root"))).toMatchObject({ ok: true });

@@ -1,4 +1,4 @@
-import { appointmentDate, compactMoneyLine } from "../../../catalog";
+import { appointmentDate, compactMoneyLine, dateLocaleOf } from "../../../catalog";
 import { moneyWordsFor } from "../lang";
 
 type Bill = {
@@ -27,9 +27,19 @@ export function orderedBills<T extends Bill>(bills: readonly T[], style: View["s
 
 export function billLines(bill: Bill, today: string, lang?: string) {
   const words = moneyWordsFor(lang).bills;
+  const due = bill.due && appointmentDate(bill.due, lang);
+  const shortDue =
+    bill.due && bill.due.slice(0, 4) === today.slice(0, 4)
+      ? new Intl.DateTimeFormat(dateLocaleOf(lang), {
+          day: "numeric",
+          month: "short",
+          timeZone: "UTC",
+        }).format(new Date(`${bill.due}T00:00:00Z`))
+      : due;
   return {
     amount: compactMoneyLine(bill.amount, undefined, lang),
-    due: bill.due && words.due(appointmentDate(bill.due, lang)),
+    due,
+    shortDue,
     repeat: bill.repeat === "never" ? undefined : words.repeat[bill.repeat],
     overdue: !bill.paid && bill.due !== undefined && bill.due < today,
   };
@@ -53,10 +63,14 @@ export function billTotalLine({ bills, style }: View, today: string, lang?: stri
 export function billsReading(input: View, lang?: string): string[] {
   const today = localBillDate();
   const total = billTotalLine(input, today, lang);
+  const words = moneyWordsFor(lang).bills;
   return [
     ...orderedBills(input.bills, input.style).flatMap((bill) => {
       const { amount, due, repeat } = billLines(bill, today, lang);
-      return [bill.name, amount, ...(due ? [due] : []), ...(repeat ? [repeat] : [])];
+      const schedule = [repeat, due && words.due(due.replace(/\s/g, "\u00a0"))]
+        .filter(Boolean)
+        .join(words.separator);
+      return schedule ? [bill.name, amount, schedule] : [bill.name, amount];
     }),
     total.label,
     total.amount,
