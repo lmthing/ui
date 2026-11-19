@@ -7,10 +7,12 @@ import {
   placeholderValue,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../catalog";
 import {
   KitCard,
@@ -22,6 +24,7 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
+  useVariant,
 } from "../kit";
 
 export const meta = {
@@ -30,17 +33,21 @@ export const meta = {
   group: "data",
   purpose: "Two to four independent summary numbers, with labels, units and optional change arrows.",
   pick: "Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).",
+  writeHints: [
+    'Leave density and arrange null unless explicitly requested. For one metric per line with its label on the left and number on the right, set arrange "rows".',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Aggregates over records in the on-device database.",
   items: { key: "tiles", parts: ["root", "value", "unit", "label", "trend"] },
   parts: ["root"],
+  variants: { density: ["comfortable", "compact"], arrange: ["grid", "rows"] },
   states: ["filled", "empty", "loading"],
 } as const satisfies Meta;
 
 export const props = z.strictObject({
-  style: z.enum(["tiles", "inline"]).default("tiles"),
+  ...variantProps(meta.variants),
   tiles: z
     .array(
       z.strictObject({
@@ -82,12 +89,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   while (tiles.length < 2) {
     tiles.push({ label: placeholderTitle(tiles.length, lang), value: placeholderValue });
   }
-  return { style: "tiles", tiles };
+  return { tiles };
 }
 
 export const examples = [
   {
-    style: "tiles",
     tiles: [
       { label: "Plants", value: "12" },
       { label: "Watered", value: "3" },
@@ -95,10 +101,17 @@ export const examples = [
     ],
   },
   {
-    style: "inline",
+    arrange: "rows",
     tiles: [
       { label: "Walks this week", value: "9", trend: "flat" },
       { label: "Earned", value: "180", unit: "EUR", trend: "up" },
+    ],
+  },
+  {
+    density: "compact",
+    tiles: [
+      { label: "Walks", value: "8", trend: "down" },
+      { label: "Clients", value: "4" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -108,16 +121,30 @@ export const probes = [
   choose("Show how many plants I have, how many I watered today and how many are due"),
   choose("Show the room and water interval of one plant", "KeyValue"),
   write("Show nine walks this week and 180 EUR earned, with earnings trending up"),
+  {
+    ...write(
+      "Show two summary measurements: Walks 9 and Earnings 180 EUR. Show one per line with the label on the left and the number on the right.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
 ] satisfies Probe[];
 
 type Tile = Props<typeof props, typeof meta>["tiles"][number];
 
-function TileValue({ tile, align = "start" }: { tile: Tile; align?: "start" | "end" }) {
+function TileValue({
+  tile,
+  density,
+  align = "start",
+}: {
+  tile: Tile;
+  density: ThemeDensity;
+  align?: "start" | "end";
+}) {
   return (
-    <KitText role="number" part="value" align={align}>
+    <KitText role="number" part="value" align={align} density={density}>
       {tile.value}
       {tile.unit && (
-        <KitText role="caption" tone="muted" part="unit">
+        <KitText role="caption" tone="muted" part="unit" density={density}>
           {" "}
           {tile.unit}
         </KitText>
@@ -126,7 +153,7 @@ function TileValue({ tile, align = "start" }: { tile: Tile; align?: "start" | "e
   );
 }
 
-function TileRow({ tile, style }: { tile: Tile; style: "tiles" | "inline" }) {
+function TileRow({ tile, grid, density }: { tile: Tile; grid: boolean; density: ThemeDensity }) {
   const trend = tile.trend && (
     <KitIcon
       name={tile.trend === "up" ? "trending_up" : tile.trend === "down" ? "trending_down" : "minus"}
@@ -140,12 +167,13 @@ function TileRow({ tile, style }: { tile: Tile; style: "tiles" | "inline" }) {
       item={tile.id}
       label={tile.label}
       lineRole="number"
-      inset={style === "tiles" ? "none" : "md"}
-      trailing={style === "inline" ? <TileValue tile={tile} align="end" /> : undefined}
+      density={density}
+      inset={grid ? "none" : "md"}
+      trailing={!grid ? <TileValue tile={tile} density={density} align="end" /> : undefined}
     >
-      {style === "tiles" && <TileValue tile={tile} />}
-      <KitContent lead={trend} lineRole="body">
-        <KitText role="body" tone="muted" part="label">
+      {grid && <TileValue tile={tile} density={density} />}
+      <KitContent lead={trend} lineRole="body" density={density}>
+        <KitText role="body" tone="muted" part="label" density={density}>
           {tile.label}
         </KitText>
       </KitContent>
@@ -153,42 +181,19 @@ function TileRow({ tile, style }: { tile: Tile; style: "tiles" | "inline" }) {
   );
 }
 
-export function Stats({ style, tiles }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function Stats({ arrange, tiles, density: requested }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const density = useVariant("density", meta.variants.density, requested);
+  const grid = arrange === "grid";
   const columns = tiles.length === 3 ? 3 : 2;
-  if (state === "loading") {
-    return (
-      <KitCard style="inset" part="root" padded={style === "tiles"}>
-        {style === "tiles" ? (
-          <KitGrid columns={columns}>
-            {tiles.map((tile) => (
-              <KitSkeleton key={tile.id} rows={1} lead="none" shape="headline" inset="none" />
-            ))}
-          </KitGrid>
-        ) : (
-          <KitSkeleton rows={tiles.length} lead="none" shape="pairs" />
-        )}
-      </KitCard>
-    );
-  }
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" part="root">
-        <KitEmpty part="label" />
-      </KitCard>
-    );
-  }
-  return (
-    <KitCard style="inset" part="root" padded={style === "tiles"}>
-      {style === "tiles" ? (
-        <KitGrid columns={columns}>
-          {tiles.map((tile) => (
-            <TileRow key={tile.id} tile={tile} style={style} />
-          ))}
-        </KitGrid>
-      ) : (
-        tiles.map((tile) => <TileRow key={tile.id} tile={tile} style={style} />)
-      )}
-    </KitCard>
-  );
+  return <KitCard style="inset" part="root" padded={grid && state !== "empty"} density={density}>
+    {state === "empty" ? <KitEmpty part="label" /> :
+      state === "loading" && !grid ? <KitSkeleton rows={tiles.length} lead="none" shape="pairs" density={density} /> :
+      <KitGrid {...{ arrange, columns, density }}>
+        {tiles.map((tile) => state === "loading"
+          ? <KitSkeleton key={tile.id} rows={1} lead="none" shape="headline" inset="none" density={density} />
+          : <TileRow key={tile.id} {...{ tile, grid, density }} />)}
+      </KitGrid>}
+  </KitCard>;
 }

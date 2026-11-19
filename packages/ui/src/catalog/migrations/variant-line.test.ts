@@ -174,3 +174,17 @@ it("migrates screens and JSON Lines through the same opt-in path", () => {
   expect(upgraded.components.map(({ id }) => id)).toEqual(["list_one", "card_one"]);
   expect(blank).toBe("");
 });
+
+it.each([
+  ["People", "rows", {}],
+  ["Gallery", "grid", { arrange: "grid" }],
+  ["Gallery", "strip", { arrange: "strip" }],
+  ["Stats", "tiles", { arrange: "grid" }],
+  ["Stats", "inline", { arrange: "rows" }],
+])("migrates legacy %s style %s by default", (c, style, patch) => {
+  const expected = { c, id: "entry", ...patch };
+  const original = { c, style, id: "entry" };
+  expect(migrateLine(original)).toEqual(expected);
+  expect(migrateLine(expected)).toBe(expected);
+  expect(migrateLine(original, { variantComponents: [] })).toBe(original);
+});
