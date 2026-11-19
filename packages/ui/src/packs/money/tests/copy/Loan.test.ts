@@ -86,6 +86,7 @@ describe("Loan copy", () => {
     const schedule = loanCopy({ ...slow, style: "schedule" }, "filled", "en-GB", today, "GBP");
     const summary = loanCopy({ ...slow, style: "summary" }, "filled", "en-GB", today, "GBP");
     expect(schedule.schedule).toHaveLength(6);
+    expect(schedule.schedule[0]?.remaining).toBe("£601.00 left");
     expect(schedule.more).toBe("And 2 more payments");
     expect(summary.schedule).toEqual([]);
     expect(summary.more).toBeUndefined();

@@ -100,9 +100,9 @@ const { choose, write, read } = probesFor("Loan");
 // prettier-ignore
 export const probes = [
   choose("Given my car debt's opening principal, annual interest rate and monthly payment, calculate the next principal and interest split and projected instalment schedule"),
-  choose("Show one big figure for the amount I owe my friend; no interest terms or repayment forecast", "Amount"),
+  choose("I already know I owe my friend $80. Display $80 as one big currency figure; no calculations, rates, payment breakdown, or forecast", "Amount"),
   choose("Show how much I've already paid toward each fixed repayment target: $120 of $500 and $80 of $200. Give each target its own bar that fills toward its goal, with no interest or forecast", "Progress"),
-  choose("Show a tiny line of my recent outstanding balances beside the latest value, no forecast or loan terms", "Sparkline"),
+  choose("Put a tiny unlabeled line graph of my last eight weekly balances beside the latest figure so I can see the trend. No axes, loan terms, or forecast", "Sparkline"),
   choose("Remind me about upcoming electricity and rent payments with paid ticks, no debt interest", "Bills"),
   choose("Prioritise several debts and allocate extra monthly money until all are cleared", "Payoff"),
   write("Car loan opening principal 6000, annual rate 6 percent, monthly payment 250, first due 2026-12-01, no recorded payments. Show schedule, edit opens terms. Write no computed balance or forecast"),
@@ -148,7 +148,7 @@ function Forecast({ copy, words, loading }: { copy: LoanCopy; words: LoanWords; 
           {copy.schedule.map(({ due, date, remaining, split }) => (
             <KitRow key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split)}>
               <KitGrid fitLast>
-                <LoanLine role="label" children={date} />
+                <LoanLine role="caption" children={date} />
                 <LoanLine role="label" tabular children={remaining} />
               </KitGrid>
               <LoanLine role="caption" tone="muted" children={split} />

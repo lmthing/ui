@@ -20,6 +20,7 @@ export const en = {
     edit: "Open terms editor",
     cleared: "Loan paid off",
     forecastError: "No forecast",
+    forecastHelp: "Check the loan terms and payment dates.",
     insufficientTitle: "Payment too low",
     insufficient: "The monthly payment must exceed the interest to reduce the balance.",
     unavailable: "No payoff date in this estimate",

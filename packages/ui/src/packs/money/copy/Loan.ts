@@ -1,6 +1,7 @@
 import {
   compactMoneyLine,
   dateLocaleOf,
+  defaultCurrency,
   localeOf,
   moneyLine,
   numberLine,
@@ -13,6 +14,12 @@ import { loanToday, projectLoan, type LoanTerms } from "./repayment";
 type LoanInput = LoanTerms & { style: "summary" | "schedule"; goto?: string | undefined };
 const rowLimit = 6;
 const compactAt = 1_000_000;
+
+function scheduleMoneyFormatter(currency = defaultCurrency, lang?: string) {
+  const formatter = new Intl.NumberFormat(localeOf(lang), { style: "currency", currency });
+  return (amount: number) =>
+    amount >= compactAt ? compactMoneyLine(amount, currency, lang) : formatter.format(amount);
+}
 
 function loanDateFormatter(lang?: string) {
   const dateFormat = new Intl.DateTimeFormat(dateLocaleOf(lang), {
@@ -32,7 +39,7 @@ function loanStatus(
   if (state === "success" || status === "cleared") return { headline: labels.cleared };
   if (status === "insufficient") return { headline: labels.insufficientTitle, notice: labels.insufficient };
   if (status === "outOfRange") return { headline: labels.forecastError, notice: labels.outOfRange };
-  return state === "error" ? { headline: labels.forecastError } : {};
+  return state === "error" ? { headline: labels.forecastError, notice: labels.forecastHelp } : {};
 }
 
 export function loanCopy(
@@ -50,6 +57,7 @@ export function loanCopy(
       ? compactMoneyLine(amount, currency, lang)
       : moneyLine(amount, currency, undefined, lang);
   const date = loanDateFormatter(lang);
+  const scheduleMoney = scheduleMoneyFormatter(currency, lang);
   const rate = new Intl.NumberFormat(localeOf(lang), {
     style: "percent",
     maximumFractionDigits: 3,
@@ -79,7 +87,7 @@ export function loanCopy(
         ? rows.slice(0, rowLimit).map((row) => ({
             due: row.due,
             date: date(row.due),
-            remaining: words.loanRemaining(money(row.balance)),
+            remaining: words.loanRemaining(scheduleMoney(row.balance)),
             split: words.loanSplit(money(row.principal), money(row.interest)),
           }))
         : [],
