@@ -1,4 +1,5 @@
 import type { Meta } from "../meta";
+import { nestedControls } from "./selection";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
@@ -77,7 +78,22 @@ export function affordancesOf(meta: Meta, props: Props, instance: string): Affor
       { ...props, $first: index === 0 },
     ),
   );
-  return [...own, ...itemActions];
+  const controls = nestedControls(meta, props);
+  const targets = new Set(controls.map((control) => `${instance}/${control.target}`));
+  const nested = controls
+    .filter((control) => control.enabled)
+    .map(({ target, part, spec, item }) => ({
+      address: `${instance}/${target}`,
+      part,
+      action: spec.action,
+      detail:
+        spec.action === "toggle"
+          ? `:${item[spec.prop] ? "on" : "off"}`
+          : item[spec.prop] === undefined
+            ? ""
+            : ` = ${JSON.stringify(item[spec.prop])}`,
+    }));
+  return [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */

@@ -33,8 +33,23 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
   swipe: [(v) => v === "left" || v === "right", "swipe takes left or right"],
 };
 
-export function validateActionValue(action: string, value: unknown): ValueError | null {
+export function validateActionValue(
+  action: string,
+  value: unknown,
+  limits?: { min?: number; max?: number; integer?: boolean },
+): ValueError | null {
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
-  return rule[0](value) ? null : { code: "invalid_value", hint: rule[1] };
+  if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
+  if (limits && (limits.min !== undefined || limits.max !== undefined || limits.integer)) {
+    if (typeof value !== "number" || !Number.isFinite(value))
+      return { code: "invalid_value", hint: "set takes a finite number" };
+    if (limits.integer && !Number.isInteger(value))
+      return { code: "invalid_value", hint: "set takes an integer" };
+    if (limits.min !== undefined && value < limits.min)
+      return { code: "invalid_value", hint: `set takes ${limits.min} or more` };
+    if (limits.max !== undefined && value > limits.max)
+      return { code: "invalid_value", hint: `set takes ${limits.max} or less` };
+  }
+  return null;
 }
