@@ -1,23 +1,32 @@
 import { z } from "zod";
 import {
   itemsOf,
-  kitchenItemLine,
   placeholderTitle,
   probesFor,
   screenId,
   text,
   thingOf,
   titleOf,
-  totalLine,
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
-
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitMeter,
+  KitRow,
+  KitText,
+  useComponentState,
+} from "../../../kit";
+import { foodLogGroups, foodLogLabels, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../copy";
 // Core first: List/inset cannot group eaten foods by meal with numeric calories and per-meal add actions.
 export const meta = {
   id: "FoodLog",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Record foods eaten by meal and see their calories against a daily target.",
   pick: "Today's eaten foods grouped by meal with calories and an add action per meal. Not a plain list (List), plans for the week (MealPlan), or calorie goals alone (Progress).",
@@ -31,28 +40,15 @@ export const meta = {
   partTiers: { add: "service" },
   realPath: "Food entries stored on the device; database lookup for adding food requires a service.",
   items: { key: "rows", parts: ["root", "meal", "name", "kcal", "amount", "add"] },
-  parts: ["root", "target", "total"],
+  parts: ["root", "target", "total", "label", "amount", "empty"],
   states: ["filled", "empty"],
   actions: {
     items: { add: ["press"], root: ["press"] },
     when: { add: { entry: "meal" }, root: { entry: "food" } },
   },
-  read: (input) => {
-    const value = input as z.output<typeof props>;
-    let index = 0;
-    return [
-      totalLine(value.meals.flatMap((meal) => meal.items).reduce((sum, item) => sum + item.kcal, 0)),
-      ...(value.target === undefined ? [] : [String(value.target)]),
-      ...value.meals.flatMap((meal) => [
-        kitchenItemLine(index++, meal.meal),
-        ...meal.items.map((item) =>
-          kitchenItemLine(index++, `${item.name} ${item.kcal}${item.amount ? ` · ${item.amount}` : ""}`),
-        ),
-      ]),
-    ];
-  },
+  read: (input, state) => (state === "filled" ? foodLogRead(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
-export const props = z
+const schema = z
   .strictObject({
     meals: z
       .array(
@@ -78,24 +74,26 @@ export const props = z
   .refine((value) => new Set(value.meals.map((meal) => meal.meal)).size === value.meals.length, {
     path: ["meals"],
     message: "Each meal appears once",
-  })
-  .overwrite((value) => ({
-    ...value,
-    rows: value.meals.flatMap((meal) => [
-      { entry: "meal" as const, meal: meal.meal, goto: value.goto },
-      ...meal.items.map((item) => ({ entry: "food" as const, ...item })),
-    ]),
-  }));
+  });
+const withRows = (value: z.output<typeof schema>) => ({
+  ...value,
+  rows: value.meals.flatMap((meal) => [
+    { entry: "meal" as const, meal: meal.meal, goto: value.goto },
+    ...meal.items.map((item) => ({ entry: "food" as const, ...item })),
+  ]),
+});
+export const props = schema.overwrite(withRows) as typeof schema &
+  z.ZodType<ReturnType<typeof withRows>, z.input<typeof schema>>;
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
-  const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 28, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 28, thingOf(cast)) ?? placeholderTitle(index),
     kcal: 0,
   }));
+  if (!items.length) items.push(...[0, 1, 2].map((index) => ({ name: placeholderTitle(index), kcal: 0 })));
   return { meals: [{ meal: "dinner", items }], goto: "details" };
 }
 export const examples = [
-  // Ledge: the plant keeper's household supper.
+  // Ledge: household supper. Trot: breakfast before the walking round.
   {
     meals: [
       { meal: "dinner", items: [{ name: "Lasagne", kcal: 520, amount: "1 slice" }] },
@@ -104,7 +102,6 @@ export const examples = [
     target: 2000,
     goto: "food_add",
   },
-  // Trot: breakfast before the walking round.
   {
     meals: [
       {
@@ -132,3 +129,72 @@ export const probes = [
   read("Add another food to dinner", { address: "f1/r1/add", action: "press" }),
   read("Open the logged lasagne entry", { address: "f1/r2", action: "press" }),
 ] satisfies Probe[];
+function FoodLogRow(row: Props<typeof props, typeof meta>["rows"][number]) {
+  if (row.entry === "meal") {
+    const label = foodLogLabels.meals[row.meal];
+    return (
+      <KitRow
+        key={row.id}
+        item={row.id}
+        label={label}
+        inline
+        trailing={
+          <KitAction icon="plus" kind="quiet" part="add" goto={row.goto} a11y={foodLogLabels.add(row.meal)} />
+        }
+      >
+        <KitText tone="muted" part="meal" children={label} />
+      </KitRow>
+    );
+  }
+  return (
+    <KitRow
+      key={row.id}
+      item={row.id}
+      label={row.name}
+      role="button"
+      inline
+      trailing={
+        <KitText role="number" numberScale="compact" tabular part="kcal">
+          {kcalLine(row.kcal)}
+        </KitText>
+      }
+    >
+      <KitText part="name">{row.name}</KitText>
+      {row.amount && <KitText role="caption" tone="muted" part="amount" children={row.amount} />}
+    </KitRow>
+  );
+}
+export function FoodLog({ meals, rows, target }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const total = foodLogTotal(meals);
+  if (state === "empty")
+    return (
+      <KitCard style="inset" part="root">
+        <KitEmpty part="empty" decorativeIcon />
+      </KitCard>
+    );
+  return (
+    <KitCard style="inset" part="root">
+      <KitRow label={kcalLine(total)}>
+        <KitText role="number" tabular part="total" children={kcalLine(total)} />
+        {target !== undefined && (
+          <KitText role="caption" tone="muted" part="target" children={targetLine(target)} />
+        )}
+      </KitRow>
+      {target !== undefined && (
+        <KitRow label={foodLogLabels.target}>
+          <KitMeter
+            label={foodLogLabels.target}
+            amount={foodLogLabels.share(total, target)}
+            ratio={total / target}
+          />
+        </KitRow>
+      )}
+      {foodLogGroups(meals, rows).map((group, index) => (
+        <KitContent key={index} inset="md" group={index > 0 ? "response" : "content"}>
+          {group.map(FoodLogRow)}
+        </KitContent>
+      ))}
+    </KitCard>
+  );
+}

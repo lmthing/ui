@@ -37,7 +37,7 @@ function affordancesOfScreen(
     const def = defs[c];
     if (!def) return [];
     const props = liveProps(def.meta, stampItemIds(def.meta, def.props.parse(input) as Values), id, local);
-    return affordancesOf(def.meta, props, id);
+    return affordancesOf(def.meta, props, id, local);
   });
 }
 

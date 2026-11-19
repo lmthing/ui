@@ -1,3 +1,4 @@
+import { selectedIds } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   components,
@@ -27,7 +28,7 @@ const casts: CastLike[] = [
   },
 ];
 
-describe.each(defs)("$meta.id contract", (def) => {
+describe.each(defs.filter((def) => selectedIds([def.meta.id]).length))("$meta.id contract", (def) => {
   it("parses every domain example and empty, useful, malformed and long casts", () => {
     expect(def.examples.length).toBeGreaterThanOrEqual(2);
     for (const input of [...def.examples, ...casts.map((cast) => def.fallback({ cast }))])

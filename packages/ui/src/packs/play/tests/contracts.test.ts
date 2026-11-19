@@ -1,3 +1,4 @@
+import { selectedIds } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
@@ -32,7 +33,7 @@ const casts: CastLike[] = [
   },
 ];
 describe("play contracts", () => {
-  it.each(ids)("validates %s examples, fallbacks, strict props and probe shapes", (id) => {
+  it.each(selectedIds(ids))("validates %s examples, fallbacks, strict props and probe shapes", (id) => {
     const def = defs[id]!;
     expect(def.examples.length).toBeGreaterThanOrEqual(2);
     for (const example of def.examples) {
@@ -86,7 +87,7 @@ describe("play contracts", () => {
   });
 });
 
-it.each(ids)("retains every declared %s action in its example readings", (id) => {
+it.each(selectedIds(ids))("retains every declared %s action in its example readings", (id) => {
   const def = defs[id]!;
   for (const example of def.examples) {
     const input = stampItemIds(def.meta, def.props.parse(example));

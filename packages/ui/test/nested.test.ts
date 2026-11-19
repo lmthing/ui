@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
   components,
+  packOf,
   readPrompt,
   stampItemIds,
   text,
@@ -10,6 +11,7 @@ import {
   type ScreenLike,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
+import { selectedEntries } from "../scripts/build";
 
 const props = z.strictObject({
   groups: z
@@ -177,7 +179,8 @@ it("gives nested declarations ownership over duplicate indexed actions and their
 });
 
 it("keeps core read prompts identical because core components have no nested declaration", () => {
-  for (const def of Object.values(components) as Definition[]) {
+  for (const [id, def] of selectedEntries<Definition>(components)) {
+    if (id in packOf) continue; // pack components may declare nested items (SymptomLog)
     expect(def.meta.items?.nested).toBeUndefined();
     for (const probe of def.probes) {
       if (probe.kind !== "read") continue;

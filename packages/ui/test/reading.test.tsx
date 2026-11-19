@@ -11,8 +11,9 @@ import {
 import { renderers } from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
 import { renderInstance } from "./render";
+import { selectedIds } from "../scripts/build";
 
-const ready = Object.keys(renderers) as ComponentName[];
+const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
 const roles: Record<string, string[]> = {
   press: ["button", "link"],

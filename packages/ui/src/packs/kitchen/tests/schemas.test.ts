@@ -1,3 +1,4 @@
+import { selectedEntries } from "../../../../scripts/build";
 import { expect, it } from "vitest";
 import { components } from "@lmthing/ui/catalog";
 
@@ -172,7 +173,7 @@ const invalid = {
   ],
 };
 it("rejects overlong text, bad enums, missing data and cross-field inconsistencies", () => {
-  for (const [id, inputs] of Object.entries(invalid))
+  for (const [id, inputs] of selectedEntries(invalid))
     for (const input of inputs)
       expect(
         components[id as keyof typeof invalid].props.safeParse(input).success,
