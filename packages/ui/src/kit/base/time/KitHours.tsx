@@ -1,8 +1,8 @@
 import { useSignatureProgress } from "../../motion";
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { component, radius, space } from "../../../catalog";
-import { useKit } from "../../provider";
+import { component, radius, space, digitsLine, timeOfDayLine } from "../../../catalog";
+import { useKit, useWords } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { KitText } from "../text";
 
@@ -18,6 +18,9 @@ export type HourBlock = { id: string; start: string; end: string; title: string;
 
 function Block({ block, top, height }: { block: HourBlock; top: number; height: number }) {
   const kit = useKit();
+  const { lang, words } = useWords();
+  const start = timeOfDayLine(block.start, lang),
+    end = timeOfDayLine(block.end, lang);
   const part = usePart();
   const tone = block.tone ?? "neutral";
   const progress = useSignatureProgress("day_unfold");
@@ -39,14 +42,14 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
       backgroundColor={fill[tone]}
       overflow="hidden"
       accessibilityRole={block.goto ? "link" : "text"}
-      accessibilityLabel={`${block.start} to ${block.end}, ${block.title}`}
+      accessibilityLabel={words.hoursLabel(start, end, block.title)}
       {...(kit.interactive && block.goto ? { onPress: () => kit.onLink?.(block.goto!, part.testID) } : {})}
     >
       <KitText role="body" part="title" lines={1}>
         {block.title}
       </KitText>
       <KitText role="caption" tone="muted" part="time" tabular lines={1}>
-        {`${block.start}–${block.end}`}
+        {`${start}–${end}`}
       </KitText>
     </YStack>
   );
@@ -58,6 +61,7 @@ function Block({ block, top, height }: { block: HourBlock; top: number; height: 
  * parts. Blocks shorter than the minimum height grow to it so their text fits.
  */
 export function KitHours({ blocks }: { blocks: readonly HourBlock[] }): ReactNode {
+  const { lang } = useWords();
   const context = usePartContext();
   const hour = component.base.hourHeight;
   const first = Math.floor(Math.min(...blocks.map((b) => minutes(b.start))) / 60);
@@ -70,7 +74,7 @@ export function KitHours({ blocks }: { blocks: readonly HourBlock[] }): ReactNod
         {hours.map((h, i) => (
           <YStack key={h} height={i === hours.length - 1 ? undefined : hour}>
             <KitText role="caption" tone="muted" part={null} tabular>
-              {`${String(h).padStart(2, "0")}:00`}
+              {`${digitsLine(h, 2, lang)}:${digitsLine(0, 2, lang)}`}
             </KitText>
           </YStack>
         ))}

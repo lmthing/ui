@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { probesFor, text, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import {
   KitCard,
   KitChip,
@@ -11,9 +11,11 @@ import {
   KitTrack,
   useControlValue,
   usePart,
+  useWords,
 } from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
 import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading, symptomTargets } from "../copy";
+import { healthWordsFor } from "../lang";
 
 // Core first: Scale/mood cannot select several grouped symptoms and set a severity for each.
 export const meta = {
@@ -44,10 +46,10 @@ export const meta = {
     items: indexedActions(8, { symptom: ["toggle"], severity: ["set"] }),
     when: indexedWhen(8, ["symptom", "severity"]),
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { groups } = input as z.output<typeof props>;
-    return [...symptomReading(groups), ...symptomTargets(groups)];
+    return [...symptomReading(groups, lang), ...symptomTargets(groups)];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
@@ -84,8 +86,8 @@ export const props = z.strictObject({
     .min(1)
     .max(4),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
-  const titles = seedTitles(cast, 2, 16);
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const titles = seedTitles(cast, 2, 16, lang);
   return {
     groups: [
       {
@@ -153,6 +155,7 @@ function SymptomChip({ group, index }: { group: Group; index: number }) {
   );
 }
 function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number]; index: number }) {
+  const { lang } = useWords(healthWordsFor);
   const part = `severity_${index + 1}`;
   const address = usePart(part).testID;
   const on = useControlValue(address.replace(/severity_(\d+)$/, "symptom_$1"), symptomChosen(symptom));
@@ -166,7 +169,7 @@ function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number
           {symptom.label}
         </KitText>
         <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
-          {symptomLevelLine(current)}
+          {symptomLevelLine(current, lang)}
         </KitText>
       </KitGrid>
       <KitSlider part={part} label={symptom.label} value={symptomSeverity(current)} min={1} max={5} />

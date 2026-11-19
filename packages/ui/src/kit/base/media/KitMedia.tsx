@@ -1,8 +1,8 @@
+import { useWords, useKit } from "../../provider";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useKit } from "../../provider";
 import { usePartContext } from "../../part";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
-import { mediaUnavailable, space } from "../../../catalog";
+import { space } from "../../../catalog";
 import { KitAction } from "../input";
 import { KitText } from "../text";
 
@@ -32,6 +32,9 @@ export function KitPlayback({
   const { component } = usePartContext();
   const mount = useRef<TamaguiElement>(null);
   const [content, setContent] = useState<ReactNode>(null);
+  const {
+    words: { mediaUnavailable },
+  } = useWords();
   const [video, setVideo] = useState(false);
   useEffect(() => {
     if (!controller) return;
@@ -50,10 +53,10 @@ export function KitPlayback({
     } catch (error) {
       controller.store.set(
         `${controller.snapshotScreen().id}/${component}/error`,
-        error instanceof Error ? error.message : "Recording unavailable",
+        error instanceof Error ? error.message : mediaUnavailable,
       );
     }
-  }, [controller, component, style]);
+  }, [controller, component, style, mediaUnavailable]);
   return (
     <>
       {controller && (
@@ -74,6 +77,7 @@ export function KitMediaControls({
 }: {
   labels: { back: string; play: string; pause: string; forward: string };
 }) {
+  const { mediaUnavailable } = useWords().words;
   const { controller } = useKit();
   const { screen, component } = usePartContext();
   const playing = Boolean(controller?.store.get(`${screen}/${component}/play`));

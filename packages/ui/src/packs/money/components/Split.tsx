@@ -8,7 +8,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -58,13 +58,13 @@ export const props = z
     message: "Every payer must index an existing person",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const people = itemsOf(cast, 6).map((item, index) => ({
-    name: titleOf(item, 20, thing) || placeholderTitle(index),
+    name: titleOf(item, 20, thing) || placeholderTitle(index, lang),
     photo: "lib:people",
   }));
-  while (people.length < 2) people.push({ name: placeholderTitle(people.length), photo: "lib:people" });
+  while (people.length < 2) people.push({ name: placeholderTitle(people.length, lang), photo: "lib:people" });
   return { people, expenses: [], goto: "entry" };
 }
 

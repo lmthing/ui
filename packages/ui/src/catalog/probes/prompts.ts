@@ -29,8 +29,14 @@ export function writePrompt(def: Definition, brief: string): string {
 }
 
 /** The screen as the model reads it, then a task: reply with where to act and how. */
-export function readPrompt(def: Definition, screen: number, instance: string, task: string): string {
-  const lines = readComponent(def, def.examples[screen], instance);
+export function readPrompt(
+  def: Definition,
+  screen: number,
+  instance: string,
+  task: string,
+  lang?: string,
+): string {
+  const lines = readComponent(def, def.examples[screen], instance, undefined, undefined, lang);
   return [
     "You operate a phone app for a person. You see the screen as text: one line per component,",
     "items indented. Text in quotes is content. Each action is in square brackets and starts with its",

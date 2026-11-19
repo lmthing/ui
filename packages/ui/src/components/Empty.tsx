@@ -1,19 +1,18 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitEmpty } from "../kit";
 import {
+  wordsFor,
   probesFor,
   clip,
   emptyLine,
   icon,
-  messageLabels,
-  placeholderDetail,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitEmpty } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Empty",
@@ -28,7 +27,10 @@ export const meta = {
   states: ["filled"],
   // Only a message about something that failed offers another try.
   actions: { parts: { retry: ["press"] }, when: { retry: { retryable: true } } },
-  read: (input) => ((input as { kind: string }).kind === "none" ? [] : [messageLabels.retry]),
+  read: (input, _state, lang?: string) => {
+    const { messageLabels } = wordsFor(lang);
+    return (input as { kind: string }).kind === "none" ? [] : [messageLabels.retry];
+  },
 } as const satisfies Meta;
 
 export const props = z
@@ -41,9 +43,11 @@ export const props = z
   // Derived, never written: a failed or offline message offers a retry.
   .overwrite((value) => ({ ...value, retryable: value.kind !== "none" }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return {
-    title: clip(emptyLine(thingOf(cast)?.type), 40),
+    title: clip(emptyLine(thingOf(cast)?.type, lang), 40),
     sub: placeholderDetail,
   };
 }
@@ -70,12 +74,17 @@ export const probes = [
 
 const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
 
+function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
+  const { messageLabels } = useWords().words;
+  return <KitAction {...props} label={messageLabels.retry} />;
+}
+
 export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
   return (
     <KitCard style="plain" part="root">
       <KitEmpty title={title} {...(sub ? { sub } : {})} {...(shown ? { icon: shown } : {})} fill />
-      {kind !== "none" && <KitAction label={messageLabels.retry} kind="secondary" part="retry" full />}
+      {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );
 }

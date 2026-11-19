@@ -1,6 +1,6 @@
+import { useWords, useKitStyle } from "../../provider";
 import { XStack, YStack, styled } from "tamagui";
-import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { shifted } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, type ShapeProps } from "./skeleton-content";
 
@@ -40,6 +40,7 @@ function SkeletonColumns({ heights }: { heights: number[] }) {
 }
 
 export function SkeletonBars({ rows = 7, title, inset, share, points }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const count = points?.length ?? rows;
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm} padding={skeletonInset(inset)}>
@@ -79,6 +80,7 @@ export function SkeletonBars({ rows = 7, title, inset, share, points }: ShapePro
 }
 
 export function SkeletonTrend() {
+  const { loadingLabel } = useWords().words;
   return (
     <XStack accessibilityLabel={loadingLabel} aria-busy alignItems="center" gap={space.md} padding={space.md}>
       <YStack flex={1} gap={space.sm}>
@@ -93,6 +95,7 @@ export function SkeletonTrend() {
 }
 
 export function SkeletonRing({ ring = "md" }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const box = ring === "lg" ? component.base.ringLg : component.base.ringMd;
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy alignItems="center" gap={space.sm} padding={space.md}>
@@ -110,6 +113,7 @@ export function SkeletonRing({ ring = "md" }: ShapeProps) {
 }
 
 export function SkeletonMedia({ aspect = "wide", lines, inset, playback, contentGap = "sm" }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const ks = useKitStyle();
   return (
     <YStack

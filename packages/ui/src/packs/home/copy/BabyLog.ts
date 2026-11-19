@@ -1,21 +1,17 @@
-import { clockLine, durationLine, emptyLine, timerLabels } from "../../../catalog";
+import { clockLine, durationLine, timeOfDayLine, wordsFor } from "../../../catalog";
+import { homeWordsFor } from "../lang";
 
-export const babyLabels = {
-  feed_left: "Feed left",
-  feed_right: "Feed right",
-  bottle: "Bottle",
-  nappy: "Nappy",
-  sleep: "Sleep",
-  none: "None running",
-} as const;
-
+export const { babyLabels } = homeWordsFor();
 type Kind = Exclude<keyof typeof babyLabels, "none">;
-export const babyLogTitle = "Today’s log";
-export const babyEmptyLog = emptyLine("entry");
-export const babyRunningLine = (kind: Kind | "none") =>
-  kind === "none" ? babyLabels.none : `${babyLabels[kind]} running`;
+export const babyLogTitle = homeWordsFor().babyLog.title;
+export const babyEmptyLog = homeWordsFor().babyLog.empty;
+export const babyRunningLine = (kind: Kind | "none", lang?: string) => {
+  const { babyLabels, babyLog } = homeWordsFor(lang);
+  return kind === "none" ? babyLabels.none : babyLog.running(babyLabels[kind]);
+};
 export const babyClock = clockLine(0);
-export const babyLastLine = (time?: string) => (time ? `Last ${time}` : "—");
+export const babyLastLine = (time?: string, lang?: string) =>
+  homeWordsFor(lang).babyLog.last(time ? timeOfDayLine(time, lang) : undefined);
 
 type Tile = { id?: string; kind: Kind; entryKind: "tile"; active: boolean; last?: string | undefined };
 type Entry = {
@@ -27,44 +23,51 @@ type Entry = {
   amount?: string | undefined;
 };
 
-export const babyTileAction = (active: boolean) => timerLabels[active ? "stop" : "start"];
+export const babyTileAction = (active: boolean, lang?: string) =>
+  wordsFor(lang).timerLabels[active ? "stop" : "start"];
 
-export const babyCopy = {
-  clock: babyClock,
-  duration: durationLine,
-  empty: babyEmptyLog,
-  entry: babyEntryLine,
-  history: "History",
-  last: babyLastLine,
-  title: babyLogTitle,
-  running: babyRunningLine,
-  action: babyTileAction,
-} as const;
+export function babyCopyFor(lang?: string) {
+  const { babyLabels, babyLog } = homeWordsFor(lang);
+  return {
+    ...babyLog,
+    labels: babyLabels,
+    clock: clockLine(0, lang),
+    duration: (minutes: number) => durationLine(minutes, lang),
+    entry: (entry: Entry) => babyEntryLine(entry, lang),
+    last: (time?: string) => babyLastLine(time, lang),
+    running: (kind: Kind | "none") => babyRunningLine(kind, lang),
+    action: (active: boolean) => babyTileAction(active, lang),
+  };
+}
 
-export function babyEntryLine(entry: Entry) {
+export function babyEntryLine(entry: Entry, lang?: string) {
   return [
-    babyLabels[entry.kind],
-    entry.time,
-    entry.minutes === undefined ? undefined : durationLine(entry.minutes),
+    homeWordsFor(lang).babyLabels[entry.kind],
+    timeOfDayLine(entry.time, lang),
+    entry.minutes === undefined ? undefined : durationLine(entry.minutes, lang),
     entry.amount,
   ]
     .filter(Boolean)
     .join(" · ");
 }
 
-export function babyRead({ running, entries }: { running: Kind | "none"; entries: (Tile | Entry)[] }) {
+export function babyRead(
+  { running, entries }: { running: Kind | "none"; entries: (Tile | Entry)[] },
+  lang?: string,
+) {
+  const copy = babyCopyFor(lang);
   return [
-    babyRunningLine(running),
-    ...(running === "none" ? [] : [babyClock]),
+    copy.running(running),
+    ...(running === "none" ? [] : [copy.clock]),
     ...entries.map((entry) => {
       const label =
         entry.entryKind === "tile"
-          ? [babyLabels[entry.kind], babyTileAction(entry.active), babyLastLine(entry.last)].join(" · ")
-          : babyEntryLine(entry);
+          ? [copy.labels[entry.kind], copy.action(entry.active), copy.last(entry.last)].join(" · ")
+          : copy.entry(entry);
       return entry.id ? `${entry.id} ${label}` : label;
     }),
-    babyLogTitle,
-    babyCopy.history,
-    ...(entries.some(({ entryKind }) => entryKind === "log") ? [] : [babyEmptyLog]),
+    copy.title,
+    copy.history,
+    ...(entries.some(({ entryKind }) => entryKind === "log") ? [] : [copy.empty]),
   ];
 }

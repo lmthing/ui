@@ -5,7 +5,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -27,10 +27,10 @@ export const meta = {
 
 export const props = z.strictObject({ caption: text(80) });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = cast.items[0];
   const title = item ? titleOf(item, 80, thingOf(cast, item.type)) : undefined;
-  return { caption: title ?? placeholderTitle(0) };
+  return { caption: title ?? placeholderTitle(0, lang) };
 }
 
 export const examples = [

@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -41,14 +41,16 @@ export const props = z.strictObject({
     .max(6),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 4).flatMap((item) => {
     const text = titleOf(item, 36, thing);
     return text ? [{ text, done: false }] : [];
   });
   return {
-    items: items.length ? items : [0, 1, 2].map((index) => ({ text: placeholderTitle(index), done: false })),
+    items: items.length
+      ? items
+      : [0, 1, 2].map((index) => ({ text: placeholderTitle(index, lang), done: false })),
   };
 }
 

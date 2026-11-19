@@ -6,7 +6,7 @@ import {
   streakLine,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -25,10 +25,10 @@ export const meta = {
   realPath: "Consecutive completed days and this week's completion derived from on-device habit records.",
   parts: ["root", "count", "label", "days"],
   states: ["filled"],
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { count, days } = props.parse(input);
-    return streakLine(count, days);
+    return streakLine(count, days, lang);
   },
 } as const satisfies Meta;
 
@@ -38,10 +38,10 @@ export const props = z.strictObject({
   days: z.array(z.boolean()).min(7).max(7),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     count: 0,
-    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0), 24),
+    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 24),
     days: Array.from({ length: 7 }, () => false),
   };
 }

@@ -1,34 +1,38 @@
-export const agendaLabels = {
-  add: "Add event",
-  allDay: "All day",
-  conflict: "Time conflict",
-  everyone: "Everyone",
-} as const;
+import { dateLocaleOf, defaultLang, localeOf, timeOfDayLine } from "../../../catalog";
+import { homeWordsFor } from "../lang";
 
-const dayFormat = new Intl.DateTimeFormat("en-GB", {
-  weekday: "short",
-  day: "numeric",
-  month: "short",
-  timeZone: "UTC",
-});
+export const { agendaLabels } = homeWordsFor();
 
-export const agendaDay = (date: string) =>
-  dayFormat
-    .formatToParts(new Date(`${date}T00:00:00Z`))
+export function agendaDay(date: string, lang?: string): string {
+  const value = new Date(`${date}T00:00:00Z`);
+  const formatter = new Intl.DateTimeFormat(dateLocaleOf(lang), {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+  if (localeOf(lang) !== defaultLang) return formatter.format(value);
+  return formatter
+    .formatToParts(value)
     .filter(({ type }) => type !== "literal")
     .map(({ value }) => value)
     .join(" ");
-
-export const agendaInitial = (name: string) => Array.from(name)[0]?.toUpperCase() ?? "";
-
-export const agendaEveryone = (name: string) => name.toLowerCase() === agendaLabels.everyone.toLowerCase();
-
-export function agendaPeople(who: readonly string[]): string {
-  return who.some(agendaEveryone) ? agendaLabels.everyone : who.join(", ");
 }
 
-export function agendaAttendees(who: readonly string[]): string {
-  return who.some(agendaEveryone) ? agendaLabels.everyone : who.map(agendaInitial).join(", ");
+export const agendaInitial = (name: string, lang?: string) =>
+  Array.from(name)[0]?.toLocaleUpperCase(localeOf(lang)) ?? "";
+
+// The existing wire sentinel is recognized independently of the display language.
+const agendaEveryone = (name: string) => name.toLowerCase() === agendaLabels.everyone.toLowerCase();
+
+export function agendaPeople(who: readonly string[], lang?: string): string {
+  return who.some(agendaEveryone) ? homeWordsFor(lang).agendaLabels.everyone : who.join(", ");
+}
+
+export function agendaAttendees(who: readonly string[], lang?: string): string {
+  return who.some(agendaEveryone)
+    ? homeWordsFor(lang).agendaLabels.everyone
+    : who.map((name) => agendaInitial(name, lang)).join(", ");
 }
 
 type EventSeed = {
@@ -62,19 +66,20 @@ function peopleOverlap(a: string[], b: string[]) {
   return a.some((name) => names.has(name.toLowerCase()));
 }
 
-export function agendaReading(event: Omit<EventLine, "date">, id = event.id): string {
-  const people = agendaPeople(event.who);
-  const initials = people === agendaLabels.everyone ? "" : ` (${agendaAttendees(event.who)})`;
+export function agendaReading(event: Omit<EventLine, "date">, id = event.id, lang?: string): string {
+  const { agendaLabels } = homeWordsFor(lang);
+  const people = agendaPeople(event.who, lang);
+  const initials = event.who.some(agendaEveryone) ? "" : ` (${agendaAttendees(event.who, lang)})`;
   const conflict = event.conflict ? ` · ${agendaLabels.conflict}` : "";
-  return `${id ?? ""} ${event.time ?? agendaLabels.allDay} ${event.title} · ${people}${initials}${conflict}`.trim();
+  return `${id ?? ""} ${event.time ? timeOfDayLine(event.time, lang) : agendaLabels.allDay} ${event.title} · ${people}${initials}${conflict}`.trim();
 }
 
-export function agendaScheduleReading(entries: EventLine[]): string[] {
+export function agendaScheduleReading(entries: EventLine[], lang?: string): string[] {
   return [
     ...entries.flatMap((event, index) => [
-      ...(entries[index - 1]?.date !== event.date ? [agendaDay(event.date)] : []),
-      agendaReading(event),
+      ...(entries[index - 1]?.date !== event.date ? [agendaDay(event.date, lang)] : []),
+      agendaReading(event, event.id, lang),
     ]),
-    agendaLabels.add,
+    homeWordsFor(lang).agendaLabels.add,
   ];
 }

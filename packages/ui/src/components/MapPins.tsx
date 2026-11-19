@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -42,13 +42,13 @@ export const props = z.strictObject({
     .transform((pins) => pins.map((pin) => ({ ...pin, root: pin.goto }))),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const pins = itemsOf(cast, 3).flatMap((item) => {
     const label = titleOf(item, 24, thing);
     return label ? [{ label }] : [];
   });
-  return { pins: pins.length ? pins : [0, 1, 2].map((index) => ({ label: placeholderTitle(index) })) };
+  return { pins: pins.length ? pins : [0, 1, 2].map((index) => ({ label: placeholderTitle(index, lang) })) };
 }
 
 export const examples = [

@@ -1,22 +1,6 @@
-import { z } from "zod";
+import { customersWordsFor } from "../lang";
 import {
-  balancedLine,
-  detailOf,
-  goalLine,
-  isoDate,
-  itemsOf,
-  placeholderDetail,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitContent,
@@ -27,7 +11,25 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
-import * as copy from "../copy";
+import {
+  wordsFor,
+  balancedLine,
+  detailOf,
+  numberLine,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { z } from "zod";
+import { reviewCountLine, reviewRatingLine, reviewReading, reviewScale, reviewStarsLine } from "../copy";
 // Core first: Scale/stars records one person's rating, not client reviews, replies or an aggregate breakdown.
 export const meta = {
   id: "Review",
@@ -47,7 +49,7 @@ export const meta = {
   parts: ["root", "average", "count", "bars"],
   states: ["filled", "empty"],
   actions: { items: { reply: ["press"] }, when: { reply: { style: "list" } } },
-  read: (input) => copy.reviewReading(input as z.output<typeof props>),
+  read: (input, _state, lang?: string) => reviewReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -86,7 +88,9 @@ export const props = z
         ? (value.reviews ?? []).map(({ reply, ...review }) => ({ ...review, ...(reply ? { reply } : {}) }))
         : [],
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
   return {
@@ -96,7 +100,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     reviews: [
       {
         stars: 1,
-        name: (item && titleOf(item, 24, thing)) || placeholderTitle(0),
+        name: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang),
         date: "2026-11-18",
         text: (item && detailOf(item, 240, thing)) || placeholderDetail,
       },
@@ -129,20 +133,21 @@ export const probes = [
   read("Reply to Ben's review", { address: "r1/r1/reply", action: "press" }, 1),
 ] satisfies Probe[];
 function ReviewSummary(input: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const largest = Math.max(...input.bars!);
   return (
     <KitCard part="root" padded>
-      <KitText role="number" part="average" tabular>{`${input.average} ${goalLine(5)}`}</KitText>
-      <KitText role="caption" tone="muted" part="count">
-        {copy.reviewCountLine(input.count!)}
+      <KitText role="number" part="average" tabular>
+        {reviewRatingLine(input.average!, lang)}
       </KitText>
-      <KitScaleTrack style="stars" value={input.average!} labels={copy.reviewScaleLabels} readonly />
+      <KitText role="caption" tone="muted" part="count" children={reviewCountLine(input.count!, lang)} />
+      <KitScaleTrack style="stars" value={input.average!} labels={reviewScale(lang)} readonly />
       <KitCard style="plain" part="bars">
         {input.bars!.map((amount, index) => (
-          <KitRow key={index} label={copy.reviewStarsLine(index + 1)} inline>
+          <KitRow key={index} label={reviewStarsLine(index + 1, lang)} inline>
             <KitMeter
-              label={copy.reviewStarsLine(index + 1)}
-              amount={String(amount)}
+              label={reviewStarsLine(index + 1, lang)}
+              amount={numberLine(amount, lang)}
               ratio={largest ? amount / largest : 0}
               slim
             />
@@ -153,31 +158,29 @@ function ReviewSummary(input: Props<typeof props, typeof meta>) {
   );
 }
 function ReviewList(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(customersWordsFor);
+  const { reviewLabels } = words;
   return (
     <KitCard part="root">
       {input.reviews!.map((review) => (
         <KitRow key={review.id} item={review.id} label={review.name} lineRole="label">
           <KitContent>
-            <KitText role="label" part="name" lines={1}>
-              {review.name}
+            <KitText role="label" part="name" lines={1} children={review.name} />
+            <KitText role="caption" tone="muted" part="date" lines={1} children={review.date} />
+            <KitText role="caption" tone="muted" part="stars">
+              {reviewRatingLine(review.stars, lang)}
             </KitText>
-            <KitText role="caption" tone="muted" part="date" lines={1}>
-              {review.date}
-            </KitText>
-            <KitText role="caption" tone="muted" part="stars">{`${review.stars} ${goalLine(5)}`}</KitText>
-            <KitScaleTrack style="stars" value={review.stars} labels={copy.reviewScaleLabels} readonly />
+            <KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly />
             <KitText part="text">{review.text}</KitText>
             {review.reply && (
               <KitContent>
-                <KitText role="caption" tone="muted" part={null}>
-                  {copy.reviewLabels.response}
-                </KitText>
+                <KitText role="caption" tone="muted" part={null} children={reviewLabels.response} />
                 <KitText tone="muted" part="response">
                   {review.reply}
                 </KitText>
               </KitContent>
             )}
-            <KitAction label={copy.reviewLabels.reply} kind="quiet" part="reply" />
+            <KitAction label={reviewLabels.reply} kind="quiet" part="reply" />
           </KitContent>
         </KitRow>
       ))}

@@ -2,6 +2,7 @@ import { z } from "zod";
 import * as catalog from "../../../catalog";
 import * as kit from "../../../kit";
 import * as copy from "../copy";
+import { kitchenWordsFor } from "../lang";
 // Core first: Checklist/default cannot scale numeric ingredient amounts by servings or switch units.
 export const meta = {
   id: "Ingredients",
@@ -24,7 +25,7 @@ export const meta = {
     parts: { servings: ["increment", "decrement"], system: ["select"], shop: ["press"] },
     items: { have: ["check"] },
   },
-  read: (input) => copy.ingredientsReading(input as z.output<typeof props>),
+  read: (input, _state, lang?: string) => copy.ingredientsReading(input as z.output<typeof props>, lang),
 } as const satisfies catalog.Meta;
 const ingredient = z.strictObject({
   name: catalog.text(28),
@@ -46,16 +47,16 @@ export const props = z
     ...value,
     rows: value.groups.flatMap((group) => group.items.map((item) => ({ ...item, have: false }))),
   }));
-export function fallback({ cast }: { cast: catalog.CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof props> {
   const thing = catalog.thingOf(cast);
   const items = catalog.itemsOf(cast, 3).map((item, index) => ({
-    name: catalog.titleOf(item, 28, thing) ?? catalog.placeholderTitle(index),
+    name: catalog.titleOf(item, 28, thing) ?? catalog.placeholderTitle(index, lang),
     note: catalog.detailOf(item, 20, thing),
     unit: "none" as const,
   }));
   return {
     servings: 1,
-    groups: [{ items: items.length ? items : [{ name: catalog.placeholderTitle(0), unit: "none" }] }],
+    groups: [{ items: items.length ? items : [{ name: catalog.placeholderTitle(0, lang), unit: "none" }] }],
   };
 }
 // prettier-ignore
@@ -96,7 +97,8 @@ type RowProps = Pick<ViewProps, "system"> & {
   scale: number;
 };
 function IngredientRow({ row, scale, system }: RowProps) {
-  const quantity = copy.ingredientAmount(row, scale, system);
+  const { lang } = kit.useWords(kitchenWordsFor);
+  const quantity = copy.ingredientAmount(row, scale, system, lang);
   return (
     <kit.KitRow
       item={row.id}
@@ -125,12 +127,15 @@ function IngredientRow({ row, scale, system }: RowProps) {
   );
 }
 function Servings({ value }: { value: number }) {
+  const { lang, words } = kit.useWords(kitchenWordsFor);
+  const { ingredientsLabels } = words;
   const controls = (
     <kit.KitTrack part="controls">
-      {copy.servingControls.map((control) => (
+      {copy.servingControls.map(({ label, ...control }) => (
         <kit.KitAction
           key={control.action}
           {...control}
+          a11y={ingredientsLabels[label]}
           part="servings"
           kind="quiet"
           disabled={value === control.bound}
@@ -139,18 +144,16 @@ function Servings({ value }: { value: number }) {
     </kit.KitTrack>
   );
   return (
-    <kit.KitRow label={copy.ingredientsLabels.servings} trailing={controls}>
-      <kit.KitText role="number" part="value">
-        {String(value)}
-      </kit.KitText>
-      <kit.KitText role="label" tone="muted" part={null}>
-        {copy.ingredientsLabels.servings}
-      </kit.KitText>
+    <kit.KitRow label={ingredientsLabels.servings} trailing={controls}>
+      <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />
+      <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />
     </kit.KitRow>
   );
 }
 export function Ingredients({ servings: seed, system: initial, groups, rows }: ViewProps) {
   kit.useComponentState();
+  const { words } = kit.useWords(kitchenWordsFor);
+  const { ingredientsLabels } = words;
   const { screen, component } = kit.usePartContext();
   const address = `${screen}/${component}`;
   const delta = kit.useControlValue(`${address}/servings`, 0);
@@ -161,13 +164,14 @@ export function Ingredients({ servings: seed, system: initial, groups, rows }: V
   return (
     <kit.KitCard style="inset" part="root">
       <Servings value={servings} />
-      <kit.KitRow label={copy.ingredientsLabels.system}>
-        <kit.KitTrack part="system" look="segments" role="radiogroup" label={copy.ingredientsLabels.system}>
+      <kit.KitRow label={ingredientsLabels.system}>
+        <kit.KitTrack part="system" look="segments" role="radiogroup" label={ingredientsLabels.system}>
           {(["metric", "us"] as const).map((choice) => (
             <kit.KitChip
               key={choice}
               item={null}
-              label={copy.ingredientsLabels[choice]}
+              label={ingredientsLabels[choice]}
+              value={copy.ingredientsLabels[choice]}
               on={system === choice}
               role="radio"
               look="segment"
@@ -178,9 +182,7 @@ export function Ingredients({ servings: seed, system: initial, groups, rows }: V
       {groups.flatMap((group, groupIndex) => [
         group.label && (
           <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
-            <kit.KitText role="label" tone="muted" part={null}>
-              {group.label}
-            </kit.KitText>
+            <kit.KitText role="label" tone="muted" part={null} children={group.label} />
           </kit.KitContent>
         ),
         ...group.items.map(() => {
@@ -188,8 +190,8 @@ export function Ingredients({ servings: seed, system: initial, groups, rows }: V
           return <IngredientRow key={row.id} row={row} scale={servings / seed} system={system} />;
         }),
       ])}
-      <kit.KitRow label={copy.ingredientsLabels.shop}>
-        <kit.KitAction part="shop" label={copy.ingredientsLabels.shop} kind="secondary" full />
+      <kit.KitRow label={ingredientsLabels.shop}>
+        <kit.KitAction part="shop" label={ingredientsLabels.shop} kind="secondary" full />
       </kit.KitRow>
     </kit.KitCard>
   );

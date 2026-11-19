@@ -1,17 +1,10 @@
-import { kitchenItemLine } from "../../../catalog";
+import { kitchenItemLine, localeOf, numberLine, pluralForm } from "../../../catalog";
+import { kitchenWordsFor } from "../lang";
 
-export const ingredientsLabels = {
-  servings: "Servings",
-  less: "One fewer serving",
-  more: "One more serving",
-  system: "Units",
-  metric: "Metric",
-  us: "US",
-  shop: "Add missing to groceries",
-} as const;
+export const { ingredientsLabels } = kitchenWordsFor();
 export const servingControls = [
-  { action: "decrement", icon: "minus", a11y: ingredientsLabels.less, bound: 1 },
-  { action: "increment", icon: "plus", a11y: ingredientsLabels.more, bound: 24 },
+  { action: "decrement", icon: "minus", label: "less", bound: 1 },
+  { action: "increment", icon: "plus", label: "more", bound: 24 },
 ] as const;
 
 type Unit = "g" | "kg" | "ml" | "l" | "tsp" | "tbsp" | "cup" | "piece" | "pinch" | "none";
@@ -22,28 +15,27 @@ type Ingredient = {
   note?: string | undefined;
 };
 const millilitres = { tsp: 4.92892159375, tbsp: 14.78676478125, cup: 236.5882365 } as const;
-const fractions = ["", "¼", "½", "¾"] as const;
 
 /** The controller stores a step delta, not the recipe's seed servings. */
 export function servingCount(seed: number, delta: number): number {
   return Math.max(1, Math.min(24, seed + delta));
 }
 
-function amountText(value: number): string {
+function amountText(value: number, lang?: string): string {
   const quarters = Math.round(value * 4);
   if (Math.abs(value - quarters / 4) < 1e-9) {
     const whole = Math.floor(quarters / 4);
-    return `${whole || quarters === 0 ? whole : ""}${fractions[quarters % 4]}`;
+    return `${whole || quarters === 0 ? numberLine(whole, lang) : ""}${kitchenWordsFor(lang).ingredientFractions[quarters % 4]}`;
   }
-  return new Intl.NumberFormat("en-US", { maximumSignificantDigits: 4 }).format(value);
+  return new Intl.NumberFormat(localeOf(lang), { maximumSignificantDigits: 4 }).format(value);
 }
 
 /** US volume units are customary, not metric cups; mass never converts to volume. */
-export function ingredientAmount(item: Ingredient, scale: number, system: "metric" | "us") {
-  let unit: string = item.unit === "none" ? "" : item.unit;
-  if (item.amount === undefined) return { amount: "", unit };
+export function ingredientAmount(item: Ingredient, scale: number, system: "metric" | "us", lang?: string) {
+  const words = kitchenWordsFor(lang);
+  let unit: keyof typeof words.ingredientUnits = item.unit;
+  if (item.amount === undefined) return { amount: "", unit: words.ingredientUnits[unit] };
   let value = item.amount * scale;
-  if (item.unit === "piece" && (value === 0 || value > 1)) unit = "pieces";
   if (system === "us" && (item.unit === "g" || item.unit === "kg")) {
     unit = item.unit === "kg" ? "lb" : "oz";
     value = (value * (item.unit === "kg" ? 1000 : 1)) / (unit === "lb" ? 453.59237 : 28.349523125);
@@ -54,24 +46,32 @@ export function ingredientAmount(item: Ingredient, scale: number, system: "metri
     unit = "ml";
     value *= millilitres[item.unit as keyof typeof millilitres];
   }
-  return { amount: amountText(value), unit };
+  return {
+    amount: amountText(value, lang),
+    unit:
+      unit === "piece" ? words.ingredientPieces(value, pluralForm(value, lang)) : words.ingredientUnits[unit],
+  };
 }
 
-export function ingredientsReading(input: {
-  servings: number;
-  system: "metric" | "us";
-  groups: readonly { label?: string | undefined; items: readonly Ingredient[] }[];
-}): string[] {
+export function ingredientsReading(
+  input: {
+    servings: number;
+    system: "metric" | "us";
+    groups: readonly { label?: string | undefined; items: readonly Ingredient[] }[];
+  },
+  lang?: string,
+): string[] {
+  const { ingredientsLabels, ingredientServings } = kitchenWordsFor(lang);
   let index = 0;
   return [
-    `${input.servings} ${ingredientsLabels.servings}`,
+    ingredientServings(numberLine(input.servings, lang), ingredientsLabels.servings),
     ingredientsLabels.metric,
     ingredientsLabels.us,
     ingredientsLabels.shop,
     ...input.groups.flatMap((group) => [
       ...(group.label ? [group.label] : []),
       ...group.items.map((item) => {
-        const quantity = ingredientAmount(item, 1, input.system);
+        const quantity = ingredientAmount(item, 1, input.system, lang);
         return kitchenItemLine(
           index++,
           [item.name, quantity.amount, quantity.unit, item.note].filter(Boolean).join(" "),

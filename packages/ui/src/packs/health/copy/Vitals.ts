@@ -1,3 +1,6 @@
+import { numberLine } from "../../../catalog";
+import { healthWordsFor } from "../lang";
+
 type Vital = {
   label: string;
   value: number;
@@ -8,10 +11,10 @@ type Vital = {
   at: string;
 };
 
-export const vitalLabels = { add: "Add reading" } as const;
+export const { vitalLabels } = healthWordsFor();
 
-export function vitalPairLine(value: number): string {
-  return ` / ${value}`;
+export function vitalPairLine(value: number, lang?: string): string {
+  return ` / ${numberLine(value, lang)}`;
 }
 
 /** Only the primary value has a supplied reference range, including both endpoints. */
@@ -24,21 +27,29 @@ export function vitalBand({ value, low, high }: Pick<Vital, "value" | "low" | "h
   };
 }
 
-export function vitalUnitLine({ value2, unit }: Pick<Vital, "value2" | "unit">): string {
-  return value2 === undefined ? unit : `/ ${value2} ${unit}`;
+export function vitalUnitLine({ value2, unit }: Pick<Vital, "value2" | "unit">, lang?: string): string {
+  return value2 === undefined ? unit : `/ ${numberLine(value2, lang)} ${unit}`;
 }
 
-export function vitalStatusLine(reading: Pick<Vital, "value" | "low" | "high" | "value2">): string {
-  const status = vitalBand(reading).tone === "warn" ? "Outside range" : "In range";
-  return reading.value2 === undefined ? status : `Systolic: ${status}`;
+export function vitalStatusLine(
+  reading: Pick<Vital, "value" | "low" | "high" | "value2">,
+  lang?: string,
+): string {
+  const { vitalLabels: words } = healthWordsFor(lang);
+  const status = vitalBand(reading).tone === "warn" ? words.outside : words.normal;
+  return reading.value2 === undefined ? status : words.systolic(status);
 }
 
-export function vitalRangeLine(reading: Pick<Vital, "low" | "high" | "value2">): string {
-  const label = reading.value2 === undefined ? "Reference" : "Systolic reference";
-  return `${label} ${reading.low}–${reading.high}`;
+export function vitalRangeLine(reading: Pick<Vital, "low" | "high" | "value2">, lang?: string): string {
+  const { vitalLabels: words } = healthWordsFor(lang);
+  return words.range(
+    numberLine(reading.low, lang),
+    numberLine(reading.high, lang),
+    reading.value2 !== undefined,
+  );
 }
 
 /** Read exactly the supplied values and reference, never a diagnosis or rounded measurement. */
-export function vitalLine(reading: Vital): string {
-  return `${reading.label}: ${reading.value} ${vitalUnitLine(reading)} · ${vitalRangeLine(reading)} · ${vitalStatusLine(reading)} · ${reading.at}`;
+export function vitalLine(reading: Vital, lang?: string): string {
+  return `${reading.label}: ${numberLine(reading.value, lang)} ${vitalUnitLine(reading, lang)} · ${vitalRangeLine(reading, lang)} · ${vitalStatusLine(reading, lang)} · ${reading.at}`;
 }

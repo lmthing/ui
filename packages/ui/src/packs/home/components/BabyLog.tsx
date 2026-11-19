@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { clock, itemsOf, probesFor, text, textsOf, thingOf } from "../../../catalog";
-import type { CastLike, Meta, Probe, Props } from "../../../catalog";
+import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine } from "../../../catalog";
+import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import {
   KitAction,
   KitCard,
@@ -14,9 +14,10 @@ import {
   PartScope,
   useComponentState,
   usePartContext,
+  useWords,
 } from "../../../kit";
-import { babyCopy as copy, babyLabels, babyRead } from "../copy";
-
+import { babyCopyFor, babyRead } from "../copy";
+import { homeWordsFor } from "../lang";
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 const itemParts = ["root", "kind", "time", "minutes", "amount", "label", "root_label", "trail"] as const;
 export const meta = {
@@ -44,7 +45,8 @@ export const meta = {
       "root.press": { entryKind: "log" },
     },
   },
-  read: (input, state) => (state === "filled" ? readWithLastTimes(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? readWithLastTimes(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 const kinds = ["feed_left", "feed_right", "bottle", "nappy", "sleep"] as const;
 const logLimit = 12;
@@ -75,7 +77,8 @@ const withEntries = (value: z.output<typeof schema>) => ({
 });
 export const props = schema.overwrite(withEntries) as typeof schema &
   z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { babyLabels } = homeWordsFor(lang);
   const thing = thingOf(cast);
   const log = itemsOf(cast, logLimit).flatMap((item) => {
     const values = textsOf(item, thing);
@@ -87,22 +90,17 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   });
   return { log, running: "none" };
 }
+// prettier-ignore
 export const examples = [
-  {
-    log: [
-      { kind: "feed_left", time: "07:30", minutes: 12 },
-      { kind: "nappy", time: "08:00" },
-      { kind: "bottle", time: "09:00", amount: "90 ml" },
-    ],
-    running: "sleep",
-  },
-  {
-    log: [
-      { kind: "feed_right", time: "06:45", minutes: 10 },
-      { kind: "sleep", time: "07:00", minutes: 45 },
-    ],
-    running: "none",
-  },
+  { log: [
+    { kind: "feed_left", time: "07:30", minutes: 12 },
+    { kind: "nappy", time: "08:00" },
+    { kind: "bottle", time: "09:00", amount: "90 ml" },
+  ], running: "sleep" },
+  { log: [
+    { kind: "feed_right", time: "06:45", minutes: 10 },
+    { kind: "sleep", time: "07:00", minutes: 45 },
+  ], running: "none" },
   { log: [], running: "none" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("BabyLog");
@@ -117,24 +115,26 @@ export const probes = [
   read("Open the feed recorded at 07:30", { address: "b1/r6", action: "press" }),
 ] satisfies Probe[];
 type BabyLogProps = Props<typeof props, typeof meta>;
-function readWithLastTimes(input: z.output<typeof props>) {
-  const absent = ` · ${copy.last()}`;
+function readWithLastTimes(input: z.output<typeof props>, lang?: string) {
+  const absent = ` · ${homeWordsFor(lang).babyLog.last()}`;
   const count = kinds.length + (input.running === "none" ? 1 : 2);
-  return babyRead(input).map((line, index) =>
+  return babyRead(input, lang).map((line, index) =>
     index < count && line.endsWith(absent) ? line.slice(0, -absent.length) : line,
   );
 }
 function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }>) {
+  const { lang } = useWords(homeWordsFor);
+  const copy = babyCopyFor(lang);
   const minutes = row.minutes === undefined ? null : copy.duration(row.minutes);
   const trail = (
     <>
-      <KitTime value={row.time} />
+      <KitTime value={timeOfDayLine(row.time, lang)} />
       <KitTrail kind="chevron" />
     </>
   );
   return (
     <KitRow item={row.id} label={copy.entry(row)} role="button" lineRole="number" trailing={trail}>
-      <KitText role="label" part="kind" children={babyLabels[row.kind]} />
+      <KitText role="label" part="kind" children={copy.labels[row.kind]} />
       {(minutes || row.amount) && (
         <KitText {...value} part={null}>
           {minutes && <KitText {...value} part="minutes" children={minutes} />}
@@ -149,13 +149,15 @@ const value = { role: "number", numberScale: "compact", tabular: true } as const
 const muted = { role: "label", tone: "muted" } as const;
 function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKind: "tile" }>) {
   const context = usePartContext();
+  const { lang } = useWords(homeWordsFor);
+  const copy = babyCopyFor(lang);
   const kind = row.active ? "primary" : "quiet";
   const action = row.active ? "stop" : "start";
   return (
     <PartScope {...context} item={row.id}>
       <KitGrid fitLast>
         <KitContent inset="md">
-          <KitText role="label" part="label" children={babyLabels[row.kind]} />
+          <KitText role="label" part="label" children={copy.labels[row.kind]} />
           {row.last && <KitText {...muted} part={null} children={copy.last(row.last)} />}
         </KitContent>
         <KitAction label={copy.action(row.active)} {...{ kind, action }} />
@@ -164,6 +166,8 @@ function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKi
   );
 }
 export function BabyLog({ entries, running }: BabyLogProps) {
+  const { lang } = useWords(homeWordsFor);
+  const copy = babyCopyFor(lang);
   if (useComponentState() === "empty")
     return <KitCard part="root" children={<KitEmpty part="empty" icon="clock" decorativeIcon />} />;
   const log = entries
@@ -172,10 +176,8 @@ export function BabyLog({ entries, running }: BabyLogProps) {
   const tiles = entries
     .filter((row) => row.entryKind === "tile")
     .map((row) => <BabyQuickAction key={row.id} {...row} />);
-  const empty = (
-    <KitContent inset="md" children={<KitText {...muted} part="empty" children={copy.empty} />} />
-  );
-  const history = log.length ? log : empty;
+  const empty = <KitText {...muted} part="empty" children={copy.empty} />;
+  const history = log.length ? log : <KitContent inset="md" children={empty} />;
   return (
     <KitCard part="root" padded>
       <KitContent>

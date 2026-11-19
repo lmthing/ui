@@ -1,20 +1,20 @@
-import { z } from "zod";
 import {
+  wordsFor,
   probesFor,
   detailOf,
   icon,
   photo,
-  placeholderDetail,
   placeholderTitle,
   screenId,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
+import { z } from "zod";
 import {
   KitCard,
   KitContent,
@@ -57,12 +57,14 @@ export const props = z
   // Derive link presence for actions.when without accepting a model-written flag.
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = cast.items[0];
   const thing = item ? thingOf(cast, item.type) : undefined;
   return {
     style: "plain",
-    title: (item && titleOf(item, 40, thing)) || placeholderTitle(0),
+    title: (item && titleOf(item, 40, thing)) || placeholderTitle(0, lang),
     body: (item && detailOf(item, 120, thing)) || placeholderDetail,
   };
 }

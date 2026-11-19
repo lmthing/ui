@@ -4,19 +4,29 @@ import {
   isoDate,
   itemsOf,
   placeholderTitle,
-  placeholderValue,
+  wordsFor,
   probesFor,
   screenId,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitCard, KitContent, KitEmpty, KitGrid, KitRow, KitText, useComponentState } from "../../../kit";
-import { pantryDates, pantryLabels, pantryOrder, pantryReading } from "../copy";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitRow,
+  KitText,
+  useComponentState,
+  useWords,
+} from "../../../kit";
+import { pantryDates, pantryOrder, pantryReading } from "../copy";
+import { kitchenWordsFor } from "../lang";
 
 // Core first: List/cards cannot order food by use-by date or expose a confirmed used-up removal.
 export const meta = {
@@ -38,7 +48,8 @@ export const meta = {
   states: ["filled", "empty"],
   confirmParts: ["used"],
   actions: { items: { root: ["press"], used: ["press"] } },
-  read: (input, state) => (state === "filled" ? pantryReading(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? pantryReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -60,10 +71,11 @@ export const props = z
     // The destructive part must not inherit the item's details navigation.
     items: value.items.map((item) => ({ ...item, use_by: item.useBy, used: {} })),
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderValue } = wordsFor(lang);
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 24, thing) ?? placeholderTitle(index, lang),
     qty: detailOf(item, 12, thing) ?? placeholderValue,
     place: "cupboard" as const,
     goto: "details",
@@ -71,7 +83,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return {
     items: items.length
       ? items
-      : [{ name: placeholderTitle(0), qty: placeholderValue, place: "cupboard", goto: "details" }],
+      : [{ name: placeholderTitle(0, lang), qty: placeholderValue, place: "cupboard", goto: "details" }],
   };
 }
 export const examples = [
@@ -105,7 +117,8 @@ export const probes = [
 ] satisfies Probe[];
 
 function PantryDate({ useBy }: { useBy?: string | undefined }) {
-  const expiry = pantryDates(useBy);
+  const { lang } = useWords(kitchenWordsFor);
+  const expiry = pantryDates(useBy, undefined, lang);
   return (
     <KitRow {...(useBy ? { part: "use_by" } : {})} label={expiry.label} inline>
       <KitContent>
@@ -121,6 +134,7 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
 }
 
 function PantryFood({ item }: { item: Props<typeof props, typeof meta>["items"][number] }) {
+  const { words } = useWords(kitchenWordsFor);
   return (
     <KitContent>
       <KitText part="name" role="body">
@@ -130,7 +144,7 @@ function PantryFood({ item }: { item: Props<typeof props, typeof meta>["items"][
         {item.qty}
       </KitText>
       <KitText part="place" role="caption" tone="muted">
-        {item.place}
+        {words.pantryPlace(words.pantryLabels[item.place])}
       </KitText>
     </KitContent>
   );
@@ -138,6 +152,9 @@ function PantryFood({ item }: { item: Props<typeof props, typeof meta>["items"][
 
 export function Pantry({ items }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const {
+    words: { pantryLabels },
+  } = useWords(kitchenWordsFor);
   if (state === "empty")
     return (
       <KitCard part="root">

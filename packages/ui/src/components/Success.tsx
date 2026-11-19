@@ -1,18 +1,17 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
   icon,
-  messageLabels,
-  placeholderDetail,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Success",
@@ -30,7 +29,10 @@ export const meta = {
     parts: { close: ["dismiss"], undo: ["press"] },
     when: { close: { style: "toast" }, undo: { undoable: true } },
   },
-  read: (input) => ((input as { undo: boolean }).undo ? [messageLabels.undo] : []),
+  read: (input, _state, lang?: string) => {
+    const { messageLabels } = wordsFor(lang);
+    return (input as { undo: boolean }).undo ? [messageLabels.undo] : [];
+  },
 } as const satisfies Meta;
 
 export const props = z
@@ -45,10 +47,12 @@ export const props = z
   // never written.
   .overwrite((value) => ({ ...value, style: value.undo ? "toast" : value.style, undoable: value.undo }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail, saved } = wordsFor(lang);
+
   const item = cast.items[0];
   const sub = item ? titleOf(item, 100, thingOf(cast, item.type)) : undefined;
-  return { title: "Saved", sub: sub ?? placeholderDetail };
+  return { title: saved, sub: sub ?? placeholderDetail };
 }
 
 export const examples = [
@@ -67,32 +71,37 @@ export const probes = [
   write("A small message at the bottom saying Walk cancelled, with a way to undo it"),
 ] satisfies Probe[];
 
-export function Success({ style, title, sub, icon, undo }: Props<typeof props, typeof meta>) {
-  if (style === "toast") {
-    return (
-      <KitCard style="inset" look="tinted" tone="good" part="root" padded>
-        <KitRow
-          label={title}
-          inline
-          lineRole="label"
-          leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
-          trailing={[
-            undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
-            <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
-          ]}
-        >
-          <KitText role="label" part="title">
-            {title}
+type SuccessProps = Props<typeof props, typeof meta>;
+function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
+  const { messageLabels } = useWords().words;
+  return (
+    <KitCard style="inset" look="tinted" tone="good" part="root" padded>
+      <KitRow
+        label={title}
+        inline
+        lineRole="label"
+        leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
+        trailing={[
+          undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
+          <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
+        ]}
+      >
+        <KitText role="label" part="title">
+          {title}
+        </KitText>
+        {sub && (
+          <KitText role="caption" tone="muted" part="sub">
+            {sub}
           </KitText>
-          {sub && (
-            <KitText role="caption" tone="muted" part="sub">
-              {sub}
-            </KitText>
-          )}
-        </KitRow>
-      </KitCard>
-    );
-  }
+        )}
+      </KitRow>
+    </KitCard>
+  );
+}
+
+export function Success(input: SuccessProps) {
+  if (input.style === "toast") return <SuccessToast {...input} />;
+  const { title, sub, icon } = input;
   return (
     <KitCard style="plain" part="root">
       <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} fill tone="good" />

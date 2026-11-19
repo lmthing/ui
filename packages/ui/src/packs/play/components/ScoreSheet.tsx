@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -79,13 +79,13 @@ export const props = z
     ),
   }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const players = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 24, thing) ?? placeholderTitle(index, lang),
   }));
-  while (players.length < 2) players.push({ name: placeholderTitle(players.length) });
-  return { players, rounds: [{ label: placeholderTitle(0), points: players.map(() => null) }] };
+  while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
+  return { players, rounds: [{ label: placeholderTitle(0, lang), points: players.map(() => null) }] };
 }
 export const examples = [
   // Ledge's friends play a high-score game after tending the plants.

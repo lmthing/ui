@@ -34,6 +34,7 @@ export function controlStep(
   values: Values,
   step: ActStep,
   now: number,
+  lang?: string,
 ): ControlChange {
   const next = { ...values };
   const parts = step.address.replace(`${screen.id}/`, "").split("/");
@@ -46,6 +47,7 @@ export function controlStep(
     values: next,
     step,
     now,
+    lang,
     target,
     index: /^r[1-9][0-9]*$/.test(parts[1] ?? "") ? Number(parts[1]!.slice(1)) - 1 : -1,
     get: (part) => next[valueKey(screen.id, entry.id, part)],

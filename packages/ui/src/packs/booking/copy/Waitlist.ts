@@ -1,28 +1,33 @@
-export const queueLabels = {
-  waiting: "Waiting for a place",
-  joined: "You're on the waitlist",
-  position: "Your place in line",
-  join: "Join waitlist",
-  leave: "Leave waitlist",
-} as const;
+import { localeOf, numberLine, pluralForm } from "../../../catalog";
+import { bookingWordsFor } from "../lang";
 
-const queuePeopleLine = (ahead: number): string => `${ahead} ${ahead === 1 ? "person" : "people"} ahead`;
+export const { queueLabels } = bookingWordsFor();
 
-export function queueAhead(ahead: number): string {
-  return ahead > 999 ? `${queueCount(ahead)} ahead` : queuePeopleLine(ahead);
+const queuePeopleLine = (ahead: number, lang?: string): string =>
+  bookingWordsFor(lang).queuePeople(numberLine(ahead, lang), pluralForm(ahead, lang));
+
+export function queueAhead(ahead: number, lang?: string): string {
+  return ahead > 999
+    ? bookingWordsFor(lang).queueCompact(queueCount(ahead, lang))
+    : queuePeopleLine(ahead, lang);
 }
 
-export function queueCount(count: number): string {
+export function queueCount(count: number, lang?: string): string {
+  if (count <= 999) return numberLine(count, lang);
   const quadrillion = count >= 1e15;
-  return count > 999
-    ? new Intl.NumberFormat("en", { notation: "compact", maximumSignificantDigits: 3 }).format(
-        quadrillion ? count / 1e15 : count,
-      ) + (quadrillion ? "Q" : "")
-    : String(count);
+  const line = new Intl.NumberFormat(localeOf(lang), {
+    notation: "compact",
+    maximumSignificantDigits: 3,
+  }).format(quadrillion ? count / 1e15 : count);
+  return quadrillion ? bookingWordsFor(lang).quadrillion(line) : line;
 }
 
-export function queueExact(ahead: number, position?: number): string {
-  return [position !== undefined ? `${queueLabels.position}: ${position}` : "", queuePeopleLine(ahead)]
+export function queueExact(ahead: number, position?: number, lang?: string): string {
+  const words = bookingWordsFor(lang);
+  return [
+    position !== undefined ? words.queuePosition(words.queueLabels.position, numberLine(position, lang)) : "",
+    queuePeopleLine(ahead, lang),
+  ]
     .filter(Boolean)
     .join("; ");
 }

@@ -7,7 +7,7 @@ import {
   placeholderValue,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -54,7 +54,7 @@ export const props = z.strictObject({
     .max(4),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const tiles = itemsOf(cast, 2)
     .flatMap((item) => {
       const fields =
@@ -80,7 +80,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     })
     .slice(0, 2);
   while (tiles.length < 2) {
-    tiles.push({ label: placeholderTitle(tiles.length), value: placeholderValue });
+    tiles.push({ label: placeholderTitle(tiles.length, lang), value: placeholderValue });
   }
   return { style: "tiles", tiles };
 }

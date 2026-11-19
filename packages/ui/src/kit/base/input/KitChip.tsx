@@ -66,6 +66,7 @@ function ChipContent({
 
 function Chip({
   label,
+  value = label,
   on,
   role,
   icon,
@@ -76,6 +77,7 @@ function Chip({
 }: {
   label: string;
   on: boolean;
+  value?: string;
   role: "checkbox" | "radio" | "tab";
   icon?: IconName | undefined;
   look: "pill" | "segment";
@@ -99,7 +101,7 @@ function Chip({
             onPress: () =>
               stamped
                 ? kit.controller!.press(target)
-                : kit.controller!.act({ address: target, action: "select", value: label }),
+                : kit.controller!.act({ address: target, action: "select", value }),
           }
         : {})}
       aria-checked={role === "tab" ? undefined : on}
@@ -124,6 +126,8 @@ export function KitChip({
   item: string | null;
   label: string;
   on: boolean;
+  /** Stable choice value for an unstamped chip, when its display label is localized. */
+  value?: string;
   role: "checkbox" | "radio" | "tab";
   icon?: IconName | undefined;
   look?: "pill" | "segment";

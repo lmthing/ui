@@ -1,11 +1,11 @@
 import { z } from "zod";
 import {
-  placeholderDetail,
-  placeholderValue,
+  wordsFor,
+  numberLine,
   probesFor,
   screenId,
   text,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -19,10 +19,12 @@ import {
   KitRow,
   KitText,
   useComponentState,
+  useWords,
   KitAction,
 } from "../../../kit";
-import { vitalBand, vitalLabels, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
+import { vitalBand, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
 import { seedTitles } from "..";
+import { healthWordsFor } from "../lang";
 
 // Core first: Stats/tiles (the default) cannot place readings on a low/normal/high reference band.
 export const meta = {
@@ -44,8 +46,13 @@ export const meta = {
   parts: ["root", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
-  read: (input, state) =>
-    state !== "filled" ? [] : [...(input as z.output<typeof props>).readings.map(vitalLine), vitalLabels.add],
+  read: (input, state, lang?: string) =>
+    state !== "filled"
+      ? []
+      : [
+          ...(input as z.output<typeof props>).readings.map((reading) => vitalLine(reading, lang)),
+          healthWordsFor(lang).vitalLabels.add,
+        ],
 } as const satisfies Meta;
 const readingNumber = z.number().min(-1000000).max(1000000);
 export const props = z.strictObject({
@@ -67,9 +74,10 @@ export const props = z.strictObject({
     .max(4),
   goto: screenId,
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail, placeholderValue } = wordsFor(lang);
   return {
-    readings: seedTitles(cast, 2, 20).map((label) => ({
+    readings: seedTitles(cast, 2, 20, lang).map((label) => ({
       label,
       value: 0,
       unit: placeholderValue,
@@ -80,26 +88,15 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     goto: "details",
   };
 }
+// prettier-ignore
 export const examples = [
-  {
-    readings: [{ label: "Greenhouse temp", value: 22, unit: "°C", low: 18, high: 26, at: "08:10" }],
-    goto: "add_reading",
-  },
-  {
-    readings: [{ label: "Post-walk pulse", value: 104, unit: "bpm", low: 60, high: 100, at: "09:15" }],
-    goto: "add_reading",
-  },
-  {
-    readings: [
-      { label: "Blood pressure", value: 118, value2: 76, unit: "mmHg", low: 90, high: 120, at: "08:10" },
-      { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
-    ],
-    goto: "add_reading",
-  },
-  {
-    readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }],
-    goto: "add_reading",
-  },
+  { readings: [{ label: "Greenhouse temp", value: 22, unit: "°C", low: 18, high: 26, at: "08:10" }], goto: "add_reading" },
+  { readings: [{ label: "Post-walk pulse", value: 104, unit: "bpm", low: 60, high: 100, at: "09:15" }], goto: "add_reading" },
+  { readings: [
+    { label: "Blood pressure", value: 118, value2: 76, unit: "mmHg", low: 90, high: 120, at: "08:10" },
+    { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
+  ], goto: "add_reading" },
+  { readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Vitals");
 export const probes = [
@@ -114,12 +111,11 @@ export const probes = [
   read("Add a new vital reading", { address: "v1/add", action: "press" }),
   read("Open the blood pressure reading", { address: "v1/r1", action: "press" }, 2),
 ] satisfies Probe[];
-
 type Reading = Props<typeof props, typeof meta>["readings"][number];
-
-function VitalValue({ reading }: { reading: Reading }) {
-  const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2);
-  const numberScale = `${reading.value}${pair}`.length > 12 ? "compact" : "display";
+function VitalValue({ reading, lang }: { reading: Reading; lang: string }) {
+  const value = numberLine(reading.value, lang);
+  const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2, lang);
+  const numberScale = `${value}${pair}`.length > 12 ? "compact" : "display";
   const tone = vitalBand(reading).tone;
   return (
     <KitRangeBand
@@ -137,7 +133,7 @@ function VitalValue({ reading }: { reading: Reading }) {
             lineRole={numberScale === "compact" ? "body" : "number"}
             leading={
               <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
-                {reading.value}
+                {value}
                 {reading.value2 !== undefined && (
                   <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value2">
                     {pair}
@@ -160,6 +156,7 @@ function VitalValue({ reading }: { reading: Reading }) {
 
 export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const { lang, words } = useWords(healthWordsFor);
   return (
     <KitCard style="inset" part="root" padded>
       {state === "empty" ? (
@@ -169,7 +166,7 @@ export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
           <KitRow
             key={reading.id}
             item={reading.id}
-            label={vitalLine(reading)}
+            label={vitalLine(reading, lang)}
             role="button"
             inset="none"
             lineRole="caption"
@@ -182,18 +179,18 @@ export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
                 {reading.at}
               </KitText>
             </KitGrid>
-            <VitalValue reading={reading} />
+            <VitalValue reading={reading} lang={lang} />
             <KitText role="caption" tone="muted" part={null}>
-              {vitalRangeLine(reading)}
+              {vitalRangeLine(reading, lang)}
             </KitText>
             <KitText role="caption" tone={vitalBand(reading).tone} part={null}>
-              {vitalStatusLine(reading)}
+              {vitalStatusLine(reading, lang)}
             </KitText>
           </KitRow>
         ))
       )}
       <KitContent>
-        <KitAction part="add" label={vitalLabels.add} goto={goto} kind="secondary" full />
+        <KitAction part="add" label={words.vitalLabels.add} goto={goto} kind="secondary" full />
       </KitContent>
     </KitCard>
   );

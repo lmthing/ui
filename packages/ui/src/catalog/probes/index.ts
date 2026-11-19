@@ -3,6 +3,7 @@ export type {
   CallModel,
   ChooseProbe,
   Definition,
+  FallbackInput,
   PackProbe,
   Probe,
   ProbeResult,

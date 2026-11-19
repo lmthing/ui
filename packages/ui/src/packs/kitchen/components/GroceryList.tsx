@@ -1,13 +1,13 @@
 import { z } from "zod";
 import {
+  wordsFor,
   itemsOf,
-  placeholderDetail,
   placeholderTitle,
   probesFor,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -24,8 +24,10 @@ import {
   useControlValue,
   useKit,
   usePartContext,
+  useWords,
 } from "../../../kit";
-import { groceryLabels, groceryRead } from "../copy";
+import { groceryRead } from "../copy";
+import { kitchenWordsFor } from "../lang";
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
@@ -47,7 +49,8 @@ export const meta = {
   states: ["filled", "empty", "success"],
   signature: "check_burst",
   actions: { items: { got: ["check"] }, parts: { add: ["type"] } },
-  read: (input, state) => (state === "filled" ? groceryRead(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? groceryRead(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -75,13 +78,14 @@ export const props = z
     ...value,
     rows: value.aisles.flatMap((aisle, aisleIndex) => aisle.items.map((item) => ({ ...item, aisleIndex }))),
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 28, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 28, thing) ?? placeholderTitle(index, lang),
     got: false,
   }));
-  const rows = items.length ? items : [{ name: placeholderTitle(0), got: false }];
+  const rows = items.length ? items : [{ name: placeholderTitle(0, lang), got: false }];
   return { aisles: [{ label: placeholderDetail, items: rows }] };
 }
 export const examples = [
@@ -146,6 +150,9 @@ function GroceryItem({ row }: { row: GroceryRow }) {
 export function GroceryList(value: Props<typeof props, typeof meta>) {
   const { aisles, rows } = value as typeof value & { rows: GroceryRow[] };
   const state = useComponentState();
+  const {
+    words: { groceryLabels },
+  } = useWords(kitchenWordsFor);
   const { screen, component } = usePartContext();
   const { controller } = useKit();
   // Every signature action advances the cue, including repeated checks on one stable row.

@@ -1,6 +1,6 @@
+import { useWords, useKitStyle } from "../../provider";
 import { XStack, YStack } from "tamagui";
-import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { KitText, shifted, surfaceOf } from "../text";
 import { Bar } from "./skeleton-shapes";
 import { SkeletonText, type ShapeProps, type SkeletonItem } from "./skeleton-content";
@@ -54,6 +54,7 @@ function SkeletonOption({
 }
 
 export function SkeletonOptions({ items = [], question, look = "cards" }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const reserveIcon = items.some((item) => item.icon !== undefined);
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy gap={space.sm}>
@@ -66,6 +67,7 @@ export function SkeletonOptions({ items = [], question, look = "cards" }: ShapeP
 }
 
 export function SkeletonControl({ label, kind = "primary", full = false }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const ks = useKitStyle();
   return (
     <YStack

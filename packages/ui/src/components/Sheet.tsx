@@ -1,7 +1,7 @@
+import { useWords, KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail } from "../kit";
 import { z } from "zod";
 import {
   probesFor,
-  closeLabel,
   icon,
   itemsOf,
   placeholderTitle,
@@ -9,12 +9,11 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitIcon, KitRow, KitSheet, KitText, KitTrail } from "../kit";
 
 export const meta = {
   id: "Sheet",
@@ -100,7 +99,7 @@ export const props = z
     })),
   }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).flatMap((entry) => {
     const label = titleOf(entry, 28, thing);
@@ -108,8 +107,8 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   });
   return {
     style: "detail",
-    title: placeholderTitle(0),
-    items: items.length ? items : [{ label: placeholderTitle(0), value: placeholderTitle(1) }],
+    title: placeholderTitle(0, lang),
+    items: items.length ? items : [{ label: placeholderTitle(0, lang), value: placeholderTitle(1, lang) }],
   };
 }
 
@@ -155,6 +154,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Sheet({ style, title, sub, items, at, action }: Props<typeof props, typeof meta>) {
+  const { closeLabel } = useWords().words;
   return (
     <KitSheet title={title} sub={sub} closeLabel={closeLabel}>
       {items.map((row, index) => (

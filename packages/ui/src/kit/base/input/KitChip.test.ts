@@ -84,6 +84,14 @@ describe("KitChip optional named parts", () => {
     (await capture(input, controller, true)).onPress!();
     expect(act).toHaveBeenCalledWith({ address: "home/c1/field", action: "select", value: "Headache" });
   });
+  it("dispatches an explicit value independently of the displayed choice label", async () => {
+    const act = vi.fn();
+    const controller = { act } as unknown as ScreenController;
+    const input = { ...chip, item: null, role: "radio", label: "[US]", value: "US" } as const;
+    expect(render(input, controller, true)).toContain('aria-label="[US]"');
+    (await capture(input, controller, true)).onPress!();
+    expect(act).toHaveBeenCalledWith({ address: "home/c1/field", action: "select", value: "US" });
+  });
 });
 describe("KitChip dispatch", () => {
   it("dispatches default and named chips through the same controller press path", async () => {

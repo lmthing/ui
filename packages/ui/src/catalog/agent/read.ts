@@ -1,11 +1,12 @@
 import { liveProps } from "./live-props";
 import { z } from "zod";
+import { numberLine } from "../format";
+import { wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { projectSelection } from "./selection";
-import { projectNested } from "./selection";
+import { projectSelection, projectNested } from "./selection";
 import { projectClocks } from "./clocks";
 import type { Meta } from "../meta";
 
@@ -94,6 +95,7 @@ export function readComponent(
   instance: string,
   state: StateName = "filled",
   values: Record<string, unknown> = {},
+  lang?: string,
 ): string[] {
   const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
   const props = liveProps(def.meta, validated, instance, values);
@@ -108,10 +110,8 @@ export function readComponent(
     def.meta.partTiers,
   );
   const key = def.meta.items?.key;
-  // A component whose meaning lives in numbers (Ring "3 of 5", Steps "step 2 of 3") adds it with
-  // `meta.read`; its lines come before the quoted texts.
   const own = [
-    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state) ?? []),
+    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,
@@ -137,7 +137,9 @@ export function readComponent(
         .filter(Boolean)
         .join(" ")}`;
     }),
-    ...(firstOnly && all.length > 1 ? [`  +${all.length - 1} more`] : []),
+    ...(firstOnly && all.length > 1
+      ? [`  ${wordsFor(lang).moreRead(numberLine(all.length - 1, lang))}`]
+      : []),
   ];
 }
 
@@ -152,6 +154,7 @@ export function readScreen(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   values: Record<string, unknown> = {},
+  lang?: string,
 ): string {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -159,7 +162,7 @@ export function readScreen(
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = screen.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
-    return def ? readComponent(def, props, id, state, local) : [`${id} ${c} (unknown)`];
+    return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
   });
   return [header, ...lines].join("\n");
 }

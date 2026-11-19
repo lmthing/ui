@@ -1,3 +1,4 @@
+import { homeWordsFor } from "../lang";
 import { z } from "zod";
 import {
   icon,
@@ -9,11 +10,10 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
-import { rewardLabels } from "../copy";
 
 // Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
@@ -37,7 +37,9 @@ export const meta = {
     items: { root: ["press"], claim: ["press"] },
     when: { root: { entryKind: "kid" }, claim: { entryKind: "prize", claimable: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { rewardLabels } = homeWordsFor(lang);
+
     if (state !== "filled") return [];
     const { kids, prizes, entries } = input as z.output<typeof props> & { entries: { id?: string }[] };
     return [
@@ -82,16 +84,18 @@ export const props = z
       })),
     ],
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 4);
   return {
     kids: (items.length ? items : [undefined]).map((item, index) => ({
-      name: item ? (titleOf(item, 16, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
+      name: item
+        ? (titleOf(item, 16, thing) ?? placeholderTitle(index, lang))
+        : placeholderTitle(index, lang),
       points: 0,
       goto: item && screenId.safeParse(item.id).success ? item.id : "detail",
     })),
-    prizes: [{ title: placeholderTitle(0), cost: 1, icon: "star" }],
+    prizes: [{ title: placeholderTitle(0, lang), cost: 1, icon: "star" }],
     money: false,
   };
 }

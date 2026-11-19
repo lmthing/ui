@@ -3,7 +3,7 @@ import { ScrollView, XStack, YStack, styled } from "tamagui";
 import { ChevronDown, ChevronRight } from "@tamagui/lucide-icons";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
 import { usePart, useEmptyThing } from "../../part";
-import { useKit, useKitStyle } from "../../provider";
+import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 const Bar = styled(YStack, { height: size.icon.sm, backgroundColor: "$line" });
 type ScrollProps = {
@@ -68,7 +68,6 @@ function ScrollLoading({ horizontal }: { horizontal: boolean }) {
     </YStack>
   );
 }
-
 function ScrollContent({
   loading,
   children,
@@ -78,8 +77,9 @@ function ScrollContent({
   horizontal: boolean;
   viewport: number;
 }) {
+  const { lang } = useWords();
   const ks = useKitStyle();
-  const thing = useEmptyThing();
+  const line = emptyLine(useEmptyThing(), lang);
   const empty = Children.toArray(children).length === 0;
   return (
     <YStack
@@ -94,7 +94,7 @@ function ScrollContent({
         <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
           <KitText tone="muted" align="center" part={null}>
-            {emptyLine(thing)}
+            {line}
           </KitText>
         </YStack>
       ) : (

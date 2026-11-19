@@ -1,24 +1,5 @@
-import { z } from "zod";
 import {
-  detailOf,
-  durationLine,
-  itemsOf,
-  loadingLabel,
-  moneyLine,
-  photo,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { bookLabel } from "../copy";
-import {
+  useWords,
   KitCard,
   KitContent,
   KitEmpty,
@@ -31,6 +12,25 @@ import {
   type TextTone,
   useComponentState,
 } from "../../../kit";
+import { bookingWordsFor } from "../lang";
+import { servicePrice, serviceReading } from "../copy";
+import { z } from "zod";
+import {
+  detailOf,
+  durationLine,
+  itemsOf,
+  photo,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 
 // Core first: List/inset cannot group twelve services with numeric duration and price.
 export const meta = {
@@ -48,14 +48,8 @@ export const meta = {
   parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state) =>
-    state !== "filled"
-      ? []
-      : (input as z.output<typeof props>).services.flatMap((service) => [
-          durationLine(service.minutes),
-          ...(service.price === undefined ? [] : [moneyLine(service.price)]),
-          bookLabel,
-        ]),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? serviceReading((input as z.output<typeof props>).services, lang) : [],
 } as const satisfies Meta;
 export const props = z.strictObject({
   services: z
@@ -74,16 +68,18 @@ export const props = z.strictObject({
     .max(12),
   style: z.enum(["rows", "cards"]).default("rows"),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const services = itemsOf(cast, 3).map((item) => ({
-    name: titleOf(item, 28, thing) || placeholderTitle(0),
+    name: titleOf(item, 28, thing) || placeholderTitle(0, lang),
     sub: detailOf(item, 60, thing) || undefined,
     minutes: 30,
     goto: "details",
   }));
   return {
-    services: services.length ? services : [{ name: placeholderTitle(0), minutes: 30, goto: "details" }],
+    services: services.length
+      ? services
+      : [{ name: placeholderTitle(0, lang), minutes: 30, goto: "details" }],
   };
 }
 export const examples = [
@@ -148,6 +144,8 @@ function ServiceText({
 }
 
 function ServiceRows({ services }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { bookLabel } = bookingWordsFor(lang);
   const loading = useComponentState() === "loading";
   const photos = services.some((service) => service.photo);
   return (
@@ -156,7 +154,7 @@ function ServiceRows({ services }: Props<typeof props, typeof meta>) {
         <KitRow
           key={service.id}
           item={service.id}
-          label={loading ? loadingLabel : service.name}
+          label={loading ? words.loadingLabel : service.name}
           goto={loading ? undefined : service.goto}
           leadingAlign="row"
           leadingWidth={photos ? "avatar" : undefined}
@@ -168,13 +166,18 @@ function ServiceRows({ services }: Props<typeof props, typeof meta>) {
                 <ServiceText value={service.group} role="caption" tone="muted" part="group" />
               )}
               <ServiceText value={service.name} part="name" />
-              <ServiceText value={durationLine(service.minutes)} role="number" tone="muted" part="minutes" />
+              <ServiceText
+                value={durationLine(service.minutes, lang)}
+                role="number"
+                tone="muted"
+                part="minutes"
+              />
               {service.sub && <ServiceText value={service.sub} role="caption" tone="muted" part="sub" />}
             </KitContent>
             <KitContent>
               <ServiceText value={bookLabel} role="label" tone="accent" part={null} />
               {service.price !== undefined && (
-                <ServiceText value={moneyLine(service.price)} role="number" part="price" />
+                <ServiceText value={servicePrice(service.price, lang)} role="number" part="price" />
               )}
             </KitContent>
           </KitGrid>

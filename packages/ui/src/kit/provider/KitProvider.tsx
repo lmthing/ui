@@ -1,13 +1,14 @@
 import { defaultEnvironment, type Environment, type NativeHost } from "./environment";
 import { useMemo, useRef, type ReactNode } from "react";
 import { Theme, YStack, type TamaguiElement } from "tamagui";
-import { kitStyleOf, presets, themeName, type ThemeChoice } from "../../catalog";
+import { defaultLang, kitStyleOf, localeOf, presets, themeName, type ThemeChoice } from "../../catalog";
 import { noopParts, type PartRegistry } from "../registry";
 import { KitContext, type KitContextValue } from "./context";
 
 type KitProviderProps = {
   children: ReactNode;
   theme: ThemeChoice;
+  lang?: string | undefined;
   parts?: PartRegistry;
   interactive?: boolean;
   environment?: Environment;
@@ -19,6 +20,7 @@ type KitProviderProps = {
 export function KitProvider({
   children,
   theme,
+  lang = defaultLang,
   parts = noopParts,
   interactive = false,
   environment = defaultEnvironment,
@@ -32,6 +34,7 @@ export function KitProvider({
   const value = useMemo(
     () => ({
       style: kitStyleOf(preset),
+      lang: localeOf(lang),
       parts,
       root,
       interactive,
@@ -49,7 +52,7 @@ export function KitProvider({
           : {}),
       ...(resolvePhoto ? { resolvePhoto } : {}),
     }),
-    [preset, parts, interactive, environment, nativeHost, controller, onLink, resolvePhoto],
+    [preset, lang, parts, interactive, environment, nativeHost, controller, onLink, resolvePhoto],
   );
   return (
     <Theme name={themeName(theme)}>

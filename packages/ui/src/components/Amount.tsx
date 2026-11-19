@@ -1,21 +1,21 @@
-import { z } from "zod";
+import { useWords, KitCard, KitContent, KitGrid, KitSkeleton, KitText, useComponentState } from "../kit";
 import {
+  wordsFor,
   probesFor,
   changeLine,
   clip,
   currencies,
-  moneyLabels,
   moneyLine,
   placeholderTitle,
   screenId,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitContent, KitGrid, KitSkeleton, KitText, useComponentState } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Amount",
@@ -29,14 +29,16 @@ export const meta = {
   parts: ["root", "label", "value", "was", "change", "sub"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { moneyLabels } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const v = input as z.output<typeof props>;
     return [
       ...(v.style === "total" && !v.label ? [moneyLabels.total] : []),
-      moneyLine(v.value, v.currency, v.per),
-      ...(v.was === undefined ? [] : [moneyLine(v.was, v.currency)]),
-      ...(v.change === undefined ? [] : [changeLine(v.change, v.changeIn, v.currency)]),
+      moneyLine(v.value, v.currency, v.per, lang),
+      ...(v.was === undefined ? [] : [moneyLine(v.was, v.currency, undefined, lang)]),
+      ...(v.change === undefined ? [] : [changeLine(v.change, v.changeIn, v.currency, lang)]),
     ];
   },
 } as const satisfies Meta;
@@ -57,8 +59,12 @@ export const props = z
   // Derived, never written: only a linked amount can be pressed.
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
-  return { style: "inline", label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0), 24), value: 0 };
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  return {
+    style: "inline",
+    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 24),
+    value: 0,
+  };
 }
 
 export const examples = [
@@ -85,6 +91,7 @@ function AmountFigure({
   changeIn,
   sub,
 }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const large = style === "large";
   return (
     <>
@@ -95,11 +102,11 @@ function AmountFigure({
         tabular
         part="value"
       >
-        {moneyLine(value, currency, per)}
+        {moneyLine(value, currency, per, lang)}
       </KitText>
       {was !== undefined && (
         <KitText role="caption" tone="muted" strike align={large ? "center" : "end"} tabular part="was">
-          {moneyLine(was, currency)}
+          {moneyLine(was, currency, undefined, lang)}
         </KitText>
       )}
       {change !== undefined && (
@@ -110,7 +117,7 @@ function AmountFigure({
           tabular
           part="change"
         >
-          {changeLine(change, changeIn, currency)}
+          {changeLine(change, changeIn, currency, lang)}
         </KitText>
       )}
       {sub && (
@@ -123,7 +130,9 @@ function AmountFigure({
 }
 
 function AmountLoading(input: Props<typeof props, typeof meta>) {
-  const { style, label, value, currency, per } = input;
+  const { lang, words } = useWords();
+  const { moneyLabels } = words;
+  const { style, label, value, currency, per, was, change, changeIn } = input;
   const shown = style === "total" ? (label ?? moneyLabels.total) : label;
   return (
     <KitCard style="inset" padded look={style === "total" ? "outlined" : "surface"}>
@@ -134,13 +143,9 @@ function AmountLoading(input: Props<typeof props, typeof meta>) {
         split={style !== "large" && Boolean(shown)}
         content={[
           [style === "large" ? "label" : "body", shown],
-          [style === "large" ? "number" : "body", moneyLine(value, currency, per), "end"],
-          ["caption", input.was === undefined ? undefined : moneyLine(input.was, currency), "end"],
-          [
-            "caption",
-            input.change === undefined ? undefined : changeLine(input.change, input.changeIn, currency),
-            "end",
-          ],
+          [style === "large" ? "number" : "body", moneyLine(value, currency, per, lang), "end"],
+          ["caption", was === undefined ? undefined : moneyLine(was, currency, undefined, lang), "end"],
+          ["caption", change === undefined ? undefined : changeLine(change, changeIn, currency, lang), "end"],
           ["caption", input.sub, "end"],
         ]}
       />
@@ -149,6 +154,8 @@ function AmountLoading(input: Props<typeof props, typeof meta>) {
 }
 
 export function Amount(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { moneyLabels } = words;
   const { style, label, value, currency, per, goto } = input;
   const state = useComponentState();
   if (state === "loading") return <AmountLoading {...input} />;
@@ -172,7 +179,7 @@ export function Amount(input: Props<typeof props, typeof meta>) {
       part="root"
       padded
       goto={goto}
-      label={shown ?? moneyLine(value, currency, per)}
+      label={shown ?? moneyLine(value, currency, per, lang)}
     >
       {large || !shown ? (
         <KitContent>

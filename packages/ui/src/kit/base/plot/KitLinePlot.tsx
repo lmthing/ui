@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import { useState } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, emptyLine, size, space, type as typography } from "../../../catalog";
@@ -26,6 +27,8 @@ function PlotAxis({ series, goal, height, loading }: LinePlotProps & { height: n
 
 /** Labelled numeric lines. Null readings break paths; explicit targets are roomy controls below the plot. */
 export function KitLinePlot({ part = "root", loading = false, style = "full", ...props }: LinePlotProps) {
+  const { lang } = useWords();
+
   const [width, setWidth] = useState<number>(component.base.emptyMinHeight);
   const geometry = plotGeometry(props.series, props.goal),
     thing = useEmptyThing();
@@ -49,7 +52,7 @@ export function KitLinePlot({ part = "root", loading = false, style = "full", ..
         >
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
           <KitText role="body" tone="muted" align="center" part={null}>
-            {emptyLine(thing)}
+            {emptyLine(thing, lang)}
           </KitText>
         </YStack>
       ) : (

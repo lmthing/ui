@@ -1,15 +1,5 @@
-import { z } from "zod";
 import {
-  clock,
-  probesFor,
-  weekdayNames,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { availabilityDefaults, availabilityLabels, breakLine } from "../copy";
-import {
+  useWords,
   KitCard,
   KitGrid,
   KitInput,
@@ -19,6 +9,18 @@ import {
   useControlValue,
   usePart,
 } from "../../../kit";
+import {
+  wordsFor,
+  clock,
+  probesFor,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { bookingWordsFor } from "../lang";
+import { z } from "zod";
+import { availabilityDefaults, breakLine } from "../copy";
 
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
@@ -39,8 +41,10 @@ export const meta = {
   parts: ["root"],
   states: ["filled"],
   actions: { items: { toggle: ["toggle"], from: ["type"], to: ["type"] } },
-  read: (input, state) =>
-    state !== "filled"
+  read: (input, state, lang?: string) => {
+    const { weekdayNames } = wordsFor(lang);
+    const { availabilityLabels } = bookingWordsFor(lang);
+    return state !== "filled"
       ? []
       : [
           ...weekdayNames,
@@ -49,9 +53,10 @@ export const meta = {
           ...(input as z.output<typeof props>).days.flatMap((day) => [
             day.from,
             day.to,
-            ...(day.breakFrom && day.breakTo ? [breakLine(day.breakFrom, day.breakTo)] : []),
+            ...(day.breakFrom && day.breakTo ? [breakLine(day.breakFrom, day.breakTo, lang)] : []),
           ]),
-        ],
+        ];
+  },
 } as const satisfies Meta;
 const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 export const props = z
@@ -122,6 +127,11 @@ export const probes = [
 ] satisfies Probe[];
 
 function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
+  const {
+    lang,
+    words: { weekdayNames },
+  } = useWords();
+  const { availabilityLabels } = bookingWordsFor(lang);
   const toggle = usePart("toggle", false);
   const on = useControlValue(toggle.testID, day.on);
   return (
@@ -165,7 +175,7 @@ function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][numb
       </KitGrid>
       {day.breakFrom && day.breakTo && (
         <KitText role="caption" tone="muted" part="break">
-          {breakLine(day.breakFrom, day.breakTo)}
+          {breakLine(day.breakFrom, day.breakTo, lang)}
         </KitText>
       )}
     </>

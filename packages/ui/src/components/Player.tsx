@@ -1,21 +1,5 @@
-import { z } from "zod";
 import {
-  probesFor,
-  clip,
-  clockLine,
-  mediaLabels,
-  media,
-  photo,
-  placeholderTitle,
-  remainingLine,
-  text,
-  thingOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../catalog";
-import {
+  useWords,
   KitCard,
   KitContent,
   KitMediaControls,
@@ -27,6 +11,22 @@ import {
   KitTimes,
   useComponentState,
 } from "../kit";
+import { z } from "zod";
+import {
+  probesFor,
+  clip,
+  clockLine,
+  media,
+  photo,
+  placeholderTitle,
+  remainingLine,
+  text,
+  thingOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
 
 export const meta = {
   id: "Player",
@@ -42,10 +42,10 @@ export const meta = {
   actions: {
     parts: { scrubber: ["seek"], back: ["press"], play: ["play", "pause"], forward: ["press"] },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { at, seconds } = input as z.output<typeof props>;
-    return [clockLine(at ?? 0), remainingLine(seconds - (at ?? 0))];
+    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang)];
   },
 } as const satisfies Meta;
 
@@ -64,7 +64,7 @@ export const props = z
     message: "Cannot start past the end",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const tag = (thingOf(cast)?.type ?? "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
@@ -73,7 +73,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return {
     style: "audio",
     media: `lib:${tag || "recording"}`,
-    title: clip(thingOf(cast)?.type.trim() || placeholderTitle(0), 40),
+    title: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 40),
     seconds: 60,
   };
 }
@@ -108,6 +108,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Player({ style, title, sub, photo: art, seconds, at }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { mediaLabels } = words;
   const state = useComponentState();
   const here = at ?? 0;
   if (state === "loading") {
@@ -142,7 +144,7 @@ export function Player({ style, title, sub, photo: art, seconds, at }: Props<typ
         )}
       </KitContent>
       <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
-      <KitTimes elapsed={clockLine(here)} remaining={remainingLine(seconds - here)} />
+      <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} />
       <KitMediaControls labels={mediaLabels} />
     </KitCard>
   );

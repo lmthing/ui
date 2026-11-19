@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import type { ReactNode } from "react";
 import { ScrollView, YStack, useTheme } from "tamagui";
 import { Svg, Circle } from "react-native-svg";
@@ -162,6 +163,8 @@ export function KitOrbit({
   reverse = false,
   style = "ring",
 }: OrbitProps) {
+  const { lang } = useWords();
+
   const thing = useEmptyThing();
   const rows =
     loading && !nodes.length
@@ -177,7 +180,7 @@ export function KitOrbit({
         <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
           <KitText part={null} tone="muted" align="center">
-            {emptyLine(thing)}
+            {emptyLine(thing, lang)}
           </KitText>
         </YStack>
       )}

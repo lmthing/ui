@@ -1,12 +1,4 @@
-import {
-  affordancesOf,
-  liveProps,
-  stampItemIds,
-  readScreen,
-  cancelLabel,
-  confirmLabel,
-  mediaUnavailable,
-} from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, stampItemIds, readScreen } from "../../../catalog";
 import type { ActStep } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
@@ -77,11 +69,12 @@ function press(ctx: ControllerContext, act: Act, address: string) {
     : actionFailure(0, "not_actionable", "No press action at this address");
 }
 function read(ctx: ControllerContext) {
+  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
   if (ctx.status.confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
   return [
-    readScreen(visible, ctx.defs, ctx.valuesOf()),
+    readScreen(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang),
     ...visible.components
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
@@ -101,7 +94,7 @@ export function createAccess(ctx: ControllerContext, act: Act) {
         const full = `${ctx.screen.id}/${ctx.relative(address)}`;
         ctx.store.setMany({
           [`${full}/$draft`]: text,
-          [`${full}/$error`]: result.hint ?? "Check this value",
+          [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
         });
       }
       return result;

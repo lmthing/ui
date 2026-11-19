@@ -1,22 +1,20 @@
-import { z } from "zod";
+import { useWords, KitCard, KitFieldControl, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
   clip,
   clock,
   isoDate,
   photo,
-  photoLabels,
-  placeholderDetail,
-  repeatLabels,
   repeatOptions,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitFieldControl, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Field",
@@ -44,14 +42,16 @@ export const meta = {
       "field.press": { kind: "photo" },
     },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { repeatLabels, photoLabels, chosen } = wordsFor(lang);
+
     const { kind, options } = input as z.output<typeof props>;
     if (state !== "filled") return [];
     if (kind === "repeat") {
       const { repeat } = input as z.output<typeof props>;
       return [
         ...repeatOptions.map((option) => repeatLabels[option]),
-        ...(repeat ? [`${repeatLabels[repeat]} chosen`] : []),
+        ...(repeat ? [chosen(repeatLabels[repeat])] : []),
       ];
     }
     return kind === "choice" ? (options ?? []) : kind === "photo" ? [photoLabels.add] : [kind];
@@ -115,7 +115,9 @@ export const props = z
         ? "choice"
         : "other",
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return { kind: "text", label: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 24) };
 }
 export const examples = [
@@ -139,6 +141,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Field(input: Props<typeof props, typeof meta>) {
+  const { repeatLabels } = useWords().words;
   return (
     <KitCard style="plain" part="root" padded inset="none">
       <KitText role="label" part="label">

@@ -1,6 +1,7 @@
+import { useWords } from "../../provider";
 import type { ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { component, space, weekdayInitials } from "../../../catalog";
+import { component, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitDayMark } from "./KitDay";
 import { KitText } from "../text";
@@ -16,6 +17,7 @@ const Column = ({ children }: { children?: ReactNode }) => (
  * entry per slot, `null` for a blank before day 1 or after the last day; put a `KitDay` in each day.
  */
 export function KitWeekGrid({ cells }: { cells: readonly (ReactNode | null)[] }) {
+  const { weekdayInitials } = useWords().words;
   const rows = Array.from({ length: Math.ceil(cells.length / 7) }, (_, row) =>
     cells.slice(row * 7, row * 7 + 7),
   );
@@ -43,6 +45,7 @@ export function KitWeekGrid({ cells }: { cells: readonly (ReactNode | null)[] })
 
 /** This week as seven markers (done or not) with weekday initials below; decorative, one part (`days`). */
 export function KitWeekStrip({ days, part = "days" }: { days: readonly boolean[]; part?: string }) {
+  const { weekdayInitials } = useWords().words;
   return (
     <XStack {...usePart(part)} aria-hidden accessibilityElementsHidden>
       {weekdayInitials.map((day, index) => (

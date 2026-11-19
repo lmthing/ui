@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import { YStack, styled } from "tamagui";
 import { component, emptyLine, size, space, type IconName } from "../../../catalog";
 import { KitIcon } from "../text";
@@ -38,6 +39,8 @@ export function KitEmpty({
   /** Draw the icon without an address (when the component declares no `icon` part). */
   decorativeIcon?: boolean;
 }) {
+  const { lang } = useWords();
+
   const { thing } = usePartContext();
   return (
     <YStack
@@ -58,7 +61,7 @@ export function KitEmpty({
       </Badge>
       <YStack gap={space.xs} alignItems="center">
         <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
-          {title ?? emptyLine(thing)}
+          {title ?? emptyLine(thing, lang)}
         </KitText>
         {sub && (
           <KitText role="body" tone="muted" align="center" part="sub">

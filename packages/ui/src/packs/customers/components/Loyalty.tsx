@@ -1,22 +1,5 @@
-import { z } from "zod";
 import {
-  detailOf,
-  goalLine,
-  itemsOf,
-  loyaltyLabels,
-  placeholderDetail,
-  placeholderTitle,
-  probesFor,
-  stampLine,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitContent,
@@ -25,6 +8,23 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
+import {
+  wordsFor,
+  detailOf,
+  goalLine,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  stampLine,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Streak/default cannot keep client reward stamps or redeem a completed business reward.
 export const meta = {
@@ -46,11 +46,13 @@ export const meta = {
     parts: { stamp: ["press"], redeem: ["press"] },
     when: { stamp: { stamp: true }, redeem: { redeem: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { loyaltyLabels } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const { stamps, of } = input as z.output<typeof props>;
     return [
-      stampLine(stamps, of),
+      stampLine(stamps, of, lang),
       ...(stamps === of ? [loyaltyLabels.earned, loyaltyLabels.redeem] : [loyaltyLabels.stamp]),
     ];
   },
@@ -64,14 +66,16 @@ export const props = z
   })
   .refine(({ stamps, of }) => stamps <= of, { path: ["stamps"] })
   .overwrite((value) => ({ ...value, stamp: value.stamps < value.of, redeem: value.stamps === value.of }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
   return {
     stamps: 0,
     of: 10,
     reward: (item && detailOf(item, 40, thing)) || placeholderDetail,
-    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0),
+    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang),
   };
 }
 export const examples = [
@@ -90,6 +94,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Loyalty({ stamps, of, reward, name }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { loyaltyLabels } = words;
   const success = useComponentState() === "success";
   const stamp = stamps < of,
     redeem = stamps === of;
@@ -109,7 +115,7 @@ export function Loyalty({ stamps, of, reward, name }: Props<typeof props, typeof
           <KitText role="number" part="stamps" tabular>
             {stamps}{" "}
             <KitText role="caption" tone="muted" part="of">
-              {goalLine(of)}
+              {goalLine(of, lang)}
             </KitText>
           </KitText>
         )}

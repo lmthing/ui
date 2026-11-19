@@ -9,7 +9,7 @@ import { KitText } from "../text";
  */
 export function KitTime({ value, part = "time" }: { value: string; part?: string }) {
   const ks = useKitStyle();
-  const weekday = !/\d/.test(value);
+  const weekday = !/\p{Nd}/u.test(value);
   return (
     <YStack width={component.base.timeWidth}>
       <KitText

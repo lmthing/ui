@@ -11,3 +11,5 @@ Use `index.ts` as the folder's door.
 - `Waitlist.ts`: queue labels, compact counts and exact accessible counts.
 - Tests live in `../tests/copy/<Id>.test.ts`.
 - Shared dates, duration and money formatting stay in `catalog/copy`.
+
+Put new words and grammar in `../lang/en.ts`; helpers here take the app `lang`.

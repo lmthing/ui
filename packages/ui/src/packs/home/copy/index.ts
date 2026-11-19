@@ -14,7 +14,7 @@ export {
 } from "./Agenda";
 export {
   babyClock,
-  babyCopy,
+  babyCopyFor,
   babyEmptyLog,
   babyEntryLine,
   babyLabels,

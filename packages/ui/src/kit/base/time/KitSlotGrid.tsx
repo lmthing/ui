@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import { YStack, XStack } from "tamagui";
 import { Clock } from "@tamagui/lucide-icons";
 import { component, emptyLine, radius, size, space } from "../../../catalog";
@@ -110,6 +111,8 @@ function SlotItem({
 
 /** Wrapping slots or end-time rows. Taken slots stay readable; loading retains geometry without targets. */
 export function KitSlotGrid({ part = "root", loading = false, times, at, style = "grid" }: SlotGridProps) {
+  const { lang } = useWords();
+
   const context = usePartContext();
   const address = usePart(part);
   const thing = useEmptyThing();
@@ -145,7 +148,7 @@ export function KitSlotGrid({ part = "root", loading = false, times, at, style =
         <YStack width="100%" alignItems="center" gap={space.md} padding={space.xl}>
           <Clock size={size.icon.lg} color="$muted" aria-hidden />
           <KitText tone="muted" align="center" part={null}>
-            {emptyLine(thing)}
+            {emptyLine(thing, lang)}
           </KitText>
         </YStack>
       )}

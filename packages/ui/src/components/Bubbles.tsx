@@ -1,15 +1,15 @@
-import { z } from "zod";
 import {
+  wordsFor,
   probesFor,
   detailOf,
-  placeholderDetail,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
+import { z } from "zod";
 import { KitBubble, KitCard, KitContent, KitEmpty, KitText, useComponentState } from "../kit";
 
 export const meta = {
@@ -34,7 +34,9 @@ export const props = z.strictObject({
   with: text(24).optional(),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = cast.items[0];
   const detail = item ? detailOf(item, 120, thingOf(cast, item.type)) : undefined;
   return { messages: [{ from: "them", text: detail ?? placeholderDetail }] };

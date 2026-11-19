@@ -1,7 +1,8 @@
+import { useWords, KitAction, KitCard, KitContent, KitText } from "../../../kit";
+import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import { probesFor, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
-import { queueAhead, queueCount, queueExact, queueLabels } from "../copy";
-import { KitAction, KitCard, KitContent, KitText } from "../../../kit";
+import { queueAhead, queueCount, queueExact } from "../copy";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
 export const meta = {
@@ -21,15 +22,17 @@ export const meta = {
     parts: { join: ["press"], leave: ["press"] },
     when: { join: { joined: false }, leave: { joined: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { queueLabels } = bookingWordsFor(lang);
+
     if (state !== "filled") return [];
     const { joined, position, ahead } = props.parse(input);
     return [
       joined ? queueLabels.joined : queueLabels.waiting,
-      ...(joined && position !== undefined ? [queueCount(position), queueLabels.position] : []),
-      queueAhead(ahead),
+      ...(joined && position !== undefined ? [queueCount(position, lang), queueLabels.position] : []),
+      queueAhead(ahead, lang),
       ...(ahead > 999 || (joined && position !== undefined && position > 999)
-        ? [queueExact(ahead, joined ? position : undefined)]
+        ? [queueExact(ahead, joined ? position : undefined, lang)]
         : []),
       joined ? queueLabels.leave : queueLabels.join,
     ];
@@ -60,8 +63,10 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(bookingWordsFor);
+  const { queueLabels } = words;
   return (
-    <KitCard style="inset" padded part="root" label={queueExact(ahead, joined ? position : undefined)}>
+    <KitCard style="inset" padded part="root" label={queueExact(ahead, joined ? position : undefined, lang)}>
       <KitContent lineRole="heading">
         <KitText role="label" part="title">
           {joined ? queueLabels.joined : queueLabels.waiting}
@@ -69,7 +74,7 @@ export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof
         {joined && position !== undefined && (
           <>
             <KitText role="number" tabular part="position">
-              {queueCount(position)}
+              {queueCount(position, lang)}
             </KitText>
             <KitText role="body" tone="muted" part="label">
               {queueLabels.position}
@@ -77,7 +82,7 @@ export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof
           </>
         )}
         <KitText role="body" tone="muted" part="ahead">
-          {queueAhead(ahead)}
+          {queueAhead(ahead, lang)}
         </KitText>
       </KitContent>
       <KitAction

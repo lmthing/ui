@@ -1,53 +1,40 @@
-// Shared user-facing words. Views never contain literal text.
+import { numberLine } from "../format";
+import { localeOf, wordsFor } from "../lang";
 
-function plural(word: string): string {
-  if (/(s|x|z|ch|sh)$/.test(word)) return `${word}es`;
-  if (/[^aeiou]y$/.test(word)) return `${word.slice(0, -1)}ies`;
-  return `${word}s`;
+function thingPlural(thingType: string | undefined, lang?: string): string {
+  const word = thingType?.replace(/[_-]+/g, " ").trim().toLocaleLowerCase(localeOf(lang));
+  return word ? wordsFor(lang).pluralThing(word) : "";
 }
 
-/** Empty-state line: "No plants yet" for a known thing type, else "Nothing here yet". */
-export function emptyLine(thingType?: string): string {
-  const word = thingType?.replace(/[_-]+/g, " ").trim().toLowerCase();
-  return word ? `No ${plural(word)} yet` : "Nothing here yet";
+/** Empty-state line for known things, or the language's neutral line. */
+export function emptyLine(thingType?: string, lang?: string): string {
+  const words = wordsFor(lang);
+  const things = thingPlural(thingType, lang);
+  return things ? words.empty(things) : words.nothing;
 }
 
-/** Accessibility label for a component drawn in its loading state. */
-export const loadingLabel = "Loading";
-
-/** Photo actions: add one to a field, take one, scan a code. */
-export const photoLabels = { add: "Add photo", take: "Take photo", scan: "Scan" } as const;
-
-/** A growing text box shows how much is left: "42 / 600". */
-export function charLine(used: number, max: number): string {
-  return `${used} / ${max}`;
+export function searchLine(thingType?: string, lang?: string): string {
+  return wordsFor(lang).search(thingPlural(thingType, lang));
 }
 
-/** The send button of a reply. */
-export const sendLabel = "Send";
+export const {
+  loadingLabel,
+  photoLabels,
+  sendLabel,
+  closeLabel,
+  confirmNote,
+  confirmLabel,
+  cancelLabel,
+  mediaUnavailable,
+  swipeLabels,
+  allLabel,
+  historyDetailLine,
+  loyaltyLabels,
+} = wordsFor();
 
-/** The button that closes a sheet or a toast. */
-export const closeLabel = "Close";
-
-/** The note a read gives a button that asks before it acts. */
-export const confirmNote = "asks first";
-export const confirmLabel = "Confirm";
-export const cancelLabel = "Cancel";
-export const mediaUnavailable = "Recording unavailable";
-
-export const swipeLabels = { left: "Skip", right: "Keep" } as const;
-
-export const allLabel = "All";
+export function charLine(used: number, max: number, lang?: string): string {
+  return wordsFor(lang).charCount(numberLine(used, lang), numberLine(max, lang));
+}
 
 /** Keep a short final word with the word before it, without changing the copy. */
 export const balancedLine = (text: string): string => text.replace(/ (\S+)$/, "\u00a0$1");
-
-/** A record's event kind and calendar date, kept together below its title. */
-export const historyDetailLine = (kind: string, date: string): string => `${kind} · ${date}`;
-
-/** Device-local reward-card actions and the earned reward status. */
-export const loyaltyLabels = {
-  stamp: "Add stamp",
-  redeem: "Redeem reward",
-  earned: "Reward earned",
-} as const;

@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -42,10 +42,10 @@ export const props = z
     message: "The entered amount must not exceed max",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = itemsOf(cast, 1)[0];
-  return { label: (item && titleOf(item, 24, thing)) || placeholderTitle(0), note: false };
+  return { label: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang), note: false };
 }
 
 export const examples = [

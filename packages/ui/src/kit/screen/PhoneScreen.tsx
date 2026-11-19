@@ -27,6 +27,7 @@ export type PhoneScreenProps = {
   renderers: RendererMap;
   screen: ScreenLike;
   theme: ThemeChoice;
+  lang?: string | undefined;
   parts?: PartRegistry | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
@@ -63,6 +64,7 @@ export function PhoneScreen(props: PhoneScreenProps) {
   return (
     <KitProvider
       theme={props.theme}
+      lang={props.lang}
       {...(props.parts ? { parts: props.parts } : {})}
       {...(props.resolvePhoto ? { resolvePhoto: props.resolvePhoto } : {})}
       controller={controller}

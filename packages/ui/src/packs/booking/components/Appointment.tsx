@@ -1,24 +1,5 @@
-import { z } from "zod";
 import {
-  appointmentDate,
-  balancedLine,
-  cancelLabel,
-  clock,
-  isoDate,
-  loadingLabel,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { appointmentDetails, appointmentLabels, appointmentReading } from "../copy";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitContent,
@@ -28,6 +9,26 @@ import {
   KitTrail,
   useComponentState,
 } from "../../../kit";
+import { bookingWordsFor } from "../lang";
+import { z } from "zod";
+import {
+  appointmentDate,
+  balancedLine,
+  clock,
+  isoDate,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  timeOfDayLine,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { appointmentDetails, appointmentReading } from "../copy";
 // Core first: Card/plain previews a record, not structured booking terms and reschedule/cancel.
 export const meta = {
   id: "Appointment",
@@ -61,7 +62,7 @@ export const meta = {
     parts: { root: ["press"], reschedule: ["press"], cancel: ["press"], edit: ["press"] },
     when: { reschedule: { style: "card" }, cancel: { style: "card" }, edit: { style: "summary" } },
   },
-  read: (input) => appointmentReading(input as z.output<typeof props>),
+  read: (input, _state, lang?: string) => appointmentReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -84,10 +85,10 @@ export const props = z
     policy: value.policy ? balancedLine(value.policy) : undefined,
     cancel: {},
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = cast.items[0];
   return {
-    service: (item && titleOf(item, 28, thingOf(cast, item.type))) || placeholderTitle(0),
+    service: (item && titleOf(item, 28, thingOf(cast, item.type))) || placeholderTitle(0, lang),
     date: "2026-11-18",
     time: "09:00",
     minutes: 30,
@@ -150,20 +151,23 @@ function AppointmentLine({ value, part, loading }: { value: string; part: string
   );
 }
 export function Appointment(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { appointmentLabels } = bookingWordsFor(lang);
   const state = useComponentState();
   const loading = state === "loading";
+  const active = state === "filled";
   const card = input.style === "card";
-  const date = appointmentDate(input.date);
+  const date = appointmentDate(input.date, lang);
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const change = card ? "reschedule" : "edit";
   return (
-    <KitCard padded part="root" goto={state === "filled" ? input.goto : undefined} label={input.service}>
+    <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service}>
       <AppointmentLine value={date} part="date" loading={loading} />
       <KitGrid>
-        <AppointmentLine value={input.time} part="time" loading={loading} />
+        <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" loading={loading} />
         {card && (
           <KitContent
-            lead={<KitTrail kind="badge" part="status" value={loading ? loadingLabel : badge} />}
+            lead={<KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />}
             leadingAlign="row"
           >
             {null}
@@ -173,7 +177,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
       <KitContent>
         <AppointmentLine value={input.service} part="service" loading={loading} />
         <KitGrid>
-          {appointmentDetails(input)
+          {appointmentDetails(input, lang)
             .filter(({ part }) => part !== "policy")
             .flatMap(({ part, text }, index) => [
               ...(part === "price" && index % 2 === 0
@@ -184,16 +188,8 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
         </KitGrid>
         {input.policy && <AppointmentLine value={input.policy} part="policy" loading={loading} />}
       </KitContent>
-      <KitAction
-        label={appointmentLabels[change]}
-        part={change}
-        goto={input.goto}
-        disabled={state !== "filled"}
-        full
-      />
-      {card && (
-        <KitAction label={cancelLabel} kind="quiet" part="cancel" disabled={state !== "filled"} full />
-      )}
+      <KitAction label={appointmentLabels[change]} part={change} goto={input.goto} disabled={!active} full />
+      {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}
     </KitCard>
   );
 }

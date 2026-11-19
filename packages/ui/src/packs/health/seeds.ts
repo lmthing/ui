@@ -1,12 +1,12 @@
 import { itemsOf, placeholderTitle, thingOf, titleOf, type CastLike, type ActionName } from "../../catalog";
 
-export function seedTitles(cast: CastLike, count: number, max: number): string[] {
+export function seedTitles(cast: CastLike, count: number, max: number, lang?: string): string[] {
   const thing = thingOf(cast);
   const titles = itemsOf(cast, count).flatMap((item) => {
     const title = titleOf(item, max, thing);
     return title ? [title] : [];
   });
-  return titles.length ? titles : Array.from({ length: count }, (_, index) => placeholderTitle(index));
+  return titles.length ? titles : Array.from({ length: count }, (_, index) => placeholderTitle(index, lang));
 }
 
 export function indexedParts(count: number, names: readonly string[]): string[] {

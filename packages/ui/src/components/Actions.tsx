@@ -7,7 +7,7 @@ import {
   screenId,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -35,7 +35,7 @@ export const props = z.strictObject({
     .max(4),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     items: [0, 1].map((index) => {
       const thing = thingOf({ ...cast, things: cast.things.slice(index) });
@@ -43,11 +43,12 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
       const readable = type?.replace(/[_-]+/g, " ").trim();
       const label = readable
         ? clip(readable.charAt(0).toUpperCase() + readable.slice(1), 16)
-        : placeholderTitle(index);
+        : placeholderTitle(index, lang);
       return {
         icon: icon.safeParse(type).data ?? "dot",
         label,
-        goto: screenId.safeParse(type).data ?? placeholderTitle(index).toLowerCase().replace(/\s+/g, "_"),
+        goto:
+          screenId.safeParse(type).data ?? placeholderTitle(index, lang).toLowerCase().replace(/\s+/g, "_"),
       };
     }),
   };

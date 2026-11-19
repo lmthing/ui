@@ -19,11 +19,13 @@ export type PackProbe = {
 };
 export type Probe = ChooseProbe | WriteProbe | ReadProbe;
 
+export type FallbackInput = { cast: CastLike; lang?: string | undefined };
+
 /** What every component file exports, minus its view. */
 export type Definition = {
   meta: Meta;
   props: z.ZodObject;
-  fallback: (input: { cast: CastLike }) => unknown;
+  fallback: (input: FallbackInput) => unknown;
   examples: readonly unknown[];
   probes: readonly Probe[];
 };

@@ -787,6 +787,7 @@ The current screenshot checker covers rendered contrast, not that complete runti
 
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
 They compose bases; user-facing text comes from props, cast or shared copy helpers.
+Built-in words come from per-language core and pack dictionaries, using the app's BCP-47 `lang` for copy and `Intl` formatting.
 
 - `part` stamps an address and `testID`; `item` supplies item context. Bases supply roles, labels and
   control state. `usePart` measures on layout and unregisters on unmount.

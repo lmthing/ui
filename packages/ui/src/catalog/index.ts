@@ -3,6 +3,7 @@ export * from "./types";
 export * from "./props";
 export * from "./icons";
 export * from "./copy";
+export * from "./lang";
 export * from "./cast";
 export * from "./address";
 export * from "./tokens";

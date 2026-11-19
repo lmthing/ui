@@ -1,32 +1,10 @@
-import type { repeatOptions } from "../../../catalog";
+import { dateLocaleOf, numberLine, pluralForm, type repeatOptions } from "../../../catalog";
+import { homeWordsFor } from "../lang";
 
 type CareRepeat = (typeof repeatOptions)[number];
 type CareSeed = { last: string; repeat: CareRepeat; every: number };
 
-export const careLabels = {
-  last: "Last",
-  next: "Next",
-  today: "Due today",
-  overdue: "Late",
-  noNext: "No next date",
-  done: "Log done",
-  success: "Care logged",
-} as const;
-
-const repeatUnits = {
-  daily: "day",
-  weekdays: "weekday",
-  weekly: "week",
-  monthly: "month",
-  yearly: "year",
-} as const;
-const dates = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "2-digit",
-  timeZone: "UTC",
-});
-const dateLine = (date: string) => dates.format(new Date(`${date}T00:00:00Z`)).replace(/ /g, "\u00a0");
+export const { careLabels } = homeWordsFor();
 
 export function careToday(now = new Date()): string {
   return [
@@ -58,18 +36,27 @@ export function nextCareDate({ last, repeat, every }: CareSeed): string | undefi
   return date.getUTCFullYear() <= 9999 ? date.toISOString().slice(0, 10) : undefined;
 }
 
-export function careLines(seed: CareSeed, today = careToday()) {
+export function careLines(seed: CareSeed, today = careToday(), lang?: string) {
+  const words = homeWordsFor(lang);
+  const labels = words.careLabels;
+  const dates = new Intl.DateTimeFormat(dateLocaleOf(lang), {
+    day: "numeric",
+    month: "short",
+    year: "2-digit",
+    timeZone: "UTC",
+  });
+  const format = (label: string, date: string) =>
+    words.careDate(label, dates.format(new Date(`${date}T00:00:00Z`)));
   const next = nextCareDate(seed);
-  const unit = seed.repeat === "never" ? undefined : repeatUnits[seed.repeat];
   const overdue = next !== undefined && next < today;
   return {
-    repeat: unit ? `Every ${seed.every === 1 ? unit : `${seed.every} ${unit}s`}` : "Does not repeat",
-    last: `${careLabels.last} ${dateLine(seed.last)}`,
+    repeat: words.careRepeat(seed.repeat, numberLine(seed.every, lang), pluralForm(seed.every, lang)),
+    last: format(labels.last, seed.last),
     next: !next
-      ? careLabels.noNext
+      ? labels.noNext
       : next === today
-        ? careLabels.today
-        : `${overdue ? careLabels.overdue : careLabels.next} ${dateLine(next)}`,
+        ? labels.today
+        : format(overdue ? labels.overdue : labels.next, next),
     tone: overdue ? "bad" : next === today ? "accent" : "muted",
   } as const;
 }
@@ -80,10 +67,10 @@ export function careTaskLabel(task: NamedTask): string {
   return task.for ? `${task.title} · ${task.for}` : task.title;
 }
 
-export function careReading(tasks: readonly (CareSeed & NamedTask)[]): string[] {
+export function careReading(tasks: readonly (CareSeed & NamedTask)[], lang?: string): string[] {
   const today = careToday();
   return tasks.map((task) => {
-    const { repeat, last, next } = careLines(task, today);
-    return [careTaskLabel(task), repeat, last, next, careLabels.done].join(" · ");
+    const { repeat, last, next } = careLines(task, today, lang);
+    return [careTaskLabel(task), repeat, last, next, homeWordsFor(lang).careLabels.done].join(" · ");
   });
 }

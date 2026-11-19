@@ -1,15 +1,5 @@
-import { z } from "zod";
 import {
-  placeholderValue,
-  probesFor,
-  screenId,
-  text,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitChip,
@@ -23,10 +13,21 @@ import {
   useControlValue,
   usePartContext,
 } from "../../../kit";
+import { healthWordsFor } from "../lang";
+import { z } from "zod";
+import {
+  placeholderValue,
+  probesFor,
+  screenId,
+  text,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 import { seedTitles } from "..";
 import {
   measurementCopy,
-  measurementLabels,
   measurementPoints,
   measurementRange,
   measurementRanges,
@@ -48,9 +49,9 @@ export const meta = {
   parts: ["root", "label", "latest", "change", "goal", "plot", "range", "add"],
   states: ["filled", "empty", "loading"],
   actions: { parts: { range: ["select"], add: ["press"] } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     const { points, unit, goal } = input as z.output<typeof props>;
-    return state !== "filled" ? [] : measurementReading(points, unit, goal);
+    return state !== "filled" ? [] : measurementReading(points, unit, goal, lang);
   },
 } as const satisfies Meta;
 export const props = z
@@ -137,11 +138,13 @@ function MeasurementSummary({ label, copy }: { label: string; copy: ReturnType<t
 }
 
 export function Measurements({ label, unit, points, goal, range, goto }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(healthWordsFor);
+  const { measurementLabels } = words;
   const state = useComponentState();
   const context = usePartContext();
   const value = useControlValue<unknown>(`${context.screen}/${context.component}/range`, range);
-  const selected = measurementRange(value, range);
-  const copy = measurementCopy(points, unit, goal);
+  const selected = measurementRange(value, range, lang);
+  const copy = measurementCopy(points, unit, goal, lang);
   if (state === "empty")
     return (
       <KitCard style="inset" padded part="root">
@@ -155,7 +158,7 @@ export function Measurements({ label, unit, points, goal, range, goto }: Props<t
         part="plot"
         style="compact"
         loading={state === "loading"}
-        series={[{ id: "measurement", label, points: measurementPoints(points, selected) }]}
+        series={[{ id: "measurement", label, points: measurementPoints(points, selected, lang) }]}
         {...(goal === undefined ? {} : { goal: { value: goal, label: copy.goal! } })}
       />
       {state === "loading" ? (

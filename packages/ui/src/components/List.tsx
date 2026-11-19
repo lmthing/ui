@@ -12,7 +12,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -91,7 +91,7 @@ export const props = z
     };
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const rows = itemsOf(cast, 3).flatMap((item) => {
     const title = titleOf(item, 28, thing);
@@ -100,7 +100,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   });
   return {
     style: "inset",
-    rows: rows.length ? rows : [0, 1, 2].map((index) => ({ title: placeholderTitle(index) })),
+    rows: rows.length ? rows : [0, 1, 2].map((index) => ({ title: placeholderTitle(index, lang) })),
   };
 }
 

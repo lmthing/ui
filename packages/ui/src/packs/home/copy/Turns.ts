@@ -1,1 +1,2 @@
-export const turnLabels = { next: "Done, next", skip: "Skip" } as const;
+import { homeWordsFor } from "../lang";
+export const { turnLabels } = homeWordsFor();

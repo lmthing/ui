@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { probesFor, stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
-import { KitBlock, KitContent, KitStepsTrack, KitText } from "../kit";
+import { KitBlock, KitContent, KitStepsTrack, KitText, useWords } from "../kit";
 
 export const meta = {
   id: "Steps",
@@ -13,10 +13,10 @@ export const meta = {
   realPath: "The current position in a flow stored in the on-device app.",
   parts: ["root", "track", "label"],
   states: ["filled"],
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { at, count } = props.parse(input);
-    return [stepLine(at, count)];
+    return [stepLine(at, count, lang)];
   },
 } as const satisfies Meta;
 
@@ -52,7 +52,9 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {
-  const position = stepLine(at, count);
+  const { lang } = useWords();
+
+  const position = stepLine(at, count, lang);
   return (
     <KitBlock label={label ? `${position} · ${label}` : position}>
       <KitContent>

@@ -1,3 +1,14 @@
+import {
+  useWords,
+  KitAvatarStack,
+  KitCard,
+  KitEmpty,
+  KitIcon,
+  KitPhoto,
+  KitRow,
+  KitText,
+  useComponentState,
+} from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -10,21 +21,11 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitAvatarStack,
-  KitCard,
-  KitEmpty,
-  KitIcon,
-  KitPhoto,
-  KitRow,
-  KitText,
-  useComponentState,
-} from "../kit";
 
 export const meta = {
   id: "People",
@@ -39,9 +40,9 @@ export const meta = {
   parts: ["root", "more"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
-  read: (input) => {
+  read: (input, _state, lang?: string) => {
     const { more } = input as { more?: number };
-    return more ? [moreLine(more)] : [];
+    return more ? [moreLine(more, lang)] : [];
   },
 } as const satisfies Meta;
 
@@ -74,7 +75,7 @@ export const props = z
       : value,
   );
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const members = itemsOf(cast, 3).flatMap((item) => {
     const name = titleOf(item, 24, thing);
@@ -82,7 +83,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     return name ? [{ name, ...(role ? { role } : {}) }] : [];
   });
   return {
-    members: members.length ? members : [0, 1, 2].map((index) => ({ name: placeholderTitle(index) })),
+    members: members.length ? members : [0, 1, 2].map((index) => ({ name: placeholderTitle(index, lang) })),
   };
 }
 
@@ -113,6 +114,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function People({ style, members, more }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "empty") {
     return (
@@ -129,7 +131,7 @@ export function People({ style, members, more }: Props<typeof props, typeof meta
         >
           {more && (
             <KitText role="label" tone="muted" part="more">
-              {moreLine(more)}
+              {moreLine(more, lang)}
             </KitText>
           )}
         </KitAvatarStack>

@@ -1,8 +1,8 @@
+import { useWords, useKit } from "../provider";
 import { useCallback, useEffect } from "react";
 import { YStack } from "tamagui";
-import { cancelLabel, confirmLabel, checkScreen, type Issue } from "../../catalog";
+import { checkScreen, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
-import { useKit } from "../provider";
 import { PartScope } from "../part";
 import type { ScreenController } from "../interact";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
@@ -14,6 +14,7 @@ type ScreenProps = {
   onReport?: ((issues: Issue[]) => void) | undefined;
 };
 export function Screen({ controller, renderers, onReport }: ScreenProps) {
+  const { cancelLabel, confirmLabel } = useWords().words;
   const components = controller.defs;
   const { environment } = useKit();
   const screen = controller.snapshotScreen();

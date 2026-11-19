@@ -24,6 +24,7 @@ export type Confirmation = {
 export type ControllerOptions = {
   screen: ScreenLike;
   defs: Record<string, Definition>;
+  lang?: string | undefined;
   media?: MediaAdapter | undefined;
   store?: InteractionStore | undefined;
   now?: (() => number) | undefined;

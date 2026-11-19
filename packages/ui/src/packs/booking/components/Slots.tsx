@@ -1,3 +1,14 @@
+import {
+  useWords,
+  KitCard,
+  KitEmpty,
+  KitSkeleton,
+  KitSlotGrid,
+  KitText,
+  useComponentState,
+  useEmptyThing,
+} from "../../../kit";
+import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import {
   clock,
@@ -10,21 +21,12 @@ import {
   probesFor,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { slotDetailLine, slotLabels, slotLoadingLine } from "../copy";
-import {
-  KitCard,
-  KitEmpty,
-  KitSkeleton,
-  KitSlotGrid,
-  KitText,
-  useComponentState,
-  useEmptyThing,
-} from "../../../kit";
+import { slotDetailLine, slotLoadingLine } from "../copy";
 
 // Core first: Calendar/week selects dates, not free and taken times within a day.
 export const meta = {
@@ -47,14 +49,16 @@ export const meta = {
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
   select: { prop: "at", value: { field: "time" } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { slotLabels } = bookingWordsFor(lang);
+
     if (state !== "filled") return [];
     const { times, minutes, style } = input as z.output<typeof props>;
     return [
-      durationLine(minutes),
+      durationLine(minutes, lang),
       ...times.flatMap(({ time, taken }) => [
         `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
-        slotDetailLine(time, minutes, style, taken),
+        slotDetailLine(time, minutes, style, taken, lang),
       ]),
     ];
   },
@@ -74,7 +78,7 @@ export const props = z
     path: ["times"],
     message: "Each start time must be unique",
   });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const times = itemsOf(cast, 24).flatMap((item) => {
     const value = [titleOf(item, 32, thing), detailOf(item, 36, thing)].find(
@@ -85,7 +89,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return {
     times: times.length
       ? times.filter((slot, index) => times.findIndex(({ time }) => time === slot.time) === index)
-      : [{ time: clockLine(Number(placeholderValue)).padStart(5, placeholderValue), taken: false }],
+      : [{ time: clockLine(Number(placeholderValue), lang).padStart(5, placeholderValue), taken: false }],
     minutes: 30,
   };
 }
@@ -134,16 +138,18 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Slots({ times, at, minutes, style }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(bookingWordsFor);
+  const { slotLabels } = words;
   const state = useComponentState();
   const thing = useEmptyThing();
-  const duration = durationLine(minutes);
+  const duration = durationLine(minutes, lang);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
         <KitEmpty
           icon="clock"
           title={slotLabels.empty}
-          sub={emptyLine(thing)}
+          sub={emptyLine(thing, lang)}
           part="minutes"
           decorativeIcon
         />
@@ -151,7 +157,7 @@ export function Slots({ times, at, minutes, style }: Props<typeof props, typeof 
     );
   }
   const slots = times.map(({ id, time, taken }) => {
-    const sub = slotDetailLine(time, minutes, style, taken);
+    const sub = slotDetailLine(time, minutes, style, taken, lang);
     return {
       id,
       taken,

@@ -1,15 +1,15 @@
 import { kitchenItemLine } from "../../../catalog";
 
-export const groceryLabels = {
-  newItem: "Type a new grocery item",
-  allGot: "Everything is in the bag",
-} as const;
+import { kitchenWordsFor } from "../lang";
+
+export const { groceryLabels } = kitchenWordsFor();
 
 type GroceryItem = { name: string; qty?: string | undefined; by?: string | undefined; got: boolean };
 type GroceryInput = { aisles: { label: string; items: GroceryItem[] }[] };
 
 /** Grouped text retains wire-order row addresses even when bought rows move on screen. */
-export function groceryRead({ aisles }: GroceryInput): string[] {
+export function groceryRead({ aisles }: GroceryInput, lang?: string): string[] {
+  const { groceryLabels } = kitchenWordsFor(lang);
   let index = 0;
   return [
     JSON.stringify(groceryLabels.newItem),

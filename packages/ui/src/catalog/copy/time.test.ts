@@ -12,7 +12,12 @@ import {
 } from "./time";
 
 it("formats stored durations at the booking bounds", () => {
-  expect([5, 30, 60, 600].map(durationLine)).toEqual(["5 min", "30 min", "60 min", "600 min"]);
+  expect([5, 30, 60, 600].map((minutes) => durationLine(minutes))).toEqual([
+    "5 min",
+    "30 min",
+    "60 min",
+    "600 min",
+  ]);
 });
 
 it("names every weekday and keeps working-week copy neutral", () => {

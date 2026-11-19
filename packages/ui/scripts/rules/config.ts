@@ -11,6 +11,8 @@ export const ruleNames = [
   "folder-imports",
   "hex-colours",
   "numeric-zIndex",
+  "language-locale",
+  "language-copy",
 ] as const;
 export type RuleName = (typeof ruleNames)[number];
 export type Violation = { rule: RuleName; file: string; line: number; detail: string };

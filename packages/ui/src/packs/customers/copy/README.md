@@ -9,3 +9,5 @@ Use `index.ts` as the folder's door.
 - `Review.ts`: review labels, counts, stars and reading.
 - Tests live in `../tests/copy/<Id>.test.ts`.
 - Shared currencies and money formatting stay in `catalog/copy`.
+
+Put new words and grammar in `../lang/en.ts`; helpers here take the app `lang`.

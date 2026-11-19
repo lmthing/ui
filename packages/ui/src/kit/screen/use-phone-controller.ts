@@ -16,6 +16,8 @@ export function usePhoneController(props: PhoneScreenProps) {
     onSend,
     requestPhoto,
   } = props;
+  const language = useRef(props.lang);
+  language.current = props.lang;
   const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
   callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
@@ -26,6 +28,9 @@ export function usePhoneController(props: PhoneScreenProps) {
       createScreenController({
         screen,
         defs,
+        get lang() {
+          return language.current;
+        },
         store,
         interactive,
         requireMounted: true,

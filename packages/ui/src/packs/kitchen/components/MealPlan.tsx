@@ -9,13 +9,23 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitCard, KitEmpty, KitPhoto, KitRow, KitText, KitWeekMatrix, useComponentState } from "../../../kit";
-import { mealPlanDays, mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
+import {
+  KitCard,
+  KitEmpty,
+  KitPhoto,
+  KitRow,
+  KitText,
+  KitWeekMatrix,
+  useComponentState,
+  useWords,
+} from "../../../kit";
+import { mealPlanDaysFor, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
+import { kitchenWordsFor } from "../lang";
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
   id: "MealPlan",
@@ -38,10 +48,10 @@ export const meta = {
     items: { root: ["press"], add: ["press"] },
     when: { root: { filled: true }, add: { filled: false } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const value = input as { week: string; rows: Cell[] };
-    return mealPlanReading(value.week, value.rows);
+    return mealPlanReading(value.week, value.rows, lang);
   },
 } as const satisfies Meta;
 const meal = z.enum(["breakfast", "lunch", "dinner", "snack"]).meta({ kind: "text" });
@@ -79,33 +89,28 @@ export const props = z
       }),
     ).flat(),
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3);
   const cells = (items.length ? items : [undefined, undefined, undefined]).map((item, day) => ({
     day,
     meal: "dinner" as const,
-    title: (item && titleOf(item, 24, thing)) ?? placeholderTitle(day),
+    title: (item && titleOf(item, 24, thing)) ?? placeholderTitle(day, lang),
     goto: "details",
   }));
   return { week: "2026-11-16", meals: ["dinner"], cells };
 }
+// prettier-ignore
 export const examples = [
   // Ledge: the plant keeper's household supper.
-  {
-    week: "2026-11-16",
-    meals: ["lunch", "dinner"],
-    cells: [{ day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" }],
-  },
+  { week: "2026-11-16", meals: ["lunch", "dinner"], cells: [
+    { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" },
+  ] },
   // Trot: breakfast before the walking round.
-  {
-    week: "2026-11-23",
-    meals: ["breakfast", "snack"],
-    cells: [
-      { day: 0, meal: "breakfast", title: "Apple porridge", goto: "recipe_overview" },
-      { day: 1, meal: "snack", title: "Yogurt and berries", goto: "recipe_overview" },
-    ],
-  },
+  { week: "2026-11-23", meals: ["breakfast", "snack"], cells: [
+    { day: 0, meal: "breakfast", title: "Apple porridge", goto: "recipe_overview" },
+    { day: 1, meal: "snack", title: "Yogurt and berries", goto: "recipe_overview" },
+  ] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("MealPlan");
 export const probes = [
@@ -124,13 +129,10 @@ type Cell = { id: string } & (
   | { day: number; meal: z.output<typeof meal>; filled: false; goto?: undefined }
 );
 function MatrixLabel({ label }: { label: string }) {
-  return (
-    <KitText role="caption" tone="muted" part={null}>
-      {label}
-    </KitText>
-  );
+  return <KitText role="caption" tone="muted" part={null} children={label} />;
 }
 function MealCell({ cell, compact, stackPhoto }: { cell: Cell; compact?: boolean; stackPhoto: boolean }) {
+  const { lang, words } = useWords(kitchenWordsFor);
   const photo = cell.filled && cell.photo && (
     <KitPhoto photo={cell.photo} shape={stackPhoto ? "wide" : "thumb"} part="photo" label={cell.title} />
   );
@@ -140,7 +142,7 @@ function MealCell({ cell, compact, stackPhoto }: { cell: Cell; compact?: boolean
       {cell.title}
     </KitText>
   );
-  const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell])[0]! };
+  const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell], lang)[0]! };
   return (
     <KitRow {...target} inline leading={leading} leadingAlign="row">
       {stackPhoto && photo}
@@ -153,10 +155,8 @@ function MealCell({ cell, compact, stackPhoto }: { cell: Cell; compact?: boolean
           title
         ))}
       {!cell.filled && (
-        <KitRow part="add" role="button" label={mealPlanLabels.add} inline>
-          <KitText part="title" role="caption" tone="accent">
-            {mealPlanLabels.add}
-          </KitText>
+        <KitRow part="add" role="button" label={words.mealPlanLabels.add} inline>
+          <KitText part="title" role="caption" tone="accent" children={words.mealPlanLabels.add} />
         </KitRow>
       )}
     </KitRow>
@@ -164,18 +164,19 @@ function MealCell({ cell, compact, stackPhoto }: { cell: Cell; compact?: boolean
 }
 export function MealPlan(input: Props<typeof props, typeof meta>) {
   const { week, meals, rows } = input as typeof input & { rows: Cell[] };
+  const { lang, words } = useWords(kitchenWordsFor);
   if (useComponentState() === "empty")
     return (
       <KitCard part="root">
         <KitEmpty part="meals" decorativeIcon />
       </KitCard>
     );
-  const days = mealPlanDays.map((day) => ({ ...day, header: <MatrixLabel label={day.short} /> }));
+  const days = mealPlanDaysFor(lang).map((day) => ({ ...day, header: <MatrixLabel label={day.short} /> }));
   const stackPhoto = meals.length > 2;
   const columns = meals.map((meal) => ({
     id: meal,
-    label: mealPlanLabels[meal],
-    heading: <MatrixLabel label={mealPlanLabels[meal]} />,
+    label: words.mealPlanLabels[meal],
+    heading: <MatrixLabel label={words.mealPlanLabels[meal]} />,
     cells: days.map((day, index) => {
       const cell = rows.find((cell) => cell.day === index && cell.meal === meal)!;
       return {
@@ -185,13 +186,12 @@ export function MealPlan(input: Props<typeof props, typeof meta>) {
       };
     }),
   }));
+  const heading = mealPlanWeek(week, lang);
   const matrix = { days, rows: columns, today: mealPlanToday(week) };
   return (
     <KitCard part="root">
-      <KitRow part="week" label={mealPlanWeek(week)}>
-        <KitText role="heading" part={null}>
-          {mealPlanWeek(week)}
-        </KitText>
+      <KitRow part="week" label={heading}>
+        <KitText role="heading" part={null} children={heading} />
       </KitRow>
       <KitWeekMatrix part="meals" orientation="daysDown" corner={null} fitColumns {...matrix} />
     </KitCard>

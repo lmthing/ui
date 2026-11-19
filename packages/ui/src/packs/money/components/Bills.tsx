@@ -8,7 +8,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -50,10 +50,10 @@ export const props = z.strictObject({
   style: z.enum(["due", "subscriptions"]).default("due"),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const bills = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) || placeholderTitle(index),
+    name: titleOf(item, 24, thing) || placeholderTitle(index, lang),
     amount: 0,
     repeat: "never" as const,
     paid: false,
@@ -64,7 +64,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
       ? bills
       : [
           {
-            name: placeholderTitle(0),
+            name: placeholderTitle(0, lang),
             amount: 0,
             repeat: "never",
             paid: false,

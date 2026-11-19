@@ -1,18 +1,19 @@
-import { z } from "zod";
+import { useWords, KitCard, KitScaleTrack, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
   goalLine,
+  numberLine,
   itemsOf,
-  placeholderDetail,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitScaleTrack, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Scale",
@@ -40,9 +41,9 @@ export const meta = {
       l5: { readonly: false },
     },
   },
-  read: (input: unknown) => {
+  read: (input: unknown, _state, lang?: string) => {
     const { value, meta: note } = props.parse(input);
-    return [`${value} ${goalLine(5)}`, ...(note ? [JSON.stringify(note)] : [])];
+    return [`${numberLine(value, lang)} ${goalLine(5, lang)}`, ...(note ? [JSON.stringify(note)] : [])];
   },
 } as const satisfies Meta;
 
@@ -67,7 +68,9 @@ export const props = z
     message: "Meta is only for a shown rating",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const thing = thingOf(cast);
   const item = itemsOf(cast, 1)[0];
   const styles = ["stars", "dots", "mood"] as const;
@@ -98,7 +101,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Scale({ style, label, value, readonly, meta: note }: Props<typeof props, typeof meta>) {
-  const labels = [1, 2, 3, 4, 5].map((level) => `${level} ${goalLine(5)}`) as [
+  const { lang } = useWords();
+  const labels = [1, 2, 3, 4, 5].map((level) => `${numberLine(level, lang)} ${goalLine(5, lang)}`) as [
     string,
     string,
     string,

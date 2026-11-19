@@ -1,21 +1,5 @@
-import { z } from "zod";
 import {
-  changeLine,
-  historyDetailLine,
-  isoDate,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitCard,
   KitEmpty,
   KitIcon,
@@ -25,6 +9,23 @@ import {
   KitTrail,
   useComponentState,
 } from "../../../kit";
+import {
+  wordsFor,
+  changeLine,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Timeline/history cannot distinguish client visits, orders, payments and notes with numeric amounts.
 export const meta = {
@@ -42,13 +43,15 @@ export const meta = {
   parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state) =>
-    state !== "filled"
+  read: (input, state, lang?: string) => {
+    const { historyDetailLine } = wordsFor(lang);
+    return state !== "filled"
       ? []
       : (input as z.output<typeof props>).entries.flatMap((entry) => [
           historyDetailLine(entry.kind, entry.date),
-          ...(entry.amount === undefined ? [] : [changeLine(entry.amount, "money")]),
-        ]),
+          ...(entry.amount === undefined ? [] : [changeLine(entry.amount, "money", undefined, lang)]),
+        ]);
+  },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -72,18 +75,18 @@ export const props = z
       message: "Write newest first",
     },
   );
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const entries = itemsOf(cast, 3).map((item) => ({
     date: "2026-11-18",
     kind: "note" as const,
-    title: titleOf(item, 32, thing) || placeholderTitle(0),
+    title: titleOf(item, 32, thing) || placeholderTitle(0, lang),
     goto: "details",
   }));
   return {
     entries: entries.length
       ? entries
-      : [{ date: "2026-11-18", kind: "note", title: placeholderTitle(0), goto: "details" }],
+      : [{ date: "2026-11-18", kind: "note", title: placeholderTitle(0, lang), goto: "details" }],
   };
 }
 export const examples = [
@@ -122,6 +125,8 @@ const kindIcons = {
 } as const;
 
 export function ClientHistory({ entries }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { historyDetailLine } = words;
   const state = useComponentState();
   return (
     <KitCard style="inset" part="root">
@@ -149,7 +154,11 @@ export function ClientHistory({ entries }: Props<typeof props, typeof meta>) {
               entry.amount === undefined ? (
                 <KitIcon name="chevron_right" decorative />
               ) : (
-                <KitTrail kind="value" value={changeLine(entry.amount, "money")} part="amount" />
+                <KitTrail
+                  kind="value"
+                  value={changeLine(entry.amount, "money", undefined, lang)}
+                  part="amount"
+                />
               )
             }
           >

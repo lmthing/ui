@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -37,11 +37,11 @@ export const props = z.strictObject({
   range: z.enum(["day", "week", "month", "year", "all"]),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = itemsOf(cast, 1)[0];
   return {
-    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0),
+    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang),
     points: Array.from({ length: 8 }, () => 0),
     range: "month",
   };

@@ -1,9 +1,8 @@
+import { wordsFor } from "../catalog";
 import { z } from "zod";
 import {
   probesFor,
-  confirmNote,
   icon,
-  placeholderLabel,
   screenId,
   text,
   type CastLike,
@@ -26,7 +25,10 @@ export const meta = {
   states: ["filled"],
   actions: { parts: { root: ["press"] } },
   // Pressing asks first when a confirm sentence is written (a sheet the host draws).
-  read: (input) => ((input as { confirm?: string }).confirm ? [confirmNote] : []),
+  read: (input, _state, lang?: string) => {
+    const { confirmNote } = wordsFor(lang);
+    return (input as { confirm?: string }).confirm ? [confirmNote] : [];
+  },
 } as const satisfies Meta;
 
 export const props = z.strictObject({
@@ -38,8 +40,8 @@ export const props = z.strictObject({
   confirm: z.string().trim().min(1).max(60).optional(),
 });
 
-export function fallback(_context: { cast: CastLike }): z.input<typeof props> {
-  return { label: placeholderLabel, kind: "primary" };
+export function fallback({ lang }: { cast: CastLike; lang?: string | undefined }): z.input<typeof props> {
+  return { label: wordsFor(lang).placeholderLabel, kind: "primary" };
 }
 
 export const examples = [

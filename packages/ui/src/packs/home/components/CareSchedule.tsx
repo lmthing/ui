@@ -11,7 +11,7 @@ import {
   thingOf,
   titleOf,
   detailOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -29,8 +29,10 @@ import {
   PartContext,
   useComponentState,
   usePartContext,
+  useWords,
 } from "../../../kit";
-import { careLabels, careLines, careReading, careTaskLabel, careToday } from "../copy";
+import { careLines, careReading, careTaskLabel, careToday } from "../copy";
+import { homeWordsFor } from "../lang";
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
 export const meta = {
   id: "CareSchedule",
@@ -51,7 +53,8 @@ export const meta = {
   parts: ["root", "message"],
   states: ["filled", "empty", "success"],
   actions: { items: { done: ["press"], root: ["press"] } },
-  read: (input, state) => (state === "filled" ? careReading((input as z.output<typeof props>).tasks) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? careReading((input as z.output<typeof props>).tasks, lang) : [],
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -72,12 +75,14 @@ export const props = z
   })
   // Give the completion press its own target so it does not inherit the row's navigation.
   .overwrite(({ tasks }) => ({ tasks: tasks.map((task) => ({ ...task, done: {} })) }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 12);
   return {
     tasks: (items.length ? items : [undefined]).map((item, index) => ({
-      title: item ? (titleOf(item, 24, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
+      title: item
+        ? (titleOf(item, 24, thing) ?? placeholderTitle(index, lang))
+        : placeholderTitle(index, lang),
       ...(item && detailOf(item, 16, thing) ? { for: detailOf(item, 16, thing) } : {}),
       icon: "check",
       repeat: "weekly",
@@ -87,40 +92,17 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     })),
   };
 }
+// prettier-ignore
 export const examples = [
   {
     tasks: [
-      {
-        title: "Water",
-        for: "Fern",
-        icon: "leaf",
-        repeat: "weekly",
-        every: 1,
-        last: "2026-11-11",
-        goto: "fern",
-      },
-      {
-        title: "Feed",
-        for: "Monstera",
-        icon: "leaf",
-        repeat: "weekly",
-        every: 2,
-        last: "2026-11-04",
-        goto: "monstera",
-      },
+      { title: "Water", for: "Fern", icon: "leaf", repeat: "weekly", every: 1, last: "2026-11-11", goto: "fern" },
+      { title: "Feed", for: "Monstera", icon: "leaf", repeat: "weekly", every: 2, last: "2026-11-04", goto: "monstera" },
     ],
   },
   {
     tasks: [
-      {
-        title: "Flea treatment",
-        for: "Clover",
-        icon: "heart",
-        repeat: "monthly",
-        every: 1,
-        last: "2026-10-19",
-        goto: "clover",
-      },
+      { title: "Flea treatment", for: "Clover", icon: "heart", repeat: "monthly", every: 1, last: "2026-10-19", goto: "clover" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -136,7 +118,11 @@ export const probes = [
 type CareTask = Props<typeof props, typeof meta>["tasks"][number];
 function CareTile({ task, today, wide }: { task: CareTask; today: string; wide: boolean }) {
   const context = usePartContext();
-  const copy = careLines(task, today);
+  const {
+    lang,
+    words: { careLabels },
+  } = useWords(homeWordsFor);
+  const copy = careLines(task, today, lang);
   const dates = (
     <KitContent key="dates">
       {(["repeat", "last", "next"] as const).map((part) => (
@@ -176,6 +162,9 @@ function CareTile({ task, today, wide }: { task: CareTask; today: string; wide: 
 }
 export function CareSchedule({ tasks }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const {
+    words: { careLabels },
+  } = useWords(homeWordsFor);
   if (state === "empty" || state === "success")
     return (
       <KitCard part="root">
