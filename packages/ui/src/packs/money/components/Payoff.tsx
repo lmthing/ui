@@ -12,7 +12,7 @@ import {
 } from "../../../catalog";
 import { loanSource } from "./Loan";
 
-// Core first: Progress/default cannot allocate a monthly budget and forecast priority across debts.
+// Core first: Progress/stack cannot allocate a monthly budget and forecast priority across debts.
 export const meta = {
   id: "Payoff",
   status: "draft",
@@ -123,7 +123,7 @@ export const probes = [
     "Use my debts' terms, regular monthly payments and an extra monthly amount to prioritise high-interest debts, forecast each clearance month and when I am debt free",
   ),
   choose(
-    "Show recorded payments against one fixed repayment goal as a progress bar, no allocation or future interest calculation",
+    "Show recorded payments against several fixed repayment goals as separate progress bars, no allocation or future interest calculation",
     "Progress",
   ),
   choose(

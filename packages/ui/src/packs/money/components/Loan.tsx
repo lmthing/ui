@@ -117,7 +117,7 @@ export const probes = [
     "Amount",
   ),
   choose(
-    "Show recorded payments as progress toward a fixed repayment target, no interest or future schedule",
+    "Show recorded payments against several fixed repayment targets as separate progress bars, no interest or future schedule",
     "Progress",
   ),
   choose("Show my latest outstanding balance and a short recent trend, no forecast or terms", "Sparkline"),
