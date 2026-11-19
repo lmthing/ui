@@ -1,6 +1,6 @@
 import {
-  projectSelection,
-  projectNested,
+  projectControls,
+  projectControlInput,
   projectClocks,
   projectAdjustments,
   type ClockState,
@@ -62,16 +62,17 @@ function projectEntry(
   const get = (part: string) => values[valueKey(screen.id, entry.id, part)];
   const result = { ...entry };
   const { id: _id, c: _c, state: _state, ...input } = entry;
-  const parsed = defs[entry.c]?.props.parse(input) as Values | undefined;
-  if (!parsed) return result;
+  const def = defs[entry.c];
+  if (!def) return result;
+  const parsed = def.props.parse(input) as Values;
+  Object.assign(result, projectControlInput(def, input, get));
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  Object.assign(result, projectSelection(defs[entry.c]!.meta, result, get));
-  Object.assign(result, projectNested(defs[entry.c]!.meta, result, get));
+  Object.assign(result, projectControls(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));

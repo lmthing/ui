@@ -1,0 +1,118 @@
+.specimens {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  margin-top: 32px;
+  border-left: 1px solid var(--line);
+}
+.specimens.all {
+  margin-top: 24px;
+}
+.specimen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  margin-top: -1px;
+}
+.spec-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+  flex: 1;
+}
+.spec-link:hover h3 {
+  color: var(--accent);
+}
+.spec-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font: 500 0.68rem var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.spec-shot {
+  height: 190px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  overflow: hidden;
+}
+.spec-shot img {
+  max-width: 100%;
+  max-height: 168px;
+  object-fit: contain;
+}
+.spec-shot.none {
+  color: var(--muted);
+  font: 400 0.72rem var(--mono);
+  text-align: center;
+}
+.specimen .purpose {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.spec-line {
+  display: block;
+  font: 400 0.68rem/1.55 var(--mono);
+  color: var(--muted);
+  border-left: 2px solid var(--line);
+  padding-left: 8px;
+}
+.spec-line .row.item {
+  padding-left: 1em;
+}
+.specimen small {
+  font: 500 0.68rem var(--mono);
+  color: var(--muted);
+}
+.specimen.planned {
+  border-style: dashed;
+  background: transparent;
+}
+@media (max-width: 600px) {
+  .specimens {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.spec-shot {
+  transition:
+    border-color 0.25s var(--ease),
+    background-color 0.45s var(--ease);
+}
+.spec-shot img {
+  transition: transform 0.4s var(--ease);
+}
+.spec-link:hover .spec-shot {
+  border-color: var(--accent);
+}
+.spec-link:hover .spec-shot img {
+  transform: scale(1.04);
+}
+.spec-line {
+  transition: color 0.25s;
+}
+.specimen:hover .spec-line {
+  color: var(--text);
+  border-left-color: var(--accent);
+}
+.empty {
+  padding: 48px 0;
+  max-width: 52ch;
+}
+.notfound {
+  max-width: 52ch;
+  padding-top: 24px;
+}
+.empty h2 {
+  margin-bottom: 12px;
+}

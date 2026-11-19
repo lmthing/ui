@@ -1,13 +1,16 @@
+import { useId } from "react";
 import { XStack, YStack, isWeb } from "tamagui";
-import { component, formatAddress, size, space } from "../../../catalog";
+import { formatAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { useKit, useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
+import { useKit } from "../../provider";
+import { KitText } from "../text";
+import { PadKey, type Key } from "./PadKey";
+import { useKeypadTarget } from "./use-keypad-target";
 
 type Target = { item?: string; part: string };
-type Key = { id: string; label: string; value: string; disabled?: boolean };
 type NumberPadProps = {
   part?: string;
+  displayPart?: string;
   loading?: boolean;
   value: string;
   label: string;
@@ -16,67 +19,76 @@ type NumberPadProps = {
   disabled?: boolean;
 };
 
-function PadKey({
-  keyValue,
+function keyFor(keys: readonly Key[], key?: string) {
+  return keys.find(
+    ({ value, disabled }) =>
+      !disabled &&
+      typeof value === "object" &&
+      ("append" in value ? value.append === key : "backspace" in value && key === "Backspace"),
+  );
+}
+
+function PadGrid({
+  keys,
+  label,
   loading,
   disabled,
-  target,
-}: {
-  keyValue: Key;
+  targetPart,
+  display,
+  occupied,
+}: Pick<NumberPadProps, "keys" | "label"> & {
   loading: boolean;
   disabled: boolean;
-  target: string;
+  targetPart: string;
+  display: { id: string; value: string } | undefined;
+  occupied: readonly string[];
 }) {
-  const kit = useKit(),
-    ks = useKitStyle();
-  const address = usePart("root", !loading);
-  const unavailable = disabled || Boolean(keyValue.disabled);
-  const press = () => kit.controller?.act({ address: target, action: "type", value: keyValue.value });
+  const kit = useKit();
+  const context = usePartContext();
+  const addressed = display !== undefined && !loading;
+  const address = useKeypadTarget(targetPart, addressed, disabled);
+  const editable = kit.interactive && kit.controller && !disabled;
+  const onKeyDown = (event: { key?: string; preventDefault(): void }) => {
+    const hit = keyFor(keys, event.key);
+    if (!hit) return;
+    event.preventDefault();
+    kit.controller?.act({ address: address.testID, action: "type", value: hit.value });
+  };
   return (
-    <YStack {...(loading ? {} : address)} width={`${100 / 3}%`} padding={space.xs}>
-      <YStack
-        minHeight={size.control.lg}
-        minWidth={size.control.md}
-        paddingHorizontal={space.sm}
-        paddingVertical={space.sm}
-        alignItems="center"
-        justifyContent="center"
-        borderRadius={shifted("md", ks.radiusShift)}
-        backgroundColor={loading ? "$line" : unavailable ? "$surface" : "$raised"}
-        borderWidth={component.base.borderWidth}
-        borderColor="$line"
-        accessibilityRole={loading ? undefined : "button"}
-        accessibilityLabel={loading ? undefined : keyValue.label}
-        aria-disabled={unavailable || undefined}
-        aria-hidden={loading || undefined}
-        {...(unavailable || loading
-          ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
-          : {})}
-        {...((kit.interactive && kit.controller && !loading && !unavailable
-          ? {
-              onPress: press,
-              onKeyDown: (event: { key: string; preventDefault(): void }) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  press();
-                }
-              },
+    <XStack
+      flexWrap="wrap"
+      margin={-space.xs}
+      {...(addressed
+        ? {
+            ...address,
+            "aria-label": label,
+            ...(isWeb
+              ? { role: "textbox" as never, "aria-describedby": display.id }
+              : { accessibilityValue: { text: display.value } }),
+            "aria-disabled": disabled || undefined,
+            ...(editable ? { tabIndex: 0 as const, onKeyDown } : { "aria-readonly": true }),
+          }
+        : {})}
+    >
+      {keys.map((keyValue) => (
+        <PartContext.Provider key={keyValue.id} value={{ ...context, item: keyValue.id }}>
+          <PadKey
+            {...{ keyValue, loading, disabled }}
+            target={address.testID}
+            addressed={
+              !loading && !occupied.includes(formatAddress({ ...context, item: keyValue.id, part: "root" }))
             }
-          : {}) as object)}
-      >
-        <YStack {...(loading ? { opacity: component.base.none } : {})}>
-          <KitText role="number" numberScale="compact" tone={unavailable ? "muted" : "text"} part={null}>
-            {keyValue.label}
-          </KitText>
-        </YStack>
-      </YStack>
-    </YStack>
+          />
+        </PartContext.Provider>
+      ))}
+    </XStack>
   );
 }
 
 /** Caller-supplied keypad keys dispatch their values to one addressed type control. */
 export function KitNumberPad({
   part = "root",
+  displayPart,
   loading = false,
   value,
   label,
@@ -85,38 +97,52 @@ export function KitNumberPad({
   disabled = false,
 }: NumberPadProps) {
   const context = usePartContext();
-  const address = usePart(part);
-  const destination = formatAddress({
-    screen: context.screen,
-    component: context.component,
-    ...(target.item === undefined ? (context.item ? { item: context.item } : {}) : { item: target.item }),
-    part: target.part,
-  });
+  const displayId = useId();
+  const split = displayPart !== undefined;
+  const targetContext = target.item === undefined ? context : { ...context, item: target.item };
+  const displayContext = split ? context : targetContext;
+  const valuePart = displayPart ?? target.part;
+  const display = formatAddress({ ...displayContext, part: valuePart });
+  const destination = formatAddress({ ...targetContext, part: target.part });
+  const occupied = [...(loading ? [] : [display]), ...(split ? [destination] : [])];
+  const address = usePart(part, !occupied.includes(formatAddress({ ...context, part })));
+  const stampRoot = !occupied.includes(address.testID);
+  if (stampRoot) occupied.push(address.testID);
+  const labelAddress = formatAddress({ ...context, part: "label" });
+  const stampLabel = !loading && !occupied.includes(labelAddress);
+  if (stampLabel) occupied.push(labelAddress);
+  const grid = { keys, label, loading, disabled, occupied, targetPart: target.part };
   return (
-    <YStack {...address} gap={space.md} aria-busy={loading || undefined} aria-label={label}>
+    <YStack
+      {...(stampRoot ? address : {})}
+      gap={space.md}
+      aria-busy={loading || undefined}
+      aria-label={label}
+    >
       <YStack gap={space.xs} aria-hidden={loading || undefined}>
-        <KitText role="label" tone="muted" part={loading ? null : "label"}>
+        <KitText role="label" tone="muted" part={stampLabel ? "label" : null}>
           {loading ? "\u2007".repeat(label.length) : label}
         </KitText>
         <YStack
+          {...(split && !loading ? { id: displayId } : {})}
           minHeight={size.control.lg}
           justifyContent="center"
           backgroundColor={loading ? "$line" : undefined}
         >
-          <PartContext.Provider value={{ ...context, ...(target.item ? { item: target.item } : {}) }}>
-            <KitText role="number" tabular part={loading ? null : target.part}>
+          <PartContext.Provider value={displayContext}>
+            <KitText
+              role="number"
+              tabular
+              part={loading || (split && display === destination) ? null : valuePart}
+            >
               {loading ? "\u2007".repeat(value.length) : value || "\u2007"}
             </KitText>
           </PartContext.Provider>
         </YStack>
       </YStack>
-      <XStack flexWrap="wrap" margin={-space.xs}>
-        {keys.map((keyValue) => (
-          <PartContext.Provider key={keyValue.id} value={{ ...context, item: keyValue.id }}>
-            <PadKey {...{ keyValue, loading, disabled, target: destination }} />
-          </PartContext.Provider>
-        ))}
-      </XStack>
+      <PartContext.Provider value={targetContext}>
+        <PadGrid {...grid} display={split ? { id: displayId, value } : undefined} />
+      </PartContext.Provider>
     </YStack>
   );
 }

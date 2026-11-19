@@ -1,4 +1,17 @@
 export const en = {
+  bills: {
+    month: "Monthly estimate",
+    year: "Yearly total",
+    separator: "\u00a0· ",
+    due: (date: string) => `Due ${date}`,
+    overdue: (name: string) => `${name}, overdue`,
+    markPaid: (name: string) => `Mark ${name} as paid`,
+    repeat: {
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    },
+  },
   accountKinds: {
     current: "Current",
     savings: "Savings",
@@ -9,6 +22,46 @@ export const en = {
   accountSuffix: (last4: string) => ` · ${last4}`,
   accountLabel: (name: string, kind: string, balance: string, last4?: string) =>
     `${name}, ${kind}${last4 ? ` ending in ${last4}` : ""}, ${balance}`,
+  loanLabels: {
+    balance: "Remaining balance",
+    principal: "Opening principal",
+    rate: "Annual rate",
+    payment: "Monthly payment",
+    next: "Next payment",
+    finish: "Estimated payoff",
+    schedule: "Upcoming payments",
+    edit: "Open terms editor",
+    cleared: "Loan paid off",
+    forecastError: "No forecast",
+    forecastHelp: "In your loan terms, check the first due date and any recorded payment dates.",
+    insufficientTitle: "Payment too low",
+    insufficient: "The monthly payment must exceed the interest to reduce the balance.",
+    unavailable: "No payoff date in this estimate",
+    outOfRange: "This balance is too large to estimate.",
+    estimate: "Fixed rate. No fees or new debt.",
+  },
+  loanField: (label: string, value: string) => `${label}: ${value}`,
+  loanNext: (label: string, date: string, amount: string) => `${label} · ${date} · ${amount}`,
+  loanSplit: (principal: string, interest: string) => `Principal ${principal} · Interest ${interest}`,
+  loanRemaining: (balance: string) => `${balance} left`,
+  loanRow: (date: string, balance: string, split: string) => `${date} · ${balance} · ${split}`,
+  loanMore: (count: string, plural: Intl.LDMLPluralRule) =>
+    `And ${count} more ${plural === "one" ? "payment" : "payments"}`,
+  priceChart: {
+    series: "Price history",
+    start: "Start",
+    latest: "Latest",
+    ranges: "Price range",
+    options: { day: "1D", week: "1W", month: "1M", year: "1Y", all: "All" },
+    change: (amount: string) => `${amount} this period`,
+    compactChange: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
+  },
+  transactions: {
+    today: "Today",
+    yesterday: "Yesterday",
+    date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
+    entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
+  },
 };
 
 export type MoneyWords = typeof en;

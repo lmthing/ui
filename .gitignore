@@ -6,3 +6,6 @@ apps/gallery/e2e/*.png
 packages/ui/src/entry/*.ts
 test-results/
 packages/ui/shots/
+apps/site/dist/
+apps/site/.cache/
+apps/site/src/generated/

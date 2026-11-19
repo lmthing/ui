@@ -79,7 +79,9 @@ export const en = {
   rewardEntry: (name: string, amount: string) => `${name}: ${amount}`,
   rewardNeeds: (amount?: string) => (amount ? `Needs ${amount} more` : "Needs more"),
   rewardPrizeStatus: (line: string, reason: string) => `${line} · ${reason}`,
-  turnLabels: { next: "Done, next", skip: "Skip" },
+  turnLabels: { current: "Current turn", upcoming: "Up next", next: "Done, next", skip: "Skip" },
+  turnHolder: (label: string, name: string) => `${label}: ${name}`,
+  turnQueue: (names: string[]) => names.join(", "),
 };
 
 export type HomeWords = typeof en;

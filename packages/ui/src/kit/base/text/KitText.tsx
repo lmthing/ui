@@ -2,9 +2,10 @@ import { useSignatureProgress, countText } from "../../motion";
 import { motion } from "../../../catalog";
 import { Text, styled } from "tamagui";
 import type { ReactNode } from "react";
-import { fontFamilies, type as typography } from "../../../catalog";
+import { fontFamilies, type as typography, variants } from "../../../catalog";
 import { useKitStyle } from "../../provider";
 import { usePart } from "../../part";
+import { useTextStep, type TextFinish, type TextRole } from "./text-step";
 
 const roleOf = (role: keyof typeof typography) => ({
   fontSize: typography[role].size,
@@ -34,36 +35,17 @@ const Frame = styled(Text, {
       warn: { color: "$warn" },
       bad: { color: "$bad" },
     },
-    align: { start: { textAlign: "left" }, center: { textAlign: "center" }, end: { textAlign: "right" } },
+    align: {
+      start: { textAlign: variants.align.start.text },
+      center: { textAlign: variants.align.center.text },
+      end: { textAlign: "right" },
+    },
   } as const,
 });
 
-export type TextRole = keyof typeof typography;
-
-// One step heavier for presets with strong type (bold).
-const strongWeights: Record<TextRole, "500" | "600" | "700" | "800"> = {
-  display: "800",
-  title: "800",
-  heading: "700",
-  body: "500",
-  label: "600",
-  caption: "500",
-  number: "800",
-};
 export type TextTone = "text" | "muted" | "accent" | "onAccent" | "good" | "warn" | "bad";
 
-/** All visible text. Role picks the type scale and the preset's font family; tone picks a colour role. */
-export function KitText({
-  children,
-  role = "body",
-  tone = "text",
-  align = "start",
-  part = "root",
-  lines,
-  tabular = false,
-  numberScale = "display",
-  strike = false,
-}: {
+type TextProps = {
   children: ReactNode;
   role?: TextRole;
   tone?: TextTone;
@@ -77,12 +59,20 @@ export function KitText({
   numberScale?: "display" | "compact";
   /** Struck through: an old price. */
   strike?: boolean;
-}) {
+} & TextFinish;
+
+/** All visible text. Role picks the type scale and the preset's font family; tone picks a colour role. */
+export function KitText(props: TextProps) {
+  const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
+  const { tabular = false, numberScale = "display", strike = false, emphasis = "normal", density } = props;
   const style = useKitStyle();
   const count = useSignatureProgress("count_up");
   const spin = useSignatureProgress("timer_spin");
   const address = usePart(part ?? "root", part !== null);
-  const heavier = style.strong ? strongWeights[role] : undefined;
+  const stepOf = useTextStep({ density, emphasis });
+  const step = stepOf(role);
+  const numberStep = stepOf("body");
+  const heavier = variants.emphasis[emphasis][style.strong ? "strong" : "regular"]?.[step];
   const family =
     role === "display" || role === "title" || role === "heading"
       ? style.fonts.heading
@@ -92,7 +82,7 @@ export function KitText({
   return (
     <Frame
       {...(part === null ? {} : address)}
-      textRole={role}
+      textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       tone={tone}
       align={align}
@@ -102,7 +92,11 @@ export function KitText({
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
       {...(strike ? { textDecorationLine: "line-through" as const } : {})}
       {...(role === "number" && numberScale === "compact"
-        ? { fontSize: typography.body.size, lineHeight: typography.body.lineHeight, letterSpacing: 0 }
+        ? {
+            fontSize: typography[numberStep].size,
+            lineHeight: typography[numberStep].lineHeight,
+            letterSpacing: typography.body.tracking,
+          }
         : {})}
     >
       {role === "number" && typeof children === "string" ? countText(children, count) : children}

@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { zIndex } from "./elevation";
+import { zIndex } from "../index";
 
 it("keeps the sheet above its backdrop and the overlay above screen content", () => {
   expect(zIndex.base).toBe(0);

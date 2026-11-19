@@ -2,6 +2,9 @@ import {
   selectionAt,
   nestedAt,
   adjustmentAt,
+  clearItemSets,
+  controlValueKey,
+  projectControlInput,
   type ActStep,
   type Definition,
   type ScreenLike,
@@ -18,15 +21,40 @@ export type ControlChange = {
   send?: { text: string; address: string };
   requestPhoto?: string;
 };
-/** A select address identifies its own item; fields additionally accept an index or display label. */
+/** Infer addressed row values, but require an explicit value for declared choice lists. */
 export function selectedStep(step: ActStep, entry: Entry, input: Values, def: Definition): ActStep {
   if (step.action !== "select" || step.value !== undefined) return step;
-  const local = step.address.replace(`${entry.id}/`, "");
+  const local = (step.address === entry.id ? "root" : step.address.replace(`${entry.id}/`, "")).replace(
+    /\/root$/,
+    "",
+  );
+  if (Object.hasOwn(def.meta.select?.choices ?? {}, local)) return step;
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
-  const found = selectionAt(def.meta, input, local.replace(/\/root$/, ""));
+  const found = selectionAt(def.meta, input, local);
   return found ? { ...step, value: found.value } : step;
 }
+
+/** Stage the clear only from the dispatcher's confirmation-resume path. */
+export function stageConfirmedClear(
+  screen: string,
+  entry: Entry,
+  input: Values,
+  def: Definition,
+  step: ActStep,
+  values: Values,
+): Values | undefined {
+  if (step.action !== "press" || !def.meta.clearItems) return values;
+  const target = step.address.split("/").slice(1).join("/") || "root";
+  const changes = Object.entries(clearItemSets(def.meta, input, target));
+  if (!changes.length) return values;
+  const next = { ...values };
+  for (const [part, value] of changes) next[valueKey(screen, entry.id, controlValueKey(def, part))] = value;
+  const { id: _id, c: _c, state: _state, ...wire } = entry;
+  const get = (part: string) => next[valueKey(screen, entry.id, part)];
+  if (def.props.safeParse(projectControlInput(def, wire, get)).success) return next;
+}
+
 export function controlStep(
   screen: ScreenLike,
   entry: Entry,
@@ -62,6 +90,7 @@ export function controlStep(
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, adjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));
+  if (adjustment?.atSet) return { values: next, value: ctx.get(target) };
   if (adjustment?.next !== undefined) return { values: next, value: adjustment.next };
   if (nestedAt(ctx.def.meta, input, target)) return { values: next, value: ctx.get(target) };
   const result = entry.c === "Field" ? fieldControl(ctx) : valueControl(ctx);

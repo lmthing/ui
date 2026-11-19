@@ -1,5 +1,5 @@
 import type { Meta } from "../meta";
-import { nestedControls } from "./selection";
+import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
@@ -67,6 +67,10 @@ function partsOf(
 export function affordancesOf(meta: Meta, props: Props, instance: string, values: Props = {}): Affordance[] {
   const when = meta.actions?.when as When;
   const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
+  const ownActions = own.flatMap((a) => {
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // `$first` in a rule is true only for the first item (the top card of a stack).
@@ -94,14 +98,20 @@ export function affordancesOf(meta: Meta, props: Props, instance: string, values
             ? ""
             : ` = ${JSON.stringify(item[spec.prop])}`,
     }));
-  const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
-  if (!values[`${instance}/$runtime`]) return offered;
-  if (props.state && props.state !== "filled") return [];
+  const offered = [
+    ...ownActions,
+    ...itemActions.filter((control) => !targets.has(control.address)),
+    ...nested,
+  ];
+  const runtime = values[`${instance}/$runtime`];
+  if (!runtime && !meta.set && !meta.items?.set) return offered;
+  if (runtime && props.state && props.state !== "filled") return [];
   const get = (part: string) => values[`${instance}/${part}`];
   const now = Number(get("$now") ?? Date.now());
   return offered.filter(({ address, action }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
+    if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)

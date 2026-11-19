@@ -1,12 +1,14 @@
 import type { Environment, NativeHost } from "./environment";
 import { createContext, type RefObject } from "react";
 import type { TamaguiElement } from "tamagui";
-import type { KitStyle } from "../../catalog";
+import type { KitStyle, ThemeDensity, ThemeMotion } from "../../catalog";
 import type { ScreenController } from "../interact";
 import type { PartRegistry } from "../registry";
 
 export type KitContextValue = {
   style: KitStyle;
+  density: ThemeDensity;
+  motion: ThemeMotion;
   lang: string;
   parts: PartRegistry;
   root: RefObject<TamaguiElement | null>;
