@@ -1,4 +1,4 @@
-import type { ClockState, Meta, NumericAdjustments } from "../../meta";
+import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockPropKey, clockTargets, clockTime } from "./clock";
@@ -13,6 +13,38 @@ function nextNumber(current: number, delta: number, min: number, max: number) {
   if (!finite(delta) || min > max) return;
   const next = Math.min(max, Math.max(min, current + delta));
   if (finite(next) && Math.sign(next - current) === Math.sign(delta) && next !== current) return next;
+}
+
+export function itemSetAt(meta: Meta, props: Values, target: string) {
+  const sets = meta.items?.set;
+  if (!sets) return;
+  const [id, part = "root", ...rest] = target.split("/");
+  if (rest.length || !Object.hasOwn(sets, part)) return;
+  const spec = sets[part]!;
+  const rows = knownRows(props[meta.items!.key]);
+  if (rows.some((holder, index) => rowId(meta, holder, index) === id))
+    return { key: keyFor(`${id}/`, spec.prop), spec };
+}
+
+/** Used only after the controller has resumed a confirmed component press. */
+export function clearItemSets(meta: Meta, props: Values, target: string): Values {
+  if (target.includes("/") || !meta.confirmParts?.includes(target)) return {};
+  const items = meta.items;
+  const clear = meta.clearItems;
+  if (!items?.set || !clear || !Object.hasOwn(clear, target)) return {};
+  const part = clear[target]!;
+  if (!Object.hasOwn(items.set, part)) return {};
+  const { prop } = items.set[part]!;
+  return Object.fromEntries(
+    knownRows(props[items.key]).flatMap((row, index) => {
+      const id = rowId(meta, row, index);
+      const address = part === "root" ? id : `${id}/${part}`;
+      return [
+        [keyFor(`${id}/`, prop), null],
+        [address, null],
+      ];
+    }),
+  );
 }
 
 /** Resolve one declared part/action without changing the order or identity of its holder. */
@@ -37,29 +69,43 @@ export function adjustmentAt(
   const clock = clockTargets(meta, props).find(
     (clock) => clock.base === base && clock.child === undefined && clock.spec.prop === prop,
   );
+  const itemSet =
+    !clock && row >= 0 && (action === "increment" || action === "decrement")
+      ? Object.entries(meta.items?.set ?? {}).find(([, set]) => set.prop === prop)
+      : undefined;
+  const bounds = itemSet?.[1];
   const state = clock ? (get(clockKey(clock)) as ClockState | undefined) : undefined;
+  const saved = get(key);
   const current = clock
     ? clockTime(clock, state, get(clockPropKey(clock)), now)
-    : (get(key) ?? (row < 0 ? props : rows[row])?.[prop]);
-  const min = Math.max(spec.min ?? -Infinity, clock ? 0 : -Infinity);
-  const max = Math.min(spec.max ?? Infinity, clock?.spec.max ?? Infinity);
+    : saved === undefined
+      ? (row < 0 ? props : rows[row])?.[prop]
+      : saved;
+  const min = Math.max(spec.min ?? -Infinity, bounds?.min ?? -Infinity, clock ? 0 : -Infinity);
+  const max = Math.min(spec.max ?? Infinity, bounds?.max ?? Infinity, clock?.spec.max ?? Infinity);
   const next = finite(current) ? nextNumber(current, delta, min, max) : undefined;
+  const atSet = itemSet && (itemSet[0] === "root" ? item : `${item}/${itemSet[0]}`);
   return {
     key,
     clock,
     state,
     current,
-    next: clock && (clock.spec.kind === "until" || !Number.isSafeInteger(next)) ? undefined : next,
+    atSet,
+    next:
+      (clock && (clock.spec.kind === "until" || !Number.isSafeInteger(next))) ||
+      (bounds?.integer && !Number.isInteger(next))
+        ? undefined
+        : next,
   };
 }
 
 function projectHolder(
   holder: Values,
-  specs: NumericAdjustments | undefined,
+  specs: readonly ({ prop: string } | undefined)[],
   base: string,
   get: (part: string) => unknown,
 ): Values {
-  for (const spec of Object.values(specs ?? {})) {
+  for (const spec of specs) {
     if (!spec || !finite(holder[spec.prop])) continue;
     const value = get(keyFor(base, spec.prop));
     if (finite(value) && value !== holder[spec.prop]) holder = { ...holder, [spec.prop]: value };
@@ -67,15 +113,50 @@ function projectHolder(
   return holder;
 }
 
+function projectItemSets(meta: Meta, row: Values, base: string, get: (part: string) => unknown): Values {
+  for (const { prop } of Object.values(meta.items?.set ?? {})) {
+    const value = get(keyFor(base, prop));
+    if (value === null || finite(value)) row = { ...row, [prop]: value };
+  }
+  return row;
+}
+
+function projectMatrix(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  const items = meta.items!;
+  const cells = knownRows(props[items.key]);
+  for (const { prop, matrix } of Object.values(items.set ?? {})) {
+    if (!matrix || !Array.isArray(props[matrix.rows])) continue;
+    let index = 0;
+    const rows = knownRows(props[matrix.rows]).map((row) => {
+      const values = row[matrix.values];
+      if (!Array.isArray(values)) return row;
+      return {
+        ...row,
+        [matrix.values]: values.map((seed: unknown) => {
+          const id = rowId(meta, cells[index] ?? {}, index++);
+          const value = get(keyFor(`${id}/`, prop));
+          return value === null || finite(value) ? value : seed;
+        }),
+      };
+    });
+    props = { ...props, [matrix.rows]: rows };
+  }
+  return props;
+}
+
 /** Read from the store after parsing so this also works for derived, addressed item rows. */
 export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  if (meta.adjust) props = projectHolder(props, meta.adjust, "", get);
+  if (meta.adjust) props = projectHolder(props, Object.values(meta.adjust), "", get);
   const items = meta.items;
-  if (!items?.adjust || !Array.isArray(props[items.key])) return props;
+  if (!items?.adjust && !items?.set) return props;
+  if (items.set) props = projectMatrix(meta, props, get);
+  if (!Array.isArray(props[items.key])) return props;
+  const specs = Object.values(items.adjust ?? {});
   return {
     ...props,
-    [items.key]: knownRows(props[items.key]).map((row, index) =>
-      projectHolder(row, items.adjust, `${rowId(meta, row, index)}/`, get),
-    ),
+    [items.key]: knownRows(props[items.key]).map((row, index) => {
+      const base = `${rowId(meta, row, index)}/`;
+      return projectItemSets(meta, projectHolder(row, specs, base, get), base, get);
+    }),
   };
 }

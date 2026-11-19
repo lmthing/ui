@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { Definition } from "../probes";
 import { planAct, type ActStep, type Values } from "./act";
 import { liveProps } from "./live-props";
+import { readScreen } from "./read";
 
 const fixture = {
   meta: {
@@ -80,4 +81,45 @@ it("keeps numeric projection separate from other actions and supports the compon
   if (!result.ok) return;
   expect(asProps(result.values)).toEqual({ mode: "custom", amount: 4, rate: 0.5 });
   expect(result.values["test/p1/date"]).toBe("2026-11-19");
+});
+
+it("uses the last numeric item value for both adjustments in the pure planner and reader", () => {
+  const def = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      items: {
+        key: "rows",
+        parts: ["value", "up", "down"],
+        set: { value: { prop: "amount", min: 5, max: 30 } },
+        adjust: {
+          "up.increment": { prop: "amount", delta: 0.5 },
+          "down.decrement": { prop: "amount", delta: -0.5 },
+        },
+      },
+      actions: { items: { value: ["set"], up: ["increment"], down: ["decrement"] } },
+      read: (input: unknown) =>
+        (input as { rows: { amount: number }[] }).rows.map(({ amount }) => String(amount)),
+    },
+    props: z.strictObject({ rows: z.array(z.strictObject({ amount: z.number() })) }),
+  } satisfies Definition;
+  const current = {
+    id: "test",
+    components: [{ id: "p1", c: def.meta.id, rows: [{ amount: 21 }, { amount: 20 }] }],
+  };
+  const defs = { [def.meta.id]: def };
+  const result = planAct(current, defs, {}, [
+    { address: "p1/r1/value", action: "set", value: 24 },
+    { address: "p1/r1/up", action: "increment" },
+    { address: "p1/r1/down", action: "decrement" },
+  ]);
+  expect(result).toMatchObject({
+    ok: true,
+    changed: ["p1/r1/value set = 24", "p1/r1/up increment = 24.5", "p1/r1/down decrement = 24"],
+  });
+  if (result.ok) {
+    const read = readScreen(current, defs, result.values);
+    expect(read).toContain("24 — 20");
+    expect(read).toContain("[p1/r1/value set = 24]");
+  }
 });

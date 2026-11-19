@@ -77,10 +77,10 @@ function withValues(
 
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const reading = projectControls(meta, props, get);
-  return values[`${instance}/$runtime`]
-    ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
-    : reading;
+  const runtime = values[`${instance}/$runtime`];
+  const live = projectControls(meta, props, get);
+  const reading = runtime || meta.items?.set ? projectAdjustments(meta, live, get) : live;
+  return runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
 }
 
 /**

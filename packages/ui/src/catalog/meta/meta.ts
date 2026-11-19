@@ -7,6 +7,9 @@ export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
 
+type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
+type NumericSets = Readonly<Record<string, NumericSet>>;
+
 type RowSelection = "index" | "position" | { field: string };
 type SelectMeta = {
   prop: string;
@@ -42,7 +45,9 @@ export type Meta = {
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
   /** Component parts with a declared `set` action and a finite numeric destination prop. */
-  set?: Readonly<Record<string, { prop: string; min?: number; max?: number; integer?: boolean }>>;
+  set?: NumericSets;
+  /** Confirmed component press part → item set part whose nullable values are cleared. */
+  clearItems?: Readonly<Record<string, string>>;
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
@@ -54,6 +59,16 @@ export type Meta = {
     visible?: "all" | "first";
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
+    set?: Readonly<
+      Record<
+        string,
+        NumericSet & {
+          /** Addressed items flatten this wire matrix in row-major order. */
+          matrix?: { rows: string; values: string };
+        }
+      >
+    >;
     nested?: {
       key: string;
       clocks?: readonly ClockMeta[];

@@ -5,6 +5,7 @@ import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
 import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
+import { adjustmentAt, itemSetAt } from "./clocks";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -30,6 +31,27 @@ function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, addres
   if (!def?.meta.items?.nested) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
+}
+
+function itemNumberStep(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  address: string,
+  action: string,
+  values: Values,
+) {
+  if (!["set", "increment", "decrement"].includes(action)) return;
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!def?.meta.items?.set || !parts.length) return;
+  const { id: _id, c: _c, state: _state, ...raw } = entry!;
+  const props = stampItemIds(def.meta, def.props.parse(raw) as Values);
+  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
+  const target = parts.join("/");
+  if (action === "set") return { id, set: itemSetAt(def.meta, props, target) };
+  const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
+  if (adjustment?.atSet) return { id, adjustment };
 }
 
 function affordancesOfScreen(
@@ -100,7 +122,9 @@ export function planAct(
       return { ok: false, code: "not_actionable", at, hint };
     }
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const set = step.action === "set" && setSpec(screen, defs, address, found.part);
+    const itemNumber = itemNumberStep(screen, defs, address, step.action, next);
+    const set =
+      step.action === "set" && (itemNumber?.set?.spec ?? setSpec(screen, defs, address, found.part));
     const limits = set ? { ...set, numeric: true as const } : nestedSpec(screen, defs, address);
     const error = validateActionValue(step.action, step.value, limits);
     if (error) return { ok: false, at, ...error };
@@ -109,13 +133,22 @@ export function planAct(
       const now = (next[key] as boolean | undefined) ?? initialOn(found);
       next[key] = (step.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
-      next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
+      const adjust = itemNumber?.adjustment;
+      if (adjust) {
+        if (adjust.next === undefined) return { ok: false, code: "not_actionable", at };
+        next[`${screen.id}/${itemNumber.id}/${adjust.key}`] = adjust.next;
+        next[`${screen.id}/${itemNumber.id}/${adjust.atSet}`] = adjust.next;
+        next[key] = adjust.next;
+      } else next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
     } else if (step.action === "press" || step.action === "select") {
       if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
       if (step.action === "select") next[key] = step.value;
     } else {
       next[key] = step.value;
-      if (set) next[`${screen.id}/${address.split("/")[0]}/${setKey(found.part)}`] = step.value;
+      if (set) {
+        const itemKey = itemNumber?.set?.key;
+        next[`${screen.id}/${address.split("/")[0]}/${itemKey ?? setKey(found.part)}`] = step.value;
+      }
     }
     Object.assign(next, selected.changes);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);

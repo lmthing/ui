@@ -14,6 +14,7 @@ export {
   clockEnded,
   clockTriggerTarget,
   adjustmentAt,
+  clearItemSets,
   projectAdjustments,
   projectClocks,
   clockActionValid,

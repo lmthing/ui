@@ -29,7 +29,7 @@ export function initialClocks(meta: Meta, props: Values, now: number): Values {
   );
 }
 function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
-  if (adjustment?.next === undefined) return {};
+  if (adjustment?.atSet || adjustment?.next === undefined) return {};
   const { clock, state, current, next: seconds, key } = adjustment;
   if (!clock) return { [key]: seconds };
   const running = Boolean(

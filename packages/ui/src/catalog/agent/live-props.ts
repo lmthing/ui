@@ -20,8 +20,9 @@ export function projectControls(meta: Meta, props: Values, get: (part: string) =
 export function liveProps(meta: Meta, props: Values, instance: string, values: Values): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   props = projectControls(meta, props, get);
+  if (meta.items?.set || values[`${instance}/$runtime`]) props = projectAdjustments(meta, props, get);
   if (values[`${instance}/$runtime`])
-    props = projectClocks(meta, projectAdjustments(meta, props, get), get, Number(get("$now") ?? Date.now()));
+    props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
   if (values[`${instance}/$runtime`]) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
       props = { ...props, minus: undefined };

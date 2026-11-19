@@ -2,6 +2,7 @@ import {
   selectionAt,
   nestedAt,
   adjustmentAt,
+  clearItemSets,
   type ActStep,
   type Definition,
   type ScreenLike,
@@ -63,9 +64,14 @@ export function controlStep(
   };
   const selection = selectControl(ctx);
   if (selection.error) return selection;
+  if (step.action === "press" && ctx.def.meta.clearItems)
+    Object.entries(clearItemSets(ctx.def.meta, input, target)).forEach(([part, value]) =>
+      ctx.put(part, value),
+    );
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, adjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));
+  if (adjustment?.atSet) return { values: next, value: ctx.get(target) };
   if (adjustment?.next !== undefined) return { values: next, value: adjustment.next };
   if (nestedAt(ctx.def.meta, input, target)) return { values: next, value: ctx.get(target) };
   const result = entry.c === "Field" ? fieldControl(ctx) : valueControl(ctx);
