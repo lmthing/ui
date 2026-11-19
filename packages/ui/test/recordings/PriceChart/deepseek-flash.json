@@ -78,11 +78,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"PriceChart\",\"name\":\"Green Fund holding\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}",
+    "reply": "{\"c\":\"PriceChart\",\"name\":\"Green Fund\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}",
     "replies": [
-      "{\"c\":\"PriceChart\",\"name\":\"Green Fund holding\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}",
+      "{\"c\":\"PriceChart\",\"name\":\"Green Fund\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}",
       "{\"c\":\"PriceChart\",\"name\":\"My Green Fund holding\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}",
-      "{\"c\":\"PriceChart\",\"name\":\"Green Fund\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}"
+      "{\"c\":\"PriceChart\",\"name\":\"My Green Fund holding\",\"points\":[98,99,98.5,100,101,100.5,102,103],\"range\":\"month\"}"
     ]
   }
 }

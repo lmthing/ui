@@ -127,6 +127,8 @@ export function PriceChart({ name, points, range }: Props<typeof props, typeof m
   const { screen, component } = usePartContext();
   const live = useControlValue<unknown>(`${screen}/${component}/range`, range);
   const selected = priceChartRange(live, range, lang);
+  const samples = priceChartPoints(points, lang);
+  const plotPoints = loading ? samples.map((point) => ({ ...point, value: null })) : samples;
 
   return (
     <KitCard padded part="root">
@@ -135,25 +137,22 @@ export function PriceChart({ name, points, range }: Props<typeof props, typeof m
         part="line"
         style="compact"
         loading={loading}
-        series={[{ id: "price", label: labels.series, points: priceChartPoints(points, lang) }]}
+        series={[{ id: "price", label: labels.series, points: plotPoints }]}
       />
-      {loading ? (
-        <KitSkeleton rows={1} shape="control" label={labels.ranges} full />
-      ) : (
-        <KitTrack look="segments" part="range" role="radiogroup" label={labels.ranges}>
-          {priceChartRanges.map((option) => (
-            <KitChip
-              key={option}
-              item={null}
-              look="segment"
-              role="radio"
-              label={labels.options[option]}
-              value={option}
-              on={selected === option}
-            />
-          ))}
-        </KitTrack>
-      )}
+      <KitTrack look="segments" part="range" role="radiogroup" label={labels.ranges}>
+        {priceChartRanges.map((option) => (
+          <KitChip
+            key={option}
+            item={null}
+            look="segment"
+            role="radio"
+            label={labels.options[option]}
+            value={option}
+            on={!loading && selected === option}
+            disabled={loading || undefined}
+          />
+        ))}
+      </KitTrack>
     </KitCard>
   );
 }

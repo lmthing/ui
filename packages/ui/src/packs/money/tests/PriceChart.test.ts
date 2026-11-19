@@ -108,13 +108,17 @@ describe("PriceChart parts and states", () => {
     ).toHaveLength(1);
   });
 
-  it("draws a loading shell without live readings or a range control", () => {
+  it("draws a loading shell without live readings or actionable ranges", () => {
     const html = renderInstance("PriceChart", example, "loading", theme);
     expect(html).toContain('data-testid="home/c1/root"');
     expect(html).toContain('aria-busy="true"');
-    for (const part of ["name", "price", "change", "range"])
+    for (const part of ["name", "price", "change"])
       expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(false);
-    expect(html).not.toContain('role="radiogroup"');
+    expect(/<path[^>]* d="M/.test(html)).toBe(false);
+    expect(html.includes('role="radio"')).toBe(false);
+    const range = elementAt(html, "home/c1/range");
+    expect(range.children).toHaveLength(5);
+    expect(range.children.every(({ attributes }) => attributes.includes('aria-hidden="true"'))).toBe(true);
     expect(readComponent(def, example, "p1", "loading")).toEqual(["p1 PriceChart (loading)"]);
   });
 });
