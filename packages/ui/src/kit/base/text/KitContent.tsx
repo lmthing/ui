@@ -17,6 +17,7 @@ export function KitContent({
   lineRole = "heading",
   leadingAlign = "line",
   inset = "none",
+  group = "content",
   children,
 }: {
   lead?: ReactNode;
@@ -26,11 +27,17 @@ export function KitContent({
   leadingAlign?: "line" | "row";
   /** `md` insets the content by a row's side padding, without stamping an address. */
   inset?: "none" | "md";
+  /** A response group separates from the preceding content without changing its internal gap. */
+  group?: "content" | "response";
   children: ReactNode;
 }) {
   const ks = useKitStyle();
   return (
-    <Frame gap={space[ks.density.gap]} paddingHorizontal={inset === "md" ? space.md : component.base.none}>
+    <Frame
+      gap={space[ks.density.gap]}
+      paddingHorizontal={inset === "md" ? space.md : component.base.none}
+      {...(group === "response" ? { marginTop: space.md - space.xs } : {})}
+    >
       {lead &&
         (leadingAlign === "row" ? (
           <Edge alignSelf="center">{lead}</Edge>

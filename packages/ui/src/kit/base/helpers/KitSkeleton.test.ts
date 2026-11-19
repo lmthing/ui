@@ -46,6 +46,56 @@ describe("KitCheck options", () => {
   });
 });
 
+const galleryCases = presets.flatMap(({ id: preset }) =>
+  (["light", "dark"] as const).flatMap((mode) =>
+    (["grid", "strip", "carousel"] as const).flatMap((style) =>
+      [2, 3, 4, 5, 6].map((count) => ({ preset, mode, style, count })),
+    ),
+  ),
+);
+describe("Gallery loading geometry", () => {
+  it.each(galleryCases)("matches $count $style cells in $preset/$mode", ({ preset, mode, style, count }) => {
+    const photos = Array.from({ length: count }, (_, index) => ({
+      photo: "lib:entry",
+      caption: index % 2 ? undefined : "Caller caption",
+    }));
+    const theme = { preset, mode, accent: "moss" } as const;
+    const html = renderInstance("Gallery", { style, photos }, "loading", theme);
+    const filled = renderInstance("Gallery", { style, photos }, "filled", theme);
+    const root = elementAt(html, "home/c1/root");
+    expect(styleAt(html, root)).toContain("padding-left:0px");
+    expect(styleAt(html, root)).toContain("padding-right:0px");
+    expect(styleAt(html, root)).toBe(styleAt(filled, "home/c1/root"));
+    expect(styleAt(html, root.children[0]!)).toBe(
+      styleAt(filled, elementAt(filled, "home/c1/root").children[0]!),
+    );
+    const shapes = descendants(root).filter((node) => node.attributes.includes('aria-busy="true"'));
+    expect(shapes).toHaveLength(count);
+    for (const [index, shape] of shapes.entries()) {
+      const caption = photos[index]!.caption;
+      expect(styleAt(html, shape)).toContain("padding-left:0px");
+      expect(styleAt(html, shape)).toContain(`gap:${caption ? space.xs : 0}px`);
+      expect(styleAt(html, shape.children[0]!)).toContain(
+        `aspect-ratio:${style === "carousel" ? 16 / 9 : 1}`,
+      );
+      expect(shape.children).toHaveLength(caption ? 2 : 1);
+      if (caption) {
+        const content = shape.children[1]!.children[0]!;
+        expect(content.children).toHaveLength(1);
+        const text = content.children[0]!.children[0]!.children[0]!;
+        expect(styleAt(html, text)).toContain(`line-height:${typography.caption.lineHeight}px`);
+        expect(styleAt(html, text)).toContain(`font-size:${typography.caption.size}px`);
+      }
+    }
+    expect(html).not.toContain('data-testid="home/c1/r1/photo"');
+    expect(html).not.toContain('role="link"');
+  });
+});
+
+function descendants(node: ReturnType<typeof elementAt>): ReturnType<typeof elementAt>[] {
+  return [node, ...node.children.flatMap(descendants)];
+}
+
 describe("Checklist loading row geometry", () => {
   it.each(presets)("matches filled rows without inventing captions in $id", ({ id: preset }) => {
     for (const mode of ["light", "dark"] as const) {

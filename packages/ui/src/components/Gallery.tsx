@@ -144,13 +144,21 @@ export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
   }
   const cells = photos.map((entry, index) =>
     state === "loading" ? (
-      <KitSkeleton key={entry.id} shape="media" lead="none" />
+      <KitRow key={entry.id} label={entry.caption ?? placeholderTitle(index)} inset="none">
+        <KitSkeleton
+          shape="media"
+          aspect={style === "carousel" ? "wide" : "square"}
+          inset="none"
+          contentGap="xs"
+          content={entry.caption ? [["caption", entry.caption]] : []}
+        />
+      </KitRow>
     ) : (
       <GalleryItem key={entry.id} entry={entry} index={index} wide={style === "carousel"} />
     ),
   );
   return (
-    <KitCard style="plain" part="root" padded={state !== "loading"}>
+    <KitCard style="plain" part="root" padded inset="none">
       {style === "strip" || style === "carousel" ? (
         <KitStrip pages={style === "carousel"}>{cells}</KitStrip>
       ) : (
