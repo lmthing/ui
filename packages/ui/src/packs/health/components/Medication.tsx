@@ -1,6 +1,7 @@
 import {
   wordsFor,
   clock,
+  timeOfDayLine,
   probesFor,
   text,
   type FallbackInput,
@@ -10,7 +11,8 @@ import {
 } from "../../../catalog";
 import { z } from "zod";
 import { seedTitles } from "..";
-import { medicationLabels, medicationReading, orderedDoses, refillLine, stockLine } from "../copy";
+import { healthWordsFor } from "../lang";
+import { medicationReading, orderedDoses, refillLine, stockLine } from "../copy";
 import {
   KitAction,
   KitCard,
@@ -20,6 +22,7 @@ import {
   KitRow,
   KitText,
   useComponentState,
+  useWords,
 } from "../../../kit";
 
 // Core first: Checklist/plain cannot log timed doses, skipped marks and remaining stock with refill thresholds.
@@ -43,7 +46,7 @@ export const meta = {
     items: { taken: ["check"], skip: ["press"] },
     when: { taken: { status: "due" }, skip: { status: "due" } },
   },
-  read: (input) => medicationReading(input as z.output<typeof props>),
+  read: (input, _state, lang?: string) => medicationReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
 export const props = z.strictObject({
   doses: z
@@ -64,7 +67,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
 
   return {
-    doses: seedTitles(cast, 2, 24).map((name) => ({
+    doses: seedTitles(cast, 2, 24, lang).map((name) => ({
       name,
       dose: placeholderDetail,
       time: "00:00",
@@ -96,6 +99,7 @@ export const probes = [
 
 type Dose = Props<typeof props, typeof meta>["doses"][number];
 function MedicationStatus({ dose }: { dose: Dose }) {
+  const { lang, words } = useWords(healthWordsFor);
   return (
     <KitContent lineRole="body">
       <KitText
@@ -103,17 +107,18 @@ function MedicationStatus({ dose }: { dose: Dose }) {
         tone={dose.status === "taken" ? "good" : "muted"}
         part={dose.status === "skipped" ? "skip" : null}
       >
-        {medicationLabels[dose.status]}
+        {words.medicationLabels[dose.status]}
       </KitText>
       {dose.left !== undefined && (
         <KitText role="caption" tabular tone="muted" part="left">
-          {stockLine(dose.left)}
+          {stockLine(dose.left, lang)}
         </KitText>
       )}
     </KitContent>
   );
 }
 function MedicationDose({ dose }: { dose: Dose }) {
+  const { lang, words } = useWords(healthWordsFor);
   const due = dose.status === "due";
   return (
     <KitRow
@@ -121,13 +126,13 @@ function MedicationDose({ dose }: { dose: Dose }) {
       label={dose.name}
       trailing={
         <>
-          {due && <KitAction icon="close" a11y={medicationLabels.skip} kind="quiet" part="skip" />}
+          {due && <KitAction icon="close" a11y={words.medicationLabels.skip} kind="quiet" part="skip" />}
           {dose.status !== "skipped" && (
             <KitCheck
               done={dose.status === "taken"}
               readonly={!due}
               part="taken"
-              label={medicationLabels.taken}
+              label={words.medicationLabels.taken}
             />
           )}
         </>
@@ -138,7 +143,7 @@ function MedicationDose({ dose }: { dose: Dose }) {
           {dose.name}
         </KitText>
         <KitText role="number" numberScale="compact" tabular part="time">
-          {dose.time}
+          {timeOfDayLine(dose.time, lang)}
         </KitText>
         <KitText role="caption" tone="muted" part="dose">
           {dose.dose}
@@ -150,6 +155,7 @@ function MedicationDose({ dose }: { dose: Dose }) {
 }
 
 export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(healthWordsFor);
   const state = useComponentState();
   if (state === "empty")
     return (
@@ -157,14 +163,14 @@ export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>
         <KitEmpty part="name" />
       </KitCard>
     );
-  const refill = refillLine(doses, refillAt);
+  const refill = refillLine(doses, refillAt, lang);
   const complete = state === "success" || doses.every((dose) => dose.status === "taken");
   return (
     <KitCard style="inset" part="root">
       {complete && (
-        <KitRow label={medicationLabels.success}>
+        <KitRow label={words.medicationLabels.success}>
           <KitText role="body" tone="good" part={null}>
-            {medicationLabels.success}
+            {words.medicationLabels.success}
           </KitText>
         </KitRow>
       )}

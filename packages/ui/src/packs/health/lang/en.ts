@@ -1,4 +1,13 @@
 export const en = {
+  medicationLabels: {
+    due: "Due",
+    taken: "Taken",
+    skipped: "Skipped",
+    skip: "Skip",
+    success: "All doses taken",
+  },
+  medicationStock: (count: string) => `${count} left`,
+  medicationRefill: (names: readonly string[]) => `Refill: ${names.join(", ")}`,
   cycleDay: (day: string) => `Day ${day}`,
   cycleNotStarted: "Not started",
   cycleNext: (date: string) => `Next period · ${date} (est.)`,
