@@ -145,5 +145,9 @@
 }
 .seg.tier small {
   font: 400 0.68rem var(--mono);
-  opacity: 0.8;
+}
+
+.stream {
+  white-space: normal;
+  overflow-x: hidden;
 }

@@ -3,9 +3,9 @@ import { Reveal } from "../shared/Reveal";
 import { itemById, site } from "../data/site";
 import { Specimen } from "../index/Specimen";
 
-const picks = ["Amount", "List", "Stats", "Checklist", "Ring", "Slots", "Appointment", "MealPlan"];
+const picks = ["Amount", "List", "Stats", "Checklist", "Ring", "Slots"];
 
-/** A first look at the catalog: eight specimens, then the full index on its own page. */
+/** A first look at the catalog: six specimens, then the full index on its own page. */
 export function Specimens() {
   const items = picks.flatMap((id) => (itemById.get(id) ? [itemById.get(id)!] : []));
   return (

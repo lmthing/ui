@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Phone } from "../../live/Phone";
 import { ActPane } from "./ActPane";
 import { CodePane } from "./CodePane";
 import { RequestBar } from "./RequestBar";
 import { TierBar } from "./TierBar";
+import { useFirstRun } from "../useFirstRun";
 import { useTryIt } from "../useTryIt";
 
 const suggestions = ["a plant care app", "a dog walking business", "a weekly meal planner", "a workout log"];
@@ -13,13 +14,7 @@ export default function TryPanel() {
   const t = useTryIt();
   const [request, setRequest] = useState(suggestions[0]!);
   const [hover, setHover] = useState<string | null>(null);
-  // With no on-device model to wait for, show a real recorded run straight away so the panel is never empty.
-  const { chrome, run } = t;
-  useEffect(() => {
-    if (chrome !== "checking" && !["available", "downloadable", "downloading"].includes(chrome))
-      run(suggestions[0]!);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chrome]);
+  useFirstRun(t.chrome, t.run, suggestions[0]!);
   const highlight = t.answer?.ok ? t.answer.address : undefined;
   return (
     <div className="card try">
