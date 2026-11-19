@@ -14,6 +14,8 @@ beforeAll(async () => {
   await page.addInitScript(
     `globalThis.__name = (fn) => fn; globalThis.links = []; globalThis.sends = []; globalThis.changes = []; addEventListener("gallery-link", (event) => links.push(event.detail)); addEventListener("gallery-send", (event) => sends.push(event.detail)); addEventListener("gallery-change", (event) => changes.push(event.detail));`,
   );
+  await open("choice");
+  expect(errors).toEqual([]);
 }, 60000);
 afterAll(async () => {
   await browser?.close();

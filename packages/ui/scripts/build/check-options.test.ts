@@ -39,6 +39,7 @@ it("derives component ids from views, copy, recordings and component-named tests
 });
 it.each([
   "src/kit/base/input/KitInput.tsx",
+  "src/kit/base/input/KitInput.test.ts",
   "src/kit/interact/controller.ts",
   "src/catalog/agent/read.ts",
   "src/catalog/meta/pack.ts",
@@ -55,7 +56,7 @@ it.each([
 it("includes cross-cutting and touched-pack checks without other packs", () => {
   const include = relatedIncludes(["Cycle"], ["health"]);
   expect(include).toContain("src/**/Cycle.test.{ts,tsx}");
-  expect(include).toContain("src/packs/health/tests/**/*.test.{ts,tsx}");
+  expect(include).toContain("src/packs/health/tests/**/[a-z]*.test.{ts,tsx}");
   expect(include.join(" ")).not.toContain("booking");
 });
 it("filters ids, entries and individual layouts, and restores full coverage without an env list", () => {
