@@ -69,10 +69,15 @@ export const en = {
     lux: "lux",
   },
   rewardLabels: {
-    points: "points",
-    cost: "cost",
-    claim: "Claim prize",
+    units: { one: "point", other: "points" },
+    heading: "Rewards",
+    claim: "Claim",
+    success: "Prize claimed",
   },
+  rewardPoints: (value: string, unit: string) => `${value} ${unit}`,
+  rewardEntry: (name: string, amount: string) => `${name}: ${amount}`,
+  rewardNeeds: (amount?: string) => (amount ? `Needs ${amount} more` : "Needs more"),
+  rewardPrizeStatus: (line: string, reason: string) => `${line} · ${reason}`,
   turnLabels: { next: "Done, next", skip: "Skip" },
 };
 
