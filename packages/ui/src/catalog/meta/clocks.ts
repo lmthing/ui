@@ -20,6 +20,8 @@ export type ClockMeta = {
   start?: ClockTrigger;
   stop?: ClockTrigger;
   reset?: ClockTrigger;
+  /** Adjust a countdown's live seconds without starting a paused or finished clock. */
+  adjust?: Pick<ClockTrigger, "part" | "action" | "scope"> & { delta: number; max?: number };
   zero?: "stop" | { state: StateName } | { prop: string; value: string | boolean };
 };
 export type ClockState = { running: boolean; from: number; seconds: number; seed?: number };

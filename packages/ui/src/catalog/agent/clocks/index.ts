@@ -6,6 +6,7 @@ export {
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  clockAdjustment,
   projectClocks,
   clockActionValid,
 } from "./clock";

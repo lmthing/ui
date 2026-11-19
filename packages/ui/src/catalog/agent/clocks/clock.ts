@@ -63,11 +63,30 @@ export function clockTime(clock: ClockTarget, state: ClockState | undefined, hel
 export function clockEnded(clock: ClockTarget, seconds: number) {
   return clock.spec.kind === "up" ? seconds >= (clock.spec.max ?? Infinity) : seconds === 0;
 }
-export function clockTriggerTarget(clock: ClockTarget, trigger: ClockTrigger) {
+export function clockTriggerTarget(clock: ClockTarget, trigger: Pick<ClockTrigger, "part" | "scope">) {
   if (trigger.scope === "component") return trigger.part;
   return (
     `${clock.base}${trigger.part === "root" ? "" : trigger.part}${clock.suffix}`.replace(/\/$/, "") || "root"
   );
+}
+export function clockAdjustment(
+  clock: ClockTarget,
+  target: string,
+  action: string,
+  seconds: number,
+): number | undefined {
+  const adjust = clock.spec.adjust;
+  if (
+    clock.spec.kind !== "down" ||
+    !adjust ||
+    adjust.action !== action ||
+    clockTriggerTarget(clock, adjust) !== target ||
+    !Number.isSafeInteger(adjust.delta)
+  )
+    return;
+  const limit = Math.min(clock.spec.max ?? Infinity, adjust.max ?? Infinity);
+  const next = Math.max(0, Math.min(Math.max(seconds, limit), seconds + adjust.delta));
+  return next === seconds ? undefined : next;
 }
 function projectHolder(meta: Meta, props: Values, clock: ClockTarget, changes: Values): Values {
   if (clock.row === undefined) return { ...props, ...changes };
@@ -119,7 +138,7 @@ function declaredControl(meta: Meta, target: string, action: string) {
   ];
   return groups.some(({ specs, local, own }) =>
     (specs ?? []).some((spec) =>
-      [spec.start, spec.stop, spec.reset].some(
+      [spec.start, spec.stop, spec.reset, spec.adjust].some(
         (trigger) =>
           trigger?.action === action &&
           (trigger.scope === "component"
@@ -137,22 +156,25 @@ export function clockActionValid(
   get: (part: string) => unknown,
   now: number,
 ) {
-  const owners = clockTargets(meta, props).flatMap((clock) =>
-    (["start", "stop", "reset"] as const).flatMap((operation) => {
-      const trigger = clock.spec[operation];
-      if (!trigger || trigger.action !== action || clockTriggerTarget(clock, trigger) !== target) return [];
-      if (!["start", "stop"].includes(action) && operation !== "reset") return [true];
-      const state = get(clockKey(clock)) as ClockState | undefined;
-      const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
-      const running = Boolean(state?.running);
-      return [
-        operation === "start"
-          ? !running
-          : operation === "stop"
-            ? running
-            : running || seconds !== (state?.seed ?? clockSeed(clock)),
-      ];
-    }),
-  );
+  const owners = clockTargets(meta, props).flatMap((clock) => {
+    const state = get(clockKey(clock)) as ClockState | undefined;
+    const seconds = () => clockTime(clock, state, get(clockPropKey(clock)), now);
+    const adjust = clockAdjustment(clock, target, action, clock.spec.adjust ? seconds() : 0);
+    return (["start", "stop", "reset"] as const)
+      .flatMap((operation) => {
+        const trigger = clock.spec[operation];
+        if (!trigger || trigger.action !== action || clockTriggerTarget(clock, trigger) !== target) return [];
+        if (!["start", "stop"].includes(action) && operation !== "reset") return [true];
+        const running = Boolean(state?.running);
+        return [
+          operation === "start"
+            ? !running
+            : operation === "stop"
+              ? running
+              : running || seconds() !== (state?.seed ?? clockSeed(clock)),
+        ];
+      })
+      .concat(adjust === undefined ? [] : [true]);
+  });
   return owners.length ? owners.some(Boolean) : !declaredControl(meta, target, action);
 }

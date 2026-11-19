@@ -11,6 +11,7 @@ import {
   type Meta,
   type Values,
 } from "../../../catalog";
+import { clockAdjustment } from "../../../catalog/agent/clocks";
 
 export function initialClocks(meta: Meta, props: Values, now: number): Values {
   return Object.fromEntries(
@@ -26,6 +27,29 @@ export function initialClocks(meta: Meta, props: Values, now: number): Values {
         } satisfies ClockState,
       ]),
   );
+}
+function adjustClock(
+  clock: ReturnType<typeof clockTargets>[number],
+  get: (part: string) => unknown,
+  target: string,
+  step: ActStep,
+  now: number,
+): Values {
+  if (!clock.spec.adjust) return {};
+  const key = clockKey(clock);
+  const state = get(key) as ClockState | undefined;
+  const current = clockTime(clock, state, get(clockPropKey(clock)), now);
+  const seconds = clockAdjustment(clock, target, step.action, current);
+  if (seconds === undefined) return {};
+  const running = Boolean(state?.running && current > 0 && seconds > 0);
+  // Keep the next tick on its original boundary when adjusting mid-second.
+  const from = running ? now - (Math.max(0, now - state!.from) % 1000) : now;
+  const zero = clock.spec.zero;
+  return {
+    [key]: { running, from, seconds, seed: state?.seed ?? clockSeed(clock) } satisfies ClockState,
+    ...(clock.spec.prop ? { [clockPropKey(clock)]: seconds } : {}),
+    ...(seconds === 0 && zero && zero !== "stop" && "state" in zero ? { $state: zero.state } : {}),
+  };
 }
 /** Stage every matching clock transition alongside the existing control action. */
 export function clockChanges(
@@ -57,6 +81,7 @@ export function clockChanges(
       if (clock.spec.prop) changes[clockPropKey(clock)] = seconds;
       if (trigger.state) changes.$state = trigger.state;
     }
+    Object.assign(changes, adjustClock(clock, get, target, step, now));
   }
   if (changes.$state && changes.$state !== "filled")
     for (const clock of clocks) {
