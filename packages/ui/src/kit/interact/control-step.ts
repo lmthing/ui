@@ -18,13 +18,17 @@ export type ControlChange = {
   send?: { text: string; address: string };
   requestPhoto?: string;
 };
-/** A select address identifies its own item; fields additionally accept an index or display label. */
+/** Infer addressed row values, but require an explicit value for declared choice lists. */
 export function selectedStep(step: ActStep, entry: Entry, input: Values, def: Definition): ActStep {
   if (step.action !== "select" || step.value !== undefined) return step;
-  const local = step.address.replace(`${entry.id}/`, "");
+  const local = (step.address === entry.id ? "root" : step.address.replace(`${entry.id}/`, "")).replace(
+    /\/root$/,
+    "",
+  );
+  if (Object.hasOwn(def.meta.select?.choices ?? {}, local)) return step;
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
-  const found = selectionAt(def.meta, input, local.replace(/\/root$/, ""));
+  const found = selectionAt(def.meta, input, local);
   return found ? { ...step, value: found.value } : step;
 }
 export function controlStep(

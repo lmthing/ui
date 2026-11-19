@@ -1,4 +1,4 @@
-import { liveProps } from "./live-props";
+import { liveProps, projectControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
@@ -6,7 +6,6 @@ import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { projectSelection, projectNested } from "./selection";
 import { projectAdjustments, projectClocks } from "./clocks";
 import type { Meta } from "../meta";
 
@@ -78,7 +77,7 @@ function withValues(
 
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const reading = projectNested(meta, projectSelection(meta, props, get), get);
+  const reading = projectControls(meta, props, get);
   return values[`${instance}/$runtime`]
     ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
     : reading;

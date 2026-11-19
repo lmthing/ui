@@ -1,11 +1,10 @@
-import { liveProps } from "./live-props";
+import { liveProps, setKey } from "./live-props";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
-import { selectionAt, selectionChanges, selectionError } from "./selection";
-import { nestedAt } from "./selection";
+import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -15,6 +14,14 @@ export type ActResult =
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
+
+function setSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string, part: string) {
+  const [id] = address.split("/");
+  if (address !== id && address !== `${id}/${part}`) return undefined;
+  const entry = screen.components.find((item) => item.id === id);
+  const sets = entry && defs[entry.c]?.meta.set;
+  return sets && Object.hasOwn(sets, part) ? sets[part] : undefined;
+}
 
 function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -53,13 +60,13 @@ function selectStep(screen: ScreenLike, defs: Record<string, Definition>, step: 
   if (!def?.meta.select) return { step };
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const props = stampItemIds(def.meta, def.props.parse(raw) as Values);
-  const target = parts.join("/");
+  const target = parts.join("/") || "root";
   const error = selectionError(def.meta, props, target, step.value);
   return {
-    step: { ...step, value: selectionAt(def.meta, props, target)?.value },
+    step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
     error,
     changes: Object.fromEntries(
-      Object.entries(selectionChanges(def.meta, props, target)).map(([part, value]) => [
+      Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
         `${screen.id}/${id}/${part}`,
         value,
       ]),
@@ -93,7 +100,9 @@ export function planAct(
       return { ok: false, code: "not_actionable", at, hint };
     }
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const error = validateActionValue(step.action, step.value, nestedSpec(screen, defs, address));
+    const set = step.action === "set" && setSpec(screen, defs, address, found.part);
+    const limits = set ? { ...set, numeric: true as const } : nestedSpec(screen, defs, address);
+    const error = validateActionValue(step.action, step.value, limits);
     if (error) return { ok: false, at, ...error };
     const key = `${screen.id}/${address}`;
     if (step.action === "toggle" || step.action === "check") {
@@ -106,6 +115,7 @@ export function planAct(
       if (step.action === "select") next[key] = step.value;
     } else {
       next[key] = step.value;
+      if (set) next[`${screen.id}/${address.split("/")[0]}/${setKey(found.part)}`] = step.value;
     }
     Object.assign(next, selected.changes);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);

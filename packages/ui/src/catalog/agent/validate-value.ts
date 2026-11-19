@@ -36,12 +36,12 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
 export function validateActionValue(
   action: string,
   value: unknown,
-  limits?: { min?: number; max?: number; integer?: boolean },
+  limits?: { numeric?: true; min?: number; max?: number; integer?: boolean },
 ): ValueError | null {
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
-  if (limits && (limits.min !== undefined || limits.max !== undefined || limits.integer)) {
+  if (limits && (limits.numeric || limits.min !== undefined || limits.max !== undefined || limits.integer)) {
     if (typeof value !== "number" || !Number.isFinite(value))
       return { code: "invalid_value", hint: "set takes a finite number" };
     if (limits.integer && !Number.isInteger(value))

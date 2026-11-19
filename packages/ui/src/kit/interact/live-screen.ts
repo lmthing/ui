@@ -1,6 +1,5 @@
 import {
-  projectSelection,
-  projectNested,
+  projectControls,
   projectClocks,
   projectAdjustments,
   type ClockState,
@@ -70,8 +69,7 @@ function projectEntry(
   }
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
-  Object.assign(result, projectSelection(defs[entry.c]!.meta, result, get));
-  Object.assign(result, projectNested(defs[entry.c]!.meta, result, get));
+  Object.assign(result, projectControls(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));

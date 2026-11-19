@@ -1,16 +1,27 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
+import { validateActionValue } from "./validate-value";
 
 const rowsOf = (meta: Meta, props: Values): Values[] =>
   meta.items?.key && Array.isArray(props[meta.items.key]) ? (props[meta.items.key] as Values[]) : [];
 const idOf = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
 
-/** Resolve a row or a fixed part without knowing which component owns it. */
-export function selectionAt(meta: Meta, props: Values, target: string) {
+/** Resolve a row or a named part without knowing which component owns it. */
+export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
   const select = meta.select;
   if (!select) return undefined;
+  const choices = Object.hasOwn(select.choices ?? {}, target) ? select.choices![target] : undefined;
+  if (choices) {
+    const allowed = "prop" in choices ? props[choices.prop] : choices;
+    return Array.isArray(allowed) &&
+      !validateActionValue("select", explicit) &&
+      allowed.some((value) => value === explicit)
+      ? { value: explicit }
+      : undefined;
+  }
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };
+  if (!select.value) return undefined;
   const rows = rowsOf(meta, props);
   const index = rows.findIndex((row, at) => idOf(meta, row, at) === target.split("/")[0]);
   const row = rows[index];
@@ -21,7 +32,9 @@ export function selectionAt(meta: Meta, props: Values, target: string) {
 }
 
 export function selectionError(meta: Meta, props: Values, target: string, value: unknown) {
-  const found = selectionAt(meta, props, target);
+  const found = selectionAt(meta, props, target, value);
+  if (Object.hasOwn(meta.select?.choices ?? {}, target))
+    return found ? undefined : "Select an allowed value at this address";
   if (!found || found.value === undefined) return "No option at this address";
   if (value === undefined || value === found.value) return undefined;
   if (found.row) {
@@ -32,9 +45,9 @@ export function selectionError(meta: Meta, props: Values, target: string, value:
 }
 
 /** Keep only the current selection's action value, so repeated reads cannot show stale choices. */
-export function selectionChanges(meta: Meta, props: Values, target: string): Values {
+export function selectionChanges(meta: Meta, props: Values, target: string, explicit?: unknown): Values {
   const select = meta.select;
-  const found = selectionAt(meta, props, target);
+  const found = selectionAt(meta, props, target, explicit);
   if (!select || !found) return {};
   const values: Values = {};
   rowsOf(meta, props).forEach((row, index) => {
@@ -45,12 +58,12 @@ export function selectionChanges(meta: Meta, props: Values, target: string): Val
         if (actions.includes("select")) values[part === "root" ? id : `${id}/${part}`] = undefined;
       });
   });
-  Object.keys(select.parts ?? {}).forEach((part) => {
+  [...Object.keys(select.parts ?? {}), ...Object.keys(select.choices ?? {})].forEach((part) => {
     values[part] = undefined;
   });
   if (select.mode !== "flags") {
     values[`$${select.prop}`] = found.value;
-    values[select.prop] = found.value;
+    if (!Object.hasOwn(select.choices ?? {}, target)) values[select.prop] = found.value;
     values[target] = found.value;
   }
   return values;

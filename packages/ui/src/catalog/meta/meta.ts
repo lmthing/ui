@@ -7,6 +7,20 @@ export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
 
+type RowSelection = "index" | "position" | { field: string };
+type SelectMeta = {
+  prop: string;
+  parts?: Readonly<Record<string, unknown>>;
+} & (
+  | { value: RowSelection; mode: "flags"; choices?: never }
+  | {
+      value?: RowSelection;
+      mode?: "one";
+      /** Named parts that require an explicit value from a closed list or an array prop. */
+      choices?: Readonly<Record<string, readonly (string | number)[] | { prop: string }>>;
+    }
+);
+
 export type Meta = {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
@@ -27,6 +41,8 @@ export type Meta = {
   confirmParts?: readonly string[];
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
+  /** Component parts with a declared `set` action and a finite numeric destination prop. */
+  set?: Readonly<Record<string, { prop: string; min?: number; max?: number; integer?: boolean }>>;
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
@@ -57,12 +73,7 @@ export type Meta = {
       >;
     };
   };
-  select?: {
-    prop: string;
-    value: "index" | "position" | { field: string };
-    mode?: "one" | "flags";
-    parts?: Readonly<Record<string, unknown>>;
-  };
+  select?: SelectMeta;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
