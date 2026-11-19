@@ -36,8 +36,14 @@ it("offers only existing sets and reads each set's own done mark, including time
   const input = { exercises: [{ name: "Timed hold", sets: [{ seconds: 45, done: false }, { done: true }] }] };
   const parsed = stampItemIds(def.meta, def.props.parse(input));
   const actions = affordancesOf(def.meta, parsed, "w1");
-  expect(actions.find((a) => a.address === "w1/r1/done_1")?.detail).toBe(":todo");
-  expect(actions.find((a) => a.address === "w1/r1/done_2")?.detail).toBe(":done");
+  expect(actions.find((a) => a.address === "w1/r1/done_1")).toMatchObject({
+    action: "toggle",
+    detail: ":off",
+  });
+  expect(actions.find((a) => a.address === "w1/r1/done_2")).toMatchObject({
+    action: "toggle",
+    detail: ":on",
+  });
   expect(actions.some((a) => a.address === "w1/r1/weight_1")).toBe(true);
   expect(actions.some((a) => a.address === "w1/r1/done_3")).toBe(false);
   expect(def.props.safeParse({ exercises: [{ ...input.exercises[0], has_1: true }] }).success).toBe(false);
