@@ -10,8 +10,8 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { cycleLabels, cycleReading, cycleToday } from "../copy";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { cycleLabels, cycleReading, cycleToday } from "../../copy";
+import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Cycle;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;

@@ -8,8 +8,8 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
-import { exerciseLabels } from "../copy";
+import { elementAt, renderInstance } from "../../../../../test/render";
+import { exerciseLabels } from "../../copy";
 
 const { props, meta, examples, fallback, probes } = components.Exercise;
 const minimal = { name: "Squat", photo: "local:1", muscles: ["Quads"], cues: ["Keep heels down"] };
