@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { components, component, radius, space } from "@lmthing/ui/catalog";
-import { renderInstance, elementAt, styleAt } from "../../../../test/render";
-import { linesOf, skeletonInset, SkeletonText } from "./skeleton-content";
+import { createElement, type ComponentProps } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { components, component, radius, space, type as typography } from "@lmthing/ui/catalog";
+import { KitCard, KitProvider, KitSkeleton, PartScope } from "@lmthing/ui/kit";
+import { renderInstance, elementAt, styleAt, config } from "../../../../test/render";
+import { linesOf, skeletonInset } from "./skeleton-content";
 
 const theme = { preset: "calm", accent: "moss", mode: "light" } as const;
 const ids = [
@@ -33,15 +37,46 @@ function styles(html: string) {
     .join("\n");
 }
 
+function loadingText(
+  text: string,
+  finish: Pick<ComponentProps<typeof KitSkeleton>, "density" | "emphasis"> = {},
+) {
+  const html = renderToStaticMarkup(
+    createElement(
+      TamaguiProvider,
+      { config, defaultTheme: "kit_calm_light_moss" },
+      createElement(KitProvider, {
+        theme: { ...theme, ...(finish.density ? { density: "compact" as const } : {}) },
+        children: createElement(PartScope, {
+          screen: "home",
+          component: "c1",
+          state: "loading",
+          rev: 1,
+          children: createElement(KitCard, {
+            children: createElement(KitSkeleton, {
+              shape: "figure",
+              lines: [{ text, role: "body" }],
+              ...finish,
+            }),
+          }),
+        }),
+      }),
+    ),
+  );
+  return styles(html);
+}
+
 describe("skeleton content geometry", () => {
   it.each(["5", "600 min", "12:30", "1,240.50"])("keeps numeric %s on one hidden line", (text) => {
-    const drawing = SkeletonText({ text, role: "body" });
-    expect(drawing.props.flexShrink).toBe(0);
-    expect(drawing.props.children[0].props.children.props.lines).toBe(1);
+    expect(loadingText(text)).toContain("text-overflow:ellipsis");
   });
   it("retains wrapping for ordinary body text", () => {
-    const drawing = SkeletonText({ text: "Caller content that wraps", role: "body" });
-    expect(drawing.props.children[0].props.children.props.lines).toBeUndefined();
+    expect(loadingText("Caller content that wraps")).not.toContain("text-overflow:ellipsis");
+  });
+  it("uses the emphasized line geometry even when overriding the app density", () => {
+    const css = loadingText("Entry", { density: "comfortable", emphasis: "hero" });
+    expect(css).toContain(`line-height:${typography.heading.lineHeight}px`);
+    expect(css).toContain(`font-size:${typography.heading.size}px`);
   });
   it("uses only present text and preserves explicit roles", () => {
     expect(linesOf({ title: "Title", sub: "Detail", meta: "Context" }, true)).toEqual([

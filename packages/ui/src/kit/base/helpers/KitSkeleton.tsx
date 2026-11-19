@@ -1,7 +1,7 @@
-import { useWords, useKitStyle } from "../../provider";
+import { useWords, useVariantDensity } from "../../provider";
 import { XStack, YStack, styled } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
-import { KitContent } from "../text";
+import { KitContent, useTextStep } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, linesOf, type ShapeProps } from "./skeleton-content";
 import { SkeletonOptions, SkeletonControl } from "./skeleton-options";
 
@@ -58,11 +58,13 @@ function SkeletonLead({
     </Line>
   );
 }
-function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonProps) {
+function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items, density, emphasis }: SkeletonProps) {
   const { loadingLabel } = useWords().words;
-  const ks = useKitStyle();
-  const first = shape === "headline" ? typography.display.lineHeight : typography.body.lineHeight;
-  const bar = shape === "headline" ? typography.display.size * 0.7 : space.md;
+  const spacing = useVariantDensity(density);
+  const stepOf = useTextStep({ density, emphasis });
+  const primary = typography[stepOf(shape === "headline" ? "display" : "body")];
+  const first = primary.lineHeight;
+  const bar = shape === "headline" ? primary.size * 0.7 : space.md;
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy padding={items ? component.base.none : space.xs}>
       {Array.from({ length: rows }, (_, index) => (
@@ -70,8 +72,8 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
           key={index}
           alignItems="flex-start"
           minHeight={size.control.md}
-          gap={space[ks.density.gap]}
-          paddingVertical={space[ks.density.rowPad]}
+          gap={space[spacing.gap]}
+          paddingVertical={space[spacing.rowPad]}
           paddingHorizontal={skeletonInset(inset)}
         >
           <SkeletonLead
@@ -81,7 +83,9 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
           />
           <YStack flex={1}>
             {items ? (
-              linesOf(items[index]!).map((line, at) => <SkeletonText key={at} {...line} />)
+              linesOf(items[index]!).map((line, at) => (
+                <SkeletonText key={at} {...{ density, emphasis }} {...line} />
+              ))
             ) : (
               <>
                 <Line height={first}>
@@ -110,30 +114,28 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
   );
 }
 
-function SkeletonFigure({ lines, centered, split, inset, lead = "none" }: ShapeProps) {
+function SkeletonFigure({ lines, centered, split, inset, lead = "none", density, emphasis }: ShapeProps) {
   const { loadingLabel } = useWords().words;
+  const first = typography[useTextStep({ density, emphasis })("heading")].lineHeight;
   const aligned = lines?.map((line) => ({ ...line, align: centered ? ("center" as const) : line.align }));
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy padding={skeletonInset(inset)}>
       {split ? (
         <XStack gap={space.md} paddingVertical={space.xs}>
           <YStack flex={1}>
-            <SkeletonText {...aligned![0]!} />
+            <SkeletonText {...{ density, emphasis }} {...aligned![0]!} />
           </YStack>
           <YStack flex={1}>
-            <SkeletonContent lines={aligned?.slice(1)} />
+            <SkeletonContent lines={aligned?.slice(1)} {...{ density, emphasis }} />
           </YStack>
         </XStack>
       ) : (
         <KitContent
-          lead={
-            lead === "none" ? undefined : (
-              <SkeletonLead lead={lead} first={typography.heading.lineHeight} thumbnail />
-            )
-          }
+          {...{ density, emphasis }}
+          lead={lead === "none" ? undefined : <SkeletonLead lead={lead} first={first} thumbnail />}
         >
           {aligned?.map((line, index) => (
-            <SkeletonText key={index} {...line} />
+            <SkeletonText key={index} {...{ density, emphasis }} {...line} />
           ))}
         </KitContent>
       )}
