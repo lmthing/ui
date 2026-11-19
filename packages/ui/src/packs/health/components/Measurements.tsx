@@ -25,7 +25,6 @@ export const meta = {
   parts: ["root", "label", "latest", "change", "goal", "plot", "range", "add"],
   states: ["filled", "empty", "loading"],
   actions: { parts: { range: ["select"], add: ["press"] } },
-  select: { prop: "range", value: "index" },
   read: (input, state) => {
     const { points, unit, goal } = input as z.output<typeof props>;
     const latest = points[points.length - 1]!;

@@ -51,7 +51,15 @@ export const props = z.strictObject({
         })
         .overwrite((exercise) => ({
           ...exercise,
-          ...indexedValues(exercise.sets, 6, ["weight", "reps", "done"]),
+          ...indexedValues(
+            exercise.sets.map((set) => ({
+              weight: { value: set.weight },
+              reps: { value: set.reps },
+              done: { done: set.done },
+            })),
+            6,
+            ["weight", "reps", "done"],
+          ),
         })),
     )
     .min(1)

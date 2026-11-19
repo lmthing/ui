@@ -37,7 +37,7 @@ export const props = z.strictObject({
           ...habit,
           ...Object.fromEntries(
             habit.days.flatMap((done, index) => [
-              [`day_${index + 1}`, done],
+              [`day_${index + 1}`, { done }],
               [`past_${index + 1}`, index <= (new Date().getDay() + 6) % 7],
             ]),
           ),
