@@ -1,4 +1,17 @@
 export const en = {
+  bills: {
+    month: "Monthly estimate",
+    year: "Yearly total",
+    separator: "\u00a0· ",
+    due: (date: string) => `Due ${date}`,
+    overdue: (name: string) => `${name}, overdue`,
+    markPaid: (name: string) => `Mark ${name} as paid`,
+    repeat: {
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    },
+  },
   accountKinds: {
     current: "Current",
     savings: "Savings",
