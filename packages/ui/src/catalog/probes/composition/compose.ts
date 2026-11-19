@@ -2,7 +2,7 @@ import type { CastLike } from "../../types";
 import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
 import { checkScreen } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
-import { buildEntry } from "../../prompt";
+import { buildEntry, variantVocabulary } from "../../prompt";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 export type ComposeResult = {
@@ -30,11 +30,18 @@ export function composePrompt(
 ): string {
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
+  const offersVariants = names.some((name) => defs[name]?.meta.variants || defs[name]?.meta.items?.variants);
   return [
     "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
     `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
+    ...(offersVariants
+      ? [
+          variantVocabulary,
+          "Variant limits: one hero emphasis and one cover collection per screen; highlight at most one third of each component's items.",
+        ]
+      : []),
     ...(meta.layouts[layout]!.writeHints ?? []).map((hint) => `Layout rule: ${hint}`),
     `Real app content: ${JSON.stringify(cast)}`,
     ...names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`),

@@ -17,9 +17,13 @@ function repairFields(
 ): Props {
   let repaired = input;
   for (const [key, value] of Object.entries(input)) {
-    if (!Object.hasOwn(variantAxes, key) || value === undefined) continue;
+    if (!Object.hasOwn(variantAxes, key)) continue;
     const values: readonly string[] | undefined = axes?.[key as Axis];
-    if (values ? typeof value === "string" && values.includes(value) : Object.hasOwn(fields() ?? {}, key))
+    if (
+      values
+        ? value === undefined || (typeof value === "string" && values.includes(value))
+        : Object.hasOwn(fields() ?? {}, key)
+    )
       continue;
     if (repaired === input) repaired = { ...input };
     if (values) repaired[key] = values[0];

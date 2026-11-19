@@ -3,10 +3,27 @@ import {
   archetypes,
   components,
   createRegistry,
+  composePrompt,
   scoreComposition,
   runComposeProbes,
+  variantVocabulary,
 } from "@lmthing/ui/catalog";
 const cast = { things: [], items: [] };
+it("adds the vocabulary once and the screen caps only for recipes with shared axes", () => {
+  const meta = archetypes.chat.meta;
+  expect(composePrompt(meta, "thread", cast, components)).not.toContain(variantVocabulary);
+  const defs = {
+    ...components,
+    Header: {
+      ...components.Header,
+      meta: { ...components.Header.meta, variants: { align: ["start", "center"] } },
+    },
+  } as const;
+  const prompt = composePrompt(meta, "thread", cast, defs);
+  expect(prompt.split(variantVocabulary)).toHaveLength(2);
+  expect(prompt).toContain("highlight at most one third");
+});
+
 describe("composition scoring", () => {
   it("accepts a valid default and rejects missing slots/invalid component props", () => {
     const meta = archetypes.chat.meta,

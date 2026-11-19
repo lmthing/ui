@@ -1,5 +1,6 @@
-import type { Definition } from "./types";
+import type { Definition, WriteProbe } from "./types";
 import { writerInput } from "../format";
+import type { Variants } from "../types";
 
 type Score = { pass: boolean; detail: string };
 
@@ -28,15 +29,41 @@ function jsonLine(reply: string): unknown {
 }
 
 /** Valid first time: right component, props pass the schema with no repair. */
-export function scoreWrite(reply: string, def: Definition): Score {
+export function scoreWrite(reply: string, def: Definition, variant?: WriteProbe["variant"]): Score {
   const line = jsonLine(reply);
   if (!line || typeof line !== "object") return { pass: false, detail: "no JSON object" };
   const { c, ...rest } = line as Record<string, unknown>;
   if (c !== def.meta.id) return { pass: false, detail: `wrote c=${String(c)}` };
-  const parsed = def.props.safeParse(writerInput(def, rest));
-  if (parsed.success) return { pass: true, detail: "valid first time" };
+  const input = writerInput(def, rest) as Record<string, unknown>;
+  const parsed = def.props.safeParse(input);
+  if (parsed.success)
+    return variant ? scoreVariant(input, def, variant) : { pass: true, detail: "valid first time" };
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
   return { pass: false, detail: issues.slice(0, 3).join("; ") };
+}
+
+function scoreVariant(
+  input: Record<string, unknown>,
+  { meta }: Definition,
+  { axis, value, item }: NonNullable<WriteProbe["variant"]>,
+): Score {
+  const axes: Variants | undefined = item === undefined ? meta.variants : meta.items?.variants;
+  const values: readonly string[] | undefined = axes?.[axis];
+  if (!values || (value !== null && !values.includes(value)))
+    return { pass: false, detail: `probe expects undeclared ${axis}` };
+  const rows = meta.items && input[meta.items.key];
+  const target = item === undefined ? input : Array.isArray(rows) ? rows[item] : undefined;
+  if (!target || typeof target !== "object") return { pass: false, detail: `missing item ${item}` };
+  const actual =
+    item !== undefined && value === null && Array.isArray(rows)
+      ? rows.find((row: Record<string, unknown>) => row[axis] !== undefined)?.[axis]
+      : (target as Record<string, unknown>)[axis];
+  const pass = actual === (value ?? undefined);
+  const expected = value === null ? "omitted" : value;
+  return {
+    pass,
+    detail: pass ? `${axis}: ${expected}` : `expected ${axis}: ${expected}, got ${String(actual)}`,
+  };
 }
 
 const normalAddress = (address: string) => address.replace(/^home\//, "").replace(/\/root$/, "");

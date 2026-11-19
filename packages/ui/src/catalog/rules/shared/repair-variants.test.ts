@@ -58,6 +58,10 @@ it("preserves valid values, omissions, and fields with established non-variant m
   const input = { rows: [{ title: "Fern", mark: "highlight" }] };
   expect(repairVariants(list, input).props).toBe(input);
   expect(list.props.parse(repairVariants(list, input).props)).not.toHaveProperty("density");
+  expect(repairVariants(list, { ...input, density: undefined, emphasis: undefined })).toEqual({
+    props: { ...input, density: undefined },
+    codes: ["R2.variant"],
+  });
   const legacy = { rows: [{ title: "Fern", trail: "toggle" }] };
   expect(repairVariants(components.List, legacy)).toEqual({ props: legacy, codes: [] });
   const card = { title: "Fern", style: "tinted", tone: "good", typo: "untouched" };

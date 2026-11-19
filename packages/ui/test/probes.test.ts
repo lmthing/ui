@@ -10,6 +10,7 @@ import {
   packArchetypes,
   packComposition,
   runComposeProbes,
+  variantAxes,
   type PackId,
 } from "@lmthing/ui/catalog";
 
@@ -26,6 +27,21 @@ const selectedPacks = (Object.keys(packs) as PackId[]).filter(
     !process.env.UI_TEST_COMPONENTS ||
     selectedIds(Object.keys(packOf)).some((name) => (packOf as Record<string, PackId>)[name] === id),
 );
+
+describe.each(required)("shared variant probes on $id", (model) => {
+  it("replays every requested and plain brief with a passing majority", async () => {
+    const results = await runProbes({
+      defs: registry.defs,
+      only: ["variants"],
+      samples: model.samples,
+      callModel: replayCall("variants", model.id),
+    });
+    expect(results).toHaveLength(Object.keys(variantAxes).length * 2);
+    expect(
+      results.filter(({ status }) => status !== "pass").map(({ probe, detail }) => ({ probe, detail })),
+    ).toEqual([]);
+  });
+});
 
 describe.each(required)("probes on $id", (model) => {
   it.each(selectedIds(registry.ids))("%s passes its probes", async (id) => {
