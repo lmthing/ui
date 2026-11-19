@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { clockAdjustment, clockTargets, clockTime, projectClocks, clockActionValid } from "./clock";
+import { clockTargets, clockTime, projectClocks, clockActionValid } from "./clock";
+import { adjustmentAt, projectAdjustments } from "./adjustment";
 import type { Meta } from "../../meta";
 const meta: Meta = {
   id: "ClockFixture",
@@ -42,6 +43,7 @@ it("only offers changing adjustments on their owning item, respecting the live c
     items: {
       key: "rows",
       parts: ["more"],
+      adjust: { "more.press": { prop: "remaining", delta: 60, max: 90 } },
       clocks: [
         {
           id: "countdown",
@@ -50,7 +52,6 @@ it("only offers changing adjustments on their owning item, respecting the live c
           prop: "remaining",
           max: 100,
           when: { enabled: true },
-          adjust: { part: "more", action: "press", delta: 60, max: 90 },
         },
       ],
     },
@@ -63,12 +64,32 @@ it("only offers changing adjustments on their owning item, respecting the live c
   };
   const state = { running: true, from: 0, seconds: 90 };
   const get = (key: string) => (key === "r1/$countdown" ? state : undefined);
-  const clock = clockTargets(definition, props).find(({ row }) => row === 0)!;
-  expect(clockAdjustment(clock, "r1/more", "press", 30)).toBe(90);
-  expect(clockAdjustment(clock, "r1/more", "press", 95)).toBeUndefined();
-  expect(clockAdjustment(clock, "r1/more", "stop", 30)).toBeUndefined();
-  expect(clockActionValid(definition, props, "r1/more", "press", get, 999)).toBe(false);
-  expect(clockActionValid(definition, props, "r1/more", "press", get, 1000)).toBe(true);
-  expect(clockActionValid(definition, props, "r2/more", "press", get, 1000)).toBe(false);
-  expect(clockActionValid(definition, props, "r3/more", "press", get, 1000)).toBe(false);
+  expect(adjustmentAt(definition, props, "r1/more", "press", get, 999)?.next).toBeUndefined();
+  expect(adjustmentAt(definition, props, "r1/more", "press", get, 1000)).toMatchObject({
+    current: 89,
+    next: 90,
+  });
+  expect(adjustmentAt(definition, props, "r2/more", "press", get, 1000)?.next).toBeUndefined();
+  expect(adjustmentAt(definition, props, "r3/more", "press", get, 1000)).toBeUndefined();
+  expect(adjustmentAt(definition, props, "r1/more", "stop", get, 1000)).toBeUndefined();
+});
+
+it("projects only addressed numeric rows and preserves order and base props", () => {
+  const plus = { prop: "value", delta: 0.5, min: 5, max: 30 };
+  const definition: Meta = {
+    ...meta,
+    adjust: { "plus.increment": plus },
+    items: { key: "rows", parts: ["plus"], adjust: { "plus.increment": plus } },
+  };
+  const props = { value: 29.75, rows: [{ id: "r1", value: 21 }, { id: "r2", value: 19 }, { id: "r3" }] };
+  const get = (key: string) => (key === "r2/$adjust/value" ? 19.5 : undefined);
+  expect(adjustmentAt(definition, props, "plus", "increment", get, 0)?.next).toBe(30);
+  expect(adjustmentAt(definition, props, "r2/plus", "increment", get, 0)?.next).toBe(20);
+  expect(adjustmentAt(definition, props, "r3/plus", "increment", get, 0)?.next).toBeUndefined();
+  expect(projectAdjustments(definition, props, get).rows).toEqual([
+    { id: "r1", value: 21 },
+    { id: "r2", value: 19.5 },
+    { id: "r3" },
+  ]);
+  expect(props.rows[1]?.value).toBe(19);
 });

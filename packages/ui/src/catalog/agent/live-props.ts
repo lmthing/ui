@@ -2,18 +2,14 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { projectSelection } from "./selection";
 import { projectNested } from "./selection";
-import { projectClocks } from "./clocks";
+import { projectAdjustments, projectClocks } from "./clocks";
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(meta: Meta, props: Values, instance: string, values: Values): Values {
+  const get = (part: string) => values[`${instance}/${part}`];
   props = projectSelection(meta, props, (part) => values[`${instance}/${part}`]);
   props = projectNested(meta, props, (part) => values[`${instance}/${part}`]);
   if (values[`${instance}/$runtime`])
-    props = projectClocks(
-      meta,
-      props,
-      (part) => values[`${instance}/${part}`],
-      Number(values[`${instance}/$now`] ?? Date.now()),
-    );
+    props = projectClocks(meta, projectAdjustments(meta, props, get), get, Number(get("$now") ?? Date.now()));
   if (values[`${instance}/$runtime`]) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
       props = { ...props, minus: undefined };
