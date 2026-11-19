@@ -1,28 +1,28 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { z } from "zod";
 import { planAct, type Definition } from "../../../../catalog";
 import { createAgentAccess, createInteractionStore } from "../../index";
 
+const def: Definition = {
+  meta: {
+    id: "SuccessFixture",
+    group: "action",
+    purpose: "Exercise success actions.",
+    pick: "A fixture for success actions.",
+    region: "body",
+    weight: 1,
+    tier: "phone",
+    realPath: "Allow a confirmed reset.",
+    confirmParts: ["reset"],
+    successActions: ["reset.press"],
+    actions: { parts: { reset: ["press"], other: ["press"] } },
+  },
+  props: z.strictObject({}),
+  fallback: () => ({}),
+  examples: [],
+  probes: [],
+};
 it("allows only declared success actions and keeps confirmation on the standalone agent path", () => {
-  const def: Definition = {
-    meta: {
-      id: "SuccessFixture",
-      group: "action",
-      purpose: "Exercise success actions.",
-      pick: "A fixture for success actions.",
-      region: "body",
-      weight: 1,
-      tier: "phone",
-      realPath: "Allow a confirmed reset.",
-      confirmParts: ["reset"],
-      successActions: ["reset.press"],
-      actions: { parts: { reset: ["press"], other: ["press"] } },
-    },
-    props: z.strictObject({}),
-    fallback: () => ({}),
-    examples: [],
-    probes: [],
-  };
   const screen = { id: "s", components: [{ id: "game", c: def.meta.id, state: "success" as const }] };
   const defs = { [def.meta.id]: def };
   const agent = createAgentAccess({ current: () => screen, defs, store: createInteractionStore() });
@@ -36,4 +36,34 @@ it("allows only declared success actions and keeps confirmation on the standalon
   const { successActions: _successActions, ...meta } = def.meta;
   const legacy = { [def.meta.id]: { ...def, meta } };
   expect(planAct(screen, legacy, {}, [step("reset")]).ok).toBe(false);
+});
+
+it("keeps host navigation for an unrelated button in a standalone success-action batch", () => {
+  const nav: Definition = {
+    ...def,
+    meta: {
+      ...def.meta,
+      id: "NavFixture",
+      successActions: [],
+      actions: { parts: { root: ["press"] } },
+    },
+    props: z.strictObject({ goto: z.string() }),
+  };
+  const screen = {
+    id: "s",
+    components: [
+      { id: "game", c: def.meta.id, state: "success" as const },
+      { id: "nav", c: nav.meta.id, goto: "sheet" },
+    ],
+  };
+  const onLink = vi.fn();
+  const defs = { [def.meta.id]: def, [nav.meta.id]: nav };
+  const agent = createAgentAccess({ current: () => screen, defs, store: createInteractionStore(), onLink });
+  const navStep = { address: "nav", action: "press" };
+  const reset = { address: "game/reset", action: "press" };
+  expect(agent.act([navStep, reset, navStep]).ok).toBe(false);
+  expect(onLink).not.toHaveBeenCalled();
+  expect(agent.act([navStep, reset])).toMatchObject({ ok: true });
+  expect(onLink).toHaveBeenCalledExactlyOnceWith("sheet", "s/nav");
+  expect(agent.read()).toContain("[confirm/confirm press]");
 });

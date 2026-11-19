@@ -102,12 +102,12 @@ const seed = {
 };
 const press = (part: string) => ({ address: `game/${part}`, action: "press" });
 const confirm = { address: "confirm/confirm", action: "press" };
-function game(def: Definition, input: Record<string, unknown>) {
+function game(def: Definition, input: Record<string, unknown>, requireMounted = false) {
   const screen = { id: "s", components: [{ id: "game", c: def.meta.id, ...input }] };
   const defs = { [def.meta.id]: def };
   const store = createInteractionStore({ "s/score/r1/points": 23 });
   const onAction = vi.fn(() => store.get(`s/game/${sessionKey}`));
-  const runtime = createScreenController({ screen, defs, store, onAction });
+  const runtime = createScreenController({ screen, defs, store, onAction, requireMounted });
   const view = () => {
     const { id: _id, c: _c, state, ...wire } = runtime.snapshotScreen().components[0]!;
     const props = stampItemIds(def.meta, def.props.parse(wire));
@@ -145,7 +145,6 @@ it("keeps the turn cursor, skipped turns, lap, direction, reader, and completion
   expect(onAction).toHaveLastReturnedWith(undefined);
   expect(view()).toMatchObject({ state: "filled", session: { index: 1, direction: "forward", turns: 0 } });
 });
-
 it("projects only the active Trivia question and reveals, advances, and restarts through the controller", () => {
   const { runtime, view, store } = game(quiz, seed);
   expect(view()).toEqual({
@@ -180,18 +179,19 @@ it("projects only the active Trivia question and reveals, advances, and restarts
   expect(store.get("s/score/r1/points")).toBe(23);
   expect(quiz.props.safeParse({ ...seed, index: 1, revealed: true }).success).toBe(false);
 });
-it("validates batches across projected states, rolls them back, and honors a loading override", () => {
-  const { runtime, store, view, onAction } = game(quiz, seed);
+it("validates newly offered mounted-batch actions, rolls them back, and honors loading", () => {
+  const { runtime, store, view, onAction } = game(quiz, seed, true);
+  runtime.registerPart("game/show");
+  expect(runtime.act(press("reset"))).toMatchObject({ ok: false, code: "not_mounted" });
+  runtime.registerPart("game/reset");
   expect(runtime.act([press("show"), press("go")], { dryRun: true }).ok).toBe(true);
   expect(runtime.act([press("show"), press("go"), press("go")])).toMatchObject({ ok: false, at: 2 });
   expect(onAction).not.toHaveBeenCalled();
   expect(view()).toMatchObject({ state: "filled", session: { index: 0, revealed: false } });
-  expect(runtime.act([press("show"), press("reset"), confirm, press("go")])).toMatchObject({
-    ok: false,
-    at: 3,
-  });
+  const invalid = [press("show"), press("reset"), confirm, press("go")];
+  expect(runtime.act(invalid)).toMatchObject({ ok: false, at: 3 });
   expect(runtime.confirmation).toBeUndefined();
-  runtime.act(press("show"));
+  expect(runtime.act([press("show"), press("go"), press("show")]).ok).toBe(true);
   store.set("s/game/$state", "loading");
   expect(runtime.read()).toBe("screen s\ngame SequenceFixture (loading)");
   expect(runtime.act(press("go")).ok).toBe(false);

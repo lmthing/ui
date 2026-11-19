@@ -1,6 +1,5 @@
 import { planAct, type ActStep, type Definition, type RandomSource, type ScreenLike } from "../../catalog";
-import { readControls } from "./runtime";
-import { createScreenController } from "./controller";
+import { createStandaloneAccess, readControls } from "./runtime";
 import type { InteractionStore } from "./store";
 
 export type ActOptions = { dryRun?: boolean; agent?: boolean };
@@ -19,23 +18,15 @@ type AgentOptions = {
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
-/** Use the same confirmation dispatcher for opt-in actions even without a mounted phone. */
-function withRuntime<T>(
-  options: AgentOptions,
-  screen: ScreenLike,
-  run: (runtime: NonNullable<AgentOptions["runtime"]>) => T,
-) {
-  if (options.runtime) return run(options.runtime);
+/** Opted-in confirmations work without a mounted phone, keeping the agent's data-only dispatch. */
+function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
   if (
-    !screen.components.some(({ c }) => options.defs[c]?.meta.session || options.defs[c]?.meta.successActions)
+    screen.components.some(({ c }) => {
+      const meta = options.defs[c]?.meta;
+      return meta?.confirmParts?.length && (meta.session || meta.successActions?.length);
+    })
   )
-    return;
-  const runtime = createScreenController({ ...options, screen });
-  try {
-    return run(runtime);
-  } finally {
-    runtime.dispose();
-  }
+    return createStandaloneAccess({ ...options, screen });
 }
 
 /** Every step is checked before commit. Dry runs and rejected batches leave the store untouched. */
@@ -44,33 +35,32 @@ export function createAgentAccess(options: AgentOptions) {
   const log: ActLogEntry[] = [];
   return {
     read: () => {
+      if (options.runtime) return options.runtime.read();
       const screen = current();
       return (
-        withRuntime(options, screen, (runtime) => runtime.read()) ??
+        standaloneAccess(options, screen)?.read() ??
         readControls(screen, defs, store.snapshot(screen.id), options.lang)
       );
     },
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
-      const screen = current();
-      const dispatched = withRuntime(options, screen, (runtime) =>
-        runtime.act(steps, { ...opts, agent: true }),
-      );
-      if (dispatched) {
-        const reply = dispatched;
+      const screen = options.runtime ? undefined : current();
+      const runtime = options.runtime ?? (screen && standaloneAccess(options, screen));
+      if (runtime) {
+        const reply = runtime.act(steps, { ...opts, agent: true });
         if (reply.ok && !opts.dryRun)
           for (const step of Array.isArray(steps) ? steps : [steps]) log.push({ ...step, at: Date.now() });
         return reply;
       }
       const list = Array.isArray(steps) ? steps : [steps];
       const plan = planAct(
-        screen,
+        screen!,
         defs,
-        store.snapshot(screen.id),
+        store.snapshot(screen!.id),
         list,
         opts.dryRun ? null : options.random,
       );
       if (!plan.ok) return plan;
-      const reply = { ok: true as const, screen: screen.id, changed: plan.changed.join("\n") };
+      const reply = { ok: true as const, screen: screen!.id, changed: plan.changed.join("\n") };
       if (opts.dryRun) return { ...reply, dryRun: true };
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);

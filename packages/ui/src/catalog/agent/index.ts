@@ -22,6 +22,7 @@ export { selectionAt, selectionError, selectionChanges, projectSelection } from 
 export { nestedControls, nestedAt, projectNested } from "./selection";
 export {
   sessionAvailable,
+  sessionEvent,
   sessionKey,
   sessionState,
   sessionStatus,
