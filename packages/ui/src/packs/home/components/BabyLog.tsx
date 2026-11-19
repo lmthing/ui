@@ -145,9 +145,8 @@ function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "
 }
 
 function BabyNote({ text, part = null }: { text: string; part?: string | null }) {
-  return (
-    <KitText role="caption" tone="muted" align={part ? "start" : "center"} part={part} children={text} />
-  );
+  const align = !part || part === "running" ? "center" : "start";
+  return <KitText role="caption" tone="muted" align={align} part={part} children={text} />;
 }
 
 export function BabyLog({ entries, running }: BabyLogProps) {
@@ -161,7 +160,8 @@ export function BabyLog({ entries, running }: BabyLogProps) {
   const log = entries.filter((row) => row.entryKind === "log");
   return (
     <KitCard part="root" padded>
-      <KitGrid columns={3}>
+      <KitText role="label" part="heading" children={babyCopy.title} />
+      <KitGrid columns={2}>
         {entries
           .filter((row) => row.entryKind === "tile")
           .map((row) => (
@@ -175,26 +175,25 @@ export function BabyLog({ entries, running }: BabyLogProps) {
               detail={
                 <>
                   <BabyNote text={babyCopy.action(row.active)} />
-                  {row.last && <BabyNote text={babyCopy.last(row.last)} />}
+                  <BabyNote text={babyCopy.last(row.last)} />
                 </>
               }
             />
           ))}
-        <KitContent>
+        <KitContent group="response">
           <BabyNote part="running" text={babyCopy.running(running)} />
           {running !== "none" && (
-            <KitText role="number" tone="accent" tabular part="elapsed" children={babyCopy.clock} />
+            <KitText role="number" tone="accent" align="center" tabular part="elapsed">
+              {babyCopy.clock}
+            </KitText>
           )}
         </KitContent>
       </KitGrid>
-      <KitContent group="response">
-        <KitText role="label" tone="muted" part="heading" children={babyCopy.title} />
-        {log.length ? (
-          log.map((row) => <BabyLogRow key={row.id} {...row} />)
-        ) : (
-          <KitText role="caption" tone="muted" part="empty" children={babyCopy.empty} />
-        )}
-      </KitContent>
+      {log.length ? (
+        log.map((row) => <BabyLogRow key={row.id} {...row} />)
+      ) : (
+        <BabyNote part="empty" text={babyCopy.empty} />
+      )}
     </KitCard>
   );
 }

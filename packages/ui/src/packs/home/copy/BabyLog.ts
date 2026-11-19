@@ -23,7 +23,7 @@ export const babyEmptyLog = emptyLine("entry");
 export const babyRunningLine = (kind: Kind | "none") =>
   kind === "none" ? babyLabels.none : `${babyLabels[kind]} running`;
 export const babyClock = clockLine(0);
-export const babyLastLine = (time: string) => `Last ${time}`;
+export const babyLastLine = (time?: string) => (time ? `Last ${time}` : "—");
 
 type Tile = { id?: string; kind: Kind; entryKind: "tile"; active: boolean; last?: string | undefined };
 type Entry = {
@@ -67,9 +67,7 @@ export function babyRead({ running, entries }: { running: Kind | "none"; entries
     ...entries.map((entry) => {
       const label =
         entry.entryKind === "tile"
-          ? [babyLabels[entry.kind], babyTileAction(entry.active), entry.last && babyLastLine(entry.last)]
-              .filter(Boolean)
-              .join(" · ")
+          ? [babyLabels[entry.kind], babyTileAction(entry.active), babyLastLine(entry.last)].join(" · ")
           : babyEntryLine(entry);
       return entry.id ? `${entry.id} ${label}` : label;
     }),
