@@ -9,4 +9,12 @@ export {
   paymentReading,
   paymentFallback,
 } from "./PaymentStatus";
-export { reviewLabels, reviewCountLine, reviewStarsLine, reviewScaleLabels, reviewReading } from "./Review";
+export {
+  reviewLabels,
+  reviewRatingLine,
+  reviewCountLine,
+  reviewStarsLine,
+  reviewScaleLabels,
+  reviewScale,
+  reviewReading,
+} from "./Review";

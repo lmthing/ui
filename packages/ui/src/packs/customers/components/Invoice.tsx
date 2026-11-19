@@ -1,13 +1,18 @@
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitRow,
+  KitText,
+  useComponentState,
+} from "../../../kit";
 import { z } from "zod";
 import {
   isoDate,
-  documentAmounts,
-  documentFields,
-  documentHeading,
-  documentLabels as copy,
+  documentCopy,
   documentReading,
-  documentSend,
-  documentStatus,
   itemsOf,
   moneyLine,
   placeholderTitle,
@@ -16,12 +21,11 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitGrid, KitRow, KitText, useComponentState } from "../../../kit";
 // Core first: KeyValue/rows cannot show quantity-price lines, computed tax totals and bill/quote actions.
 export const meta = {
   id: "Invoice",
@@ -61,7 +65,7 @@ export const meta = {
     parts: { send: ["press"], accept: ["press"], decline: ["press"] },
     when: { accept: { style: "quote" }, decline: { style: "quote" } },
   },
-  read: (input, state) => documentReading(input as z.infer<typeof props>, state),
+  read: (input, state, lang?: string) => documentReading(input as z.infer<typeof props>, state, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -86,14 +90,14 @@ export const props = z
   })
   .refine(({ status, style }) => style !== "quote" || status !== "paid", { path: ["status"] });
 const draft = "draft" as const;
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
   return {
     number: "1",
-    to: (item && titleOf(item, 28, thing)) || placeholderTitle(0),
+    to: (item && titleOf(item, 28, thing)) || placeholderTitle(0, lang),
     date: "2026-11-18",
-    lines: [{ item: (item && titleOf(item, 32, thing)) || placeholderTitle(0), qty: 1, price: 0 }],
+    lines: [{ item: (item && titleOf(item, 32, thing)) || placeholderTitle(0, lang), qty: 1, price: 0 }],
     status: draft,
   };
 }
@@ -135,41 +139,41 @@ export const probes = [
   read("Decline this quote", { address: "i1/decline", action: "press" }, 1),
 ] satisfies Probe[];
 function InvoiceLines({ lines }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   return lines.map((line) => (
     <KitRow key={line.id} item={line.id} inline label={line.item}>
       <KitText part="item">{line.item}</KitText>
       <KitGrid fitLast>
         <KitText role="caption" part="qty" tone="muted" tabular>
-          {quantityLine(line.qty)}
+          {quantityLine(line.qty, lang)}
         </KitText>
         <KitText role="caption" part="price" tone="muted" tabular align="end">
-          {moneyLine(line.price, undefined, "each")}
+          {moneyLine(line.price, undefined, "each", lang)}
         </KitText>
       </KitGrid>
     </KitRow>
   ));
 }
 export function Invoice(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { documentLabels: copy } = words;
   const state = useComponentState(),
-    { number, note, style } = input;
+    { note, style } = input;
+  const labels = documentCopy(input, state, lang);
   return (
     <KitCard padded part="root">
       <KitContent>
         <KitGrid fitLast>
-          <KitText part="number">{documentHeading(style, number)}</KitText>
-          <KitText role="caption" part="status" tone="muted">
-            {documentStatus(input, state)}
-          </KitText>
+          <KitText part="number">{labels.heading}</KitText>
+          <KitText role="caption" part="status" tone="muted" children={labels.status} />
         </KitGrid>
-        {documentFields(input).map(({ part, text }) => (
-          <KitText key={part} role="caption" part={part} tone="muted">
-            {text}
-          </KitText>
+        {labels.fields.map(({ part, text }) => (
+          <KitText key={part} role="caption" part={part} tone="muted" children={text} />
         ))}
       </KitContent>
       <InvoiceLines {...input} />
       <KitContent>
-        {documentAmounts(input).map(({ part, label, value }) => (
+        {labels.amounts.map(({ part, label, value }) => (
           <KitGrid key={part} fitLast>
             <KitText role="caption" part={null} tone="muted">
               {label}
@@ -180,12 +184,8 @@ export function Invoice(input: Props<typeof props, typeof meta>) {
           </KitGrid>
         ))}
       </KitContent>
-      {note && (
-        <KitText role="caption" part="note" tone="muted">
-          {note}
-        </KitText>
-      )}
-      <KitAction part="send" {...documentSend(input, state)} full />
+      {note && <KitText role="caption" part="note" tone="muted" children={note} />}
+      <KitAction part="send" {...labels.send} full />
       {style === "quote" && (
         <KitGrid>
           <KitAction part="accept" label={copy.accept} full />

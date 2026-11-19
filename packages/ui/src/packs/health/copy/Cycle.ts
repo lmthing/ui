@@ -1,27 +1,14 @@
+import { dateFormatter, numberLine } from "../../../catalog";
+import { healthWordsFor } from "../lang";
 /** Device-local wording and calendar-day estimates, never a contraceptive prediction. */
-export const cycleLabels = {
-  log: "Log period",
-  disclaimer: "Predictions are not a method of contraception.",
-  empty: "Log a period to see cycle estimates.",
-  upcoming: "Upcoming period",
-  period: "Period",
-  follicular: "Follicular phase",
-  ovulation: "Ovulation estimate",
-  luteal: "Luteal phase",
-} as const;
+export const { cycleLabels } = healthWordsFor();
 
 export type CycleSeed = { start: string; length: number; period: number };
 const dayMs = 24 * 60 * 60 * 1000;
 const dateAt = (time: number) => new Date(time).toISOString().split("T")[0]!;
-const dates = new Intl.DateTimeFormat("en-GB", {
-  day: "numeric",
-  month: "short",
-  year: "numeric",
-  timeZone: "UTC",
-});
 const atMidnight = (date: string) => new Date(`${date}T00:00:00Z`);
 const keepTogether = (line: string) => line.replace(/\s/g, "\u00a0");
-const dateLine = (date: string) => keepTogether(dates.format(atMidnight(date)));
+const dateLine = (date: string, lang?: string) => keepTogether(dateFormatter(lang).format(atMidnight(date)));
 
 /** The viewer's calendar date, not tomorrow/yesterday in a different timezone. */
 export function cycleToday(now = new Date()): string {
@@ -33,7 +20,8 @@ export function cycleToday(now = new Date()): string {
 }
 
 /** Repeat the average cycle; estimate ovulation fourteen calendar days before the next period. */
-export function cycleEstimate({ start, length, period }: CycleSeed, today = cycleToday()) {
+export function cycleEstimate({ start, length, period }: CycleSeed, today = cycleToday(), lang?: string) {
+  const { cycleLabels } = healthWordsFor(lang);
   const origin = Date.parse(`${start}T00:00:00Z`);
   const elapsed = Math.round((Date.parse(`${today}T00:00:00Z`) - origin) / dayMs);
   const anchor = origin + Math.max(0, Math.floor(elapsed / length)) * length * dayMs;
@@ -59,18 +47,23 @@ export function cycleEstimate({ start, length, period }: CycleSeed, today = cycl
   };
 }
 
-export const cycleDayLine = (day: number): string => (day ? `Day ${day}` : "Not started");
-export const cycleNextLine = (date: string): string => `Next period · ${dateLine(date)} (est.)`;
-export const cycleWindowLine = (start: string, end: string): string =>
-  `Fertile window (est.) · ${keepTogether(dates.formatRange(atMidnight(start), atMidnight(end)))}`;
+export const cycleDayLine = (day: number, lang?: string): string =>
+  day ? healthWordsFor(lang).cycleDay(numberLine(day, lang)) : healthWordsFor(lang).cycleNotStarted;
+export const cycleNextLine = (date: string, lang?: string): string =>
+  healthWordsFor(lang).cycleNext(dateLine(date, lang));
+export const cycleWindowLine = (start: string, end: string, lang?: string): string =>
+  healthWordsFor(lang).cycleWindow(
+    keepTogether(dateFormatter(lang).formatRange(atMidnight(start), atMidnight(end))),
+  );
 
-export function cycleReading(input: CycleSeed): string[] {
-  const cycle = cycleEstimate(input);
+export function cycleReading(input: CycleSeed, lang?: string): string[] {
+  const { cycleLabels } = healthWordsFor(lang);
+  const cycle = cycleEstimate(input, undefined, lang);
   return [
-    cycleDayLine(cycle.day),
+    cycleDayLine(cycle.day, lang),
     cycle.phase,
-    cycleNextLine(cycle.next),
-    cycleWindowLine(cycle.windowStart, cycle.windowEnd),
+    cycleNextLine(cycle.next, lang),
+    cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang),
     cycleLabels.log,
     cycleLabels.disclaimer,
   ];

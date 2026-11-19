@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -81,16 +81,16 @@ export const props = z
     rows: value.groups.flatMap((group) => group.items.map((item) => ({ ...item, have: false }))),
   }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 28, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 28, thing) ?? placeholderTitle(index, lang),
     note: detailOf(item, 20, thing),
     unit: "none" as const,
   }));
   return {
     servings: 1,
-    groups: [{ items: items.length ? items : [{ name: placeholderTitle(0), unit: "none" }] }],
+    groups: [{ items: items.length ? items : [{ name: placeholderTitle(0, lang), unit: "none" }] }],
   };
 }
 export const examples = [

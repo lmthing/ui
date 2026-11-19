@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   trendWord,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -25,10 +25,10 @@ export const meta = {
   realPath: "Recent measurements of one field in the on-device database.",
   parts: ["root", "label", "value", "line"],
   states: ["filled", "loading"],
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state === "loading") return [];
     const { points } = input as z.output<typeof props>;
-    return [trendWord(points)];
+    return [trendWord(points, lang)];
   },
 } as const satisfies Meta;
 
@@ -39,10 +39,13 @@ export const props = z.strictObject({
   tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const type = thingOf(cast)?.type;
   return {
-    label: typeof type === "string" ? clip(type.trim(), 24) || placeholderTitle(0) : placeholderTitle(0),
+    label:
+      typeof type === "string"
+        ? clip(type.trim(), 24) || placeholderTitle(0, lang)
+        : placeholderTitle(0, lang),
     value: placeholderValue,
     points: [0, 0, 0],
   };

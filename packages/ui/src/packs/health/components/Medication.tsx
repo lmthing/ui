@@ -1,13 +1,13 @@
-import { z } from "zod";
 import {
+  wordsFor,
   clock,
-  placeholderDetail,
   probesFor,
   text,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 import { seedTitles } from "..";
 
 // Core first: Checklist/plain cannot log timed doses, skipped marks and remaining stock with refill thresholds.
@@ -43,7 +43,9 @@ export const props = z.strictObject({
     .max(8),
   refillAt: z.int().min(0).max(10000).optional(),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return {
     doses: seedTitles(cast, 2, 24).map((name) => ({
       name,

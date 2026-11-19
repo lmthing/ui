@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -31,7 +31,8 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty"],
   actions: { items: { root: ["start", "stop"], more: ["press"] } },
-  read: (input) => (input as z.output<typeof props>).timers.map((timer) => clockLine(timer.seconds)),
+  read: (input, _state, lang?: string) =>
+    (input as z.output<typeof props>).timers.map((timer) => clockLine(timer.seconds, lang)),
 } as const satisfies Meta;
 export const props = z.strictObject({
   timers: z
@@ -39,18 +40,18 @@ export const props = z.strictObject({
     .min(1)
     .max(6),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const timers = itemsOf(cast, 3).map((item, index) => ({
-    label: titleOf(item, 16, thing) ?? placeholderTitle(index),
+    label: titleOf(item, 16, thing) ?? placeholderTitle(index, lang),
     seconds: 60,
   }));
   return {
     timers: timers.length
       ? timers
       : [
-          { label: placeholderTitle(0), seconds: 60 },
-          { label: placeholderTitle(1), seconds: 60 },
+          { label: placeholderTitle(0, lang), seconds: 60 },
+          { label: placeholderTitle(1, lang), seconds: 60 },
         ],
   };
 }

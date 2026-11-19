@@ -6,3 +6,5 @@ Pure copy owned by kitchen components. Import through `index.ts`.
 - Tests live in `../tests/copy/FoodLog.test.ts`.
 User-facing kitchen component copy and data-only reading helpers.
 Import through this folder's `index.ts` door.
+
+Put new words and grammar in `../lang/en.ts`; helpers here take the app `lang`.

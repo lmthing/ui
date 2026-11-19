@@ -1,18 +1,5 @@
-import { z } from "zod";
 import {
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitContent,
@@ -22,8 +9,23 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
-import { foodLogGroups, foodLogLabels, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../copy";
-// Core first: List/inset cannot group eaten foods by meal with numeric calories and per-meal add actions.
+import { kitchenWordsFor } from "../lang";
+import { z } from "zod";
+import {
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+  percentLine,
+} from "../../../catalog";
+import { foodLogGroups, foodLogRead, foodLogTotal, kcalLine, targetLine } from "../copy";
 export const meta = {
   id: "FoodLog",
   status: "ready",
@@ -46,7 +48,8 @@ export const meta = {
     items: { add: ["press"], root: ["press"] },
     when: { add: { entry: "meal" }, root: { entry: "food" } },
   },
-  read: (input, state) => (state === "filled" ? foodLogRead(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? foodLogRead(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 const schema = z
   .strictObject({
@@ -84,12 +87,13 @@ const withRows = (value: z.output<typeof schema>) => ({
 });
 export const props = schema.overwrite(withRows) as typeof schema &
   z.ZodType<ReturnType<typeof withRows>, z.input<typeof schema>>;
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 28, thingOf(cast)) ?? placeholderTitle(index),
+    name: titleOf(item, 28, thingOf(cast)) ?? placeholderTitle(index, lang),
     kcal: 0,
   }));
-  if (!items.length) items.push(...[0, 1, 2].map((index) => ({ name: placeholderTitle(index), kcal: 0 })));
+  if (!items.length)
+    items.push(...[0, 1, 2].map((index) => ({ name: placeholderTitle(index, lang), kcal: 0 })));
   return { meals: [{ meal: "dinner", items }], goto: "details" };
 }
 export const examples = [
@@ -129,7 +133,8 @@ export const probes = [
   read("Add another food to dinner", { address: "f1/r1/add", action: "press" }),
   read("Open the logged lasagne entry", { address: "f1/r2", action: "press" }),
 ] satisfies Probe[];
-function FoodLogRow(row: Props<typeof props, typeof meta>["rows"][number]) {
+function foodLogRow(row: Props<typeof props, typeof meta>["rows"][number], lang: string) {
+  const { foodLogLabels } = kitchenWordsFor(lang);
   if (row.entry === "meal") {
     const label = foodLogLabels.meals[row.meal];
     return (
@@ -146,27 +151,21 @@ function FoodLogRow(row: Props<typeof props, typeof meta>["rows"][number]) {
       </KitRow>
     );
   }
+  const kcal = kcalLine(row.kcal, lang);
+  const trailing = <KitText role="number" numberScale="compact" tabular part="kcal" children={kcal} />;
   return (
-    <KitRow
-      key={row.id}
-      item={row.id}
-      label={row.name}
-      role="button"
-      inline
-      trailing={
-        <KitText role="number" numberScale="compact" tabular part="kcal">
-          {kcalLine(row.kcal)}
-        </KitText>
-      }
-    >
+    <KitRow key={row.id} item={row.id} label={row.name} role="button" inline trailing={trailing}>
       <KitText part="name">{row.name}</KitText>
       {row.amount && <KitText role="caption" tone="muted" part="amount" children={row.amount} />}
     </KitRow>
   );
 }
 export function FoodLog({ meals, rows, target }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(kitchenWordsFor);
+  const { target: label } = words.foodLogLabels;
   const state = useComponentState();
   const total = foodLogTotal(meals);
+  const kcal = kcalLine(total, lang);
   if (state === "empty")
     return (
       <KitCard style="inset" part="root">
@@ -175,24 +174,20 @@ export function FoodLog({ meals, rows, target }: Props<typeof props, typeof meta
     );
   return (
     <KitCard style="inset" part="root">
-      <KitRow label={kcalLine(total)}>
-        <KitText role="number" tabular part="total" children={kcalLine(total)} />
+      <KitRow label={kcal}>
+        <KitText role="number" tabular part="total" children={kcal} />
         {target !== undefined && (
-          <KitText role="caption" tone="muted" part="target" children={targetLine(target)} />
+          <KitText role="caption" tone="muted" part="target" children={targetLine(target, lang)} />
         )}
       </KitRow>
       {target !== undefined && (
-        <KitRow label={foodLogLabels.target}>
-          <KitMeter
-            label={foodLogLabels.target}
-            amount={foodLogLabels.share(total, target)}
-            ratio={total / target}
-          />
+        <KitRow label={label}>
+          <KitMeter label={label} amount={percentLine(total, target, lang)} ratio={total / target} />
         </KitRow>
       )}
       {foodLogGroups(meals, rows).map((group, index) => (
         <KitContent key={index} inset="md" group={index > 0 ? "response" : "content"}>
-          {group.map(FoodLogRow)}
+          {group.map((row) => foodLogRow(row, lang))}
         </KitContent>
       ))}
     </KitCard>

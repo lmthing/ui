@@ -1,5 +1,2 @@
-export const rewardLabels = {
-  points: "points",
-  cost: "cost",
-  claim: "Claim prize",
-} as const;
+import { homeWordsFor } from "../lang";
+export const { rewardLabels } = homeWordsFor();

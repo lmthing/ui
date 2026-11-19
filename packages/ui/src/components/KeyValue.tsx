@@ -8,7 +8,7 @@ import {
   placeholderValue,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -36,7 +36,7 @@ export const props = z.strictObject({
     .max(6),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = itemsOf(cast, 1)[0];
   const pairs = (thing?.fields ?? [])
@@ -56,7 +56,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     style: "rows",
     pairs: pairs.length
       ? pairs
-      : [0, 1].map((index) => ({ label: placeholderTitle(index), value: placeholderValue })),
+      : [0, 1].map((index) => ({ label: placeholderTitle(index, lang), value: placeholderValue })),
   };
 }
 

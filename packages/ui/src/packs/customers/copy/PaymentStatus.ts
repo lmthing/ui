@@ -1,24 +1,17 @@
+import { customersWordsFor } from "../lang";
 import {
   appointmentDate,
   compactMoneyLine,
   isoDate,
   itemsOf,
-  moneyLabels,
+  wordsFor,
   placeholderValue,
   textsOf,
   thingOf,
   type CastLike,
 } from "../../../catalog";
 
-export const paymentLabels = {
-  paid: "Paid",
-  due: "Due",
-  overdue: "Overdue",
-  partial: "Part paid",
-  mark: "Mark as paid",
-  remind: "Remind",
-  updated: "Update complete",
-} as const;
+export const { paymentLabels } = customersWordsFor();
 type Payment = {
   amount: number;
   paid?: number | undefined;
@@ -28,8 +21,8 @@ type Payment = {
 };
 
 export const paymentToday = (): string => new Date().toISOString().slice(0, 10);
-export const paymentAmountLine = (amount: number): string =>
-  `${moneyLabels.total} ${compactMoneyLine(amount)}`;
+export const paymentAmountLine = (amount: number, lang?: string): string =>
+  `${wordsFor(lang).moneyLabels.total} ${compactMoneyLine(amount, undefined, lang)}`;
 
 /** Settlement wins; any unpaid amount past its due date is overdue, including part payments. */
 export function paymentStatus(
@@ -42,21 +35,25 @@ export function paymentStatus(
 }
 
 /** Record details use the same copy on screen and in the reading. */
-export function paymentDetails(input: Payment): { part: string; text: string }[] {
+export function paymentDetails(input: Payment, lang?: string): { part: string; text: string }[] {
+  const words = customersWordsFor(lang);
   return [
-    ...(input.paid === undefined ? [] : [{ part: "paid", text: `Received ${compactMoneyLine(input.paid)}` }]),
-    { part: "date", text: `Date ${appointmentDate(input.date)}` },
-    ...(input.due ? [{ part: "due", text: `Due ${appointmentDate(input.due)}` }] : []),
+    ...(input.paid === undefined
+      ? []
+      : [{ part: "paid", text: words.received(compactMoneyLine(input.paid, undefined, lang)) }]),
+    { part: "date", text: words.paymentDate(appointmentDate(input.date, lang)) },
+    ...(input.due ? [{ part: "due", text: words.paymentDue(appointmentDate(input.due, lang)) }] : []),
     ...(input.method ? [{ part: "method", text: input.method }] : []),
   ];
 }
 
-export function paymentReading(input: Payment): string[] {
+export function paymentReading(input: Payment, lang?: string): string[] {
+  const { paymentLabels } = customersWordsFor(lang);
   return [
     paymentLabels[paymentStatus(input)],
-    paymentAmountLine(input.amount),
+    paymentAmountLine(input.amount, lang),
     String(input.amount),
-    ...paymentDetails(input).map((line) => line.text),
+    ...paymentDetails(input, lang).map((line) => line.text),
     ...(input.paid === undefined ? [] : [String(input.paid)]),
     input.date,
     ...(input.due ? [input.due] : []),

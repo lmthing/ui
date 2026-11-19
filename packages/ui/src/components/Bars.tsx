@@ -1,3 +1,15 @@
+import {
+  useWords,
+  KitBars,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitShare,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+} from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -9,22 +21,11 @@ import {
   thingOf,
   titleOf,
   totalLine,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import {
-  KitBars,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitShare,
-  KitSkeleton,
-  KitText,
-  useComponentState,
-} from "../kit";
 
 export const meta = {
   id: "Bars",
@@ -43,16 +44,16 @@ export const meta = {
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total"],
   states: ["filled", "empty", "loading"],
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { points, unit, style } = input as z.output<typeof props>;
     const total = points.reduce((sum, point) => sum + point.value, 0);
     return [
-      totalLine(total, unit),
+      totalLine(total, unit, lang),
       points
         .map(
           (point) =>
-            `${point.label} ${point.value}${style === "share" ? ` ${percentLine(point.value, total)}` : ""}`,
+            `${point.label} ${point.value}${style === "share" ? ` ${percentLine(point.value, total, lang)}` : ""}`,
         )
         .join(", "),
     ];
@@ -78,7 +79,7 @@ export const props = z
     message: "A share holds at most six parts",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const points = itemsOf(cast, 7).flatMap((item) => {
     const label = titleOf(item, 4, thing);
@@ -90,9 +91,10 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     return label ? [{ label, value: typeof value === "number" ? value : 0 }] : [];
   });
   const count = points.length ? Math.max(points.length, 2) : 7;
-  while (points.length < count) points.push({ label: clip(placeholderTitle(points.length), 4), value: 0 });
+  while (points.length < count)
+    points.push({ label: clip(placeholderTitle(points.length, lang), 4), value: 0 });
   return {
-    title: clip(thing?.type.replace(/[_-]+/g, " ").trim() || placeholderTitle(0), 32),
+    title: clip(thing?.type.replace(/[_-]+/g, " ").trim() || placeholderTitle(0, lang), 32),
     points,
   };
 }
@@ -145,7 +147,8 @@ export const probes = [
 
 type TotalProps = { value: number; unit?: string | undefined; compact?: boolean };
 function Total({ value, unit, compact = false }: TotalProps) {
-  const label = totalLine(value).slice(0, -String(value).length).trim();
+  const { lang, words } = useWords();
+  const label = words.moneyLabels.total;
   return (
     <KitContent>
       <KitText role={compact ? "body" : "caption"} tone="muted" align="end" part={null}>

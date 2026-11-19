@@ -1,15 +1,5 @@
-import { z } from "zod";
 import {
-  photo,
-  placeholderDetail,
-  probesFor,
-  text,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitAction,
   KitCard,
   KitContent,
@@ -21,8 +11,20 @@ import {
   useComponentState,
   type TextRole,
 } from "../../../kit";
+import {
+  wordsFor,
+  photo,
+  probesFor,
+  text,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { healthWordsFor } from "../lang";
+import { z } from "zod";
 import { seedTitles } from "..";
-import { exerciseLabels, exerciseReading } from "../copy";
+import { exerciseReading } from "../copy";
 
 // Core first: Player/video cannot pair an exercise's muscles and form cues with best and last results.
 export const meta = {
@@ -38,7 +40,8 @@ export const meta = {
   parts: ["root", "name", "photo", "muscles", "cues", "equipment", "best", "last", "start"],
   states: ["filled", "loading"],
   actions: { parts: { start: ["press"] } },
-  read: (input, state) => (state === "filled" ? exerciseReading(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? exerciseReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 export const props = z.strictObject({
   name: text(28),
@@ -49,7 +52,9 @@ export const props = z.strictObject({
   best: text(16).optional(),
   last: text(16).optional(),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return {
     name: seedTitles(cast, 1, 28)[0]!,
     photo: "local:1",
@@ -122,6 +127,7 @@ function ExerciseResults({
   last?: string | undefined;
   loading: boolean;
 }) {
+  const { exerciseLabels } = useWords(healthWordsFor).words;
   const results = [
     ["best", best],
     ["last", last],
@@ -155,6 +161,7 @@ export function Exercise({
   best,
   last,
 }: Props<typeof props, typeof meta>) {
+  const { exerciseLabels } = useWords(healthWordsFor).words;
   const loading = useComponentState() === "loading";
   return (
     <KitCard part="root" style="inset" padded>

@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -42,13 +42,13 @@ export const props = z
     message: "Must index an available option",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const options = itemsOf(cast, 2).flatMap((item) => {
     const label = titleOf(item, 14, thing);
     return label ? [{ label }] : [];
   });
-  while (options.length < 2) options.push({ label: placeholderTitle(options.length) });
+  while (options.length < 2) options.push({ label: placeholderTitle(options.length, lang) });
   return { options, at: 0 };
 }
 

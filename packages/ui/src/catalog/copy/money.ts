@@ -124,6 +124,16 @@ export function documentFields(input: Pick<DocumentInput, "to" | "date" | "due">
   );
 }
 
+export function documentCopy(input: DocumentInput, state: string, lang?: string) {
+  return {
+    heading: documentHeading(input.style, input.number, lang),
+    status: documentStatus(input, state, undefined, lang),
+    fields: documentFields(input, lang),
+    amounts: documentAmounts(input, lang),
+    send: documentSend(input, state, lang),
+  };
+}
+
 /** Ordered label/value pairs keep the visible totals and agent reading identical. */
 export function documentAmounts(input: Pick<DocumentInput, "lines" | "tax">, lang?: string) {
   const words = wordsFor(lang);

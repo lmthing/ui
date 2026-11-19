@@ -1,18 +1,18 @@
-import { z } from "zod";
 import {
+  wordsFor,
   detailOf,
   itemsOf,
   photo,
-  placeholderDetail,
   placeholderTitle,
   probesFor,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Choice/default cannot run a host-led question/reveal sequence without grading submissions.
 export const meta = {
@@ -53,14 +53,18 @@ export const props = z.strictObject({
     .max(6),
   style: z.enum(["card", "large"]).default("card"),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const thing = thingOf(cast);
   const questions = itemsOf(cast, 3).map((item, index) => ({
-    question: titleOf(item, 120, thing) ?? placeholderTitle(index),
+    question: titleOf(item, 120, thing) ?? placeholderTitle(index, lang),
     answer: detailOf(item, 120, thing) ?? placeholderDetail,
   }));
   return {
-    questions: questions.length ? questions : [{ question: placeholderTitle(0), answer: placeholderDetail }],
+    questions: questions.length
+      ? questions
+      : [{ question: placeholderTitle(0, lang), answer: placeholderDetail }],
   };
 }
 export const examples = [

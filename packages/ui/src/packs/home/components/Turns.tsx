@@ -1,3 +1,4 @@
+import { homeWordsFor } from "../lang";
 import { z } from "zod";
 import {
   itemsOf,
@@ -7,11 +8,10 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
-import { turnLabels } from "../copy";
 
 // Core first: People/stack lists people, not a current duty holder and an advancing rotation.
 export const meta = {
@@ -32,7 +32,9 @@ export const meta = {
   parts: ["root", "job", "next", "skip"],
   states: ["filled"],
   actions: { parts: { next: ["press"], skip: ["press"] } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { turnLabels } = homeWordsFor(lang);
+
     if (state !== "filled") return [];
     const { people, at } = input as z.output<typeof props>;
     return [people[at]!.name, turnLabels.next, turnLabels.skip];
@@ -48,12 +50,14 @@ export const props = z
     at: z.int().min(0).max(5),
   })
   .refine(({ people, at }) => at < people.length, { path: ["at"], message: "at must index people" });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 6);
-  const people = items.map((item, index) => ({ name: titleOf(item, 16, thing) ?? placeholderTitle(index) }));
-  while (people.length < 2) people.push({ name: placeholderTitle(people.length) });
-  return { job: placeholderTitle(0), people, at: 0 };
+  const people = items.map((item, index) => ({
+    name: titleOf(item, 16, thing) ?? placeholderTitle(index, lang),
+  }));
+  while (people.length < 2) people.push({ name: placeholderTitle(people.length, lang) });
+  return { job: placeholderTitle(0, lang), people, at: 0 };
 }
 export const examples = [
   {

@@ -1,18 +1,17 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
   icon,
-  messageLabels,
-  placeholderDetail,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitEmpty, KitIcon, KitRow, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Success",
@@ -30,7 +29,10 @@ export const meta = {
     parts: { close: ["dismiss"], undo: ["press"] },
     when: { close: { style: "toast" }, undo: { undoable: true } },
   },
-  read: (input) => ((input as { undo: boolean }).undo ? [messageLabels.undo] : []),
+  read: (input, _state, lang?: string) => {
+    const { messageLabels } = wordsFor(lang);
+    return (input as { undo: boolean }).undo ? [messageLabels.undo] : [];
+  },
 } as const satisfies Meta;
 
 export const props = z
@@ -45,10 +47,12 @@ export const props = z
   // never written.
   .overwrite((value) => ({ ...value, style: value.undo ? "toast" : value.style, undoable: value.undo }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail, saved } = wordsFor(lang);
+
   const item = cast.items[0];
   const sub = item ? titleOf(item, 100, thingOf(cast, item.type)) : undefined;
-  return { title: "Saved", sub: sub ?? placeholderDetail };
+  return { title: saved, sub: sub ?? placeholderDetail };
 }
 
 export const examples = [
@@ -68,6 +72,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Success({ style, title, sub, icon, undo }: Props<typeof props, typeof meta>) {
+  const { messageLabels } = useWords().words;
   if (style === "toast") {
     return (
       <KitCard style="inset" look="tinted" tone="good" part="root" padded>

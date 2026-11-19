@@ -1,18 +1,17 @@
-import { z } from "zod";
 import {
+  wordsFor,
   itemsOf,
   kitchenItemLine,
-  kitchenLabels,
-  placeholderDetail,
   placeholderTitle,
   probesFor,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
@@ -35,7 +34,9 @@ export const meta = {
   states: ["filled", "empty", "success"],
   signature: "check_burst",
   actions: { items: { got: ["check"] }, parts: { add: ["type"] } },
-  read: (input) => {
+  read: (input, _state, lang?: string) => {
+    const { kitchenLabels } = wordsFor(lang);
+
     const value = input as z.output<typeof props>;
     let index = 0;
     return [
@@ -76,15 +77,20 @@ export const props = z
       .max(8),
   })
   .overwrite((value) => ({ ...value, rows: value.aisles.flatMap((aisle) => aisle.items) }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 28, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 28, thing) ?? placeholderTitle(index, lang),
     got: false,
   }));
   return {
     aisles: [
-      { label: placeholderDetail, items: items.length ? items : [{ name: placeholderTitle(0), got: false }] },
+      {
+        label: placeholderDetail,
+        items: items.length ? items : [{ name: placeholderTitle(0, lang), got: false }],
+      },
     ],
   };
 }

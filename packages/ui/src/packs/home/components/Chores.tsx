@@ -1,22 +1,22 @@
-import { z } from "zod";
 import {
+  wordsFor,
   isoDate,
   itemsOf,
   photo,
   placeholderTitle,
   probesFor,
-  repeatLabels,
   repeatOptions,
   screenId,
   text,
   thingOf,
   titleOf,
   detailOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
-import { choreLabels } from "../copy";
+import { homeWordsFor } from "../lang";
+import { z } from "zod";
 
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
@@ -37,13 +37,16 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "success"],
   actions: { items: { done: ["check"], root: ["press"] } },
-  read: (input, state) =>
-    state === "filled"
+  read: (input, state, lang?: string) => {
+    const { repeatLabels } = wordsFor(lang);
+    const { choreLabels } = homeWordsFor(lang);
+    return state === "filled"
       ? (input as z.output<typeof props>).chores.map(
           (row) =>
             `${row.title} · ${row.who} · ${row.every} ${repeatLabels[row.repeat]}${row.points === undefined ? "" : ` · ${row.points} ${choreLabels.points}`}`,
         )
-      : [],
+      : [];
+  },
 } as const satisfies Meta;
 
 export const props = z.strictObject({
@@ -64,13 +67,17 @@ export const props = z.strictObject({
     .max(6),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 6);
   return {
     chores: (items.length ? items : [undefined]).map((item, index) => ({
-      title: item ? (titleOf(item, 28, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
-      who: item ? (detailOf(item, 16, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
+      title: item
+        ? (titleOf(item, 28, thing) ?? placeholderTitle(index, lang))
+        : placeholderTitle(index, lang),
+      who: item
+        ? (detailOf(item, 16, thing) ?? placeholderTitle(index, lang))
+        : placeholderTitle(index, lang),
       repeat: "weekly",
       every: 1,
       goto: item && screenId.safeParse(item.id).success ? item.id : "detail",

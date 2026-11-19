@@ -58,6 +58,21 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
 
+## Words and language
+
+`KitProvider` and `PhoneScreen` take the app's BCP-47 `lang`; the default is English.
+Keep built-in labels, units and grammar in `src/catalog/lang/en.ts`, not in views or copy helpers.
+Read them with `const { lang, words } = useWords()`; pass `lang` to number, date, time and copy
+helpers. Pass the same tag to data-only `meta.read`, `readPrompt`, and `fallback({ cast, lang })`.
+Leave authored text, action identifiers, and stored numeric and date values unchanged.
+
+A pack keeps its words in `src/packs/<pack>/lang/en.ts` and exposes its lookup through `lang/index.ts`.
+Use `useWords(<pack>WordsFor)` for pack words and `<pack>WordsFor(lang)` outside React.
+Use `Intl.PluralRules` via `pluralForm` for counted nouns; thing-type inflection belongs in the
+language file. To add a language, write a complete dictionary that `satisfies Words` (or
+`<Pack>Words`) and register it with the corresponding language lookup before rendering.
+Unregistered words fall back to English. Only English ships at launch.
+
 ## Kit bases (the only building blocks)
 
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.

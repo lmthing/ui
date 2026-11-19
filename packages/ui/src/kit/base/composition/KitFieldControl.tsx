@@ -1,4 +1,5 @@
-import { photoLabels, placeholderTitle, placeholderValue } from "../../../catalog";
+import { useWords } from "../../provider";
+import { placeholderTitle, placeholderValue } from "../../../catalog";
 import { KitAction, KitChip, KitTrack, KitInput } from "../input";
 import { KitSlider } from "../slider";
 import { KitContent, KitText } from "../text";
@@ -64,7 +65,9 @@ function SliderField({ value, label }: FieldProps) {
   );
 }
 function PhotoField({ value, label }: FieldProps) {
-  const photo = value ?? `lib:${placeholderTitle(0).toLowerCase().replace(/ /g, "_")}`;
+  const { lang, words } = useWords();
+  const { photoLabels } = words;
+  const photo = value ?? `lib:${placeholderTitle(0, lang).toLowerCase().replace(/ /g, "_")}`;
   return (
     <>
       <KitPhoto photo={photo} label={label} shape="wide" part="photo" />

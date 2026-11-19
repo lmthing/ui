@@ -7,7 +7,7 @@ import {
   screenId,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -38,11 +38,11 @@ export const props = z
   // The shared reader distinguishes an absent optional part by its explicit undefined value.
   .overwrite((value) => ({ ...value, action: value.action }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const type = thingOf(cast)?.type.replace(/_/g, " ").trim();
   return {
     style: "large",
-    title: type ? clip(type.charAt(0).toUpperCase() + type.slice(1), 28) : placeholderTitle(0),
+    title: type ? clip(type.charAt(0).toUpperCase() + type.slice(1), 28) : placeholderTitle(0, lang),
   };
 }
 

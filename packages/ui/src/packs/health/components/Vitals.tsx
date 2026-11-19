@@ -1,14 +1,14 @@
-import { z } from "zod";
 import {
-  placeholderDetail,
+  wordsFor,
   placeholderValue,
   probesFor,
   screenId,
   text,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 import { seedTitles } from "..";
 
 // Core first: Stats/default cannot place readings on a low/normal/high reference band.
@@ -51,7 +51,9 @@ export const props = z.strictObject({
     .max(4),
   goto: screenId,
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return {
     readings: seedTitles(cast, 2, 20).map((label) => ({
       label,

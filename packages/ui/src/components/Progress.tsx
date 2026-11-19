@@ -1,3 +1,4 @@
+import { useWords, KitCard, KitEmpty, KitMeter, KitRow, KitSkeleton, useComponentState } from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -8,12 +9,11 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitEmpty, KitMeter, KitRow, KitSkeleton, useComponentState } from "../kit";
 
 export const meta = {
   id: "Progress",
@@ -29,10 +29,10 @@ export const meta = {
   parts: ["root"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const { bars } = input as z.output<typeof props>;
-    return bars.map((bar) => amountLine(bar));
+    return bars.map((bar) => amountLine(bar, lang));
   },
 } as const satisfies Meta;
 
@@ -56,10 +56,12 @@ export const props = z
   // Only linked bars expose a root action to the shared reader.
   .overwrite((value) => ({ ...value, bars: value.bars.map((bar) => ({ ...bar, root: bar.goto })) }));
 
-const amountLine = ({ value, of, unit }: { value: number; of: number; unit?: string | undefined }) =>
-  `${value} ${goalLine(of)}${unit ? ` ${unit}` : ""}`;
+const amountLine = (
+  { value, of, unit }: { value: number; of: number; unit?: string | undefined },
+  lang?: string,
+) => `${value} ${goalLine(of, lang)}${unit ? ` ${unit}` : ""}`;
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const bars = itemsOf(cast, 3).flatMap((item) => {
     const label = titleOf(item, 20, thing);
@@ -67,7 +69,9 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   });
   return {
     style: "stack",
-    bars: bars.length ? bars : [0, 1].map((index) => ({ label: placeholderTitle(index), value: 0, of: 1 })),
+    bars: bars.length
+      ? bars
+      : [0, 1].map((index) => ({ label: placeholderTitle(index, lang), value: 0, of: 1 })),
   };
 }
 
@@ -101,6 +105,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Progress({ style, bars }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading") {
     return (
@@ -122,7 +127,7 @@ export function Progress({ style, bars }: Props<typeof props, typeof meta>) {
         <KitRow key={bar.id} item={bar.id} label={bar.label} goto={bar.goto} inset="none">
           <KitMeter
             label={bar.label}
-            amount={amountLine(bar)}
+            amount={amountLine(bar, lang)}
             ratio={bar.value / bar.of}
             tone={bar.value > bar.of ? bar.over : "accent"}
             slim={style === "compact"}

@@ -1,16 +1,15 @@
-import { z } from "zod";
+import type { z } from "zod";
 import {
   itemsOf,
   placeholderTitle,
   probesFor,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
 import { deviceProps, readDevices } from "..";
-
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
@@ -78,16 +77,18 @@ export const meta = {
   read: readDevices,
 } as const satisfies Meta;
 export const props = deviceProps;
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 6);
   return {
     rooms: [
       {
-        label: placeholderTitle(0),
+        label: placeholderTitle(0, lang),
         devices: (items.length ? items : [undefined]).map((item, index) => ({
           key: `device_${index + 1}`,
-          name: item ? (titleOf(item, 16, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
+          name: item
+            ? (titleOf(item, 16, thing) ?? placeholderTitle(index, lang))
+            : placeholderTitle(index, lang),
           kind: "light",
           on: false,
         })),

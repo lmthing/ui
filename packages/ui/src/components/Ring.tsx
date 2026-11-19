@@ -1,3 +1,4 @@
+import { useWords, KitCard, KitRing, KitSkeleton, KitText, useComponentState } from "../kit";
 import { z } from "zod";
 import {
   probesFor,
@@ -6,12 +7,11 @@ import {
   placeholderTitle,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitRing, KitSkeleton, KitText, useComponentState } from "../kit";
 
 export const meta = {
   id: "Ring",
@@ -25,9 +25,9 @@ export const meta = {
   realPath: "A completed amount and its target derived from records in the on-device database.",
   parts: ["root", "ring", "value", "label", "sub"],
   states: ["filled", "loading"],
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     const { value, of } = props.parse(input);
-    return state === "filled" ? [`${value} ${goalLine(of)}`] : [];
+    return state === "filled" ? [`${value} ${goalLine(of, lang)}`] : [];
   },
 } as const satisfies Meta;
 
@@ -39,12 +39,12 @@ export const props = z.strictObject({
   sub: text(48).optional(),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     style: "md",
     value: 0,
     of: 1,
-    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0), 24),
+    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 24),
   };
 }
 
@@ -61,6 +61,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Ring({ style, value, of, label, sub }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading") {
     return (
@@ -76,7 +77,7 @@ export function Ring({ style, value, of, label, sub }: Props<typeof props, typeo
           {value}
         </KitText>
         <KitText role="body" tone="muted" align="center" part={null}>
-          {goalLine(of)}
+          {goalLine(of, lang)}
         </KitText>
       </KitRing>
       <KitText role="heading" align="center" part="label">

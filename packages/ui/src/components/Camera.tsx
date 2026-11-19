@@ -1,17 +1,16 @@
-import { z } from "zod";
+import { useWords, KitCard, KitShutter, KitViewfinder } from "../kit";
 import {
+  wordsFor,
   probesFor,
   clip,
-  photoLabels,
-  placeholderDetail,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitShutter, KitViewfinder } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Camera",
@@ -25,7 +24,9 @@ export const meta = {
   parts: ["root", "viewfinder", "hint", "shutter"],
   states: ["filled"],
   actions: { parts: { shutter: ["press"] } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { photoLabels } = wordsFor(lang);
+
     const { kind } = input as z.output<typeof props>;
     return state === "filled" ? [kind === "scan" ? photoLabels.scan : photoLabels.take] : [];
   },
@@ -36,7 +37,9 @@ export const props = z.strictObject({
   hint: text(48),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const type = thingOf(cast)?.type.replace(/[_-]+/g, " ").trim();
   return { kind: "photo", hint: type ? clip(type, 48) : placeholderDetail };
 }
@@ -55,6 +58,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Camera({ kind, hint }: Props<typeof props, typeof meta>) {
+  const { photoLabels } = useWords().words;
   return (
     <KitCard style="plain" part="root">
       <KitViewfinder kind={kind} hint={hint} part="viewfinder" hintPart="hint" />

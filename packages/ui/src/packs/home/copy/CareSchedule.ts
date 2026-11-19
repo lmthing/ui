@@ -1,1 +1,2 @@
-export const careLabels = { last: "Last done" } as const;
+import { homeWordsFor } from "../lang";
+export const { careLabels } = homeWordsFor();

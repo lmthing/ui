@@ -1,20 +1,5 @@
-import { z } from "zod";
 import {
-  detailOf,
-  isoDate,
-  itemsOf,
-  placeholderDetail,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitCard,
   KitCheck,
   KitContent,
@@ -24,7 +9,24 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
-import { agreementDateLine, agreementLabels as copy } from "../copy";
+import {
+  wordsFor,
+  detailOf,
+  isoDate,
+  itemsOf,
+  placeholderTitle,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { customersWordsFor } from "../lang";
+import { z } from "zod";
+import { agreementDateLine } from "../copy";
 
 // Core first: Checklist/default cannot capture one client's consent with terms, typed name and signed date.
 export const meta = {
@@ -48,12 +50,13 @@ export const meta = {
     parts: { agree: ["check"], name: ["type"] },
     when: { agree: { signed: false }, name: { signed: false } },
   },
-  read: (input) => {
+  read: (input, _state, lang?: string) => {
+    const { agreementLabels: copy } = customersWordsFor(lang);
     const value = input as z.infer<typeof props>;
     return [
       value.signed ? copy.accepted : copy.agree,
       ...(!value.signed || value.name ? [copy.name] : []),
-      ...(value.date ? [agreementDateLine(value.date)] : []),
+      ...(value.date ? [agreementDateLine(value.date, lang)] : []),
     ];
   },
 } as const satisfies Meta;
@@ -64,11 +67,13 @@ export const props = z.strictObject({
   name: text(28).optional(),
   date: isoDate.optional(),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
   return {
-    title: (item && titleOf(item, 32, thing)) || placeholderTitle(0),
+    title: (item && titleOf(item, 32, thing)) || placeholderTitle(0, lang),
     terms: (item && detailOf(item, 600, thing)) || placeholderDetail,
     signed: false,
   };
@@ -97,6 +102,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Agreement({ title, terms, signed, name, date }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(customersWordsFor);
+  const { agreementLabels: copy } = words;
   const state = useComponentState();
   const accepted = signed || state === "success";
   return (
@@ -137,7 +144,7 @@ export function Agreement({ title, terms, signed, name, date }: Props<typeof pro
       )}
       {date && (
         <KitText role="caption" tone="muted" part="date" tabular lines={1}>
-          {agreementDateLine(date)}
+          {agreementDateLine(date, lang)}
         </KitText>
       )}
     </KitCard>

@@ -1,19 +1,19 @@
-import { z } from "zod";
 import {
+  wordsFor,
   probesFor,
   detailOf,
   itemsOf,
   photo,
-  placeholderDetail,
   placeholderTitle,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
+import { z } from "zod";
 import { KitBlock, KitCard, KitIcon, KitPhoto, KitSkeleton, KitText, useComponentState } from "../kit";
 
 export const meta = {
@@ -36,12 +36,14 @@ export const props = z.strictObject({
   photo: photo.optional(),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const item = itemsOf(cast, 1, cast.items[0]?.type)[0];
   const thing = thingOf(cast, item?.type);
   return {
     style: "row",
-    name: (item && titleOf(item, 32, thing)) || placeholderTitle(0),
+    name: (item && titleOf(item, 32, thing)) || placeholderTitle(0, lang),
     meta: (item && detailOf(item, 48, thing)) || placeholderDetail,
   };
 }

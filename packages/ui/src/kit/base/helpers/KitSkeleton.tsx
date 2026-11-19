@@ -1,6 +1,6 @@
+import { useWords, useKitStyle } from "../../provider";
 import { XStack, YStack, styled } from "tamagui";
-import { component, loadingLabel, radius, size, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { KitContent } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, linesOf, type ShapeProps } from "./skeleton-content";
 import { SkeletonOptions, SkeletonControl } from "./skeleton-options";
@@ -59,6 +59,7 @@ function SkeletonLead({
   );
 }
 function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonProps) {
+  const { loadingLabel } = useWords().words;
   const ks = useKitStyle();
   const first = shape === "headline" ? typography.display.lineHeight : typography.body.lineHeight;
   const bar = shape === "headline" ? typography.display.size * 0.7 : space.md;
@@ -110,6 +111,7 @@ function SkeletonRows({ rows = 1, lead = "dot", shape, inset, items }: SkeletonP
 }
 
 function SkeletonFigure({ lines, centered, split, inset, lead = "none" }: ShapeProps) {
+  const { loadingLabel } = useWords().words;
   const aligned = lines?.map((line) => ({ ...line, align: centered ? ("center" as const) : line.align }));
   return (
     <YStack accessibilityLabel={loadingLabel} aria-busy padding={skeletonInset(inset)}>

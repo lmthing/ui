@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -51,12 +51,12 @@ export const props = z
     path: ["first"],
     message: "First must index an existing player",
   });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const players = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 24, thing) ?? placeholderTitle(index, lang),
   }));
-  while (players.length < 2) players.push({ name: placeholderTitle(players.length) });
+  while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
   return { players };
 }
 export const examples = [

@@ -1,21 +1,21 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
 import {
+  wordsFor,
   itemsOf,
   clockLine,
-  placeholderDetail,
   probesFor,
   stepLine,
   text,
   thingOf,
   titleOf,
-  timerLabels,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
-import { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "../copy";
+import { kitchenWordsFor } from "../lang";
+import { z } from "zod";
+import { cookStepText, cookStepUses, cookStepsReading } from "../copy";
 
 // Core first: Steps/numbered cannot show one cooking instruction with ingredients and an optional timer.
 export const meta = {
@@ -38,10 +38,10 @@ export const meta = {
     parts: { timer: ["start", "stop"], next: ["press"], back: ["press"] },
     when: { next: { canNext: true }, back: { canBack: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
     if (state !== "filled") return [];
     const value = input as z.output<typeof props>;
-    return cookStepsReading(value.steps, value.at);
+    return cookStepsReading(value.steps, value.at, lang);
   },
 } as const satisfies Meta;
 export const props = z
@@ -71,7 +71,9 @@ export const props = z
         ? undefined
         : { minutes: value.steps[value.at - 1]!.minutes },
   }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const thing = thingOf(cast);
   const steps = itemsOf(cast, 3).map((item) => ({
     text: titleOf(item, 200, thing) ?? placeholderDetail,
@@ -116,13 +118,18 @@ export const probes = [
 ] satisfies Probe[];
 
 export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
+  const {
+    lang,
+    words: { timerLabels },
+  } = useWords();
+  const { cookStepsLabels } = kitchenWordsFor(lang);
   const done = useComponentState() === "success";
   const step = steps[at - 1]!;
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
         <KitText role="label" tone={done ? "good" : "muted"} part={null}>
-          {done ? cookStepsLabels.done : stepLine(at, steps.length)}
+          {done ? cookStepsLabels.done : stepLine(at, steps.length, lang)}
         </KitText>
         <KitText role="title" part="text">
           {done ? cookStepsLabels.finished : cookStepText(step.text)}
@@ -141,7 +148,7 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
             {cookStepsLabels.timer}
           </KitText>
           <KitText role="number" tabular part={null}>
-            {clockLine(step.minutes * 60)}
+            {clockLine(step.minutes * 60, lang)}
           </KitText>
           <KitGrid columns={2}>
             <KitAction label={timerLabels.start} kind="secondary" part="timer" action="start" full />

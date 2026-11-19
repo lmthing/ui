@@ -1,18 +1,5 @@
-import { z } from "zod";
 import {
-  probesFor,
-  photo,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../catalog";
-import {
+  useWords,
   KitCard,
   KitContent,
   KitEmpty,
@@ -24,6 +11,20 @@ import {
   KitText,
   useComponentState,
 } from "../kit";
+import { z } from "zod";
+import {
+  probesFor,
+  photo,
+  placeholderTitle,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
 
 export const meta = {
   id: "Gallery",
@@ -57,20 +58,20 @@ export const props = z.strictObject({
     .max(6),
 });
 
-function neutralPhoto(index: number) {
+function neutralPhoto(index: number, lang?: string) {
   const caption = placeholderTitle(index);
-  return { photo: `lib:${caption.toLowerCase().replace(/ /g, "_")}`, caption };
+  return { photo: `lib:${caption.toLowerCase().replace(/ /g, "_")}`, caption: placeholderTitle(index, lang) };
 }
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const photos = cast.items.slice(0, 6).map((item, index) => {
     const reference = photo.safeParse(`lib:${item.type}`);
     return {
-      photo: reference.success ? reference.data : neutralPhoto(index).photo,
-      caption: titleOf(item, 24, thingOf(cast, item.type)) || placeholderTitle(index),
+      photo: reference.success ? reference.data : neutralPhoto(index, lang).photo,
+      caption: titleOf(item, 24, thingOf(cast, item.type)) || placeholderTitle(index, lang),
     };
   });
-  while (photos.length < 2) photos.push(neutralPhoto(photos.length));
+  while (photos.length < 2) photos.push(neutralPhoto(photos.length, lang));
   return { style: "grid", photos };
 }
 
@@ -114,8 +115,15 @@ export const probes = [
 type Entry = Props<typeof props, typeof meta>["photos"][number];
 
 function GalleryItem({ entry, index, wide }: { entry: Entry; index: number; wide: boolean }) {
+  const { lang } = useWords();
+
   return (
-    <KitRow item={entry.id} label={entry.caption ?? placeholderTitle(index)} goto={entry.goto} inset="none">
+    <KitRow
+      item={entry.id}
+      label={entry.caption ?? placeholderTitle(index, lang)}
+      goto={entry.goto}
+      inset="none"
+    >
       <KitContent lineRole="body">
         <KitPhoto
           photo={entry.photo}
@@ -134,6 +142,7 @@ function GalleryItem({ entry, index, wide }: { entry: Entry; index: number; wide
 }
 
 export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const state = useComponentState();
   if (state === "empty") {
     return (
@@ -144,7 +153,7 @@ export function Gallery({ style, photos }: Props<typeof props, typeof meta>) {
   }
   const cells = photos.map((entry, index) =>
     state === "loading" ? (
-      <KitRow key={entry.id} label={entry.caption ?? placeholderTitle(index)} inset="none">
+      <KitRow key={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} inset="none">
         <KitSkeleton
           shape="media"
           aspect={style === "carousel" ? "wide" : "square"}

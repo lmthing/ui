@@ -1,31 +1,29 @@
-import { balancedLine, clockLine, stepLine, timerLabels } from "../../../catalog";
+import { kitchenWordsFor } from "../lang";
+import { balancedLine, clockLine, stepLine, wordsFor } from "../../../catalog";
 
 export const cookStepText = balancedLine;
 export const cookStepUses = (uses: readonly string[]): string => uses.join(" · ");
 
-export const cookStepsLabels = {
-  timer: "Cooking timer",
-  next: "Next step",
-  back: "Back",
-  done: "Recipe complete",
-  finished: "All steps finished.",
-} as const;
+export const { cookStepsLabels } = kitchenWordsFor();
 
 /** Read only the instruction on screen, never the rest of the recipe. */
 export function cookStepsReading(
   steps: readonly { text: string; uses: readonly string[]; minutes?: number | undefined }[],
   at: number,
+  lang?: string,
 ): string[] {
+  const { cookStepsLabels } = kitchenWordsFor(lang);
+  const { timerLabels } = wordsFor(lang);
   const step = steps[at - 1]!;
   return [
-    stepLine(at, steps.length),
+    stepLine(at, steps.length, lang),
     JSON.stringify(cookStepText(step.text)),
     ...(step.uses.length ? [JSON.stringify(cookStepUses(step.uses))] : []),
     ...(step.minutes === undefined
       ? []
       : [
           JSON.stringify(cookStepsLabels.timer),
-          clockLine(step.minutes * 60),
+          clockLine(step.minutes * 60, lang),
           JSON.stringify(timerLabels.start),
           JSON.stringify(timerLabels.stop),
         ]),

@@ -8,7 +8,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -74,14 +74,14 @@ export const props = z
     };
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const options = itemsOf(cast, 3).flatMap((item) => {
     const title = titleOf(item, 28, thing);
     const sub = detailOf(item, 80, thing);
     return title ? [{ title, ...(sub ? { sub } : {}) }] : [];
   });
-  while (options.length < 2) options.push({ title: placeholderTitle(options.length) });
+  while (options.length < 2) options.push({ title: placeholderTitle(options.length, lang) });
   return { style: "cards", options };
 }
 

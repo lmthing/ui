@@ -1,16 +1,16 @@
-import { z } from "zod";
 import {
-  debtControlLabels,
+  wordsFor,
   itemsOf,
   placeholderTitle,
   probesFor,
   screenId,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 import { loanSource } from "./Loan";
 
 // Core first: Progress/stack cannot allocate a monthly budget and forecast priority across debts.
@@ -37,7 +37,9 @@ export const meta = {
     parts: { strategy: ["select"], extra: ["set"], edit: ["press"] },
     when: { edit: { linked: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { debtControlLabels } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const value = input as z.output<typeof props>;
     return [
@@ -61,10 +63,10 @@ export const props = z
   })
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const debts = itemsOf(cast, 3).map((item, index) => ({
-    name: titleOf(item, 24, thing) || placeholderTitle(index),
+    name: titleOf(item, 24, thing) || placeholderTitle(index, lang),
     principal: 1,
     rate: 0,
     payment: 1,
@@ -76,7 +78,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
       ? debts
       : [
           {
-            name: placeholderTitle(0),
+            name: placeholderTitle(0, lang),
             principal: 1,
             rate: 0,
             payment: 1,

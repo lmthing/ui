@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -52,13 +52,13 @@ export const props = z
     message: "Choose allows at most one selected item",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const labels = itemsOf(cast, 6).flatMap((item) => {
     const label = titleOf(item, 16, thing);
     return label ? [label] : [];
   });
-  while (labels.length < 2) labels.push(placeholderTitle(labels.length));
+  while (labels.length < 2) labels.push(placeholderTitle(labels.length, lang));
   return { style: "filter", items: labels.map((label, index) => ({ label, on: index === 0 })) };
 }
 

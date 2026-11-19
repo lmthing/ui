@@ -1,3 +1,16 @@
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitPhoto,
+  KitSkeleton,
+  KitText,
+  type TextRole,
+  useComponentState,
+} from "../../../kit";
+import { customersWordsFor } from "../lang";
 import { z } from "zod";
 import {
   detailOf,
@@ -9,23 +22,12 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { clientReading, contactLabels, sinceLine, nextLine, tagsLine } from "../copy";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitGrid,
-  KitPhoto,
-  KitSkeleton,
-  KitText,
-  type TextRole,
-  useComponentState,
-} from "../../../kit";
+import { clientReading, sinceLine, nextLine, tagsLine, type contactLabels } from "../copy";
 
 // Core first: Profile/row cannot show client tenure, next business visit and contact actions together.
 export const meta = {
@@ -45,7 +47,8 @@ export const meta = {
     parts: { call: ["press"], message: ["press"], directions: ["press"] },
     when: { call: { phone: true }, directions: { address: true } },
   },
-  read: (input, state) => (state === "filled" ? clientReading(input as z.output<typeof props>) : []),
+  read: (input, state, lang?: string) =>
+    state === "filled" ? clientReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 export const props = z.strictObject({
   name: text(28),
@@ -56,11 +59,11 @@ export const props = z.strictObject({
   phone: z.boolean(),
   address: z.boolean(),
 });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
     thing = thingOf(cast);
   return {
-    name: (item && titleOf(item, 28, thing)) || placeholderTitle(0),
+    name: (item && titleOf(item, 28, thing)) || placeholderTitle(0, lang),
     photo: "local:1",
     next: (item && detailOf(item, 36, thing)) || undefined,
     tags: [],
@@ -108,6 +111,7 @@ function ClientText({ value, part, role = "label" }: { value: string; part: stri
 }
 
 function ContactAction({ part }: { part: keyof typeof contactLabels }) {
+  const { contactLabels } = useWords(customersWordsFor).words;
   const kind = part === "message" ? "primary" : "secondary";
   if (useComponentState() === "loading")
     return <KitSkeleton shape="control" kind={kind} label={contactLabels[part]} full />;
@@ -123,6 +127,7 @@ export function ClientCard({
   phone,
   address,
 }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const loading = useComponentState() === "loading";
   return (
     <KitCard padded part="root">
@@ -133,9 +138,9 @@ export function ClientCard({
       )}
       <KitContent>
         <ClientText value={name} role="heading" part="name" />
-        {since && <ClientText value={sinceLine(since)} role="label" part="since" />}
+        {since && <ClientText value={sinceLine(since, lang)} role="label" part="since" />}
       </KitContent>
-      {next && <ClientText value={nextLine(next)} part="next" />}
+      {next && <ClientText value={nextLine(next, lang)} part="next" />}
       {tags.length > 0 && <ClientText value={tagsLine(tags)} role="label" part="tags" />}
       <ContactAction part="message" />
       {phone && address ? (

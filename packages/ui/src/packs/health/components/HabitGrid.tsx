@@ -1,16 +1,5 @@
-import { z } from "zod";
 import {
-  icon,
-  probesFor,
-  streakLine,
-  text,
-  weekdayNames,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
+  useWords,
   KitCard,
   KitCheck,
   KitEmpty,
@@ -22,6 +11,18 @@ import {
   useControlValue,
   usePart,
 } from "../../../kit";
+import {
+  wordsFor,
+  icon,
+  probesFor,
+  streakLine,
+  text,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import { z } from "zod";
 import { indexedActions, indexedParts, seedTitles } from "..";
 // Core first: Streak/default cannot tick several habits independently across seven weekday columns.
 export const meta = {
@@ -44,13 +45,15 @@ export const meta = {
       indexedParts(7, ["day"]).map((part, index) => [part, { [`past_${index + 1}`]: true }]),
     ),
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { weekdayNames } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const { habits } = input as z.output<typeof props>;
     const today = (new Date().getDay() + 6) % 7;
     return [
       ...weekdayNames,
-      ...habits.map((habit) => streakLine(weekStreak(habit.days, today), habit.days)[0]!),
+      ...habits.map((habit) => streakLine(weekStreak(habit.days, today), habit.days, lang)[0]!),
     ];
   },
 } as const satisfies Meta;
@@ -113,6 +116,7 @@ export const probes = [
 ] satisfies Probe[];
 type Habit = Props<typeof props, typeof meta>["habits"][number];
 function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
+  const { lang } = useWords();
   const address = usePart("streak").testID.replace(/\/streak$/, "");
   const days = [
     useControlValue(`${address}/day_1`, habit.days[0]!),
@@ -125,11 +129,12 @@ function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
   ];
   return (
     <KitText role="number" numberScale="compact" tabular part={null}>
-      {streakLine(weekStreak(days, today), days)[0]}
+      {streakLine(weekStreak(days, today), days, lang)[0]}
     </KitText>
   );
 }
 function WeekDays() {
+  const { weekdayNames } = useWords().words;
   return weekdayNames.map((label, index) => ({
     id: `day_${index + 1}`,
     label,

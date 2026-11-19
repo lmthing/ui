@@ -8,7 +8,7 @@ import {
   screenId,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -30,10 +30,10 @@ export const meta = {
   parts: ["root"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
-  read: (input) =>
+  read: (input, _state, lang?: string) =>
     (input as { tabs: { label: string; count?: number }[] }).tabs
       .filter((tab) => Boolean(tab.count))
-      .map((tab) => `${tab.label}: ${badgeLine(tab.count!)}`),
+      .map((tab) => `${tab.label}: ${badgeLine(tab.count!, lang)}`),
 } as const satisfies Meta;
 
 export const props = z
@@ -51,18 +51,18 @@ export const props = z
     message: "Must index an available tab",
   });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const tabs = [0, 1].map((index) => {
     const thing = thingOf({ ...cast, things: cast.things.slice(index) });
     const type = thing?.type.trim();
     const readable = type?.replace(/[_-]+/g, " ").trim();
     const label = readable
       ? clip(readable.charAt(0).toUpperCase() + readable.slice(1), 12)
-      : placeholderTitle(index);
+      : placeholderTitle(index, lang);
     return {
       icon: icon.safeParse(type).data ?? "dot",
       label,
-      goto: screenId.safeParse(type).data ?? placeholderTitle(index).toLowerCase().replace(/\s+/g, "_"),
+      goto: screenId.safeParse(type).data ?? placeholderTitle(index, lang).toLowerCase().replace(/\s+/g, "_"),
     };
   });
   return { tabs, at: 0 };

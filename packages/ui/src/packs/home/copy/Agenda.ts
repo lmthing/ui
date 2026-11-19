@@ -1,1 +1,2 @@
-export const agendaLabels = { add: "Add event" } as const;
+import { homeWordsFor } from "../lang";
+export const { agendaLabels } = homeWordsFor();

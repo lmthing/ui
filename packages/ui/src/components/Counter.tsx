@@ -1,17 +1,18 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitGrid, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
+  numberLine,
   clip,
   placeholderTitle,
-  stepLabels,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitGrid, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Counter",
@@ -25,11 +26,13 @@ export const meta = {
   parts: ["root", "value", "label", "minus", "plus"],
   states: ["filled"],
   actions: { parts: { minus: ["decrement"], plus: ["increment"] } },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { stepLabels } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const { value, unit } = props.parse(input);
     return [
-      unit ? `${value} ${unit}` : String(value),
+      unit ? `${numberLine(value, lang)} ${unit}` : numberLine(value, lang),
       `"${stepLabels.less}" (decrement)`,
       `"${stepLabels.more}" (increment)`,
     ];
@@ -43,8 +46,8 @@ export const props = z.strictObject({
   step: z.int().min(1).max(100).default(1),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
-  const label = clip(thingOf(cast)?.type.trim() ?? "", 24) || placeholderTitle(0);
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const label = clip(thingOf(cast)?.type.trim() ?? "", 24) || placeholderTitle(0, lang);
   return { label, value: 0 };
 }
 
@@ -65,6 +68,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Counter({ label, value, unit }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { stepLabels } = words;
   return (
     <KitCard style="inset" padded part="root">
       <KitText role="heading" part="label">
@@ -73,7 +78,7 @@ export function Counter({ label, value, unit }: Props<typeof props, typeof meta>
       <KitGrid columns={3}>
         <KitAction kind="secondary" icon="minus" a11y={stepLabels.less} part="minus" full />
         <KitText role="number" align="center" tabular part="value">
-          {value}
+          {numberLine(value, lang)}
           {unit && (
             <KitText role="caption" tone="muted" part={null}>
               {" "}

@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import { XStack, YStack } from "tamagui";
 import { badgeLine, component, radius, size, space, type IconName } from "../../../catalog";
 import { useKit } from "../../provider";
@@ -8,6 +9,8 @@ import { KitText } from "../text";
 type Tab = { id: string; icon: IconName; label: string; goto: string; count?: number | undefined };
 
 function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
+  const { lang } = useWords();
+
   const kit = useKit();
   const part = usePart();
   return (
@@ -22,7 +25,7 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
       paddingVertical={space.md}
       accessibilityRole="tab"
       aria-selected={on}
-      accessibilityLabel={tab.count ? `${tab.label}, ${badgeLine(tab.count)}` : tab.label}
+      accessibilityLabel={tab.count ? `${tab.label}, ${badgeLine(tab.count, lang)}` : tab.label}
       {...(kit.interactive ? { onPress: () => kit.onLink?.(tab.goto, part.testID) } : {})}
     >
       <YStack position="relative">
@@ -39,7 +42,7 @@ function TabItem({ tab, on }: { tab: Tab; on: boolean }) {
             backgroundColor="$accent"
           >
             <KitText role="caption" tone="onAccent" align="center" part="badge">
-              {badgeLine(tab.count!)}
+              {badgeLine(tab.count!, lang)}
             </KitText>
           </YStack>
         )}

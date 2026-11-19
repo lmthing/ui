@@ -1,15 +1,14 @@
-import { useKit } from "../../provider";
-import { useSwipe } from "../../interact";
-import { useControlValue } from "../../interact";
-import { swipeLabels } from "../../../catalog";
+import { useWords, useKit, useKitStyle } from "../../provider";
+import { useSwipe, useControlValue } from "../../interact";
+
 import type { ReactNode } from "react";
 import { YStack, isWeb } from "tamagui";
 import { component, space } from "../../../catalog";
-import { useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { shifted, surfaceOf } from "../text";
 
 function Front({ label, children }: { label: string; children: ReactNode }) {
+  const { swipeLabels, swipeCard } = useWords().words;
   const ks = useKitStyle();
   const kit = useKit();
   const address = usePart();
@@ -26,7 +25,7 @@ function Front({ label, children }: { label: string; children: ReactNode }) {
       borderRadius={shifted("md", ks.radiusShift)}
       overflow="hidden"
       accessibilityRole="button"
-      aria-roledescription="swipe card"
+      aria-roledescription={swipeCard}
       {...(kit.interactive && kit.controller
         ? ({
             onKeyDown: (event: KeyboardEvent) => {

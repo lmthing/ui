@@ -1,5 +1,6 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitContent, KitText } from "../kit";
 import {
+  wordsFor,
   probesFor,
   clip,
   clockLine,
@@ -9,13 +10,12 @@ import {
   placeholderTitle,
   text,
   thingOf,
-  timerLabels,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitContent, KitText } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Timer",
@@ -34,12 +34,14 @@ export const meta = {
     parts: { start: ["start"], stop: ["stop"] },
     when: { start: { controls: true }, stop: { controls: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { timerLabels } = wordsFor(lang);
+
     // Already parsed by the validator: it carries the derived `controls`, which a strict parse would refuse.
     const value = input as z.output<typeof props>;
     if (state !== "filled") return [];
-    if (value.style === "until") return [leftLine(untilMs(value))];
-    return [`${clockLine(value.seconds ?? 0)} ${value.style}`, timerLabels.start, timerLabels.stop];
+    if (value.style === "until") return [leftLine(untilMs(value), lang)];
+    return [`${clockLine(value.seconds ?? 0, lang)} ${value.style}`, timerLabels.start, timerLabels.stop];
   },
 } as const satisfies Meta;
 
@@ -70,10 +72,10 @@ function untilMs({ until, at }: { until?: string | undefined; at?: string | unde
   return new Date(`${until}T${at ?? "00:00"}`).getTime() - Date.now();
 }
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     style: "up",
-    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0), 24),
+    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 24),
     seconds: 0,
   };
 }
@@ -94,18 +96,20 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Timer({ style, label, seconds, ...rest }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { timerLabels } = words;
   const controls = style !== "until";
-  const [amount, ...words] = controls ? [] : leftLine(untilMs(rest)).split(" ");
+  const [amount, ...suffix] = controls ? [] : leftLine(untilMs(rest), lang).split(" ");
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
         <KitText role="number" align="center" tabular part="time">
           {controls ? (
-            clockLine(seconds ?? 0)
+            clockLine(seconds ?? 0, lang)
           ) : (
             <>
               {amount}
-              <KitText role="caption" tone="muted" part={null}>{` ${words.join(" ")}`}</KitText>
+              <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
             </>
           )}
         </KitText>

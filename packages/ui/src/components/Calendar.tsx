@@ -1,6 +1,15 @@
 import { z } from "zod";
-import { probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
-import { KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
+import {
+  numberLine,
+  wordsFor,
+  probesFor,
+  text,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
+import { useWords, KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
 
 export const meta = {
   id: "Calendar",
@@ -17,9 +26,9 @@ export const meta = {
   parts: ["root", "month"],
   states: ["filled"],
   actions: { items: { root: ["select"] } },
-  read: (value): string[] => {
+  read: (value, _state, lang?: string): string[] => {
     const { marked } = value as { marked: { id: string; day: number; mark?: string }[] };
-    return marked.map((day) => `${day.id}: ${day.day}${day.mark ? ` (${day.mark})` : ""}`);
+    return marked.map((day) => `${day.id}: ${numberLine(day.day, lang)}${day.mark ? ` (${day.mark})` : ""}`);
   },
 } as const satisfies Meta;
 
@@ -69,8 +78,8 @@ export const props = z
     };
   });
 
-export function fallback(_context: { cast: CastLike }): z.input<typeof props> {
-  return { month: "This month", marked: [] };
+export function fallback({ lang }: FallbackInput): z.input<typeof props> {
+  return { month: wordsFor(lang).thisMonth, marked: [] };
 }
 
 export const examples = [
@@ -106,6 +115,7 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Calendar({ month, marked, selected, start }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const blanks = (start - 1 + (marked[0]?.day ?? 1) - 1) % 7;
   const cells = [
     ...Array.from({ length: blanks }, () => null),
@@ -113,7 +123,7 @@ export function Calendar({ month, marked, selected, start }: Props<typeof props,
       <KitDay
         key={day.id}
         item={day.id}
-        label={String(day.day)}
+        label={numberLine(day.day, lang)}
         name={`${month} ${day.day}`}
         selected={selected === day.day}
         mark={day.mark}

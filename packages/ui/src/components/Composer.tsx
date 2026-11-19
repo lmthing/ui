@@ -1,18 +1,17 @@
-import { z } from "zod";
+import { useWords, KitAction, KitCard, KitText, KitTextArea } from "../kit";
 import {
+  wordsFor,
   probesFor,
   charLine,
   clip,
-  placeholderDetail,
-  sendLabel,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitAction, KitCard, KitText, KitTextArea } from "../kit";
+import { z } from "zod";
 
 export const meta = {
   id: "Composer",
@@ -32,10 +31,12 @@ export const meta = {
     parts: { field: ["type"], send: ["send"] },
     when: { send: { style: "reply", sendable: true } },
   },
-  read: (input, state) => {
+  read: (input, state, lang?: string) => {
+    const { sendLabel } = wordsFor(lang);
+
     if (state !== "filled") return [];
     const { style, value, max } = input as z.output<typeof props>;
-    return [style === "reply" ? sendLabel : charLine(value?.length ?? 0, max)];
+    return [style === "reply" ? sendLabel : charLine(value?.length ?? 0, max, lang)];
   },
 } as const satisfies Meta;
 
@@ -53,7 +54,9 @@ export const props = z
   })
   .overwrite((value) => ({ ...value, sendable: value.style === "reply" && Boolean(value.value?.trim()) }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   return { style: "entry", hint: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 60) };
 }
 
@@ -71,6 +74,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Composer({ style, label, hint, max, value }: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords();
+  const { sendLabel } = words;
   const reply = style === "reply";
   return (
     <KitCard style="plain" part="root" padded>
@@ -84,7 +89,7 @@ export function Composer({ style, label, hint, max, value }: Props<typeof props,
         <KitAction label={sendLabel} icon="send" kind="primary" part="send" full disabled={!value?.trim()} />
       ) : (
         <KitText role="caption" tone="muted" align="end" tabular part="count">
-          {charLine(value?.length ?? 0, max)}
+          {charLine(value?.length ?? 0, max, lang)}
         </KitText>
       )}
     </KitCard>

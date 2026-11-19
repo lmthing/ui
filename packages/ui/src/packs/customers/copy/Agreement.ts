@@ -1,4 +1,6 @@
-export const agreementLabels = { agree: "I agree", accepted: "Accepted", name: "Full name" } as const;
+import { customersWordsFor } from "../lang";
+export const { agreementLabels } = customersWordsFor();
 
 /** Keep the stored signing date visible without inventing a date for an unsigned record. */
-export const agreementDateLine = (date: string): string => `Signed · ${date}`;
+export const agreementDateLine = (date: string, lang?: string): string =>
+  customersWordsFor(lang).signed(date);

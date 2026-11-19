@@ -1,20 +1,20 @@
-import { z } from "zod";
 import {
+  wordsFor,
   detailOf,
   icon,
   isoDate,
   itemsOf,
-  placeholderDetail,
   placeholderTitle,
   probesFor,
   screenId,
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Bars/share cannot show dated individual payees and signed amounts grouped by day.
 export const meta = {
@@ -52,11 +52,13 @@ export const props = z.strictObject({
     .max(6),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = wordsFor(lang);
+
   const thing = thingOf(cast);
   const entries = itemsOf(cast, 3).map((item, index) => ({
     date: "2026-11-19",
-    payee: titleOf(item, 28, thing) || placeholderTitle(index),
+    payee: titleOf(item, 28, thing) || placeholderTitle(index, lang),
     category: detailOf(item, 16, thing) || placeholderDetail,
     icon: "dot" as const,
     amount: 0,
@@ -68,7 +70,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
       : [
           {
             date: "2026-11-19",
-            payee: placeholderTitle(0),
+            payee: placeholderTitle(0, lang),
             category: placeholderDetail,
             icon: "dot",
             amount: 0,

@@ -1,3 +1,4 @@
+import { useWords } from "../../provider";
 import { useEffect, useRef, useState } from "react";
 import { ScrollView, XStack, YStack } from "tamagui";
 import { ChevronDown } from "@tamagui/lucide-icons";
@@ -85,6 +86,8 @@ export function KitWheel({
   busy = false,
   style = "wheel",
 }: WheelProps) {
+  const { lang } = useWords();
+
   const kit = useKit();
   const hidden = loading;
   const turns = Number.isFinite(rotation) ? rotation : 0;
@@ -115,7 +118,7 @@ export function KitWheel({
         <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
           <KitText part={null} tone="muted" align="center">
-            {emptyLine(thing)}
+            {emptyLine(thing, lang)}
           </KitText>
         </YStack>
       ) : (

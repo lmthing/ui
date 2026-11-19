@@ -1,8 +1,8 @@
 import { numberLine } from "../format";
-import { wordsFor } from "../lang";
+import { localeOf, wordsFor } from "../lang";
 
 function thingPlural(thingType: string | undefined, lang?: string): string {
-  const word = thingType?.replace(/[_-]+/g, " ").trim().toLocaleLowerCase();
+  const word = thingType?.replace(/[_-]+/g, " ").trim().toLocaleLowerCase(localeOf(lang));
   return word ? wordsFor(lang).pluralThing(word) : "";
 }
 

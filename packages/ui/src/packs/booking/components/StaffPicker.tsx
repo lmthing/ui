@@ -1,19 +1,5 @@
-import { z } from "zod";
 import {
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import { anyoneLabel } from "../copy";
-import {
+  useWords,
   KitCard,
   KitContent,
   KitPhoto,
@@ -23,6 +9,21 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
+import { bookingWordsFor } from "../lang";
+import { z } from "zod";
+import {
+  itemsOf,
+  photo,
+  placeholderTitle,
+  probesFor,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
 export const meta = {
@@ -43,7 +44,10 @@ export const meta = {
   states: ["filled", "loading"],
   actions: { items: { root: ["select"] }, parts: { anyone: ["select"] }, when: { anyone: { anyone: true } } },
   select: { prop: "at", value: "position", parts: { anyone: 0 } },
-  read: (input) => ((input as { anyone: boolean }).anyone ? [anyoneLabel] : []),
+  read: (input, _state, lang?: string) => {
+    const { anyoneLabel } = bookingWordsFor(lang);
+    return (input as { anyone: boolean }).anyone ? [anyoneLabel] : [];
+  },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -57,13 +61,13 @@ export const props = z
   .refine(({ staff, at, anyone }) => at === undefined || (at === 0 ? anyone : at <= staff.length), {
     path: ["at"],
   });
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const staff = itemsOf(cast, 3).map((item) => ({
-    name: titleOf(item, 20, thing) || placeholderTitle(0),
+    name: titleOf(item, 20, thing) || placeholderTitle(0, lang),
     photo: "local:1",
   }));
-  return { staff: staff.length ? staff : [{ name: placeholderTitle(0), photo: "local:1" }] };
+  return { staff: staff.length ? staff : [{ name: placeholderTitle(0, lang), photo: "local:1" }] };
 }
 export const examples = [
   { staff: [{ name: "Anna", photo: "lib:people", role: "Plant care" }], anyone: true, at: 0 },
@@ -102,6 +106,7 @@ function StaffLoading({ name, role }: { name: string; role?: string | undefined 
 }
 
 export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof meta>) {
+  const { anyoneLabel } = useWords(bookingWordsFor).words;
   const loading = useComponentState() === "loading";
   const choices = [
     ...(anyone ? [{ id: undefined, name: anyoneLabel, photo: undefined, role: undefined, position: 0 }] : []),

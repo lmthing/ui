@@ -1,3 +1,16 @@
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitRadialTrack,
+  KitText,
+  useComponentState,
+  useEmptyThing,
+  type TextTone,
+} from "../../../kit";
+import { healthWordsFor } from "../lang";
 import { z } from "zod";
 import {
   detailOf,
@@ -15,24 +28,12 @@ import {
 import {
   cycleDayLine,
   cycleEstimate,
-  cycleLabels,
   cycleNextLine,
   cycleReading,
   cycleToday,
   cycleWindowLine,
   type CycleSeed,
 } from "../copy";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitRadialTrack,
-  KitText,
-  useComponentState,
-  useEmptyThing,
-  type TextTone,
-} from "../../../kit";
 
 // Core first: Calendar/month cannot derive cycle phases, next period and a fertile window from period dates.
 export const meta = {
@@ -52,7 +53,7 @@ export const meta = {
   parts: ["root", "day", "phase", "next", "window", "disclaimer", "log"],
   states: ["filled", "empty"],
   actions: { parts: { log: ["press"] } },
-  read: (input, state) => (state === "filled" ? cycleReading(input as CycleSeed) : []),
+  read: (input, state, lang?: string) => (state === "filled" ? cycleReading(input as CycleSeed, lang) : []),
 } as const satisfies Meta;
 export const props = z.strictObject({
   start: isoDate,
@@ -81,6 +82,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function Cycle(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(healthWordsFor);
+  const { cycleLabels } = words;
   const state = useComponentState();
   const thing = useEmptyThing();
   if (state === "empty") {
@@ -89,14 +92,14 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
         <KitEmpty
           icon="calendar"
           part="phase"
-          title={emptyLine(thing)}
+          title={emptyLine(thing, lang)}
           sub={cycleLabels.empty}
           decorativeIcon
         />
       </KitCard>
     );
   }
-  const cycle = cycleEstimate(input);
+  const cycle = cycleEstimate(input, undefined, lang);
   const segments = Array.from({ length: input.length }, (_, index) => {
     const day = index + 1;
     const tone: TextTone =
@@ -107,7 +110,7 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
     <KitCard style="inset" padded part="root">
       <KitRadialTrack style="days" segments={segments} part="day">
         <KitText role="number" align="center" part={null} tabular>
-          {cycleDayLine(cycle.day)}
+          {cycleDayLine(cycle.day, lang)}
         </KitText>
         <KitText role="body" tone="muted" align="center" part="phase">
           {cycle.phase}
@@ -115,10 +118,10 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
       </KitRadialTrack>
       <KitContent lineRole="body">
         <KitText role="label" tone="muted" align="center" part="next">
-          {cycleNextLine(cycle.next)}
+          {cycleNextLine(cycle.next, lang)}
         </KitText>
         <KitText role="label" tone="muted" align="center" part="window">
-          {cycleWindowLine(cycle.windowStart, cycle.windowEnd)}
+          {cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang)}
         </KitText>
       </KitContent>
       <KitAction label={cycleLabels.log} part="log" full />

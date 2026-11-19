@@ -1,6 +1,8 @@
+import { useWords } from "../../../kit";
 import { z } from "zod";
 import {
   goalLine,
+  numberLine,
   placeholderValue,
   probesFor,
   text,
@@ -36,8 +38,10 @@ export const meta = {
   items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings"],
   states: ["filled", "loading"],
-  read: (input, state) =>
-    state !== "filled" ? [] : (input as z.output<typeof props>).rings.map(activityRingLine),
+  read: (input, state, lang?: string) =>
+    state !== "filled"
+      ? []
+      : (input as z.output<typeof props>).rings.map((ring) => activityRingLine(ring, lang)),
 } as const satisfies Meta;
 export const props = z.strictObject({
   rings: z
@@ -104,7 +108,11 @@ const ringTones = ["accent", "good", "warn"] as const;
 const numberScaleOf = (value: number, count: number) =>
   value >= (count === 3 ? 1000 : 10000) ? ("compact" as const) : ("display" as const);
 
+const ringNumber = (value: number, count: number) =>
+  ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
+
 export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
+  const { lang } = useWords();
   const loading = useComponentState() === "loading";
   return (
     <KitCard style="inset" part="root" padded>
@@ -128,12 +136,12 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
               lines={[
                 { text: ring.label, role: "caption", align: "center" },
                 {
-                  text: String(ring.value),
+                  text: numberLine(ring.value, lang),
                   role: "number",
                   align: "center",
                   numberScale: numberScaleOf(ring.value, rings.length),
                 },
-                { text: goalLine(ring.of), role: "caption", align: "center" },
+                { text: goalLine(ring.of, lang), role: "caption", align: "center" },
                 { text: ring.unit, role: "caption", align: "center" },
               ]}
             />
@@ -142,17 +150,11 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
               <KitText role="caption" tone={ringTones[index]!} align="center" part="label">
                 {ring.label}
               </KitText>
-              <KitText
-                role="number"
-                numberScale={numberScaleOf(ring.value, rings.length)}
-                align="center"
-                tabular
-                part="value"
-              >
-                {ring.value}
+              <KitText {...ringNumber(ring.value, rings.length)} part="value">
+                {numberLine(ring.value, lang)}
               </KitText>
               <KitText role="caption" tone="muted" align="center" part="of">
-                {goalLine(ring.of)}
+                {goalLine(ring.of, lang)}
               </KitText>
               <KitText role="caption" tone="muted" align="center" part="unit">
                 {ring.unit}

@@ -1,6 +1,9 @@
-import { goalLine } from "../../../catalog";
+import { goalLine, numberLine } from "../../../catalog";
 
 /** A daily goal reading, including its label, actual value, target and unit. */
-export function activityRingLine(ring: { label: string; value: number; of: number; unit: string }): string {
-  return `${ring.label}: ${ring.value} ${goalLine(ring.of)} ${ring.unit}`;
+export function activityRingLine(
+  ring: { label: string; value: number; of: number; unit: string },
+  lang?: string,
+): string {
+  return `${ring.label}: ${numberLine(ring.value, lang)} ${goalLine(ring.of, lang)} ${ring.unit}`;
 }

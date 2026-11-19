@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -47,12 +47,14 @@ export const props = z
       message: "Option labels must be distinct",
     },
   );
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
-  const labels = itemsOf(cast, 6).map((item, index) => titleOf(item, 24, thing) ?? placeholderTitle(index));
+  const labels = itemsOf(cast, 6).map(
+    (item, index) => titleOf(item, 24, thing) ?? placeholderTitle(index, lang),
+  );
   const options = [...new Map(labels.map((label) => [label.toLowerCase(), { label }])).values()];
   for (let index = 0; options.length < 2; index++) {
-    const label = placeholderTitle(index);
+    const label = placeholderTitle(index, lang);
     if (!options.some((option) => option.label.toLowerCase() === label.toLowerCase()))
       options.push({ label });
   }

@@ -6,7 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -32,14 +32,16 @@ export const props = z.strictObject({
   caption: text(80).optional(),
 });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = cast.items[0];
   const reference = photo.safeParse(thing && `lib:${thing.type}`);
   return {
     style: "wide",
-    photo: reference.success ? reference.data : `lib:${placeholderTitle(0).toLowerCase().replace(/ /g, "_")}`,
-    caption: (item && titleOf(item, 80, thingOf(cast, item.type))) || placeholderTitle(0),
+    photo: reference.success
+      ? reference.data
+      : `lib:${placeholderTitle(0, lang).toLowerCase().replace(/ /g, "_")}`,
+    caption: (item && titleOf(item, 80, thingOf(cast, item.type))) || placeholderTitle(0, lang),
   };
 }
 

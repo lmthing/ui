@@ -7,7 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
@@ -61,13 +61,13 @@ export const props = z
       message: "Teams need distinct labels, at most one per player, and valid locked indices",
     },
   );
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const players = itemsOf(cast, 6).map((item, index) => ({
-    name: titleOf(item, 24, thing) ?? placeholderTitle(index),
+    name: titleOf(item, 24, thing) ?? placeholderTitle(index, lang),
   }));
-  while (players.length < 2) players.push({ name: placeholderTitle(players.length) });
-  return { players, teams: [{ label: placeholderTitle(0) }, { label: placeholderTitle(1) }] };
+  while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
+  return { players, teams: [{ label: placeholderTitle(0, lang) }, { label: placeholderTitle(1, lang) }] };
 }
 export const examples = [
   // Ledge's friends keep two players together.

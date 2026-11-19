@@ -2,10 +2,10 @@ import { z } from "zod";
 import {
   probesFor,
   clip,
-  emptyLine,
+  searchLine,
   text,
   thingOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
   type Props,
@@ -28,10 +28,9 @@ export const meta = {
 
 export const props = z.strictObject({ hint: text(40) });
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   // Reuse the shared copy helper's normalization and plural rather than a second vocabulary.
-  const line = emptyLine(thingOf(cast)?.type);
-  return { hint: line === emptyLine() ? "Search" : clip(`Search ${line.slice(3, -4)}`, 40) };
+  return { hint: clip(searchLine(thingOf(cast)?.type, lang), 40) };
 }
 
 export const examples = [{ hint: "Search plants" }, { hint: "Search clients" }] satisfies z.input<

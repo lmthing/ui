@@ -27,6 +27,7 @@ export const config = createTamagui({
 export type Theme = ThemeChoice;
 export type RenderOptions = {
   thing?: string;
+  lang?: string;
   component?: string;
   resolvePhoto?: (reference: string) => string | undefined;
 };
@@ -40,6 +41,7 @@ export function renderInstance(
 ): string {
   const {
     thing,
+    lang,
     component = "c1",
     resolvePhoto,
   } = typeof options === "string" ? { thing: options } : options;
@@ -48,7 +50,7 @@ export function renderInstance(
   const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
   return renderToStaticMarkup(
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
-      <KitProvider theme={theme} {...(resolvePhoto ? { resolvePhoto } : {})}>
+      <KitProvider theme={theme} lang={lang} {...(resolvePhoto ? { resolvePhoto } : {})}>
         <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
           <View {...props} />
         </PartScope>

@@ -2,6 +2,7 @@ import { join, relative } from "node:path";
 import { roots, ignoredFolders, ruleNames, type Violation } from "./config";
 import { readSources } from "./files";
 import { checkLimits } from "./limits";
+import { checkLanguage } from "./language";
 import { checkSource } from "./source";
 
 export async function checkRules(root: string): Promise<Violation[]> {
@@ -10,7 +11,10 @@ export async function checkRules(root: string): Promise<Violation[]> {
   const paths = new Set(sources.map(({ file }) => file));
   return [
     ...checkLimits(root, sources),
-    ...sources.flatMap(({ file, source }) => checkSource(root, file, source, paths)),
+    ...sources.flatMap(({ file, source }) => [
+      ...checkSource(root, file, source, paths),
+      ...checkLanguage(file, source),
+    ]),
   ].sort(
     (a, b) =>
       ruleNames.indexOf(a.rule) - ruleNames.indexOf(b.rule) ||

@@ -9,8 +9,9 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `context.ts` the context value
 - `useKit.ts` hook
 - `useKitStyle.ts` hook returning `KitStyle`
+- `useWords.ts` hook returning the app `lang` and core words, or words from a pack lookup
 
 Rules:
 - `KitProvider` wraps children in the Tamagui `Theme` for the app and provides `KitStyle` from `kitStyleOf(preset)`.
 - `onLink` is the only way a press leaves the kit. Never navigate here.
-- Interface: plan 5.3. Defaults: `parts` is the noop registry, `interactive` false.
+- Interface: plan 5.3. Defaults: `parts` is the noop registry, `interactive` false, `lang` is English.

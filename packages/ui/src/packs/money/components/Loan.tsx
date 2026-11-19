@@ -1,6 +1,5 @@
-import { z } from "zod";
 import {
-  debtControlLabels,
+  wordsFor,
   isoDate,
   itemsOf,
   placeholderTitle,
@@ -9,10 +8,11 @@ import {
   text,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { z } from "zod";
 
 // Core first: Amount/large cannot compute monthly interest, instalments or a debt's projected finish.
 export const meta = {
@@ -33,8 +33,10 @@ export const meta = {
   parts: ["root", "name", "principal", "rate", "payment", "balance", "next", "finish", "schedule", "edit"],
   states: ["filled", "loading", "success", "error"],
   actions: { parts: { edit: ["press"] }, when: { edit: { linked: true } } },
-  read: (input, state) =>
-    state === "filled" && (input as z.output<typeof props>).goto ? [debtControlLabels.edit] : [],
+  read: (input, state, lang?: string) => {
+    const { debtControlLabels } = wordsFor(lang);
+    return state === "filled" && (input as z.output<typeof props>).goto ? [debtControlLabels.edit] : [];
+  },
 } as const satisfies Meta;
 
 export const loanSource = z.strictObject({
@@ -56,11 +58,11 @@ export const props = loanSource
   })
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const item = itemsOf(cast, 1)[0];
   return {
-    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0),
+    name: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang),
     principal: 1,
     rate: 0,
     payment: 1,

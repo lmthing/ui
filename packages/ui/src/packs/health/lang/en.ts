@@ -1,0 +1,38 @@
+export const en = {
+  cycleDay: (day: string) => `Day ${day}`,
+  cycleNotStarted: "Not started",
+  cycleNext: (date: string) => `Next period · ${date} (est.)`,
+  cycleWindow: (dates: string) => `Fertile window (est.) · ${dates}`,
+  measurementChange: (value: string, unit: string) => `${value} ${unit} since first reading`,
+  measurementGoal: (value: string, unit: string) => `Goal ${value} ${unit}`,
+  exerciseStart: (label: string) => `start button: ${label}`,
+  cycleLabels: {
+    log: "Log period",
+    disclaimer: "Predictions are not a method of contraception.",
+    empty: "Log a period to see cycle estimates.",
+    upcoming: "Upcoming period",
+    period: "Period",
+    follicular: "Follicular phase",
+    ovulation: "Ovulation estimate",
+    luteal: "Luteal phase",
+  },
+  exerciseLabels: {
+    muscles: "Muscles",
+    cues: "Form cues",
+    equipment: "Equipment",
+    best: "Best",
+    last: "Last",
+    start: "Add to workout",
+  },
+  measurementLabels: {
+    add: "Add measurement",
+    ranges: "Time range",
+    month: "Month",
+    quarter: "3 months",
+    year: "Year",
+    start: "Start",
+    latest: "Latest",
+  },
+};
+
+export type HealthWords = typeof en;

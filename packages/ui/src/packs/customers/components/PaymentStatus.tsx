@@ -1,14 +1,8 @@
+import { useWords, KitAction, KitCard, KitContent, KitText, useComponentState } from "../../../kit";
+import { customersWordsFor } from "../lang";
 import { z } from "zod";
 import { isoDate, probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitText, useComponentState } from "../../../kit";
-import {
-  paymentAmountLine,
-  paymentDetails,
-  paymentFallback,
-  paymentLabels,
-  paymentReading,
-  paymentStatus,
-} from "../copy";
+import { paymentAmountLine, paymentDetails, paymentFallback, paymentReading, paymentStatus } from "../copy";
 
 // Core first: Amount/large cannot derive one client payment's settlement and expose mark/remind actions.
 export const meta = {
@@ -31,7 +25,7 @@ export const meta = {
     parts: { mark: ["press"], remind: ["press"] },
     when: { mark: { outstanding: true }, remind: { outstanding: true } },
   },
-  read: (input) => paymentReading(input as z.output<typeof props>),
+  read: (input, _state, lang?: string) => paymentReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -62,6 +56,8 @@ export const probes = [
 ] satisfies Probe[];
 
 export function PaymentStatus(input: Props<typeof props, typeof meta>) {
+  const { lang, words } = useWords(customersWordsFor);
+  const { paymentLabels } = words;
   const state = useComponentState();
   const status = paymentStatus(input);
   const tone = status === "paid" ? "good" : status === "overdue" ? "bad" : "warn";
@@ -72,11 +68,11 @@ export function PaymentStatus(input: Props<typeof props, typeof meta>) {
           {paymentLabels[status]}
         </KitText>
         <KitText role="number" numberScale="compact" tabular part="amount">
-          {paymentAmountLine(input.amount)}
+          {paymentAmountLine(input.amount, lang)}
         </KitText>
       </KitContent>
       <KitContent>
-        {paymentDetails(input).map(({ part, text }) => (
+        {paymentDetails(input, lang).map(({ part, text }) => (
           <KitText key={part} role="label" tone="muted" tabular={part !== "method"} part={part}>
             {text}
           </KitText>
