@@ -11,6 +11,10 @@ it("formats date headings in UTC and takes initials by code point", () => {
   expect(agendaInitial("𐐨")).toBe("𐐀");
 });
 
+it("keeps the locale's date suffixes and separators", () => {
+  expect(agendaDay("2026-11-20", "ja-JP")).toBe("11月20日(金)");
+});
+
 it("reads all-day events, attendees and conflicts as displayed", () => {
   expect(agendaPeople(["Sam", "everyone"])).toBe("Everyone");
   expect(agendaReading({ id: "r1", title: "Visit", who: ["Sam", "Mia"], conflict: false })).toBe(

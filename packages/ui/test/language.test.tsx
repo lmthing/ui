@@ -160,6 +160,14 @@ it("localizes ingredient controls, quantities and the corresponding reader", () 
   expect(html).toContain('aria-label="[Fewer]"');
 });
 
+it("uses the same localized clock in BabyLog's visible row and reader", () => {
+  const input = { log: [{ kind: "sleep", time: "09:15" }] };
+  expect(renderInstance("BabyLog", input, "filled", theme, { lang })).toContain("０９:１５");
+  expect(readComponent(components.BabyLog, input, "b1", undefined, undefined, lang).join()).toContain(
+    "０９:１５",
+  );
+});
+
 it("keeps localized repeat choices actionable without changing the stored enum", () => {
   const controller = createScreenController({
     lang,

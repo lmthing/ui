@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { clock, itemsOf, probesFor, text, textsOf, thingOf } from "../../../catalog";
+import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import {
   KitAction,
@@ -128,7 +128,7 @@ function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "
   const minutes = row.minutes === undefined ? null : copy.duration(row.minutes);
   const trail = (
     <>
-      <KitTime value={row.time} />
+      <KitTime value={timeOfDayLine(row.time, lang)} />
       <KitTrail kind="chevron" />
     </>
   );

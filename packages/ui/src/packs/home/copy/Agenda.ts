@@ -1,19 +1,23 @@
-import { dateLocaleOf, localeOf, timeOfDayLine } from "../../../catalog";
+import { dateLocaleOf, defaultLang, localeOf, timeOfDayLine } from "../../../catalog";
 import { homeWordsFor } from "../lang";
 
 export const { agendaLabels } = homeWordsFor();
 
-export const agendaDay = (date: string, lang?: string) =>
-  new Intl.DateTimeFormat(dateLocaleOf(lang), {
+export function agendaDay(date: string, lang?: string): string {
+  const value = new Date(`${date}T00:00:00Z`);
+  const formatter = new Intl.DateTimeFormat(dateLocaleOf(lang), {
     weekday: "short",
     day: "numeric",
     month: "short",
     timeZone: "UTC",
-  })
-    .formatToParts(new Date(`${date}T00:00:00Z`))
+  });
+  if (localeOf(lang) !== defaultLang) return formatter.format(value);
+  return formatter
+    .formatToParts(value)
     .filter(({ type }) => type !== "literal")
     .map(({ value }) => value)
     .join(" ");
+}
 
 export const agendaInitial = (name: string, lang?: string) =>
   Array.from(name)[0]?.toLocaleUpperCase(localeOf(lang)) ?? "";
