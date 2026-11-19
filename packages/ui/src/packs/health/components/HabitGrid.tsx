@@ -1,11 +1,32 @@
 import { z } from "zod";
-import { icon, probesFor, text, type CastLike, type Meta, type Probe } from "../../../catalog";
+import {
+  icon,
+  probesFor,
+  streakLine,
+  text,
+  weekdayNames,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
+import {
+  KitCard,
+  KitCheck,
+  KitEmpty,
+  KitIcon,
+  KitRow,
+  KitText,
+  KitWeekMatrix,
+  useComponentState,
+  useControlValue,
+  usePart,
+} from "../../../kit";
 import { indexedActions, indexedParts, seedTitles } from "..";
-
 // Core first: Streak/default cannot tick several habits independently across seven weekday columns.
 export const meta = {
   id: "HabitGrid",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Keep several healthy habits across the seven days of this week.",
   pick: "Several habits by seven weekdays, an editable check per cell and streak per habit. Not one habit's run of days (Streak), today's jobs only (Checklist), or many weeks of activity (Heatmap).",
@@ -15,13 +36,22 @@ export const meta = {
   tier: "phone",
   realPath: "Habit records stored on the device.",
   items: { key: "habits", parts: ["root", "name", "icon", "streak", ...indexedParts(7, ["day"])] },
-  parts: ["root"],
+  parts: ["root", "grid"],
   states: ["filled", "empty"],
   actions: {
     items: indexedActions(7, { day: ["check"] }),
     when: Object.fromEntries(
       indexedParts(7, ["day"]).map((part, index) => [part, { [`past_${index + 1}`]: true }]),
     ),
+  },
+  read: (input, state) => {
+    if (state !== "filled") return [];
+    const { habits } = input as z.output<typeof props>;
+    const today = (new Date().getDay() + 6) % 7;
+    return [
+      ...weekdayNames,
+      ...habits.map((habit) => streakLine(weekStreak(habit.days, today), habit.days)[0]!),
+    ];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
@@ -46,6 +76,9 @@ export const props = z.strictObject({
     .min(1)
     .max(6),
 });
+function weekStreak(days: readonly boolean[], today: number): number {
+  return days.slice(0, today + (days[today] ? 1 : 0)).reduce((count, done) => (done ? count + 1 : 0), 0);
+}
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return {
     habits: seedTitles(cast, 2, 20).map((name) => ({
@@ -58,11 +91,11 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   {
     habits: [
-      { name: "Stretch", icon: "check", days: [false, true, true, false, false, false, false] },
-      { name: "Drink water", icon: "drop", days: [true, true, true, false, false, false, false] },
+      { name: "Check Ivy", icon: "leaf", days: [false, true, true, false, false, false, false] },
+      { name: "Mist Ivy", icon: "drop", days: [true, true, true, false, false, false, false] },
     ],
   },
-  { habits: [{ name: "Walk", icon: "check", days: [true, false, true, false, false, false, false] }] },
+  { habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("HabitGrid");
 export const probes = [
@@ -76,5 +109,81 @@ export const probes = [
   write(
     "This week's stretch and water habits, check and drop icons, both only Monday checked, seven Monday-first days",
   ),
-  read("Mark Monday's stretching as done", { address: "h1/r1/day_1", action: "check" }),
+  read("Mark Monday's ivy check as done", { address: "h1/r1/day_1", action: "check" }),
 ] satisfies Probe[];
+type Habit = Props<typeof props, typeof meta>["habits"][number];
+function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
+  const address = usePart("streak").testID.replace(/\/streak$/, "");
+  const days = [
+    useControlValue(`${address}/day_1`, habit.days[0]!),
+    useControlValue(`${address}/day_2`, habit.days[1]!),
+    useControlValue(`${address}/day_3`, habit.days[2]!),
+    useControlValue(`${address}/day_4`, habit.days[3]!),
+    useControlValue(`${address}/day_5`, habit.days[4]!),
+    useControlValue(`${address}/day_6`, habit.days[5]!),
+    useControlValue(`${address}/day_7`, habit.days[6]!),
+  ];
+  return (
+    <KitText role="number" numberScale="compact" tabular part={null}>
+      {streakLine(weekStreak(days, today), days)[0]}
+    </KitText>
+  );
+}
+function WeekDays() {
+  return weekdayNames.map((label, index) => ({
+    id: `day_${index + 1}`,
+    label,
+    header: (
+      <KitText role="caption" tone="muted" part={null}>
+        {label}
+      </KitText>
+    ),
+  }));
+}
+export function HabitGrid({ habits }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const today = (new Date().getDay() + 6) % 7;
+  const days = WeekDays();
+  if (state === "empty")
+    return (
+      <KitCard part="root">
+        <KitEmpty part="grid" decorativeIcon />
+      </KitCard>
+    );
+  const rows = habits.map((habit) => ({
+    id: habit.id,
+    label: habit.name,
+    heading: (
+      <KitRow item={habit.id} label={habit.name} inline leading={<KitIcon name={habit.icon} part="icon" />}>
+        <KitText role="body" part="name" lines={2}>
+          {habit.name}
+        </KitText>
+      </KitRow>
+    ),
+    cells: days.map((day, index) => ({
+      id: day.id,
+      content: (
+        <KitCheck part={day.id} label={day.label} done={habit.days[index]!} disabled={index > today} />
+      ),
+    })),
+  }));
+  return (
+    <KitCard part="root">
+      <KitWeekMatrix
+        part="grid"
+        days={days}
+        rows={rows}
+        corner={null}
+        today={days[today]!.id}
+        trailing={habits.map((habit) => ({
+          row: habit.id,
+          content: (
+            <KitRow item={habit.id} label={habit.name} inline part="streak">
+              <HabitStreak habit={habit} today={today} />
+            </KitRow>
+          ),
+        }))}
+      />
+    </KitCard>
+  );
+}
