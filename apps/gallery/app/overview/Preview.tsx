@@ -29,7 +29,8 @@ type PreviewProps = {
 
 export function Preview({ cell, preset, mode, responsive = false, label = true, variant }: PreviewProps) {
   const def = components[cell.id];
-  const View = renderers[cell.id as keyof typeof renderers] as (props: object) => React.ReactNode;
+  const View = renderers[cell.id as keyof typeof renderers] as
+    ((props: object) => React.ReactNode) | undefined;
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
   const legacyScreen = `${cell.id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
