@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { TamaguiProvider } from "tamagui";
 import type { ActStep, ScreenLike } from "@lmthing/ui/catalog";
 import { PhoneScreen } from "@lmthing/ui/kit";
-import { config, galleryParts, resolvePhoto } from "../../../gallery";
+import { config, galleryParts } from "../../../gallery";
+import { placeholderFor } from "./placeholder";
 import "../../../gallery/app/fonts";
 import { useTheme, type ThemeState } from "../theme/ThemeContext";
 
@@ -90,7 +91,7 @@ export function Phone({
               screen={screen}
               theme={choice as never}
               parts={galleryParts}
-              resolvePhoto={(ref) => resolvePhoto(ref, choice as never)}
+              resolvePhoto={(ref) => placeholderFor(ref, choice)}
               onAction={onAction}
             />
           </div>

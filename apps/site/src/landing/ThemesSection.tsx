@@ -1,10 +1,10 @@
-import { lazy } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
 import { Reveal } from "../shared/Reveal";
 import { site } from "../data/site";
 
-const ThemeShowcase = lazy(() => import("./ThemeShowcase"));
+const ThemeShowcase = lazyChunk(() => import("./ThemeShowcase"));
 
 export function ThemesSection() {
   const s = site.stats;

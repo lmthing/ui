@@ -16,6 +16,8 @@ export type Node = {
   minItems?: number;
   default?: unknown;
   description?: string;
+  /** Set by the catalog's `variantProps` on every shared variant axis. */
+  variantAxis?: string;
 };
 
 /** The component's Zod props as JSON Schema (input side, so defaulted fields are optional). */

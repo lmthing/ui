@@ -1,10 +1,11 @@
-import { lazy, useState } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
+import { useState } from "react";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
 import { Reveal } from "../shared/Reveal";
 
-const TryPanel = lazy(() => import("../tryit/panel/TryPanel"));
-const ViewActDemo = lazy(() => import("../view/ViewActDemo"));
+const TryPanel = lazyChunk(() => import("../tryit/panel/TryPanel"));
+const ViewActDemo = lazyChunk(() => import("../view/ViewActDemo"));
 const tabs = ["Build with a model", "Read and act"] as const;
 
 export function TrySection() {
