@@ -86,7 +86,10 @@ export function nestedControls(meta: Meta, props: Values) {
         part: `${name}_${at + 1}`,
         spec,
         item,
-        enabled: !spec.when || item[nested.parts[spec.when]?.prop ?? ""] === true,
+        enabled:
+          typeof spec.when === "object"
+            ? item[spec.when.prop] === spec.when.equals
+            : !spec.when || item[nested.parts[spec.when]?.prop ?? ""] === true,
       })),
     );
   });
