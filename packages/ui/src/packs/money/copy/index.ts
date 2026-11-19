@@ -9,4 +9,5 @@ export {
   priceChartReading,
 } from "./PriceChart";
 export { loanToday, projectLoan } from "./repayment";
+export { splitBalances, splitCopy, splitPayments, splitReading } from "./Split";
 export { transactionAmount, transactionDay, transactionGroups, transactionReading } from "./Transactions";
