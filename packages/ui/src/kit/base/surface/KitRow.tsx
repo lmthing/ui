@@ -29,8 +29,6 @@ type RowProps = {
   label: string;
   lineRole?: LineRole;
   role?: "text" | "button" | "group";
-  /** Name the web action from its rendered content; `label` remains the native name. */
-  labelFromContent?: boolean;
   /** A row that opens in place (role `button`): whether its content is shown. */
   expanded?: boolean;
   selected?: boolean;
@@ -120,7 +118,7 @@ function useRowPress(address: string, part: RowProps["part"], goto: RowProps["go
 }
 
 export function Row(props: RowProps) {
-  const { children, leading, trailing, goto, label, role, labelFromContent, expanded, selected } = props;
+  const { children, leading, trailing, goto, label, role, expanded, selected } = props;
   const { tone, rowTone, surface, mark, density, emphasis, lineRole = "body" } = props;
   const { leadingAlign = "line", leadingWidth, inline = false, addressed = true } = props;
   const { part = "root", inset = "md" } = props;
@@ -133,7 +131,8 @@ export function Row(props: RowProps) {
   const address = usePart(part ?? "root", addressed && part !== null);
   const actionRole = goto ? "link" : role === "button" ? role : undefined;
   const id = useId();
-  const contentId = isWeb && actionRole && labelFromContent ? id : undefined;
+  // Prefer the rendered text order for web actions; keep the caller's label as the fallback.
+  const contentId = isWeb && actionRole ? id : undefined;
   const press = useRowPress(address.testID, part, goto);
   return (
     <Frame
@@ -143,7 +142,7 @@ export function Row(props: RowProps) {
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={actionRole ?? (role === "group" && label ? "group" : undefined)}
-      accessibilityLabel={(actionRole || role === "group") && !contentId ? label : undefined}
+      accessibilityLabel={actionRole || role === "group" ? label : undefined}
       aria-labelledby={contentId}
       aria-current={selected || undefined}
       aria-expanded={expanded}

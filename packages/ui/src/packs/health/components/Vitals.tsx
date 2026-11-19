@@ -167,7 +167,6 @@ export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
             key={reading.id}
             item={reading.id}
             label={vitalLine(reading, lang)}
-            labelFromContent
             role="button"
             inset="none"
             lineRole="caption"
