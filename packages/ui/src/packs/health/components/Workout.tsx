@@ -10,7 +10,7 @@ import { healthWordsFor } from "../lang";
 const setFields = { prop: "hasFields", equals: true } as const;
 export const meta = {
   id: "Workout",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Log each exercise's sets, weight and reps during one workout.",
   pick: "Logging a workout set by set, editing weight and reps, ticking sets and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).",
