@@ -71,6 +71,28 @@ describe("declared selection", () => {
   });
 });
 
+it("resolves explicit values from a prop list without accepting indexes or inferring a choice", () => {
+  const fromProps = {
+    ...meta,
+    select: { prop: "at", choices: { option: { prop: "options" } } },
+  } satisfies Meta;
+  const options = { ...props, options: ["one", 2] };
+  for (const value of ["one", 2]) {
+    expect(selectionAt(fromProps, options, "option", value)).toEqual({ value });
+    expect(selectionError(fromProps, options, "option", value)).toBeUndefined();
+  }
+  for (const value of [0, "2", "One", undefined, null]) {
+    expect(selectionError(fromProps, options, "option", value)).toBe(
+      "Select an allowed value at this address",
+    );
+    expect(selectionChanges(fromProps, options, "option", value)).toEqual({});
+  }
+  expect(selectionAt(fromProps, { options: [] }, "option", "one")).toBeUndefined();
+  expect(selectionAt(fromProps, { options: "one" }, "option", "one")).toBeUndefined();
+  expect(selectionAt(fromProps, props, "option", "one")).toBeUndefined();
+  expect(selectionAt(fromProps, options, "r1", "one")).toBeUndefined();
+});
+
 const nestedMeta: Meta = {
   ...meta,
   items: {

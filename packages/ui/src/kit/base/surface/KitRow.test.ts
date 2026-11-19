@@ -145,6 +145,10 @@ describe("KitRow avatar choice geometry", () => {
 });
 
 describe("KitRow status and selection", () => {
+  it.each(["good", "bad"] as const)("shows %s on an explicitly plain row", (tone) => {
+    const html = renderRow({ label: "Choice", children: label, item: "r1", surface: "plain", tone });
+    expect(styleAt(html, elementAt(html, "home/s1/r1/root").children.at(-1)!)).toContain(`var(--${tone})`);
+  });
   it.each(["text", "muted", "accent", "onAccent", "good", "warn", "bad"] as const)(
     "keeps the %s tint and geometry on selection",
     (tone) => {

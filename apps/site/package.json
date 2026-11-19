@@ -1,0 +1,22 @@
+{
+  "name": "@lmthing/site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "dev": "tsx scripts/tools/dev.ts",
+    "typecheck": "pnpm --filter @lmthing/ui build:catalog && tsx scripts/build.ts --no-shots --data && tsc -p tsconfig.json",
+    "test": "pnpm --filter @lmthing/ui build:catalog && tsx scripts/build.ts --no-shots --data && vitest run"
+  },
+  "dependencies": {
+    "@lmthing/ui": "workspace:*",
+    "@mlc-ai/web-llm": "0.2.88",
+    "@tamagui/core": "1.144.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-native-svg": "15.15.3",
+    "react-native-web": "0.21.4",
+    "tamagui": "1.144.4",
+    "zod": "4.6.7"
+  }
+}

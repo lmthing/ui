@@ -1,5 +1,5 @@
 import { useSignatureProgress } from "../../motion";
-import { motion } from "../../../catalog";
+import { variants } from "../../../catalog";
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { Check } from "@tamagui/lucide-icons";
@@ -71,7 +71,9 @@ export function KitCheck({
       <Box
         done={checked}
         {...(disabled ? { opacity: component.base.disabledOpacity } : {})}
-        scale={checked && !readonly ? 1 + motion.pulseScale * Math.sin(progress * Math.PI) : 1}
+        scale={
+          checked && !readonly ? 1 + variants.motion[kit.motion].pulseScale * Math.sin(progress * Math.PI) : 1
+        }
       >
         {checked && <Check size={size.icon.sm} color="$onAccent" aria-hidden />}
       </Box>

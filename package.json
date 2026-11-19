@@ -19,7 +19,9 @@
     "shoot": "pnpm --filter @lmthing/ui shoot",
     "look": "pnpm --filter @lmthing/ui look",
     "gallery:static": "pnpm --filter @lmthing/ui gallery:static",
-    "rules": "pnpm --filter @lmthing/ui rules"
+    "rules": "pnpm --filter @lmthing/ui rules",
+    "site": "pnpm build:catalog && pnpm --filter @lmthing/site build",
+    "site:dev": "pnpm --filter @lmthing/site dev"
   },
   "devDependencies": {
     "@types/node": "26.6.6",

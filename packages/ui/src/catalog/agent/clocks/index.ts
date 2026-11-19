@@ -9,4 +9,11 @@ export {
   projectClocks,
   clockActionValid,
 } from "./clock";
-export { adjustmentAt, projectAdjustments } from "./adjustment";
+export {
+  adjustmentAt,
+  clearItemSets,
+  numericSetAt,
+  projectAdjustments,
+  projectComponentSets,
+  projectMatrix,
+} from "./adjustment";

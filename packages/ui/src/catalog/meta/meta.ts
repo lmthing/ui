@@ -2,10 +2,28 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { ItemVariants, VariantParts, Variants } from "../types";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
+
+type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
+type NumericSets = Readonly<Record<string, NumericSet>>;
+
+type RowSelection = "index" | "position" | { field: string };
+type SelectMeta = {
+  prop: string;
+  parts?: Readonly<Record<string, unknown>>;
+} & (
+  | { value: RowSelection; mode: "flags"; choices?: never }
+  | {
+      value?: RowSelection;
+      mode?: "one";
+      /** Named parts that require an explicit value from a closed list or an array prop. */
+      choices?: Readonly<Record<string, readonly (string | number)[] | { prop: string }>>;
+    }
+);
 
 export type Meta = {
   id: string;
@@ -25,8 +43,14 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
+  variants?: Variants;
+  variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
+  /** Component parts with a declared `set` action and a finite numeric destination prop. */
+  set?: NumericSets;
+  /** Confirmed component press part → item set part whose nullable values are cleared. */
+  clearItems?: Readonly<Record<string, string>>;
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
@@ -36,8 +60,19 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
+    set?: Readonly<
+      Record<
+        string,
+        NumericSet & {
+          /** Addressed items flatten this wire matrix in row-major order. */
+          matrix?: { rows: string; values: string };
+        }
+      >
+    >;
     nested?: {
       key: string;
       clocks?: readonly ClockMeta[];
@@ -57,12 +92,7 @@ export type Meta = {
       >;
     };
   };
-  select?: {
-    prop: string;
-    value: "index" | "position" | { field: string };
-    mode?: "one" | "flags";
-    parts?: Readonly<Record<string, unknown>>;
-  };
+  select?: SelectMeta;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

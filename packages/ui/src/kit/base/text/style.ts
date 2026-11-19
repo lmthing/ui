@@ -1,23 +1,22 @@
 import { createContext } from "react";
-import { component, elevation, radius, type KitStyle } from "../../../catalog";
+import { component, elevation, radius, variants, type AxisValue, type KitStyle } from "../../../catalog";
 
 export type CardStyle = "plain" | "inset" | "cards";
-export type SurfaceTone = "neutral" | "good" | "warn" | "bad";
+export type SurfaceTone = AxisValue<"tone">;
 /** Fill and border for a surface that carries a tone: a soft tint of the tone, or the accent tint when neutral. */
 export function tintOf(tone: SurfaceTone) {
-  const fill = { neutral: "$accentSoft", good: "$goodSoft", warn: "$warnSoft", bad: "$badSoft" } as const;
-  const edge = { neutral: "$accent", good: "$good", warn: "$warn", bad: "$bad" } as const;
+  const { fill, rule, border } = variants.surface.tinted;
   return {
-    backgroundColor: fill[tone],
-    borderColor: edge[tone],
-    borderWidth: component.base.borderWidth,
+    backgroundColor: `$${fill[tone]}`,
+    borderColor: `$${rule[tone]}`,
+    borderWidth: component.base[border],
   } as const;
 }
 /** An outlined surface: no fill, a visible rule. */
 export const outlined = {
   backgroundColor: "transparent",
-  borderColor: "$line",
-  borderWidth: component.base.strongBorder,
+  borderColor: `$${variants.surface.outlined.rule}`,
+  borderWidth: component.base[variants.surface.outlined.border],
 } as const;
 export const CardStyleContext = createContext<CardStyle>("inset");
 export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiusShift"]) {
@@ -30,22 +29,36 @@ export function shifted(token: "sm" | "md" | "lg" | "xl", shift: KitStyle["radiu
  * `solid` (bold) a crisp card on a contrasting background, `hairline` (editorial) paper with a rule.
  */
 export function surfaceOf(treatment: KitStyle["surface"]) {
-  if (treatment === "hairline") {
-    return {
-      backgroundColor: "$surface",
-      borderColor: "$line",
-      borderWidth: component.base.borderWidth,
-    } as const;
+  const { fill, rule, border, elevation: depth } = variants.surface.card[treatment];
+  const shadow = elevation[depth];
+  return {
+    backgroundColor: `$${fill}`,
+    ...(rule ? { borderColor: `$${rule}` as const } : {}),
+    borderWidth: component.base[border],
+    ...(depth !== "flat"
+      ? {
+          shadowColor: "$text",
+          shadowOffset: { width: component.base.none, height: shadow.offset },
+          shadowRadius: shadow.shadowRadius,
+          shadowOpacity: shadow.shadowOpacity,
+        }
+      : {}),
+  } as const;
+}
+
+export function variantSurfaceOf(
+  surface: AxisValue<"surface">,
+  preset: KitStyle["surface"],
+  tone: SurfaceTone,
+) {
+  switch (surface) {
+    case "plain":
+      return {};
+    case "card":
+      return surfaceOf(preset);
+    case "tinted":
+      return tintOf(tone);
+    case "outlined":
+      return outlined;
   }
-  if (treatment === "soft") {
-    return {
-      backgroundColor: "$surface",
-      borderWidth: component.base.none,
-      shadowColor: "$text",
-      shadowOffset: { width: component.base.none, height: elevation.card.offset },
-      shadowRadius: elevation.card.shadowRadius,
-      shadowOpacity: elevation.card.shadowOpacity,
-    } as const;
-  }
-  return { backgroundColor: "$surface", borderWidth: component.base.none } as const;
 }

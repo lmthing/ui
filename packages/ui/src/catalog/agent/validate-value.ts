@@ -1,7 +1,58 @@
 // Checks the value an action carries, before anything changes. Errors say the allowed format in
-// under 10 words (plan 4.12). Part-specific limits (a field's date format) join this with U2 fields.
+// under 10 words (plan 4.12).
+import { localeOf } from "../lang";
 
 export type ValueError = { code: "invalid_value"; hint: string };
+
+const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
+// The decimal keypad uses ASCII decimal drafts, not localized display notation.
+const plainDecimal = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
+
+function decimalText(value: number) {
+  return plainDecimal.format(value === 0 ? 0 : value);
+}
+
+function exceeds(text: string, max: number) {
+  if (max < 0) return true;
+  // Compare decimal digits so rounding cannot hide an amount just over max.
+  const digits = (value: string) => {
+    const [whole, fraction = ""] = value.split(".");
+    return [whole!.replace(/^0+/, ""), fraction.replace(/0+$/, "")] as const;
+  };
+  const [whole, fraction] = digits(text);
+  const [limit, limitFraction] = digits(decimalText(max));
+  if (whole.length !== limit.length) return whole.length > limit.length;
+  return whole === limit ? fraction > limitFraction : whole > limit;
+}
+
+/** Keypad edits preserve drafts (including a trailing separator); plain strings replace them. */
+export function resolveKeypadValue(
+  value: unknown,
+  current: unknown,
+  limits: { max?: unknown; decimals?: unknown },
+): { value: string } | ValueError {
+  const before = typeof current === "number" ? decimalText(current) : String(current ?? "");
+  let text: string;
+  if (typeof value === "string") text = value;
+  else if (value && typeof value === "object" && Object.keys(value).length === 1) {
+    if ("append" in value && typeof value.append === "string" && /^[0-9.]$/.test(value.append))
+      text = before + value.append;
+    else if ("backspace" in value && value.backspace === true) text = before.slice(0, -1);
+    else if ("clear" in value && value.clear === true) text = "";
+    else return invalid("Use a digit, separator, backspace, or clear");
+  } else return invalid("type takes decimal text or a keypad edit");
+  if (!/^[0-9]*(?:\.[0-9]*)?$/.test(text)) return invalid("Use digits and one decimal point");
+  const [whole, fraction] = text.split(".");
+  if (typeof limits.decimals === "number" && fraction !== undefined) {
+    if (limits.decimals === 0) return invalid("Use a whole number");
+    if (fraction.length > limits.decimals) return invalid(`Use at most ${limits.decimals} decimal places`);
+  }
+  const amount = `${whole || "0"}.${fraction ?? ""}`;
+  if (!Number.isFinite(Number(amount))) return invalid("Use a finite amount");
+  if (typeof limits.max === "number" && exceeds(amount, limits.max))
+    return invalid(`Use ${limits.max} or less`);
+  return { value: text };
+}
 
 const none = (value: unknown) => value === undefined;
 
@@ -36,12 +87,12 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
 export function validateActionValue(
   action: string,
   value: unknown,
-  limits?: { min?: number; max?: number; integer?: boolean },
+  limits?: { numeric?: true; min?: number; max?: number; integer?: boolean },
 ): ValueError | null {
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
-  if (limits && (limits.min !== undefined || limits.max !== undefined || limits.integer)) {
+  if (limits && (limits.numeric || limits.min !== undefined || limits.max !== undefined || limits.integer)) {
     if (typeof value !== "number" || !Number.isFinite(value))
       return { code: "invalid_value", hint: "set takes a finite number" };
     if (limits.integer && !Number.isInteger(value))
