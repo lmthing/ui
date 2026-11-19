@@ -35,7 +35,16 @@ export function usePlayground(id: string) {
       }) as unknown as ScreenLike,
     [id, live, state],
   );
-  const text = useMemo(() => (def ? readScreen(screen, components as never) : ""), [screen, def]);
+  const text = useMemo(() => {
+    if (!def) return "";
+    try {
+      return readScreen(screen, components as never);
+    } catch (error) {
+      // A prop set the catalog cannot read (mid-edit, or a new axis) must not take the page down.
+      const issues = (error as { issues?: { path: PropertyKey[]; message: string }[] }).issues;
+      return `The agent read is unavailable for these props: ${issues?.map((i) => `${i.path.join(".")} ${i.message}`).join("; ") ?? String(error)}`;
+    }
+  }, [screen, def]);
   return {
     def,
     schema: useMemo(() => (def ? schemaOf(def.props) : null), [def]),

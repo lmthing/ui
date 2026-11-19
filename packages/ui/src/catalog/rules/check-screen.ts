@@ -1,5 +1,13 @@
-import { checkWeight, checkLimits, checkNeighbours, checkPlaceholders, checkCore } from "./checks";
+import {
+  checkWeight,
+  checkLimits,
+  checkNeighbours,
+  checkPlaceholders,
+  checkCore,
+  checkVariants,
+} from "./checks";
 import type { ScreenLike } from "../agent";
+import { migrateScreen } from "../migrations";
 import { definitionsOf, resolveDefinition, type RegistryLike, type Issue } from "./shared";
 /** Reports stable issues and leaves the caller's screen untouched. */
 export function checkScreen(
@@ -10,7 +18,7 @@ export function checkScreen(
   const defs = definitionsOf(registry);
   const canonical = {
     ...screen,
-    components: screen.components.map((entry) => ({
+    components: migrateScreen(screen, { variantOnly: true }).components.map((entry) => ({
       ...entry,
       c: resolveDefinition(defs, entry.c)?.meta.id ?? entry.c,
     })),
@@ -21,5 +29,6 @@ export function checkScreen(
     ...checkNeighbours(canonical, defs),
     ...checkCore(canonical, defs, options.flowOpensSheet),
     ...checkPlaceholders(canonical),
+    ...checkVariants(canonical, defs),
   ];
 }

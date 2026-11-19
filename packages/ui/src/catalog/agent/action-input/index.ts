@@ -1,5 +1,5 @@
 import type { Definition } from "../../probes";
-import { stampItemIds } from "../../lines";
+import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
 import {
   controlValueKey,
@@ -18,7 +18,7 @@ export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>,
   const def = entry && defs[entry.c];
   if (!def?.meta.items?.nested) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
+  return nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
 }
 
 export function numericStep(
@@ -55,8 +55,9 @@ export function controlsAreValid(
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const projected = projectControlInput(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
-  return projected === raw || def.props.safeParse(projected).success;
+  const repaired = repairVariants(def, raw).props as Values;
+  const projected = projectControlInput(def, repaired, (part) => values[`${screen.id}/${id}/${part}`]);
+  return projected === repaired || def.props.safeParse(projected).success;
 }
 
 /** An opted-in part's owner supplies the initial value and optional bounds. */

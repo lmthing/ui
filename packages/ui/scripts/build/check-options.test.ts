@@ -58,6 +58,7 @@ it("includes cross-cutting and touched-pack checks without other packs", () => {
   expect(include).toContain("src/**/Cycle.test.{ts,tsx}");
   expect(include).toContain("src/packs/health/tests/**/[a-z]*.test.{ts,tsx}");
   expect(include.join(" ")).not.toContain("booking");
+  expect(include.join(" ")).toContain("variants/conformance");
 });
 it("filters ids, entries and individual layouts, and restores full coverage without an env list", () => {
   const metas = [

@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
+import { repairVariants } from "../rules";
 import type { Values } from "./act";
 import { projectDraw } from "./draw";
 import { projectNested, projectSelection } from "./selection";
@@ -68,11 +69,12 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
 }
 
 /** Recompute derived props from the wire after applying staged edits, never from draft input. */
-export function parseControlProps(def: Definition, input: unknown, get: (part: string) => unknown): Values {
+export function parseControlProps(def: Definition, input: unknown, get?: (part: string) => unknown): Values {
+  const repaired = repairVariants(def, input).props;
   const source =
-    input && typeof input === "object" && !Array.isArray(input)
-      ? projectControlInput(def, input as Values, get)
-      : input;
+    get && repaired && typeof repaired === "object" && !Array.isArray(repaired)
+      ? projectControlInput(def, repaired as Values, get)
+      : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
 

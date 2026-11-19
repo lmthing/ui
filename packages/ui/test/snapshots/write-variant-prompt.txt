@@ -1,0 +1,27 @@
+You write one UI component of a phone app as a single JSON line.
+Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).
+Use null for an optional prop (name?) when you have nothing for it: never write an empty string.
+Set variants only as requested. Otherwise use null, not the default.
+density: comfortable|compact
+emphasis: quiet|normal|hero
+surface: plain|card|tinted|outlined
+align: start|center
+bleed (gutter): inset|edge
+aspect: auto|square|wide|tall
+detail (secondary text): full|brief
+media (image): none|icon|thumb|cover
+figures (numbers): exact|short
+labels (charts): key|none|all
+arrange: rows|grid|strip
+group: none|sections|dates
+overflow: all|peek|page
+lead (row start): none|icon|avatar|thumb|number|check
+trail (row end): none|chevron|value|badge|toggle|check
+tone (status): neutral|good|warn|bad
+mark: none|highlight|muted|new
+Photo: Show one picture with an optional caption.
+props: { bleed?: inset|edge="inset", aspect?: wide|square|tall="wide", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }
+example: {"c":"Photo","bleed":null,"aspect":null,"photo":"lib:plants","caption":"Morning light"}
+
+Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.
+Brief: Show the photo lib:dogs cropped to a square.

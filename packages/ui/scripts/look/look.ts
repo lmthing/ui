@@ -2,6 +2,7 @@
 // Renders the component as phone screens at several widths, in every preset and both modes, and:
 //  - writes one screenshot per width and mode: packages/ui/shots/<Id>/<width>-<mode>.png
 //    (columns are presets; every example and state is stacked);
+//  - writes variants.png for declared shared alternatives in calm light at 390px;
 //  - checks every screen automatically (clipped text, parts outside the screen, overlapping text,
 //    contrast under WCAG AA, touch targets under 44×44, console errors);
 //  - writes packages/ui/shots/<Id>/issues.json and exits 1 if there are issues.
@@ -13,6 +14,7 @@ import { galleryConfig } from "./gallery-config";
 import type { LookIssue } from "./checks";
 import { bundleChecks } from "./bundle-checks";
 import { capture } from "./capture";
+import { variantSheet } from "../variants";
 
 function arg(name: string) {
   const index = process.argv.indexOf(name);
@@ -37,6 +39,10 @@ export async function look(id: string, widths: number[]) {
         );
       }
     }
+    const { width, mode } = variantSheet;
+    issues.push(
+      ...(await capture(browser, `${base}?c=${id}&variant-sheet`, out, width, mode, content, true)),
+    );
   } finally {
     await browser.close();
     await server.close();
