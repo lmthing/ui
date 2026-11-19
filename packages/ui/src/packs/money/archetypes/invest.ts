@@ -6,7 +6,10 @@ export const invest = {
   defaultLayout: "simple",
   layouts: {
     simple: {
-      writeHints: ['List uses style: "inset" with short rows; omit body, me and photo.'],
+      writeHints: [
+        "Always write all four required components: Header, PriceChart, KeyValue, List. Include the supporting holding details and history rows even with an empty cast; use neutral fallback content rather than omitting KeyValue or List.",
+        'List uses style: "inset" with short rows; omit body, me and photo.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["PriceChart"], required: true },

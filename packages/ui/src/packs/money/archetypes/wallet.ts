@@ -6,6 +6,9 @@ export const wallet = {
   defaultLayout: "accounts",
   layouts: {
     accounts: {
+      writeHints: [
+        "Always write all four required components in order: Header, Amount in large style, AccountCard, Transactions. An empty cast still needs separate account cards and recent entry rows; use neutral fallback content rather than omitting either required component.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Amount"], required: true, variant: "large" },

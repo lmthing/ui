@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  debtControlLabels,
   isoDate,
   itemsOf,
   placeholderTitle,
@@ -32,6 +33,8 @@ export const meta = {
   parts: ["root", "name", "principal", "rate", "payment", "balance", "next", "finish", "schedule", "edit"],
   states: ["filled", "loading", "success", "error"],
   actions: { parts: { edit: ["press"] }, when: { edit: { linked: true } } },
+  read: (input, state) =>
+    state === "filled" && (input as z.output<typeof props>).goto ? [debtControlLabels.edit] : [],
 } as const satisfies Meta;
 
 export const loanSource = z.strictObject({
@@ -120,7 +123,10 @@ export const probes = [
     "Show recorded payments against several fixed repayment targets as separate progress bars, no interest or future schedule",
     "Progress",
   ),
-  choose("Show my latest outstanding balance and a short recent trend, no forecast or terms", "Sparkline"),
+  choose(
+    "Show a tiny line of my recent outstanding balances beside the latest value, no forecast or loan terms",
+    "Sparkline",
+  ),
   choose("Remind me about upcoming electricity and rent payments with paid ticks, no debt interest", "Bills"),
   choose("Prioritise several debts and allocate extra monthly money until all are cleared", "Payoff"),
   write(

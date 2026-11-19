@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  debtControlLabels,
   itemsOf,
   placeholderTitle,
   probesFor,
@@ -35,6 +36,18 @@ export const meta = {
   actions: {
     parts: { strategy: ["select"], extra: ["set"], edit: ["press"] },
     when: { edit: { linked: true } },
+  },
+  read: (input, state) => {
+    if (state !== "filled") return [];
+    const value = input as z.output<typeof props>;
+    return [
+      debtControlLabels.strategy,
+      debtControlLabels.high_rate,
+      debtControlLabels.small_balance,
+      debtControlLabels[value.strategy],
+      debtControlLabels.extra,
+      ...(value.goto ? [debtControlLabels.edit] : []),
+    ];
   },
 } as const satisfies Meta;
 

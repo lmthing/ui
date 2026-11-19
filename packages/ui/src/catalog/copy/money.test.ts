@@ -4,6 +4,7 @@ import {
   compactMoneyLine,
   currencies,
   defaultCurrency,
+  debtControlLabels,
   documentAmounts,
   documentFields,
   documentHeading,
@@ -125,4 +126,14 @@ it("keeps ordinary prices exact and bounds large displayed prices", () => {
   expect(compactMoneyLine(10000)).toBe("$10K");
   expect(compactMoneyLine(1e15)).toBe("$1E15");
   expect(compactMoneyLine(Number.MAX_VALUE)).toBe("$1.8E308");
+});
+
+it("names the debt priority choices separately from the terms editor", () => {
+  expect(debtControlLabels).toEqual({
+    edit: "Open terms editor",
+    strategy: "Repayment priority",
+    high_rate: "Highest rate first",
+    small_balance: "Smallest balance first",
+    extra: "Extra monthly repayment",
+  });
 });

@@ -3,8 +3,10 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  debtControlLabels,
   placeholderTitle,
   stampItemIds,
+  readComponent,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
@@ -86,4 +88,15 @@ it("offers optional note and debt edit actions only when enabled", () => {
   }
   expect(components.Split.meta.partTiers).toEqual({ settle: "people" });
   expect(components.PriceChart.meta.tier).toBe("service");
+});
+
+it("reads debt priority choices and the optional terms editor using shared copy", () => {
+  const loan = components.Loan;
+  expect(readComponent(loan, loan.examples[0], "l1").join("\n")).toContain(debtControlLabels.edit);
+  const payoff = components.Payoff;
+  const reading = readComponent(payoff, payoff.examples[0], "p1").join("\n");
+  for (const key of ["strategy", "high_rate", "small_balance", "extra", "edit"] as const)
+    expect(reading).toContain(debtControlLabels[key]);
+  expect(loan.meta.read(loan.fallback({ cast: casts[0]! }), "filled")).toEqual([]);
+  expect(payoff.meta.read(payoff.examples[0], "loading")).toEqual([]);
 });

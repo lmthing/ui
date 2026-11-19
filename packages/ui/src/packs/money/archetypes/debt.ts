@@ -20,6 +20,9 @@ export const debt = {
       ],
     },
     money_payoff: {
+      writeHints: [
+        "Always write all four required components in order: Header, Payoff, Note, Button. Include the assumptions Note and an edit Button even with an empty cast; use neutral fallback content rather than omitting them.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Payoff"], required: true },
