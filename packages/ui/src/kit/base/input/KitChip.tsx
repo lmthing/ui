@@ -1,6 +1,6 @@
-import { createContext, useContext } from "react";
-import type { ReactNode } from "react";
-import { XStack, YStack, isWeb, styled } from "tamagui";
+import { createContext, useContext, type ReactNode } from "react";
+import { Line, Svg } from "react-native-svg";
+import { XStack, YStack, isWeb, styled, useTheme } from "tamagui";
 import { component, radius, size, space, type IconName, type Swatch } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
@@ -9,7 +9,7 @@ import { KitIcon, KitText, shifted } from "../text";
 // The 44px touch area carries the role; the visible pill or segment sits inside it.
 const Hit = styled(YStack, { minHeight: size.control.md, justifyContent: "center" });
 const ChoiceTarget = createContext<string | undefined>(undefined);
-
+const diagonal = { x1: "0%", y1: "100%", x2: "100%", y2: "0%" };
 type ChipProps = {
   label: string;
   on: boolean;
@@ -36,14 +36,20 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   const idleFill = disabled ? "$raised" : "$surface";
   const onFill = segment ? "$surface" : "$accent";
   const fill = custom ? (on ? "$accentSoft" : idleFill) : on ? onFill : "transparent";
-  const dim = !loading && !disabled && segment && !on;
-  const accent = !loading && on && !custom && !segment;
-  const tone = dim ? "muted" : accent ? "onAccent" : "text";
-  const text = (
-    <KitText role="label" tone={tone} part={stamped ? labelPart : null} lines={1} strike={disabled ?? false}>
-      {label}
-    </KitText>
-  );
+  const tone =
+    !loading && !disabled && segment && !on
+      ? "muted"
+      : !loading && on && !custom && !segment
+        ? "onAccent"
+        : "text";
+  const labelProps = { role: "label", tone, part: stamped ? labelPart : null, lines: 1 } as const;
+  const text = <KitText {...labelProps}>{label}</KitText>;
+  const slashed = disabled && !loading;
+  const labelLayer = loading
+    ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
+    : slashed
+      ? { position: "relative" as const }
+      : undefined;
   return (
     <XStack
       alignItems="center"
@@ -58,7 +64,9 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       }
       borderColor={segment && !custom && !on ? undefined : loading || (segment && !custom) ? "$line" : edge}
       backgroundColor={loading ? "$line" : fill}
+      overflow={slashed ? "hidden" : undefined}
     >
+      {slashed && <DisabledSlash />}
       {swatch && <SwatchMark swatch={swatch} loading={loading} dim={disabled ?? false} />}
       {icon &&
         !segment &&
@@ -67,17 +75,26 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
         ) : (
           <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
         ))}
-      {loading ? (
-        <YStack
-          opacity={component.base.none}
-          {...(isWeb ? { style: { visibility: "hidden" } as never } : {})}
-        >
-          {text}
+      {labelLayer ? (
+        <YStack {...labelLayer}>
+          {slashed && <YStack fullscreen backgroundColor={fill} aria-hidden />}
+          {slashed ? <YStack position="relative">{text}</YStack> : text}
         </YStack>
       ) : (
         text
       )}
     </XStack>
+  );
+}
+
+function DisabledSlash() {
+  const theme = useTheme();
+  return (
+    <YStack fullscreen pointerEvents="none" aria-hidden>
+      <Svg width="100%" height="100%">
+        <Line {...diagonal} stroke={theme.line?.val} strokeWidth={component.base.borderWidth} />
+      </Svg>
+    </YStack>
   );
 }
 
@@ -98,9 +115,8 @@ function SwatchMark({ swatch, loading, dim }: { swatch: Swatch; loading: boolean
 
 function Chip(input: ChipProps & { stamped: boolean }) {
   const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
-  const state = useComponentState();
   const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
-  const loading = state === "loading" && variant;
+  const loading = useComponentState() === "loading" && variant;
   const addressed = stamped && part !== null && !loading;
   const address = usePart(part ?? "root", addressed);
   const kit = useKit();
@@ -128,23 +144,15 @@ function Chip(input: ChipProps & { stamped: boolean }) {
       accessibilityLabel={loading ? undefined : label}
     >
       <ChipContent
-        {...props}
-        {...{ label, on, role, look, disabled, loading }}
+        {...{ ...props, label, on, role, look, disabled, loading }}
         stamped={stamped && !loading}
       />
     </Hit>
   );
 }
 
-/** One selectable pill, segment or box. */
-export function KitChip({
-  item,
-  look = "pill",
-  ...props
-}: ChipProps & {
-  /** The item id; `null` inside a track that is itself the control (no per-chip address). */
-  item: string | null;
-}) {
+/** One selectable pill, segment or box. Pass `item: null` for a track-owned control. */
+export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: string | null }) {
   const context = usePartContext();
   if (item === null) return <Chip {...props} look={look} stamped={false} />;
   return (
@@ -171,24 +179,18 @@ export function KitTrack({
 }) {
   const ks = useKitStyle();
   const address = usePart(part);
-  return look === "segments" ? (
+  const segments = look === "segments";
+  return (
     <XStack
       {...address}
-      backgroundColor="$raised"
-      borderRadius={shifted("md", ks.radiusShift)}
-      paddingHorizontal={space.xs}
-      {...({ role: role ?? "tablist" } as object)}
-      {...(label ? { "aria-label": label } : {})}
-    >
-      <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
-    </XStack>
-  ) : (
-    <XStack
-      {...address}
-      flexWrap="wrap"
-      columnGap={space.sm}
-      rowGap={space.sm}
-      {...({ role: role ?? "list" } as object)}
+      {...(segments
+        ? {
+            backgroundColor: "$raised",
+            borderRadius: shifted("md", ks.radiusShift),
+            paddingHorizontal: space.xs,
+          }
+        : { flexWrap: "wrap" as const, columnGap: space.sm, rowGap: space.sm })}
+      {...({ role: role ?? (segments ? "tablist" : "list") } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
       <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>

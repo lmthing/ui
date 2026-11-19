@@ -123,7 +123,6 @@ describe("KitChip variant options", () => {
       const html = render(input, controller, true);
       expect(html).toContain('aria-disabled="true"');
       expect(html).toContain('aria-checked="false"');
-      expect(html).toContain("line-through");
       expect((await capture(input, controller, true)).onPress).toBeUndefined();
     }
   });
@@ -134,10 +133,27 @@ describe("KitChip variant options", () => {
     const face = hit.children[0]!;
     expect(styleAt(html, hit)).toContain(`padding-left:${space.xs}px`);
     expect(styleAt(html, face)).toContain("border-left-color:var(--line)");
-    expect(styleAt(html, face.children[0]!)).toContain(`opacity:${component.base.disabledOpacity}`);
-    expect(styleAt(html, "home/c1/r1/label")).toContain("color:var(--text)");
+    expect(styleAt(html, face.children[1]!)).toContain(`opacity:${component.base.disabledOpacity}`);
     const normal = render({ ...chip, look: "segment" });
     expect(styleAt(normal, "home/c1/r1/root")).not.toContain(`padding-left:${space.xs}px`);
+  });
+});
+describe("KitChip variant layers and loading", () => {
+  it("paints the single-glyph label above the decorative slash", () => {
+    const input = { ...chip, look: "box", label: "L", on: false, disabled: true } as const;
+    const html = render(input);
+    const [back, front] = elementAt(html, "home/c1/r1/root").children[0]!.children;
+    expect(back!.attributes).toContain('aria-hidden="true"');
+    expect(styleAt(html, back!)).toContain("position:absolute");
+    expect(back!.children[0]!.children[0]!.attributes).toMatch(
+      /<line\b.*x1="0%".*y1="100%".*x2="100%".*y2="0%"/,
+    );
+    expect(styleAt(html, front!.children[0]!)).toContain("background-color:var(--raised)");
+    expect(styleAt(html, front!.children[1]!)).toContain("position:relative");
+    const glyph = elementAt(html, "home/c1/r1/label");
+    expect(front!.children[1]!.children[0]).toEqual(glyph);
+    expect(styleAt(html, glyph)).toContain("color:var(--text)");
+    expect(render(input, undefined, false, "loading")).not.toContain("<line");
   });
   it("renders loading variants without a control and lets callers omit the control part", async () => {
     const controller = { press: vi.fn() } as unknown as ScreenController;
