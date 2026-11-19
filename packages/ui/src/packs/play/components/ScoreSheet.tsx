@@ -1,7 +1,7 @@
 import { z } from "zod";
 // prettier-ignore
 import {
-  itemsOf, numberLine, placeholderTitle, probesFor, text, thingOf, titleOf,
+  digitsLine, itemsOf, numberLine, placeholderTitle, probesFor, text, thingOf, titleOf,
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
 // prettier-ignore
@@ -133,7 +133,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
     id: cellId(selected, player), label: name,
     heading: <KitRow inline part="player" label={name}><KitGrid fitLast>
       <KitContent>{line("label", name)}{standing && line("caption", standing, winner ? "good" : "muted")}</KitContent>
-      {line("number", total, "text", "end")}
+      {line("number", loading ? digitsLine(0, 2, lang) : total, "text", "end")}
     </KitGrid></KitRow>,
     cells: visible.map((round) => {
       const { label: roundLabel, points } = rounds[round]!;
@@ -144,8 +144,8 @@ function ScoreTable({ input, selected, loading, readonly }: {
         <KitRow item={cellId(round, player)} inline label={label}>
           {loading ? <KitSkeleton shape="control" kind="secondary" label={labels.unplayed} full />
             : readonly
-            ? <KitContent inset="md"><KitText role="number" numberScale="compact" tabular part="score">
-                {score == null ? labels.unplayed : numberLine(score, lang)}</KitText></KitContent>
+            ? <KitText role="number" numberScale="compact" tabular part="score">
+                {score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
         </KitRow> };
