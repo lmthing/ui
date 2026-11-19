@@ -195,7 +195,9 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
-  items?: { key: string; parts: readonly string[]; prefix?: string; visible?: "all" | "first" };
+  items?: { key: string; parts: readonly string[]; prefix?: string; visible?: "all" | "first"; variants?: ItemVariants };
+  variants?: Variants; // shared axes (4.2a), default value first
+  variantParts?: Readonly<Record<`${Axis}.${string}`, { adds?: readonly string[]; hides?: readonly string[] }>>;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
@@ -238,14 +240,87 @@ occupy a screen slot or count toward its component limit. The host supplies app 
 | `isoDate`, `clock`    | Real `YYYY-MM-DD` dates and `HH:MM` clocks                                                     |
 | `tier`, `secret(max)` | Dependency vocabulary; secrets read as `(secret)`                                              |
 | `swatch`              | 14 fixed product-colour names in `tokens/component.ts`; unknown names snap to the nearest name |
-| `tone`                | Component enums use `neutral`, `good`, `warn`, `bad`; there is no shared `tone` helper         |
-| `style`, `kind`       | Bounded per-component enums; bases map them to fixed themed treatments                         |
+| `tone`, `mark`        | Shared item axes (4.2a): `neutral`, `good`, `warn`, `bad`; `none`, `highlight`, `muted`, `new` |
+| `style`, `kind`       | Bounded per-component enums for structure no shared axis covers; bases map them to treatments  |
+| `variantProps(axes)`  | Spreads the declared shared variant axes (4.2a) into the props object                          |
 
 Product swatches represent product data, not free UI colour. `screenId` checks a bounded snake_case
 string; special `back`/`sheet` targets are interpreted by the runtime, not a separate link enum.
 Components still accept no raw colour,
 size, font, spacing or motion values. Schemas and plain lookup tables are made at import; validation
 runs in tests and build checks, not automatically on catalog import.
+
+### 4.2a Shared variant axes
+
+One closed vocabulary of variant axes is shared by every core and pack component (spec, technical
+decisions). An axis value is a name the theme turns into tokens; it never carries a number, colour or
+font. A component's own `style` keeps only structural choices that no axis covers (List `shelf`,
+Gallery `carousel`, Scale `stars`).
+
+| Kind       | Axis       | Values                                          | Meaning                                         |
+| ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- |
+| Finish     | `density`  | `comfortable`, `compact`                        | Row height, spacing and type step               |
+| Finish     | `emphasis` | `quiet`, `normal`, `hero`                       | Prominence on the screen                        |
+| Finish     | `surface`  | `plain`, `card`, `tinted`, `outlined`           | Container treatment                             |
+| Finish     | `align`    | `start`, `center`                               | Alignment of the component's own content        |
+| Finish     | `bleed`    | `inset`, `edge`                                 | Inside the gutter or edge to edge               |
+| Finish     | `aspect`   | `auto`, `square`, `wide`, `tall`                | Media frame shape                               |
+| Content    | `detail`   | `full`, `brief`                                 | Secondary text (subtitles, meta) shown or not   |
+| Content    | `media`    | `none`, `icon`, `thumb`, `cover`                | Image treatment where images exist              |
+| Content    | `figures`  | `exact`, `short`                                | `1,240` or `1.2k`, `3 h 05 min` or `3 h`        |
+| Content    | `labels`   | `key`, `none`, `all`                            | Value labels on charts                          |
+| Collection | `arrange`  | `rows`, `grid`, `strip`                         | Rows, a grid, or a horizontal strip             |
+| Collection | `group`    | `none`, `sections`, `dates`                     | Item grouping with headers                      |
+| Collection | `overflow` | `all`, `peek`, `page`                           | All items, the first few then "see all", pages  |
+| Collection | `lead`     | `none`, `icon`, `avatar`, `thumb`, `number`, `check` | Leading accessory of each row              |
+| Collection | `trail`    | `none`, `chevron`, `value`, `badge`, `toggle`, `check` | Trailing accessory of each row           |
+| Item       | `tone`     | `neutral`, `good`, `warn`, `bad`                | Semantic status of one item, never a colour     |
+| Item       | `mark`     | `none`, `highlight`, `muted`, `new`             | Prominence of one item                          |
+
+The theme (4.3) adds two app-wide enums: `density` (`comfortable`, `compact`), the default for every
+component without its own, and `motion` (`calm`, `lively`), for entrances and celebrations; the OS
+reduce-motion setting still wins.
+
+**Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
+sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
+["normal", "hero"] }`. Item axes go in `meta.items.variants`. Most components declare three to six
+axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
+density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
+strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
+validator and a `patch` `set` handle them like any prop; there is no variant op.
+
+**Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
+parts, declared in `meta.variantParts` (`{ "trail.toggle": { adds: ["toggle"] }, "detail.brief": {
+hides: ["meta"] } }`), and never rename or renumber one: addresses come from data, not from a variant.
+An item hidden by `overflow: "peek"` keeps its address, readers say "and N more", and an action on it
+still resolves. The conformance test renders every declared value and checks these rules.
+
+**Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
+(for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
+`elevation.card`), as plain data. Kit bases take axis values through `useVariant()` and the base
+options; views pass the component's values to bases and never branch on numbers.
+
+**Repairs and screen rules.** An undeclared axis or value is a component repair (4.14) back to the
+default, never a failed line. Screen rules (4.5) cap `emphasis: "hero"` at one per screen, a
+`media: "cover"` collection at one per screen, and `mark: "highlight"` at a third of a component's
+items.
+
+**Prompts and probes.** The write prompt states the axis vocabulary once (budget: at most 160 tokens);
+each component's line lists only its axes and values. Writers set an axis only when the request
+implies one. Shared write probes cover each axis on representative components ("fit more on the
+walks list" → `density: "compact"`); each component adds one write probe for its most distinctive
+non-finish axis.
+
+**Look and gallery.** `look` draws the defaults in every preset and mode as before, plus each declared
+non-default value once (calm, light, 390 wide) on a variants sheet. The gallery shows a variants panel
+per component.
+
+**Migration.** Bespoke values that an axis covers move to it through `catalog/migrations`, so older
+lines and recordings still load: Card `style` `plain|tinted|outlined` to `surface` and `media` to
+`media: "cover"`, Button `md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered`
+to `align`, Photo `square|wide|tall` to `aspect`, List `trail` and `cards` / `ranked` to `trail`,
+`surface` and `lead`, and every per-component `tone` enum to the shared helper. Each adoption task
+lists its own moves.
 
 ### 4.3 Tokens and themes
 
@@ -266,7 +341,8 @@ This repo owns the token values.
 | `themes/theme-name.ts` | `themeName({ preset, accent, mode })` → `kit_<preset>_<mode>_<accent>`                                                                                                                                            |
 | `themes/kit-style.ts`  | `KitStyle` and `kitStyleOf(preset)`: what a preset changes besides colour (corner shift, font pairing, density, surface treatment) as plain data                                                                  |
 
-A theme is preset plus accent plus mode. The model picks names and never a colour.
+A theme is preset plus accent plus mode, plus the app-wide `density` and `motion` (4.2a). The model
+picks names and never a colour. `tokens/variants.ts` maps the shared variant axes to tokens per preset.
 
 **Pending full set:** 12 presets × 12 accents × 2 modes = 288 themes. The built set is `calm`, `bold`,
 `editorial` × `moss`, `sky` × light/dark = 12. Theme tests derive counts from the built arrays;
@@ -377,6 +453,8 @@ Pure functions over `ScreenLike` and `RegistryLike` (a definition map or `{ defs
    lists remains **pending**; only components whose schema supports a count can render one.
 8. **Neighbours.** Hero first in the body; a section title needs following content; repeated
    types cannot be adjacent except Card and Field; Button cannot be the first component.
+9. **Variants.** At most one `emphasis: "hero"` and one `media: "cover"` collection per screen;
+   `mark: "highlight"` on at most a third of a component's items (4.2a).
 
 | File                            | Checks or data                                                                                                                 |
 | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -515,6 +593,9 @@ Package version is currently private `0.0.0`. Hosts should stamp the catalog ver
   lmthing's pairwise eval.
 - **Major:** removal, rename, tightened limit or changed meaning; needs a fixture-tested pure
   migration over `{ catalog, screens: Record<string, ScreenLike> }`.
+
+Moving a bespoke `style` or `tone` value to a shared variant axis (4.2a) is a migration of the same kind:
+old lines and recordings map to the axis before validation.
 
 `migrateLine`, `migrateScreen`, `migrateJSONL` and `legacyTarget` implement the retired `DayTimeline`
 shape. Blocks become `Timeline[hours]` items with `time`/`end`. The runtime migrates before drawing.
@@ -1112,6 +1193,7 @@ pack lists live in [docs/catalog/](catalog/README.md); build waves, prerequisite
 | **U4. First 24 of the core**          | **Partly done:** the first 24 schemas/views and associated core archetypes exist; ten validated full-screen fixtures and complete interaction/visual acceptance remain                                                                                                                              | All 24 ready and every state/action/screenshot accepted in each preset. Phase 1                                                                                                                   |
 | **U5. Booking and customers**         | **Not started** as pack content; shared infrastructure is ready                                                                                                                                                                                                                                     | Execute [pack build plan](catalog/packs/build-plan.md) prerequisites and wave 1; both packs ready with metadata, components, views, archetypes and Trot worked examples in three presets. Phase 1 |
 | **U6. Rest of the core**              | **Partly done:** all 45 core schemas/views, 17 archetypes, live controls, time migration and ten shared signature hooks and browser motion/reduced-motion acceptance exist; surfaces, measured render detectors, native device QA, remaining core option details and exhaustive action gates remain | All core ready with agent/action parity; three surfaces, exact known-fault reports and real-phone signature judgment. Phase 1 end / Phase 2                                                       |
+| **U6a. Shared variants**             | **Not started**                                                                                                                                                                                                                                                                                     | 4.2a vocabulary, `variantProps`, `variantParts`, tokens, theme density/motion, repairs, screen rules, prompts, probes, look variants sheet and migrations; every core and wave 1–2 pack component adopted, recordings refreshed. Before wave 3 components |
 | **U7. Remaining packs**               | **Not started** as pack content                                                                                                                                                                                                                                                                     | Execute waves 2–5 for the remaining 25 of 27 packs in [the pack build plan](catalog/packs/build-plan.md); each pack's live gates and worked app pass before live prompts. Phases 3/4 then ongoing |
 | **U8. Release readiness**             | **Not started**                                                                                                                                                                                                                                                                                     | Blank Expo/web consumers of built entries, photos, public API docs/licence, registry workflow and first tag; no lmthing dependency. Second consumer                                               |
 
