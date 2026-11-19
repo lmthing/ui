@@ -1,15 +1,15 @@
 import { z } from "zod";
 import { clockLine, numberLine, probesFor, text } from "../../../catalog";
-import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
+import type { ClockState, FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
-import { workoutReading, workoutSetTimes } from "../copy";
+import { activeWorkoutRest, workoutReading } from "../copy";
 import { healthWordsFor } from "../lang";
 
 // Core first: Checklist/plain cannot edit weights and reps per set or attach a rest countdown.
 export const meta = {
   id: "Workout",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Log each exercise's sets, weight and reps during one workout.",
   pick: "Logging a workout set by set, editing weight and reps, ticking sets and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).",
@@ -92,7 +92,7 @@ export const examples = [
       ] },
       { name: "Plank", sets: [{ seconds: 45, done: true }] },
     ],
-    rest: 90, unit: "kg",
+    rest: 0, unit: "kg", elapsed: 185,
   },
   {
     exercises: [{ name: "Goblet squat", sets: [
@@ -114,14 +114,11 @@ export const probes = [
 ] satisfies Probe[];
 
 type WorkoutProps = Props<typeof props, typeof meta>;
-type SetProps = {
-  item: string;
-  set: WorkoutProps["exercises"][number]["sets"][number];
-  pos: number;
-  unit: WorkoutProps["unit"];
-};
-function WorkoutSet({ item, set, pos, unit }: SetProps) {
+type Set = WorkoutProps["exercises"][number]["sets"][number];
+type SetProps = { item: string; set: Set; pos: number; unit: WorkoutProps["unit"]; stop: boolean };
+function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   const { lang, words } = kit.useWords(healthWordsFor);
+  const { item: _item, ...scope } = kit.usePartContext();
   const w = words.workout;
   const label = w.set(numberLine(pos, lang));
   const limits = [
@@ -130,36 +127,42 @@ function WorkoutSet({ item, set, pos, unit }: SetProps) {
   ] as const;
   const fields = limits.map(({ name, label, ...bounds }) => {
     const id = `${name}_${pos}`;
-    const input = { part: id, label, hint: "", value: set[name]?.toString(), min: 0, ...bounds };
+    const inactive = set.seconds !== undefined && set[name] === undefined;
+    const input = { part: id, label, hint: "", value: set[name]?.toString(), min: 0, inactive, ...bounds };
     return { id, label, control: <kit.KitInput kind="number" action="set" compact {...input} /> };
   });
-  const times = workoutSetTimes(set, lang);
+  const rest = (stop || set.done) && set.remaining ? w.remaining(clockLine(set.remaining, lang)) : undefined;
+  // prettier-ignore
   return (
-    <kit.KitSetRow
-      item={item}
-      part={`set_${pos}`}
-      label={label}
-      labelPart={`label_${pos}`}
-      fields={fields}
-      done={<kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />}
-      detail={
-        times.length
-          ? times.map(([part, line]) => (
-              <kit.KitText key={part} part={`${part}_${pos}`} role="caption" tone="muted">
-                {line}
-              </kit.KitText>
-            ))
-          : undefined
-      }
+    <kit.KitSetRow item={item} part={`set_${pos}`} label={label} labelPart={`label_${pos}`} fields={fields}
+      done={<><kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />
+        {set.seconds !== undefined && <kit.KitText part={`duration_${pos}`} role="number" numberScale="compact" tabular>
+          {clockLine(set.seconds, lang)}
+        </kit.KitText>}</>}
+      detail={rest && <kit.KitContent>
+        <kit.KitText part={`remaining_${pos}`} role="number" numberScale="compact" tabular>{rest}</kit.KitText>
+        {stop && <kit.PartContext.Provider value={scope}>
+          <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />
+        </kit.PartContext.Provider>}
+      </kit.KitContent>}
     />
   );
 }
 
 export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {
   const state = kit.useComponentState();
+  const { controller } = kit.useKit();
+  const { screen, component } = kit.usePartContext();
   const { lang, words } = kit.useWords(healthWordsFor);
   const w = words.workout;
   const time = clockLine(elapsed ?? 0, lang);
+  const running =
+    controller &&
+    ((id: string, pos: number) =>
+      (controller.store.get(`${screen}/${component}/${id}/$rest_${pos}`) as ClockState | undefined)
+        ?.running === true);
+  const restAt = rest > 0 && activeWorkoutRest(exercises, running);
+  // prettier-ignore
   return (
     <kit.KitCard style="inset" part="root" padded>
       {state === "empty" ? (
@@ -169,24 +172,18 @@ export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {
       ) : (
         <>
           <kit.KitContent>
-            <kit.KitText part={null} role="caption" tone="muted">
-              {w.elapsed}
-            </kit.KitText>
-            <kit.KitText part="time" role="number" tabular>
-              {time}
-            </kit.KitText>
+            <kit.KitText part={null} role="caption" tone="muted">{w.elapsed}</kit.KitText>
+            <kit.KitText part="time" role="number" numberScale="compact" tabular>{time}</kit.KitText>
           </kit.KitContent>
           {exercises.map(({ id, name, sets }) => (
-            <kit.KitRow key={id} item={id} label={name} inline lineRole="heading">
-              <kit.KitText part="name" role="heading">
-                {name}
-              </kit.KitText>
-              {sets.map((set, at) => (
-                <WorkoutSet key={at} item={id} set={set} unit={unit} pos={at + 1} />
-              ))}
-            </kit.KitRow>
+            <kit.KitContent key={id} group="response">
+              <kit.KitRow item={id} label={name} inline>
+                <kit.KitText part="name" role="body">{name}</kit.KitText>
+                {sets.map((set, at) => <WorkoutSet key={at} item={id} set={set} unit={unit}
+                  pos={at + 1} stop={Boolean(restAt && restAt.id === id && restAt.pos === at + 1)} />)}
+              </kit.KitRow>
+            </kit.KitContent>
           ))}
-          {rest > 0 && <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />}
           <kit.KitAction part="finish" label={w.finish} full />
         </>
       )}

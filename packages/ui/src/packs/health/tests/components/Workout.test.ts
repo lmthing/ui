@@ -5,7 +5,6 @@ import {
   readComponent,
   stampItemIds,
   type CastLike,
-  type Meta,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createScreenController } from "@lmthing/ui/kit";
@@ -88,7 +87,7 @@ describe("Workout fallback and probes", () => {
     expect(fallback({ cast: casts[2]! }).exercises[0]!.name).toBe("Item one");
   });
   it("retains the core-first near miss, tier, dense weight and read targets", () => {
-    expect(meta).toMatchObject({ tier: "phone", weight: 3, dense: true });
+    expect(meta).toMatchObject({ status: "ready", tier: "phone", weight: 3, dense: true });
     expect(meta.pick).toContain("Checklist");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -103,16 +102,16 @@ describe("Workout fallback and probes", () => {
   });
 });
 
-// Like the shared conformance suite, these cases require a registered (ready) renderer.
-describe.runIf((meta as Meta).status === "ready")("Workout states and parts", () => {
+describe("Workout states and parts", () => {
   it("draws every set part once and preserves duration, rest and unit readings", () => {
     for (const example of examples) {
       const html = renderInstance("Workout", example, "filled", theme, { component: "w1" });
       const reading = readComponent(components.Workout, example, "w1").join("\n");
       const parts = [...html.matchAll(/data-testid="(home\/w1\/[^"]+)"/g)].map((m) => m[1]);
       expect(new Set(parts).size).toBe(parts.length);
-      for (const part of ["root", "time", "finish", "rest", "r1/root", "r1/name", "r1/set_2", "r1/label_2"])
+      for (const part of ["root", "time", "finish", "r1/root", "r1/name", "r1/set_2", "r1/label_2"])
         expect(parts).toContain(at(part));
+      expect(parts.includes(at("rest"))).toBe(example.rest > 0);
       expect(elementAt(html, at("r1/done_1")).attributes).toContain('role="checkbox"');
       expect(elementAt(html, at("r1/weight_2")).attributes).toContain('role="spinbutton"');
       expect(elementAt(html, at("finish")).attributes).toContain('role="button"');
@@ -121,7 +120,7 @@ describe.runIf((meta as Meta).status === "ready")("Workout states and parts", ()
     }
     const duration = renderInstance("Workout", examples[0], "filled", theme);
     const resting = renderInstance("Workout", examples[1], "filled", theme);
-    expect(duration).toContain("Duration · 0:45");
+    expect(duration).toMatch(/data-testid="home\/c1\/r2\/duration_1"[^>]*>0:45/);
     expect(resting).toContain("Rest · 0:36");
     expect(resting).not.toContain("Duration");
   });

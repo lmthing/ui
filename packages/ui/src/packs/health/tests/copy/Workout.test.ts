@@ -1,5 +1,20 @@
 import { expect, it } from "vitest";
-import { workoutReading, workoutSetTimes } from "../../copy";
+import { activeWorkoutRest, workoutReading, workoutSetTimes } from "../../copy";
+
+it("selects one visible rest, preferring actual running state when available", () => {
+  const exercises = [
+    {
+      id: "r1",
+      sets: [
+        { done: true, remaining: 4 },
+        { done: false, remaining: 2 },
+      ],
+    },
+  ];
+  expect(activeWorkoutRest(exercises)).toEqual({ id: "r1", pos: 1 });
+  expect(activeWorkoutRest(exercises, (_id, pos) => pos === 2)).toEqual({ id: "r1", pos: 2 });
+  expect(activeWorkoutRest(exercises, () => false)).toBeUndefined();
+});
 
 it("preserves optional blanks, real zeros, and localized numbers and times", () => {
   expect(workoutSetTimes({ done: false, seconds: 0, remaining: 0 })).toEqual([
