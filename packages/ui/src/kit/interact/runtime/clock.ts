@@ -1,38 +1,34 @@
-import { projectScreen, type TimerState } from "../index";
+import { clockTargets, clockKey, clockTime, type ClockState } from "../../../catalog";
+import { tickClocks } from "../controls";
 import type { ControllerContext } from "./context";
 function needsClock(ctx: ControllerContext) {
-  return ctx.screen.components.some(
-    (entry) =>
-      entry.c === "Timer" &&
-      ((ctx.store.get(ctx.key(entry.id, "$timer")) as TimerState | undefined)?.running ||
-        (entry.style === "until" && new Date(`${entry.until}T${entry.at ?? "00:00"}`).getTime() > ctx.now())),
-  );
+  const values = ctx.valuesOf();
+  return ctx.screen.components.some((entry) => {
+    if (!ctx.defs[entry.c]) return false;
+    const get = (part: string) => values[ctx.key(entry.id, part)];
+    if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") return false;
+    return clockTargets(ctx.defs[entry.c]!.meta, ctx.inputOf(entry)).some((clock) => {
+      const state = get(clockKey(clock)) as ClockState | undefined;
+      return clock.spec.kind === "until"
+        ? clockTime(clock, undefined, undefined, ctx.now()) > 0
+        : Boolean(state?.running);
+    });
+  });
 }
 function tickValues(ctx: ControllerContext) {
   const values = ctx.valuesOf();
-  const current = projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet, true);
-  let changed = false;
-  for (const entry of current.components)
-    if (entry.c === "Timer") {
-      const timer = values[ctx.key(entry.id, "$timer")] as TimerState | undefined;
-      if (timer?.running) {
-        const seconds = Number(entry.seconds);
-        if (values[ctx.key(entry.id, "$seconds")] !== seconds) {
-          values[ctx.key(entry.id, "$seconds")] = seconds;
-          changed = true;
-        }
-        if ((entry.style !== "up" && seconds === 0) || (entry.style === "up" && seconds === 86400)) {
-          values[ctx.key(entry.id, "$timer")] = { ...timer, running: false, seconds: 0 };
-          changed = true;
-        }
-      }
-      if (entry.style === "until" && values[ctx.key(entry.id, "$tick")] !== Math.floor(ctx.now() / 60000)) {
-        values[ctx.key(entry.id, "$tick")] = Math.floor(ctx.now() / 60000);
-        changed = true;
-      }
-    }
-  if (changed) {
-    ctx.store.setMany(values);
+  const changes: Record<string, unknown> = {};
+  for (const entry of ctx.screen.components) {
+    if (!ctx.defs[entry.c]) continue;
+    const get = (part: string) => values[ctx.key(entry.id, part)];
+    if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") continue;
+    for (const [part, value] of Object.entries(
+      tickClocks(ctx.defs[entry.c]!.meta, ctx.inputOf(entry), get, ctx.now()),
+    ))
+      changes[ctx.key(entry.id, part)] = value;
+  }
+  if (Object.keys(changes).length) {
+    ctx.store.setMany(changes);
     ctx.notifyChange();
   }
 }

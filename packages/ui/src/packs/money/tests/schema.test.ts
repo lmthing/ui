@@ -1,3 +1,4 @@
+import { selectedEntries } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import { components, type Definition } from "@lmthing/ui/catalog";
 
@@ -96,7 +97,7 @@ const invalid: Record<string, unknown[]> = {
   ],
 };
 
-describe.each(Object.entries(invalid))("%s schema", (id, inputs) => {
+describe.each(selectedEntries(invalid))("%s schema", (id, inputs) => {
   it.each(inputs)("rejects invalid boundaries and computed or unknown fields", (input) => {
     expect(defs[id]!.props.safeParse(input).success).toBe(false);
   });

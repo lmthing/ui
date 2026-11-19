@@ -10,6 +10,8 @@
     "gallery": "pnpm build:entries && pnpm --filter @lmthing/gallery dev",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
+    "test:browser": "pnpm --filter @lmthing/ui test:browser",
+    "test:changed": "pnpm --filter @lmthing/ui test:changed",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "llm:check": "pnpm --filter @lmthing/ui llm:check",

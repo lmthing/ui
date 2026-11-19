@@ -8,7 +8,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance, styleAt } from "../../../../test/render";
+import { renderInstance, styleAt } from "../../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.ActivityRings;
 const ring = { label: "Move", value: 280, of: 400, unit: "kcal" };
