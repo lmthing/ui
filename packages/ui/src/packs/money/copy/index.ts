@@ -1,5 +1,7 @@
 export { accountCopy, accountReading } from "./AccountCard";
 export { billLines, billsReading, billTotalLine, localBillDate, orderedBills } from "./Bills";
+export { payoffCopy, payoffReading, payoffStrategies } from "./Payoff";
+export { projectPayoff } from "./PayoffProjection";
 export {
   priceChartCopy,
   priceChartPoints,
