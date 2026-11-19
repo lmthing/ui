@@ -1,3 +1,4 @@
+import { selectedIds, selectedLayouts } from "../../../../scripts/build";
 import { readFile } from "node:fs/promises";
 import { URL } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -50,7 +51,7 @@ describe("kitchen scaffold", () => {
     expect(ids.filter((id) => core.ids.includes(id))).toEqual([]);
     const format = JSON.stringify(writerFormat(draft));
     const liveFormat = JSON.stringify(writerFormat(live));
-    for (const id of ids) {
+    for (const id of selectedIds(ids)) {
       expect(packOf[id as keyof typeof packOf]).toBe("kitchen");
       expect(format).toContain(`"const":"${id}"`);
       expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
@@ -71,6 +72,7 @@ describe("kitchen scaffold", () => {
       expect(Object.keys(meta.layouts)).toEqual(layouts[meta.id as keyof typeof layouts]);
       expect(Object.keys(packComposition(meta).layouts)).toEqual(Object.keys(meta.layouts));
       for (const [layout, data] of Object.entries(meta.layouts)) {
+        if (selectedLayouts([packComposition(meta)])?.includes(`${meta.id}/${layout}`) === false) continue;
         for (const slot of data.recipe)
           for (const id of slot.allow)
             expect(!(id in packOf) || packOf[id as keyof typeof packOf] === "kitchen").toBe(true);
@@ -95,6 +97,6 @@ describe("kitchen scaffold", () => {
       expect(typeof id).toBe("string");
       expect(definitions[c]!.props.safeParse(input).success).toBe(true);
     }
-    for (const id of ids) expect(lines.some((line) => line.c === id)).toBe(true);
+    for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
   });
 });

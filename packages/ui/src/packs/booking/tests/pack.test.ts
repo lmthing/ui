@@ -1,3 +1,4 @@
+import { selectedIds, selectedEntries } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   components,
@@ -30,7 +31,7 @@ describe("booking scaffold", () => {
     expect(draft.ids.filter((id) => booking.includes(id))).toHaveLength(6);
     const format = JSON.stringify(writerFormat(draft));
     const liveFormat = JSON.stringify(writerFormat(live));
-    for (const id of booking) {
+    for (const id of selectedIds(booking)) {
       expect(format).toContain(`"const":"${id}"`);
       expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
     }
@@ -45,7 +46,7 @@ describe("booking scaffold", () => {
   });
   it("validates every draft's examples and neutral fallbacks and requires a core near miss", () => {
     const cast: CastLike = { things: [], items: [] };
-    for (const [id, owner] of Object.entries(packOf)) {
+    for (const [id, owner] of selectedEntries(packOf)) {
       if (owner !== "booking") continue;
       const def = components[id as keyof typeof components];
       for (const example of def.examples) expect(def.props.safeParse(example).success).toBe(true);
@@ -94,7 +95,7 @@ describe("booking draft schemas", () => {
         { ...components.Appointment.examples[0], policy: "Cannot use policy in card" },
       ],
     };
-    for (const [id, inputs] of Object.entries(invalid))
+    for (const [id, inputs] of selectedEntries(invalid))
       for (const input of inputs)
         expect(components[id as keyof typeof invalid].props.safeParse(input).success).toBe(false);
   });

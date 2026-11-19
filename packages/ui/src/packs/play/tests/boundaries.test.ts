@@ -1,3 +1,4 @@
+import { selectedEntries } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import { components, type Definition } from "@lmthing/ui/catalog";
 
@@ -72,7 +73,7 @@ const invalid = {
   ],
 };
 describe("play schema boundaries", () => {
-  it.each(Object.entries(invalid))(
+  it.each(selectedEntries(invalid))(
     "rejects %s invalid bounds, references and computed props",
     (id, inputs) => {
       for (const input of inputs) expect(defs[id]!.props.safeParse(input).success).toBe(false);

@@ -12,8 +12,8 @@ import {
   valueKey,
   type InteractionStore,
   type MediaAdapter,
-  type TimerState,
 } from "../index";
+import { initialClocks } from "../controls";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -44,12 +44,8 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
     if (!input?.success) continue;
     const value = input.data as Values;
     initial[valueKey(screen.id, id, "$runtime")] = true;
-    if (c === "Timer" && value.style !== "until")
-      initial[valueKey(screen.id, id, "$timer")] = {
-        running: false,
-        from: now(),
-        seconds: Number(value.seconds),
-      } satisfies TimerState;
+    for (const [part, clock] of Object.entries(initialClocks(defs[c]!.meta, value, now())))
+      initial[valueKey(screen.id, id, part)] = clock;
     if (c === "List" && value.style === "expand")
       (value.rows as Values[]).forEach((_row, index) => {
         initial[valueKey(screen.id, id, `r${index + 1}`)] = false;
@@ -69,15 +65,19 @@ export function createControllerContext(options: ControllerOptions) {
   };
   const now = options.now ?? Date.now;
   const store = options.store ?? createInteractionStore();
-  const initial = initialValues(screen, defs, now);
+  let initial = initialValues(screen, defs, now);
   const status = {
     disposed: false,
     openSheet: store.get(`${screen.id}/$sheet`) as string | undefined,
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const valuesOf = () => ({ ...initial, ...store.snapshot() });
+  const valuesOf = () => ({
+    ...initial,
+    ...store.snapshot(),
+    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), now()])),
+  });
   const liveScreen = (values: Values, sheet: string | undefined, covered = false): ScreenLike => {
-    const projected = projectScreen(screen, defs, values, now(), sheet);
+    const projected = projectScreen(screen, defs, values, now(), sheet, false, false);
     return covered
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
@@ -91,6 +91,9 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
+    resetValues: () => {
+      initial = initialValues(screen, defs, now);
+    },
     mounted: new Map<string, symbol>(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => address.replace(`${screen.id}/`, "").replace(/\/root$/, ""),
