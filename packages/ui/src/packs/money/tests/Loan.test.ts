@@ -109,17 +109,22 @@ describe("Loan states and parts", () => {
   it.each([
     { state: "loading", text: "Loading" },
     { state: "success", text: labels.cleared },
-    { state: "error", text: labels.insufficient },
+    { state: "error", text: labels.forecastError },
   ] as const)("shows $state without an active forecast or edit", ({ state, text }) => {
     const html = renderInstance("Loan", { ...simple, style: "schedule", goto: "terms" }, state, theme);
     expect(elementAt(html, addr("root"))).toBeDefined();
     expect(html).toContain(text);
     for (const part of ["next", "schedule", "finish", "edit"]) expect(html).not.toContain(addr(part));
+    if (state === "error") {
+      expect(html).not.toContain(labels.insufficient);
+      expect(html.indexOf(text)).toBeLessThan(html.indexOf(labels.principal));
+    }
   });
 
   it("shows the calculated error for a monthly payment equal to the interest", () => {
     const failing = { ...simple, rate: 12, payment: 1, goto: "terms" };
     const html = renderInstance("Loan", failing, "filled", theme);
+    expect(html.indexOf(labels.insufficientTitle)).toBeLessThan(html.indexOf(labels.insufficient));
     expect(html).toContain(labels.insufficient);
     expect(html).not.toContain(addr("next"));
     expect(html).not.toContain(addr("finish"));

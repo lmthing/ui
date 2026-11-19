@@ -117,7 +117,7 @@ type LineProps = {
   role: "label" | "caption" | "number" | "title";
   children: string;
   part?: string | null;
-  tone?: "muted" | "good";
+  tone?: "muted" | "good" | "bad";
   tabular?: boolean;
 };
 function LoanLine({ role, part = null, children, ...props }: LineProps) {
@@ -174,7 +174,8 @@ export function Loan(input: Props<typeof props, typeof meta>) {
     <KitCard part="root" padded>
       <KitContent>
         <LoanLine role="label" part="name" children={input.name} />
-        {copy.paidOff && <LoanLine role="title" tone="good" children={loanLabels.cleared} />}
+        {copy.headline && <LoanLine role="title" tone={copy.headline === loanLabels.cleared ? "good" : "bad"} children={copy.headline} />}
+        {copy.notice && <LoanLine role="caption" tone="muted" children={copy.notice} />}
         {copy.balance !== undefined && (
           <>
             <LoanLine role="number" part="balance" tabular children={copy.balance} />
@@ -187,11 +188,7 @@ export function Loan(input: Props<typeof props, typeof meta>) {
           <LoanLine key={part} part={part} role="caption" tone="muted" children={text} />
         ))}
       </KitContent>
-      {!copy.paidOff && (copy.notice ? (
-        <KitContent group="response">
-          <LoanLine role="label" children={copy.notice} />
-        </KitContent>
-      ) : <Forecast {...{ copy, words, loading }} />)}
+      {!copy.headline && <Forecast {...{ copy, words, loading }} />}
       {goto && loading && <KitSkeleton shape="control" kind="secondary" label={loanLabels.edit} full />}
       {goto && state === "filled" && <KitAction kind="secondary" part="edit" label={loanLabels.edit} goto={goto} full />}
     </KitCard>

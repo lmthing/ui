@@ -24,6 +24,17 @@ function loanDateFormatter(lang?: string) {
   return (due: string) => dateFormat.format(new Date(`${due}T00:00:00Z`));
 }
 
+function loanStatus(
+  state: string,
+  status: ReturnType<typeof projectLoan>["status"],
+  labels: ReturnType<typeof moneyWordsFor>["loanLabels"],
+): { headline?: string; notice?: string } {
+  if (state === "success" || status === "cleared") return { headline: labels.cleared };
+  if (status === "insufficient") return { headline: labels.insufficientTitle, notice: labels.insufficient };
+  if (status === "outOfRange") return { headline: labels.forecastError, notice: labels.outOfRange };
+  return state === "error" ? { headline: labels.forecastError } : {};
+}
+
 export function loanCopy(
   input: LoanInput,
   state: string,
@@ -50,17 +61,12 @@ export function loanCopy(
   ];
   const next = rows[0];
   const more = rows.length - rowLimit;
-  const paidOff = state === "success" || status === "cleared";
+  const { headline, notice } = loanStatus(state, status, labels);
   return {
     terms,
-    paidOff,
-    balance: balance === undefined || paidOff ? undefined : money(balance),
-    notice:
-      state === "error" || status === "insufficient"
-        ? labels.insufficient
-        : status === "outOfRange"
-          ? labels.outOfRange
-          : undefined,
+    headline,
+    notice,
+    balance: balance === undefined || headline ? undefined : money(balance),
     next: next
       ? {
           headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
@@ -87,27 +93,25 @@ export function loanCopy(
 export function loanReading(input: LoanInput, state: string, lang?: string): string[] {
   if (state === "loading") return [];
   const { loanLabels } = moneyWordsFor(lang);
-  const { balance, terms, paidOff, notice, next, finish, schedule, more } = loanCopy(input, state, lang);
+  const { balance, terms, headline, notice, next, finish, schedule, more } = loanCopy(input, state, lang);
   return [
-    ...(paidOff ? [loanLabels.cleared] : []),
+    ...(headline ? [headline, ...(notice ? [notice] : [])] : []),
     ...(balance === undefined ? [] : [loanLabels.balance, balance]),
     ...terms.map(({ text }) => text),
-    ...(paidOff
+    ...(headline
       ? []
-      : notice
-        ? [notice]
-        : [
-            ...(next ? [next.headline, next.split] : []),
-            finish,
-            ...(schedule.length
-              ? [
-                  loanLabels.schedule,
-                  ...schedule.flatMap(({ date, remaining, split }) => [date, remaining, split]),
-                ]
-              : []),
-            ...(more ? [more] : []),
-            loanLabels.estimate,
-          ]),
+      : [
+          ...(next ? [next.headline, next.split] : []),
+          finish,
+          ...(schedule.length
+            ? [
+                loanLabels.schedule,
+                ...schedule.flatMap(({ date, remaining, split }) => [date, remaining, split]),
+              ]
+            : []),
+          ...(more ? [more] : []),
+          loanLabels.estimate,
+        ]),
     ...(input.goto && state === "filled" ? [loanLabels.edit] : []),
   ];
 }
