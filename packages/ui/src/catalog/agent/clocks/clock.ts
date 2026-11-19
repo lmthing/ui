@@ -99,6 +99,8 @@ export function projectClocks(
     if (!state && clock.spec.kind !== "until") continue;
     const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
     const changes: Values = clock.spec.prop ? { [clock.spec.prop]: seconds } : {};
+    if (clock.spec.runningProp)
+      changes[clock.spec.runningProp] = Boolean(state?.running && !clockEnded(clock, seconds));
     const zero = clock.spec.zero;
     if (state && clockEnded(clock, seconds) && zero && zero !== "stop") {
       if ("state" in zero) props = { ...props, state: zero.state };
@@ -137,22 +139,22 @@ export function clockActionValid(
   get: (part: string) => unknown,
   now: number,
 ) {
-  const owners = clockTargets(meta, props).flatMap((clock) =>
-    (["start", "stop", "reset"] as const).flatMap((operation) => {
+  const owners = clockTargets(meta, props).flatMap((clock) => {
+    const state = get(clockKey(clock)) as ClockState | undefined;
+    const seconds = () => clockTime(clock, state, get(clockPropKey(clock)), now);
+    return (["start", "stop", "reset"] as const).flatMap((operation) => {
       const trigger = clock.spec[operation];
       if (!trigger || trigger.action !== action || clockTriggerTarget(clock, trigger) !== target) return [];
       if (!["start", "stop"].includes(action) && operation !== "reset") return [true];
-      const state = get(clockKey(clock)) as ClockState | undefined;
-      const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
       const running = Boolean(state?.running);
       return [
         operation === "start"
           ? !running
           : operation === "stop"
             ? running
-            : running || seconds !== (state?.seed ?? clockSeed(clock)),
+            : running || seconds() !== (state?.seed ?? clockSeed(clock)),
       ];
-    }),
-  );
+    });
+  });
   return owners.length ? owners.some(Boolean) : !declaredControl(meta, target, action);
 }

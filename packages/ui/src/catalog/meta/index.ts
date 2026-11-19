@@ -1,5 +1,6 @@
 export type {
   Meta,
+  NumericAdjustments,
   PresetMeta,
   AccentMeta,
   BaseRoles,

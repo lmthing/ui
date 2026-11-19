@@ -12,6 +12,13 @@ export const en = {
     done: "Recipe complete",
     finished: "All steps finished.",
   },
+  kitchenTimerLabels: {
+    start: "Start",
+    pause: "Pause",
+    finished: "Done",
+    more: (minutes: string) => `+${minutes} min`,
+    reading: (label: string, duration: string) => `${label}: ${duration}`,
+  },
   foodLogLabels: {
     meals,
     target: "Daily target",

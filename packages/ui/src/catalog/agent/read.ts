@@ -7,7 +7,7 @@ import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
 import { projectSelection, projectNested } from "./selection";
-import { projectClocks } from "./clocks";
+import { projectAdjustments, projectClocks } from "./clocks";
 import type { Meta } from "../meta";
 
 type Json = {
@@ -80,7 +80,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props)
   const get = (part: string) => values[`${instance}/${part}`];
   const reading = projectNested(meta, projectSelection(meta, props, get), get);
   return values[`${instance}/$runtime`]
-    ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now()))
+    ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
     : reading;
 }
 

@@ -3,7 +3,14 @@ import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit } from "../provider";
 import type { ScreenController } from "../interact";
-import { space, stampItemIds, sortByRegion, gapBetween, type ScreenLike } from "../../catalog";
+import {
+  space,
+  stampItemIds,
+  sortByRegion,
+  gapBetween,
+  projectAdjustments,
+  type ScreenLike,
+} from "../../catalog";
 import type { RendererMap } from "./Screen";
 
 type RenderProps = { controller: ScreenController; renderers: RendererMap; screen: ScreenLike };
@@ -19,7 +26,10 @@ function ScreenEntry({
   const def = controller.defs[c];
   const View = renderers[c] as ((props: object) => React.ReactNode) | undefined;
   if (!def || !View) return null;
-  const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
+  const parsed = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
+  const props = projectAdjustments(def.meta, parsed, (part) =>
+    controller.store.get(`${screen.id}/${id}/${part}`),
+  );
   const signature = def.meta.signatureByStyle?.[String(input.style)] ?? def.meta.signature;
   return (
     <PartScope

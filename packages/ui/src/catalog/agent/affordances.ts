@@ -1,6 +1,6 @@
 import type { Meta } from "../meta";
 import { nestedControls } from "./selection";
-import { clockActionValid } from "./clocks";
+import { adjustmentAt, clockActionValid } from "./clocks";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
@@ -97,16 +97,16 @@ export function affordancesOf(meta: Meta, props: Props, instance: string, values
   const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
   if (!values[`${instance}/$runtime`]) return offered;
   if (props.state && props.state !== "filled") return [];
-  return offered.filter((control) =>
-    clockActionValid(
-      meta,
-      props,
-      control.address === instance ? "root" : control.address.slice(instance.length + 1),
-      control.action,
-      (part) => values[`${instance}/${part}`],
-      Number(values[`${instance}/$now`] ?? Date.now()),
-    ),
-  );
+  const get = (part: string) => values[`${instance}/${part}`];
+  const now = Number(get("$now") ?? Date.now());
+  return offered.filter(({ address, action }) => {
+    const target = address === instance ? "root" : address.slice(instance.length + 1);
+    const adjustment = adjustmentAt(meta, props, target, action, get, now);
+    return (
+      (!adjustment || adjustment.next !== undefined) &&
+      clockActionValid(meta, props, target, action, get, now)
+    );
+  });
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
