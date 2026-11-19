@@ -18,6 +18,12 @@ export const en = {
     change: (amount: string) => `${amount} this period`,
     compactChange: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
   },
+  transactions: {
+    today: "Today",
+    yesterday: "Yesterday",
+    date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
+    entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
+  },
 };
 
 export type MoneyWords = typeof en;
