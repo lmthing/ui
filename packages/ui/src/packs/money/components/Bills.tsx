@@ -100,29 +100,20 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Bills");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Track my rent, power bill and monthly subscriptions with amounts, due dates, paid ticks and a computed monthly total",
-  ),
-  choose(
-    "Give me a simple list of household jobs to tick off, with no payment amounts or due payments",
-    "Checklist",
-  ),
-  write(
-    "Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals",
-  ),
-  read("Check off Ledge supplies as paid, without opening the bill", {
-    address: "b1/r1/paid",
-    action: "check",
-  }),
+  choose("Track my rent, power bill and monthly subscriptions with amounts, due dates, paid ticks and a computed monthly total"),
+  choose("Give me a simple list of household jobs to tick off, with no payment amounts or due payments", "Checklist"),
+  write("Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals"),
+  read("Check off Ledge supplies as paid, without opening the bill", { address: "b1/r1/paid", action: "check" }),
 ] satisfies Probe[];
 
 type Bill = Props<typeof props, typeof meta>["bills"][number];
 function BillRow({ bill, today }: { bill: Bill; today: string }) {
   const scope = usePartContext();
   const { lang, words } = useWords(moneyWordsFor);
-  const target = formatAddress({ ...scope, item: bill.id, part: "paid" });
-  const paid = useControlValue(target, bill.paid);
+  const paid = useControlValue(formatAddress({ ...scope, item: bill.id, part: "paid" }), bill.paid);
+  const tone = paid ? "muted" : "text";
   const { amount, due, shortDue, repeat, overdue } = billLines({ ...bill, paid }, today, lang);
   const name = overdue ? words.bills.overdue(bill.name) : bill.name;
   const label = [name, amount, due && words.bills.due(due), repeat]
@@ -142,15 +133,15 @@ function BillRow({ bill, today }: { bill: Bill; today: string }) {
         label={label}
         inline
         leading={<KitIcon part="icon" name={bill.icon} tone="muted" />}
-      >
-        <KitGrid fitLast>
-          <KitText role="label" part="name">
-            {bill.name}
-          </KitText>
-          <KitText role="number" numberScale="compact" align="end" tabular part="amount">
+        trailing={
+          <KitText role="number" numberScale="compact" tone={tone} align="end" tabular part="amount">
             {amount}
           </KitText>
-        </KitGrid>
+        }
+      >
+        <KitText role="body" tone={tone} part="name">
+          {bill.name}
+        </KitText>
         <KitText role="caption" tone="muted" part={null}>
           {repeat && (
             <KitText role="caption" tone="muted" part="repeat">
@@ -188,7 +179,12 @@ export function Bills({ bills, style }: Props<typeof props, typeof meta>) {
               <KitText role="caption" tone="muted" part={null}>
                 {total.label}
               </KitText>
-              <KitText role={style === "due" ? "heading" : "number"} tabular part="total">
+              <KitText
+                role="number"
+                numberScale={style === "due" ? "compact" : "display"}
+                tabular
+                part="total"
+              >
                 {total.amount}
               </KitText>
             </KitGrid>

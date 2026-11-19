@@ -276,7 +276,7 @@
     "replies": [
       "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}] ,\"style\":\"due\"}",
       "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}],\"style\":\"due\"}",
-      "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}] ,\"style\":\"due\"}"
+      "{\"c\":\"Bills\",\"bills\":[{\"name\":\"Rent\",\"amount\":800,\"due\":\"2026-12-01\",\"repeat\":\"monthly\",\"paid\":false,\"icon\":\"home\"},{\"name\":\"Power\",\"amount\":60,\"due\":\"2026-11-28\",\"repeat\":\"monthly\",\"paid\":true,\"icon\":\"zap\"}],\"style\":\"due\"}"
     ]
   },
   "692ccf6ea67c0989": {
