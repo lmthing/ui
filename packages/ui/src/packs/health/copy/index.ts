@@ -8,4 +8,5 @@ export {
   cycleReading,
   type CycleSeed,
 } from "./Cycle";
+export { exerciseLabels, exerciseReading } from "./Exercise";
 export { activityRingLine } from "./ActivityRings";

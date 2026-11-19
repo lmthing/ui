@@ -5,6 +5,7 @@ import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
 import { projectSelection } from "./selection";
+import { projectNested } from "./selection";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -17,6 +18,16 @@ type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
 const variantKeys = ["style", "kind", "tone"];
+
+function itemTexts(schema: Json | undefined, item: Props, nestedKey: string | undefined): string[] {
+  const nested =
+    nestedKey && Array.isArray(item[nestedKey])
+      ? (item[nestedKey] as Props[]).flatMap((child) =>
+          textsOf(schema?.properties?.[nestedKey]?.items, child),
+        )
+      : [];
+  return [...textsOf(schema, item), ...nested];
+}
 
 function textsOf(schema: Json | undefined, value: Props): string[] {
   return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
@@ -90,7 +101,11 @@ export function readComponent(
   // `meta.read`; its lines come before the quoted texts.
   const own = [
     ...(def.meta.read?.(
-      projectSelection(def.meta, validated, (part) => values[`${instance}/${part}`]),
+      projectNested(
+        def.meta,
+        projectSelection(def.meta, validated, (part) => values[`${instance}/${part}`]),
+        (part) => values[`${instance}/${part}`],
+      ),
       state,
     ) ?? []),
     ...textsOf(
@@ -112,7 +127,7 @@ export function readComponent(
       const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
       return `  ${[
         String(item.id),
-        textsOf(itemSchema, item).join(" · "),
+        itemTexts(itemSchema, item, def.meta.items?.nested?.key).join(" · "),
         ...mine.map((a) => formatAffordance(a)),
       ]
         .filter(Boolean)
