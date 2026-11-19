@@ -23,7 +23,6 @@ import {
   KitIcon,
   KitRow,
   KitText,
-  KitTime,
   KitTrack,
   useComponentState,
 } from "../../../kit";
@@ -142,16 +141,17 @@ function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: bool
           <KitText part="title">{event.title}</KitText>
           <KitIcon name="chevron_right" scale="sm" decorative />
         </KitGrid>
-        <KitContent lead={<KitTime value={event.time ?? agendaLabels.allDay} />} lineRole="body">
-          <KitTrack part="who" label={agendaPeople(event.who)}>
-            <KitIcon name="user" scale="sm" decorative />
-            <KitText part={null} role="label" tone="muted" lines={1}>
-              {agendaAttendees(event.who)}
-            </KitText>
-          </KitTrack>
-        </KitContent>
+        <KitTrack part="who" label={agendaPeople(event.who)}>
+          <KitText part="time" role="caption" tone="muted" tabular lines={1}>
+            {event.time ?? agendaLabels.allDay}
+          </KitText>
+          <KitIcon name="user" scale="sm" decorative />
+          <KitText part={null} role="caption" tone="muted" lines={1}>
+            {agendaAttendees(event.who)}
+          </KitText>
+        </KitTrack>
         {event.conflict && (
-          <KitText part="conflict" role="label" tone="warn">
+          <KitText part="conflict" role="caption" tone="warn">
             {agendaLabels.conflict}
           </KitText>
         )}
