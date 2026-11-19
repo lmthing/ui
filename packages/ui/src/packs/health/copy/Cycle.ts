@@ -12,14 +12,16 @@ export const cycleLabels = {
 
 export type CycleSeed = { start: string; length: number; period: number };
 const dayMs = 24 * 60 * 60 * 1000;
-const dateAt = (time: number) => new Date(time).toISOString().slice(0, 10);
-const dateLine = (date: string) =>
-  new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${date}T00:00:00Z`));
+const dateAt = (time: number) => new Date(time).toISOString().split("T")[0]!;
+const dates = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+const atMidnight = (date: string) => new Date(`${date}T00:00:00Z`);
+const keepTogether = (line: string) => line.replace(/\s/g, "\u00a0");
+const dateLine = (date: string) => keepTogether(dates.format(atMidnight(date)));
 
 /** The viewer's calendar date, not tomorrow/yesterday in a different timezone. */
 export function cycleToday(now = new Date()): string {
@@ -60,7 +62,7 @@ export function cycleEstimate({ start, length, period }: CycleSeed, today = cycl
 export const cycleDayLine = (day: number): string => (day ? `Day ${day}` : "Not started");
 export const cycleNextLine = (date: string): string => `Next period · ${dateLine(date)} (est.)`;
 export const cycleWindowLine = (start: string, end: string): string =>
-  `Fertile window (est.) · ${dateLine(start)} – ${dateLine(end)}`;
+  `Fertile window (est.) · ${keepTogether(dates.formatRange(atMidnight(start), atMidnight(end)))}`;
 
 export function cycleReading(input: CycleSeed): string[] {
   const cycle = cycleEstimate(input);

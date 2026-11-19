@@ -49,9 +49,18 @@ describe("Cycle calendar estimates", () => {
   ])("crosses leap days, year ends and daylight-saving dates", (input, today, next) => {
     expect(cycleEstimate(input, today).next).toBe(next);
   });
+});
+
+describe("Cycle estimate boundaries", () => {
   it("keeps the declared period duration even when it overlaps a short-cycle fertile estimate", () => {
     expect(cycleEstimate({ ...seed, length: 21, period: 10 }, "2026-11-08").phase).toBe(cycleLabels.period);
     expect(cycleEstimate({ ...seed, length: 21, period: 10 }, "2026-11-11").phase).toBe(cycleLabels.luteal);
+  });
+  it("formats estimates crossing the maximum schema year without truncating expanded ISO dates", () => {
+    const cycle = cycleEstimate({ start: "9999-12-31", length: 40, period: 10 }, "2026-11-19");
+    expect(cycle.windowStart).toBe("+010000-01-21");
+    expect(cycle.windowEnd).toBe("+010000-01-26");
+    expect(cycleWindowLine(cycle.windowStart, cycle.windowEnd)).toContain("10000");
   });
   it("bounds every day across all allowed lengths and period durations", () => {
     for (let length = 21; length <= 40; length++)
@@ -79,9 +88,9 @@ describe("Cycle wording", () => {
   it("formats numbers and unambiguously estimated dates", () => {
     expect(cycleDayLine(0)).toBe("Not started");
     expect(cycleDayLine(40)).toBe("Day 40");
-    expect(cycleNextLine("2027-01-10")).toBe("Next period · 10 Jan 2027 (est.)");
+    expect(cycleNextLine("2027-01-10")).toBe("Next period · 10\u00a0Jan\u00a02027 (est.)");
     expect(cycleWindowLine("2026-12-31", "2027-01-05")).toBe(
-      "Fertile window (est.) · 31 Dec 2026 – 5 Jan 2027",
+      "Fertile window (est.) · 31\u00a0Dec\u00a02026\u00a0–\u00a05\u00a0Jan\u00a02027",
     );
   });
   it("reads every computed line, the action and contraception caveat", () => {
@@ -90,8 +99,8 @@ describe("Cycle wording", () => {
     expect(cycleReading(seed)).toEqual([
       "Day 19",
       cycleLabels.luteal,
-      "Next period · 29 Nov 2026 (est.)",
-      "Fertile window (est.) · 10 Nov 2026 – 15 Nov 2026",
+      "Next period · 29\u00a0Nov\u00a02026 (est.)",
+      "Fertile window (est.) · 10\u00a0–\u00a015\u00a0Nov\u00a02026",
       cycleLabels.log,
       cycleLabels.disclaimer,
     ]);
