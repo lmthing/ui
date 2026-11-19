@@ -1,4 +1,11 @@
-import { readComponent, readScreen, type Definition, type ScreenLike, type Values } from "../../../catalog";
+import {
+  migrateScreen,
+  readComponent,
+  readScreen,
+  type Definition,
+  type ScreenLike,
+  type Values,
+} from "../../../catalog";
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const typeTokens = /"(?:\\.|[^"\\])*"| \[([\w/-]+) type(?: = "(?:\\.|[^"\\])*")?(?: !needs-[a-z]+)?\]/g;
@@ -49,8 +56,11 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
 ): string {
-  const hasKeypads = screen.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
-  const read = hasKeypads ? readKeypads(screen, defs, values, lang) : readScreen(screen, defs, values, lang);
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
+  const read = hasKeypads
+    ? readKeypads(migrated, defs, values, lang)
+    : readScreen(screen, defs, values, lang);
   return disabled?.size
     ? read.replace(typeTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
