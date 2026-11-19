@@ -146,3 +146,11 @@
   font: 500 0.74rem/1.6 var(--mono);
   color: var(--muted);
 }
+
+.wire.sum {
+  cursor: default;
+  color: var(--muted);
+}
+.wire.sum:hover {
+  color: var(--text);
+}
