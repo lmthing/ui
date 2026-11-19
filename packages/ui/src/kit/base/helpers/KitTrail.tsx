@@ -1,7 +1,7 @@
 import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
-import { XStack, YStack, styled } from "tamagui";
+import { XStack, YStack, isWeb, styled } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
@@ -57,6 +57,32 @@ type TrailProps = {
   tone?: TextTone;
 };
 
+function ToggleTrail({
+  active,
+  disabled,
+  loading,
+}: {
+  active: boolean;
+  disabled: boolean;
+  loading: boolean;
+}) {
+  if (loading)
+    return (
+      <YStack
+        width={size.control.md}
+        height={size.icon.lg + space.xs}
+        borderRadius={radius.pill}
+        backgroundColor="$line"
+        aria-hidden
+      />
+    );
+  return (
+    <Track on={active} {...(disabled ? { backgroundColor: "$raised", borderColor: "$muted" } : {})}>
+      <Knob on={active} {...(disabled ? { backgroundColor: "$muted" } : {})} />
+    </Track>
+  );
+}
+
 function ValueTrail({
   kind,
   value,
@@ -69,7 +95,11 @@ function ValueTrail({
   loading: boolean;
 }) {
   const text = (
-    <YStack {...(loading ? { visibility: "hidden" as const } : {})}>
+    <YStack
+      {...(loading
+        ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
+        : {})}
+    >
       <KitText
         role={kind === "badge" ? "label" : "number"}
         numberScale="compact"
@@ -84,14 +114,28 @@ function ValueTrail({
   const fill =
     tone === "good" || tone === "warn" || tone === "bad"
       ? `$${tone}Soft`
-      : tone === "text" || tone === "muted"
-        ? "$raised"
-        : "$accentSoft";
+      : tone === "onAccent"
+        ? "$accent"
+        : tone === "text" || tone === "muted"
+          ? "$raised"
+          : "$accentSoft";
   return kind === "badge" ? (
     <Badge backgroundColor={loading ? "$line" : fill}>{text}</Badge>
   ) : (
-    <YStack backgroundColor={loading ? "$line" : undefined} borderRadius={radius.sm}>
+    <YStack position="relative" borderRadius={radius.sm}>
       {text}
+      {loading && (
+        <YStack
+          position="absolute"
+          top={component.base.none}
+          left={component.base.none}
+          width="100%"
+          height="100%"
+          backgroundColor="$line"
+          borderRadius={radius.sm}
+          aria-hidden
+        />
+      )}
     </YStack>
   );
 }
@@ -111,11 +155,13 @@ export function KitTrail({ kind, value, on = false, part = "trail", disabled = f
       <Frame
         {...address}
         accessibilityRole={loading ? undefined : "switch"}
-        aria-checked={active}
+        aria-checked={loading ? undefined : active}
         aria-disabled={disabled || undefined}
         aria-hidden={loading || undefined}
         aria-busy={loading || undefined}
-        {...(disabled || loading ? { tabIndex: -1, accessibilityState: { disabled: true } } : {})}
+        {...(disabled || loading
+          ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
+          : {})}
         {...(kit.interactive && kit.controller && !disabled && !loading
           ? {
               onPress: (event: { stopPropagation?(): void }) => {
@@ -125,12 +171,7 @@ export function KitTrail({ kind, value, on = false, part = "trail", disabled = f
             }
           : {})}
       >
-        <Track
-          on={active}
-          {...(disabled || loading ? { backgroundColor: "$raised", borderColor: "$muted" } : {})}
-        >
-          <Knob on={active} {...(disabled || loading ? { backgroundColor: "$muted" } : {})} />
-        </Track>
+        <ToggleTrail {...{ active, disabled, loading }} />
       </Frame>
     );
   }

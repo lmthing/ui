@@ -114,7 +114,7 @@ function TextControl({
         max: options.max,
         step: options.step,
       } as object)}
-      {...(loading ? ({ visibility: "hidden", pointerEvents: "none" } as object) : {})}
+      {...(loading ? ({ opacity: component.base.none, pointerEvents: "none" } as object) : {})}
     />
   );
 }
@@ -153,7 +153,7 @@ export function KitInput({
       >
         {(icon ?? (kind === "search" ? "search" : undefined)) &&
           (loading ? (
-            <YStack {...({ visibility: "hidden" } as object)}>
+            <YStack opacity={component.base.none}>
               <KitIcon name={icon ?? "search"} tone="muted" decorative />
             </YStack>
           ) : (

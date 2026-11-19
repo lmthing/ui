@@ -1,12 +1,19 @@
 import { createElement } from "react";
+import * as runtime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { presets, size, themeName, type as typography } from "@lmthing/ui/catalog";
-import { KitCard, KitInput, KitProvider, PartScope } from "@lmthing/ui/kit";
+import { KitCard, KitInput, KitProvider, PartScope, type ScreenController } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
-function render(props: Parameters<typeof KitInput>[0], preset = "calm", mode = "light") {
+vi.mock("react/jsx-dev-runtime", { spy: true });
+function render(
+  props: Parameters<typeof KitInput>[0],
+  preset = "calm",
+  mode = "light",
+  controller?: ScreenController,
+) {
   const theme = { preset, mode, accent: "moss" } as Parameters<typeof KitProvider>[0]["theme"];
   return renderToStaticMarkup(
     createElement(
@@ -14,7 +21,7 @@ function render(props: Parameters<typeof KitInput>[0], preset = "calm", mode = "
       { config, defaultTheme: themeName(theme) },
       createElement(
         KitProvider,
-        { theme, children: null },
+        { theme, controller, interactive: Boolean(controller), children: null },
         createElement(
           PartScope,
           { screen: "home", component: "c1", rev: 1, state: "filled", children: null },
@@ -59,5 +66,60 @@ describe("KitInput compact and inactive options", () => {
     expect(body(render(input))).toBe(body(render({ ...input, compact: false, inactive: false })));
     expect(styleAt(render(input), "home/c1/field")).not.toContain("width:0px");
     expect(styleAt(render(input), "home/c1/field")).toContain("color:var(--text)");
+  });
+});
+
+async function captureInput(input: Parameters<typeof KitInput>[0], controller: ScreenController) {
+  let captured: { onChangeText?: (value: string) => void } = {};
+  const { jsxDEV } = await vi.importActual<typeof runtime>("react/jsx-dev-runtime");
+  const spy = vi.spyOn(runtime, "jsxDEV").mockImplementation((...args) => {
+    const props = args[1] as typeof captured & { testID?: string };
+    if (props.testID === "home/c1/field") captured = props;
+    return jsxDEV(...args);
+  });
+  try {
+    render(input, "calm", "light", controller);
+  } finally {
+    spy.mockRestore();
+  }
+  return captured;
+}
+describe("KitInput wave 2 set and bounded edits", () => {
+  it.each(["number", "date", "time"] as const)("draws disabled %s set controls", (kind) => {
+    const html = render({ hint: "Value", kind, action: "set", disabled: true, min: 1, max: 5, step: 0.5 });
+    const field = elementAt(html, "home/c1/field");
+    expect(field.attributes).toContain('aria-disabled="true"');
+    expect(field.attributes).toContain('disabled=""');
+    expect(field.attributes).toContain('role="textbox"');
+  });
+  it("keeps type as default, sends numeric/date set values and clamps stepped edits", async () => {
+    const act = vi.fn(),
+      edit = vi.fn();
+    const controller = {
+      act,
+      edit,
+      store: { subscribe: () => () => {}, get: () => undefined },
+    } as unknown as ScreenController;
+    const typed = await captureInput({ hint: "Value", kind: "number" }, controller);
+    typed.onChangeText!("12.5");
+    expect(edit).toHaveBeenLastCalledWith("home/c1/field", "12.5");
+    const numeric = await captureInput(
+      { hint: "Value", kind: "number", action: "set", min: 1, max: 5.2, step: 0.5 },
+      controller,
+    );
+    for (const [text, value] of [
+      ["0", 1],
+      ["2.3", 2.5],
+      ["9", 5],
+      ["", ""],
+    ] as const) {
+      numeric.onChangeText!(text);
+      expect(act).toHaveBeenLastCalledWith({ address: "home/c1/field", action: "set", value });
+    }
+    const dated = await captureInput({ hint: "Date", kind: "date", action: "set" }, controller);
+    dated.onChangeText!("2026-11-19");
+    expect(act).toHaveBeenLastCalledWith({ address: "home/c1/field", action: "set", value: "2026-11-19" });
+    const disabled = await captureInput({ hint: "Value", disabled: true }, controller);
+    expect(disabled.onChangeText).toBeUndefined();
   });
 });

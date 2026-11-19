@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { YStack } from "tamagui";
+import { YStack, isWeb } from "tamagui";
 import { component, radius, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
@@ -12,6 +12,37 @@ type JarProps = {
   label: string;
   children?: ReactNode;
 };
+
+function JarValue({ loading, children }: { loading: boolean; children: ReactNode }) {
+  return (
+    <YStack position="relative">
+      <YStack
+        {...(loading
+          ? {
+              opacity: component.base.none,
+              inert: true,
+              ...(isWeb ? { style: { visibility: "hidden" } as never } : {}),
+            }
+          : {})}
+      >
+        {children}
+      </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          top="50%"
+          marginTop={-space.md / 2}
+          left={component.base.none}
+          width="100%"
+          height={space.md}
+          backgroundColor="$line"
+          borderRadius={radius.sm}
+          aria-hidden
+        />
+      )}
+    </YStack>
+  );
+}
 
 /** A normalized, token-sized jar with a soft fill behind caller-supplied centred content. */
 export function KitJar({ part = "root", loading = false, ratio, label, children }: JarProps) {
@@ -60,9 +91,7 @@ export function KitJar({ part = "root", loading = false, ratio, label, children 
           aria-hidden={loading || undefined}
           accessibilityElementsHidden={loading}
         >
-          <YStack backgroundColor={loading ? "$line" : undefined} borderRadius={radius.sm}>
-            <YStack {...(loading ? { visibility: "hidden" as const, inert: true } : {})}>{children}</YStack>
-          </YStack>
+          <JarValue loading={loading}>{children}</JarValue>
         </YStack>
       </YStack>
     </YStack>

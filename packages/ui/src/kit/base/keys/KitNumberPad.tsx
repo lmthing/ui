@@ -1,4 +1,4 @@
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, formatAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
@@ -49,7 +49,9 @@ function PadKey({
         accessibilityLabel={loading ? undefined : keyValue.label}
         aria-disabled={unavailable || undefined}
         aria-hidden={loading || undefined}
-        {...(unavailable || loading ? { tabIndex: -1, accessibilityState: { disabled: true } } : {})}
+        {...(unavailable || loading
+          ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
+          : {})}
         {...((kit.interactive && kit.controller && !loading && !unavailable
           ? {
               onPress: press,
@@ -62,7 +64,7 @@ function PadKey({
             }
           : {}) as object)}
       >
-        <YStack {...(loading ? { visibility: "hidden" as const } : {})}>
+        <YStack {...(loading ? { opacity: component.base.none } : {})}>
           <KitText role="number" numberScale="compact" tone={unavailable ? "muted" : "text"} part={null}>
             {keyValue.label}
           </KitText>
@@ -101,9 +103,11 @@ export function KitNumberPad({
           justifyContent="center"
           backgroundColor={loading ? "$line" : undefined}
         >
-          <KitText role="number" tabular part={loading ? null : target.part}>
-            {loading ? "\u2007".repeat(value.length) : value || "\u2007"}
-          </KitText>
+          <PartContext.Provider value={{ ...context, ...(target.item ? { item: target.item } : {}) }}>
+            <KitText role="number" tabular part={loading ? null : target.part}>
+              {loading ? "\u2007".repeat(value.length) : value || "\u2007"}
+            </KitText>
+          </PartContext.Provider>
         </YStack>
       </YStack>
       <XStack flexWrap="wrap" margin={-space.xs}>

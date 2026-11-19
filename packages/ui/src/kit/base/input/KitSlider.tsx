@@ -1,4 +1,4 @@
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { useSlider } from "./use-slider";
@@ -12,8 +12,12 @@ type SliderProps = {
   step?: number;
   disabled?: boolean;
 };
-function SliderTrack({ share, inactive }: { share: number; inactive: boolean }) {
+function SliderTrack({ share, inactive, loading }: { share: number; inactive: boolean; loading: boolean }) {
   const thumb = size.icon.lg;
+  if (loading)
+    return (
+      <YStack height={thumb} width="100%" backgroundColor="$line" borderRadius={radius.pill} aria-hidden />
+    );
   return (
     <XStack height={space.xs + space.xs / 2} borderRadius={radius.pill} backgroundColor="$line" aria-hidden>
       <YStack
@@ -78,12 +82,12 @@ export function KitSlider({
       aria-busy={loading || undefined}
       aria-hidden={loading || undefined}
       aria-disabled={disabled || undefined}
-      {...(inactive ? { tabIndex: -1, accessibilityState: { disabled: true } } : {})}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={clamped}
+      {...(inactive ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) } : {})}
+      aria-valuemin={loading ? undefined : min}
+      aria-valuemax={loading ? undefined : max}
+      aria-valuenow={loading ? undefined : clamped}
     >
-      <SliderTrack share={share} inactive={inactive} />
+      <SliderTrack share={share} inactive={inactive} loading={loading} />
     </YStack>
   );
 }

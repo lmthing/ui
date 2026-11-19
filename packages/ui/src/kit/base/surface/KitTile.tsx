@@ -1,4 +1,4 @@
-import { YStack, styled } from "tamagui";
+import { YStack, isWeb, styled } from "tamagui";
 import type { ReactNode } from "react";
 import { component, size, space, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
@@ -26,6 +26,32 @@ type TileProps = {
   detail?: ReactNode;
   action?: "press" | "toggle" | "start" | "stop";
 };
+function TileLine({ loading, children }: { loading: boolean; children: ReactNode }) {
+  return (
+    <YStack position="relative">
+      <YStack
+        {...(loading
+          ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
+          : {})}
+      >
+        {children}
+      </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          top="50%"
+          marginTop={-space.sm / 2}
+          left={component.base.none}
+          width="100%"
+          height={space.sm}
+          backgroundColor="$line"
+          aria-hidden
+        />
+      )}
+    </YStack>
+  );
+}
+
 function TileContent({
   icon,
   label,
@@ -43,10 +69,9 @@ function TileContent({
         alignItems="center"
         gap={space.xs}
         aria-hidden={loading || undefined}
-        backgroundColor={loading ? "$line" : undefined}
         borderRadius={shifted("sm", ks.radiusShift)}
       >
-        <YStack {...(loading ? { visibility: "hidden" as const } : {})}>
+        <TileLine loading={loading}>
           <KitText
             role="label"
             align="center"
@@ -56,8 +81,8 @@ function TileContent({
           >
             {label}
           </KitText>
-        </YStack>
-        {detail && <YStack {...(loading ? { visibility: "hidden" as const } : {})}>{detail}</YStack>}
+        </TileLine>
+        {detail && <TileLine loading={loading}>{detail}</TileLine>}
       </YStack>
     </>
   );
@@ -91,7 +116,9 @@ function Tile({ icon, label, goto, on, disabled = false, detail, action }: Omit<
       aria-pressed={on}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}
-      {...(disabled || loading ? { tabIndex: -1, accessibilityState: { disabled: true } } : {})}
+      {...(disabled || loading
+        ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
+        : {})}
       {...((kit.interactive && !disabled && !loading && (kit.controller || goto)
         ? {
             onPress: press,
