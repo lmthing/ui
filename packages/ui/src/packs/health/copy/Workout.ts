@@ -37,6 +37,12 @@ export function workoutSetTimes(set: Set, lang?: string): [part: "duration" | "r
   return times;
 }
 
+export function workoutSetLabel(position: number, seconds?: number, lang?: string) {
+  const words = healthWordsFor(lang).workout;
+  const label = words.set(numberLine(position, lang));
+  return seconds === undefined ? label : words.timedSet(label, clockLine(seconds, lang));
+}
+
 export function workoutReading(input: Workout, lang?: string): string[] {
   const words = healthWordsFor(lang).workout;
   const weightLabel = words.weight(words.units[input.unit]);
@@ -46,7 +52,7 @@ export function workoutReading(input: Workout, lang?: string): string[] {
       sets.map((set, at) =>
         [
           name,
-          words.set(numberLine(at + 1, lang)),
+          workoutSetLabel(at + 1, set.seconds, lang),
           `${weightLabel}${set.weight === undefined ? "" : ` ${numberLine(set.weight, lang)}`}`,
           `${words.reps}${set.reps === undefined ? "" : ` ${numberLine(set.reps, lang)}`}`,
           set.done ? words.done : words.pending,

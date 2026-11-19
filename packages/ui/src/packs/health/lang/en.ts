@@ -55,6 +55,7 @@ export const en = {
     elapsed: "Elapsed time",
     timeLine: (time: string) => `Elapsed time · ${time}`,
     set: (position: string) => `Set ${position}`,
+    timedSet: (label: string, time: string) => `${label} · ${time}`,
     completeSet: (label: string) => `Complete ${label.toLowerCase()}`,
     weight: (unit: string) => `Weight (${unit})`,
     units: { kg: "kg", lb: "lb" },

@@ -121,7 +121,7 @@ describe.runIf(String(meta.status) === "ready")("Workout states and parts", () =
     }
     const duration = renderInstance("Workout", examples[0], "filled", theme);
     const resting = renderInstance("Workout", examples[1], "filled", theme);
-    expect(duration).toMatch(/data-testid="home\/c1\/r2\/duration_1"[^>]*>0:45/);
+    expect(duration).toMatch(/data-testid="home\/c1\/r2\/label_1"[^>]*>Set 1 · 0:45/);
     expect(resting).toContain("Rest · 0:36");
     expect(resting).not.toContain("Duration");
   });

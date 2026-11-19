@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { clockLine, numberLine, probesFor, text } from "../../../catalog";
+import { clockLine, probesFor, text } from "../../../catalog";
 import type { ClockState, FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
-import { activeWorkoutRest, workoutReading } from "../copy";
+import { activeWorkoutRest, workoutReading, workoutSetLabel } from "../copy";
 import { healthWordsFor } from "../lang";
 
 // Core first: Checklist/plain cannot edit weights and reps per set or attach a rest countdown.
@@ -28,7 +28,7 @@ export const meta = {
     parts: [
       "root",
       "name",
-      ...indexedParts(6, ["set", "label", "weight", "reps", "done", "duration", "remaining"]),
+      ...indexedParts(6, ["set", "label", "weight", "reps", "done", "remaining"]),
       ...indexedParts(6, ["weight", "reps"]).map((part) => `${part}_label`),
     ],
     nested: {
@@ -120,7 +120,7 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   const { lang, words } = kit.useWords(healthWordsFor);
   const { item: _item, ...scope } = kit.usePartContext();
   const w = words.workout;
-  const label = w.set(numberLine(pos, lang));
+  const label = workoutSetLabel(pos, set.seconds, lang);
   const limits = [
     { name: "weight", label: w.weight(w.units[unit]), max: 1000 },
     { name: "reps", label: w.reps, max: 999, step: 1 },
@@ -135,10 +135,7 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   // prettier-ignore
   return (
     <kit.KitSetRow item={item} part={`set_${pos}`} label={label} labelPart={`label_${pos}`} fields={fields}
-      done={<><kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />
-        {set.seconds !== undefined && <kit.KitText part={`duration_${pos}`} role="number" numberScale="compact" tabular>
-          {clockLine(set.seconds, lang)}
-        </kit.KitText>}</>}
+      done={<kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />}
       detail={rest && <kit.KitContent>
         <kit.KitText part={`remaining_${pos}`} role="number" numberScale="compact" tabular>{rest}</kit.KitText>
         {stop && <kit.PartContext.Provider value={scope}>
@@ -176,13 +173,11 @@ export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {
             <kit.KitText part="time" role="number" numberScale="compact" tabular>{time}</kit.KitText>
           </kit.KitContent>
           {exercises.map(({ id, name, sets }) => (
-            <kit.KitContent key={id} group="response">
-              <kit.KitRow item={id} label={name} inline>
-                <kit.KitText part="name" role="body">{name}</kit.KitText>
-                {sets.map((set, at) => <WorkoutSet key={at} item={id} set={set} unit={unit}
-                  pos={at + 1} stop={Boolean(restAt && restAt.id === id && restAt.pos === at + 1)} />)}
-              </kit.KitRow>
-            </kit.KitContent>
+            <kit.KitRow key={id} item={id} label={name} inset="none">
+              <kit.KitText part="name" role="number" numberScale="compact">{name}</kit.KitText>
+              {sets.map((set, at) => <WorkoutSet key={at} item={id} set={set} unit={unit}
+                pos={at + 1} stop={Boolean(restAt && restAt.id === id && restAt.pos === at + 1)} />)}
+            </kit.KitRow>
           ))}
           <kit.KitAction part="finish" label={w.finish} full />
         </>
