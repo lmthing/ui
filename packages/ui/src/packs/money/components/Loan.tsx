@@ -103,7 +103,6 @@ export const probes = [
   choose("Show recorded payments against several fixed repayment targets as separate progress bars, no interest or future schedule", "Progress"),
   choose("Show a tiny line of my recent outstanding balances beside the latest value, no forecast or loan terms", "Sparkline"),
   choose("Remind me about upcoming electricity and rent payments with paid ticks, no debt interest", "Bills"),
-  choose("Show which tools I lent to my neighbours and when I should get them back", "Loans"),
   choose("Prioritise several debts and allocate extra monthly money until all are cleared", "Payoff"),
   write("Car loan opening principal 6000, annual rate 6 percent, monthly payment 250, first due 2026-12-01, no recorded payments. Show schedule, edit opens terms. Write no computed balance or forecast"),
   read("Edit the Ledge supplies card terms", { address: "l1/edit", action: "press" }),
