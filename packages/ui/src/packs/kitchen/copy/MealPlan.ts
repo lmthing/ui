@@ -7,14 +7,14 @@ export const mealPlanLabels = {
   snack: "Snack",
   add: "Add",
 } as const;
-type MealCell = { day: number; meal: keyof Omit<typeof mealPlanLabels, "add">; title?: string };
+type MealCell = { id?: string; day: number; meal: keyof Omit<typeof mealPlanLabels, "add">; title?: string };
 export const mealPlanWeek = (week: string): string => `Week of ${appointmentDate(week)}`;
 export function mealPlanReading(week: string, cells: readonly MealCell[]): string[] {
   return [
     ...(week ? [mealPlanWeek(week)] : []),
     ...cells.map(
       (cell, index) =>
-        `r${index + 1}: ${weekdayNames[cell.day]} ${mealPlanLabels[cell.meal]} · ${cell.title ?? mealPlanLabels.add}`,
+        `${cell.id ?? `r${index + 1}`}: ${weekdayNames[cell.day]} ${mealPlanLabels[cell.meal]} · ${cell.title ?? mealPlanLabels.add}`,
     ),
   ];
 }

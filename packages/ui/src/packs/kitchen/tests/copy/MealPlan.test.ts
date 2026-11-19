@@ -13,6 +13,9 @@ describe("MealPlan copy", () => {
       ]),
     ).toEqual(["Week of 16 Nov 2026", "r1: Monday Lunch · Add", "r2: Thursday Dinner · Lasagne"]);
     expect(Object.keys(mealPlanLabels)).toEqual(["breakfast", "lunch", "dinner", "snack", "add"]);
+    expect(mealPlanReading("", [{ id: "r8", day: 3, meal: "dinner", title: "Lasagne" }])).toEqual([
+      "r8: Thursday Dinner · Lasagne",
+    ]);
   });
   it.each([0, 1, 2, 3, 4, 5, 6])("finds local weekday %i at either end of the day", (day) => {
     for (const hour of [0, 23])

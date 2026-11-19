@@ -16,7 +16,6 @@ import {
   type Props,
 } from "../../../catalog";
 import {
-  KitAction,
   KitCard,
   KitContent,
   KitEmpty,
@@ -27,7 +26,6 @@ import {
   useComponentState,
 } from "../../../kit";
 import { mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
-
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
   id: "MealPlan",
@@ -131,7 +129,6 @@ export const probes = [
   read("Open Thursday's dinner recipe", { address: "m1/r8", action: "press" }),
   read("Add a meal for Monday lunch", { address: "m1/r1/add", action: "press" }),
 ] satisfies Probe[];
-
 type Cell = { id: string } & (
   | (z.output<typeof props>["cells"][number] & { filled: true })
   | { day: number; meal: z.output<typeof meal>; filled: false; goto?: undefined }
@@ -144,17 +141,22 @@ function MatrixLabel({ label }: { label: string }) {
   );
 }
 function MealCell({ cell }: { cell: Cell }) {
+  const photo = cell.filled && cell.photo ? { photo: cell.photo } : {};
   return (
     <KitRow item={cell.id} label={mealPlanReading("", [cell])[0]!} inline goto={cell.goto}>
       {cell.filled ? (
         <KitContent lineRole="body">
-          {cell.photo && <KitPhoto photo={cell.photo} part="photo" label={cell.title} />}
+          {cell.photo && <KitPhoto {...photo} part="photo" label={cell.title} />}
           <KitText part="title" role="body" lines={3}>
             {cell.title}
           </KitText>
         </KitContent>
       ) : (
-        <KitAction part="add" label={mealPlanLabels.add} kind="quiet" />
+        <KitRow part="add" role="button" label={mealPlanLabels.add} inline>
+          <KitText part="title" role="caption" tone="accent">
+            {mealPlanLabels.add}
+          </KitText>
+        </KitRow>
       )}
     </KitRow>
   );
@@ -187,11 +189,11 @@ export function MealPlan(input: Props<typeof props, typeof meta>) {
   const today = mealPlanToday(week);
   return (
     <KitCard part="root">
-      <KitContent inset="md">
-        <KitText role="heading" part="week">
+      <KitRow part="week" label={mealPlanWeek(week)}>
+        <KitText role="heading" part={null}>
           {mealPlanWeek(week)}
         </KitText>
-      </KitContent>
+      </KitRow>
       <KitWeekMatrix part="meals" {...matrix} {...(today === undefined ? {} : { today })} />
     </KitCard>
   );

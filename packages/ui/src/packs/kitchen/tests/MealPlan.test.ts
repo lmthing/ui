@@ -166,9 +166,9 @@ describe("MealPlan read and act", () => {
   });
   it("draws recipes without optional photos and empty plans with all add cells", () => {
     const { photo: _photo, ...noPhoto } = cell;
-    expect(renderInstance("MealPlan", { ...input, cells: [noPhoto] }, "filled", theme)).not.toContain(
-      'data-testid="home/c1/r8/photo"',
-    );
+    const noPhotoHtml = renderInstance("MealPlan", { ...input, cells: [noPhoto] }, "filled", theme);
+    expect(noPhotoHtml).not.toContain('data-testid="home/c1/r8/photo"');
+    expect(noPhotoHtml).not.toContain('role="image" aria-label="food"');
     const html = renderInstance("MealPlan", { ...input, cells: [] }, "filled", theme);
     expect(html.match(/role="button"/g)).toHaveLength(14);
   });
