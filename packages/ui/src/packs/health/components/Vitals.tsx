@@ -8,18 +8,32 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitRangeBand,
+  KitRow,
+  KitText,
+  useComponentState,
+  KitAction,
+} from "../../../kit";
+import { vitalBand, vitalLabels, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
 import { seedTitles } from "..";
 
-// Core first: Stats/default cannot place readings on a low/normal/high reference band.
+// Core first: Stats/tiles (the default) cannot place readings on a low/normal/high reference band.
 export const meta = {
   id: "Vitals",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Log vital readings alongside their reference ranges without diagnosing.",
   pick: "Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).",
   writeHints: [
     "low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.",
+    "low and high describe value only. value2 is an optional paired reading, not checked against the primary range.",
   ],
   region: "body",
   weight: 2,
@@ -30,6 +44,8 @@ export const meta = {
   parts: ["root", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
+  read: (input, state) =>
+    state !== "filled" ? [] : [...(input as z.output<typeof props>).readings.map(vitalLine), vitalLabels.add],
 } as const satisfies Meta;
 const readingNumber = z.number().min(-1000000).max(1000000);
 export const props = z.strictObject({
@@ -66,6 +82,14 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 }
 export const examples = [
   {
+    readings: [{ label: "Greenhouse temp", value: 22, unit: "°C", low: 18, high: 26, at: "08:10" }],
+    goto: "add_reading",
+  },
+  {
+    readings: [{ label: "Post-walk pulse", value: 104, unit: "bpm", low: 60, high: 100, at: "09:15" }],
+    goto: "add_reading",
+  },
+  {
     readings: [
       { label: "Blood pressure", value: 118, value2: 76, unit: "mmHg", low: 90, high: 120, at: "08:10" },
       { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
@@ -88,4 +112,89 @@ export const probes = [
   ),
   write("Resting pulse 68 bpm, low 60 high 100 at 08:12, add opens add_reading"),
   read("Add a new vital reading", { address: "v1/add", action: "press" }),
+  read("Open the blood pressure reading", { address: "v1/r1", action: "press" }, 2),
 ] satisfies Probe[];
+
+type Reading = Props<typeof props, typeof meta>["readings"][number];
+
+function VitalValue({ reading }: { reading: Reading }) {
+  const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2);
+  const numberScale = `${reading.value}${pair}`.length > 12 ? "compact" : "display";
+  const tone = vitalBand(reading).tone;
+  return (
+    <KitRangeBand
+      part="band"
+      label={reading.unit}
+      value={reading.value}
+      low={reading.low}
+      high={reading.high}
+      {...vitalBand(reading)}
+      reading={
+        <KitContent group="response">
+          <KitRow
+            inline
+            label={reading.unit}
+            lineRole={numberScale === "compact" ? "body" : "number"}
+            leading={
+              <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
+                {reading.value}
+                {reading.value2 !== undefined && (
+                  <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value2">
+                    {pair}
+                  </KitText>
+                )}
+              </KitText>
+            }
+          >
+            <KitText role="number" numberScale={numberScale} part="unit">
+              <KitText role="caption" tone="muted" part={null}>
+                {reading.unit}
+              </KitText>
+            </KitText>
+          </KitRow>
+        </KitContent>
+      }
+    />
+  );
+}
+
+export function Vitals({ readings, goto }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  return (
+    <KitCard style="inset" part="root" padded>
+      {state === "empty" ? (
+        <KitEmpty part="label" />
+      ) : (
+        readings.map((reading) => (
+          <KitRow
+            key={reading.id}
+            item={reading.id}
+            label={vitalLine(reading)}
+            role="button"
+            inset="none"
+            lineRole="caption"
+          >
+            <KitGrid fitLast>
+              <KitText role="caption" tone="muted" part="label">
+                {reading.label}
+              </KitText>
+              <KitText role="caption" tone="muted" tabular part="at">
+                {reading.at}
+              </KitText>
+            </KitGrid>
+            <VitalValue reading={reading} />
+            <KitText role="caption" tone="muted" part={null}>
+              {vitalRangeLine(reading)}
+            </KitText>
+            <KitText role="caption" tone={vitalBand(reading).tone} part={null}>
+              {vitalStatusLine(reading)}
+            </KitText>
+          </KitRow>
+        ))
+      )}
+      <KitContent>
+        <KitAction part="add" label={vitalLabels.add} goto={goto} kind="secondary" full />
+      </KitContent>
+    </KitCard>
+  );
+}
