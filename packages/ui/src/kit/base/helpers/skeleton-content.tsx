@@ -1,13 +1,13 @@
 import { YStack } from "tamagui";
 import { component, radius, space, type as typography } from "../../../catalog";
-import { KitContent, KitText, type TextRole } from "../text";
+import { KitContent, KitText, useTextStep, type TextFinish, type TextRole } from "../text";
 
 export type SkeletonLine = {
   text: string;
   role: TextRole;
   align?: "start" | "center" | "end" | undefined;
   numberScale?: "display" | "compact" | undefined;
-};
+} & TextFinish;
 export type SkeletonItem = {
   lines?: SkeletonLine[];
   title?: string;
@@ -30,7 +30,7 @@ export type ShapeProps = {
   points?: { value: number }[];
   ring?: "md" | "lg";
   inset?: "md" | "none" | "card";
-  aspect?: "wide" | "square" | "tall" | "none" | "avatar";
+  aspect?: "auto" | "wide" | "square" | "tall" | "none" | "avatar";
   contentGap?: "xs" | "sm";
   lines?: SkeletonLine[] | undefined;
   content?: [TextRole, string | undefined, ("start" | "center" | "end")?, ("display" | "compact")?][];
@@ -43,7 +43,7 @@ export type ShapeProps = {
   playback?: boolean;
   centered?: boolean;
   split?: boolean;
-};
+} & TextFinish;
 
 export function linesOf(item: SkeletonItem, heading = false): SkeletonLine[] {
   return (
@@ -56,8 +56,16 @@ export function linesOf(item: SkeletonItem, heading = false): SkeletonLine[] {
 }
 
 /** Hidden text reserves the real wrapping height; clipped bars occupy each line. */
-export function SkeletonText({ text, role, align = "start", numberScale = "display" }: SkeletonLine) {
-  const scale = typography[role === "number" && numberScale === "compact" ? "body" : role];
+export function SkeletonText({
+  text,
+  role,
+  align = "start",
+  numberScale = "display",
+  density,
+  emphasis,
+}: SkeletonLine) {
+  const stepOf = useTextStep({ density, emphasis });
+  const scale = typography[stepOf(role === "number" && numberScale === "compact" ? "body" : role)];
   const line = scale.lineHeight;
   const height = scale.size * 0.6;
   return (
@@ -73,6 +81,7 @@ export function SkeletonText({ text, role, align = "start", numberScale = "displ
         <KitText
           role={role}
           numberScale={numberScale}
+          {...{ density, emphasis }}
           align={align}
           part={null}
           {...(/^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text) ? { lines: 1 } : {})}
@@ -96,11 +105,11 @@ export function SkeletonText({ text, role, align = "start", numberScale = "displ
   );
 }
 
-export function SkeletonContent({ lines = [] }: Pick<ShapeProps, "lines">) {
+export function SkeletonContent({ lines = [], density, emphasis }: Pick<ShapeProps, "lines"> & TextFinish) {
   return (
-    <KitContent>
+    <KitContent {...{ density, emphasis }}>
       {lines.map((line, index) => (
-        <SkeletonText key={index} {...line} />
+        <SkeletonText key={index} {...{ density, emphasis }} {...line} />
       ))}
     </KitContent>
   );

@@ -1,57 +1,67 @@
-import { useEffect, useMemo, useState } from "react";
-import { site } from "../data/site";
-import { checkLine } from "../tryit/assemble";
-import { components } from "@lmthing/ui/catalog";
-import { useStream } from "../create/useStream";
+import { Phone } from "../live/Phone";
+import { usePipeline } from "./usePipeline";
 
-const stages = [
+const flow = [
   ["Listener", "Turns the request into intent", "runs in the lmthing app"],
   ["Director", "Picks packs and layout", ""],
-  ["Writers", "One model call per screen, structured output", ""],
+  ["Writers", "One structured-output call per screen", ""],
   ["Validator", "Plain code: schema, ids, repairs", ""],
   ["Critic", "Reviews the finished screen", "runs in the lmthing app"],
 ] as const;
+const glyph = { accepted: "✓", repaired: "~", rejected: "✗" } as const;
 
-/** A recorded Writer reply goes line by line through the real validator. */
+/** A drawn flow: nodes joined by rules, recorded lines travelling Writers to Validator, a phone filling in. */
 export default function PipelineReplay() {
-  const recorded = useMemo(() => site.screens.find((s) => s.screen.components.length >= 5), []);
-  const lines = useMemo(() => (recorded?.screen.components ?? []).map((c) => JSON.stringify(c)), [recorded]);
-  const [round, setRound] = useState(0);
-  const shown = useStream(lines.length, "pipeline", round, 900);
-  useEffect(() => {
-    if (shown < lines.length || !lines.length) return;
-    const again = setTimeout(() => setRound((n) => n + 1), 4000);
-    return () => clearTimeout(again);
-  }, [shown, lines.length]);
-  const results = useMemo(() => {
-    const taken = new Set<string>();
-    const allowed = Object.keys(components);
-    return lines.slice(0, shown).map((line, i) => checkLine(line, allowed, i, taken));
-  }, [lines, shown]);
-  if (!recorded) return null;
-  const fixed = results.filter((r) => r.line && r.notes.length).length;
-  const bad = results.filter((r) => !r.line).length;
-  const names = recorded.screen.components.slice(0, shown).map((c) => c.c);
+  const p = usePipeline();
+  if (!p.recorded) return null;
+  const count = (s: string) =>
+    p.results.filter((r) =>
+      s === "rejected" ? !r.line : s === "repaired" ? r.line && r.notes.length : r.line && !r.notes.length,
+    ).length;
   return (
     <figure className="pipe">
-      <ol>
-        {stages.map(([name, role, note], i) => (
-          <li key={name} className={i === 2 || i === 3 ? "live" : ""}>
-            <b>{name}</b>
-            <span>{role}</span>
-            {i === 1 && <code>{recorded.pack ?? "core only"}</code>}
-            {i === 2 && <code>{names.at(-1) ?? "waiting"}</code>}
-            {i === 3 && (
-              <code>
-                {results.length - bad} accepted · {fixed} repaired · {bad} rejected
-              </code>
+      <div className="flow">
+        {flow.map(([name, role, note], i) => (
+          <div key={name} className="flow-part">
+            {i > 0 && (
+              <div className={`link ${i === 3 ? "lane" : ""}`} aria-hidden="true">
+                {i === 3 &&
+                  p.chips.map((c) => (
+                    <span key={c.key} className={`fly ${c.status}`}>
+                      {c.name} {glyph[c.status]}
+                    </span>
+                  ))}
+              </div>
             )}
-            {note && <small>{note}</small>}
-          </li>
+            <div className={`node ${i === 2 || i === 3 ? "live" : ""}`}>
+              <b>{name}</b>
+              <span>{role}</span>
+              {i === 1 && <code>{p.recorded?.pack ?? "core only"}</code>}
+              {i === 2 && (
+                <code>
+                  {p.shown} of {p.total} lines
+                </code>
+              )}
+              {i === 3 && (
+                <code>
+                  {count("accepted")} ok · {count("repaired")} fixed · {count("rejected")} out
+                </code>
+              )}
+              {note && <small>{note}</small>}
+            </div>
+          </div>
         ))}
-      </ol>
+        <div className="flow-part">
+          <div className="link" aria-hidden="true" />
+          <div className="mini" inert>
+            <div className="mini-scale">
+              <Phone screen={p.screen} width={320} height={560} fixed />
+            </div>
+          </div>
+        </div>
+      </div>
       <figcaption>
-        Replaying a screen written by {recorded.model} in a recorded run, through the real Validator.
+        Replaying a screen written by {p.recorded.model} in a recorded run, through the real Validator.
         Listener, Director and Critic run inside the lmthing app, so only their roles are shown here.
       </figcaption>
     </figure>

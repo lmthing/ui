@@ -11,8 +11,7 @@ page.on("pageerror", (e) => console.log("page error:", e.message.slice(0, 300)))
 await page.goto(url, { waitUntil: "networkidle" });
 await page.waitForTimeout(wait);
 if (process.argv.includes("--full")) {
-  const height = await page.evaluate(() => document.body.scrollHeight);
-  for (let y = 0; y < height; y += 500) {
+  for (let y = 0; y < (await page.evaluate(() => document.body.scrollHeight)); y += 500) {
     await page.evaluate((top) => scrollTo(0, top), y);
     await page.waitForTimeout(120);
   }

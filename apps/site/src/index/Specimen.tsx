@@ -1,6 +1,7 @@
 import type { Item } from "../../scripts/site-types";
 import { shotOf, site } from "../data/site";
 import { hrefOf } from "../router";
+import { JsonLine } from "../shared/JsonLine";
 import { tierLabel } from "../shared/status";
 
 /** The specimen number: the component's place in the catalog, as in a type specimen book. */
@@ -29,7 +30,11 @@ export function Specimen({ item }: { item: Item }) {
         <h3>{item.id}</h3>
         <span className="purpose">{item.purpose}</span>
       </a>
-      {item.line && <code className="spec-line">{item.line.replace('"id":"x1",', "")}</code>}
+      {item.line && (
+        <span className="spec-line">
+          <JsonLine line={item.line.replace('"id":"x1",', "")} max={3} />
+        </span>
+      )}
       <small>{tierLabel[item.tier] ?? item.tier}</small>
     </article>
   );

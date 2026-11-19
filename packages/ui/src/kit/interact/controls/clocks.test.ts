@@ -1,6 +1,6 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { projectClocks, type Meta, type Values } from "../../../catalog";
+import { projectAdjustments, projectClocks, type Meta, type Values } from "../../../catalog";
 import { createScreenController } from "../index";
 import { clockChanges, initialClocks, tickClocks } from "./clocks";
 const meta: Meta = {
@@ -146,4 +146,55 @@ it("shares bounded fractional steps between taps and agent actions on component 
   } finally {
     runtime.dispose();
   }
+});
+
+it("sets and nudges one bounded derived item through the controller, without dispatching invalid edits", () => {
+  const { clocks: _clocks, ...base } = meta;
+  const definition: Meta = {
+    ...base,
+    items: {
+      key: "rows",
+      parts: ["value", "plus", "minus"],
+      set: { value: { prop: "amount", min: 5, max: 30 } },
+      adjust: {
+        "plus.increment": { prop: "amount", delta: 0.5 },
+        "minus.decrement": { prop: "amount", delta: -0.5 },
+      },
+    },
+    actions: { items: { value: ["set"], plus: ["increment"], minus: ["decrement"] } },
+    read: (input) => (input as { rows: { amount: number }[] }).rows.map(({ amount }) => `${amount}`),
+  };
+  const props = z
+    .strictObject({ seeds: z.array(z.number()) })
+    .overwrite((input) => ({ ...input, rows: input.seeds.map((amount) => ({ amount })) }));
+  const screen = { id: "home", components: [{ id: "d1", c: definition.id, seeds: [21, 17] }] };
+  const onAction = vi.fn();
+  const runtime = createScreenController({
+    screen,
+    onAction,
+    defs: { [definition.id]: { meta: definition, props, fallback: () => ({}), examples: [], probes: [] } },
+  });
+  const set = (value: unknown) => runtime.act({ address: "home/d1/r1/value", action: "set", value });
+  expect(set(24)).toMatchObject({ ok: true });
+  expect(runtime.press("d1/r1/plus")).toMatchObject({ ok: true, changed: "d1/r1/plus increment = 24.5" });
+  expect(runtime.read()).toContain("24.5 — 17");
+  expect(runtime.read()).toContain("[d1/r1/value set = 24.5]");
+  const { id: _id, c: _c, ...input } = runtime.snapshotScreen().components[0]!;
+  expect(input).not.toHaveProperty("rows");
+  const projected = projectAdjustments(definition, props.parse(input), (part) =>
+    runtime.store.get(`home/d1/${part}`),
+  );
+  expect(projected.rows).toEqual([{ amount: 24.5 }, { amount: 17 }]);
+  expect(runtime.act({ address: "d1/r1/minus", action: "decrement" }, { agent: true })).toMatchObject({
+    ok: true,
+    changed: "d1/r1/minus decrement = 24",
+  });
+  onAction.mockClear();
+  for (const value of [80, 4, "24", Infinity])
+    expect(set(value)).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(onAction).not.toHaveBeenCalled();
+  expect(runtime.read()).toContain("24 — 17");
+  expect(set(30)).toMatchObject({ ok: true });
+  expect(runtime.actionsAt("d1/r1/plus")).toEqual([]);
+  runtime.dispose();
 });

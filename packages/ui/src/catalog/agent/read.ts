@@ -1,16 +1,14 @@
-import { liveProps } from "./live-props";
+import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { projectSelection, projectNested } from "./selection";
-import { projectAdjustments, projectClocks } from "./clocks";
+import { numericSetAt, projectClocks } from "./clocks";
+import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
 import { migrateLine, migrateScreen } from "../migrations";
-import { repairVariants } from "../rules";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -63,27 +61,38 @@ const risks: Record<string, string> = {
 function withValues(
   affordances: Affordance[],
   values: Record<string, unknown>,
-  tier: string,
-  partTiers: Readonly<Record<string, string>> = {},
+  def: Definition,
+  props: Props,
+  instance: string,
 ) {
+  const { meta } = def;
   return affordances.map((a) => {
-    const risk = risks[partTiers[a.part] ?? tier] ?? "";
-    const value = values[`${a.address}/$draft`] ?? values[a.address];
+    const risk = risks[meta.partTiers?.[a.part] ?? meta.tier] ?? "";
+    const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
+    const choices = a.action === "select" && choiceValues(meta, props, target);
+    const set = a.action === "set" && numericSetAt(meta, props, target);
+    const value = choices
+      ? props[meta.select!.prop]
+      : set
+        ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
+          ? undefined
+          : set.value
+        : (values[`${a.address}/$draft`] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
+    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
     return { ...a, detail: `${detail}${risk}` };
   });
 }
 
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const reading = projectNested(meta, projectSelection(meta, props, get), get);
-  return values[`${instance}/$runtime`]
-    ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
-    : reading;
+  const runtime = Boolean(get("$runtime"));
+  const reading = projectParsedControls(meta, props, get, runtime);
+  return runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
 }
 
 function migrateInput(component: string, input: unknown) {
@@ -108,9 +117,12 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const repaired = repairVariants(def, migrateInput(def.meta.id, input));
-  const validated = stampItemIds(def.meta, def.props.parse(repaired.props) as Props);
-  const props = liveProps(def.meta, validated, instance, values);
+  const validated = parseControlProps(
+    def,
+    migrateInput(def.meta.id, input),
+    (part) => values[`${instance}/${part}`],
+  );
+  const props = liveProps(def.meta, validated, instance, values, true);
   state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
@@ -118,8 +130,9 @@ export function readComponent(
   const affordances = withValues(
     affordancesOf(def.meta, props, instance, values),
     values,
-    def.meta.tier,
-    def.meta.partTiers,
+    def,
+    props,
+    instance,
   );
   const key = def.meta.items?.key;
   const own = [

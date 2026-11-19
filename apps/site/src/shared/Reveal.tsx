@@ -1,33 +1,33 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-/** Fades and lifts its children in when they scroll into view. Plain content when motion is reduced. */
-export function Reveal({
-  children,
-  delay = 0,
-  className = "",
-}: {
-  children: ReactNode;
-  delay?: number;
-  className?: string;
-}) {
+type Mode = "shown" | "hidden" | "seen";
+
+/**
+ * Content is visible by default. Only sections that start below the fold are hidden, from script and just
+ * before they are observed, then eased in as they arrive. Printing, readers and reduced motion see it all.
+ */
+export function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [seen, setSeen] = useState(false);
+  const [mode, setMode] = useState<Mode>("shown");
   useEffect(() => {
     const node = ref.current;
-    if (!node || typeof IntersectionObserver === "undefined") return setSeen(true);
-    const observer = new IntersectionObserver(
-      ([entry]) => entry?.isIntersecting && (setSeen(true), observer.disconnect()),
-      { rootMargin: "0px 0px -8% 0px" },
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!node || calm || typeof IntersectionObserver === "undefined") return;
+    if (node.getBoundingClientRect().top < innerHeight) return;
+    setMode("hidden");
+    const watch = new IntersectionObserver(
+      ([e]) => e?.isIntersecting && (setMode("seen"), watch.disconnect()),
+      {
+        rootMargin: "0px 0px -8% 0px",
+      },
     );
-    observer.observe(node);
-    return () => observer.disconnect();
+    watch.observe(node);
+    // A reader that never scrolls still gets the content, a moment after load.
+    const fallback = setTimeout(() => (setMode("seen"), watch.disconnect()), 2500);
+    return () => (watch.disconnect(), clearTimeout(fallback));
   }, []);
   return (
-    <div
-      ref={ref}
-      className={`reveal ${seen ? "seen" : ""} ${className}`}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
+    <div ref={ref} className={`reveal ${mode} ${className}`}>
       {children}
     </div>
   );

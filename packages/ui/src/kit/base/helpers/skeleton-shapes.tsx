@@ -1,6 +1,6 @@
 import { useWords, useKitStyle } from "../../provider";
 import { XStack, YStack, styled } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space, type as typography, variants } from "../../../catalog";
 import { shifted } from "../text";
 import { SkeletonContent, SkeletonText, skeletonInset, type ShapeProps } from "./skeleton-content";
 
@@ -112,7 +112,8 @@ export function SkeletonRing({ ring = "md" }: ShapeProps) {
   );
 }
 
-export function SkeletonMedia({ aspect = "wide", lines, inset, playback, contentGap = "sm" }: ShapeProps) {
+export function SkeletonMedia(props: ShapeProps) {
+  const { aspect = "wide", lines, inset, playback, contentGap = "sm", density, emphasis } = props;
   const { loadingLabel } = useWords().words;
   const ks = useKitStyle();
   return (
@@ -127,17 +128,13 @@ export function SkeletonMedia({ aspect = "wide", lines, inset, playback, content
           width={aspect === "avatar" ? size.avatar.lg : "100%"}
           alignSelf={aspect === "avatar" ? "center" : undefined}
           aspectRatio={
-            aspect === "wide"
-              ? component.base.wideRatio
-              : aspect === "tall"
-                ? component.base.tallRatio
-                : component.base.bodyFlex
+            aspect === "avatar" ? variants.aspect.square : (variants.aspect[aspect] ?? variants.aspect.wide)
           }
           borderRadius={aspect === "avatar" ? radius.pill : shifted("lg", ks.radiusShift)}
         />
       )}
       {lines?.length === 0 ? null : lines ? (
-        <SkeletonContent lines={lines} />
+        <SkeletonContent lines={lines} {...{ density, emphasis }} />
       ) : (
         <>
           <Bar height={space.md} width="56%" />
