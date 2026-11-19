@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest";
-import { components, readComponent } from "@lmthing/ui/catalog";
+import { describe, expect, it, vi } from "vitest";
+import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
+import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Devices;
 const focused = examples[0]!;
+const tiles = examples[1]!;
+const theme = { preset: "calm", accent: "moss", mode: "light" } as const;
+const room = (devices: unknown[]) => ({ rooms: [{ label: "Hall", devices }] });
 
 describe("Devices contract and fallback", () => {
   it.each(examples)("accepts a real example", (example) => {
@@ -15,11 +19,59 @@ describe("Devices contract and fallback", () => {
     expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Field" }));
   });
 
+  it.each([
+    { rooms: [] },
+    room([]),
+    room(Array(7).fill({ key: "lamp", name: "Lamp", kind: "light", on: false })),
+    room([{ key: "heat", kind: "heat", name: "x".repeat(17), on: true, temp: 21 }]),
+    room([{ key: "heat", kind: "heat", name: "Heat", on: true, temp: 30.1 }]),
+    room([{ key: "sensor", kind: "sensor", name: "Humidity", reading: 45 }]),
+    { ...focused, entries: [] },
+    { ...focused, color: "red" },
+  ])("rejects out-of-range, unknown or code-owned input", (input) => {
+    expect(props.safeParse(input).success).toBe(false);
+  });
+
   it("builds valid fallback props from cast titles or neutral placeholders", () => {
     const items = [{ id: "lamp", type: "light", sample: true, title: "   Lamp   " }];
     const from = (sample: typeof items) => fallback({ cast: { things: [], items: sample } });
     expect(props.parse(from(items)).rooms[0]?.devices[0]?.name).toBe("Lamp");
     expect(props.parse(from([])).rooms[0]?.devices[0]?.name).toBe("Item one");
+    expect(props.parse(from([{ ...items[0]!, title: " " }])).rooms[0]?.devices[0]?.name).toBe("Item one");
+  });
+});
+
+describe("Devices states and parts", () => {
+  it.each(examples)("draws each offered action once with its validator-owned address", (example) => {
+    const html = renderInstance("Devices", example, "filled", theme, { component: "d1" });
+    const propsWithIds = stampItemIds(meta, props.parse(example));
+    for (const { address } of affordancesOf(meta, propsWithIds, "d1")) {
+      const full = `home/${address}${address.split("/").length === 2 ? "/root" : ""}`;
+      expect(html.split(`data-testid="${full}"`)).toHaveLength(2);
+    }
+    expect(elementAt(html, "home/d1/r2/name")).toBeDefined();
+    expect(elementAt(html, "home/d1/r2/room")).toBeDefined();
+  });
+
+  it("draws intentional empty, inert loading, success and readable offline states", () => {
+    expect(renderInstance("Devices", focused, "empty", theme, "device")).toContain("No devices yet");
+    expect(renderInstance("Devices", focused, "loading", theme)).not.toContain('role="slider"');
+    expect(renderInstance("Devices", focused, "success", theme)).toContain("Command acknowledged");
+    const error = renderInstance("Devices", focused, "error", theme);
+    expect(error).toContain("Devices unavailable or command failed");
+    expect(error).toContain("Reading · °C");
+    expect(error).toContain("20.5");
+    expect(elementAt(error, "home/c1/r1/temp").attributes).toContain('aria-disabled="true"');
+  });
+
+  it("offers no level for a switch with no level reading, or commands for an unlinked sensor", () => {
+    const input = room([
+      { key: "lamp", name: "Lamp", kind: "light", on: false },
+      { key: "air", name: "Air", kind: "sensor", reading: 28, unit: "ppm" },
+    ]);
+    expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "d1")).toEqual([
+      { address: "d1/r1", part: "root", action: "toggle", detail: ":off" },
+    ]);
   });
 });
 
@@ -56,18 +108,53 @@ describe("Devices read and act", () => {
     const minus = { address: "d1/r1/minus", action: "decrement" };
     expect(runtime.act(plus)).toMatchObject({ ok: true, changed: "d1/r1/plus increment = 21.5" });
     expect(runtime.act(minus)).toMatchObject({ ok: true, changed: "d1/r1/minus decrement = 21" });
-    for (let i = 0; i < 18; i++) expect(runtime.act(plus).ok).toBe(true);
+    const set = (value: number) => runtime.act({ address: "d1/r1/temp", action: "set", value });
+    expect(set(29.5).ok).toBe(true);
+    expect(runtime.act(plus)).toMatchObject({ ok: true, changed: "d1/r1/plus increment = 30" });
     expect(runtime.act(plus)).toMatchObject({ ok: false, code: "not_actionable" });
-    expect(
-      readComponent(components.Devices, focused, "d1", "filled", {
-        "d1/$runtime": true,
-        "d1/r1/$adjust/temp": 30,
-      }).join("\n"),
-    ).toContain("Set point 30 °C");
+    expect(runtime.read()).toContain("Set point 30 °C");
+    expect(runtime.read()).toContain("Reading 20.5 °C");
+    expect(set(30.1).ok).toBe(false);
+    expect(set(5.5).ok).toBe(true);
+    expect(runtime.act(minus)).toMatchObject({ ok: true, changed: "d1/r1/minus decrement = 5" });
+    expect(runtime.act(minus)).toMatchObject({ ok: false, code: "not_actionable" });
+    expect(set(4.9).ok).toBe(false);
+    expect(runtime.read()).toContain("Set point 5 °C");
     expect(runtime.act({ address: "d1/r2/plus", action: "increment" })).toMatchObject({
       ok: false,
       code: "not_actionable",
     });
+    runtime.dispose();
+  });
+});
+
+describe("Devices safety confirmations", () => {
+  it.each([
+    { address: "d1/r2/lock", action: "toggle" },
+    { address: "d1/r8/secure", action: "press" },
+  ])("confirms $address before the host sees it and supports cancellation", (step) => {
+    const onAction = vi.fn();
+    const screen = { id: "home", components: [{ id: "d1", c: "Devices", ...tiles }] };
+    const runtime = createScreenController({ screen, defs: components, onAction });
+    expect(runtime.act(step).ok).toBe(true);
+    expect(runtime.confirmation).toBeDefined();
+    expect(onAction).not.toHaveBeenCalled();
+    expect(runtime.act({ address: "confirm/cancel", action: "dismiss" }).ok).toBe(true);
+    expect(onAction).not.toHaveBeenCalled();
+    expect(runtime.act(step).ok).toBe(true);
+    expect(runtime.act({ address: "confirm/confirm", action: "press" }).ok).toBe(true);
+    expect(onAction).toHaveBeenCalledExactlyOnceWith({ ...step, address: `home/${step.address}` });
+    expect(runtime.confirmation).toBeUndefined();
+    runtime.dispose();
+  });
+
+  it("dispatches an ordinary scene without opening confirmation", () => {
+    const onAction = vi.fn();
+    const screen = { id: "home", components: [{ id: "d1", c: "Devices", ...tiles }] };
+    const runtime = createScreenController({ screen, defs: components, onAction });
+    expect(runtime.act({ address: "d1/r7/apply", action: "press" }).ok).toBe(true);
+    expect(runtime.confirmation).toBeUndefined();
+    expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/d1/r7/apply", action: "press" });
     runtime.dispose();
   });
 });

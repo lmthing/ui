@@ -1,14 +1,18 @@
 import { z } from "zod";
-import { screenId, text } from "../../catalog";
+import {
+  itemsOf,
+  placeholderTitle,
+  screenId,
+  text,
+  thingOf,
+  titleOf,
+  type FallbackInput,
+} from "../../catalog";
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
 const deviceKey = z.string().trim().min(1).max(24);
-const thermostatBounds = { min: 5, max: 30 } as const;
-export const thermostatAdjust = {
-  "minus.decrement": { prop: "temp", delta: -0.5, ...thermostatBounds },
-  "plus.increment": { prop: "temp", delta: 0.5, ...thermostatBounds },
-} as const;
+export const thermostatBounds = { min: 5, max: 30 } as const;
 const settings = {
   on: z.boolean().optional(),
   level: z.number().min(0).max(100).optional(),
@@ -43,7 +47,7 @@ const target = z
   );
 
 /** Bounded model-written device data; addressed rows and capabilities are code-owned. */
-export const deviceProps = z
+const schema = z
   .strictObject({
     rooms: z
       .array(
@@ -88,27 +92,97 @@ export const deviceProps = z
           }),
       )
     );
-  }, "Device keys must be unique; focus and distinct scene targets must reference supported devices")
-  .overwrite((value) => {
-    const devices = value.rooms.flatMap((room) =>
-      room.devices.map((row) => ({
-        ...row,
-        room: room.label,
-        entryKind: "device",
-        switchable: ["light", "heat", "plug", "fan"].includes(row.kind),
-        adjustable: levelKinds.includes(row.kind),
-        linked: row.goto !== undefined,
+  }, "Device keys must be unique; focus and distinct scene targets must reference supported devices");
+
+function withEntries(value: z.output<typeof schema>) {
+  const devices = value.rooms.flatMap((room, roomIndex) =>
+    room.devices.map((row) => ({
+      ...row,
+      level: row.level,
+      room: room.label,
+      roomIndex,
+      entryKind: "device" as const,
+      switchable: row.kind !== "lock" && switchKinds.includes(row.kind),
+      adjustable: levelKinds.includes(row.kind),
+      linked: row.goto !== undefined,
+    })),
+  );
+  const lockedKeys = new Set(devices.filter((row) => row.kind === "lock").map((row) => row.key));
+  return {
+    ...value,
+    entries: [
+      ...devices,
+      ...value.scenes.map((scene) => ({
+        ...scene,
+        entryKind: "scene" as const,
+        secure: scene.targets.some(({ key }) => lockedKeys.has(key)),
       })),
-    );
-    return {
-      ...value,
-      entries: [
-        ...devices,
-        ...value.scenes.map((scene) => ({
-          ...scene,
-          entryKind: "scene",
-          secure: scene.targets.some((row) => devices.find((item) => item.key === row.key)?.kind === "lock"),
+    ],
+  };
+}
+
+export const deviceProps = schema.overwrite(withEntries) as typeof schema &
+  z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
+
+export type DeviceEntry = Extract<ReturnType<typeof withEntries>["entries"][number], { entryKind: "device" }>;
+
+export const deviceControls = {
+  parts: [
+    "root",
+    "name",
+    "room",
+    "reading",
+    "level",
+    "temp",
+    "minus",
+    "plus",
+    "lock",
+    "controls",
+    "apply",
+    "secure",
+  ],
+  actions: {
+    items: {
+      root: ["toggle"],
+      lock: ["toggle"],
+      controls: ["press"],
+      level: ["set"],
+      temp: ["set"],
+      minus: ["decrement"],
+      plus: ["increment"],
+      apply: ["press"],
+      secure: ["press"],
+    },
+    when: {
+      root: { entryKind: "device", switchable: true },
+      lock: { kind: "lock" },
+      controls: { entryKind: "device", linked: true },
+      level: { entryKind: "device", adjustable: true },
+      temp: { kind: "heat" },
+      minus: { kind: "heat" },
+      plus: { kind: "heat" },
+      apply: { entryKind: "scene", secure: false },
+      secure: { entryKind: "scene", secure: true },
+    },
+  },
+} as const;
+
+export function deviceFallback({ cast, lang }: FallbackInput): z.input<typeof deviceProps> {
+  const thing = thingOf(cast);
+  const items = itemsOf(cast, 6);
+  return {
+    rooms: [
+      {
+        label: placeholderTitle(0, lang),
+        devices: (items.length ? items : [undefined]).map((item, index) => ({
+          key: `device_${index + 1}`,
+          name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
+          kind: "light",
+          on: false,
         })),
-      ],
-    };
-  });
+      },
+    ],
+    scenes: [],
+    style: "tiles",
+  };
+}

@@ -1,29 +1,26 @@
-import type { z } from "zod";
+import { formatAddress, numberLine, type Meta, type Props } from "../../../catalog";
+import { KitAction, KitText, useWords } from "../../../kit";
+import * as kit from "../../../kit";
 import {
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-} from "../../../catalog";
-import { deviceProps, readDevices, thermostatAdjust } from "..";
+  deviceControls,
+  deviceExamples,
+  deviceFallback,
+  deviceProbes,
+  deviceProps,
+  deviceWriteHints,
+  readDevices,
+  thermostatBounds,
+} from "..";
+import { deviceRange, deviceValue, focusedDevice } from "../copy";
+import { homeWordsFor } from "../lang";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
-  status: "draft",
+  status: "ready",
   group: "input",
-  purpose: "Read and control household devices by room, with thermostat, sensor and saved scene options.",
+  purpose: "Read and control connected household devices and apply saved settings together.",
   pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",
-  writeHints: [
-    "Use unique keys across all rooms. Light/heat/plug/lock/fan require on; lock on:true means locked. Heat requires temp 5–30 °C and may have reading; heat MUST have level:null, unit:null, normal:null. Celsius is implicit for heat: never write unit:celsius on a thermostat.",
-    "Sensors require reading and unit (celsius, percent, ppm, lux), optionally normal:{low,high} with low<=high. Sensors MUST have on:null, level:null, temp:null. Light/fan/blind may have level 0–100; blinds MUST have on:null. All non-heat devices MUST have temp:null. Only sensors have unit/normal, only heat/sensor have reading; use null for unsupported optional fields.",
-    "Scenes default to []. Each has 2–6 distinct device targets, with key and at least one supported absolute on/level/temp setting. Never target sensors or unknown keys. focus must name a device.",
-    "Never write active-scene, out-of-range, pending or command-outcome flags. Code chooses apply versus secure from lock targets. Lock changes and lock scenes always confirm.",
-    'Valid heat: {"key":"heat","name":"Thermostat","kind":"heat","on":true,"level":null,"temp":21,"reading":20.5,"unit":null,"normal":null,"goto":null}. Valid blind scene target: {"key":"blind","on":null,"level":0,"temp":null}. Scene targets obey the referenced device kind, not the other devices in the scene.',
-  ],
+  writeHints: deviceWriteHints,
   region: "body",
   weight: 3,
   dense: true,
@@ -32,169 +29,170 @@ export const meta = {
     "A host adapter maps device keys to a smart-home service, supplies readings and command acknowledgements; without it this is a labelled mock.",
   items: {
     key: "entries",
-    adjust: thermostatAdjust,
-    parts: [
-      "root",
-      "name",
-      "room",
-      "reading",
-      "level",
-      "temp",
-      "minus",
-      "plus",
-      "lock",
-      "controls",
-      "apply",
-      "secure",
-    ],
+    set: { temp: { prop: "temp", min: 5, max: 30 } },
+    adjust: {
+      "plus.increment": { prop: "temp", delta: 0.5 },
+      "minus.decrement": { prop: "temp", delta: -0.5 },
+    },
+    parts: deviceControls.parts,
   },
   parts: ["root"],
   confirmParts: ["lock", "secure"],
   states: ["filled", "empty", "loading", "success", "error"],
-  actions: {
-    items: {
-      root: ["toggle"],
-      lock: ["toggle"],
-      controls: ["press"],
-      level: ["set"],
-      temp: ["set"],
-      minus: ["decrement"],
-      plus: ["increment"],
-      apply: ["press"],
-      secure: ["press"],
-    },
-    when: {
-      root: { entryKind: "device", switchable: true },
-      lock: { kind: "lock" },
-      controls: { entryKind: "device", linked: true },
-      level: { entryKind: "device", adjustable: true },
-      temp: { kind: "heat" },
-      minus: { kind: "heat" },
-      plus: { kind: "heat" },
-      apply: { entryKind: "scene", secure: false },
-      secure: { entryKind: "scene", secure: true },
-    },
-  },
+  actions: deviceControls.actions,
   read: readDevices,
 } as const satisfies Meta;
 export const props = deviceProps;
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const thing = thingOf(cast),
-    items = itemsOf(cast, 6);
-  return {
-    rooms: [
-      {
-        label: placeholderTitle(0, lang),
-        devices: (items.length ? items : [undefined]).map((item, index) => ({
-          key: `device_${index + 1}`,
-          name: (item && titleOf(item, 16, thing)) ?? placeholderTitle(index, lang),
-          kind: "light",
-          on: false,
-        })),
-      },
-    ],
-    scenes: [],
-    style: "tiles",
-  };
+export const fallback = deviceFallback;
+export const examples = deviceExamples;
+export const probes = deviceProbes;
+
+type DevicePanel = Props<typeof props, typeof meta>;
+type Device = Extract<DevicePanel["entries"][number], { entryKind: "device" }>;
+type Tile = { row: Device; disabled: boolean; focused: boolean };
+
+function SetPoint({ row, disabled, focused }: Tile) {
+  const { lang, words } = useWords(homeWordsFor);
+  const { min, max } = thermostatBounds;
+  const value = row.temp!;
+  const step = meta.items.adjust["plus.increment"].delta;
+  const { decrease, increase } = words.devicePanel;
+  const { setPoint } = words.deviceLabels;
+  const caption = words.devicePanel.measure(setPoint, words.deviceUnits.celsius);
+  const number = numberLine(value, lang);
+  const numberScale = focused ? "display" : "compact";
+  return (
+    <kit.KitContent>
+      <KitText role="label" tone="muted" part={null} children={caption} />
+      <KitText role="number" numberScale={numberScale} part={null} children={number} />
+      <kit.KitSlider part="temp" label={setPoint} {...{ min, max, step, value, disabled }} />
+      <kit.KitGrid>
+        {(
+          [
+            { part: "minus", action: "decrement", a11y: decrease, disabled: disabled || value <= min },
+            { part: "plus", action: "increment", a11y: increase, disabled: disabled || value >= max },
+          ] as const
+        ).map((key) => (
+          <KitAction key={key.part} icon={key.part} kind="secondary" {...key} />
+        ))}
+      </kit.KitGrid>
+    </kit.KitContent>
+  );
 }
-export const examples = [
-  {
-    rooms: [
-      {
-        label: "Living room",
-        devices: [
-          {
-            key: "heat",
-            name: "Thermostat",
-            kind: "heat",
-            on: true,
-            temp: 21,
-            reading: 20.5,
-            goto: "heating",
-          },
-          {
-            key: "humidity",
-            name: "Humidity",
-            kind: "sensor",
-            reading: 45,
-            unit: "percent",
-            normal: { low: 40, high: 60 },
-          },
-          { key: "lamp", name: "Plant lamp", kind: "light", on: true, level: 70 },
-        ],
-      },
-    ],
-    focus: "heat",
-    style: "focused",
-    scenes: [
-      {
-        name: "Evening",
-        targets: [
-          { key: "lamp", on: true, level: 40 },
-          { key: "heat", temp: 20 },
-        ],
-      },
-    ],
-  },
-  {
-    rooms: [
-      {
-        label: "Hall",
-        devices: [
-          { key: "light", name: "Hall light", kind: "light", on: false, level: 25 },
-          { key: "door", name: "Front door", kind: "lock", on: true },
-          { key: "fan", name: "Dog room fan", kind: "fan", on: true, level: 50 },
-          { key: "blind", name: "Window blind", kind: "blind", level: 80 },
-          { key: "plug", name: "Water fountain", kind: "plug", on: true },
-          { key: "air", name: "Air quality", kind: "sensor", reading: 800, unit: "ppm" },
-        ],
-      },
-    ],
-    style: "tiles",
-    scenes: [
-      {
-        name: "Home time",
-        targets: [
-          { key: "light", on: true },
-          { key: "fan", level: 20 },
-        ],
-      },
-      {
-        name: "Leave for a walk",
-        targets: [
-          { key: "light", on: false },
-          { key: "door", on: true },
-        ],
-      },
-    ],
-  },
-] satisfies z.input<typeof props>[];
-const { choose, write, read } = probesFor("Devices");
-export const probes = [
-  choose(
-    "Connected room thermostat controls beside its live temperature, a humidity sensor's normal range, and saved scenes changing lights and heat",
-  ),
-  choose(
-    "Store my preferred temperature as one slider on a settings form; no connected hardware or live reading",
-    "Field",
-  ),
-  choose(
-    "Three buttons navigate to my app's settings, history and help screens, without device commands",
-    "Actions",
-  ),
-  choose(
-    "Scan local app preference rows, each with a trailing on/off switch; not labelled form inputs or connected hardware",
-    "List",
-  ),
-  choose(
-    "Show two independent manual summary measurements together: number of indoor humidity readings and average humidity. No comparison across days or categories, recent chart, live device or commands",
-    "Stats",
-  ),
-  write(
-    "Living room has thermostat key heat, on, set to 21 Celsius, measured 20.5; humidity sensor key humidity reads 45 percent with normal range 40 to 60; light key lamp on at level 70. Focus heat. Evening scene sets lamp to on at 40 and heat to 20.",
-  ),
-  read("Increase the thermostat's set point by one step", { address: "d1/r1/plus", action: "increment" }),
-  read("Apply the Evening scene", { address: "d1/r4/apply", action: "press" }),
-  read("Change the front door lock", { address: "d1/r2/lock", action: "toggle" }, 1),
-  read("Apply Leave for a walk, which changes the lock", { address: "d1/r8/secure", action: "press" }, 1),
-] satisfies Probe[];
+
+function Reading({ row, focused }: Pick<Tile, "row" | "focused">) {
+  const { lang, words } = useWords(homeWordsFor);
+  if (row.reading === undefined) return null;
+  const range = deviceRange(row, lang);
+  const tone = range?.outside ? "warn" : "text";
+  const unit = row.unit ?? "celsius";
+  const value = focused ? numberLine(row.reading, lang) : deviceValue(row.reading, unit, lang);
+  const label = words.deviceLabels.reading;
+  const caption = focused ? words.devicePanel.measure(label, words.deviceUnits[unit]) : label;
+  const numberScale = focused ? "display" : "compact";
+  const content = (
+    <KitText role="number" {...{ numberScale, tone }} part={range ? null : "reading"} children={value} />
+  );
+  return (
+    <kit.KitContent>
+      <KitText role="label" tone="muted" part={null} children={caption} />
+      {range ? <kit.KitRangeBand {...range} part="reading" reading={content} tone={tone} /> : content}
+      {range && <KitText role="label" tone="muted" part={null} children={range.label} />}
+      {range?.status && <KitText role="label" part={null} tone="warn" children={range.status} />}
+    </kit.KitContent>
+  );
+}
+
+function DeviceTile({ row, disabled, focused }: Tile) {
+  const { words } = useWords(homeWordsFor);
+  const { deviceLabels: labels, devicePanel: panel } = words;
+  const scope = { ...kit.usePartContext(), item: row.id };
+  const locked = kit.useControlValue(formatAddress({ ...scope, part: "lock" }), row.on);
+  const level = kit.useControlValue(formatAddress({ ...scope, part: "level" }), row.level);
+  const lockLabel = locked ? labels.locked : labels.unlocked;
+  const { goto } = row;
+  const levelLabel = panel.level[row.kind as keyof typeof panel.level];
+  const toggle = row.switchable && (
+    <kit.KitTrail kind="toggle" part="root" on={row.on ?? false} {...{ disabled }} />
+  );
+  const name = <KitText role={focused ? "heading" : "label"} part="name" children={row.name} />;
+  const header = focused && toggle && (
+    <kit.KitRow inline label={row.name} trailing={toggle} children={name} />
+  );
+  const paired = focused && row.temp !== undefined && row.reading !== undefined;
+  const metrics = [
+    <Reading key="reading" {...{ row, focused }} />,
+    row.temp !== undefined && <SetPoint key="setPoint" {...{ row, focused, disabled }} />,
+  ];
+  return (
+    <kit.KitRow item={row.id} part={row.switchable ? null : "root"} label={row.name} surface="card">
+      <kit.KitContent>
+        <KitText role="label" tone="muted" part="room" children={row.room} />
+        {header || name}
+        {row.kind === "lock" && (
+          <KitAction part="lock" kind="secondary" action="toggle" label={lockLabel} disabled={disabled} />
+        )}
+        {paired ? <kit.KitGrid>{metrics}</kit.KitGrid> : metrics}
+        {levelLabel && level !== undefined && (
+          <kit.KitSlider part="level" label={levelLabel} max={100} value={level} disabled={disabled} />
+        )}
+        {!focused && toggle}
+        {goto && <KitAction part="controls" kind="quiet" label={panel.controls} {...{ goto, disabled }} />}
+      </kit.KitContent>
+    </kit.KitRow>
+  );
+}
+
+export function Devices({ entries, focus, style, rooms }: DevicePanel) {
+  const state = kit.useComponentState();
+  const panel = useWords(homeWordsFor).words.devicePanel;
+  const devices = entries.filter((row) => row.entryKind === "device");
+  const scenes = entries.filter((row) => row.entryKind === "scene");
+  const focused = style === "focused" ? focusedDevice(devices, focus) : undefined;
+  const disabled = state !== "filled";
+  const tile = (row: Device) => <DeviceTile key={row.id} {...{ row, disabled }} focused={row === focused} />;
+  if (state === "empty")
+    return (
+      <kit.KitCard>
+        <kit.KitEmpty decorativeIcon />
+      </kit.KitCard>
+    );
+  if (state === "loading")
+    return (
+      <kit.KitCard padded>
+        <kit.KitSkeleton shape={focused ? "headline" : "rows"} rows={entries.length} inset="none" />
+      </kit.KitCard>
+    );
+  return (
+    <kit.KitCard style="plain" part="root" padded inset="none">
+      <KitText role="label" part={null} tone="muted" children={panel.preview} />
+      {(state === "error" || state === "success") && (
+        <KitText role="body" part={null} tone={state === "error" ? "bad" : "good"} children={panel[state]} />
+      )}
+      {focused && tile(focused)}
+      {scenes.length > 0 && (
+        <kit.KitContent>
+          <KitText role="label" tone="muted" part={null} children={panel.scenes} />
+          <kit.KitGrid>
+            {scenes.map((row) => {
+              const part = row.secure ? "secure" : "apply";
+              return (
+                <kit.KitRow key={row.id} item={row.id} label={row.name} surface="card">
+                  <kit.KitContent>
+                    <KitText role="label" density="compact" part="name" children={row.name} />
+                    <KitAction kind="secondary" label={panel[part]} {...{ part, disabled }} />
+                  </kit.KitContent>
+                </kit.KitRow>
+              );
+            })}
+          </kit.KitGrid>
+        </kit.KitContent>
+      )}
+      {rooms.map((_, index) => (
+        <kit.KitGrid key={index}>
+          {devices.filter((row) => row !== focused && row.roomIndex === index).map(tile)}
+        </kit.KitGrid>
+      ))}
+    </kit.KitCard>
+  );
+}

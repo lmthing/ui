@@ -1,4 +1,11 @@
-export { deviceProps, thermostatAdjust } from "./device-contract";
+export {
+  deviceControls,
+  deviceFallback,
+  deviceProps,
+  thermostatBounds,
+  type DeviceEntry,
+} from "./device-contract";
+export { deviceExamples, deviceProbes, deviceWriteHints } from "./device-fixtures";
 export { readDevices } from "./read-devices";
 export { pack } from "./pack";
 export * from "./components";
