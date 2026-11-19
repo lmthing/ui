@@ -1,0 +1,126 @@
+.waves {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 28px;
+}
+.waves th,
+.waves td {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+  vertical-align: top;
+  text-align: left;
+}
+.waves th {
+  width: 90px;
+  font: 500 0.72rem var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding-top: 18px;
+}
+.waves td {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pk {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  text-decoration: none;
+  font: 500 0.8rem var(--mono);
+}
+.pk small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+.pk.live {
+  border-color: var(--accent);
+}
+.pk.live span[aria-hidden] {
+  color: var(--accent);
+}
+.pk.planned {
+  color: var(--muted);
+}
+.pk:hover {
+  background: var(--accent-soft);
+}
+.legend {
+  font: 500 0.72rem var(--mono);
+  color: var(--muted);
+  margin-top: 10px;
+}
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+  margin-top: 40px;
+}
+.pack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+  border-top: 2px solid var(--text);
+  padding-top: 12px;
+}
+.pack:hover h3 {
+  color: var(--accent);
+}
+.pack .pick {
+  color: var(--muted);
+  font-size: 0.86rem;
+  flex: 1;
+}
+.pack small {
+  font: 500 0.7rem var(--mono);
+  color: var(--muted);
+}
+.strip {
+  display: flex;
+  gap: 6px;
+  height: 84px;
+}
+.strip .thumb {
+  flex: 1;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 4px;
+}
+.strip img {
+  max-width: 100%;
+  max-height: 74px;
+  object-fit: contain;
+}
+.more {
+  margin-top: 24px;
+}
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 28px 0 8px;
+  align-items: center;
+}
+.filters input[type="search"] {
+  flex: 1 1 240px;
+}
+.count {
+  color: var(--muted);
+  font: 500 0.75rem var(--mono);
+}
+.showcase {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}

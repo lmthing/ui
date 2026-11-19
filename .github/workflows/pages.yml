@@ -1,0 +1,55 @@
+# Builds the landing site (apps/site) from the repo and deploys it to GitHub Pages on every push to main.
+# Needs: Settings > Pages > Source = "GitHub Actions". No secrets.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: pnpm/action-setup@v4.1.0
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium for the gallery screenshots
+        run: node packages/ui/node_modules/playwright-core/cli.js install --with-deps chromium
+      - name: Point the screenshot tool at that Chromium
+        run: echo "CHROME=$(cd packages/ui && node -e "import('playwright-core').then(p => console.log(p.chromium.executablePath()))")" >> "$GITHUB_ENV"
+      - name: Restore screenshots (only changed components are re-shot)
+        uses: actions/cache@v4.2.3
+        with:
+          path: apps/site/.cache
+          key: site-shots-${{ github.run_id }}
+          restore-keys: site-shots-
+      - run: pnpm site
+      - uses: actions/configure-pages@v5.0.0
+      - uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: apps/site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4.0.5

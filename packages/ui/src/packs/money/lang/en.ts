@@ -9,6 +9,15 @@ export const en = {
   accountSuffix: (last4: string) => ` · ${last4}`,
   accountLabel: (name: string, kind: string, balance: string, last4?: string) =>
     `${name}, ${kind}${last4 ? ` ending in ${last4}` : ""}, ${balance}`,
+  priceChart: {
+    series: "Price history",
+    start: "Start",
+    latest: "Latest",
+    ranges: "Price range",
+    options: { day: "1D", week: "1W", month: "1M", year: "1Y", all: "All" },
+    change: (amount: string) => `${amount} this period`,
+    compactChange: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
+  },
   transactions: {
     today: "Today",
     yesterday: "Yesterday",
