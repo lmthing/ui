@@ -14,6 +14,7 @@ export const meta = createMeta(
     ],
     scale: [
       "This is a daily mood check-in for the person, not a rating of objects. Scale uses mood style, the supplied current value, readonly false and meta null. Bars must copy only the supplied prior-day ratings and their three-letter labels (Mon, Tue, Wed and so on). Do not write full day names or include Today in Bars. The Button saves today's rating and continues to checkin_saved. Keep Header action null.",
+      "Make the sequence clear: Header says to rate today's mood and save it; Scale asks how the person feels today; Bars is titled as recent mood ratings and labels the same rating unit; the primary Button says Save mood. Keep prior ratings as context, not a second task.",
     ],
     timer: [
       "The Timer measures the current supplied session, using seconds. A short Note explains Start, Stop and saving the finished session. Bars show exactly the supplied completed sessions, using each record's minutes and three-letter day label. Do not pad the chart with missing days or zeroes; Today belongs only in the Timer. The Header may link to completed-session history; leave its action null if there is no useful history destination. The Button saves the finished session; it does not duplicate Start or Stop.",

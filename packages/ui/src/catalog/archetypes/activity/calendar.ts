@@ -8,7 +8,10 @@ export const meta = createMeta(
   "Things by date",
   { week: "Header Calendar:week Timeline", month: "Header Calendar:month Timeline" },
   {
-    week: timelineHint,
+    week: [
+      ...timelineHint,
+      "Give the week a recognizable date in the Header and say what is scheduled. Arrange the supplied events in date and time order. Keep each item's supplied purpose or detail beside its date and time so the agenda says what each event is for.",
+    ],
     month: [
       ...timelineHint,
       "Make a focused appointments view: Header title names the supplied month and appointments, not Things; its sub explicitly names the selected date. Calendar marks all supplied appointment dates. The Timeline below it contains only that selected date's appointments, using their actual title, time, date and detail; it must not mix appointments from other dates into that selected-day detail.",

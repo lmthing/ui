@@ -30,13 +30,19 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
   expect(prompt).toContain("one hero emphasis and one cover collection per screen");
 });
 
-it("snapshots the layout guidance that keeps dashboard rows, shelves and timer history useful", async () => {
-  const { browse, dashboard, tracker } = archetypes;
+it("snapshots the layout guidance for grounded content and clear actions", async () => {
+  const { browse, calendar, dashboard, detail, journal, onboarding, tracker } = archetypes;
   const prompts = [
     composePrompt(dashboard.meta, "rings", cast, components),
     composePrompt(dashboard.meta, "charts", cast, components),
     composePrompt(browse.meta, "shelves", cast, components),
     composePrompt(tracker.meta, "timer", cast, components),
+    composePrompt(detail.meta, "facts", cast, components),
+    composePrompt(calendar.meta, "week", cast, components),
+    composePrompt(tracker.meta, "scale", cast, components),
+    composePrompt(journal.meta, "photos", cast, components),
+    composePrompt(onboarding.meta, "single", cast, components),
+    composePrompt(onboarding.meta, "steps", cast, components),
   ];
   const guidance = prompts
     .map((prompt) =>

@@ -13,6 +13,9 @@ export const meta = createMeta(
       "A Card can have either an icon or a photo, never both. When using a photo, icon must be null; when using an icon, photo must be null. Use short entry summaries and a single clear Button for a new entry; do not add an unrelated confirmation.",
       "These are dated journal entries, not a catalog of objects. Show each supplied entry's title, date and actual summary in a Card, newest first. Photo and unused badge are null. Header action is null; the only new-entry action is the final Button navigating to new_entry.",
     ],
+    photos: [
+      "Make this a photo journal, not a catalog of interchangeable images. Use the supplied photos and name each record in its Gallery caption. If the same photo reference is shared, use a short supplied detail beside the name to distinguish the entries; keep each caption within 24 characters. Tapping a photo opens that record. The final Button writes a photo journal entry; it is the only creation action.",
+    ],
   },
 ) satisfies ArchetypeMeta;
 export const defaults = meta.defaults;
