@@ -7,6 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -19,13 +20,18 @@ export const meta = {
   group: "input",
   purpose: "Filter things or pick one value from a few short options.",
   pick: "Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).",
+  writeHints: [
+    'A request to hide or turn off existing icons means "lead":"none". Keep the icons supplied by the caller in the item icon fields; lead hides them. Otherwise output lead:null.',
+  ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "Filter flags or a selected value stored in the on-device database.",
-  items: { key: "items", parts: ["root", "label"] },
+  items: { key: "items", parts: ["root", "label", "icon"] },
   select: { prop: "on", value: "index", mode: "flags" },
   parts: ["root"],
+  variants: { lead: ["icon", "none"] },
+  variantParts: { "lead.none": { hides: ["icon"] } },
   states: ["filled"],
   actions: {
     items: { root: ["toggle", "select"] },
@@ -35,6 +41,7 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["filter", "choose"]).default("filter"),
     items: z
       .array(
@@ -76,6 +83,13 @@ export const examples = [
     style: "choose",
     items: [{ label: "30 min", on: true, icon: "clock" }, { label: "45 min" }, { label: "60 min" }],
   },
+  {
+    lead: "none",
+    items: [
+      { label: "Park", icon: "dog" },
+      { label: "River", icon: "drop" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Chips");
@@ -83,10 +97,16 @@ export const probes = [
   choose("Show plants in only the rooms I pick"),
   choose("Switch between the upcoming walks view and the completed walks view", "Segmented"),
   write("Let me choose a walk length: 30 min selected, 45 min or 60 min"),
+  {
+    ...write(
+      "Keep the two existing filters, Park with dog and River with drop. Give me the text-only version: hide both icons without removing the icon references.",
+    ),
+    variant: { axis: "lead", value: "none" },
+  },
   read("Show only kitchen plants", { address: "c1/r3", action: "toggle" }),
 ] satisfies Probe[];
 
-export function Chips({ style, items }: Props<typeof props, typeof meta>) {
+export function Chips({ style, items, lead }: Props<typeof props, typeof meta>) {
   return (
     <KitTrack look="pills">
       {items.map((item) => (
@@ -95,7 +115,7 @@ export function Chips({ style, items }: Props<typeof props, typeof meta>) {
           item={item.id}
           label={item.label}
           on={item.on}
-          icon={item.icon}
+          icon={lead === "icon" ? item.icon : undefined}
           look="pill"
           role={style === "filter" ? "checkbox" : "radio"}
         />
