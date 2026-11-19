@@ -3,6 +3,7 @@ export { rewardLabels } from "./Rewards";
 export { careLabels } from "./CareSchedule";
 export { turnLabels } from "./Turns";
 export {
+  agendaAttendees,
   agendaDay,
   agendaEntries,
   agendaInitial,

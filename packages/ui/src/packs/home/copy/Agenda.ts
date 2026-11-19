@@ -27,6 +27,10 @@ export function agendaPeople(who: readonly string[]): string {
   return who.some(agendaEveryone) ? agendaLabels.everyone : who.join(", ");
 }
 
+export function agendaAttendees(who: readonly string[]): string {
+  return who.some(agendaEveryone) ? agendaLabels.everyone : who.map(agendaInitial).join(", ");
+}
+
 type EventSeed = {
   time?: string | undefined;
   title: string;
@@ -60,7 +64,7 @@ function peopleOverlap(a: string[], b: string[]) {
 
 export function agendaReading(event: Omit<EventLine, "date">, id = event.id): string {
   const people = agendaPeople(event.who);
-  const initials = people === agendaLabels.everyone ? "" : ` (${event.who.map(agendaInitial).join(", ")})`;
+  const initials = people === agendaLabels.everyone ? "" : ` (${agendaAttendees(event.who)})`;
   const conflict = event.conflict ? ` · ${agendaLabels.conflict}` : "";
   return `${id ?? ""} ${event.time ?? agendaLabels.allDay} ${event.title} · ${people}${initials}${conflict}`.trim();
 }

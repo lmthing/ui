@@ -19,19 +19,17 @@ import {
   KitCard,
   KitContent,
   KitEmpty,
-  KitPhoto,
+  KitGrid,
+  KitIcon,
   KitRow,
   KitText,
-  KitTime,
   KitTrack,
-  PartContext,
   useComponentState,
-  usePartContext,
 } from "../../../kit";
 import {
   agendaDay,
+  agendaAttendees,
   agendaEntries,
-  agendaInitial,
   agendaLabels,
   agendaPeople,
   agendaReading,
@@ -39,7 +37,6 @@ import {
 } from "../copy";
 
 // Core first: Timeline/hours cannot group several days and identify all family attendees.
-const attendeeParts = ["who_1", "who_2", "who_3", "who_4"] as const;
 export const meta = {
   id: "Agenda",
   status: "ready",
@@ -54,7 +51,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Events stay on the device; sharing a family calendar needs people and syncing needs a service.",
-  items: { key: "entries", parts: ["root", "date", "time", "title", "who", ...attendeeParts, "conflict"] },
+  items: { key: "entries", parts: ["root", "date", "time", "title", "who", "conflict"] },
   parts: ["root", "empty", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
@@ -111,7 +108,7 @@ export const examples = [
         date: "2026-11-20",
         events: [
           { time: "16:00", title: "Clover's park walk", who: ["Alex"] },
-          { time: "16:00", title: "Meet the new walker", who: ["Everyone"] },
+          { time: "16:00", title: "Meet the walker", who: ["Everyone"] },
           { time: "17:30", title: "Collect dog food", who: ["Sam", "Alex"] },
         ],
       },
@@ -129,70 +126,49 @@ export const probes = [
   read("Add a family event", { address: "a1/add", action: "press" }),
   read("Open the garden centre event", { address: "a1/r1", action: "press" }),
 ] satisfies Probe[];
-function AgendaEvent({ event }: { event: AgendaProps["entries"][number] }) {
-  const people = agendaPeople(event.who);
+function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: boolean; laterDay: boolean }) {
   return (
-    <KitRow
-      item={event.id}
-      role="button"
-      label={agendaReading(event, "")}
-      leading={<KitTime value={event.time ?? agendaLabels.allDay} />}
-      inline
-    >
-      <KitContent lineRole="body">
-        <KitText part="title">{event.title}</KitText>
-        {event.conflict && (
-          <KitText part="conflict" role="label" tone="warn">
-            {agendaLabels.conflict}
+    <KitRow item={event.id} role="button" label={agendaReading(event, "")} inline>
+      {heading && (
+        <KitContent group={laterDay ? "response" : "content"}>
+          <KitText role="heading" part="date">
+            {agendaDay(event.date)}
           </KitText>
-        )}
-        {people === agendaLabels.everyone ? (
-          <KitText part="who" role="label" tone="muted">
-            {people}
+        </KitContent>
+      )}
+      <KitGrid columns={2} fitLast>
+        <KitContent>
+          <KitText part="title">{event.title}</KitText>
+          <KitText part="time" role="label" tone="muted" tabular>
+            {event.time ?? agendaLabels.allDay}
           </KitText>
-        ) : (
-          <KitTrack part="who" label={people}>
-            {event.who.map((name, index) => {
-              const initials = agendaInitial(name);
-              const ring = initials < "N" ? "accent" : "muted";
-              return (
-                <KitPhoto
-                  key={attendeeParts[index]}
-                  part={attendeeParts[index]!}
-                  label={name}
-                  {...{ initials, ring }}
-                />
-              );
-            })}
-          </KitTrack>
-        )}
-      </KitContent>
+          {event.conflict && (
+            <KitText part="conflict" role="label" tone="warn">
+              {agendaLabels.conflict}
+            </KitText>
+          )}
+        </KitContent>
+        <KitTrack part="who" label={agendaPeople(event.who)}>
+          <KitIcon name="user" scale="sm" decorative />
+          <KitText part={null} role="label" tone="muted" lines={1}>
+            {agendaAttendees(event.who)}
+          </KitText>
+        </KitTrack>
+      </KitGrid>
     </KitRow>
   );
 }
 
 export function Agenda({ entries, goto }: AgendaProps) {
   const state = useComponentState();
-  const context = usePartContext();
   if (state === "empty")
     return <KitCard part="root" children={<KitEmpty part="empty" icon="calendar" decorativeIcon />} />;
   return (
     <KitCard part="root" padded>
-      {entries.map((event, index) => (
-        <KitContent
-          key={event.id}
-          group={index > 0 && entries[index - 1]?.date !== event.date ? "response" : "content"}
-        >
-          {entries[index - 1]?.date !== event.date && (
-            <PartContext.Provider value={{ ...context, item: event.id }}>
-              <KitText role="heading" part="date">
-                {agendaDay(event.date)}
-              </KitText>
-            </PartContext.Provider>
-          )}
-          <AgendaEvent event={event} />
-        </KitContent>
-      ))}
+      {entries.map((event, index) => {
+        const heading = entries[index - 1]?.date !== event.date;
+        return <AgendaEvent key={event.id} event={event} heading={heading} laterDay={index > 0} />;
+      })}
       <KitAction label={agendaLabels.add} part="add" goto={goto} kind="secondary" full />
     </KitCard>
   );

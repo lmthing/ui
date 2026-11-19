@@ -169,7 +169,8 @@ describe("Agenda states and rendered parts", () => {
     expect(html).not.toContain('data-testid="home/c1/r2/date"');
     expect(elementAt(html, "home/c1/r3/date")).toBeDefined();
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('role="button"');
-    expect(elementAt(html, "home/c1/r1/who_2").attributes).toContain('aria-label="Mia"');
+    expect(elementAt(html, "home/c1/r1/root").attributes).toContain("Sam, Mia (S, M)");
+    expect(elementAt(html, "home/c1/r1/who")).toBeDefined();
     expect(elementAt(html, "home/c1/r2/time")).toBeDefined();
     expect(html).toContain("All day");
     const conflict = renderInstance("Agenda", examples[1], "filled", theme);
@@ -178,7 +179,7 @@ describe("Agenda states and rendered parts", () => {
     expect(elementAt(conflict, "home/c1/r2/who")).toBeDefined();
     expect(conflict).not.toContain('data-testid="home/c1/r3/conflict"');
     const max = renderInstance("Agenda", withEvent({ ...event, who: ["A", "B", "C", "D"] }), "filled", theme);
-    expect(elementAt(max, "home/c1/r1/who_4").attributes).toContain('aria-label="D"');
+    expect(max).toContain("A, B, C, D");
   });
 
   it("keeps the empty root mounted and hides all event and add actions", () => {
