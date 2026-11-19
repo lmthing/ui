@@ -35,6 +35,7 @@ describe("BabyLog copy", () => {
       "0:00",
       "r2 Feed right · Stop · Last 07:30",
       "Today’s log",
+      "History",
       babyEmptyLog,
     ]);
   });

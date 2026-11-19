@@ -12,17 +12,19 @@ import {
   type Props,
 } from "../../../catalog";
 import {
+  KitAction,
   KitCard,
   KitContent,
   KitEmpty,
   KitGrid,
   KitRow,
   KitText,
-  KitTile,
   KitTime,
+  PartScope,
   useComponentState,
+  usePartContext,
 } from "../../../kit";
-import { babyCopy, babyLabels, babyRead } from "../copy";
+import { babyCopy as copy, babyLabels, babyRead } from "../copy";
 
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 export const meta = {
@@ -39,8 +41,8 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Baby entries and running timers stay on the device; two parents sharing need a shared app.",
-  items: { key: "entries", parts: ["root", "kind", "time", "minutes", "amount", "icon", "label"] },
-  parts: ["root", "running", "elapsed", "heading", "empty"],
+  items: { key: "entries", parts: ["root", "kind", "time", "minutes", "amount", "label", "root_label"] },
+  parts: ["root", "running", "elapsed", "heading", "history", "empty"],
   states: ["filled", "empty"],
   actions: {
     items: { root: ["start", "stop", "press"] },
@@ -127,32 +129,37 @@ function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "
   return (
     <KitRow
       item={row.id}
-      label={babyCopy.entry(row)}
+      label={copy.entry(row)}
       role="button"
       lineRole="label"
-      inline
       leading={<KitTime value={row.time} />}
     >
       <KitText role="label" part="kind" children={babyLabels[row.kind]} />
-      {row.minutes !== undefined && <BabyValue part="minutes" text={babyCopy.duration(row.minutes)} />}
-      {row.amount && <BabyValue part="amount" text={row.amount} />}
+      {row.minutes !== undefined && (
+        <KitText {...value} part="minutes" children={copy.duration(row.minutes)} />
+      )}
+      {row.amount && <KitText {...value} part="amount" children={row.amount} />}
     </KitRow>
   );
 }
-function BabyValue({ text, part }: { text: string; part: string }) {
-  const elapsed = part === "elapsed";
-  const tone = elapsed ? "accent" : "text";
-  const align = elapsed ? "center" : "start";
+const value = { role: "number", numberScale: "compact", tabular: true } as const;
+const muted = { role: "label", tone: "muted" } as const;
+function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKind: "tile" }>) {
+  const context = usePartContext();
   return (
-    <KitText role="number" numberScale="compact" tabular {...{ part, tone, align }}>
-      {text}
-    </KitText>
-  );
-}
-function BabyNote({ text, part = null, active }: { text: string; part?: string | null; active?: boolean }) {
-  const align = !part || part === "running" ? "center" : "start";
-  return (
-    <KitText role="label" tone={active ? "accent" : "muted"} align={align} part={part} children={text} />
+    <PartScope {...context} item={row.id}>
+      <KitGrid fitLast>
+        <KitContent>
+          <KitText role="label" part="label" children={babyLabels[row.kind]} />
+          <KitText {...muted} part={null} children={copy.last(row.last)} />
+        </KitContent>
+        <KitAction
+          label={copy.action(row.active)}
+          kind={row.active ? "primary" : "quiet"}
+          action={row.active ? "stop" : "start"}
+        />
+      </KitGrid>
+    </PartScope>
   );
 }
 export function BabyLog({ entries, running }: BabyLogProps) {
@@ -166,34 +173,27 @@ export function BabyLog({ entries, running }: BabyLogProps) {
   const log = entries
     .filter((row) => row.entryKind === "log")
     .map((row) => <BabyLogRow key={row.id} {...row} />);
+  const tiles = entries.filter((row) => row.entryKind === "tile");
+  const empty = <KitText {...muted} part="empty" children={copy.empty} />;
   return (
     <KitCard part="root" padded>
-      <KitText role="heading" part="heading" children={babyCopy.title} />
-      <KitGrid columns={2}>
-        {entries
-          .filter((row) => row.entryKind === "tile")
-          .map((row) => (
-            <KitTile
-              key={row.id}
-              item={row.id}
-              icon={babyCopy.icons[row.kind]}
-              label={babyLabels[row.kind]}
-              on={row.active}
-              action={row.active ? "stop" : "start"}
-              detail={
-                <>
-                  <BabyNote active={row.active} text={babyCopy.action(row.active)} />
-                  <BabyNote text={babyCopy.last(row.last)} />
-                </>
-              }
-            />
-          ))}
-        <KitContent group="response">
-          <BabyNote part="running" text={babyCopy.running(running)} />
-          {running !== "none" && <BabyValue part="elapsed" text={babyCopy.clock} />}
-        </KitContent>
-      </KitGrid>
-      {log.length ? log : <BabyNote part="empty" text={babyCopy.empty} />}
+      <KitContent>
+        <KitGrid fitLast>
+          <KitText role="heading" part="heading" children={copy.title} />
+          <KitContent>
+            <KitText {...muted} align="end" part="running" children={copy.running(running)} />
+            {running !== "none" && (
+              <KitText {...value} align="end" tone="accent" part="elapsed" children={copy.clock} />
+            )}
+          </KitContent>
+        </KitGrid>
+        {tiles.map((row) => (
+          <BabyQuickAction key={row.id} {...row} />
+        ))}
+        <KitCard part="history" look="outlined" label={copy.history}>
+          <KitContent>{log.length ? log : <KitRow label={copy.empty}>{empty}</KitRow>}</KitContent>
+        </KitCard>
+      </KitContent>
     </KitCard>
   );
 }

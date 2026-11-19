@@ -8,7 +8,6 @@ export {
   babyCopy,
   babyEmptyLog,
   babyEntryLine,
-  babyIcons,
   babyLabels,
   babyLastLine,
   babyLogTitle,

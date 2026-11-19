@@ -1,4 +1,4 @@
-import { clockLine, durationLine, emptyLine, timerLabels, type IconName } from "../../../catalog";
+import { clockLine, durationLine, emptyLine, timerLabels } from "../../../catalog";
 
 export const babyLabels = {
   feed_left: "Feed left",
@@ -10,14 +10,6 @@ export const babyLabels = {
 } as const;
 
 type Kind = Exclude<keyof typeof babyLabels, "none">;
-export const babyIcons = {
-  feed_left: "heart",
-  feed_right: "heart",
-  bottle: "drop",
-  nappy: "baby",
-  sleep: "moon",
-} as const satisfies Record<Kind, IconName>;
-
 export const babyLogTitle = "Today’s log";
 export const babyEmptyLog = emptyLine("entry");
 export const babyRunningLine = (kind: Kind | "none") =>
@@ -42,7 +34,7 @@ export const babyCopy = {
   duration: durationLine,
   empty: babyEmptyLog,
   entry: babyEntryLine,
-  icons: babyIcons,
+  history: "History",
   last: babyLastLine,
   title: babyLogTitle,
   running: babyRunningLine,
@@ -72,6 +64,7 @@ export function babyRead({ running, entries }: { running: Kind | "none"; entries
       return entry.id ? `${entry.id} ${label}` : label;
     }),
     babyLogTitle,
+    babyCopy.history,
     ...(entries.some(({ entryKind }) => entryKind === "log") ? [] : [babyEmptyLog]),
   ];
 }

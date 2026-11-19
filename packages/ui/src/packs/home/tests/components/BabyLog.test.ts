@@ -93,14 +93,17 @@ describe("BabyLog fallback and contract", () => {
 describe("BabyLog states and parts", () => {
   it("draws the running clock, five addressed tiles, and only present row parts", () => {
     const html = render(sample);
-    for (const part of ["root", "running", "elapsed", "heading"]) elementAt(html, `home/b1/${part}`);
+    for (const part of ["root", "running", "elapsed", "heading", "history"])
+      elementAt(html, `home/b1/${part}`);
     for (let i = 1; i <= 5; i++) {
       const tile = `home/b1/r${i}`;
       expect(elementAt(html, `${tile}/root`).attributes).toContain('role="button"');
       elementAt(html, `${tile}/label`);
-      elementAt(html, `${tile}/icon`);
+      elementAt(html, `${tile}/root_label`);
+      expect(elementAt(html, `${tile}/root`).attributes).toContain(
+        `aria-label="${i === 5 ? "Stop" : "Start"}"`,
+      );
     }
-    expect(elementAt(html, "home/b1/r5/root").attributes).toContain('aria-pressed="true"');
     for (const part of ["root", "kind", "time", "minutes"]) elementAt(html, `home/b1/r6/${part}`);
     expect(html).not.toContain("home/b1/r6/amount");
     expect(html).not.toContain("home/b1/r7/minutes");

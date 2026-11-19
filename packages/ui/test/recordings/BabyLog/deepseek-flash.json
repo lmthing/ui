@@ -141,6 +141,15 @@
       "{\"c\":\"BabyLog\",\"log\":[{\"kind\":\"feed_left\",\"time\":\"07:30\",\"minutes\":12,\"amount\":null},{\"kind\":\"nappy\",\"time\":\"08:00\",\"minutes\":null,\"amount\":null},{\"kind\":\"bottle\",\"time\":\"09:00\",\"minutes\":null,\"amount\":\"90 ml\"}],\"running\":\"sleep\"}"
     ]
   },
+  "99d874ed5e310ffd": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 BabyLog Sleep running — 0:00 — r1 Feed left · Start · Last 07:30 — r2 Feed right · Start · — — r3 Bottle · Start · Last 09:00 — r4 Nappy · Start · Last 08:00 — r5 Sleep · Stop · — — r6 Feed left · 07:30 · 12 min — r7 Nappy · 08:00 — r8 Bottle · 09:00 · 90 ml — Today’s log — History\n  r1 [b1/r1 start]\n  r2 [b1/r2 start]\n  r3 [b1/r3 start]\n  r4 [b1/r4 start]\n  r5 [b1/r5 stop]\n  r6 [b1/r6 press]\n  r7 [b1/r7 press]\n  r8 [b1/r8 press]\n\nTask: Open the feed recorded at 07:30\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"b1/r6\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"b1/r6\", \"action\": \"press\"}",
+      "{\"address\": \"b1/r6\", \"action\": \"press\"}",
+      "{\"address\": \"b1/r6\", \"action\": \"press\"}"
+    ]
+  },
   "b22c42d2f92bee98": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 BabyLog Sleep running — 0:00 — r1 Feed left · Start · Last 07:30 — r2 Feed right · Start · — — r3 Bottle · Start · Last 09:00 — r4 Nappy · Start · Last 08:00 — r5 Sleep · Stop · — — r6 Feed left · 07:30 · 12 min — r7 Nappy · 08:00 — r8 Bottle · 09:00 · 90 ml — Today’s log\n  r1 [b1/r1 start]\n  r2 [b1/r2 start]\n  r3 [b1/r3 start]\n  r4 [b1/r4 start]\n  r5 [b1/r5 stop]\n  r6 [b1/r6 press]\n  r7 [b1/r7 press]\n  r8 [b1/r8 press]\n\nTask: Open the feed recorded at 07:30\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"b1/r6\", \"action\": \"press\"}",
@@ -152,6 +161,24 @@
   },
   "cc7e159eacb39b48": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 BabyLog Sleep running — 0:00 — r1 Feed left · Start · Last 07:30 — r2 Feed right · Start · — — r3 Bottle · Start · Last 09:00 — r4 Nappy · Start · Last 08:00 — r5 Sleep · Stop · — — r6 Feed left · 07:30 · 12 min — r7 Nappy · 08:00 — r8 Bottle · 09:00 · 90 ml — Today’s log\n  r1 [b1/r1 start]\n  r2 [b1/r2 start]\n  r3 [b1/r3 start]\n  r4 [b1/r4 start]\n  r5 [b1/r5 stop]\n  r6 [b1/r6 press]\n  r7 [b1/r7 press]\n  r8 [b1/r8 press]\n\nTask: Start a left-side feed\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"b1/r1\", \"action\": \"start\"}",
+    "replies": [
+      "{\"address\": \"b1/r1\", \"action\": \"start\"}",
+      "{\"address\": \"b1/r1\", \"action\": \"start\"}",
+      "{\"address\": \"b1/r1\", \"action\": \"start\"}"
+    ]
+  },
+  "d56c81754e5be739": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 BabyLog Sleep running — 0:00 — r1 Feed left · Start · Last 07:30 — r2 Feed right · Start · — — r3 Bottle · Start · Last 09:00 — r4 Nappy · Start · Last 08:00 — r5 Sleep · Stop · — — r6 Feed left · 07:30 · 12 min — r7 Nappy · 08:00 — r8 Bottle · 09:00 · 90 ml — Today’s log — History\n  r1 [b1/r1 start]\n  r2 [b1/r2 start]\n  r3 [b1/r3 start]\n  r4 [b1/r4 start]\n  r5 [b1/r5 stop]\n  r6 [b1/r6 press]\n  r7 [b1/r7 press]\n  r8 [b1/r8 press]\n\nTask: Stop the baby's running sleep timer\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"b1/r5\", \"action\": \"stop\"}",
+    "replies": [
+      "{\"address\": \"b1/r5\", \"action\": \"stop\"}",
+      "{\"address\": \"b1/r5\", \"action\": \"stop\"}",
+      "{\"address\": \"b1/r5\", \"action\": \"stop\"}"
+    ]
+  },
+  "da5060287a6a06e9": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nb1 BabyLog Sleep running — 0:00 — r1 Feed left · Start · Last 07:30 — r2 Feed right · Start · — — r3 Bottle · Start · Last 09:00 — r4 Nappy · Start · Last 08:00 — r5 Sleep · Stop · — — r6 Feed left · 07:30 · 12 min — r7 Nappy · 08:00 — r8 Bottle · 09:00 · 90 ml — Today’s log — History\n  r1 [b1/r1 start]\n  r2 [b1/r2 start]\n  r3 [b1/r3 start]\n  r4 [b1/r4 start]\n  r5 [b1/r5 stop]\n  r6 [b1/r6 press]\n  r7 [b1/r7 press]\n  r8 [b1/r8 press]\n\nTask: Start a left-side feed\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"b1/r1\", \"action\": \"start\"}",
     "replies": [
       "{\"address\": \"b1/r1\", \"action\": \"start\"}",
