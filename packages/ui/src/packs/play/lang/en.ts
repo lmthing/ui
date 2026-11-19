@@ -9,7 +9,8 @@ export const en = {
     reset: "Reset scores",
     share: "Share scores",
   },
-  scoreProgress: (done: string, count: string) => `${done} of ${count} rounds complete`,
+  scoreProgress: (done: string, count: string, plural: Intl.LDMLPluralRule) =>
+    `${done} of ${count} ${plural === "one" ? "round" : "rounds"} complete`,
   scorePlace: (rank: string) => `Rank ${rank}`,
   scoreWinner: "Winner",
   scoreTie: "Tied winner",

@@ -8,8 +8,26 @@
       "Counter"
     ]
   },
+  "33b64cbbff8aca0c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round 1 — Round 2 — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — r1 Anna, Round 1: 4 — r2 Ben, Round 1: 2 — r3 Sam, Round 1: 4 — r4 Anna, Round 2: 3 — r5 Ben, Round 2: -1 — r6 Sam, Round 2: 3 [s1 select = \"1\"; choices [\"1\",\"2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Reset the round scores\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}"
+    ]
+  },
   "33c0a403fa455756": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round one — Round two — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — r1 Anna, Round one: 4 — r2 Ben, Round one: 2 — r3 Sam, Round one: 4 — r4 Anna, Round two: 3 — r5 Ben, Round two: -1 — r6 Sam, Round two: 3 [s1 select = \"1\"; choices [\"1\",\"2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Change Anna's score in round one\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+    "replies": [
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}"
+    ]
+  },
+  "4894064751e21c0e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round 1 — Round 2 — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — r1 Anna, Round 1: 4 — r2 Ben, Round 1: 2 — r3 Sam, Round 1: 4 — r4 Anna, Round 2: 3 — r5 Ben, Round 2: -1 — r6 Sam, Round 2: 3 [s1 select = \"1\"; choices [\"1\",\"2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Change Anna's score in round one\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
     "replies": [
       "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
@@ -24,6 +42,162 @@
       "ScoreSheet",
       "ScoreSheet",
       "ScoreSheet"
+    ]
+  },
+  "646fcbaf94d61e9f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nScoreSheet: Record players' round scores and compute totals, ranks and tied winners.\nprops: { players: [2..6 { name: text≤24 }], rounds: [1..12 { label: text≤16, points: [2..6 any] }], wins?: high|low=\"high\", share?: boolean=false, style?: grid|round=\"grid\", selectedRound?: 1|2|3|4|5|6|7|8|9|10|11|12=\"1\" }\nRule: Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.\nexample: {\"c\":\"ScoreSheet\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"},{\"name\":\"Sam\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,2,4]},{\"label\":\"Round 2\",\"points\":[3,-1,3]}],\"style\":\"grid\",\"share\":true}\n\nBrief: Anna and Ben play two rounds: First has 4 and -2 points, Second has not been played. Higher total wins; no sharing.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ScoreSheet",
+              "enum": [
+                "ScoreSheet"
+              ]
+            },
+            "players": {
+              "minItems": 2,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "rounds": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "points": {
+                    "minItems": 2,
+                    "maxItems": 6,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "minimum": -999,
+                          "maximum": 999
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "points"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "wins": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "high",
+                    "low"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "share": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "round"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "selectedRound": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "10",
+                    "11",
+                    "12"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "players",
+            "rounds",
+            "wins",
+            "share",
+            "style",
+            "selectedRound"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ScoreSheet\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"style\":\"grid\",\"selectedRound\":null}",
+    "replies": [
+      "{\"c\":\"ScoreSheet\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"style\":\"grid\",\"selectedRound\":null}",
+      "{\"c\":\"ScoreSheet\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"style\":\"grid\",\"selectedRound\":null}",
+      "{\"c\":\"ScoreSheet\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"style\":\"grid\",\"selectedRound\":null}"
     ]
   },
   "79b92fb27071babc": {

@@ -158,7 +158,7 @@ describe("ScoreSheet read and act", () => {
   it("updates the snapshot, reading and totals when a later score is edited", () => {
     const { run, runtime, scores } = start();
     expect(run("r5/score", "set", 999)).toMatchObject({ ok: true });
-    expect(scores()).toEqual([grid.rounds[0], { label: "Round two", points: [3, 999, 3] }]);
+    expect(scores()).toEqual([grid.rounds[0], { label: "Round 2", points: [3, 999, 3] }]);
     expect(runtime.read()).toContain("Ben · Total: 1001 · Winner");
     expect(runtime.read()).toContain("[s1/r5/score set = 999]");
     expect(runtime.read()).toContain("[s1/share press !needs-people]");
@@ -171,7 +171,7 @@ describe("ScoreSheet read and act", () => {
     expect(runtime.read()).not.toContain("[s1/r1/score set");
     expect(runtime.read()).toContain("[s1/r4/score set");
     expect(run("r4/score", "set", -999)).toMatchObject({ ok: true });
-    expect(runtime.read()).toContain("r4 Anna, Round two: -999");
+    expect(runtime.read()).toContain("r4 Anna, Round 2: -999");
   });
   it("offers and dispatches share only when enabled", () => {
     const off = start({ ...grid, share: false });

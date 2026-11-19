@@ -32,7 +32,7 @@ describe("ScoreSheet copy", () => {
   it("does not mark winners with unplayed cells, and counts entered zeroes", () => {
     const rounds = [{ label: "First", points: [0, null, -2] }];
     const result = scoreCopy({ ...input, rounds });
-    expect(result.progress).toBe("0 of 1 rounds complete");
+    expect(result.progress).toBe("0 of 1 round complete");
     expect(result.players).toMatchObject([
       { total: "0", winner: false },
       { total: "—", winner: false },
@@ -40,7 +40,7 @@ describe("ScoreSheet copy", () => {
     ]);
   });
   it("localizes visible numbers but retains the wire addresses", () => {
-    const read = scoreReading({ ...input, selectedRound: "2", style: "round" }, "ar").join("\n");
+    const read = scoreReading({ ...input, selectedRound: "2", style: "round" }, "ar-EG").join("\n");
     expect(read).toContain("٢ of ٢ rounds complete");
     expect(read).toContain("r4 A, Second: ");
     expect(read).not.toContain("r1 A, First");

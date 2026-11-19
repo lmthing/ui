@@ -30,8 +30,7 @@ export const meta = {
   clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",
   items: {
-    key: "cells",
-    parts: ["root", "player", "round", "score"],
+    key: "cells", parts: ["root", "player", "round", "score"],
     set: { score: { prop: "score", min: scoreMin, max: scoreMax, integer: true,
       matrix: { rows: "rounds", values: "points" } } },
   },
@@ -60,12 +59,10 @@ export const props = z
     selectedRound: z.enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]).default("1"),
   })
   .refine(({ selectedRound, rounds }) => Number(selectedRound) <= rounds.length, {
-    path: ["selectedRound"],
-    message: "Select a round on this sheet",
+    path: ["selectedRound"], message: "Select a round on this sheet",
   })
   .refine(({ players, rounds }) => rounds.every((round) => round.points.length === players.length), {
-    path: ["rounds"],
-    message: "Every round needs exactly one point entry per player",
+    path: ["rounds"], message: "Every round needs exactly one point entry per player",
   })
   .overwrite((value) => ({
     ...value,
@@ -93,7 +90,7 @@ export const examples = [
   // Ledge's friends play a high-score game after tending the plants.
   {
     players: [{ name: "Anna" }, { name: "Ben" }, { name: "Sam" }],
-    rounds: [{ label: "Round one", points: [4, 2, 4] }, { label: "Round two", points: [3, -1, 3] }],
+    rounds: [{ label: "Round 1", points: [4, 2, 4] }, { label: "Round 2", points: [3, -1, 3] }],
     style: "grid", share: true,
   },
   // Trot's walkers keep a low-score card-game round.
@@ -104,12 +101,11 @@ export const examples = [
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ScoreSheet");
+// prettier-ignore
 export const probes = [
   choose("Enter each of three players' points in every board-game round and compute their totals"),
   choose("One running score with plus and minus, without any round or player records", "Counter"),
-  write(
-    "Anna and Ben play two rounds: First has 4 and -2 points, Second has not been played. Higher total wins; no sharing.",
-  ),
+  write("Anna and Ben play two rounds: First has 4 and -2 points, Second has not been played. Higher total wins; no sharing."),
   read("Change Anna's score in round one", { address: "s1/r1/score", action: "set" }),
   read("Reset the round scores", { address: "s1/reset", action: "press" }),
 ] satisfies Probe[];
@@ -122,8 +118,7 @@ type Labels = ReturnType<typeof playWordsFor>["scoreLabels"];
 function ScoreTable({ input, selected, loading, readonly }: {
   input: SheetProps; selected: number; loading: boolean; readonly: boolean;
 }) {
-  const { lang, words } = useWords(playWordsFor);
-  const labels = words.scoreLabels;
+  const { lang, words } = useWords(playWordsFor), labels = words.scoreLabels;
   const { players, rounds, cells, style } = input;
   const { players: totals } = scoreCopy(input, lang);
   const visible = [selected, ...rounds.flatMap((_, index) => style === "grid" && index !== selected ? [index] : [])];
@@ -131,15 +126,14 @@ function ScoreTable({ input, selected, loading, readonly }: {
   const columns = visible.map((round) => ({
     id: roundKey(round), label: rounds[round]!.label,
     header: <KitRow item={cellId(round, 0)} inline part="round" label={rounds[round]!.label}>
-      <KitText role="label" part={null} lines={2}>{rounds[round]!.label}</KitText>
+      {line("label", rounds[round]!.label, round === selected ? "accent" : "text")}
     </KitRow>,
   }));
   const rows = totals.map(({ name, total, standing, winner }, player) => ({
     id: cellId(selected, player), label: name,
-    heading: <KitRow inline part="player" label={name} lineRole="label">
-      <KitText role="label" part={null} lines={2}>{name}</KitText>
-      <KitText role="number" part={null} numberScale="compact" tabular>{total}</KitText>
-      {standing && <KitText role="caption" part={null} tone={winner ? "good" : "muted"}>{standing}</KitText>}
+    heading: <KitRow inline part="player" label={name} lineRole="label" trailing={line("number", total)}>
+      {line("label", name)}
+      {standing && line("caption", standing, winner ? "good" : "muted")}
     </KitRow>,
     cells: visible.map((round) => {
       const { label: roundLabel, points } = rounds[round]!;
@@ -148,17 +142,22 @@ function ScoreTable({ input, selected, loading, readonly }: {
       const value = score == null ? "" : String(score);
       return { id: cellId(round, player), content:
         <KitRow item={cellId(round, player)} inline label={label}>
-          {readonly
+          {loading ? <KitSkeleton shape="control" kind="secondary" full />
+            : readonly
             ? <KitText role="number" numberScale="compact" tabular part="score">{score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
         </KitRow> };
     }),
   }));
-  return <KitTable part="matrix" columns={columns} rows={rows} loading={loading}
-    fitColumns={columns.length === 1} activeColumn={roundKey(selected)}
-    corner={<KitRow inline label={labels.player}><KitText role="label" part={null}>{labels.player}</KitText>
-      <KitText role="caption" tone="muted" part={null}>{labels.total}</KitText></KitRow>} />;
+  function line(role: "label" | "caption" | "number", text: string, tone?: "accent" | "text" | "good" | "muted") {
+    return loading ? <KitSkeleton shape="figure" inset="none" content={[[role, text, "start", "compact"]]} /> :
+      <KitText {...{ role }} {...(tone ? { tone } : {})} part={null} numberScale="compact" tabular={role === "number"} lines={1}>{text}</KitText>;
+  }
+  return <KitTable part="matrix" columns={columns} rows={rows}
+    fitColumns={columns.length <= 2 && players.every(({ name }) => name.length <= 12)}
+    corner={<KitRow inline lineRole="label" label={labels.player} trailing={line("label", labels.total, "muted")}>
+      {line("label", labels.player, "muted")}</KitRow>} />;
 }
 
 // prettier-ignore
@@ -167,9 +166,10 @@ function ScoreActions({ share, loading, labels }: {share: boolean; loading: bool
     <KitSkeleton shape="control" kind="quiet" label={labels.reset} />
     {share && <KitSkeleton shape="control" kind="secondary" label={labels.share} full />}
   </KitGrid>;
+  if (!share) return <KitAction kind="quiet" label={labels.reset} part="reset" />;
   return <KitGrid>
     <KitAction kind="quiet" label={labels.reset} part="reset" full />
-    {share && <KitAction kind="secondary" label={labels.share} part="share" full />}
+    <KitAction kind="secondary" label={labels.share} part="share" full />
   </KitGrid>;
 }
 
@@ -182,15 +182,15 @@ export function ScoreSheet(input: SheetProps) {
   if (state === "empty")
     return <KitCard part="root" padded><KitEmpty part="empty" decorativeIcon /></KitCard>;
   const { progress } = scoreCopy(input, lang);
-  return <KitCard part={active ? "sheet" : "root"} padded>
+  return <KitCard part={state === "success" ? "root" : "sheet"} padded>
     <KitContent>
       {loading ? <KitSkeleton shape="figure" inset="none" content={[["heading", labels.title], ["caption", progress]]} /> :
         <><KitText role="heading" part="title">{labels.title}</KitText>
           <KitText role="caption" tone="muted" part="progress">{progress}</KitText></>}
     </KitContent>
-    {active && <KitTrack part="root" role="radiogroup" label={labels.rounds}>
+    {state !== "success" && <KitTrack part="root" {...(active ? { role: "radiogroup" } : {})} label={labels.rounds}>
       {input.rounds.map(({ label }, index) => <KitChip key={roundKey(index)} item={null} role="radio"
-        label={label} value={roundKey(index)} on={index === selected} />)}
+        label={label} value={roundKey(index)} on={index === selected} disabled={loading ? false : undefined} />)}
     </KitTrack>}
     <ScoreTable {...{ input, selected, loading }} readonly={!active && !loading} />
     {state !== "success" && <ScoreActions {...{ loading, labels }} share={input.share} />}

@@ -1,4 +1,4 @@
-import { numberLine } from "../../../catalog";
+import { numberLine, pluralForm } from "../../../catalog";
 import { playWordsFor } from "../lang";
 
 type ScoreInput = {
@@ -22,7 +22,11 @@ export function scoreCopy(input: ScoreInput, lang?: string) {
   const tied = ordered[0] === ordered[1];
   const places = totals.map((total) => ordered.indexOf(total) + 1);
   return {
-    progress: words.scoreProgress(numberLine(completed, lang), numberLine(rounds.length, lang)),
+    progress: words.scoreProgress(
+      numberLine(completed, lang),
+      numberLine(rounds.length, lang),
+      pluralForm(rounds.length, lang),
+    ),
     players: players.map(({ name }, index) => {
       const played = rounds.some(({ points }) => points[index] != null);
       const place = places[index]!;
