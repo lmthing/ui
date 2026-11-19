@@ -106,11 +106,11 @@
   },
   "6b0a4c59809980e7": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 Medication Vitamin D: 08:00 · Due — Taken — Skip — 4 left — Magnesium: 20:00 · Taken — 20 left — Refill: Vitamin D\n  r1 \"Vitamin D\" · \"1 tablet\" [m1/r1/taken check] [m1/r1/skip press]\n  r2 \"Magnesium\" · \"1 capsule\"\n\nTask: Mark the morning vitamin D dose taken\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"m1/r1/taken check\", \"action\": \"check\"}",
+    "reply": "{\"address\": \"m1/r1/taken\", \"action\": \"check\"}",
     "replies": [
-      "{\"address\": \"m1/r1/taken check\", \"action\": \"check\"}",
       "{\"address\": \"m1/r1/taken\", \"action\": \"check\"}",
-      "{\"address\": \"m1/r1/taken\", \"action\": \"check\"}"
+      "{\"address\": \"m1/r1/taken check\", \"action\": \"check\"}",
+      "{\"address\": \"m1/r1/taken check\", \"action\": \"check\"}"
     ]
   },
   "7432cf9f11551d5f": {

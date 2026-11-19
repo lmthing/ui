@@ -161,7 +161,7 @@ export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>
     <KitCard style="inset" part="root">
       {complete && (
         <KitRow label={medicationLabels.success}>
-          <KitText role="body" tone="good">
+          <KitText role="body" tone="good" part={null}>
             {medicationLabels.success}
           </KitText>
         </KitRow>

@@ -155,6 +155,12 @@ describe("Medication state, parts and read/act", () => {
 });
 
 describe("Medication ordered and optional parts", () => {
+  it.each(meta.states)("stamps one component root for every example in %s", (state) => {
+    for (const example of examples) {
+      const html = renderInstance("Medication", example, state, theme);
+      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    }
+  });
   it("orders time groups without changing addresses and omits unknown stock or inactive refill", () => {
     const input = {
       doses: [
