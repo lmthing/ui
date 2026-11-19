@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
   components,
+  packOf,
   readPrompt,
   stampItemIds,
   text,
@@ -178,7 +179,8 @@ it("gives nested declarations ownership over duplicate indexed actions and their
 });
 
 it("keeps core read prompts identical because core components have no nested declaration", () => {
-  for (const [, def] of selectedEntries<Definition>(components)) {
+  for (const [id, def] of selectedEntries<Definition>(components)) {
+    if (id in packOf) continue; // pack components may declare nested items (SymptomLog)
     expect(def.meta.items?.nested).toBeUndefined();
     for (const probe of def.probes) {
       if (probe.kind !== "read") continue;

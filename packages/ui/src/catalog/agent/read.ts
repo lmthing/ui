@@ -7,6 +7,8 @@ import type { StateName } from "../types";
 import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
 import { projectSelection, projectNested } from "./selection";
+import { projectClocks } from "./clocks";
+import type { Meta } from "../meta";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -74,6 +76,14 @@ function withValues(
   });
 }
 
+function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
+  const get = (part: string) => values[`${instance}/${part}`];
+  const reading = projectNested(meta, projectSelection(meta, props, get), get);
+  return values[`${instance}/$runtime`]
+    ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now()))
+    : reading;
+}
+
 /**
  * The default reader: one line per component, items indented, text quoted, affordances in brackets
  * with their part. No pixels, colours or fonts. Format: plan 4.12. Actions on a part whose tier is
@@ -89,26 +99,19 @@ export function readComponent(
 ): string[] {
   const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
   const props = liveProps(def.meta, validated, instance, values);
+  state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   if (state !== "filled") return [head];
   const affordances = withValues(
-    affordancesOf(def.meta, props, instance),
+    affordancesOf(def.meta, props, instance, values),
     values,
     def.meta.tier,
     def.meta.partTiers,
   );
   const key = def.meta.items?.key;
   const own = [
-    ...(def.meta.read?.(
-      projectNested(
-        def.meta,
-        projectSelection(def.meta, validated, (part) => values[`${instance}/${part}`]),
-        (part) => values[`${instance}/${part}`],
-      ),
-      state,
-      lang,
-    ) ?? []),
+    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),
     ...textsOf(
       { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
       props,

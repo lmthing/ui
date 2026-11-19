@@ -14,6 +14,7 @@ export type ActLogEntry = { address: string; action: string; value?: unknown; at
  */
 export function createAgentAccess(options: {
   defs: Record<string, Definition>;
+  lang?: string | undefined;
   store: InteractionStore;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
@@ -22,7 +23,8 @@ export function createAgentAccess(options: {
   const { defs, store, current, onLink } = options;
   const log: ActLogEntry[] = [];
   return {
-    read: () => options.runtime?.read() ?? readScreen(current(), defs, store.snapshot(current().id)),
+    read: () =>
+      options.runtime?.read() ?? readScreen(current(), defs, store.snapshot(current().id), options.lang),
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
       if (options.runtime) {
         const reply = options.runtime.act(steps, { ...opts, agent: true });

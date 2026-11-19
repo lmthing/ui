@@ -29,6 +29,29 @@ export const meta = {
   realPath: "A countdown or stopwatch based on timestamps stored on the phone.",
   parts: ["root", "time", "label", "start", "stop"],
   states: ["filled"],
+  clocks: [
+    {
+      id: "timer",
+      kind: "down",
+      from: "seconds",
+      prop: "seconds",
+      max: 86400,
+      when: { style: "down" },
+      start: { part: "start", action: "start" },
+      stop: { part: "stop", action: "stop" },
+    },
+    {
+      id: "timer",
+      kind: "up",
+      from: "seconds",
+      prop: "seconds",
+      max: 86400,
+      when: { style: "up" },
+      start: { part: "start", action: "start" },
+      stop: { part: "stop", action: "stop" },
+    },
+    { id: "date", kind: "until", from: "until", at: "at", when: { style: "until" } },
+  ],
   // A countdown to a date has nothing to start or stop.
   actions: {
     parts: { start: ["start"], stop: ["stop"] },

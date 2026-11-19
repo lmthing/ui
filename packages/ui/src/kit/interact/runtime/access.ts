@@ -1,4 +1,5 @@
 import {
+  wordsFor,
   affordancesOf,
   liveProps,
   stampItemIds,
@@ -48,7 +49,7 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
       id,
       localValues,
     );
-    return affordancesOf(ctx.defs[entry.c]!.meta, props, id)
+    return affordancesOf(ctx.defs[entry.c]!.meta, props, id, localValues)
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {
@@ -81,7 +82,7 @@ function read(ctx: ControllerContext) {
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
   return [
-    readScreen(visible, ctx.defs, ctx.valuesOf()),
+    readScreen(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang),
     ...visible.components
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
@@ -101,7 +102,7 @@ export function createAccess(ctx: ControllerContext, act: Act) {
         const full = `${ctx.screen.id}/${ctx.relative(address)}`;
         ctx.store.setMany({
           [`${full}/$draft`]: text,
-          [`${full}/$error`]: result.hint ?? "Check this value",
+          [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
         });
       }
       return result;

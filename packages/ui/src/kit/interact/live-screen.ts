@@ -1,23 +1,14 @@
 import {
   projectSelection,
   projectNested,
+  projectClocks,
+  type ClockState,
   type Definition,
   type ScreenLike,
   type Values,
 } from "../../catalog";
-export type TimerState = { running: boolean; from: number; seconds: number };
+export type TimerState = ClockState;
 export const valueKey = (screen: string, id: string, part: string) => `${screen}/${id}/${part}`;
-export function timerSeconds(
-  input: Values,
-  timer: TimerState | undefined,
-  held: unknown,
-  now: number,
-): number {
-  const initial = Number(held ?? input.seconds ?? 0);
-  if (!timer?.running) return initial;
-  const elapsed = Math.max(0, Math.floor((now - timer.from) / 1000));
-  return Math.min(86400, Math.max(0, timer.seconds + (input.style === "up" ? elapsed : -elapsed)));
-}
 /** Project only schema-owned props; raw drafts, expansion and swipe cursors remain in the store. */
 export function projectScreen(
   screen: ScreenLike,
@@ -26,6 +17,7 @@ export function projectScreen(
   now: number,
   openSheet?: string,
   includeSheet = false,
+  clocks = true,
 ): ScreenLike {
   return {
     ...screen,
@@ -35,7 +27,7 @@ export function projectScreen(
           !values[valueKey(screen.id, entry.id, "$dismissed")] &&
           (entry.c !== "Sheet" || includeSheet || entry.id === openSheet),
       )
-      .map((entry) => projectEntry(entry, screen, defs, values, now)),
+      .map((entry) => projectEntry(entry, screen, defs, values, now, clocks)),
   };
 }
 
@@ -64,6 +56,7 @@ function projectEntry(
   defs: Record<string, Definition>,
   values: Values,
   now: number,
+  clocks: boolean,
 ): Entry {
   const get = (part: string) => values[valueKey(screen.id, entry.id, part)];
   const result = { ...entry };
@@ -80,8 +73,8 @@ function projectEntry(
   Object.assign(result, projectNested(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
-  if (entry.c === "Timer" && parsed.style !== "until")
-    result.seconds = timerSeconds(parsed, get("$timer") as TimerState | undefined, get("$seconds"), now);
+  if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
+  else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));
   if (entry.c === "Bubbles" && Array.isArray(get("$messages"))) result.messages = get("$messages");
