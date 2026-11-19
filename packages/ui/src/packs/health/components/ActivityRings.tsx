@@ -18,6 +18,7 @@ import {
   KitText,
   useComponentState,
 } from "../../../kit";
+import { activityRingLine } from "../copy";
 import { seedTitles } from "..";
 
 // Core first: Ring/default cannot show two or three independently filled concentric daily goals.
@@ -36,11 +37,7 @@ export const meta = {
   parts: ["root", "rings"],
   states: ["filled", "loading"],
   read: (input, state) =>
-    state !== "filled"
-      ? []
-      : (input as z.output<typeof props>).rings.map(
-          (ring) => `${ring.label}: ${ring.value} ${goalLine(ring.of)} ${ring.unit}`,
-        ),
+    state !== "filled" ? [] : (input as z.output<typeof props>).rings.map(activityRingLine),
 } as const satisfies Meta;
 export const props = z.strictObject({
   rings: z
@@ -104,6 +101,8 @@ export const probes = [
 ] satisfies Probe[];
 
 const ringTones = ["accent", "good", "warn"] as const;
+const numberScaleOf = (value: number, count: number) =>
+  value >= (count === 3 ? 1000 : 10000) ? ("compact" as const) : ("display" as const);
 
 export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
   const loading = useComponentState() === "loading";
@@ -124,11 +123,16 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
           loading ? (
             <KitSkeleton
               key={ring.id}
-              shape="headline"
+              shape="figure"
               inset="none"
               lines={[
                 { text: ring.label, role: "caption", align: "center" },
-                { text: String(ring.value), role: "number", align: "center" },
+                {
+                  text: String(ring.value),
+                  role: "number",
+                  align: "center",
+                  numberScale: numberScaleOf(ring.value, rings.length),
+                },
                 { text: goalLine(ring.of), role: "caption", align: "center" },
                 { text: ring.unit, role: "caption", align: "center" },
               ]}
@@ -140,7 +144,7 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
               </KitText>
               <KitText
                 role="number"
-                numberScale={ring.value >= 10000 ? "compact" : "display"}
+                numberScale={numberScaleOf(ring.value, rings.length)}
                 align="center"
                 tabular
                 part="value"

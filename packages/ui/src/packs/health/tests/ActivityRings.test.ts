@@ -4,10 +4,11 @@ import {
   components,
   readComponent,
   stampItemIds,
+  type as typography,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../../../test/render";
+import { renderInstance, styleAt } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.ActivityRings;
 const ring = { label: "Move", value: 280, of: 400, unit: "kcal" };
@@ -119,6 +120,22 @@ describe("ActivityRings fallback and contract", () => {
 });
 
 describe("ActivityRings states, parts and reading", () => {
+  it.each([
+    [2, 9999, "number"],
+    [2, 10000, "body"],
+    [3, 999, "number"],
+    [3, 1000, "body"],
+    [3, 1000000, "body"],
+  ] as const)("fits %s goals at value %s using %s-sized numbers", (count, value, role) => {
+    const max = { label: "a".repeat(16), value, of: 1000000, unit: "u".repeat(8) };
+    const example = { rings: Array.from({ length: count }, () => max) };
+    for (const state of meta.states) {
+      const html = renderInstance("ActivityRings", example, state, theme);
+      if (state === "filled")
+        expect(styleAt(html, "home/c1/r1/value")).toContain(`font-size:${typography[role].size}px`);
+      expect(meta.read(example, state)).toHaveLength(state === "filled" ? count : 0);
+    }
+  });
   it.each(examples)("renders every declared item part exactly once and reads all goals", (example) => {
     const html = renderInstance("ActivityRings", example, "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
