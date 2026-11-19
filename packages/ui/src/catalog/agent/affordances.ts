@@ -1,6 +1,9 @@
 import type { Meta } from "../meta";
+import type { StateName } from "../types";
 import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
+import { drawAvailable, drawRole, drawStatus } from "./draw";
+import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
@@ -64,13 +67,15 @@ function partsOf(
  * Every action a model may take on one component instance, with its address relative to the screen
  * (`l1/r1/trail`). The reader prints these and act checks verify each one exists on screen.
  */
-export function affordancesOf(meta: Meta, props: Props, instance: string, values: Props = {}): Affordance[] {
+export function affordancesOf(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  values: Props = {},
+  state = (props.state as StateName | undefined) ?? "filled",
+): Affordance[] {
   const when = meta.actions?.when as When;
-  const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
-  const ownActions = own.flatMap((a) => {
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
+  const own = ownActions(meta, props, instance, when);
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // `$first` in a rule is true only for the first item (the top card of a stack).
@@ -98,24 +103,45 @@ export function affordancesOf(meta: Meta, props: Props, instance: string, values
             ? ""
             : ` = ${JSON.stringify(item[spec.prop])}`,
     }));
-  const offered = [
-    ...ownActions,
-    ...itemActions.filter((control) => !targets.has(control.address)),
-    ...nested,
-  ];
+  const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
   const runtime = values[`${instance}/$runtime`];
-  if (!runtime && !meta.set && !meta.items?.set) return offered;
-  if (runtime && props.state && props.state !== "filled") return [];
   const get = (part: string) => values[`${instance}/${part}`];
+  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
-  return offered.filter(({ address, action }) => {
+  return offered.filter(({ address, action, part }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
+    const role = drawRole(meta, target, action);
+    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role))) return false;
+    const event = sessionEvent(meta, target, action);
+    if (event && !sessionAvailable(session, event)) return false;
+    if (role && !drawAvailable(meta, props, get, target, role)) return false;
+    if (!runtime && !meta.set && !meta.items?.set) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
     if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)
     );
+  });
+}
+
+function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
+  if (state === "filled") return true;
+  if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
+  return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
+}
+
+function ownActions(meta: Meta, props: Props, instance: string, when: When) {
+  return partsOf(
+    meta.actions?.parts as Record<string, readonly string[]>,
+    props,
+    instance,
+    when,
+    props,
+  ).flatMap((a) => {
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
 }
 

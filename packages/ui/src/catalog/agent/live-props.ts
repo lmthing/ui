@@ -4,6 +4,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { Values } from "./act";
+import { projectDraw } from "./draw";
 import { projectNested, projectSelection } from "./selection";
 import { projectAdjustments, projectClocks, projectComponentSets, projectMatrix } from "./clocks";
 
@@ -110,9 +111,14 @@ export function liveProps(
     props = projectControls(meta, props, get);
     if (meta.items?.set || runtime) props = projectAdjustments(meta, props, get);
   }
-  if (values[`${instance}/$runtime`])
-    props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
-  if (values[`${instance}/$runtime`]) {
+  if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
+  else if (
+    (meta.draw || meta.emptyActions?.length || meta.successActions?.length || meta.session) &&
+    get("$state") !== undefined
+  )
+    props = { ...props, state: get("$state") };
+  props = projectDraw(meta, props, get);
+  if (runtime) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
       props = { ...props, minus: undefined };
   }

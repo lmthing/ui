@@ -2,6 +2,7 @@ import { lazyChunk } from "../shared/lazyChunk";
 import { useState } from "react";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
+import { WhenNear } from "../shared/WhenNear";
 import { Reveal } from "../shared/Reveal";
 
 const TryPanel = lazyChunk(() => import("../tryit/panel/TryPanel"));
@@ -27,7 +28,9 @@ export function TrySection() {
             </button>
           ))}
         </div>
-        {tab === tabs[0] ? <Lazy view={TryPanel} /> : <Lazy view={ViewActDemo} />}
+        <WhenNear fallback={<div className="skeleton" style={{ minHeight: 640 }} />}>
+          {tab === tabs[0] ? <Lazy view={TryPanel} /> : <Lazy view={ViewActDemo} />}
+        </WhenNear>
       </Reveal>
     </section>
   );

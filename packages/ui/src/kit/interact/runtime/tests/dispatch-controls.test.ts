@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { planAct, projectAdjustments, readScreen, stampItemIds, type Definition } from "../../../catalog";
-import { createScreenController } from "../index";
+import { planAct, projectAdjustments, readScreen, stampItemIds, type Definition } from "../../../../catalog";
+import { createScreenController } from "../../index";
 
 const base = {
   id: "DispatchFixture",

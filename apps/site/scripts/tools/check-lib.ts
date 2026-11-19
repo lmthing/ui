@@ -1,6 +1,6 @@
 // Shared by the site checks: the base URL, the screenshot folder, the build data, `expect` and `open`.
 import { mkdirSync, readFileSync } from "node:fs";
-import type { SiteData } from "../site-types";
+import type { RecordedData, SiteData } from "../site-types";
 import { launchChrome } from "../../../../packages/ui/scripts/look/launch-chrome";
 
 export const [base = "http://localhost:5199/", shots = "shots"] = process.argv.slice(2);
@@ -30,3 +30,7 @@ export async function open(browser: Browser, width: number, init?: string, allow
   if (init) await page.addInitScript(init);
   return page;
 }
+
+export const recordedData = JSON.parse(
+  readFileSync(new URL("../../src/generated/recorded.json", import.meta.url).pathname, "utf8"),
+) as RecordedData;

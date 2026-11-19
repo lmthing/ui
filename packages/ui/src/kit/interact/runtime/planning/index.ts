@@ -1,0 +1,197 @@
+import {
+  drawRole,
+  planAct,
+  projectAdjustments,
+  sessionEvent,
+  parseControlProps,
+  type ActStep,
+  type RandomSource,
+  type Values,
+} from "../../../../catalog";
+import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
+import {
+  actionFailure,
+  confirmationAction,
+  confirmationFor,
+  handlerFor,
+  type ActionContext,
+  type ActionResult,
+  type ActionState,
+} from "../../actions";
+import { introducedPart, type ControllerContext, type ScreenComponent, type MediaRuntime } from "../index";
+function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
+  const def = ctx.defs[entry.c]!;
+  const get = (part: string) => values[ctx.key(entry.id, part)];
+  const { id: _id, c: _c, state: _state, ...raw } = entry;
+  if (ctx.standalone) {
+    const { meta } = def;
+    return meta.confirmParts?.length && (meta.session || meta.successActions?.length)
+      ? parseControlProps(def, raw, get)
+      : raw;
+  }
+  const input = ctx.inputOf(entry);
+  return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
+}
+function inactive(ctx: ControllerContext, entry: ScreenComponent) {
+  if (ctx.standalone || !entry.state || entry.state === "filled") return false;
+  const { draw, emptyActions, session, successActions } = ctx.defs[entry.c]!.meta;
+  return !draw && !emptyActions?.length && !session && !successActions?.length;
+}
+const qualified = (screen: string, step: ActStep) => ({ ...step, address: `${screen}/${step.address}` });
+
+function disabledHint(component: string, action: string, input: Values) {
+  if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
+    return "Write a reply before sending";
+  if (component === "Counter" && action === "decrement" && Number(input.value) < Number(input.step))
+    return "The counter cannot go below zero";
+}
+function prepareStep(
+  state: ActionState,
+  action: ActStep,
+  ctx: ControllerContext,
+  media: MediaRuntime,
+  at: number,
+  confirmed = false,
+): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
+  const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
+  const id = action.address.split("/")[0]!;
+  const entry = active.components.find((item) => item.id === id);
+  const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
+  if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
+  if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
+  const def = ctx.defs[entry.c]!;
+  const disabled = ctx.disabledParts.has(action.address);
+  if (disabled && !introducedPart(ctx, state, entry, action, true))
+    return fail("disabled", "This control is disabled");
+  let input: Values;
+  try {
+    input = actionInput(ctx, entry, state.values);
+  } catch {
+    return fail("invalid_value", "This component has invalid props");
+  }
+  const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
+  if (hint) return fail("disabled", hint);
+  const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
+  const plan = planAct(active, ctx.defs, state.values, [qualified(active.id, selected)], null);
+  if (!plan.ok) return { error: { ...plan, at } };
+  const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
+  if (mustMount && !introducedPart(ctx, state, entry, action))
+    return fail("not_mounted", "This control is not mounted");
+  const values =
+    confirmed && !ctx.standalone
+      ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
+      : plan.values;
+  if (!values) return fail("invalid_value", "Clear conflicts with component props");
+  return {
+    state: { ...state, values, changes: [...state.changes, ...plan.changed] },
+    context: {
+      screen: ctx.screen,
+      active,
+      entry,
+      input,
+      defs: ctx.defs,
+      selected,
+      links: plan.links,
+      at,
+      now: ctx.now,
+      key: ctx.key,
+      options: ctx.options,
+      playMedia: media.playMedia,
+      seekMedia: media.seekMedia,
+      requestPhoto: media.requestPhoto,
+    },
+  };
+}
+function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
+  if (!ctx.standalone) return true;
+  const meta = ctx.defs[entry.c]!.meta;
+  const part = selected.address.split("/").slice(1).join("/") || "root";
+  return Boolean(meta.successActions?.length || sessionEvent(meta, part, selected.action));
+}
+function isDraw({ entry, defs, selected }: ActionContext) {
+  const target = selected.address.split("/").slice(1).join("/") || "root";
+  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
+  return role === "draw" || role === "redraw";
+}
+
+function stepRunner(
+  ctx: ControllerContext,
+  media: MediaRuntime,
+  random: RandomSource | null | undefined,
+  at: number,
+  execution: { performed: ActStep[]; drew: boolean },
+) {
+  const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
+    const selected = { ...original, address: ctx.relative(original.address) };
+    const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
+    if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
+    const pending =
+      !confirmed &&
+      needsConfirmation(ctx, prepared.context) &&
+      confirmationFor(before, selected, prepared.context);
+    if (pending) return pending;
+    execution.performed.push(selected);
+    if (isDraw(prepared.context)) {
+      execution.drew = true;
+      if (random !== null) {
+        const { active, selected: planned } = prepared.context;
+        const plan = planAct(active, ctx.defs, before.values, [qualified(active.id, planned)], random);
+        if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
+        prepared.state.values = plan.values;
+        prepared.state.changes = [...before.changes, ...plan.changed];
+        prepared.context.links = plan.links;
+      }
+    }
+    if (ctx.standalone)
+      return {
+        state: prepared.state,
+        effects: prepared.context.links.map(
+          ({ goto, address }) =>
+            () =>
+              ctx.options.onLink?.(goto, address),
+        ),
+      };
+    const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
+    const links = prepared.context.links.map((link) => ({
+      ...link,
+      address: `${ctx.screen.id}/${address}`,
+    }));
+    return handlerFor(selected.action)(
+      prepared.state,
+      { ...selected, address },
+      { ...prepared.context, links },
+    );
+  };
+  return run;
+}
+
+export function planSteps(
+  list: ActStep[],
+  ctx: ControllerContext,
+  media: MediaRuntime,
+  random: RandomSource | null | undefined,
+): ActionResult & { performed: ActStep[]; drew?: boolean } {
+  let state: ActionState = {
+    values: { ...ctx.valuesOf() },
+    sheet: ctx.status.openSheet,
+    confirmation: ctx.status.confirmation,
+    changes: [],
+  };
+  const effects: (() => void)[] = [];
+  const execution = { performed: [] as ActStep[], drew: false };
+  for (const [at, step] of list.entries()) {
+    const action = { ...step, address: ctx.relative(step.address) };
+    const run = stepRunner(ctx, media, random, at, execution);
+    let result: ActionResult;
+    if (state.confirmation)
+      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, (s, a) =>
+        run(s, a, true),
+      );
+    else result = run(state, step);
+    if (result.error) return { ...result, performed: [] };
+    state = result.state;
+    if (!ctx.standalone) Object.assign(state.values, ctx.expiredProgress(state.values));
+    effects.push(...result.effects);
+  }
+  return { state, effects, ...execution };
+}

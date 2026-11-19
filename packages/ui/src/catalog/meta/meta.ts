@@ -8,6 +8,31 @@ export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
 
+type Draw =
+  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
+  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
+  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
+type Session =
+  | {
+      kind: "turns";
+      items: string;
+      first?: string;
+      direction?: string;
+      laps?: string;
+      next: string;
+      back?: string;
+      skip?: string;
+      reverse?: string;
+      restart?: string;
+    }
+  | {
+      kind: "rounds";
+      items: string;
+      hidden: readonly string[];
+      reveal: string;
+      next: string;
+      restart?: string;
+    };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
 
@@ -47,6 +72,14 @@ export type Meta = {
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
+  /** Part/action pairs from `actions` that are also available in `empty`. */
+  emptyActions?: readonly `${string}.${ActionName}`[];
+  /** Part/action pairs from `actions` that are also available in `success`. */
+  successActions?: readonly `${string}.${ActionName}`[];
+  /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
+  draw?: Draw;
+  /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
+  session?: Session;
   /** Component parts with a declared `set` action and a finite numeric destination prop. */
   set?: NumericSets;
   /** Confirmed component press part → item set part whose nullable values are cleared. */

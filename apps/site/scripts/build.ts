@@ -27,6 +27,10 @@ async function main() {
   await build(siteViteConfig(out));
   cpSync(cache, `${out}/gallery`, { recursive: true });
   await writeBrand(out, data);
+  // Imported only now: prerender draws site components, which read src/generated/site-data.json written above
+  // (a static import fails on a clean checkout, where that file does not exist yet).
+  const { prerender } = await import("./prerender");
+  prerender(out);
   writeFileSync(`${out}/.nojekyll`, "");
   console.log(
     `SITE ${out} (${data.stats.built} components, ${data.packs.length} packs) in ${Math.round((Date.now() - started) / 1000)}s`,

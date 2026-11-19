@@ -16,5 +16,7 @@ export type Engine = {
   label: string;
   /** The model that wrote the output, as the visitor should read it. */
   model: string;
+  /** A caveat to keep on screen after the run, such as which recording stood in for the request. */
+  note?: string;
   run: (input: RunInput) => Promise<void>;
 };

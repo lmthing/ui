@@ -35,13 +35,26 @@
 .ask input {
   flex: 1 1 260px;
 }
-.chip.pick {
-  border: 0;
-  cursor: pointer;
-  font-family: var(--sans);
+.try .chips {
+  gap: 8px;
 }
-.chip.pick:hover {
-  outline: 2px solid var(--accent);
+.try .chip.pick {
+  padding: 4px 14px;
+  font: 500 0.78rem/1.6 var(--sans);
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+.try .chip.pick:hover {
+  border-color: var(--accent);
+}
+.try .chip.pick[aria-pressed="true"] {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
 }
 .try-grid {
   display: grid;

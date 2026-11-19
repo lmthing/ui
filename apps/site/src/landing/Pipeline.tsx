@@ -1,6 +1,7 @@
 import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
+import { WhenNear } from "../shared/WhenNear";
 import { Reveal } from "../shared/Reveal";
 
 const Replay = lazyChunk(() => import("./PipelineReplay"));
@@ -17,7 +18,9 @@ export function Pipeline() {
           Critic. No model chooses the next step, and none reads the chat history. Writers answer under strict
           structured output, so a line can only name a component the catalog has.
         </p>
-        <Lazy view={Replay} />
+        <WhenNear fallback={<div className="skeleton" style={{ minHeight: 430 }} />}>
+          <Lazy view={Replay} fallback={<div className="skeleton" style={{ minHeight: 430 }} />} />
+        </WhenNear>
       </Reveal>
     </section>
   );
