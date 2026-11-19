@@ -1,6 +1,6 @@
 export { choreLabels } from "./Chores";
 export { rewardLabels } from "./Rewards";
-export { careLabels } from "./CareSchedule";
+export { careLabels, careLines, careReading, careTaskLabel, careToday, nextCareDate } from "./CareSchedule";
 export { turnLabels } from "./Turns";
 export {
   agendaAttendees,
