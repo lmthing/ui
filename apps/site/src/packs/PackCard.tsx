@@ -1,6 +1,7 @@
 import { lazyChunk } from "../shared/lazyChunk";
 import type { Pack } from "../../scripts/site-types";
 import { Suspense } from "react";
+import { WhenNear } from "../shared/WhenNear";
 import { shotOf } from "../data/site";
 import { hrefOf } from "../router";
 import { cap } from "../shared/status";
@@ -16,9 +17,11 @@ export function PackCard({ pack }: { pack: Pack }) {
     <a className="pack" href={hrefOf("p", pack.id)}>
       <span className="lead" inert>
         {pack.lines.length > 0 ? (
-          <Suspense fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
-            <MiniPack id={pack.id} />
-          </Suspense>
+          <WhenNear inline fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
+            <Suspense fallback={lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />}>
+              <MiniPack id={pack.id} />
+            </Suspense>
+          </WhenNear>
         ) : (
           lead && <img src={shotOf(lead.id)} alt="" loading="lazy" />
         )}
