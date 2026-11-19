@@ -131,19 +131,27 @@ function VitalValue({ reading }: { reading: Reading }) {
       {...vitalBand(reading)}
       reading={
         <KitContent group="response">
-          <KitGrid fitLast>
-            <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
-              {reading.value}
-              {reading.value2 !== undefined && (
-                <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value2">
-                  {pair}
-                </KitText>
-              )}
+          <KitRow
+            inline
+            label={reading.unit}
+            lineRole={numberScale === "compact" ? "body" : "number"}
+            leading={
+              <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
+                {reading.value}
+                {reading.value2 !== undefined && (
+                  <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value2">
+                    {pair}
+                  </KitText>
+                )}
+              </KitText>
+            }
+          >
+            <KitText role="number" numberScale={numberScale} part="unit">
+              <KitText role="caption" tone="muted" part={null}>
+                {reading.unit}
+              </KitText>
             </KitText>
-            <KitText role="caption" tone="muted" align="end" part="unit">
-              {reading.unit}
-            </KitText>
-          </KitGrid>
+          </KitRow>
         </KitContent>
       }
     />

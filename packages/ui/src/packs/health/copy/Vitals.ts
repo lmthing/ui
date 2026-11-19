@@ -28,12 +28,14 @@ export function vitalUnitLine({ value2, unit }: Pick<Vital, "value2" | "unit">):
   return value2 === undefined ? unit : `/ ${value2} ${unit}`;
 }
 
-export function vitalStatusLine(reading: Pick<Vital, "value" | "low" | "high">): string {
-  return vitalBand(reading).tone === "warn" ? "Outside range" : "In range";
+export function vitalStatusLine(reading: Pick<Vital, "value" | "low" | "high" | "value2">): string {
+  const status = vitalBand(reading).tone === "warn" ? "Outside range" : "In range";
+  return reading.value2 === undefined ? status : `Systolic: ${status}`;
 }
 
-export function vitalRangeLine(reading: Pick<Vital, "low" | "high">): string {
-  return `Reference ${reading.low}–${reading.high}`;
+export function vitalRangeLine(reading: Pick<Vital, "low" | "high" | "value2">): string {
+  const label = reading.value2 === undefined ? "Reference" : "Systolic reference";
+  return `${label} ${reading.low}–${reading.high}`;
 }
 
 /** Read exactly the supplied values and reference, never a diagnosis or rounded measurement. */

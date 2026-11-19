@@ -21,7 +21,9 @@ const reading = {
 
 describe("Vitals copy and reference geometry", () => {
   it("reads the exact pair, unit, reference, status and date without a diagnosis", () => {
-    expect(vitalLine(reading)).toBe("Blood pressure: 118 / 76 mmHg · Reference 90–120 · In range · 08:10");
+    expect(vitalLine(reading)).toBe(
+      "Blood pressure: 118 / 76 mmHg · Systolic reference 90–120 · Systolic: In range · 08:10",
+    );
     expect(vitalLabels.add).toBe("Add reading");
     expect(vitalUnitLine({ unit: "bpm" })).toBe("bpm");
     expect(vitalUnitLine({ unit: "mmHg", value2: 0 })).toBe("/ 0 mmHg");
@@ -37,7 +39,11 @@ describe("Vitals copy and reference geometry", () => {
     [121, "warn"],
   ] as const)("computes the primary status at %s using %s only", (value, tone) => {
     expect(vitalBand({ ...reading, value }).tone).toBe(tone);
-    expect(vitalStatusLine({ ...reading, value })).toBe(tone === "warn" ? "Outside range" : "In range");
+    const status = tone === "warn" ? "Outside range" : "In range";
+    for (const value2 of [undefined, 0, 76])
+      expect(vitalStatusLine({ ...reading, value, value2 })).toBe(
+        value2 === undefined ? status : `Systolic: ${status}`,
+      );
   });
   it.each([
     { value: 0, low: 0, high: 0 },

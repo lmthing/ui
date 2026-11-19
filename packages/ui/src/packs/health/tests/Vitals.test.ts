@@ -10,7 +10,6 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance, styleAt } from "../../../../test/render";
-
 const { props, meta, examples, fallback, probes } = components.Vitals;
 const reading = examples[2]!.readings[0]!;
 const input = { readings: [reading], goto: "add_reading" };
@@ -144,7 +143,8 @@ describe("Vitals states, parts and read/act", () => {
         else expect(html.match(new RegExp(`data-testid="${address}"`, "g"))).toHaveLength(1);
       }
       expect(read).toContain(`${row.label}: ${row.value}`);
-      expect(read).toContain(`Reference ${row.low}–${row.high}`);
+      const label = "value2" in row ? "Systolic reference" : "Reference";
+      expect(read).toContain(`${label} ${row.low}–${row.high}`);
     });
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(example)), "v1")).toEqual([
       { address: "v1/add", action: "press", part: "add", detail: "→add_reading" },
@@ -175,7 +175,8 @@ describe("Vitals empty, paired and repeated actions", () => {
     const size = typography[compact ? "body" : "number"].size;
     for (const part of value2 === undefined ? ["value"] : ["value", "value2"])
       expect(styleAt(html, `home/c1/r1/${part}`)).toContain(`font-size:${size}px`);
-    expect(styleAt(html, "home/c1/r1/unit")).toContain(`font-size:${typography.caption.size}px`);
+    const unit = elementAt(html, "home/c1/r1/unit").children[0]!;
+    expect(styleAt(html, unit)).toContain(`font-size:${typography.caption.size}px`);
   });
   it("dispatches repeated row presses and add navigation through the real controller", () => {
     const onAction = vi.fn(),

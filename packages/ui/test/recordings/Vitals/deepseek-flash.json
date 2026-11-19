@@ -1,4 +1,13 @@
 {
+  "074226b19e7666df": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nv1 Vitals Blood pressure: 118 / 76 mmHg · Systolic reference 90–120 · Systolic: In range · 08:10 — Resting pulse: 68 bpm · Reference 60–100 · In range · 08:12 — Add reading [v1/add press→add_reading]\n  r1 \"Blood pressure\" · \"mmHg\" · \"08:10\" [v1/r1 press]\n  r2 \"Resting pulse\" · \"bpm\" · \"08:12\" [v1/r2 press]\n\nTask: Open the blood pressure reading\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"v1/r1\", \"action\": \"press\"}"
+    ]
+  },
   "0f9187efee14ed72": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nv1 Vitals Greenhouse temp: 22 °C · Reference 18–26 · In range · 08:10 — Add reading [v1/add press→add_reading]\n  r1 \"Greenhouse temp\" · \"°C\" · \"08:10\" [v1/r1 press]\n\nTask: Add a new vital reading\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"v1/add\", \"action\": \"press\"}",
