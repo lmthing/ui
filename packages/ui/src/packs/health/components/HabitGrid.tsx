@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  emptyLine,
   icon,
   probesFor,
   streakLine,
@@ -14,13 +13,13 @@ import {
 import {
   KitCard,
   KitCheck,
+  KitEmpty,
   KitIcon,
   KitRow,
   KitText,
   KitWeekMatrix,
   useComponentState,
   useControlValue,
-  useEmptyThing,
   usePart,
 } from "../../../kit";
 import { indexedActions, indexedParts, seedTitles } from "..";
@@ -92,11 +91,11 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
 export const examples = [
   {
     habits: [
-      { name: "Check Fern", icon: "leaf", days: [false, true, true, false, false, false, false] },
-      { name: "Mist leaves", icon: "drop", days: [true, true, true, false, false, false, false] },
+      { name: "Check Ivy", icon: "leaf", days: [false, true, true, false, false, false, false] },
+      { name: "Mist Ivy", icon: "drop", days: [true, true, true, false, false, false, false] },
     ],
   },
-  { habits: [{ name: "Walk Clover", icon: "check", days: [true, false, true, false, false, false, false] }] },
+  { habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("HabitGrid");
 export const probes = [
@@ -110,7 +109,7 @@ export const probes = [
   write(
     "This week's stretch and water habits, check and drop icons, both only Monday checked, seven Monday-first days",
   ),
-  read("Mark Monday's fern check as done", { address: "h1/r1/day_1", action: "check" }),
+  read("Mark Monday's ivy check as done", { address: "h1/r1/day_1", action: "check" }),
 ] satisfies Probe[];
 type Habit = Props<typeof props, typeof meta>["habits"][number];
 function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
@@ -143,28 +142,20 @@ function WeekDays() {
 }
 export function HabitGrid({ habits }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
-  const thing = useEmptyThing();
   const today = (new Date().getDay() + 6) % 7;
   const days = WeekDays();
   if (state === "empty")
     return (
-      <KitCard part="root" padded>
-        <KitText tone="muted" part={null}>
-          {emptyLine(thing)}
-        </KitText>
+      <KitCard part="root">
+        <KitEmpty part="grid" decorativeIcon />
       </KitCard>
     );
   const rows = habits.map((habit) => ({
     id: habit.id,
     label: habit.name,
     heading: (
-      <KitRow
-        item={habit.id}
-        label={habit.name}
-        inline
-        leading={<KitIcon name={habit.icon} part="icon" scale="sm" />}
-      >
-        <KitText role="label" part="name" lines={2}>
+      <KitRow item={habit.id} label={habit.name} inline leading={<KitIcon name={habit.icon} part="icon" />}>
+        <KitText role="body" part="name" lines={2}>
           {habit.name}
         </KitText>
       </KitRow>
