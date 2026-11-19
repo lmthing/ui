@@ -3,9 +3,8 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { validateActionValue } from "./validate-value";
-import { selectionAt, selectionChanges, selectionError } from "./selection";
-import { nestedAt } from "./selection";
+import { resolveKeypadValue, validateActionValue } from "./validate-value";
+import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
 import {
   deviceRandom,
   drawKey,
@@ -26,13 +25,29 @@ export type ActResult =
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
 
-function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!def?.meta.items?.nested) return undefined;
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
+function actionValue(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  step: ActStep,
+  { address, part }: Affordance,
+  current: unknown,
+) {
+  const [id = "", item, itemPart] = address.split("/");
+  const { id: _id, c, state: _state, ...raw } = screen.components.find((entry) => entry.id === id)!;
+  const def = defs[c]!;
+  const keypadParts = def.props.meta()?.keypadParts;
+  const keypad = step.action === "type" && Array.isArray(keypadParts) && keypadParts.includes(part);
+  const input =
+    keypad || def.meta.items?.nested ? stampItemIds(def.meta, def.props.parse(raw) as Values) : undefined;
+  if (keypad && input) {
+    // The opted-in part's owner supplies the initial value and optional bounds.
+    const rows = input[def.meta.items?.key ?? ""] as Values[] | undefined;
+    const owner =
+      item && (itemPart || part === "root") ? (rows?.find((row) => row.id === item) ?? {}) : input;
+    return resolveKeypadValue(step.value, current ?? owner.value, owner);
+  }
+  const limits = input && nestedAt(def.meta, input, address.slice(id.length + 1))?.spec;
+  return validateActionValue(step.action, step.value, limits) ?? { value: step.value };
 }
 
 function affordancesOfScreen(
@@ -45,14 +60,9 @@ function affordancesOfScreen(
     const def = defs[c];
     if (!def) return [];
     const props = liveProps(def.meta, stampItemIds(def.meta, def.props.parse(input) as Values), id, local);
-    const liveState = props.state as typeof state;
-    return affordancesOf(
-      def.meta,
-      props,
-      id,
-      local,
-      liveState ?? (def.meta.draw || def.meta.emptyActions ? state : undefined),
-    );
+    const liveState =
+      (props.state as typeof state) ?? (def.meta.draw || def.meta.emptyActions ? state : undefined);
+    return affordancesOf(def.meta, props, id, local, liveState);
   });
 }
 
@@ -157,8 +167,9 @@ export function planAct(
       return { ok: false, code: "not_actionable", at, hint };
     }
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const error = validateActionValue(step.action, step.value, nestedSpec(screen, defs, address));
-    if (error) return { ok: false, at, ...error };
+    const key = `${screen.id}/${address}`;
+    const result = actionValue(screen, defs, step, found, next[key]);
+    if ("code" in result) return { ok: false, at, ...result };
     const draw = drawStep(screen, defs, address, step.action);
     if (draw) {
       try {
@@ -168,17 +179,16 @@ export function planAct(
       }
       continue;
     }
-    const key = `${screen.id}/${address}`;
     if (step.action === "toggle" || step.action === "check") {
       const now = (next[key] as boolean | undefined) ?? initialOn(found);
-      next[key] = (step.value as boolean | undefined) ?? !now;
+      next[key] = (result.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
       next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);
     } else if (step.action === "press" || step.action === "select") {
       if (found.detail.startsWith("→")) links.push({ goto: found.detail.slice(1), address: key });
-      if (step.action === "select") next[key] = step.value;
+      if (step.action === "select") next[key] = result.value;
     } else {
-      next[key] = step.value;
+      next[key] = result.value;
     }
     Object.assign(next, selected.changes);
     expireDraws(screen, defs, next);

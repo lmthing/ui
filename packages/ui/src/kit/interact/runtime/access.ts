@@ -1,8 +1,9 @@
-import { wordsFor, affordancesOf, liveProps, stampItemIds, readScreen } from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, parseAddress, stampItemIds } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import type { ControllerContext } from "./context";
+import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = [
   "press",
@@ -19,7 +20,7 @@ const pressActions = [
 function actionsAt(ctx: ControllerContext, address: string): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
-  if (ctx.status.disposed) return [];
+  if (ctx.status.disposed || ctx.disabledParts.has(local)) return [];
   if (ctx.status.confirmation)
     return local === "confirm/confirm"
       ? ["press"]
@@ -77,12 +78,19 @@ function read(ctx: ControllerContext) {
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
   return [
-    readScreen(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang),
+    readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang, ctx.disabledParts),
     ...visible.components
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
+function isKeypad(ctx: ControllerContext, full: string) {
+  const address = parseAddress(full);
+  const entry = address?.component && ctx.sourceOf(address.component);
+  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
+  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
+
 export function createAccess(ctx: ControllerContext, act: Act) {
   return {
     actionsAt: (address: string) => actionsAt(ctx, address),
@@ -95,10 +103,11 @@ export function createAccess(ctx: ControllerContext, act: Act) {
       const result = act({ address, action: "type", value: text });
       if (!result.ok && result.code === "invalid_value") {
         const full = `${ctx.screen.id}/${ctx.relative(address)}`;
-        ctx.store.setMany({
-          [`${full}/$draft`]: text,
-          [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
-        });
+        if (!isKeypad(ctx, full))
+          ctx.store.setMany({
+            [`${full}/$draft`]: text,
+            [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
+          });
       }
       return result;
     },
@@ -108,6 +117,14 @@ export function createAccess(ctx: ControllerContext, act: Act) {
       ctx.mounted.set(local, token);
       return () => {
         if (ctx.mounted.get(local) === token) ctx.mounted.delete(local);
+      };
+    },
+    registerDisabledPart(address: string) {
+      const local = ctx.relative(address),
+        token = Symbol(local);
+      ctx.disabledParts.set(local, token);
+      return () => {
+        if (ctx.disabledParts.get(local) === token) ctx.disabledParts.delete(local);
       };
     },
   };

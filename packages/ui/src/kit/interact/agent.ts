@@ -1,11 +1,5 @@
-import {
-  planAct,
-  readScreen,
-  type ActStep,
-  type Definition,
-  type RandomSource,
-  type ScreenLike,
-} from "../../catalog";
+import { planAct, type ActStep, type Definition, type RandomSource, type ScreenLike } from "../../catalog";
+import { readControls } from "./runtime";
 import type { InteractionStore } from "./store";
 
 export type ActOptions = { dryRun?: boolean; agent?: boolean };
@@ -32,7 +26,7 @@ export function createAgentAccess(options: {
   const log: ActLogEntry[] = [];
   return {
     read: () =>
-      options.runtime?.read() ?? readScreen(current(), defs, store.snapshot(current().id), options.lang),
+      options.runtime?.read() ?? readControls(current(), defs, store.snapshot(current().id), options.lang),
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
       if (options.runtime) {
         const reply = options.runtime.act(steps, { ...opts, agent: true });

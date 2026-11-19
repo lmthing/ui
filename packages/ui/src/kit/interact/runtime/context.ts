@@ -117,6 +117,7 @@ export function createControllerContext(options: ControllerOptions) {
       initial = initialValues(screen, defs, now);
     },
     mounted: new Map<string, symbol>(),
+    disabledParts: new Map<string, symbol>(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => address.replace(`${screen.id}/`, "").replace(/\/root$/, ""),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),

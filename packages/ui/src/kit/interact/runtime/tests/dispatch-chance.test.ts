@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { drawKey, drawState, type Definition, type Meta, type ScreenLike } from "../../../catalog";
-import { createInteractionStore, createScreenController } from "../index";
+import { drawKey, drawState, type Definition, type Meta, type ScreenLike } from "../../../../catalog";
+import { createInteractionStore, createScreenController } from "../../index";
 
 const base = {
   id: "ChanceFixture",

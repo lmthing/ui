@@ -28,6 +28,7 @@ function prepareStep(
   const meta = ctx.defs[entry.c]!.meta;
   if (entry.state && entry.state !== "filled" && !meta.draw && !meta.emptyActions?.length)
     return fail("not_actionable", "This component is not filled");
+  if (ctx.disabledParts.has(action.address)) return fail("disabled", "This control is disabled");
   let input: Values;
   try {
     input = ctx.inputOf(entry);
@@ -82,6 +83,7 @@ function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     valuesOf: () => values,
     status: { ...ctx.status },
     mounted: new Map(ctx.mounted),
+    disabledParts: new Map(ctx.disabledParts),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
     expiredDraws: (next) => ctx.expiredDraws(next, at),
   };
