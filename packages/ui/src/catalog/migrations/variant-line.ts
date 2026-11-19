@@ -10,6 +10,22 @@ export type VariantMove = {
   prepare?: (props: Line) => Line;
 };
 
+const listVariants = ["density", "surface", "detail", "group", "overflow", "lead", "trail"];
+const legacyListStyles = ["plain", "inset", "cards", "shelf", "ranked", "expand"];
+
+/** Replay the old schema's effective layout before moving its style to shared axes. */
+export function effectiveLegacyList(props: Line): Line {
+  const style = props.style;
+  if (!Array.isArray(props.rows)) return props;
+  const alreadyAdopted = listVariants.some((axis) => Object.hasOwn(props, axis));
+  const legacy = style === undefined || (typeof style === "string" && legacyListStyles.includes(style));
+  if (!legacy || (alreadyAdopted && style !== "ranked" && style !== "inset" && style !== "plain"))
+    return props;
+  const rows = props.rows.filter((row): row is Line => !!row && typeof row === "object");
+  const effective = rows.some((row) => row.body) ? "expand" : rows.some((row) => row.me) ? "ranked" : style;
+  return effective === style ? props : { ...props, style: effective };
+}
+
 // Legacy ranked rows ignored their own trail: they displayed a score or no trailing accessory.
 function preserveRankedTrail(props: Line): Line {
   if (Object.hasOwn(props, "trail") || !Array.isArray(props.rows)) return props;

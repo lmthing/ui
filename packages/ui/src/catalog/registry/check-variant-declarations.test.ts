@@ -34,6 +34,20 @@ it("checks the metadata against the flat component and item schemas", () => {
   );
 });
 
+it("rejects helper-generated variant fields absent from component or item metadata", () => {
+  const extra = {
+    ...fixture,
+    props: fixture.props.extend({
+      ...variantProps({ align: ["start", "center"] }),
+      rows: z.array(z.strictObject(itemVariantProps({ ...itemAxes, tone: ["neutral", "good"] }))),
+    }),
+  };
+  expect(checkVariantDeclarations(extra)).toEqual([
+    "VariantFixture: schema exposes undeclared variant align",
+    "VariantFixture items: schema exposes undeclared variant tone",
+  ]);
+});
+
 it("accepts inherited item trail only when the collection declares a trail", () => {
   const trail = { trail: ["chevron", "toggle"] } as const;
   const inherited: Definition = {
@@ -91,7 +105,18 @@ it("rejects declarations for undeclared values and finish part changes", () => {
 });
 
 it("rejects duplicate style vocabulary outside the temporary existing-component allowlist", () => {
-  for (const value of ["compact", "tinted", "outlined", "centered", "hero", "square", "wide", "tall"]) {
+  for (const value of [
+    "compact",
+    "tinted",
+    "outlined",
+    "centered",
+    "hero",
+    "square",
+    "wide",
+    "tall",
+    "grid",
+    "strip",
+  ]) {
     const bad = {
       ...fixture,
       props: fixture.props.extend({ style: z.enum(["different", value]).default("different") }),

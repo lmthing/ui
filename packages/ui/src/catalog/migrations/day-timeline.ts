@@ -1,6 +1,6 @@
 import type { ScreenLike } from "../agent";
 import { legacyTarget, normalizeComponentId } from "./aliases";
-import { migrateVariantProps, variantMoves } from "./variant-line";
+import { effectiveLegacyList, migrateVariantProps, variantMoves } from "./variant-line";
 
 export type MigrationOptions = { variantComponents?: readonly string[] };
 // Enable each staged migration here in the same change that adopts the component schema.
@@ -16,7 +16,8 @@ export function migrateLine<T extends Record<string, unknown>>(
       ? variantComponents.find((id) => normalizeComponentId(id) === normalizeComponentId(name))
       : undefined;
   if (c && Object.hasOwn(variantMoves, c)) {
-    const migrated = migrateVariantProps(props, variantMoves[c] ?? []);
+    const source = c === "List" ? effectiveLegacyList(props) : props;
+    const migrated = migrateVariantProps(source, variantMoves[c] ?? []);
     if (migrated !== props) return { ...migrated, c };
   }
   if (legacyTarget(String(line.c)) !== "Timeline" || !Array.isArray(line.blocks)) return line;

@@ -14,7 +14,8 @@ function shape<const D extends Variants, const Inherited extends Axis>(axes: D, 
   return Object.fromEntries(
     Object.entries(axes).map(([axis, values]) => {
       const schema = z.enum(values);
-      return [axis, inherited.includes(axis as Inherited) ? schema.optional() : schema.default(values[0])];
+      const field = inherited.includes(axis as Inherited) ? schema.optional() : schema.default(values[0]);
+      return [axis, field.meta({ variantAxis: axis })];
     }),
   ) as unknown as Shape<D, Inherited>;
 }

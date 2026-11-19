@@ -84,6 +84,26 @@ it("retains separate row-card structure without overriding an explicit surface",
   expect(migrateLine({ ...list, style: "inset" }, options)).not.toHaveProperty("style");
 });
 
+it("replays List's legacy body and me inference in that order", () => {
+  const implicit = { c: "List", rows: [{ title: "One", me: true, value: "42", trail: "toggle" }] };
+  expect(components.List.props.parse({ rows: implicit.rows }).style).toBe("ranked");
+  const migrated = migrateLine(implicit, options);
+  expect(migrated).toEqual({
+    c: "List",
+    lead: "number",
+    trail: "value",
+    rows: [{ title: "One", me: true, value: "42" }],
+  });
+  expect(migrateLine(migrated, options)).toBe(migrated);
+  const rows = [{ ...implicit.rows[0], title: "One", body: "Answer" }];
+  expect(components.List.props.parse({ style: "ranked", rows }).style).toBe("expand");
+  expect(migrateLine({ c: "List", style: "ranked", rows }, options)).toEqual({
+    c: "List",
+    style: "expand",
+    rows,
+  });
+});
+
 it.each(["list", "l-i_s t"])("migrates normalizable List id %s before validation", (c) => {
   expect(migrateLine({ ...list, c, style: "inset" }, options)).toEqual({
     id: list.id,
