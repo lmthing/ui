@@ -1,4 +1,4 @@
-import { bookingWordsFor } from "../lang";
+import { bookingWordsFor, type BookingWords } from "../lang";
 import { appointmentDate, wordsFor, compactMoneyLine, durationLine, timeOfDayLine } from "../../../catalog";
 
 export const { appointmentLabels } = bookingWordsFor();
@@ -28,7 +28,7 @@ export function appointmentReading(
     date: string;
     time: string;
     style: "card" | "summary";
-    status: keyof typeof appointmentLabels;
+    status: keyof BookingWords["appointmentLabels"];
   },
   lang?: string,
 ): string[] {
