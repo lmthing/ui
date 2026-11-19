@@ -46,7 +46,7 @@ function preserveRankedTrail(props: Line): Line {
   };
 }
 
-/** Staged until the corresponding component adopts its axes. */
+/** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
   List: [
     {
@@ -64,11 +64,13 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
     {
       from: "style",
       values: {
-        plain: { surface: "plain" },
+        plain: { surface: "card" },
         tinted: { surface: "tinted" },
         outlined: { surface: "outlined" },
         media: { media: "cover" },
       },
+      prepare: (props) =>
+        props.style === "media" && props.icon && !props.photo ? { media: "thumb", ...props } : props,
     },
   ],
 };

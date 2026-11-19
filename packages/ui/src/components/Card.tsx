@@ -1,19 +1,5 @@
-import {
-  wordsFor,
-  probesFor,
-  detailOf,
-  icon,
-  photo,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../catalog";
+import * as catalog from "../catalog";
+import type { FallbackInput, Meta, Probe, Props } from "../catalog";
 import { z } from "zod";
 import {
   KitCard,
@@ -25,6 +11,7 @@ import {
   KitText,
   useComponentState,
   useKit,
+  useVariant,
 } from "../kit";
 
 export const meta = {
@@ -32,10 +19,29 @@ export const meta = {
   group: "content",
   purpose: "One thing with a little detail, optionally tappable to open it.",
   pick: "A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).",
+  writeHints: [
+    "A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.",
+    "Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.",
+    "Use surface tinted with a semantic tone when status should colour the card.",
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A preview of one record and optional navigation link in the on-device app.",
+  variants: {
+    density: ["comfortable", "compact"],
+    emphasis: ["normal", "quiet", "hero"],
+    surface: ["card", "plain", "tinted", "outlined"],
+    media: ["thumb", "none", "icon", "cover"],
+    detail: ["full", "brief"],
+    tone: ["neutral", "good", "warn", "bad"],
+  },
+  variantParts: {
+    "media.none": { hides: ["icon", "photo"] },
+    "media.icon": { hides: ["photo"] },
+    "media.cover": { hides: ["icon"] },
+    "detail.brief": { hides: ["body", "meta"] },
+  },
   parts: ["root", "icon", "photo", "badge", "title", "body", "meta"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
@@ -43,35 +49,38 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    style: z.enum(["plain", "tinted", "outlined", "media"]).default("plain"),
-    title: text(40),
-    body: text(120).optional(),
-    meta: text(24).optional(),
-    badge: text(12).optional(),
-    icon: icon.optional(),
-    photo: photo.optional(),
-    tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
-    goto: screenId.optional(),
+    ...catalog.variantProps(meta.variants),
+    title: catalog.text(40),
+    body: catalog.text(120).optional(),
+    meta: catalog.text(24).optional(),
+    badge: catalog.text(12).optional(),
+    icon: catalog.icon.optional(),
+    photo: catalog.photo.optional(),
+    goto: catalog.screenId.optional(),
   })
   .refine((value) => !(value.icon && value.photo), { path: ["photo"] })
-  // Derive link presence for actions.when without accepting a model-written flag.
-  .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
+  // Keep parsed props in sync with the drawing and reader; wire input still stores hidden content.
+  .overwrite((value) => ({
+    ...value,
+    ...(value.detail === "brief" ? { body: undefined, meta: undefined } : {}),
+    ...(value.media === "none" || value.media === "cover" ? { icon: undefined } : {}),
+    ...(value.media === "none" || value.media === "icon" ? { photo: undefined } : {}),
+    linked: value.goto !== undefined,
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const { placeholderDetail } = wordsFor(lang);
-
+  const { placeholderDetail } = catalog.wordsFor(lang);
   const item = cast.items[0];
-  const thing = item ? thingOf(cast, item.type) : undefined;
+  const thing = item ? catalog.thingOf(cast, item.type) : undefined;
   return {
-    style: "plain",
-    title: (item && titleOf(item, 40, thing)) || placeholderTitle(0, lang),
-    body: (item && detailOf(item, 120, thing)) || placeholderDetail,
+    title: (item && catalog.titleOf(item, 40, thing)) || catalog.placeholderTitle(0, lang),
+    body: (item && catalog.detailOf(item, 120, thing)) || placeholderDetail,
   };
 }
 
 export const examples = [
   {
-    style: "media",
+    media: "cover",
     title: "Fern",
     body: "Bathroom · soft indirect light",
     meta: "Water today",
@@ -79,45 +88,55 @@ export const examples = [
     goto: "fern",
   },
   {
-    style: "tinted",
+    surface: "tinted",
     title: "Morning park walk",
     body: "Clover and Pip · 09:00",
     meta: "Booking confirmed",
     icon: "dog",
     tone: "good",
   },
-  { style: "plain", title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
+  { title: "Monstera", body: "Living room · due Friday", photo: "lib:plants" },
   {
-    style: "outlined",
+    surface: "outlined",
+    media: "icon",
     title: "Basil",
     body: "Kitchen · freshly watered",
     icon: "leaf",
     goto: "basil",
   },
-  { style: "plain", title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
+  { title: "Evening walk", body: "Pip · 18:30 · Hyde Park", badge: "Due today", icon: "dog" },
+  { title: "Booking pending", body: "Pip · awaiting confirmation", surface: "tinted", tone: "warn" },
+  { title: "Walk cancelled", body: "Clover · Friday morning", surface: "tinted", tone: "bad" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write, read } = probesFor("Card");
+const { choose, write, read } = catalog.probesFor("Card");
 export const probes = [
   choose("Show one tappable preview of my fern with a short care detail, so I can open it"),
   choose("Show several plants and let me tap each one to open it", "List"),
-  write("One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern"),
+  {
+    ...write(
+      "Show Fern with lib:plants as a wide photo at the top. Below it show Bathroom and then Water today. Tap to open fern.",
+    ),
+    variant: { axis: "media", value: "cover" },
+  },
   write("One card for the evening walk with Pip at 18:30, with a small Due today label in the corner"),
   read("Open the fern card", { address: "c1", action: "press" }),
 ] satisfies Probe[];
 
-function CardText({ title, body, meta: detail, badge }: Props<typeof props, typeof meta>) {
+type CardProps = Props<typeof props, typeof meta>;
+
+function CardText({ title, badge, density, emphasis, body, meta }: CardProps) {
   const heading = (
-    <KitText role="heading" part="title">
+    <KitText role="heading" part="title" {...{ density, emphasis }}>
       {title}
     </KitText>
   );
   return (
     <>
       {badge ? (
-        <KitGrid fitLast>
+        <KitGrid fitLast {...{ density }}>
           {heading}
-          <KitText role="label" tone="muted" part="badge">
+          <KitText role="label" tone="muted" part="badge" {...{ density }}>
             {badge}
           </KitText>
         </KitGrid>
@@ -125,59 +144,54 @@ function CardText({ title, body, meta: detail, badge }: Props<typeof props, type
         heading
       )}
       {body && (
-        <KitText role="body" tone="muted" part="body">
+        <KitText role="body" tone="muted" part="body" {...{ density }}>
           {body}
         </KitText>
       )}
-      {detail && (
-        <KitText role="caption" tone="muted" part="meta">
-          {detail}
+      {meta && (
+        <KitText role="caption" tone="muted" part="meta" {...{ density }}>
+          {meta}
         </KitText>
       )}
     </>
   );
 }
 
-export function Card(input: Props<typeof props, typeof meta>) {
-  const { style, title, icon, photo, tone, goto } = input;
-  const state = useComponentState();
+export function Card(input: CardProps) {
+  const { media, title, icon, photo, surface, tone, emphasis, goto } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
+  const loading = useComponentState() === "loading";
+  const cover = media === "cover";
   const { resolvePhoto } = useKit();
-  const media = style === "media";
-  const hasPhoto = media && Boolean(photo && resolvePhoto?.(photo));
+  const coverPhoto = cover && photo && resolvePhoto?.(photo) ? photo : undefined;
+  const finish = { density, emphasis };
+  const frame = { surface, tone, density, clip: cover, padded: !loading, goto: loading ? undefined : goto };
+  const thumbnail = !cover && photo;
   const lead = icon ? (
-    <KitIcon name={icon} part="icon" />
-  ) : photo && !media ? (
-    <KitPhoto photo={photo} part="photo" />
-  ) : undefined;
+    <KitIcon name={icon} part="icon" scale={media === "icon" ? "lg" : "md"} />
+  ) : (
+    thumbnail && <KitPhoto photo={thumbnail} part="photo" />
+  );
   return (
-    <KitCard
-      style="inset"
-      look={style === "tinted" || style === "outlined" ? style : "surface"}
-      tone={style === "tinted" ? tone : "neutral"}
-      clip={media}
-      padded={state !== "loading"}
-      part="root"
-      goto={state === "loading" ? undefined : goto}
-      label={title}
-    >
-      {state === "loading" ? (
+    <KitCard {...frame} part="root" label={title}>
+      {loading ? (
         <KitSkeleton
-          rows={1}
-          shape={hasPhoto ? "media" : "figure"}
-          lead={media ? "none" : icon ? "dot" : photo ? "box" : "none"}
+          shape={coverPhoto ? "media" : "figure"}
+          lead={icon ? "dot" : thumbnail ? "box" : "none"}
+          {...finish}
           inset="card"
           aspect="wide"
-          lines={[
-            { text: title, role: "heading" },
-            ...(input.body ? [{ text: input.body, role: "body" as const }] : []),
-            ...(input.meta ? [{ text: input.meta, role: "caption" as const }] : []),
+          content={[
+            ["heading", title],
+            ["body", input.body],
+            ["caption", input.meta],
           ]}
         />
       ) : (
         <>
-          {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
-          <KitContent lead={lead} lineRole="heading" leadingAlign={photo && !media ? "row" : "line"}>
-            <CardText {...input} />
+          {coverPhoto && <KitPhoto photo={coverPhoto} shape="wide" part="photo" />}
+          <KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>
+            <CardText {...input} density={density} />
           </KitContent>
         </>
       )}

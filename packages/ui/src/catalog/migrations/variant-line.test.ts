@@ -23,13 +23,19 @@ const list = {
 const card = { id: "card_one", c: "Card", style: "media", title: "One", photo: "lib:plants" } as const;
 const options = { variantComponents: ["List", "Card"] };
 
-it("leaves live List and Card lines intact while the fixtures are staged", () => {
+it("leaves List unchanged while its migration is staged and upgrades Card before strict parsing", () => {
   expect(migrateLine(list)).toBe(list);
-  expect(migrateLine(card)).toBe(card);
   const { id: _id, c: _c, state: _state, ...oldList } = list;
   const { id: _cardId, c: _cardC, ...oldCard } = card;
   expect(components.List.props.safeParse(oldList).success).toBe(true);
-  expect(components.Card.props.safeParse(oldCard).success).toBe(true);
+  expect(components.Card.props.safeParse(oldCard).success).toBe(false);
+  const { id, c, ...upgraded } = migrateLine(card);
+  expect({ id, c }).toEqual({ id: card.id, c: card.c });
+  expect(components.Card.props.parse(upgraded)).toMatchObject({
+    surface: "card",
+    media: "cover",
+    photo: card.photo,
+  });
 });
 
 it("preserves the old ranked display before strict validation, not the unused row trail", () => {
@@ -68,7 +74,7 @@ it.each([
   ["List", "plain", { surface: "plain" }],
   ["List", "inset", { surface: "card" }],
   ["List", "cards", { style: "cards", surface: "card" }],
-  ["Card", "plain", { surface: "plain" }],
+  ["Card", "plain", { surface: "card" }],
   ["Card", "outlined", { surface: "outlined" }],
   ["Card", "tinted", { surface: "tinted" }],
   ["Card", "media", { media: "cover" }],
@@ -82,6 +88,13 @@ it("retains separate row-card structure without overriding an explicit surface",
   const entry = { ...list, style: "cards", surface: "outlined" };
   expect(migrateLine(entry, options)).toBe(entry);
   expect(migrateLine({ ...list, style: "inset" }, options)).not.toHaveProperty("style");
+});
+
+it("keeps an icon authored for legacy Card media without overriding a new media value", () => {
+  const legacy = { c: "Card", style: "media", title: "One", icon: "leaf" };
+  const { c: _c, ...props } = migrateLine(legacy);
+  expect(components.Card.props.parse(props)).toMatchObject({ media: "thumb", icon: "leaf" });
+  expect(migrateLine({ ...legacy, media: "none" })).toMatchObject({ media: "none" });
 });
 
 it("replays List's legacy body and me inference in that order", () => {
