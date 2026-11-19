@@ -25,7 +25,9 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
   } as const;
   const prompt = composePrompt(meta, "thread", cast, defs);
   expect(prompt.split(variantVocabulary)).toHaveLength(2);
-  expect(prompt).toContain("highlight at most one third");
+  expect(prompt).toContain('At most one third of items per component get mark "highlight" (round down).');
+  expect(prompt).toContain("Never infer an axis from the data alone.");
+  expect(prompt).toContain("one hero emphasis and one cover collection per screen");
 });
 
 it("uses the effective List trail for toggle recipes and respects row overrides", () => {

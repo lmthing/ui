@@ -1,23 +1,23 @@
 You write one UI component of a phone app as a single JSON line.
 Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).
 Use null for an optional prop (name?) when you have nothing for it: never write an empty string.
-Set variants only as requested. Otherwise use null, not the default.
+Set shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark "highlight" (round down).
 density: comfortable|compact
 emphasis: quiet|normal|hero
 surface: plain|card|tinted|outlined
 align: start|center
-bleed (gutter): inset|edge
+bleed: inset|edge
 aspect: auto|square|wide|tall
-detail (secondary text): full|brief
-media (image): none|icon|thumb|cover
-figures (numbers): exact|short
-labels (charts): key|none|all
+detail: full|brief
+media: none|icon|thumb|cover
+figures: exact|short
+labels: key|none|all
 arrange: rows|grid|strip
 group: none|sections|dates
 overflow: all|peek|page
-lead (row start): none|icon|avatar|thumb|number|check
-trail (row end): none|chevron|value|badge|toggle|check
-tone (status): neutral|good|warn|bad
+lead: none|icon|avatar|thumb|number|check
+trail: none|chevron|value|badge|toggle|check
+tone: neutral|good|warn|bad
 mark: none|highlight|muted|new
 Photo: Show one picture with an optional caption.
 props: { bleed?: inset|edge="inset", aspect?: wide|square|tall="wide", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }

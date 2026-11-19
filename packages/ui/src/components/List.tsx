@@ -9,8 +9,8 @@ export const meta = {
   purpose: "Several things of the same kind, each one tappable.",
   pick: "Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).",
   writeHints: [
-    'Use style "expand" and a body on every FAQ row; use style "shelf" with a photo on every row for a sideways photo rail.',
-    'Photo references are like "lib:plants" or "local:1". The water icon is "drop".',
+    'Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark "highlight" on at most one in three rows (none in a one- or two-row list).',
+    'Use style "expand" with a body on every FAQ row or "shelf" with a photo on every sideways rail row. Photos use references like "lib:plants" or "local:1". The water icon is "drop".',
     'Rankings use style null (never expand), lead "number", trail "value", and each score in value. Only the person’s row gets me.',
     'For grouped headings use group "sections" and a section label on every row; keep rows in section order.',
     'For See all: overflow "peek"; style and all other axes null unless requested. Output every row, including hidden ones. If asked for names only, write title and leave all other row fields null.',
