@@ -12,10 +12,17 @@ type Props = Record<string, unknown>;
 const screen = "home";
 const component = "c1";
 
-export function peekHiddenItems(ids: string[], addresses: string[]) {
+export function overflowAllIssues(ids: string[], addresses: string[]) {
+  return ids
+    .map((id) => `${screen}/${component}/${id}/root`)
+    .filter((address) => !addresses.includes(address))
+    .map((address) => `Overflow all is missing ${address}`);
+}
+
+export function peekHiddenItems(ids: string[], addresses: string[], all?: string[]) {
   const visible = ids.filter((id) => addresses.includes(`${screen}/${component}/${id}/root`));
   const hidden = ids.filter((id) => !visible.includes(id));
-  const issues: string[] = [];
+  const issues = all ? overflowAllIssues(ids, all) : [];
   if (!visible.every((id, index) => id === ids[index]) || (!visible.length && ids.length))
     issues.push("Peek must retain the first items at their original addresses");
   for (const id of hidden)

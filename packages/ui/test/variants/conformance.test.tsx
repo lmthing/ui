@@ -5,7 +5,7 @@ import { selectedIds } from "../../scripts/build";
 import { variantChoices, variantLabel, variantPairs, variantSheet } from "../../scripts/variants";
 import { renderInstance } from "../render";
 import { renderedAddresses, variantPartIssues } from "./variant-parts";
-import { peekHiddenItems, variantPeekIssues } from "./variant-peek";
+import { overflowAllIssues, peekHiddenItems, variantPeekIssues } from "./variant-peek";
 import { rowAddressIssues } from "./row-addresses";
 
 type Props = Record<string, unknown>;
@@ -28,7 +28,12 @@ function checkPair(id: Id, def: Definition, choice: Choice, { baseline, input, i
   const before = renderedAddresses(beforeHTML);
   const after = renderedAddresses(afterHTML);
   const isPeek = choice.axis === "overflow" && choice.value === "peek";
-  const { hidden, issues } = isPeek ? peekHiddenItems(items, after) : { hidden: [], issues: [] };
+  const { hidden, issues } = isPeek
+    ? peekHiddenItems(items, after, baseline.overflow === "all" ? before : undefined)
+    : {
+        hidden: [],
+        issues: choice.axis === "overflow" && input.overflow === "all" ? overflowAllIssues(items, after) : [],
+      };
   const item = itemIndex === undefined ? undefined : items[itemIndex];
   expect([
     ...issues,

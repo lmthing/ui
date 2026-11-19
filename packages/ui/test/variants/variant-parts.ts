@@ -41,11 +41,7 @@ export function variantPartIssues(
   }
   for (const address of left) {
     if (right.has(address) || hiddenAddresses.some((base) => address.startsWith(base))) continue;
-    if (
-      address === `${prefix}root` ||
-      items.some((id) => address === `${prefix}${id}/root`) ||
-      !allowedPart(address, declaration?.hides ?? [], item)
-    )
+    if (address === `${prefix}root` || !allowedPart(address, declaration?.hides ?? [], item))
       issues.push(`Unexpected missing address: ${address}`);
   }
   return issues;

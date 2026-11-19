@@ -42,16 +42,21 @@ export function variantPairs(meta: Definition["meta"], example: unknown, choice:
   if (!items?.variants) return [];
 
   const rows = itemsOf(raw, items.key);
-  const at = (index: number, value: string) => ({
+  const at = (index: number, value?: string) => ({
     ...raw,
-    [items.key]: rows.map((row, rowIndex) => (index === rowIndex ? { ...row, [choice.axis]: value } : row)),
+    [items.key]: rows.map((row, rowIndex) => {
+      if (index !== rowIndex) return row;
+      const { [choice.axis]: _authored, ...rest } = row;
+      return value === undefined ? rest : { ...rest, [choice.axis]: value };
+    }),
   });
   const defaultValue = (items.variants as Variants)[choice.axis]![0];
-  return rows.map((_, itemIndex) => ({
-    baseline: at(itemIndex, defaultValue),
-    input: at(itemIndex, choice.value),
-    itemIndex,
-  }));
+  const canInherit = choice.axis === "trail" && Boolean(meta.variants?.trail);
+  return rows.flatMap((_, itemIndex) => {
+    const input = at(itemIndex, choice.value);
+    const explicit = { baseline: at(itemIndex, defaultValue), input, itemIndex };
+    return canInherit ? [explicit, { baseline: at(itemIndex), input, itemIndex }] : [explicit];
+  });
 }
 
 function previewScore(def: Definition, example: Input, choice: Choice, itemIndex?: number) {

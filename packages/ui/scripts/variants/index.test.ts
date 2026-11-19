@@ -43,7 +43,14 @@ it("compares one item at a time without shadowing the collection trail", () => {
     rows: [{ title: "First" }, { title: "Second", mark: "highlight" }],
   });
   const pairs = variantPairs(fixture.meta, examples[0], { axis: "trail", value: "chevron", item: true });
-  expect(pairs.map(({ itemIndex, input }) => ({ itemIndex, rows: input.rows }))).toEqual([
+  expect(
+    pairs
+      .filter(({ baseline, itemIndex }) => {
+        const rows = baseline.rows as Record<string, unknown>[];
+        return Object.hasOwn(rows[itemIndex!]!, "trail");
+      })
+      .map(({ itemIndex, input }) => ({ itemIndex, rows: input.rows })),
+  ).toEqual([
     {
       itemIndex: 0,
       rows: [
@@ -56,6 +63,16 @@ it("compares one item at a time without shadowing the collection trail", () => {
       rows: [{ title: "First" }, { title: "Second", mark: "highlight", trail: "chevron" }],
     },
   ]);
+});
+
+it("compares an explicit trail override with the inherited collection trail", () => {
+  const omitted = { trail: "chevron", rows: [{ title: "First" }, { title: "Second", trail: "chevron" }] };
+  const pairs = variantPairs(fixture.meta, omitted, { axis: "trail", value: "none", item: true });
+  expect(pairs).toContainEqual({
+    itemIndex: 0,
+    baseline: omitted,
+    input: { ...omitted, rows: [{ title: "First", trail: "none" }, omitted.rows[1]] },
+  });
 });
 
 it("uses a valid authored example once and does not mutate the examples", () => {

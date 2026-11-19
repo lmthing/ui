@@ -40,6 +40,13 @@ it("catches a peek that skips the first row", () => {
   expect(peekHiddenItems(["r1", "r2"], ["home/c1/r2/root"]).issues).toHaveLength(1);
 });
 
+it("rejects a peek that shows the same truncated collection as its all reference", () => {
+  const truncated = ["home/c1/root", "home/c1/r1/root"];
+  expect(peekHiddenItems(["r1", "r2"], truncated, truncated).issues).toEqual([
+    "Overflow all is missing home/c1/r2/root",
+  ]);
+});
+
 it("does not count a row as safely hidden if it still shows addressed parts", () => {
   expect(peekHiddenItems(["r1", "r2"], ["home/c1/r1/root", "home/c1/r2/title"]).issues).toEqual([
     "Peek still renders parts of r2",

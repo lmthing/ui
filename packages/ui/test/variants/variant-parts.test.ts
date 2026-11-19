@@ -39,3 +39,12 @@ it("requires identical finish addresses, regardless of their layout order", () =
     `Unexpected missing address: ${title}`,
   ]);
 });
+
+it("allows declared pagination to hide item roots, but not the component root", () => {
+  const paging: Meta = { ...meta, variantParts: { "overflow.page": { hides: ["root", "title"] } } };
+  const choice = { axis: "overflow", value: "page", item: false } as const;
+  expect(variantPartIssues(paging, choice, [root, row, title], [root], { items })).toEqual([]);
+  expect(variantPartIssues(paging, choice, [root, row, title], [], { items })).toEqual([
+    `Unexpected missing address: ${root}`,
+  ]);
+});

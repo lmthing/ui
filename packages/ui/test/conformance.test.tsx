@@ -11,6 +11,7 @@ import {
   themeName,
   themeRoles,
   type ComponentName,
+  type Meta,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
@@ -57,8 +58,12 @@ describe.each(ready)("%s conformance", (id) => {
             const { hidden, issues } = peekForExample(meta, props, html);
             expect(issues).toEqual([]);
             if (items.visible === "first") expect(html).not.toContain('data-testid="home/c1/r2/root"');
-            for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
-              if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
+            const pageHidesRoots =
+              props.overflow === "page" &&
+              (meta as Meta).variantParts?.["overflow.page"]?.hides?.includes("root");
+            if (!pageHidesRoots)
+              for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
+                if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
           }
         }
       }
