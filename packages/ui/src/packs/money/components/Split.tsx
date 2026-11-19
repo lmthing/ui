@@ -148,7 +148,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
   // prettier-ignore
   return <>
     <kit.KitContent group="response">
-      <kit.KitText part="balances" role="heading">{w.balances}</kit.KitText>
+      <kit.KitText part="balances" role="label" tone="muted">{w.balances}</kit.KitText>
       {people.map(({ id, name, photo }, index) => {
         const balance = ledger.balances[index]!;
         return <kit.KitRow key={id} item={id} label={name} inset="none" leadingAlign="row"
@@ -162,7 +162,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
       })}
     </kit.KitContent>
     {ledger.expenses.length > 0 && <kit.KitContent group="response">
-      <kit.KitText part="expenses" role="heading">{w.expenses}</kit.KitText>
+      <kit.KitText part="expenses" role="label" tone="muted">{w.expenses}</kit.KitText>
       {ledger.expenses.map(({ title, paidBy, amount }, index) => (
         <kit.KitRow key={index} label={title} inline
           trailing={<kit.KitText part={null} role="number" numberScale="compact" tabular>{amount}</kit.KitText>}>
