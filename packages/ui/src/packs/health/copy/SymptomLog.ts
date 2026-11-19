@@ -19,3 +19,10 @@ export function symptomLevelLine(symptom: SymptomSeed): string {
 export function symptomReading(groups: readonly { label: string; symptoms: readonly SymptomSeed[] }[]) {
   return groups.flatMap((group) => group.symptoms.filter(symptomChosen).map(symptomSeverityLine));
 }
+
+export function symptomTargets(groups: readonly { label: string; symptoms: readonly SymptomSeed[] }[]) {
+  return groups.map(
+    (group) =>
+      `${group.label}: ${group.symptoms.map((symptom, index) => `symptom_${index + 1} = ${symptom.label}`).join(", ")}`,
+  );
+}

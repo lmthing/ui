@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { symptomChosen, symptomSeverity, symptomSeverityLine, symptomReading } from "../../copy";
+import {
+  symptomChosen,
+  symptomSeverity,
+  symptomSeverityLine,
+  symptomReading,
+  symptomTargets,
+} from "../../copy";
 
 describe("SymptomLog copy", () => {
   it.each([0, 1, 2, 3, 4, 5])("derives the initial selection and severity from %i", (severity) => {
@@ -27,5 +33,15 @@ describe("SymptomLog copy", () => {
       ]),
     ).toEqual(["Headache · 2/5", "Fatigue · 1/5"]);
     expect(symptomReading([])).toEqual([]);
+  });
+  it("maps names to one-based action parts, including unselected symptoms", () => {
+    const symptoms = [
+      { label: "Headache", severity: 2 },
+      { label: "Dizziness", severity: 0 },
+    ];
+    expect(symptomTargets([{ label: "Head", symptoms }])).toEqual([
+      "Head: symptom_1 = Headache, symptom_2 = Dizziness",
+    ]);
+    expect(symptomTargets([])).toEqual([]);
   });
 });

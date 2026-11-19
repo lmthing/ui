@@ -3,6 +3,8 @@ import { probesFor, text, type CastLike, type Meta, type Probe, type Props } fro
 import {
   KitCard,
   KitChip,
+  KitContent,
+  KitGrid,
   KitRow,
   KitSlider,
   KitText,
@@ -11,12 +13,12 @@ import {
   usePart,
 } from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
-import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading } from "../copy";
+import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading, symptomTargets } from "../copy";
 
 // Core first: Scale/mood cannot select several grouped symptoms and set a severity for each.
 export const meta = {
   id: "SymptomLog",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Note several body symptoms and each symptom's severity.",
   pick: "Grouped body symptoms with a selected chip and severity zero to five for each. Not one level for the day (Scale), collection filters (Chips), or naming feelings (Feelings).",
@@ -42,8 +44,11 @@ export const meta = {
     items: indexedActions(8, { symptom: ["toggle"], severity: ["set"] }),
     when: indexedWhen(8, ["symptom", "severity"]),
   },
-  read: (input, state) =>
-    state !== "filled" ? [] : symptomReading((input as z.output<typeof props>).groups),
+  read: (input, state) => {
+    if (state !== "filled") return [];
+    const { groups } = input as z.output<typeof props>;
+    return [...symptomReading(groups), ...symptomTargets(groups)];
+  },
 } as const satisfies Meta;
 export const props = z.strictObject({
   groups: z
@@ -131,7 +136,10 @@ export const probes = [
     "Head symptoms: headache severity two and dizziness zero; stomach symptoms: nausea one and cramping zero",
   ),
   read("Change the severity of headache", { address: "s1/r1/severity_1", action: "set" }),
-  read("Select dizziness", { address: "s1/r1/symptom_2", action: "toggle" }),
+  read("Select dizziness in the Head group; leave the already-selected headache unchanged.", {
+    address: "s1/r1/symptom_2",
+    action: "toggle",
+  }),
 ] satisfies Probe[];
 
 type Group = Props<typeof props, typeof meta>["groups"][number];
@@ -152,21 +160,17 @@ function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number
   if (!on) return null;
   const current = { ...symptom, on, severity };
   return (
-    <KitRow
-      label={symptom.label}
-      inline
-      lineRole="label"
-      trailing={
+    <KitContent group="response">
+      <KitGrid columns={2} fitLast>
+        <KitText role="label" tone="muted" part={null}>
+          {symptom.label}
+        </KitText>
         <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
           {symptomLevelLine(current)}
         </KitText>
-      }
-    >
-      <KitText role="label" tone="muted" part={null}>
-        {symptom.label}
-      </KitText>
+      </KitGrid>
       <KitSlider part={part} label={symptom.label} value={symptomSeverity(current)} min={1} max={5} />
-    </KitRow>
+    </KitContent>
   );
 }
 export function SymptomLog({ groups }: Props<typeof props, typeof meta>) {

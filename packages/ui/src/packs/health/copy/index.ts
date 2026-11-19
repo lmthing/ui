@@ -24,4 +24,5 @@ export {
   symptomSeverityLine,
   symptomLevelLine,
   symptomReading,
+  symptomTargets,
 } from "./SymptomLog";
