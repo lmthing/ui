@@ -1,7 +1,7 @@
 ---
 name: ui-reviewer
 description: Reviews one component's screenshots against the visual rubric with fresh eyes and returns a numbered list of problems or APPROVED. Read-only; never edits code.
-model: inherit
+model: custom:GPT-6.2-Sol-(Azure)-0
 tools: ["Read", "LS", "Glob", "Grep"]
 ---
 

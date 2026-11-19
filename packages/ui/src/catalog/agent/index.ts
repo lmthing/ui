@@ -13,6 +13,8 @@ export {
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  adjustmentAt,
+  projectAdjustments,
   projectClocks,
   clockActionValid,
 } from "./clocks";

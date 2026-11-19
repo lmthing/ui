@@ -40,7 +40,18 @@ export const en = {
       ? "Does not repeat"
       : `Every ${form === "one" ? repeatUnits[repeat] : `${count} ${repeatUnits[repeat]}s`}`,
   careDate: (label: string, date: string) => `${label} ${date.replace(/ /g, "\u00a0")}`,
-  choreLabels: { points: "points" },
+  choreLabels: {
+    once: "No repeat",
+    ready: "Ready to do",
+    today: "Due today",
+    done: "Done for now",
+    complete: "Chores complete",
+  },
+  chorePoints: (count: string, form: LDMLPluralRule) => ({
+    count,
+    suffix: form === "one" ? " point" : " points",
+  }),
+  choreCheck: (title: string) => `Mark ${title} done`,
   deviceLabels: {
     reading: "Reading",
     setPoint: "Set point",

@@ -13,6 +13,8 @@ export type ClockMeta = {
   /** A local source prop, falling back to the component prop; absent means zero. */
   from?: string;
   prop?: string;
+  /** Optional boolean prop that distinguishes a ticking clock from a paused or finished clock. */
+  runningProp?: string;
   at?: string;
   max?: number;
   when?: Readonly<Record<string, string | boolean>>;

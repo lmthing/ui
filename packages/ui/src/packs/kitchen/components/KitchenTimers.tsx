@@ -10,33 +10,88 @@ import {
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitRing,
+  KitRow,
+  KitText,
+  useComponentState,
+  useWords,
+} from "../../../kit";
+import {
+  countdownOf,
+  kitchenTimerControl,
+  kitchenTimerMax,
+  kitchenTimerMinute,
+  kitchenTimerMore,
+  kitchenTimerOrder,
+  kitchenTimerReading,
+} from "../copy";
+import { kitchenWordsFor } from "../lang";
 
 // Core first: Timer/down cannot run independently named concurrent countdowns with add-minute controls.
 export const meta = {
   id: "KitchenTimers",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Run several named cooking timers at once and adjust each independently.",
-  pick: "Two or more concurrent named cooking timers, each with start, stop and add a minute. One countdown remains Timer; an instruction's timer remains CookSteps.",
+  pick: "Two or more named cooking countdowns running independently, each with its own start, pause and add-a-minute controls. Not a single countdown (Timer) or a timed recipe instruction (CookSteps).",
   writeHints: [
-    "seconds is each timer's seed duration, 1–14400. Do not write remaining time, progress, running state or sorted order.",
+    "Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { root: "ok" },
   realPath: "Timers run on the device; alarm notifications need permission.",
-  items: { key: "timers", parts: ["root", "label", "seconds", "more"] },
-  parts: ["root"],
+  items: {
+    key: "timers",
+    parts: ["root", "label", "seconds", "more", "tile", "ring"],
+    adjust: { "more.press": { prop: "remaining", delta: kitchenTimerMinute } },
+    clocks: [
+      {
+        id: "countdown",
+        kind: "down",
+        from: "seconds",
+        prop: "remaining",
+        runningProp: "running",
+        max: kitchenTimerMax,
+        start: { part: "root", action: "start" },
+        stop: { part: "root", action: "stop" },
+        zero: { prop: "finished", value: true },
+      },
+    ],
+  },
+  parts: ["root", "empty"],
   states: ["filled", "empty"],
-  actions: { items: { root: ["start", "stop"], more: ["press"] } },
-  read: (input, _state, lang?: string) =>
-    (input as z.output<typeof props>).timers.map((timer) => clockLine(timer.seconds, lang)),
+  actions: {
+    items: { root: ["start", "stop"], more: ["press"] },
+    when: { "root.start": { finished: false }, "root.stop": { running: true } },
+  },
+  read: (input, state, lang?: string) =>
+    state === "filled" ? kitchenTimerReading((input as z.output<typeof props>).timers, lang) : [],
 } as const satisfies Meta;
 export const props = z.strictObject({
   timers: z
-    .array(z.strictObject({ label: text(16), seconds: z.int().min(1).max(14400) }))
+    .array(
+      z
+        .strictObject({
+          label: text(16),
+          seconds: z.int().min(1).max(kitchenTimerMax),
+          remaining: z.int().min(0).max(kitchenTimerMax).optional(),
+          finished: z.boolean().default(false),
+          running: z.boolean().optional(),
+        })
+        .refine((timer) => (timer.remaining === undefined) === (timer.running === undefined), {
+          message: "Remaining seconds and running state are projected together",
+        }),
+    )
     .min(1)
     .max(6),
 });
@@ -44,26 +99,24 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const timers = itemsOf(cast, 3).map((item, index) => ({
     label: titleOf(item, 16, thing) ?? placeholderTitle(index, lang),
-    seconds: 60,
+    seconds: kitchenTimerMinute,
   }));
   return {
     timers: timers.length
       ? timers
       : [
-          { label: placeholderTitle(0, lang), seconds: 60 },
-          { label: placeholderTitle(1, lang), seconds: 60 },
+          { label: placeholderTitle(0, lang), seconds: kitchenTimerMinute },
+          { label: placeholderTitle(1, lang), seconds: kitchenTimerMinute },
         ],
   };
 }
 export const examples = [
-  // Ledge: the plant keeper's household supper.
   {
     timers: [
       { label: "Béchamel", seconds: 372 },
       { label: "Oven", seconds: 1120 },
     ],
   },
-  // Trot: breakfast before the walking round.
   {
     timers: [
       { label: "Porridge", seconds: 300 },
@@ -76,6 +129,63 @@ export const probes = [
   choose("Run separate pasta and oven countdowns at the same time, each with pause and add a minute"),
   choose("Run one six-minute countdown with start and stop, without any other timers", "Timer"),
   write("Two concurrent cooking timers: Béchamel for 372 seconds and Oven for 1120 seconds"),
-  read("Start the béchamel timer", { address: "k1/r1", action: "start" }),
+  read("Begin counting down on the timer named Béchamel", { address: "k1/r1", action: "start" }),
   read("Add a minute to the oven timer", { address: "k1/r2/more", action: "press" }),
 ] satisfies Probe[];
+
+function CountdownTile({ timer }: { timer: Props<typeof props, typeof meta>["timers"][number] }) {
+  const {
+    lang,
+    words: { kitchenTimerLabels: labels },
+  } = useWords(kitchenWordsFor);
+  const remaining = countdownOf(timer);
+  const control = kitchenTimerControl(timer);
+  return (
+    <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
+      <KitContent>
+        <KitText part="label" role="label" tone="muted" align="center">
+          {timer.label}
+        </KitText>
+        <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
+          <KitText part="seconds" role="number" numberScale="compact" tabular align="center">
+            {clockLine(remaining, lang)}
+          </KitText>
+        </KitRing>
+        <KitContent group="response">
+          <KitAction
+            part="root"
+            label={labels[control]}
+            action={control === "pause" ? "stop" : "start"}
+            kind="primary"
+            disabled={control === "finished"}
+            full
+          />
+          <KitAction
+            part="more"
+            label={kitchenTimerMore(lang)}
+            action="press"
+            kind="quiet"
+            disabled={remaining >= kitchenTimerMax}
+            full
+          />
+        </KitContent>
+      </KitContent>
+    </KitRow>
+  );
+}
+
+export function KitchenTimers({ timers }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  if (state === "empty")
+    return (
+      <KitCard part="root" padded>
+        <KitEmpty icon="timer" part="empty" decorativeIcon />
+      </KitCard>
+    );
+  const tiles = kitchenTimerOrder(timers).map((timer) => <CountdownTile key={timer.id} timer={timer} />);
+  return (
+    <KitCard part="root" padded>
+      {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
+    </KitCard>
+  );
+}

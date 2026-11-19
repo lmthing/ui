@@ -2,6 +2,7 @@ import {
   projectSelection,
   projectNested,
   projectClocks,
+  projectAdjustments,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -73,6 +74,7 @@ function projectEntry(
   Object.assign(result, projectNested(defs[entry.c]!.meta, result, get));
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
+  Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));
   if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
   if (entry.c === "Player" && typeof get("scrubber") === "number")
