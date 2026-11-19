@@ -79,7 +79,11 @@ export function KitWeekMatrix({ orientation = "daysAcross", today, trailing, ...
                   heading: null,
                   cells: props.rows.map((row) => ({
                     id: `${row.id}/trailing`,
-                    content: trailing!.find((entry) => entry.row === row.id)?.content,
+                    content: (
+                      <WeekContent item={row.id}>
+                        {trailing!.find((entry) => entry.row === row.id)?.content}
+                      </WeekContent>
+                    ),
                   })),
                 },
               ]

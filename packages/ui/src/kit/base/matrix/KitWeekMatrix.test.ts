@@ -107,3 +107,27 @@ describe("KitWeekMatrix transposition integrity", () => {
     expect(html).not.toContain("Total");
   });
 });
+
+describe("KitWeekMatrix trailing item parts", () => {
+  it.each(["daysAcross", "daysDown"] as const)("keeps each total in its source row in %s", (orientation) => {
+    const items = ["r1", "r2"].map((id) => ({
+      id,
+      label: id,
+      heading: text(id),
+      cells: days.map((day) => ({ id: day.id, content: null })),
+    }));
+    const input = {
+      days,
+      rows: items,
+      corner: text("Week"),
+      orientation,
+      trailing: items.map((row) => ({ row: row.id, content: text("4 of 7", "total") })),
+    };
+    const html = renderMatrix(createElement(KitWeekMatrix, input));
+    for (const row of items)
+      expect(html.match(new RegExp(`data-testid="home/c1/${row.id}/total"`, "g"))).toHaveLength(1);
+    expect(html).not.toContain('data-testid="home/c1/total"');
+    const loading = renderMatrix(createElement(KitWeekMatrix, { ...input, loading: true }));
+    expect(loading).not.toMatch(/data-testid="home\/c1\/r\d+\/total"/);
+  });
+});
