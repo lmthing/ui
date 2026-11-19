@@ -23,7 +23,7 @@ export type Probe = ChooseProbe | WriteProbe | ReadProbe;
 export type Definition = {
   meta: Meta;
   props: z.ZodObject;
-  fallback: (input: { cast: CastLike }) => unknown;
+  fallback: (input: { cast: CastLike; lang?: string }) => unknown;
   examples: readonly unknown[];
   probes: readonly Probe[];
 };

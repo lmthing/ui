@@ -1,16 +1,8 @@
-// Neutral content for fallbacks when the cast has nothing to offer. Never domain samples.
-export const placeholderTitles = [
-  "Item one",
-  "Item two",
-  "Item three",
-  "Item four",
-  "Item five",
-  "Item six",
-] as const;
-export const placeholderDetail = "Details";
-export const placeholderLabel = "Continue";
-export const placeholderValue = "0";
+import { wordsFor } from "../lang";
 
-export function placeholderTitle(index: number): string {
-  return placeholderTitles[index % placeholderTitles.length]!;
+export const { placeholderTitles, placeholderDetail, placeholderLabel, placeholderValue } = wordsFor();
+
+export function placeholderTitle(index: number, lang?: string): string {
+  const titles = wordsFor(lang).placeholderTitles;
+  return titles[index % titles.length]!;
 }

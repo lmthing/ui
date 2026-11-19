@@ -55,7 +55,7 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName) => string[];
+  read?: (props: unknown, state: StateName, lang?: string) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /**

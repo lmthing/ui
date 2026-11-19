@@ -7,6 +7,7 @@ import type { PartRegistry } from "../registry";
 
 export type KitContextValue = {
   style: KitStyle;
+  lang: string;
   parts: PartRegistry;
   root: RefObject<TamaguiElement | null>;
   interactive: boolean;
