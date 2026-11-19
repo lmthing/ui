@@ -5,6 +5,35 @@ import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
+
+/** Refined styles can impose tighter array bounds than the base schema exposes. */
+function fitArrays(def: Definition, input: Record<string, unknown>): void {
+  for (const [key, value] of Object.entries(input)) {
+    if (!Array.isArray(value)) continue;
+    const parsed = def.props.safeParse(input);
+    if (parsed.success) return;
+    const issues = parsed.error.issues.filter((issue) => issue.path[0] === key);
+    if (
+      !issues.length ||
+      issues.some(
+        (issue) =>
+          issue.path.length !== 1 ||
+          (issue.code !== "custom" && !(issue.code === "too_big" && issue.origin === "array")),
+      )
+    )
+      continue;
+    // Keep the longest accepted prefix; never change a row or an unrelated invalid prop.
+    for (let count = value.length - 1; count >= 0; count--) {
+      const candidate = value.slice(0, count);
+      const result = def.props.safeParse({ ...input, [key]: candidate });
+      if (result.success || result.error.issues.every((issue) => issue.path[0] !== key)) {
+        input[key] = candidate;
+        break;
+      }
+    }
+  }
+}
+
 function inputOf(
   line: DefaultLine,
   defs: Record<string, Definition>,
@@ -98,6 +127,7 @@ export function defaultLines(
       input.label = clip(thingOf(cast)?.fields[fieldIndex++] ?? placeholderTitle(fieldIndex), 24);
     // Label supporting defaults without pretending to know a domain field.
     if (line.c === "Note" && !input.text) input.text = placeholderDetail;
+    fitArrays(defs[line.c]!, input);
     defs[line.c]!.props.parse(input);
     return { id, c: line.c, ...input };
   });

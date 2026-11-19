@@ -7,6 +7,9 @@ import {
   readScreen,
   type ArchetypeName,
   type CastLike,
+  packComposition,
+  defaultLines,
+  type CoreArchetypeMeta,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../../test/render";
 const layouts = Object.entries(archetypes).flatMap(([id, def]) =>
@@ -70,4 +73,84 @@ describe("core archetype defaults", () => {
         .components.filter((entry) => entry.c === "List" && entry.style === "shelf"),
     ).toHaveLength(2);
   });
+});
+
+const barsDefault: CoreArchetypeMeta = {
+  id: "bars_default",
+  purpose: "Compare amounts",
+  layouts: {
+    share: {
+      slots: [
+        { id: "header", allow: ["Header"], min: 1, max: 1 },
+        { id: "bars", allow: ["Bars"], min: 1, max: 1, variant: "share" },
+        { id: "note", allow: ["Note"], min: 1, max: 1 },
+      ],
+    },
+  },
+  defaults: { share: [{ c: "Header" }, { c: "Bars", variant: "share" }, { c: "Note" }] },
+};
+
+it("trims Bars/share neutral and full-cast fallbacks to the schema's six-part limit without changing core Bars", () => {
+  const cast: CastLike = {
+    things: [{ type: "category", fields: ["name", "amount"] }],
+    items: Array.from({ length: 7 }, (_, index) => ({
+      id: `item_${index}`,
+      type: "category",
+      sample: true,
+      name: `C${index}`,
+      amount: index + 1,
+    })),
+  };
+  for (const source of [casts[0]!, cast]) {
+    const fallback = components.Bars.fallback({ cast: source });
+    expect(fallback.points).toHaveLength(7);
+    const screen = defaultLines(barsDefault, "share", source, components);
+    const { id: _id, c: _c, ...input } = screen.components[1]!;
+    expect(input.points).toEqual(fallback.points.slice(0, 6));
+    expect(components.Bars.props.safeParse(input).success).toBe(true);
+    expect(checkScreen(screen, components)).toEqual([]);
+    expect(fallback.points).toHaveLength(7);
+  }
+});
+
+it("applies the same style bound to a pack seed and preserves already valid fallback data", () => {
+  const meta = packComposition({
+    id: "seed",
+    job: "Compare category amounts",
+    defaultLayout: "share",
+    layouts: {
+      share: {
+        recipe: [
+          { allow: ["Header"], required: true },
+          { allow: ["Bars"], required: true, variant: "share" },
+          { allow: ["Note"], required: true },
+        ],
+        defaults: [
+          { id: "h1", c: "Header" },
+          { id: "b1", c: "Bars", style: "share" },
+          { id: "n1", c: "Note" },
+        ],
+      },
+    },
+  });
+  expect(defaultLines(meta, "share", casts[0]!, components).components[1]!.points).toHaveLength(6);
+  const full = components.Bars.fallback({ cast: casts[1]! });
+  expect(defaultLines(meta, "share", casts[1]!, components).components[1]!.points).toEqual(full.points);
+  const columns = { ...barsDefault, defaults: { share: [{ c: "Header" }, { c: "Bars" }, { c: "Note" }] } };
+  expect(defaultLines(columns, "share", casts[0]!, components).components[1]!.points).toHaveLength(7);
+});
+
+it("does not hide invalid row content, unrelated props or too-few items by trimming", () => {
+  const valid = components.Bars.fallback({ cast: casts[0]! });
+  const invalid = [
+    { ...valid, title: "x".repeat(33) },
+    { ...valid, points: [...valid.points.slice(0, 6), { label: "Bad", value: -1 }] },
+    { ...valid, points: [] },
+  ];
+  for (const input of invalid) {
+    const snapshot = JSON.stringify(input);
+    const defs = { ...components, Bars: { ...components.Bars, fallback: () => input } };
+    expect(() => defaultLines(barsDefault, "share", casts[0]!, defs)).toThrow();
+    expect(JSON.stringify(input)).toBe(snapshot);
+  }
 });
