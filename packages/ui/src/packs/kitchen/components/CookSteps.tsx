@@ -2,7 +2,6 @@ import { z } from "zod";
 import {
   itemsOf,
   clockLine,
-  kitchenLabels,
   placeholderDetail,
   probesFor,
   stepLine,
@@ -13,12 +12,15 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import { KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
+import { cookStepsLabels, cookStepsReading } from "../copy";
 
-// Core first: Steps/numbers cannot show one cooking instruction with ingredients and an optional timer.
+// Core first: Steps/numbered cannot show one cooking instruction with ingredients and an optional timer.
 export const meta = {
   id: "CookSteps",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Follow a recipe one instruction at a time with ingredients and a step timer.",
   pick: "Cooking mode showing one recipe instruction, its ingredients and optional timer. Not progress through screens (Steps), a lesson (Lesson), or recording chapters (ChapterList).",
@@ -36,23 +38,10 @@ export const meta = {
     parts: { timer: ["start", "stop"], next: ["press"], back: ["press"] },
     when: { next: { canNext: true }, back: { canBack: true } },
   },
-  read: (input) => {
+  read: (input, state) => {
+    if (state !== "filled") return [];
     const value = input as z.output<typeof props>;
-    const step = value.steps[value.at - 1]!;
-    return [
-      stepLine(value.at, value.steps.length),
-      step.text,
-      ...step.uses,
-      ...(step.minutes === undefined
-        ? []
-        : [
-            JSON.stringify(kitchenLabels.timer),
-            clockLine(step.minutes * 60),
-            JSON.stringify(timerLabels.start),
-            JSON.stringify(timerLabels.stop),
-            "\n",
-          ]),
-    ];
+    return cookStepsReading(value.steps, value.at);
   },
 } as const satisfies Meta;
 export const props = z
@@ -121,3 +110,47 @@ export const probes = [
   read("Go to the next cooking instruction", { address: "c1/next", action: "press" }),
   read("Start the sauce's cooking timer", { address: "c1/timer", action: "start" }),
 ] satisfies Probe[];
+
+export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
+  const done = useComponentState() === "success";
+  const step = steps[at - 1]!;
+  return (
+    <KitCard style="inset" part="root" padded>
+      <KitContent>
+        <KitText role="caption" tone={done ? "good" : "muted"} part={null}>
+          {done ? cookStepsLabels.done : stepLine(at, steps.length)}
+        </KitText>
+        <KitText role="title" part="text">
+          {done ? cookStepsLabels.finished : step.text}
+        </KitText>
+      </KitContent>
+      {!done && step.uses.length > 0 && (
+        <KitContent group="response">
+          <KitText role="caption" tone="muted" part="uses">
+            {step.uses.join(" · ")}
+          </KitText>
+        </KitContent>
+      )}
+      {!done && step.minutes !== undefined && (
+        <KitContent group="response">
+          <KitText role="caption" tone="muted" part={null}>
+            {cookStepsLabels.timer}
+          </KitText>
+          <KitText role="number" numberScale="compact" tabular part={null}>
+            {clockLine(step.minutes * 60)}
+          </KitText>
+          <KitGrid columns={2}>
+            <KitAction label={timerLabels.start} kind="secondary" part="timer" action="start" full />
+            <KitAction label={timerLabels.stop} kind="quiet" part="timer" action="stop" full />
+          </KitGrid>
+        </KitContent>
+      )}
+      {!done && (
+        <KitContent group="response">
+          <KitAction label={cookStepsLabels.next} part="next" disabled={at === steps.length} full />
+          <KitAction label={cookStepsLabels.back} kind="quiet" part="back" disabled={at === 1} full />
+        </KitContent>
+      )}
+    </KitCard>
+  );
+}
