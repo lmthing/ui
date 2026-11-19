@@ -143,22 +143,20 @@ function CountdownTile({ timer }: { timer: Props<typeof props, typeof meta>["tim
   return (
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
       <KitContent>
-        <KitRing part="ring" value={remaining} of={timer.seconds}>
-          <KitContent inset="md">
-            <KitText part="label" role="label" tone="muted" align="center">
-              {timer.label}
-            </KitText>
-          </KitContent>
-        </KitRing>
-        <KitText
-          part="seconds"
-          role="number"
-          numberScale={remaining >= 3600 ? "compact" : "display"}
-          tabular
-          align="center"
-        >
-          {clockLine(remaining, lang)}
+        <KitText part="label" role="label" tone="muted" align="center">
+          {timer.label}
         </KitText>
+        <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
+          <KitText
+            part="seconds"
+            role="number"
+            numberScale={remaining >= 3600 ? "compact" : "display"}
+            tabular
+            align="center"
+          >
+            {clockLine(remaining, lang)}
+          </KitText>
+        </KitRing>
         <KitContent group="response">
           <KitAction
             part="root"
