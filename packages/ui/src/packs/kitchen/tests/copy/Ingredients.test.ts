@@ -3,16 +3,18 @@ import { ingredientAmount, ingredientsReading, servingCount } from "../../copy";
 
 describe("Ingredients fixed quantities", () => {
   it.each([
-    [0.25, "¼"],
-    [0.5, "½"],
-    [0.75, "¾"],
-    [1.25, "1¼"],
-    [0, "0"],
-    [100000, "100000"],
-  ])("formats %s without decimal quarters", (amount, expected) => {
+    [0.25, "¼", "piece"],
+    [0.5, "½", "piece"],
+    [0.75, "¾", "piece"],
+    [1.25, "1¼", "pieces"],
+    [0, "0", "pieces"],
+    [100000, "100000", "pieces"],
+    [8, "8", "pieces"],
+    [1, "1", "piece"],
+  ])("formats %s without decimal quarters", (amount, expected, unit) => {
     expect(ingredientAmount({ name: "Seed", amount: Number(amount), unit: "piece" }, 1, "us")).toEqual({
       amount: expected,
-      unit: "piece",
+      unit,
     });
   });
   it.each([

@@ -104,20 +104,16 @@ function IngredientRow({ row, scale, system }: RowProps) {
       leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}
     >
       <kit.KitText part="name">{row.name}</kit.KitText>
-      <kit.KitTrack part="quantity">
-        {Object.entries(quantity).map(
-          ([part, value]) =>
-            value && (
-              <kit.KitText
-                key={part}
-                part={part}
-                numberScale="compact"
-                role={part === "amount" ? "number" : "label"}
-                tone={part === "amount" ? "text" : "muted"}
-              >
-                {value}
-              </kit.KitText>
-            ),
+      <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
+        {quantity.amount && (
+          <kit.KitText role="number" numberScale="compact" part="amount">
+            {quantity.amount}
+          </kit.KitText>
+        )}
+        {quantity.unit && (
+          <kit.KitText role="label" tone="muted" part={null}>
+            {quantity.unit}
+          </kit.KitText>
         )}
       </kit.KitTrack>
       {row.note && (
@@ -181,11 +177,11 @@ export function Ingredients({ servings: seed, system: initial, groups, rows }: V
       </kit.KitRow>
       {groups.flatMap((group, groupIndex) => [
         group.label && (
-          <kit.KitRow key={`group_${groupIndex}`} label={group.label}>
+          <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
             <kit.KitText role="label" tone="muted" part={null}>
               {group.label}
             </kit.KitText>
-          </kit.KitRow>
+          </kit.KitContent>
         ),
         ...group.items.map(() => {
           const row = rows[index++]!;

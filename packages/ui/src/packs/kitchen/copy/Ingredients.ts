@@ -43,6 +43,7 @@ export function ingredientAmount(item: Ingredient, scale: number, system: "metri
   let unit: string = item.unit === "none" ? "" : item.unit;
   if (item.amount === undefined) return { amount: "", unit };
   let value = item.amount * scale;
+  if (item.unit === "piece" && (value === 0 || value > 1)) unit = "pieces";
   if (system === "us" && (item.unit === "g" || item.unit === "kg")) {
     unit = item.unit === "kg" ? "lb" : "oz";
     value = (value * (item.unit === "kg" ? 1000 : 1)) / (unit === "lb" ? 453.59237 : 28.349523125);
