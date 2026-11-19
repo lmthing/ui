@@ -126,15 +126,15 @@ function ScoreTable({ input, selected, loading, readonly }: {
   const columns = visible.map((round) => ({
     id: roundKey(round), label: rounds[round]!.label,
     header: <KitRow item={cellId(round, 0)} inline part="round" label={rounds[round]!.label}>
-      {line("label", rounds[round]!.label, round === selected ? "accent" : "text")}
+      {line("label", rounds[round]!.label, round === selected ? "accent" : "text", "center")}
     </KitRow>,
   }));
   const rows = totals.map(({ name, total, standing, winner }, player) => ({
     id: cellId(selected, player), label: name,
-    heading: <KitRow inline part="player" label={name} lineRole="label" trailing={line("number", total)}>
-      {line("label", name)}
-      {standing && line("caption", standing, winner ? "good" : "muted")}
-    </KitRow>,
+    heading: <KitRow inline part="player" label={name}><KitGrid fitLast>
+      <KitContent>{line("label", name)}{standing && line("caption", standing, winner ? "good" : "muted")}</KitContent>
+      {line("number", total, "text", "end")}
+    </KitGrid></KitRow>,
     cells: visible.map((round) => {
       const { label: roundLabel, points } = rounds[round]!;
       const label = words.scoreCell(name, roundLabel);
@@ -144,20 +144,21 @@ function ScoreTable({ input, selected, loading, readonly }: {
         <KitRow item={cellId(round, player)} inline label={label}>
           {loading ? <KitSkeleton shape="control" kind="secondary" full />
             : readonly
-            ? <KitText role="number" numberScale="compact" tabular part="score">{score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
+            ? <KitText align="center" role="number" numberScale="compact" tabular part="score">{score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
         </KitRow> };
     }),
   }));
-  function line(role: "label" | "caption" | "number", text: string, tone?: "accent" | "text" | "good" | "muted") {
-    return loading ? <KitSkeleton shape="figure" inset="none" content={[[role, text, "start", "compact"]]} /> :
-      <KitText {...{ role }} {...(tone ? { tone } : {})} part={null} numberScale="compact" tabular={role === "number"} lines={1}>{text}</KitText>;
+  function line(role: "label" | "caption" | "number", text: string, tone: "accent" | "text" | "good" | "muted" = "text", align: "start" | "center" | "end" = "start") {
+    return loading ? <KitSkeleton shape="figure" inset="none" content={[[role, text, align, "compact"]]} /> :
+      <KitText {...{ role, tone, align }} part={null} numberScale="compact" tabular={role === "number"} lines={1}>{text}</KitText>;
   }
   return <KitTable part="matrix" columns={columns} rows={rows}
     fitColumns={columns.length <= 2 && players.every(({ name }) => name.length <= 12)}
-    corner={<KitRow inline lineRole="label" label={labels.player} trailing={line("label", labels.total, "muted")}>
-      {line("label", labels.player, "muted")}</KitRow>} />;
+    corner={<KitRow inline label={labels.player}><KitGrid fitLast>
+      {line("label", labels.player, "muted")}{line("label", labels.total, "muted", "end")}
+    </KitGrid></KitRow>} />;
 }
 
 // prettier-ignore
