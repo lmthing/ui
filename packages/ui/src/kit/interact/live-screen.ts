@@ -65,6 +65,8 @@ function projectEntry(
   const { id: _id, c: _c, state: _state, ...input } = entry;
   const parsed = defs[entry.c]?.props.parse(input) as Values | undefined;
   if (!parsed) return result;
+  const meta = defs[entry.c]!.meta;
+  if (meta.draw) Object.assign(result, parsed);
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;
@@ -78,8 +80,8 @@ function projectEntry(
   Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));
   if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
-  if (defs[entry.c]!.meta.draw) {
-    const state = drawStatus(defs[entry.c]!.meta, parsed, result.state ?? "filled", get);
+  if (meta.draw) {
+    const state = drawStatus(meta, result, result.state ?? "filled", get);
     if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")

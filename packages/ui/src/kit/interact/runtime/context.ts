@@ -1,4 +1,6 @@
 import {
+  drawKey,
+  staleDraw,
   migrateScreen,
   resolveDefinition,
   type ActStep,
@@ -56,6 +58,22 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
   }
   return initial;
 }
+function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
+  const expired: Values = {};
+  const candidates = screen.components.filter(
+    (entry) => values[valueKey(screen.id, entry.id, drawKey)] !== undefined,
+  );
+  if (!candidates.length) return expired;
+  const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
+  for (const { id, c, state: _state, ...input } of projected.components) {
+    const def = defs[c];
+    const key = valueKey(screen.id, id, drawKey);
+    const props = def?.props.safeParse(input);
+    if (def && props?.success && staleDraw(def.meta, props.data as Values, values[key]))
+      expired[key] = undefined;
+  }
+  return expired;
+}
 export function createControllerContext(options: ControllerOptions) {
   const { defs } = options;
   const migrated = migrateScreen(options.screen);
@@ -94,6 +112,7 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
+    expiredDraws: (values: Values) => expiredDraws(screen, defs, values, now()),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },

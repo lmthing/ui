@@ -1,7 +1,7 @@
 import type { Meta } from "../../meta";
 import type { StateName } from "../../types";
 import { stampItemIds } from "../../lines";
-import type { Values } from "../act";
+import type { Values } from "../index";
 import { drawPartition, partitionPlan } from "./partition";
 import { randomIndex, type RandomSource } from "./random";
 
@@ -40,6 +40,18 @@ export function storeDraw(meta: Meta, props: Values, state: DrawState): StoredDr
   return { inputs: inputsFor(meta.draw!, props), state };
 }
 
+function matchingDraw(meta: Meta, props: Values, stored: unknown): DrawState | undefined {
+  const draw = meta.draw;
+  const record = stored as StoredDraw | undefined;
+  return draw && record?.state?.kind === draw.kind && record.inputs === inputsFor(draw, props)
+    ? record.state
+    : undefined;
+}
+
+export function staleDraw(meta: Meta, props: Values, stored: unknown): boolean {
+  return stored !== undefined && !matchingDraw(meta, props, stored);
+}
+
 const list = (value: unknown): readonly unknown[] => (Array.isArray(value) ? value : []);
 const repeats = (draw: Extract<Draw, { kind: "pick" }>, props: Values) =>
   draw.repeat === undefined || props[draw.repeat] !== false;
@@ -74,8 +86,8 @@ export function drawRole(meta: Meta, target: string, action: string): DrawRole |
 export function drawState(meta: Meta, props: Values, get: Get): DrawState | undefined {
   const draw = meta.draw;
   if (!draw) return;
-  const stored = get(drawKey) as StoredDraw | undefined;
-  if (stored?.state?.kind === draw.kind && stored.inputs === inputsFor(draw, props)) return stored.state;
+  const stored = matchingDraw(meta, props, get(drawKey));
+  if (stored) return stored;
   if (draw.kind === "pick") return { kind: "pick", used: [], remaining: list(props[draw.pool]).length };
   if (draw.kind === "faces") return { kind: "faces", faces: [], held: [] };
   return { kind: "partition", teams: [] };

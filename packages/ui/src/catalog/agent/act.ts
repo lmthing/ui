@@ -20,7 +20,7 @@ export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
 export type ActResult =
   | { ok: true; values: Values; changed: string[]; links: { goto: string; address: string }[] }
-  | { ok: false; code: "not_actionable" | "invalid_value"; at: number; hint?: string };
+  | { ok: false; code: "not_actionable" | "invalid_value" | "random_unavailable"; at: number; hint?: string };
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
@@ -146,7 +146,11 @@ export function planAct(
     if (error) return { ok: false, at, ...error };
     const draw = drawStep(screen, defs, address, step.action);
     if (draw) {
-      changed.push(`${address} ${step.action}${stageDraw(screen.id, draw, next, step, random)}`);
+      try {
+        changed.push(`${address} ${step.action}${stageDraw(screen.id, draw, next, step, random)}`);
+      } catch {
+        return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
+      }
       continue;
     }
     const key = `${screen.id}/${address}`;

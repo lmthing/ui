@@ -25,3 +25,21 @@ it("honours a larger team forced by locks and rejects infeasible locks", () => {
   expect(partitionPlan([0, 0, 0, 0, 1, 1, 1, 1, undefined, undefined], 3)).toBeUndefined();
   expect(partitionPlan([0, 2], 2)).toBeUndefined();
 });
+
+it("shuffles every unlocked player uniformly across a fixed capacity choice", () => {
+  const plan = partitionPlan([0, 0, 0, undefined, undefined, undefined, undefined], 3)!;
+  let seed = 12345;
+  const random = () => {
+    seed ^= seed << 13;
+    seed ^= seed >>> 17;
+    seed ^= seed << 5;
+    return seed >>> 0;
+  };
+  const assignments = new Map<string, number>();
+  for (let i = 0; i < 6000; i++) {
+    const seats = drawPartition(plan, random).slice(3).join("");
+    assignments.set(seats, (assignments.get(seats) ?? 0) + 1);
+  }
+  expect([...assignments.keys()].sort()).toEqual(["1122", "1212", "1221", "2112", "2121", "2211"]);
+  for (const count of assignments.values()) expect(Math.abs(count - 1000)).toBeLessThan(120);
+});

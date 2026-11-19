@@ -1,6 +1,7 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { drawState, type Definition, type Values } from "../../../catalog";
+import { components } from "@lmthing/ui/catalog";
+import { drawKey, drawState, type Definition, type Values } from "../../../catalog";
 import { createInteractionStore, createScreenController } from "../index";
 
 const base = {
@@ -51,10 +52,104 @@ it("retains an exhausted pool across reopen but resets it when options change", 
   expect(open(store, def, input, []).canPress("c1/spin")).toBe(false);
   const expanded = { ...input, options: [...options, { label: "C" }] };
   const after = open(store, def, expanded, [2]);
+  after.mount();
   expect(after.snapshotScreen().components[0]?.state).toBe("empty");
   expect(after.read()).toContain("remaining=3");
+  expect(store.get(`s/c1/${drawKey}`)).toBeUndefined();
+  expect(open(store, def, input, []).canPress("c1/spin")).toBe(true);
   expect(after.press("c1/spin").ok).toBe(true);
   expect(after.read()).toContain("index=2 — used=[2] — remaining=2");
+});
+
+const adjustable: Definition = {
+  meta: {
+    ...base,
+    draw: { kind: "faces", press: "roll", count: "count", sides: "sides", hold: "hold" },
+    items: { key: "dice", parts: ["hold"] },
+    actions: {
+      parts: { roll: ["press"], add: ["increment"], remove: ["decrement"] },
+      items: { hold: ["toggle"] },
+    },
+    emptyActions: ["roll.press", "add.increment", "remove.decrement"],
+    adjust: {
+      "add.increment": { prop: "count", delta: 1 },
+      "remove.decrement": { prop: "count", delta: -1 },
+    },
+  },
+  props: z.strictObject({
+    count: z.int().min(1).max(6).default(2),
+    sides: z.int().min(2).max(20).default(6),
+  }),
+  examples: [],
+  fallback: () => ({}),
+  probes: [],
+};
+
+it("uses the same live draw inputs in the snapshot, reader, and affordances", () => {
+  const store = createInteractionStore();
+  const runtime = open(store, adjustable, {}, [0, 1, 2]);
+  expect(runtime.press("c1/add").ok).toBe(true);
+  expect(runtime.press("c1/roll").ok).toBe(true);
+  expect(runtime.snapshotScreen().components[0]).toMatchObject({ count: 3, state: "filled" });
+  expect(runtime.read()).toContain("faces=[1,2,3]");
+  expect(runtime.actionsAt("c1/r3/hold")).toEqual(["toggle"]);
+  expect(
+    runtime.act([
+      { address: "c1/remove", action: "decrement" },
+      { address: "c1/add", action: "increment" },
+    ]).ok,
+  ).toBe(true);
+  expect(store.get(`s/c1/${drawKey}`)).toBeUndefined();
+  expect(runtime.snapshotScreen().components[0]).toMatchObject({ count: 3, state: "empty" });
+});
+
+it("does not sample if media cannot be prepared for the batch", () => {
+  const random = vi.fn(() => 0);
+  const openMedia = vi.fn(() => {
+    throw new Error("Cannot open player");
+  });
+  const runtime = createScreenController({
+    screen: {
+      id: "s",
+      components: [
+        { c: base.id, id: "c1", state: "empty" },
+        { id: "p1", c: "Player", media: "lib:fixture", title: "Item", seconds: 30 },
+      ],
+    },
+    defs: { ...components, [base.id]: adjustable },
+    random,
+    media: { open: openMedia },
+  });
+  const reply = runtime.act([
+    { address: "c1/roll", action: "press" },
+    { address: "p1/play", action: "play" },
+  ]);
+  expect(reply).toMatchObject({ ok: false, code: "media_unavailable" });
+  expect(openMedia).toHaveBeenCalledOnce();
+  expect(random).not.toHaveBeenCalled();
+  expect(runtime.store.snapshot()).toEqual({});
+});
+
+it("uses the device source by default and returns a reply when it is unavailable", () => {
+  const runtime = createScreenController({
+    screen: { id: "s", components: [{ c: base.id, id: "c1", state: "empty" }] },
+    defs: { [base.id]: adjustable },
+  });
+  try {
+    vi.stubGlobal("crypto", undefined);
+    expect(runtime.press("c1/roll")).toMatchObject({ ok: false, code: "random_unavailable", at: 0 });
+    expect(runtime.store.snapshot()).toEqual({});
+    const getRandomValues = vi.fn((words: Uint32Array) => {
+      words[0] = 4;
+      return words;
+    });
+    vi.stubGlobal("crypto", { getRandomValues });
+    expect(runtime.press("c1/roll").ok).toBe(true);
+    expect(getRandomValues).toHaveBeenCalledTimes(2);
+    expect(runtime.read()).toContain("faces=[5,5]");
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });
 
 it("supports item-root holds and clears them when die sides change", () => {

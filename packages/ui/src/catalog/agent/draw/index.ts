@@ -7,6 +7,7 @@ export {
   holdIndex,
   performDraw,
   projectDraw,
+  staleDraw,
   storeDraw,
   type DrawState,
 } from "./draw";

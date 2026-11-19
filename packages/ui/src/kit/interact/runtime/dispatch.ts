@@ -77,7 +77,7 @@ function planSteps(
   list: ActStep[],
   ctx: ControllerContext,
   media: MediaRuntime,
-  random?: RandomSource | null,
+  random: RandomSource | null | undefined,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: ctx.valuesOf(),
@@ -126,6 +126,7 @@ function planSteps(
     else result = run(state, action);
     if (result.error) return { ...result, performed: [] };
     state = result.state;
+    Object.assign(state.values, ctx.expiredDraws(state.values));
     effects.push(...result.effects);
   }
   return { state, effects, performed, drew };
@@ -137,23 +138,13 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
-    const preview = opts.dryRun || list.length > 1 ? planSteps(list, ctx, media, null) : undefined;
-    const result =
-      preview && (opts.dryRun || preview.error || !preview.drew)
-        ? preview
-        : planSteps(list, ctx, media, ctx.options.random);
-    if (result.error) return result.error;
-    const { state, effects } = result;
-    const reply = {
-      ok: true as const,
-      screen: ctx.screen.id,
-      changed: state.changes.join("\n"),
-      dryRun: Boolean(opts.dryRun),
-    };
-    if (opts.dryRun) return reply;
-    // Prepare media only after validation, before committing any changes.
+    const preview = planSteps(list, ctx, media, null);
+    if (preview.error) return preview.error;
+    if (opts.dryRun)
+      return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
+    // Prepare media after validation, before consuming randomness or committing values.
     try {
-      media.prepare(result.performed);
+      media.prepare(preview.performed);
     } catch (error) {
       return actionFailure(
         0,
@@ -161,6 +152,9 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
         error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
+    const result = preview.drew ? planSteps(list, ctx, media, ctx.options.random) : preview;
+    if (result.error) return result.error;
+    const { state, effects } = result;
     ctx.status.openSheet = state.sheet;
     ctx.status.confirmation = state.confirmation;
     state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
@@ -170,6 +164,6 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     for (const effect of effects) effect();
     scheduleClock();
     ctx.notifyChange();
-    return reply;
+    return { ok: true, screen: ctx.screen.id, changed: state.changes.join("\n"), dryRun: false };
   };
 }
