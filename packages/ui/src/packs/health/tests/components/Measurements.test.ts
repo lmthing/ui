@@ -9,8 +9,8 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
-import { measurementLabels } from "../copy";
+import { elementAt, renderInstance } from "../../../../../test/render";
+import { measurementLabels } from "../../copy";
 
 const { props, meta, examples, fallback, probes } = components.Measurements;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
