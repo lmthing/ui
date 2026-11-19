@@ -37,7 +37,7 @@ export async function check() {
       run: true,
       passWithNoTests: Boolean(selection),
       ...(selection && !selection.full ? { changed: selection.mergeBase } : {}),
-      ...(options.browser ? { fileParallelism: false, maxWorkers: 1 } : {}),
+      ...(options.browser ? { fileParallelism: false, maxWorkers: 1, testTimeout: 60000 } : {}),
       server: { deps: { inline: [/tamagui/, /react-native-svg/] } },
       alias: [
         {
