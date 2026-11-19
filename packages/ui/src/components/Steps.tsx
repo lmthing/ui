@@ -1,7 +1,6 @@
-import { useWords } from "../kit";
 import { z } from "zod";
 import { probesFor, stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
-import { KitBlock, KitContent, KitStepsTrack, KitText } from "../kit";
+import { KitBlock, KitContent, KitStepsTrack, KitText, useWords } from "../kit";
 
 export const meta = {
   id: "Steps",

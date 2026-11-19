@@ -1,4 +1,3 @@
-import { useWords } from "../../../kit";
 import { z } from "zod";
 import {
   goalLine,
@@ -13,6 +12,7 @@ import {
 } from "../../../catalog";
 import {
   KitCard,
+  useWords,
   KitGrid,
   KitRadialTrack,
   KitRow,

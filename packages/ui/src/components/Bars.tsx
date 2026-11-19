@@ -27,7 +27,6 @@ import {
   type Probe,
   type Props,
 } from "../catalog";
-
 export const meta = {
   id: "Bars",
   signature: "bars_grow",
