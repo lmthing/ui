@@ -9,6 +9,7 @@ import { affordancesOf, formatAffordance, type Affordance } from "./affordances"
 import { projectSelection, projectNested } from "./selection";
 import { projectAdjustments, projectClocks } from "./clocks";
 import type { Meta } from "../meta";
+import { migrateLine, migrateScreen } from "../migrations";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -84,6 +85,15 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props)
     : reading;
 }
 
+function migrateInput(component: string, input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
+  const line = { ...input, c: component };
+  const migrated = migrateLine(line, { variantOnly: true });
+  if (migrated === line) return input;
+  const { c: _c, ...props } = migrated;
+  return props;
+}
+
 /**
  * The default reader: one line per component, items indented, text quoted, affordances in brackets
  * with their part. No pixels, colours or fonts. Format: plan 4.12. Actions on a part whose tier is
@@ -97,7 +107,7 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
+  const validated = stampItemIds(def.meta, def.props.parse(migrateInput(def.meta.id, input)) as Props);
   const props = liveProps(def.meta, validated, instance, values);
   state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -160,9 +170,11 @@ export function readScreen(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = screen.components.flatMap(({ id, c, state, ...props }) => {
-    const def = defs[c];
-    return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
-  });
+  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
+    ({ id, c, state, ...props }) => {
+      const def = defs[c];
+      return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
+    },
+  );
   return [header, ...lines].join("\n");
 }
