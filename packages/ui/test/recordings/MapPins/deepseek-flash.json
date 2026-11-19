@@ -128,9 +128,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" , \"goto\":null}]}",
+    "reply": "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" ,\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" , \"goto\":null}]}",
+      "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" ,\"goto\":null}]}",
       "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" ,\"goto\":null}]}",
       "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\" ,\"goto\":null}]}"
     ]

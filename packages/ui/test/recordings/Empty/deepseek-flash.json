@@ -262,11 +262,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"title\":\"Couldn't load your walks\",\"sub\":\"A network issue prevented us from fetching your walks. Please check your connection and try again.\",\"icon\":\"cloud_rain\",\"kind\":\"offline\"}",
+    "reply": "{\"c\":\"Empty\",\"title\":\"My walks could not be loaded\",\"sub\":\"The connection seems to be lost. Please check your internet and try again.\",\"icon\":\"cloud\",\"kind\":\"offline\"}",
     "replies": [
-      "{\"c\":\"Empty\",\"title\":\"Couldn't load your walks\",\"sub\":\"A network issue prevented us from fetching your walks. Please check your connection and try again.\",\"icon\":\"cloud_rain\",\"kind\":\"offline\"}",
-      "{\"c\":\"Empty\",\"title\":\"Walks could not be loaded\",\"sub\":\"Check your connection and try again\",\"icon\":\"paw\",\"kind\":\"offline\"}",
-      "{\"c\":\"Empty\",\"title\":\"Walks could not be loaded\",\"sub\":\"Please check your connection and try again later.\",\"icon\":\"dog\",\"kind\":\"offline\"}"
+      "{\"c\":\"Empty\",\"title\":\"My walks could not be loaded\",\"sub\":\"The connection seems to be lost. Please check your internet and try again.\",\"icon\":\"cloud\",\"kind\":\"offline\"}",
+      "{\"c\":\"Empty\",\"title\":\"Walks could not be loaded\",\"sub\":\"The connection seems to be offline. Please check your internet and try again.\",\"icon\":\"cloud_rain\",\"kind\":\"offline\"}",
+      "{\"c\":\"Empty\",\"title\":\"My walks could not be loaded\",\"sub\":\"Please check your connection and try again later\",\"icon\":\"cloud_rain\",\"kind\":\"error\"}"
     ]
   },
   "5fdb3e1618fad6de": {

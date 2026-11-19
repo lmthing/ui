@@ -125,7 +125,7 @@
     "replies": [
       "{\"c\":\"SwipeStack\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":null,\"meta\":null}]}",
       "{\"c\":\"SwipeStack\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":null,\"meta\":null}]}",
-      "{\"c\":\"SwipeStack\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":null,\"meta\":null}]}"
+      "{\"c\":\"SwipeStack\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}"
     ]
   },
   "506bfc1be26e77ca": {

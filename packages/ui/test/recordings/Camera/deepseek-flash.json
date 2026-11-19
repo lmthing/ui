@@ -81,11 +81,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at the leaves and tap\"}",
+    "reply": "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at the leaf\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at the leaves and tap\"}",
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Aim at leaves and shoot\"}",
-      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at the leaves and shoot\"}"
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at the leaf\"}",
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at leaves & tap shutter\"}",
+      "{\"c\":\"Camera\",\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}"
     ]
   },
   "e8f4b63af6b9979d": {
