@@ -128,3 +128,30 @@ it("draws with the standalone selection and permanently expires invalidated resu
   expect(store.get(`s/c1/${drawKey}`)).toBeUndefined();
   expect(agent.read()).toContain("ChanceFixture (empty)");
 });
+
+it("blocks a non-draw empty action while the standalone store reports loading", () => {
+  const fixture: Definition = {
+    meta: {
+      ...components.Button.meta,
+      id: "EmptyFixture",
+      actions: { parts: { start: ["press"] } },
+      emptyActions: ["start.press"],
+    },
+    props: z.strictObject({}),
+    examples: [{}],
+    fallback: () => ({}),
+    probes: [],
+  };
+  const current = (): ScreenLike => ({
+    id: "s",
+    components: [{ c: "EmptyFixture", id: "c1", state: "empty" }],
+  });
+  const store = createInteractionStore();
+  const agent = createAgentAccess({ current, defs: { EmptyFixture: fixture }, store });
+  const press = { address: "c1/start", action: "press" };
+  expect(agent.read()).toContain("[c1/start press]");
+  expect(agent.act(press).ok).toBe(true);
+  store.set("s/c1/$state", "loading");
+  expect(agent.read()).toBe("screen s\nc1 EmptyFixture (loading)");
+  expect(agent.act(press).ok).toBe(false);
+});

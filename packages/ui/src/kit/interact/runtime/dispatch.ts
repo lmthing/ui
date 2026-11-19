@@ -44,7 +44,7 @@ function prepareStep(
   const introduced =
     (entry.c === "Sheet" && state.sheet !== ctx.status.openSheet) ||
     (entry.c === "SwipeStack" &&
-      state.values[ctx.key(id, "$cursor")] !== ctx.store.get(ctx.key(id, "$cursor")));
+      state.values[ctx.key(id, "$cursor")] !== ctx.valuesOf()[ctx.key(id, "$cursor")]);
   if (ctx.options.requireMounted && !confirmed && !introduced && !ctx.mounted.has(action.address))
     return fail("not_mounted", "This control is not mounted");
   return {
@@ -73,6 +73,20 @@ function isDraw({ entry, defs, selected }: ActionContext) {
   return role === "draw" || role === "redraw";
 }
 
+function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+  const at = ctx.now();
+  const values = ctx.valuesOf(at);
+  return {
+    ...ctx,
+    now: () => at,
+    valuesOf: () => values,
+    status: { ...ctx.status },
+    mounted: new Map(ctx.mounted),
+    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    expiredDraws: (next) => ctx.expiredDraws(next, at),
+  };
+}
+
 function planSteps(
   list: ActStep[],
   ctx: ControllerContext,
@@ -80,7 +94,7 @@ function planSteps(
   random: RandomSource | null | undefined,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
-    values: ctx.valuesOf(),
+    values: { ...ctx.valuesOf() },
     sheet: ctx.status.openSheet,
     confirmation: ctx.status.confirmation,
     changes: [],
@@ -138,12 +152,13 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
-    const preview = planSteps(list, ctx, media, null);
+    const planning = snapshotPlanning(ctx);
+    const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
     if (opts.dryRun)
       return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
     // Prepare media after validation, before consuming randomness or committing values.
-    let settleMedia: (commit: boolean) => void;
+    let settleMedia: (commit: boolean) => Values;
     try {
       settleMedia = media.prepare(preview.performed, Boolean(preview.drew));
     } catch (error) {
@@ -153,7 +168,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
         error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
-    const result = preview.drew ? planSteps(list, ctx, media, ctx.options.random) : preview;
+    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random) : preview;
     if (result.error) {
       settleMedia(false);
       return result.error;
@@ -164,8 +179,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
     state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
     state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
-    ctx.store.setMany(state.values);
-    settleMedia(true);
+    ctx.store.setMany({ ...settleMedia(true), ...state.values });
     for (const effect of effects) effect();
     scheduleClock();
     ctx.notifyChange();

@@ -1,4 +1,4 @@
-import { photo, type ActStep } from "../../../catalog";
+import { photo, type ActStep, type Values } from "../../../catalog";
 import type { MediaSession } from "../index";
 import type { ControllerContext } from "./context";
 function requestPhoto(ctx: ControllerContext, id: string, target: string) {
@@ -31,11 +31,12 @@ function playMedia(ctx: ControllerContext, session: MediaSession | undefined, id
       }
     });
 }
-type Gate = { status: "pending" | "active" | "closed"; events: (() => void)[] };
+type Gate = { status: "pending" | "active" | "closed"; values: Values };
 type Opened = { session: MediaSession; gate: Gate };
-function send(gate: Gate, event: () => void) {
-  if (gate.status === "active") event();
-  else if (gate.status === "pending") gate.events.push(event);
+function send(ctx: ControllerContext, gate: Gate, update: Values) {
+  if (ctx.status.disposed) return;
+  if (gate.status === "active") ctx.store.setMany(update);
+  else if (gate.status === "pending") Object.assign(gate.values, update);
 }
 
 function openMedia(ctx: ControllerContext, id: string, gate: Gate): MediaSession | undefined {
@@ -46,29 +47,20 @@ function openMedia(ctx: ControllerContext, id: string, gate: Gate): MediaSession
   return ctx.options.media.open(String(input.media), {
     video: input.style === "video",
     at: Number(ctx.store.get(ctx.key(id, "scrubber")) ?? input.at ?? 0),
-    onTime: (at) =>
-      send(gate, () => {
-        if (!ctx.status.disposed && Number.isFinite(at))
-          ctx.store.set(ctx.key(id, "scrubber"), Math.min(seconds, Math.max(0, Math.floor(at))));
-      }),
-    onPlaying: (playing) =>
-      send(gate, () => {
-        if (!ctx.status.disposed) ctx.store.set(ctx.key(id, "play"), playing);
-      }),
-    onError: (message) =>
-      send(gate, () => {
-        if (!ctx.status.disposed) {
-          ctx.store.set(ctx.key(id, "play"), false);
-          ctx.store.set(ctx.key(id, "error"), message);
-        }
-      }),
+    onTime: (at) => {
+      if (Number.isFinite(at))
+        send(ctx, gate, { [ctx.key(id, "scrubber")]: Math.min(seconds, Math.max(0, Math.floor(at))) });
+    },
+    onPlaying: (playing) => send(ctx, gate, { [ctx.key(id, "play")]: playing }),
+    onError: (message) => send(ctx, gate, { [ctx.key(id, "play")]: false, [ctx.key(id, "error")]: message }),
   });
 }
 function finishPrepared(sessions: Map<string, Opened>, added: Map<string, Opened>, commit: boolean) {
+  const values: Values = {};
   for (const [id, { session, gate }] of added) {
     gate.status = commit ? "active" : "closed";
     if (commit) {
-      for (const event of gate.events) event();
+      Object.assign(values, gate.values);
     } else {
       sessions.delete(id);
       try {
@@ -77,15 +69,16 @@ function finishPrepared(sessions: Map<string, Opened>, added: Map<string, Opened
         // A cleanup failure must not replace the batch's original error.
       }
     }
-    gate.events.length = 0;
+    gate.values = {};
   }
+  return values;
 }
 
 export function createMediaRuntime(ctx: ControllerContext) {
   const sessions = new Map<string, Opened>();
   function mount(id: string, pending = false) {
     if (sessions.has(id)) return sessions.get(id);
-    const gate: Gate = { status: pending ? "pending" : "active", events: [] };
+    const gate: Gate = { status: pending ? "pending" : "active", values: {} };
     const session = openMedia(ctx, id, gate);
     if (!session) return;
     const opened = { session, gate };

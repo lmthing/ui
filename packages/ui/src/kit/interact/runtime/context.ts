@@ -92,13 +92,13 @@ export function createControllerContext(options: ControllerOptions) {
     openSheet: store.get(`${screen.id}/$sheet`) as string | undefined,
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const valuesOf = () => ({
+  const valuesOf = (at = now()) => ({
     ...initial,
     ...store.snapshot(),
-    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), now()])),
+    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at])),
   });
-  const liveScreen = (values: Values, sheet: string | undefined, covered = false): ScreenLike => {
-    const projected = projectScreen(screen, defs, values, now(), sheet, false, false);
+  const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
+    const projected = projectScreen(screen, defs, values, at, sheet, false, false);
     return covered
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
@@ -112,7 +112,7 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
-    expiredDraws: (values: Values) => expiredDraws(screen, defs, values, now()),
+    expiredDraws: (values: Values, at = now()) => expiredDraws(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },
