@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
 import { createServer, type ViteDevServer } from "vite";
-import type { Browser } from "playwright-core";
+import type { Browser, Page } from "playwright-core";
 import type { Definition } from "@lmthing/ui/catalog";
 import { galleryConfig, launchChrome } from "../index";
 
@@ -44,60 +44,64 @@ it.each([
   expect((await shoot()).equals(await shoot())).toBe(true);
 });
 
+async function seedOutcomes(page: Page, catalog: string) {
+  return page.evaluate(
+    async ({ catalog }) => {
+      // These paths resolve in the gallery page, not in Vitest's Node module graph.
+      const load = new Function("path", "return import(path)");
+      const { components, drawState } = (await load(
+        `/@fs${catalog}`,
+      )) as typeof import("@lmthing/ui/catalog");
+      const { createSeededDraw, previewComponent } = await load("/app/draw/index.ts");
+      function outcome(def: Definition, seed?: number, screen = "drawn") {
+        const input = def.props.parse(def.examples[0]) as Record<string, unknown>;
+        const preview = createSeededDraw(def, input, screen, seed);
+        return drawState(def.meta, input, (part) =>
+          preview.store.get(`${screen}/${previewComponent}/${part}`),
+        );
+      }
+      const pick = {
+        ...components.Spinner,
+        meta: {
+          ...components.Spinner.meta,
+          draw: { kind: "pick", press: "spin", pool: "options", repeat: "repeat" },
+        },
+      } satisfies Definition;
+      const teams = {
+        ...components.TeamPicker,
+        meta: {
+          ...components.TeamPicker.meta,
+          draw: { kind: "partition", press: "make", players: "players", teams: "teams", locked: "team" },
+        },
+      } satisfies Definition;
+      const dice = {
+        ...components.Dice,
+        meta: {
+          ...components.Dice.meta,
+          id: "ChanceFixture",
+          items: { ...components.Dice.meta.items, prefix: "die" },
+          actions: { parts: { go: ["press"] }, items: { keep: ["toggle"] } },
+          draw: { ...components.Dice.meta.draw, press: "go", hold: "keep" },
+        },
+      } satisfies Definition;
+      return {
+        pick: outcome(pick),
+        split: outcome(teams),
+        replay: outcome(teams, undefined, "replay"),
+        dice: outcome(dice),
+        different: outcome(dice, 1),
+      };
+    },
+    { catalog },
+  );
+}
+
 it("seeds declared picks, partitions and custom hold addresses without component-id branches", async () => {
   const page = await browser.newPage();
   const catalog = fileURLToPath(new URL("../../../src/entry/catalog.ts", import.meta.url));
   try {
     await page.goto(`${server.resolvedUrls!.local[0]}?c=Dice&preset=calm&mode=light`);
-    const results = await page.evaluate(
-      async ({ catalog }) => {
-        // These paths resolve in the gallery page, not in Vitest's Node module graph.
-        const load = new Function("path", "return import(path)");
-        const { components, drawState } = (await load(
-          `/@fs${catalog}`,
-        )) as typeof import("@lmthing/ui/catalog");
-        const { createSeededDraw, previewComponent } = await load("/app/draw/index.ts");
-        function outcome(def: Definition, seed?: number, screen = "drawn") {
-          const input = def.props.parse(def.examples[0]) as Record<string, unknown>;
-          const preview = createSeededDraw(def, input, screen, seed);
-          return drawState(def.meta, input, (part) =>
-            preview.store.get(`${screen}/${previewComponent}/${part}`),
-          );
-        }
-        const pick = {
-          ...components.Spinner,
-          meta: {
-            ...components.Spinner.meta,
-            draw: { kind: "pick", press: "spin", pool: "options", repeat: "repeat" },
-          },
-        } satisfies Definition;
-        const teams = {
-          ...components.TeamPicker,
-          meta: {
-            ...components.TeamPicker.meta,
-            draw: { kind: "partition", press: "make", players: "players", teams: "teams", locked: "team" },
-          },
-        } satisfies Definition;
-        const dice = {
-          ...components.Dice,
-          meta: {
-            ...components.Dice.meta,
-            id: "ChanceFixture",
-            items: { ...components.Dice.meta.items, prefix: "die" },
-            actions: { parts: { go: ["press"] }, items: { keep: ["toggle"] } },
-            draw: { ...components.Dice.meta.draw, press: "go", hold: "keep" },
-          },
-        } satisfies Definition;
-        return {
-          pick: outcome(pick),
-          split: outcome(teams),
-          replay: outcome(teams, undefined, "replay"),
-          dice: outcome(dice),
-          different: outcome(dice, 1),
-        };
-      },
-      { catalog },
-    );
+    const results = await seedOutcomes(page, catalog);
     expect(results.pick).toMatchObject({ kind: "pick", index: 2 });
     expect(results.split).toEqual({ kind: "partition", teams: [0, 0, 1, 2, 2, 1] });
     expect(results.replay).toEqual(results.split);
