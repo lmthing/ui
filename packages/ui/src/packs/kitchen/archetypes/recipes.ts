@@ -7,7 +7,7 @@ export const recipes = {
   layouts: {
     browse: {
       writeHints: [
-        'List uses style: "cards", not shelf, expand or ranked. Omit or null body; me is false or null. Photos are optional catalog references such as "lib:food".',
+        'List uses style "cards" for one card per recipe, with no numbered lead. Omit or null body; me is false or null. Photos are optional catalog references such as "lib:food".',
       ],
       recipe: [
         { allow: ["Header"], required: true },

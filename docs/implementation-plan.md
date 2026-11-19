@@ -283,8 +283,10 @@ reduce-motion setting still wins.
 
 **Declaration.** `meta.variants` lists the component's axes, each with the subset of values that make
 sense for it, its default first: `variants: { density: ["comfortable", "compact"], emphasis:
-["normal", "hero"] }`. Item axes go in `meta.items.variants`. Most components declare three to six
-axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
+["normal", "hero"] }`. A local default need not be the first value in the shared vocabulary. Item
+axes go in `meta.items.variants`; when both levels declare `trail`, `itemVariantProps` can inherit
+the collection trail, and action gating uses the same effective value as the view. Most components
+declare three to six axes; none declares one that changes nothing it draws. `density` absent from a line means the app's
 density. A shared `variantProps(meta.variants)` helper in `catalog/props` spreads the axes into the
 strict props object as ordinary flat props (`{"c":"List","density":"compact"}`), so a line, a
 validator and a `patch` `set` handle them like any prop; there is no variant op.
@@ -292,8 +294,10 @@ validator and a `patch` `set` handle them like any prop; there is no variant op.
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
 parts, declared in `meta.variantParts` (`{ "trail.toggle": { adds: ["toggle"] }, "detail.brief": {
 hides: ["meta"] } }`), and never rename or renumber one: addresses come from data, not from a variant.
-An item hidden by `overflow: "peek"` keeps its address, readers say "and N more", and an action on it
-still resolves. The conformance test renders every declared value and checks these rules.
+`overflow: "peek"` shows the first two items by default. The `more` toggle reveals the full list
+without modifying the wire props. A hidden item keeps its address and actions; the reader shows
+the same prefix and localized "and N more" count as the view. The conformance test renders every
+declared value and checks these rules.
 
 **Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
 (for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
@@ -315,12 +319,19 @@ non-finish axis.
 non-default value once (calm, light, 390 wide) on a variants sheet. The gallery shows a variants panel
 per component.
 
-**Migration.** Bespoke values that an axis covers move to it through `catalog/migrations`, so older
-lines and recordings still load: Card `style` `plain|tinted|outlined` to `surface` and `media` to
-`media: "cover"`, Button `md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered`
-to `align`, Photo `square|wide|tall` to `aspect`, List `trail` and `cards` / `ranked` to `trail`,
-`surface` and `lead`, and every per-component `tone` enum to the shared helper. Each adoption task
-lists its own moves.
+**Migration.** Bespoke values that an axis covers move to it through `catalog/migrations` before
+strict validation of saved lines; enable each migration with its destination schema. Explicit
+destination values win. Card `style: "plain"` was a filled surface and maps to `surface: "card"`;
+`tinted` and `outlined` keep their finishes, and `style: "media"` becomes `media: "cover"` (or
+`"thumb"` if an icon was authored instead of a photo). The
+default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
+requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
+single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
+List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
+`trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
+`md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
+`square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption
+task lists its own moves and refreshes its recordings against the new schema.
 
 ### 4.3 Tokens and themes
 

@@ -1,4 +1,4 @@
-import type { ArchetypeMeta } from "../../../catalog";
+import { packListDefaults, type ArchetypeMeta } from "../../../catalog";
 
 export const score_round = {
   id: "score_round",
@@ -19,17 +19,17 @@ export const score_round = {
     },
     play_results: {
       writeHints: [
-        'Use List style "ranked": each row has a short title and score value, trail "value"; no body, photo or goto. Results read the same score record as round entry, preserving tied totals. Do not invent independent totals.',
+        'Use List with lead "number", trail "value" and no style. Each row has a short title and a score value; no body, photo or goto. Results read the same score record as round entry, preserving tied totals. Do not invent independent totals.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["List"], required: true, variant: "ranked" },
+        { allow: ["List"], required: true },
         { allow: ["Note"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "l1", c: "List", style: "ranked" },
+        { id: "l1", c: "List", ...packListDefaults["score_round/play_results"] },
         { id: "n1", c: "Note" },
         { id: "b1", c: "Button" },
       ],

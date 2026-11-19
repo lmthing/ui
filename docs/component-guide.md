@@ -36,8 +36,9 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
 3. **`props`**: `z.strictObject`. Every string is `text(n)`, every array has `.min()` and `.max()`,
    icons are `icon`, photos `photo`, links `screenId` (`goto`). Choices are `z.enum([...])` with a
-   `.default()` when one is usual. Visual variants are one `style` enum. Never colours, sizes, fonts,
-   pixel values or free-form strings for things that have a vocabulary.
+   `.default()` when one is usual. Use shared axes for variants and reserve `style` for structure no
+   axis covers. Never colours, sizes, fonts, pixel values or free-form strings for things that have a
+   vocabulary.
 4. **`fallback({ cast })`**: valid props from the cast only, through the helpers:
    `thingOf(cast)`, `itemsOf(cast, n)`, `titleOf(item, max, thing)`, `detailOf(item, max, thing)`,
    `clip(text, max)`; with nothing usable, `placeholderTitle(i)`, `placeholderDetail`,
@@ -58,6 +59,45 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
      component's shape. `empty` → `emptyLine(useEmptyThing())` in `KitText tone="muted"`. Other shared copy: `goalLine(of)` ("of 5"), `stepLine(at, count)` ("Step 2 of 3"), `totalLine(total, unit?)` ("Total 23 walks"), `trendWord(points)` ("rising"), `stepLabels` (counter buttons), `clockLine(seconds)` ("4:05"), `weekdayInitials` (Monday first), `timerLabels` (start, stop), `streakLine(count, days)` (its read lines), `photoLabels` (add, take, scan). Need other words? Report it; never write literal text in a view. A component whose meaning is in numbers sets `meta.read(props, state)` to return its reading (for example `["3 of 5"]`); it comes before the quoted texts in its read line.
    - No literal user-facing text anywhere. Text comes from props, the cast or `catalog/copy.ts`.
    - No raw numbers for layout. Use `space`, `size`, `radius`, `type` tokens through the bases.
+
+## Variants
+
+The closed axis vocabulary and its meanings are in [plan 4.2a](implementation-plan.md#42a-shared-variant-axes).
+Choose only axes and values that visibly change this component. These are candidates, not requirements:
+
+| Component kind | Typical axes to consider |
+| --- | --- |
+| Rows and lists | `density`, `surface`, `detail`, `arrange`, `group`, `overflow`, `lead`, `trail`; item `tone`, `mark`, `trail` |
+| Cards and content | `density`, `emphasis`, `surface`, `align`, `detail`, `media`, `tone` |
+| Numbers and charts | `density`, `emphasis`, `figures`, `labels`, `detail`; item `tone`, `mark` |
+| Media | `media`, `aspect`, `bleed`, `detail` |
+| Inputs and actions | `density`, `emphasis`, `align`, `detail`, `tone`; item `mark` |
+
+1. Declare ordered subsets in `meta.variants` and row choices in `meta.items.variants`. Put the
+   component's existing treatment first so missing props render as before. Omitted `density` inherits
+   a supported app setting. Spread `variantProps(meta.variants)` into the strict component schema and
+   `itemVariantProps(meta.items.variants)` into the strict row schema. When both declare `trail`, use
+   `{ inheritTrail: true }` so a missing row override uses the collection trail; gate actions on
+   that same effective value.
+2. A finish axis keeps every part and address. A content or collection value declares all part
+   changes from the default in `meta.variantParts`, for example
+   `{ "detail.brief": { hides: ["body", "meta"] } }`. Never rename or renumber parts or items,
+   including hidden items. Pass axis values to kit bases and use `useVariant()` to resolve supported
+   settings; bases translate values into theme tokens. Never add raw layout values in a view.
+3. To move a legacy style, add a fixture-tested entry in `src/catalog/migrations/variant-line.ts`,
+   for example `{ from: "style", values: { compact: { density: "compact" } } }`. Activate it in
+   `adoptedVariants` in the same change as the strict schema. Test an old line through `migrateLine`
+   and parse the output; preserve ids, actions, and any explicit destination value. Keep a style only
+   if the structure still differs independently of the axis.
+4. Add one variant-specific write probe for the most distinctive non-finish axis. Ask for the visible
+   result in the person's words and assert the requested axis value. Retain existing behavior probes.
+   Use realistic examples with content that makes every declared value observable.
+5. Run `pnpm look --component <Id>` and review `variants.png` alongside the normal screens. Check
+   addresses with render conformance and judge every alternative against the
+   [visual rubric](visual-rubric.md#variants-sheet).
+
+See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
+List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
 
 ## Words and language
 

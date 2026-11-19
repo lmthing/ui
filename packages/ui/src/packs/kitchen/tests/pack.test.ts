@@ -94,6 +94,14 @@ it("checks pack metadata, every layout, defaults and core-only dependencies", ()
   expect(packs.kitchen.probes.filter((probe) => probe.kind === "pack").length).toBeGreaterThanOrEqual(3);
   expect(packs.kitchen.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Timer" }));
 });
+it("keeps food search in one card and recipe browsing in separate cards", () => {
+  const registry = createRegistry({ packs: ["kitchen"] });
+  const food = registry.defaultLines("food", "add", cast).components.find(({ c }) => c === "List");
+  const recipes = registry.defaultLines("recipes", "browse", cast).components.find(({ c }) => c === "List");
+  expect(food).toMatchObject({ surface: "card" });
+  expect(food).not.toHaveProperty("style");
+  expect(recipes).toMatchObject({ style: "cards" });
+});
 it("validates every worked-example line and the root example door", async () => {
   const source = await readFile(new URL("../example.jsonl", import.meta.url), "utf8");
   const lines = exampleLines(source);

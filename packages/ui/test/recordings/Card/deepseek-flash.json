@@ -17,6 +17,15 @@
       "List"
     ]
   },
+  "0ab1b2e7c8e2376a": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Card \"Fern\" — \"Bathroom · soft indirect light\" — \"Water today\" — photo:plants [c1 press→fern]\n\nTask: Open the fern card\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1\", \"action\": \"press\"}",
+      "{\"address\": \"c1\", \"action\": \"press\"}",
+      "{\"address\": \"c1\", \"action\": \"press\"}"
+    ]
+  },
   "0e7a9363c5027b56": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Empty: A calm message on a screen that has no content yet. Pick: A screen with nothing yet, explaining the absence of content. Not a main message about existing content (Hero) or a supporting sentence (Note).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Stats: Two to four summary numbers to compare at a glance. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n\nNeed, in the person's words: \"Show one tappable preview of my fern with a short care detail, so I can open it\"\nReply with only the component id, nothing else.",
     "reply": "Card"
@@ -40,6 +49,365 @@
   "4633f1da5d1d0beb": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Empty: A calm message on a screen that has no content yet. Pick: A screen with nothing yet, explaining the absence of content. Not a main message about existing content (Hero) or a supporting sentence (Note).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n\nNeed, in the person's words: \"Show several plants and let me tap each one to open it\"\nReply with only the component id, nothing else.",
     "reply": "List"
+  },
+  "4f815d4f1b121275": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: Use media cover for a wide photo above the text. A photo reference alone uses the default inline treatment.\nRule: Use detail brief only when asked to hide both the body and secondary detail; keep that copy in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Take the usual route\",\"meta\":\"Due today\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Take the usual route\",\"meta\":\"Due today\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":\"compact\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":\"brief\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30\",\"meta\":null,\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"thumb\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":\"evening_walk\"}"
+    ]
   },
   "513c196002710528": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { style?: plain|tinted|outlined|media=\"plain\", title: text≤40, body?: text≤120, meta?: text≤24, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, tone?: neutral|good|warn|bad=\"neutral\", goto?: id snake_case }\nexample: {\"c\":\"Card\",\"style\":\"media\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nBrief: One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern\nReply with only the JSON line, starting with {\"c\":\"Card\".",
@@ -66,6 +434,365 @@
   "6be940c5e0d56260": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).\n- Empty: A calm message on a screen that has no content yet. Pick: A screen with nothing yet, explaining the absence of content. Not a main message about existing content (Hero) or a supporting sentence (Note).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Stats: Two to four summary numbers to compare at a glance. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n\nNeed, in the person's words: \"Show one tappable preview of my fern with a short care detail, so I can open it\"\nReply with only the component id, nothing else.",
     "reply": "Card"
+  },
+  "71bc1bd33c6a268d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show Fern with lib:plants as a wide photo at the top. Below it show Bathroom and then Water today. Tap to open fern.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · Water today\",\"meta\":null,\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · Water today\",\"meta\":null,\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"cover\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
+    ]
   },
   "736725a340b9ef86": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { style?: plain|tinted|outlined|media=\"plain\", title: text≤40, body?: text≤120, meta?: text≤24, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, tone?: neutral|good|warn|bad=\"neutral\", goto?: id }\nexample: {\"c\":\"Card\",\"style\":\"media\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nBrief: One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern\nReply with only the JSON line, starting with {\"c\":\"Card\".",
@@ -104,6 +831,365 @@
   "87719cd26a4be723": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats) or a trend with its latest value (Sparkline).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).\n- Counter: Keep one running count, adding or removing a fixed amount with each tap. Pick: One count the person nudges up or down with plus and minus buttons. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- People: Who else is involved, with their names and roles. Pick: The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several summary numbers (Stats) or ordered stages of a process (Steps).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips) or entering one piece of information (Field).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four summary numbers, with time periods in labels and only short measurement units. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- Timeline: When things happen, in time order, as a day plan or a history. Pick: Show events with their times or dates in order. Not things without times to browse (List) or independent jobs to tick off (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Show several plants and let me tap each one to open it\"\nReply with only the component id, nothing else.",
     "reply": "List"
+  },
+  "8a2b478a6c6b90d4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: Use media cover for a wide photo above the text. A photo reference alone uses the default inline treatment.\nRule: Use detail brief only when asked to hide both the body and secondary detail; keep that copy in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: One fern with a wide cover photo above the text, Bathroom as its short detail, Water today underneath, opening fern",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":null,\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"cover\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"One fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
+    ]
   },
   "91a5681c820862b6": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { style?: plain|tinted|outlined|media=\"plain\", title: text≤40, body?: text≤120, meta?: text≤24, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: id, tone?: neutral|good|warn|bad=\"neutral\", goto?: id }\nexample: {\"c\":\"Card\",\"style\":\"media\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nBrief: One fern with a photo, Bathroom as its short detail, Water today underneath, opening fern\nReply with only the JSON line, starting with {\"c\":\"Card\".",
@@ -439,6 +1525,365 @@
       "{\"c\":\"Card\",\"style\":\"media\",\"title\":\"Fern\",\"body\":\"Bathroom\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}"
     ]
   },
+  "bf406aea14bc746a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Use detail brief only when asked to hide both the body and secondary detail; keep that copy in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: One fern with a wide cover photo above the text, Bathroom as its short detail, Water today underneath, opening fern",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":null,\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:fern\",\"goto\":\"fern\"}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":null,\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:fern\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":\"brief\",\"tone\":null,\"title\":\"One fern\",\"body\":null,\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:plants\",\"goto\":\"fern\"}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":null,\"media\":\"cover\",\"detail\":null,\"tone\":null,\"title\":\"Fern\",\"body\":null,\"meta\":\"Water today\",\"badge\":null,\"icon\":null,\"photo\":\"lib:fern\",\"goto\":\"fern\"}"
+    ]
+  },
   "c0b4e50b8cde448f": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats) or a trend with its latest value (Sparkline).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).\n- Counter: Keep one running count, adding or removing a fixed amount with each tap. Pick: One count the person nudges up or down with plus and minus buttons. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several summary numbers (Stats) or ordered stages of a process (Steps).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips) or entering one piece of information (Field).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four summary numbers, with time periods in labels and only short measurement units. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- Timeline: When things happen, in time order, as a day plan or a history. Pick: Show events with their times or dates in order. Not things without times to browse (List) or independent jobs to tick off (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Show several plants and let me tap each one to open it\"\nReply with only the component id, nothing else.",
     "reply": "List"
@@ -454,6 +1899,365 @@
       "{\"address\": \"c1\", \"action\": \"press\"}",
       "{\"address\": \"c1\", \"action\": \"press\"}",
       "{\"address\": \"c1\", \"action\": \"press\"}"
+    ]
+  },
+  "ceb11e6ce8ac2ca3": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Use detail brief only when asked to hide both the body and secondary detail; keep that copy in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"thumb\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Park loop\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"thumb\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Park loop\",\"meta\":null,\"badge\":\"Due today\",\"icon\":null,\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":null,\"emphasis\":null,\"surface\":\"tinted\",\"media\":\"icon\",\"detail\":null,\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":null,\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"18:30 · Leash ready\",\"meta\":\"Daily reminder\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}"
     ]
   },
   "de49638278518201": {
@@ -755,6 +2559,365 @@
   "e56f2a237dbc2986": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).\n- Empty: A calm message on a screen that has no content yet. Pick: A screen with nothing yet, explaining the absence of content. Not a main message about existing content (Hero) or a supporting sentence (Note).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several separate things to scan or open. Not the details of one thing (KeyValue) or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Stats: Two to four summary numbers to compare at a glance. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n\nNeed, in the person's words: \"Show several plants and let me tap each one to open it\"\nReply with only the component id, nothing else.",
     "reply": "List"
+  },
+  "e8ab3f5cfec04470": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.\nRule: Use surface tinted with a semantic tone when status should colour the card.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: One card for the evening walk with Pip at 18:30, with a small Due today label in the corner",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Card",
+              "enum": [
+                "Card"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "quiet",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain",
+                    "tinted",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none",
+                    "icon",
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "body": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "meta": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "badge": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "icon": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "dot",
+                    "leaf",
+                    "drop",
+                    "dog",
+                    "cat",
+                    "calendar",
+                    "calendar_days",
+                    "clock",
+                    "check",
+                    "chevron_right",
+                    "plus",
+                    "minus",
+                    "close",
+                    "search",
+                    "settings",
+                    "bell",
+                    "bell_off",
+                    "heart",
+                    "star",
+                    "bookmark",
+                    "share",
+                    "send",
+                    "message",
+                    "mail",
+                    "phone",
+                    "camera",
+                    "image",
+                    "video",
+                    "mic",
+                    "music",
+                    "play",
+                    "pause",
+                    "square",
+                    "undo",
+                    "timer",
+                    "alarm_clock",
+                    "sun",
+                    "moon",
+                    "cloud",
+                    "cloud_rain",
+                    "thermometer",
+                    "wind",
+                    "flame",
+                    "zap",
+                    "battery",
+                    "wifi",
+                    "pin",
+                    "map",
+                    "navigation",
+                    "compass",
+                    "home",
+                    "building",
+                    "store",
+                    "shopping_cart",
+                    "shopping_bag",
+                    "tag",
+                    "gift",
+                    "credit_card",
+                    "wallet",
+                    "banknote",
+                    "piggy_bank",
+                    "receipt",
+                    "trending_up",
+                    "trending_down",
+                    "bar_chart",
+                    "pie_chart",
+                    "activity",
+                    "target",
+                    "trophy",
+                    "medal",
+                    "award",
+                    "flag",
+                    "user",
+                    "users",
+                    "user_plus",
+                    "baby",
+                    "smile",
+                    "dumbbell",
+                    "bike",
+                    "footprints",
+                    "heart_pulse",
+                    "pill",
+                    "stethoscope",
+                    "apple",
+                    "coffee",
+                    "utensils",
+                    "wine",
+                    "pizza",
+                    "carrot",
+                    "sprout",
+                    "flower",
+                    "tree",
+                    "mountain",
+                    "waves",
+                    "car",
+                    "bus",
+                    "plane",
+                    "train",
+                    "briefcase",
+                    "graduation_cap",
+                    "book_open",
+                    "book",
+                    "pencil",
+                    "file_text",
+                    "clipboard",
+                    "clipboard_list",
+                    "checklist",
+                    "lock",
+                    "unlock",
+                    "key",
+                    "shield",
+                    "eye",
+                    "link",
+                    "paperclip",
+                    "download",
+                    "upload",
+                    "trash",
+                    "edit",
+                    "filter",
+                    "sliders",
+                    "info",
+                    "alert",
+                    "help",
+                    "sparkles",
+                    "lightbulb",
+                    "palette",
+                    "scissors",
+                    "wrench",
+                    "hammer",
+                    "package",
+                    "truck",
+                    "recycle",
+                    "globe",
+                    "languages",
+                    "gamepad",
+                    "ticket",
+                    "paw",
+                    "shirt",
+                    "bed",
+                    "bath",
+                    "sofa",
+                    "lamp",
+                    "chevron_left",
+                    "arrow_left",
+                    "more",
+                    "external_link",
+                    "quote",
+                    "circle_check"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "media",
+            "detail",
+            "tone",
+            "title",
+            "body",
+            "meta",
+            "badge",
+            "icon",
+            "photo",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"tinted\",\"media\":\"none\",\"detail\":\"full\",\"tone\":\"good\",\"title\":\"Evening walk with Pip\",\"body\":\"Take Pip out for an evening stroll at 18:30\",\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"Card\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"surface\":\"tinted\",\"media\":\"none\",\"detail\":\"full\",\"tone\":\"good\",\"title\":\"Evening walk with Pip\",\"body\":\"Take Pip out for an evening stroll at 18:30\",\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":\"compact\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":\"full\",\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"Daily evening stroll around the park\",\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"footprints\",\"photo\":null,\"goto\":null}",
+      "{\"c\":\"Card\",\"density\":\"compact\",\"emphasis\":\"normal\",\"surface\":\"card\",\"media\":\"icon\",\"detail\":null,\"tone\":\"neutral\",\"title\":\"Evening walk with Pip\",\"body\":\"Take Pip out for a brisk walk around the block.\",\"meta\":\"18:30\",\"badge\":\"Due today\",\"icon\":\"paw\",\"photo\":null,\"goto\":\"evening_walk_pip\"}"
+    ]
   },
   "f28fe27990124b33": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Card[media] \"Fern\" — \"Bathroom · soft indirect light\" — \"Water today\" — photo:plants [c1 press→fern]\n\nTask: Open the fern card\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",

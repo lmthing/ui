@@ -92,3 +92,13 @@ it("validates all archetypes, their neutral defaults and core-first pack probes"
   expect(pack.probes).toContainEqual(expect.objectContaining({ kind: "pack", expect: ["team"] }));
   expect(pack.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Checklist" }));
 });
+
+it("numbers the family leaderboard without inventing scores", () => {
+  const registry = createRegistry({ packs: ["home"], includeDrafts: true });
+  const screen = registry.defaultLines("family", "leaders", cast);
+  const { id: _id, c: _c, ...input } = screen.components.find(({ c }) => c === "List")!;
+  const list = components.List.props.parse(input);
+  expect(list).toMatchObject({ lead: "number", trail: "value", style: undefined });
+  expect(list.rows).toHaveLength(3);
+  expect(list.rows.every(({ value, trail }) => value === undefined && trail === "none")).toBe(true);
+});

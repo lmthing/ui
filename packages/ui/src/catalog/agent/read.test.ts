@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
-import { readComponent, readScreen, type Definition, text } from "../index";
+import { components, readComponent, readScreen, type Definition, text } from "@lmthing/ui/catalog";
 import { planAct } from "./act";
 import { affordancesOf } from "./affordances";
 import { controlValueKey, parseControlProps } from "./live-props";
@@ -177,4 +177,24 @@ it("rederives prop-backed choices from a nested control edit", () => {
   expect(plan).toMatchObject({ ok: true });
   if (plan.ok)
     expect(readScreen(current, defs, plan.values)).toContain('select = "on"; choices ["off","on"]');
+});
+
+it("reads a peek prefix only, but keeps hidden row actions and reads the full list after expansion", () => {
+  const rows = [{ title: "One" }, { title: "Two" }, { title: "Three", goto: "three" }];
+  const screen = { id: "home", components: [{ id: "l1", c: "List", overflow: "peek", rows }] };
+  const defs = { List: components.List };
+  const read = readScreen(screen, defs);
+  expect(read).toContain("and 1 more");
+  expect(read).toContain("See all");
+  expect(read).not.toMatch(/Three|l1\/r3/);
+  expect(planAct(screen, defs, {}, [{ address: "l1/r3", action: "press" }])).toMatchObject({
+    ok: true,
+    links: [{ goto: "three" }],
+  });
+  const expand = planAct(screen, defs, {}, [{ address: "l1/more", action: "toggle" }]);
+  if (!expand.ok) throw new Error(expand.code);
+  const expanded = readScreen(screen, defs, expand.values);
+  expect(expanded).toContain('r3 "Three" [l1/r3 press→three]');
+  expect(expanded).toContain("Show less");
+  expect(expanded).not.toContain("and 1 more");
 });

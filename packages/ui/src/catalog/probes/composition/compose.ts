@@ -46,14 +46,14 @@ export function composePrompt(
     ...(offersVariants
       ? [
           variantVocabulary,
-          "Variant limits: one hero emphasis and one cover collection per screen; highlight at most one third of each component's items.",
+          "An explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.",
         ]
       : []),
     ...(meta.layouts[layout]!.writeHints ?? []).map((hint) => `Layout rule: ${hint}`),
     `Real app content: ${JSON.stringify(cast)}`,
     ...names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`),
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
-    "Write a useful screen for the supplied content, using the recipe. Reply with JSON only.",
+    "Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
   ].join("\n\n");
 }
 

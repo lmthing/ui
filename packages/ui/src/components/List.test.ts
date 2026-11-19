@@ -15,9 +15,11 @@ describe("List schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("applies defaults and trims text", () => {
-    expect(props.parse({ rows: [{ title: "  Fern  " }] })).toEqual({
-      style: "inset",
-      rows: [{ title: "Fern", trail: "chevron", root: undefined }],
+    expect(props.parse({ rows: [{ title: "  Fern  " }] })).toMatchObject({
+      surface: "card",
+      overflow: "all",
+      lead: "icon",
+      rows: [{ title: "Fern", trail: "chevron", tone: "neutral", mark: "none" }],
     });
   });
   it.each([
