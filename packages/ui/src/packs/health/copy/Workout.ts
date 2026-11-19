@@ -54,18 +54,18 @@ export function workoutReading(input: Workout, lang?: string): string[] {
     words.timeLine(clockLine(input.elapsed ?? 0, lang)),
     ...input.exercises.flatMap(({ name, sets }) =>
       sets.map((set, at) =>
-        [
+        words.reading([
           name,
           workoutSetLabel(at + 1, set.seconds, lang),
           ...(hasWorkoutSetFields(set)
             ? [
-                `${weightLabel}${set.weight === undefined ? "" : ` ${numberLine(set.weight, lang)}`}`,
-                `${words.reps}${set.reps === undefined ? "" : ` ${numberLine(set.reps, lang)}`}`,
+                words.field(weightLabel, set.weight === undefined ? undefined : numberLine(set.weight, lang)),
+                words.field(words.reps, set.reps === undefined ? undefined : numberLine(set.reps, lang)),
               ]
             : []),
           set.done ? words.done : words.pending,
           ...workoutSetTimes(set, lang).map(([, line]) => line),
-        ].join(" · "),
+        ]),
       ),
     ),
     ...(input.rest > 0 ? [words.stopRest] : []),

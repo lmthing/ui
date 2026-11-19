@@ -1,3 +1,4 @@
-# money/copy
+# Money copy
 
-Pure localized display and reading helpers for money components. Import through `index.ts`.
+Data-only formatting shared by the money components and their readers.
+Built-in words live in `../lang/`; import these helpers through `index.ts`.
