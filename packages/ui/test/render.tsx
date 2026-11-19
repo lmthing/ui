@@ -61,7 +61,10 @@ export function renderInstance(
 
 /** Inspect rendered markup without depending on React element trees or mocked kit hooks. */
 export type RenderedElement = { tag: string; attributes: string; children: RenderedElement[] };
-export type AddressedElement = RenderedElement & { text: string[]; children: AddressedElement[] };
+export type AddressedElement = Omit<RenderedElement, "children"> & {
+  text: string[];
+  children: AddressedElement[];
+};
 
 export function addressedElements(html: string): Map<string, AddressedElement> {
   const stack: AddressedElement[] = [];

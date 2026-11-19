@@ -16,13 +16,6 @@ export function variantChoices(meta: Definition["meta"], includeDefaults = false
   return [...choicesOf(meta.variants, false), ...choicesOf(meta.items?.variants, true)];
 }
 
-function withDefaults(input: Input, variants?: Variants) {
-  return {
-    ...input,
-    ...Object.fromEntries(entriesOf(variants).map(([axis, values]) => [axis, values[0]])),
-  };
-}
-
 function itemsOf(input: Input, key: string): Input[] {
   const rows = input[key];
   return Array.isArray(rows) ? rows : [];
@@ -31,24 +24,26 @@ function itemsOf(input: Input, key: string): Input[] {
 /** Compare one axis at a time, retaining the authored content and order. */
 export function variantPairs(meta: Definition["meta"], example: unknown, choice: Choice): Pair[] {
   const raw = example as Input;
-  const baseline = withDefaults(raw, meta.variants);
-  if (choice.axis === "overflow" && !choice.item && meta.variants?.overflow?.includes("all"))
-    baseline.overflow = "all";
   const items = meta.items;
-  if (items?.variants) {
-    baseline[items.key] = itemsOf(raw, items.key).map((item) => {
-      const defaults = withDefaults(item, items.variants);
-      // Leave inherited item trail unset when exercising the collection trail.
-      if (meta.variants?.trail && items.variants?.trail) delete defaults.trail;
-      return defaults;
+  if (!choice.item) {
+    const values: readonly string[] = meta.variants?.[choice.axis] ?? [];
+    const reference = choice.axis === "overflow" && values.includes("all") ? "all" : values[0];
+    const pair = (base: Input) => ({
+      baseline: { ...base, [choice.axis]: reference },
+      input: { ...base, [choice.axis]: choice.value },
     });
+    if (choice.axis !== "trail" || !items?.variants?.trail) return [pair(raw)];
+    const rows = itemsOf(raw, items.key);
+    // Also exercise inherited trail without overrides masking the component-level value.
+    if (!rows.some((row) => Object.hasOwn(row, "trail"))) return [pair(raw)];
+    const inherited = rows.map(({ trail: _trail, ...row }) => row);
+    return [pair({ ...raw, [items.key]: inherited }), pair(raw)];
   }
-  if (!choice.item) return [{ baseline, input: { ...baseline, [choice.axis]: choice.value } }];
   if (!items?.variants) return [];
 
-  const rows = itemsOf(baseline, items.key);
+  const rows = itemsOf(raw, items.key);
   const at = (index: number, value: string) => ({
-    ...baseline,
+    ...raw,
     [items.key]: rows.map((row, rowIndex) => (index === rowIndex ? { ...row, [choice.axis]: value } : row)),
   });
   const defaultValue = (items.variants as Variants)[choice.axis]![0];

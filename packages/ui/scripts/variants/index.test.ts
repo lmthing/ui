@@ -40,26 +40,20 @@ it("compares one item at a time without shadowing the collection trail", () => {
     variantPairs(fixture.meta, examples[0], { axis: "trail", value: "none", item: false })[0]?.input,
   ).toMatchObject({
     trail: "none",
-    rows: [
-      { title: "First", mark: "none" },
-      { title: "Second", mark: "none" },
-    ],
+    rows: [{ title: "First" }, { title: "Second", mark: "highlight" }],
   });
   const pairs = variantPairs(fixture.meta, examples[0], { axis: "trail", value: "chevron", item: true });
   expect(pairs.map(({ itemIndex, input }) => ({ itemIndex, rows: input.rows }))).toEqual([
     {
       itemIndex: 0,
       rows: [
-        { title: "First", mark: "none", trail: "chevron" },
-        { title: "Second", mark: "none" },
+        { title: "First", trail: "chevron" },
+        { title: "Second", mark: "highlight" },
       ],
     },
     {
       itemIndex: 1,
-      rows: [
-        { title: "First", mark: "none" },
-        { title: "Second", mark: "none", trail: "chevron" },
-      ],
+      rows: [{ title: "First" }, { title: "Second", mark: "highlight", trail: "chevron" }],
     },
   ]);
 });
@@ -69,10 +63,7 @@ it("uses a valid authored example once and does not mutate the examples", () => 
   expect(previews).toHaveLength(4);
   expect(previews[0]?.input).toMatchObject({ detail: "brief", rows: [{ title: "Third" }] });
   expect(previews[3]?.input).toMatchObject({
-    rows: [
-      { title: "First", mark: "none" },
-      { title: "Second", mark: "highlight" },
-    ],
+    rows: [{ title: "First" }, { title: "Second", mark: "highlight" }],
   });
   expect(examples[0]?.rows[1]).toHaveProperty("mark", "highlight");
   expect(examples[0]?.rows[0]).not.toHaveProperty("mark");
@@ -81,4 +72,16 @@ it("uses a valid authored example once and does not mutate the examples", () => 
 it("omits a sheet when there are no alternatives", () => {
   const { variants: _variants, items: _items, ...meta } = fixture.meta;
   expect(variantPreviews({ ...fixture, meta })).toEqual([]);
+});
+
+it("preserves explicitly authored row actions and other axes when exercising overflow", () => {
+  const meta = { ...fixture.meta, variants: { ...variants, overflow: ["all", "peek"] } } as const;
+  const example = {
+    detail: "brief",
+    trail: "none",
+    rows: [{ title: "First" }, { title: "Second", trail: "chevron" }],
+  };
+  expect(variantPairs(meta, example, { axis: "overflow", value: "peek", item: false })).toEqual([
+    { baseline: { ...example, overflow: "all" }, input: { ...example, overflow: "peek" } },
+  ]);
 });

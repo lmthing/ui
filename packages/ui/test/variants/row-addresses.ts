@@ -11,10 +11,12 @@ const encoded = (text: string) =>
 function rowText(node: AddressedElement, item: string): string[] {
   const address = node.attributes.match(/\bdata-testid="home\/c1\/([^/]+)\/[^"]+"/)?.[1];
   if (address && address !== item) return [];
-  const label = node.attributes.match(/\b(?:aria-label|value)="([^"]+)"/)?.[1];
+  const values = [...node.attributes.matchAll(/ (?:aria-label|value|src)="([^"]+)"/g)].map(
+    (match) => match[1]!,
+  );
   return [
     ...node.text.map((text) => text.trim()),
-    ...(label ? [label] : []),
+    ...values,
     ...node.children.flatMap((child) => rowText(child, item)),
   ];
 }

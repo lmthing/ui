@@ -1,4 +1,11 @@
-import { affordancesOf, planAct, type Definition, type Meta } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  nestedAt,
+  planAct,
+  type Affordance,
+  type Definition,
+  type Meta,
+} from "@lmthing/ui/catalog";
 import { renderedAddresses } from "./variant-parts";
 
 type Props = Record<string, unknown>;
@@ -28,12 +35,21 @@ export function peekForExample(meta: Meta, props: Props, html: string) {
   return { hidden: [], issues: [] };
 }
 
-function actionValue(meta: Meta, action: string, detail: string) {
+function setValue(meta: Meta, props: Props, { address, detail }: Affordance) {
+  const nested = nestedAt(meta, props, address.slice(component.length + 1));
+  const { min = -Infinity, max = Infinity, integer } = nested?.spec ?? {};
+  const value = Number(detail.split(" = ")[1] ?? 0);
+  const sample = Number.isFinite(value) ? value : 0;
+  return integer
+    ? Math.min(Math.floor(max), Math.max(Math.ceil(min), Math.round(sample)))
+    : Math.min(max, Math.max(min, sample));
+}
+
+function actionValue(meta: Meta, props: Props, affordance: Affordance) {
+  const { action } = affordance;
   switch (action) {
-    case "set": {
-      const value = Number(detail.split(" = ")[1] ?? 0);
-      return Number.isFinite(value) ? value : 0;
-    }
+    case "set":
+      return setValue(meta, props, affordance);
     case "type":
     case "move":
       return "1";
@@ -68,7 +84,7 @@ export function variantPeekIssues(
     const step = {
       address,
       action: action.action,
-      value: actionValue(def.meta, action.action, action.detail),
+      value: actionValue(def.meta, baseline.props, action),
     };
     const act = (props: Props) =>
       planAct({ id: screen, components: [{ ...props, c: id, id: component }] }, { [id]: def }, {}, [step]);

@@ -57,3 +57,38 @@ it("tests a hidden index-based select at the value derived for that address", ()
   };
   expect(variantPeekIssues(selecting, input, baseline, ["r2", "r3"], read)).toEqual([]);
 });
+
+it("uses the nested action's bounds when its stored value is below the accepted minimum", () => {
+  const bounded: Definition = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      items: {
+        key: "rows",
+        parts: ["root"],
+        nested: {
+          key: "scores",
+          parts: { rate: { action: "set", prop: "rating", min: 1, max: 5, integer: true } },
+        },
+      },
+    },
+    props: fixture.props.extend({
+      rows: z.array(
+        z.strictObject({ goto: z.string(), scores: z.array(z.strictObject({ rating: z.number() })) }),
+      ),
+    }),
+  };
+  const all = { rows: rows.map((row) => ({ ...row, scores: [{ rating: 0 }] })) };
+  expect(
+    variantPeekIssues(
+      bounded,
+      { ...input, ...all },
+      {
+        input: all,
+        props: stampItemIds(bounded.meta, bounded.props.parse(all)),
+      },
+      ["r2", "r3"],
+      read,
+    ),
+  ).toEqual([]);
+});

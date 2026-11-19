@@ -35,3 +35,28 @@ it("accepts a hidden suffix but catches a peek that shows the wrong first row", 
     "Item content moved from r2 to r1",
   ]);
 });
+
+it("catches renumbered rows whose only identifying content is their image", () => {
+  const photos = [
+    { id: "r1", photo: "lib:one" },
+    { id: "r2", photo: "lib:two" },
+  ];
+  const render = (items: typeof photos) =>
+    renderToStaticMarkup(
+      <div>
+        {items.map(({ id, photo }) => (
+          <div key={id} data-testid={`home/c1/${id}/root`}>
+            <img src={photo} />
+          </div>
+        ))}
+      </div>,
+    );
+  const swapped = [
+    { ...photos[1]!, id: "r1" },
+    { ...photos[0]!, id: "r2" },
+  ];
+  expect(rowAddressIssues(photos, render(photos), render(swapped))).toEqual([
+    "Item content moved from r1 to r2",
+    "Item content moved from r2 to r1",
+  ]);
+});
