@@ -1,6 +1,7 @@
 import type { Item } from "../../scripts/site-types";
 import { shotOf, site } from "../data/site";
 import { hrefOf } from "../router";
+import { preloadKit } from "../shared/preload";
 import { JsonLine } from "../shared/JsonLine";
 import { tierLabel } from "../shared/status";
 
@@ -12,7 +13,7 @@ export const numberOf = (id: string) =>
 export function Specimen({ item }: { item: Item }) {
   return (
     <article className="specimen">
-      <a href={hrefOf("c", item.id)} className="spec-link">
+      <a href={hrefOf("c", item.id)} className="spec-link" onPointerEnter={preloadKit} onFocus={preloadKit}>
         <p className="spec-head">
           <span>{numberOf(item.id)}</span>
           <span>

@@ -14,6 +14,7 @@
     "@tamagui/core": "1.144.4",
     "react": "19.3.1",
     "react-dom": "19.3.1",
+    "react-error-boundary": "5.0.0",
     "react-native-svg": "15.15.3",
     "react-native-web": "0.21.4",
     "tamagui": "1.144.4",

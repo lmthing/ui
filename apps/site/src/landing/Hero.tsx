@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { site } from "../data/site";
 import { HeroFrame } from "./HeroFrame";
@@ -6,7 +6,7 @@ import { HeroFrame } from "./HeroFrame";
 // Start loading the live demo now; the static first frame is on screen until it is ready.
 const load = () => import("../create/CreateDemo");
 void load();
-const CreateDemo = lazy(load);
+const CreateDemo = lazyChunk(load);
 
 export function Hero() {
   const { stats } = site;

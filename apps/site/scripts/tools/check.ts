@@ -80,6 +80,34 @@ async function checkEdges(browser: Browser) {
   await page.close();
 }
 
+/** A tab open across a deploy asks for a chunk that is gone: reload once, then show the chrome and a Reload button. */
+async function checkStaleChunk(browser: Browser) {
+  const page = await open(browser, 1280);
+  let loads = 0;
+  page.on("load", () => (loads += 1));
+  await page.route(/ComponentPage-[^/]*\.js/, (route) => route.abort());
+  await page.goto(`${base}#/c/Amount`);
+  await page.getByRole("button", { name: "Reload" }).waitFor({ timeout: 15000 });
+  expect(
+    (await page.getByRole("link", { name: /lmthing\/ui, home/ }).count()) > 0,
+    "stale chunk: the header is still there",
+  );
+  expect(loads === 2, `stale chunk: reloaded exactly once (${loads} loads)`);
+  await page.screenshot({ path: `${shots}/reload-1280.png` });
+  await page.close();
+}
+
+async function checkIndex(browser: Browser) {
+  const page = await open(browser, 1280);
+  await page.goto(`${base}#/components`, { waitUntil: "networkidle" });
+  const all = await page.locator(".specimen").count();
+  await page.getByRole("radiogroup", { name: "Pack" }).getByRole("radio", { name: "booking" }).click();
+  const some = await page.locator(".specimen").count();
+  expect(some > 0 && some < all, `index: pack filter narrows ${all} to ${some}`);
+  await page.screenshot({ path: `${shots}/index-filter-1280.png` });
+  await page.close();
+}
+
 async function checkPlayground(browser: Browser) {
   const page = await open(browser, 1280);
   await page.goto(`${base}#/c/List`, { waitUntil: "networkidle" });
@@ -122,6 +150,8 @@ await checkTry(browser, 390, undefined, "Recorded replay");
 await checkTry(browser, 1280, mock, "Chrome built-in AI");
 await checkPlayground(browser);
 await checkViewAct(browser);
+await checkStaleChunk(browser);
+await checkIndex(browser);
 await checkEdges(browser);
 await checkTheme(browser);
 for (const width of [1280, 390]) await checkPack(browser, width);
