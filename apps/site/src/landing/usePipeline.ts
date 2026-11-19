@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { components } from "@lmthing/ui/catalog";
-import { site } from "../data/site";
+import { useRecorded } from "../data/recorded";
 import { useStream } from "../create/useStream";
 import { cleanScreen, screenOfLines } from "../live/screen";
 import { checkLine, type Line } from "../tryit/assemble";
@@ -10,15 +10,17 @@ export type Chip = { key: number; name: string; status: Status };
 
 /** A recorded Writer reply, one line at a time through the real Validator, as chips and a growing screen. */
 export function usePipeline() {
+  const data = useRecorded();
   const recorded = useMemo(() => {
-    const rich = (s: (typeof site.screens)[number]) =>
+    const rich = (s: NonNullable<typeof data>["screens"][number]) =>
       s.screen.components[0]?.c === "Header" &&
       s.screen.components.some((c) => ["List", "Stats", "Card", "Progress"].includes(c.c));
+    const screens = data?.screens ?? [];
     return (
-      site.screens.find((s) => s.screen.components.length >= 5 && rich(s)) ??
-      site.screens.find((s) => s.screen.components.length >= 5)
+      screens.find((s) => s.screen.components.length >= 5 && rich(s)) ??
+      screens.find((s) => s.screen.components.length >= 5)
     );
-  }, []);
+  }, [data]);
   const lines = useMemo(() => (recorded?.screen.components ?? []).map((c) => JSON.stringify(c)), [recorded]);
   const [round, setRound] = useState(0);
   const shown = useStream(lines.length, "pipeline", round, 1100, true, 2);

@@ -4,7 +4,7 @@ import type * as Catalog from "@lmthing/ui/catalog";
 import { readPackTable } from "./pack-table";
 import { readPlanned, readWaves } from "./plan-docs";
 import { readReadProbes, readScreens } from "./recordings";
-import type { Accent, Item, ItemState, Pack, Preset, SiteData, Stats } from "./site-types";
+import type { Accent, Item, ItemState, Pack, Preset, RecordedData, SiteData, Stats } from "./site-types";
 
 const repoRoot = new URL("../../../", import.meta.url).pathname;
 const catalog = (await import(
@@ -68,7 +68,7 @@ function buildStats(items: Item[], packs: Pack[], core: Item[]): Stats {
   };
 }
 
-export function loadSiteData(): SiteData {
+export function loadSiteData(): SiteData & RecordedData {
   const registry = catalog.createRegistry({ includeDrafts: true, packs: catalog.packIds });
   const table = readPackTable(`${repoRoot}docs/catalog/packs/README.md`);
   const readyPacks = new Set<string>(catalog.packIds.filter(packIsReady));

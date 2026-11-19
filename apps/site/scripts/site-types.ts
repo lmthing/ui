@@ -55,6 +55,9 @@ export type Stats = {
   themesBuilt: number;
 };
 
+/** Recorded model output: loaded on demand, because it is the largest part of the data. */
+export type RecordedData = { screens: RecordedScreen[]; readProbes: ReadProbe[] };
+
 export type SiteData = {
   repo: string;
   commit: string;
@@ -65,7 +68,5 @@ export type SiteData = {
   accents: Accent[];
   stats: Stats;
   waves: WaveInfo[];
-  screens: RecordedScreen[];
-  readProbes: ReadProbe[];
   themeVars: Record<string, Record<string, string>>;
 };

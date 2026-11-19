@@ -116,3 +116,14 @@
 .empty h2 {
   margin-bottom: 12px;
 }
+
+.spec-shot.loading {
+  background: var(--raised);
+}
+.spec-shot img {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+.spec-shot.ready img {
+  opacity: 1;
+}

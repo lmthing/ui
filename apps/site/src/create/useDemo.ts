@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cleanScreen, screenOfLines } from "../live/screen";
 import type { Lit } from "../shared/JsonLine";
+import { useRecorded } from "../data/recorded";
 import { sources } from "./sources";
 import { useStream } from "./useStream";
 
@@ -14,7 +15,8 @@ const firstFrame = 3;
 
 /** The hero demo's state: which source, how many lines have arrived, and what is lit on either side. */
 export function useDemo() {
-  const all = useMemo(sources, []);
+  const recorded = useRecorded();
+  const all = useMemo(() => sources(recorded), [recorded]);
   const [at, setAt] = useState(0);
   const [run, setRun] = useState(0);
   const [lit, setLit] = useState<Lit>(null);

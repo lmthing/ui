@@ -30,7 +30,12 @@ export function RequestBar({ request, setRequest, suggestions, running, run, sto
       </div>
       <div className="chips">
         {suggestions.map((s) => (
-          <button key={s} className="chip pick" onClick={() => setRequest(s)}>
+          <button
+            key={s}
+            className="chip pick"
+            aria-pressed={request.trim().toLowerCase() === s}
+            onClick={() => setRequest(s)}
+          >
             {s}
           </button>
         ))}
