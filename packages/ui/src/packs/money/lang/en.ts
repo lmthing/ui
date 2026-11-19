@@ -42,7 +42,7 @@ export const en = {
     cleared: "All debts cleared",
     noFinish: "No payoff date",
     unavailable: "Estimate failed",
-    errorHelp: "Check your debt details and try again.",
+    errorHelp: "No forecast was calculated.",
     unknown: "No clearance date",
     clearance: (month: string) => `Clears ${month}`,
     clearedIn: (month: string) => `Cleared ${month}`,
