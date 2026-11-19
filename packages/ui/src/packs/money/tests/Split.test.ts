@@ -128,8 +128,8 @@ describe("Split states, parts and read/act", () => {
       ["s1/add", "→entry"],
       ["s1/r2/settle", ""],
     ]);
-    for (const { address } of offered)
-      expect(elementAt(html, address.replace("s1", "home/c1")).attributes).toContain('role="button"');
+    expect(elementAt(html, "home/c1/add").attributes).toContain('role="link"');
+    expect(elementAt(html, "home/c1/r2/settle").attributes).toContain('role="button"');
     const reading = readComponent(components.Split, first, "s1").join("\n");
     for (const line of [
       "Sam pays Ana $18",

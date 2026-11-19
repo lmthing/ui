@@ -83,7 +83,7 @@ export const examples = [
   {
     people: [
       { name: "Ana", photo: "lib:people" },
-      { name: "Sam", photo: "local:1" },
+      { name: "Sam", photo: "lib:people" },
     ],
     expenses: [
       { title: "Ledge potting mix", amount: 48, by: 0, split: "equal" },
@@ -132,7 +132,7 @@ function SettlementRows({ people, settlements }: SettlementProps) {
         <kit.KitContent group={from === settlements[0]!.from ? "content" : "response"}>
           {payments.map(({ to, route, amount }) => (
             <kit.KitRow key={to} label={route} inline trailing={
-              <kit.KitText part={null} role="number" tabular>{amount}</kit.KitText>}>
+              <kit.KitText part={null} role="number" numberScale="compact" tabular>{amount}</kit.KitText>}>
               <kit.KitText part={null}>{route}</kit.KitText>
             </kit.KitRow>
           ))}
@@ -157,7 +157,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
           trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular
             tone={balance.cents > 0n ? "good" : balance.cents < 0n ? "bad" : "muted"}>{balance.value}</kit.KitText>}>
           <kit.KitText part="name" lines={1}>{name}</kit.KitText>
-          <kit.KitText part="status" role="caption" tone="muted">{balance.status}</kit.KitText>
+          <kit.KitText part="status" role="label" tone="muted">{balance.status}</kit.KitText>
         </kit.KitRow>;
       })}
     </kit.KitContent>
@@ -167,7 +167,7 @@ function LedgerRows({ people, ledger }: { people: SplitProps["people"]; ledger: 
         <kit.KitRow key={index} label={title} inline
           trailing={<kit.KitText part={null} role="number" numberScale="compact" tabular>{amount}</kit.KitText>}>
           <kit.KitText part={null}>{title}</kit.KitText>
-          <kit.KitText part={null} role="caption" tone="muted">{paidBy}</kit.KitText>
+          <kit.KitText part={null} role="label" tone="muted">{paidBy}</kit.KitText>
         </kit.KitRow>
       ))}
     </kit.KitContent>}
@@ -191,7 +191,9 @@ export function Split(input: SplitProps) {
           </kit.KitContent> : <kit.KitText part="settled" role="heading" tone="good">{w.settled}</kit.KitText>}
         <LedgerRows people={input.people} ledger={ledger} />
         <kit.KitContent group="response">
-          <kit.KitAction part="add" label={w.add} goto={input.goto} kind={input.expenses.length ? "quiet" : "primary"} full />
+          {input.expenses.length ? <kit.KitRow part="add" label={w.add} goto={input.goto} inline>
+            <kit.KitText part="add_label" role="label" tone="accent">{w.add}</kit.KitText>
+          </kit.KitRow> : <kit.KitAction part="add" label={w.add} goto={input.goto} full />}
         </kit.KitContent>
       </>}
   </kit.KitCard>;
