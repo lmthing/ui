@@ -1,8 +1,6 @@
 import { z } from "zod";
 import {
   itemsOf,
-  kitchenItemLine,
-  kitchenLabels,
   placeholderDetail,
   placeholderTitle,
   probesFor,
@@ -12,12 +10,27 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitCheck,
+  KitContent,
+  KitEmpty,
+  KitInput,
+  KitRow,
+  KitText,
+  useComponentState,
+  useControlValue,
+  useKit,
+  usePartContext,
+} from "../../../kit";
+import { groceryLabels, groceryRead } from "../copy";
 
 // Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Buy groceries by aisle and tick off what is in the bag.",
   pick: "Shopping for food grouped by aisle, with quantities and optional people who added it. Not general jobs (Checklist), recipe amounts (Ingredients), or an online basket (Cart).",
@@ -31,27 +44,11 @@ export const meta = {
   partTiers: { by: "people" },
   realPath: "A list stored on the device; authors and others' additions require a shared household app.",
   items: { key: "rows", parts: ["root", "name", "qty", "got", "by"] },
-  parts: ["root", "add"],
+  parts: ["root", "add", "summary"],
   states: ["filled", "empty", "success"],
   signature: "check_burst",
   actions: { items: { got: ["check"] }, parts: { add: ["type"] } },
-  read: (input) => {
-    const value = input as z.output<typeof props>;
-    let index = 0;
-    return [
-      JSON.stringify(kitchenLabels.newItem),
-      ...value.aisles.flatMap((aisle) => [
-        aisle.label,
-        ...aisle.items.map((item) =>
-          kitchenItemLine(
-            index++,
-            `${item.name}${item.qty ? ` · ${item.qty}` : ""}${item.by ? ` · ${item.by}` : ""}`,
-          ),
-        ),
-      ]),
-      "\n",
-    ];
-  },
+  read: (input, state) => (state === "filled" ? groceryRead(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
@@ -75,7 +72,10 @@ export const props = z
       .min(1)
       .max(8),
   })
-  .overwrite((value) => ({ ...value, rows: value.aisles.flatMap((aisle) => aisle.items) }));
+  .overwrite((value) => ({
+    ...value,
+    rows: value.aisles.flatMap((aisle, aisleIndex) => aisle.items.map((item) => ({ ...item, aisleIndex }))),
+  }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 3).map((item, index) => ({
@@ -119,3 +119,81 @@ export const probes = [
   read("Mark tomatoes as bought", { address: "g1/r1/got", action: "check" }),
   read("Add another grocery item", { address: "g1/add", action: "type" }),
 ] satisfies Probe[];
+
+type GroceryRow = z.output<typeof props>["aisles"][number]["items"][number] & {
+  id: string;
+  aisleIndex: number;
+};
+
+function GroceryItem({ row }: { row: GroceryRow }) {
+  return (
+    <KitRow
+      item={row.id}
+      label={row.name}
+      inline
+      leading={<KitCheck done={row.got} part="got" label={row.name} />}
+    >
+      <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
+        {row.name}
+      </KitText>
+      {row.qty && (
+        <KitText role="caption" tone="muted" lines={1} part="qty">
+          {row.qty}
+        </KitText>
+      )}
+      {row.by && (
+        <KitText role="caption" tone="muted" lines={1} part="by">
+          {row.by}
+        </KitText>
+      )}
+    </KitRow>
+  );
+}
+
+export function GroceryList(value: Props<typeof props, typeof meta>) {
+  const { aisles, rows } = value as typeof value & { rows: GroceryRow[] };
+  const state = useComponentState();
+  const { screen, component } = usePartContext();
+  const { controller } = useKit();
+  // Every signature action advances the cue, including repeated checks on one stable row.
+  useControlValue(`${screen}/${component}/$cue`, 0);
+  const live = rows.map((row) => ({
+    ...row,
+    got: (controller?.store.get(`${screen}/${component}/${row.id}/got`) as boolean | undefined) ?? row.got,
+  }));
+  return (
+    <KitCard style="inset" padded part="root">
+      {state === "empty" || state === "success" ? (
+        <KitEmpty
+          part="summary"
+          decorativeIcon
+          {...(state === "success"
+            ? ({ icon: "check", title: groceryLabels.allGot, tone: "good" } as const)
+            : {})}
+        />
+      ) : (
+        <>
+          {live.every((row) => row.got) && (
+            <KitText role="heading" tone="good" part="summary">
+              {groceryLabels.allGot}
+            </KitText>
+          )}
+          {aisles.map((aisle, index) => (
+            <KitContent key={index} group={index ? "response" : "content"}>
+              <KitText role="heading" part={null}>
+                {aisle.label}
+              </KitText>
+              {live
+                .filter((row) => row.aisleIndex === index)
+                .sort((a, b) => Number(a.got) - Number(b.got))
+                .map((row) => (
+                  <GroceryItem key={row.id} row={row} />
+                ))}
+            </KitContent>
+          ))}
+        </>
+      )}
+      <KitInput part="add" hint={groceryLabels.newItem} label={groceryLabels.newItem} icon="plus" />
+    </KitCard>
+  );
+}
