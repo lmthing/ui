@@ -1,10 +1,5 @@
 # kitchen/copy
 
-Pure copy owned by kitchen components. Import through `index.ts`.
-
-- `FoodLog.ts`: meal labels, calorie totals, target copy, and addressed reading lines.
-- Tests live in `../tests/copy/FoodLog.test.ts`.
-User-facing kitchen component copy and data-only reading helpers.
-Import through this folder's `index.ts` door.
-
+Kitchen copy helpers for labels, unit conversions, calendar dates, and data-only readings.
+Import through this folder's `index.ts` door. Pure helper tests live in `../tests/copy/`.
 Put new words and grammar in `../lang/en.ts`; helpers here take the app `lang`.

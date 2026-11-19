@@ -144,7 +144,7 @@ function FoodLogRow(row: Props<typeof props, typeof meta>["rows"][number], lang:
         label={label}
         inline
         trailing={
-          <KitAction icon="plus" kind="quiet" part="add" goto={row.goto} a11y={foodLogLabels.add(row.meal)} />
+          <KitAction icon="plus" kind="quiet" part="add" goto={row.goto} a11y={foodLogLabels.add(label)} />
         }
       >
         <KitText tone="muted" part="meal" children={label} />

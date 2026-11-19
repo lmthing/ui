@@ -5,10 +5,10 @@ import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import {
-  headingWidth,
   disabledContent,
-  matrixWidth,
+  matrixColumnLayout,
   MatrixSelectionContext,
+  useCompactMatrix,
   useMatrixHeights,
   type Column,
   type Drawing,
@@ -21,6 +21,7 @@ type TableProps = Drawing & {
   rows: readonly MatrixRow[];
   corner: ReactNode;
   stickyFirst?: boolean;
+  fitColumns?: boolean | undefined;
   activeColumn?: string;
   headerTargets?: readonly { column: string; target: Target }[];
   separators?: readonly string[];
@@ -34,6 +35,9 @@ type CellProps = {
   loading: boolean;
   cut?: boolean | undefined;
   height: number;
+  fit?: boolean | undefined;
+  divider?: boolean;
+  rail?: boolean;
   measure: ReturnType<ReturnType<typeof useMatrixHeights>["measure"]>;
 };
 
@@ -69,23 +73,28 @@ function useCellTarget({ target, disabled, selected, loading, label }: CellProps
           : {}),
       };
 }
-
 function TableCell(props: CellProps) {
   const ks = useKitStyle();
   const target = useCellTarget(props);
+  const highlight = props.selected && !props.loading;
+  const fill = highlight ? { backgroundColor: "$accentSoft" } : {};
+  const rule = props.divider ? { borderLeftWidth: component.base.borderWidth, borderColor: "$line" } : {};
   return (
     <YStack
       {...(target as object)}
       minHeight={props.height + (props.cut ? component.base.borderWidth : component.base.none)}
-      minWidth={size.control.md}
-      paddingHorizontal={space.md}
+      minWidth={props.rail && !props.target ? component.base.none : size.control.md}
+      paddingHorizontal={props.fit ? space.xs : space.md}
       paddingVertical={space[ks.density.rowPad]}
       justifyContent="center"
       borderBottomWidth={props.cut ? component.base.strongBorder : component.base.borderWidth}
       borderColor={props.cut ? "$muted" : "$line"}
-      backgroundColor={props.loading ? "$surface" : props.selected ? "$accentSoft" : "$surface"}
+      {...(props.fit && !props.loading ? {} : { backgroundColor: highlight ? "$accentSoft" : "$surface" })}
       {...(props.disabled ? { "aria-disabled": true } : {})}
     >
+      {props.fit && (highlight || props.divider) && (
+        <YStack fullscreen pointerEvents="none" aria-hidden {...fill} {...rule} />
+      )}
       <YStack
         onLayout={props.measure}
         pointerEvents={props.disabled ? "none" : "auto"}
@@ -98,7 +107,6 @@ function TableCell(props: CellProps) {
     </YStack>
   );
 }
-
 function ScopedCell({ item, ...props }: CellProps & { item?: string }) {
   const { item: inherited, ...context } = usePartContext();
   const id = props.target ? props.target.item : (item ?? inherited);
@@ -116,20 +124,24 @@ function TableColumn({
   index,
   props,
   heights,
+  compact,
 }: {
   column?: Column;
   index: number;
   props: TableProps;
   heights: ReturnType<typeof useMatrixHeights>;
+  compact: boolean;
 }) {
   const heading = !column,
     loading = Boolean(props.loading);
   const selected = useContext(MatrixSelectionContext);
   const active = Boolean(column && (column.id === props.activeColumn || selected.includes(column.id)));
+  const fit = props.fitColumns ? { fit: true, rail: heading, divider: compact && index > 0 } : {};
   return (
-    <YStack width={heading ? headingWidth : matrixWidth} flexShrink={component.base.none}>
+    <YStack {...matrixColumnLayout(Boolean(props.fitColumns), heading)}>
       <ScopedCell
         loading={loading}
+        {...fit}
         label={column?.label ?? ""}
         height={heights.height("header")}
         measure={heights.measure("header", column?.id ?? "corner")}
@@ -145,6 +157,7 @@ function TableColumn({
             key={row.id}
             item={row.id}
             loading={loading}
+            {...fit}
             label={heading ? row.label : `${row.label}, ${column.label}`}
             height={heights.height(row.id)}
             measure={heights.measure(row.id, column?.id ?? "heading")}
@@ -153,7 +166,7 @@ function TableColumn({
             selected={row.selected || active}
             cut={props.separators?.includes(row.id)}
           >
-            {heading ? row.heading : cell?.content}
+            {heading ? row.heading : compact ? (cell?.compactContent ?? cell?.content) : cell?.content}
           </ScopedCell>
         );
       })}
@@ -161,22 +174,25 @@ function TableColumn({
   );
 }
 
-/** Pinned labels and a sideways table retain control widths on web and native. */
 export function KitTable({ part = "root", stickyFirst = true, ...props }: TableProps) {
   const ks = useKitStyle();
-  const address = usePart(part);
   const heights = useMatrixHeights(space[ks.density.rowPad]);
-  const all = { ...props, part, stickyFirst };
+  const { compact, onLayout } = useCompactMatrix(Boolean(props.fitColumns));
+  const root = { ...usePart(part), onLayout, "aria-busy": Boolean(props.loading) };
+  const layout = { props, heights, compact };
+  const heading = <TableColumn index={-1} {...layout} />;
+  const pinned = stickyFirst || props.fitColumns;
   return (
-    <XStack {...address} minWidth={component.base.none} width="100%" aria-busy={Boolean(props.loading)}>
-      {stickyFirst && <TableColumn index={-1} props={all} heights={heights} />}
+    <XStack {...root} width="100%" minWidth={component.base.none}>
+      {pinned && heading}
       <MatrixScroll
         label={props.columns.map((column) => column.label).join(", ")}
-        loading={Boolean(props.loading)}
+        loading={props.loading}
+        fitted={props.fitColumns}
       >
-        {!stickyFirst && <TableColumn index={-1} props={all} heights={heights} />}
+        {!pinned && heading}
         {props.columns.map((column, index) => (
-          <TableColumn key={column.id} column={column} index={index} props={all} heights={heights} />
+          <TableColumn key={column.id} column={column} index={index} {...layout} />
         ))}
       </MatrixScroll>
     </XStack>

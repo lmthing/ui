@@ -1,5 +1,16 @@
+import type { LDMLPluralRule, repeatOptions } from "../../../catalog";
+
+type CareRepeat = Exclude<(typeof repeatOptions)[number], "never">;
+const repeatUnits = {
+  daily: "day",
+  weekdays: "weekday",
+  weekly: "week",
+  monthly: "month",
+  yearly: "year",
+};
+
 export const en = {
-  agendaLabels: { add: "Add event" },
+  agendaLabels: { add: "Add event", allDay: "All day", conflict: "Time conflict", everyone: "Everyone" },
   babyLabels: {
     feed_left: "Feed left",
     feed_right: "Feed right",
@@ -8,7 +19,27 @@ export const en = {
     sleep: "Sleep",
     none: "None running",
   },
-  careLabels: { last: "Last done" },
+  babyLog: {
+    title: "Today’s log",
+    history: "History",
+    empty: "No entries yet",
+    running: (label: string) => `${label} running`,
+    last: (time?: string) => (time ? `Last ${time}` : "—"),
+  },
+  careLabels: {
+    last: "Last",
+    next: "Next",
+    today: "Due today",
+    overdue: "Late",
+    noNext: "No next date",
+    done: "Log done",
+    success: "Care logged",
+  },
+  careRepeat: (repeat: CareRepeat | "never", count: string, form: LDMLPluralRule) =>
+    repeat === "never"
+      ? "Does not repeat"
+      : `Every ${form === "one" ? repeatUnits[repeat] : `${count} ${repeatUnits[repeat]}s`}`,
+  careDate: (label: string, date: string) => `${label} ${date.replace(/ /g, "\u00a0")}`,
   choreLabels: { points: "points" },
   deviceLabels: {
     reading: "Reading",

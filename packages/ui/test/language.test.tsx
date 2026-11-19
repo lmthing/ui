@@ -11,6 +11,7 @@ import {
   type Words,
 } from "@lmthing/ui/catalog";
 import { bookingWordsFor, registerBookingWords, type BookingWords } from "../src/packs/booking/lang";
+import { kitchenWordsFor, registerKitchenWords, type KitchenWords } from "../src/packs/kitchen/lang";
 import { createScreenController } from "@lmthing/ui/kit";
 import { renderInstance, type Theme } from "./render";
 
@@ -19,6 +20,7 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies Theme;
 const bracket = (word: string) => `[${word}]`;
 const english = wordsFor();
 const booking = bookingWordsFor();
+const kitchen = kitchenWordsFor();
 const pseudo = {
   ...english,
   tag: lang,
@@ -44,10 +46,29 @@ const pseudoBooking = {
     reschedule: bracket(booking.appointmentLabels.reschedule),
   },
 } satisfies BookingWords;
+const pseudoKitchen = {
+  ...kitchen,
+  foodLogLabels: {
+    ...kitchen.foodLogLabels,
+    meals: { ...kitchen.foodLogLabels.meals, dinner: "[Evening meal]" },
+    add: (meal: string) => `[Add] ${meal}`,
+  },
+  ingredientsLabels: {
+    ...kitchen.ingredientsLabels,
+    servings: "[Servings]",
+    less: "[Fewer]",
+    us: "[US]",
+  },
+  ingredientPieces: (_value, form) => `[${form}]`,
+} satisfies KitchenWords;
 const unregister: (() => void)[] = [];
 
 beforeAll(() => {
-  unregister.push(registerWords(lang, pseudo), registerBookingWords(lang, pseudoBooking));
+  unregister.push(
+    registerWords(lang, pseudo),
+    registerBookingWords(lang, pseudoBooking),
+    registerKitchenWords(lang, pseudoKitchen),
+  );
 });
 afterAll(() => unregister.forEach((remove) => remove()));
 
@@ -112,6 +133,31 @@ it("switches booking-specific words and date formatting in the view and reader",
   });
   expect(service).toContain("[Book]");
   expect(service).toContain("[３０ min]");
+});
+
+it("builds FoodLog's add label from the display word, not the meal key", () => {
+  const input = { meals: [{ meal: "dinner", items: [] }], goto: "food_add" };
+  const html = renderInstance("FoodLog", input, "filled", theme, { lang });
+  expect(html).toContain('aria-label="[Add] [Evening meal]"');
+  expect(readComponent(components.FoodLog, input, "f1", undefined, undefined, lang).join()).toContain(
+    "[Evening meal]",
+  );
+  expect(renderInstance("FoodLog", input, "filled", theme)).toContain('aria-label="Add food to dinner"');
+});
+
+it("localizes ingredient controls, quantities and the corresponding reader", () => {
+  const input = {
+    servings: 2,
+    groups: [{ items: [{ name: "Seed", amount: 2, unit: "piece" }] }],
+  };
+  const html = renderInstance("Ingredients", input, "filled", theme, { lang });
+  for (const word of ["２", "[Servings]", "[US]", "[other]"]) {
+    expect(html).toContain(word);
+    expect(readComponent(components.Ingredients, input, "i1", undefined, undefined, lang).join()).toContain(
+      word,
+    );
+  }
+  expect(html).toContain('aria-label="[Fewer]"');
 });
 
 it("keeps localized repeat choices actionable without changing the stored enum", () => {

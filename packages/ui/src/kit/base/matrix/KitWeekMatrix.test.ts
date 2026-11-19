@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
-import { presets } from "@lmthing/ui/catalog";
+import { component, presets, size, space } from "@lmthing/ui/catalog";
 import { KitWeekMatrix } from "@lmthing/ui/kit";
 import { elementAt, styleAt } from "../../../../test/render";
 import { renderMatrix, text } from "./matrix-drawing.test";
@@ -28,6 +28,39 @@ const cases = presets.flatMap(({ id }) =>
     (["daysAcross", "daysDown"] as const).map((orientation) => ({ id, mode, orientation })),
   ),
 );
+describe("KitWeekMatrix column sizing", () => {
+  it("fits the weekday heading and shares the width among all four days-down columns", () => {
+    const meals = ["First", "Second", "Third", "Fourth"].map((label, index) => ({
+      ...rows[0]!,
+      id: `r${index + 1}`,
+      label,
+      heading: text(label, "name"),
+      cells: [],
+    }));
+    const props = { days, rows: meals, corner: null, part: "week" };
+    const down = { ...props, orientation: "daysDown" as const };
+    const fitted = renderMatrix(createElement(KitWeekMatrix, { ...down, fitColumns: true }));
+    const table = elementAt(fitted, "home/c1/week");
+    const [heading, ...columns] = table.children;
+    expect(columns).toHaveLength(4);
+    expect(fitted).not.toContain('role="region"');
+    expect(styleAt(fitted, heading!)).not.toContain(`width:${size.control.md * 3}px`);
+    expect(styleAt(fitted, heading!)).toContain("flex-shrink:0");
+    for (const column of columns) {
+      const style = styleAt(fitted, column);
+      expect(style).toContain(`min-width:${size.control.md + space.xs * 2}px`);
+      expect(style).toContain(`flex-grow:${component.base.bodyFlex}`);
+      expect(style).toContain(`flex-shrink:${component.base.bodyFlex}`);
+      expect(style).not.toContain(`width:${size.control.md * 3}px`);
+    }
+    const across = renderMatrix(createElement(KitWeekMatrix, props));
+    expect(across).toContain('role="region"');
+    expect(renderMatrix(createElement(KitWeekMatrix, down))).toContain('role="region"');
+    expect(styleAt(across, elementAt(across, "home/c1/week").children[0]!)).toContain(
+      `width:${size.control.md * 3}px`,
+    );
+  });
+});
 describe("KitWeekMatrix", () => {
   it.each(cases)(
     "draws $orientation with today, targets, totals and loading in $id/$mode",
@@ -81,16 +114,28 @@ describe("KitWeekMatrix transposition integrity", () => {
         rows: selected,
         corner: null,
         orientation: "daysDown",
+        fitColumns: true,
         today: "d2",
       }),
     );
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('aria-pressed="true"');
     expect(elementAt(html, "home/c1/r1/name").attributes).toContain('data-testid="home/c1/r1/name"');
-    expect(styleAt(html, "home/c1/r1/day2")).toContain("var(--accentSoft)");
+    const highlight = elementAt(html, "home/c1/r1/day2").children[0]!;
+    expect(highlight.attributes).toContain('aria-hidden="true"');
+    expect(styleAt(html, highlight)).toContain("var(--accentSoft)");
     const unselected = renderMatrix(
-      createElement(KitWeekMatrix, { days, rows, corner: null, orientation: "daysDown", today: "d2" }),
+      createElement(KitWeekMatrix, {
+        days,
+        rows,
+        corner: null,
+        orientation: "daysDown",
+        fitColumns: true,
+        today: "d2",
+      }),
     );
-    expect(styleAt(unselected, "home/c1/r1/day0")).not.toContain("var(--accentSoft)");
+    const inactive = elementAt(unselected, "home/c1/r1/day0");
+    expect(inactive.children).toHaveLength(1);
+    expect(styleAt(unselected, inactive.children[0]!)).not.toContain("var(--accentSoft)");
   });
   it("omits empty totals and keeps empty days-down calm", () => {
     const html = renderMatrix(

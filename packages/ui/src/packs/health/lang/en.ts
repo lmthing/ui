@@ -1,4 +1,13 @@
 export const en = {
+  symptomLevel: (value: string, max: string) => `${value}/${max}`,
+  vitalLabels: {
+    add: "Add reading",
+    outside: "Outside range",
+    normal: "In range",
+    systolic: (status: string) => `Systolic: ${status}`,
+    range: (low: string, high: string, paired: boolean) =>
+      `${paired ? "Systolic reference" : "Reference"} ${low}–${high}`,
+  },
   medicationLabels: {
     due: "Due",
     taken: "Taken",

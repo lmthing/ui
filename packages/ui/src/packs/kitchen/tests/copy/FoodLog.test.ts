@@ -13,7 +13,7 @@ describe("FoodLog copy", () => {
   it("labels each meal and its add action", () => {
     for (const meal of ["breakfast", "lunch", "dinner", "snack"] as const) {
       expect(foodLogLabels.meals[meal].toLowerCase()).toBe(meal);
-      expect(foodLogLabels.add(meal)).toBe(`Add food to ${meal}`);
+      expect(foodLogLabels.add(foodLogLabels.meals[meal])).toBe(`Add food to ${meal}`);
     }
     expect(kcalLine(0)).toBe("0 kcal");
     expect(targetLine(2000)).toBe("of 2000 kcal");

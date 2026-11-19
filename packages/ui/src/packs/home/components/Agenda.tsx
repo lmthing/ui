@@ -7,75 +7,74 @@ import {
   probesFor,
   screenId,
   text,
+  timeOfDayLine,
   thingOf,
   titleOf,
-  type CastLike,
+  type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
-import { agendaLabels } from "../copy";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitIcon,
+  KitRow,
+  KitText,
+  KitTrack,
+  useComponentState,
+  useWords,
+} from "../../../kit";
+import {
+  agendaDay,
+  agendaAttendees,
+  agendaEntries,
+  agendaPeople,
+  agendaReading,
+  agendaScheduleReading,
+} from "../copy";
+import { homeWordsFor } from "../lang";
 
 // Core first: Timeline/hours cannot group several days and identify all family attendees.
 export const meta = {
   id: "Agenda",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Group the family's events by date across multiple days, showing who attends each.",
   pick: "The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).",
   writeHints: [
-    "days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels. Write event times and attendees, never a conflict flag; code computes conflicts.",
+    'days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels; use ["Everyone"] for the whole family. Omit time for an all-day event. Code computes conflicts.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Events stay on the device; sharing a family calendar needs people and syncing needs a service.",
-  items: { key: "entries", parts: ["root", "date", "time", "title", "who"] },
-  parts: ["root", "add"],
+  items: { key: "entries", parts: ["root", "date", "time", "title", "who", "conflict"] },
+  parts: ["root", "empty", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
-  read: (input, state) => {
-    if (state !== "filled") return [];
-    const { days, entries } = input as z.output<typeof props> & { entries: { id?: string }[] };
-    let at = 0;
-    return [
-      ...days.flatMap((day) => [
-        day.date,
-        ...day.events.map((event) =>
-          `${entries[at++]?.id ?? ""} ${event.time ?? ""} ${event.title} · ${event.who.join(", ")}`.trim(),
-        ),
-      ]),
-      agendaLabels.add,
-    ];
-  },
+  read: (input, state, lang?: string) =>
+    state === "filled"
+      ? agendaScheduleReading((input as { entries: ReturnType<typeof agendaEntries> }).entries, lang)
+      : [],
 } as const satisfies Meta;
+const eventProps = z.strictObject({
+  time: clock.optional(),
+  title: text(32),
+  who: z.array(text(12)).min(1).max(4),
+});
+const dayProps = z.strictObject({ date: isoDate, events: z.array(eventProps).min(1).max(6) });
 export const props = z
-  .strictObject({
-    days: z
-      .array(
-        z.strictObject({
-          date: isoDate,
-          events: z
-            .array(
-              z.strictObject({
-                time: clock.optional(),
-                title: text(32),
-                who: z.array(text(12)).min(1).max(4),
-              }),
-            )
-            .min(1)
-            .max(6),
-        }),
-      )
-      .min(1)
-      .max(7),
-    goto: screenId,
-  })
-  .overwrite((value) => ({
-    ...value,
-    entries: value.days.flatMap((day) => day.events.map((event) => ({ ...event, date: day.date }))),
-  }));
-export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+  .strictObject({ days: z.array(dayProps).min(1).max(7), goto: screenId })
+  .overwrite((value) => ({ ...value, entries: agendaEntries(value.days), add: { goto: value.goto } }));
+
+type Entry = ReturnType<typeof agendaEntries>[number] & { id: string };
+type AgendaProps = Props<typeof props, typeof meta> & { entries: Entry[] };
+export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 6);
   return {
@@ -83,8 +82,10 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
       {
         date: new Date(0).toISOString().slice(0, 10),
         events: (items.length ? items : [undefined]).map((item, index) => ({
-          title: item ? (titleOf(item, 32, thing) ?? placeholderTitle(index)) : placeholderTitle(index),
-          who: [placeholderTitle(index)],
+          title: item
+            ? (titleOf(item, 32, thing) ?? placeholderTitle(index, lang))
+            : placeholderTitle(index, lang),
+          who: [placeholderTitle(index, lang)],
         })),
       },
     ],
@@ -111,6 +112,7 @@ export const examples = [
         date: "2026-11-20",
         events: [
           { time: "16:00", title: "Clover's park walk", who: ["Alex"] },
+          { time: "16:00", title: "Meet the walker", who: ["Everyone"] },
           { time: "17:30", title: "Collect dog food", who: ["Sam", "Alex"] },
         ],
       },
@@ -128,3 +130,58 @@ export const probes = [
   read("Add a family event", { address: "a1/add", action: "press" }),
   read("Open the garden centre event", { address: "a1/r1", action: "press" }),
 ] satisfies Probe[];
+function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: boolean; laterDay: boolean }) {
+  const {
+    lang,
+    words: { agendaLabels },
+  } = useWords(homeWordsFor);
+  return (
+    <KitRow item={event.id} role="button" label={agendaReading(event, "", lang)} inline>
+      {heading && (
+        <KitContent group={laterDay ? "response" : "content"}>
+          <KitText role="heading" part="date">
+            {agendaDay(event.date, lang)}
+          </KitText>
+        </KitContent>
+      )}
+      <KitContent>
+        <KitGrid columns={2} fitLast>
+          <KitText part="title">{event.title}</KitText>
+          <KitIcon name="chevron_right" scale="sm" decorative />
+        </KitGrid>
+        <KitTrack part="who" label={agendaPeople(event.who, lang)}>
+          <KitText part="time" role="caption" tone="muted" tabular lines={1}>
+            {event.time ? timeOfDayLine(event.time, lang) : agendaLabels.allDay}
+          </KitText>
+          <KitIcon name="user" scale="sm" decorative />
+          <KitText part={null} role="caption" tone="muted" lines={1}>
+            {agendaAttendees(event.who, lang)}
+          </KitText>
+        </KitTrack>
+        {event.conflict && (
+          <KitText part="conflict" role="caption" tone="warn">
+            {agendaLabels.conflict}
+          </KitText>
+        )}
+      </KitContent>
+    </KitRow>
+  );
+}
+
+export function Agenda({ entries, goto }: AgendaProps) {
+  const state = useComponentState();
+  const {
+    words: { agendaLabels },
+  } = useWords(homeWordsFor);
+  if (state === "empty")
+    return <KitCard part="root" children={<KitEmpty part="empty" icon="calendar" decorativeIcon />} />;
+  return (
+    <KitCard part="root" padded>
+      {entries.map((event, index) => {
+        const heading = entries[index - 1]?.date !== event.date;
+        return <AgendaEvent key={event.id} event={event} heading={heading} laterDay={index > 0} />;
+      })}
+      <KitAction label={agendaLabels.add} part="add" goto={goto} kind="secondary" full />
+    </KitCard>
+  );
+}
