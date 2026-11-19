@@ -1,12 +1,15 @@
 import { z } from "zod";
 import {
   itemsOf,
+  clockLine,
+  kitchenLabels,
   placeholderDetail,
   probesFor,
   stepLine,
   text,
   thingOf,
   titleOf,
+  timerLabels,
   type CastLike,
   type Meta,
   type Probe,
@@ -30,7 +33,7 @@ export const meta = {
   parts: ["root", "text", "uses", "next", "back", "timer"],
   states: ["filled", "success"],
   actions: {
-    parts: { next: ["press"], back: ["press"], timer: ["start", "stop"] },
+    parts: { timer: ["start", "stop"], next: ["press"], back: ["press"] },
     when: { next: { canNext: true }, back: { canBack: true } },
   },
   read: (input) => {
@@ -40,7 +43,15 @@ export const meta = {
       stepLine(value.at, value.steps.length),
       step.text,
       ...step.uses,
-      ...(step.minutes === undefined ? [] : [String(step.minutes)]),
+      ...(step.minutes === undefined
+        ? []
+        : [
+            JSON.stringify(kitchenLabels.timer),
+            clockLine(step.minutes * 60),
+            JSON.stringify(timerLabels.start),
+            JSON.stringify(timerLabels.stop),
+            "\n",
+          ]),
     ];
   },
 } as const satisfies Meta;

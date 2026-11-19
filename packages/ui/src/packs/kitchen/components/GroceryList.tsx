@@ -1,6 +1,8 @@
 import { z } from "zod";
 import {
   itemsOf,
+  kitchenItemLine,
+  kitchenLabels,
   placeholderDetail,
   placeholderTitle,
   probesFor,
@@ -35,12 +37,20 @@ export const meta = {
   actions: { items: { got: ["check"] }, parts: { add: ["type"] } },
   read: (input) => {
     const value = input as z.output<typeof props>;
-    return value.aisles.flatMap((aisle) => [
-      aisle.label,
-      ...aisle.items.map(
-        (item) => `${item.name}${item.qty ? ` · ${item.qty}` : ""}${item.by ? ` · ${item.by}` : ""}`,
-      ),
-    ]);
+    let index = 0;
+    return [
+      JSON.stringify(kitchenLabels.newItem),
+      ...value.aisles.flatMap((aisle) => [
+        aisle.label,
+        ...aisle.items.map((item) =>
+          kitchenItemLine(
+            index++,
+            `${item.name}${item.qty ? ` · ${item.qty}` : ""}${item.by ? ` · ${item.by}` : ""}`,
+          ),
+        ),
+      ]),
+      "\n",
+    ];
   },
 } as const satisfies Meta;
 export const props = z

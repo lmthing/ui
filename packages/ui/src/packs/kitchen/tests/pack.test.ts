@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { URL } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   archetypes,
@@ -14,11 +15,20 @@ import {
   packReady,
   packs,
   writerFormat,
+  type ArchetypeMeta,
   type Definition,
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = ["Ingredients", "CookSteps", "MealPlan", "GroceryList", "Pantry", "FoodLog", "KitchenTimers"];
+const ids = [
+  "Ingredients",
+  "CookSteps",
+  "MealPlan",
+  "GroceryList",
+  "Pantry",
+  "FoodLog",
+  "KitchenTimers",
+] as const;
 const layouts = {
   recipe: ["overview", "cook"],
   mealweek: ["week"],
@@ -56,7 +66,7 @@ describe("kitchen scaffold", () => {
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
     const registry = createRegistry({ packs: ["kitchen"], includeDrafts: true });
     expect(packArchetypes.kitchen).toHaveLength(5);
-    for (const meta of packArchetypes.kitchen) {
+    for (const meta of packArchetypes.kitchen as readonly ArchetypeMeta[]) {
       expect(meta).not.toHaveProperty("status");
       expect(Object.keys(meta.layouts)).toEqual(layouts[meta.id as keyof typeof layouts]);
       expect(Object.keys(packComposition(meta).layouts)).toEqual(Object.keys(meta.layouts));

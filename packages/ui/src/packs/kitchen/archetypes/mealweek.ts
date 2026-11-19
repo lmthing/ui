@@ -6,6 +6,9 @@ export const mealweek = {
   defaultLayout: "week",
   layouts: {
     week: {
+      writeHints: [
+        "Keep Header, MealPlan and Button in order even with no cast. MealPlan may use its neutral Monday week, a dinner column and empty cells. Return the complete screen object, not only MealPlan props.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["MealPlan"], required: true },

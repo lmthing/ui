@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   itemsOf,
+  kitchenItemLine,
   placeholderTitle,
   probesFor,
   screenId,
@@ -38,12 +39,15 @@ export const meta = {
   },
   read: (input) => {
     const value = input as z.output<typeof props>;
+    let index = 0;
     return [
       totalLine(value.meals.flatMap((meal) => meal.items).reduce((sum, item) => sum + item.kcal, 0)),
       ...(value.target === undefined ? [] : [String(value.target)]),
       ...value.meals.flatMap((meal) => [
-        meal.meal,
-        ...meal.items.map((item) => `${item.name} ${item.kcal}${item.amount ? ` · ${item.amount}` : ""}`),
+        kitchenItemLine(index++, meal.meal),
+        ...meal.items.map((item) =>
+          kitchenItemLine(index++, `${item.name} ${item.kcal}${item.amount ? ` · ${item.amount}` : ""}`),
+        ),
       ]),
     ];
   },
