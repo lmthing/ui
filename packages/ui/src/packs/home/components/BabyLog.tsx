@@ -1,16 +1,6 @@
 import { z } from "zod";
-import {
-  clock,
-  itemsOf,
-  probesFor,
-  text,
-  textsOf,
-  thingOf,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+import { clock, itemsOf, probesFor, text, textsOf, thingOf } from "../../../catalog";
+import type { CastLike, Meta, Probe, Props } from "../../../catalog";
 import {
   KitAction,
   KitCard,
@@ -20,6 +10,7 @@ import {
   KitRow,
   KitText,
   KitTime,
+  KitTrail,
   PartScope,
   useComponentState,
   usePartContext,
@@ -27,6 +18,7 @@ import {
 import { babyCopy as copy, babyLabels, babyRead } from "../copy";
 
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
+const itemParts = ["root", "kind", "time", "minutes", "amount", "label", "root_label", "trail"] as const;
 export const meta = {
   id: "BabyLog",
   status: "ready",
@@ -41,8 +33,8 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Baby entries and running timers stay on the device; two parents sharing need a shared app.",
-  items: { key: "entries", parts: ["root", "kind", "time", "minutes", "amount", "label", "root_label"] },
-  parts: ["root", "running", "elapsed", "heading", "history", "empty"],
+  items: { key: "entries", parts: itemParts },
+  parts: ["root", "running", "elapsed", "heading", "history", "actions", "empty"],
   states: ["filled", "empty"],
   actions: {
     items: { root: ["start", "stop", "press"] },
@@ -52,7 +44,7 @@ export const meta = {
       "root.press": { entryKind: "log" },
     },
   },
-  read: (input, state) => (state === "filled" ? babyRead(input as z.output<typeof props>) : []),
+  read: (input, state) => (state === "filled" ? readWithLastTimes(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
 const kinds = ["feed_left", "feed_right", "bottle", "nappy", "sleep"] as const;
 const logLimit = 12;
@@ -125,20 +117,31 @@ export const probes = [
   read("Open the feed recorded at 07:30", { address: "b1/r6", action: "press" }),
 ] satisfies Probe[];
 type BabyLogProps = Props<typeof props, typeof meta>;
+function readWithLastTimes(input: z.output<typeof props>) {
+  const absent = ` · ${copy.last()}`;
+  const count = kinds.length + (input.running === "none" ? 1 : 2);
+  return babyRead(input).map((line, index) =>
+    index < count && line.endsWith(absent) ? line.slice(0, -absent.length) : line,
+  );
+}
 function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }>) {
+  const minutes = row.minutes === undefined ? null : copy.duration(row.minutes);
+  const trail = (
+    <>
+      <KitTime value={row.time} />
+      <KitTrail kind="chevron" />
+    </>
+  );
   return (
-    <KitRow
-      item={row.id}
-      label={copy.entry(row)}
-      role="button"
-      lineRole="label"
-      leading={<KitTime value={row.time} />}
-    >
+    <KitRow item={row.id} label={copy.entry(row)} role="button" lineRole="number" trailing={trail}>
       <KitText role="label" part="kind" children={babyLabels[row.kind]} />
-      {row.minutes !== undefined && (
-        <KitText {...value} part="minutes" children={copy.duration(row.minutes)} />
+      {(minutes || row.amount) && (
+        <KitText {...value} part={null}>
+          {minutes && <KitText {...value} part="minutes" children={minutes} />}
+          {minutes && row.amount && " "}
+          {row.amount && <KitText {...value} part="amount" children={row.amount} />}
+        </KitText>
       )}
-      {row.amount && <KitText {...value} part="amount" children={row.amount} />}
     </KitRow>
   );
 }
@@ -146,40 +149,38 @@ const value = { role: "number", numberScale: "compact", tabular: true } as const
 const muted = { role: "label", tone: "muted" } as const;
 function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKind: "tile" }>) {
   const context = usePartContext();
+  const kind = row.active ? "primary" : "quiet";
+  const action = row.active ? "stop" : "start";
   return (
     <PartScope {...context} item={row.id}>
       <KitGrid fitLast>
-        <KitContent>
+        <KitContent inset="md">
           <KitText role="label" part="label" children={babyLabels[row.kind]} />
-          <KitText {...muted} part={null} children={copy.last(row.last)} />
+          {row.last && <KitText {...muted} part={null} children={copy.last(row.last)} />}
         </KitContent>
-        <KitAction
-          label={copy.action(row.active)}
-          kind={row.active ? "primary" : "quiet"}
-          action={row.active ? "stop" : "start"}
-        />
+        <KitAction label={copy.action(row.active)} {...{ kind, action }} />
       </KitGrid>
     </PartScope>
   );
 }
 export function BabyLog({ entries, running }: BabyLogProps) {
-  if (useComponentState() === "empty") {
-    return (
-      <KitCard part="root">
-        <KitEmpty part="empty" icon="clock" decorativeIcon />
-      </KitCard>
-    );
-  }
+  if (useComponentState() === "empty")
+    return <KitCard part="root" children={<KitEmpty part="empty" icon="clock" decorativeIcon />} />;
   const log = entries
     .filter((row) => row.entryKind === "log")
     .map((row) => <BabyLogRow key={row.id} {...row} />);
-  const tiles = entries.filter((row) => row.entryKind === "tile");
-  const empty = <KitText {...muted} part="empty" children={copy.empty} />;
+  const tiles = entries
+    .filter((row) => row.entryKind === "tile")
+    .map((row) => <BabyQuickAction key={row.id} {...row} />);
+  const empty = (
+    <KitContent inset="md" children={<KitText {...muted} part="empty" children={copy.empty} />} />
+  );
+  const history = log.length ? log : empty;
   return (
     <KitCard part="root" padded>
       <KitContent>
         <KitGrid fitLast>
-          <KitText role="heading" part="heading" children={copy.title} />
+          <KitContent inset="md" children={<KitText role="heading" part="heading" children={copy.title} />} />
           <KitContent>
             <KitText {...muted} align="end" part="running" children={copy.running(running)} />
             {running !== "none" && (
@@ -187,12 +188,10 @@ export function BabyLog({ entries, running }: BabyLogProps) {
             )}
           </KitContent>
         </KitGrid>
-        {tiles.map((row) => (
-          <BabyQuickAction key={row.id} {...row} />
-        ))}
-        <KitCard part="history" look="outlined" label={copy.history}>
-          <KitContent>{log.length ? log : <KitRow label={copy.empty}>{empty}</KitRow>}</KitContent>
-        </KitCard>
+        <KitCard part="actions" style="cards" children={tiles} />
+        <KitContent group="response">
+          <KitCard part="history" style="cards" label={copy.history} children={history} />
+        </KitContent>
       </KitContent>
     </KitCard>
   );
