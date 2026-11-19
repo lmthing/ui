@@ -1,5 +1,5 @@
 import { readdir, readFile } from "node:fs/promises";
-import { basename, dirname, join, relative } from "node:path";
+import { basename, join, relative } from "node:path";
 import ts from "typescript";
 import { packIds, type PackId } from "../../../src/catalog";
 
@@ -40,8 +40,7 @@ async function definition(file: string, entryDir: string, pack: PackId | undefin
   const missing: string[] = dataExports.filter((key) => !names.includes(key));
   if (!draft && !names.includes(name)) missing.push(name);
   if (missing.length) throw new Error(`${file} is missing exports: ${missing.join(", ")}`);
-  const door = pack && (await readdir(dirname(file))).includes("index.ts");
-  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack, door };
+  return { name, draft, path: `./${relative(entryDir, file).replace(/\.tsx$/, "")}`, pack };
 }
 
 async function packEntry(folder: string, id: PackId) {
@@ -73,7 +72,7 @@ async function packEntry(folder: string, id: PackId) {
   const example = files.includes(join(folder, "example.jsonl"))
     ? await readFile(join(folder, "example.jsonl"), "utf8")
     : undefined;
-  return { id, meta, archetypes, example, door: files.includes(join(folder, "archetypes/index.ts")) };
+  return { id, meta, archetypes, example };
 }
 
 export async function scanEntries(root: string) {
@@ -109,6 +108,16 @@ export async function scanEntries(root: string) {
   for (const def of defs) {
     if (seen.has(def.name)) throw new Error(`Component id collision: ${def.name}`);
     seen.add(def.name);
+  }
+  for (const { id, meta, archetypes, example } of packs) {
+    if (!meta && !archetypes.length && example === undefined && !defs.some((def) => def.pack === id))
+      continue;
+    const door = join(packDir, id, "index.ts");
+    await readFile(door, "utf8").catch((error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT")
+        throw new Error(`Missing pack door: ${door}; export pack, components, archetypes and example.`);
+      throw error;
+    });
   }
   return { defs, packs };
 }

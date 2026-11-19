@@ -38,6 +38,15 @@ async function fixture(status = "draft", example = '{"c":"Ready"}\n') {
     `export const visitDetail = { id: "visit-detail", job: "Visit", layouts: {}, defaultLayout: "plain" }; export const probes = [];`,
   );
   await put("packs/booking/example.jsonl", example);
+  await put(
+    "packs/booking/components/index.ts",
+    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
+  );
+  await put("packs/booking/archetypes/index.ts", 'export { visitDetail } from "./visit-detail";\n');
+  await put(
+    "packs/booking/index.ts",
+    `export { pack } from "./pack"; export * from "./components"; export * from "./archetypes"; export const example = ${JSON.stringify(example)};`,
+  );
   return root;
 }
 
@@ -53,7 +62,7 @@ async function loadCatalog(root: string) {
   return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0]!.text).toString("base64")}`);
 }
 
-it("uses pack component and archetype doors when present", async () => {
+it("imports pack data and views only through the root door", async () => {
   const root = await fixture();
   await writeFile(
     join(root, "src/packs/booking/components/index.ts"),
@@ -65,11 +74,11 @@ it("uses pack component and archetype doors when present", async () => {
   );
   const catalog = await loadCatalog(root);
   expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Draft");
-  const entry = await readFile(join(root, "src/entry/catalog.ts"), "utf8");
-  expect(entry).toContain('import { Ready } from "../packs/booking/components"');
-  expect(entry).toContain('from "../packs/booking/archetypes"');
-  const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");
-  expect(renderers).toContain("const Ready = ReadyDefinition.Ready");
+  const entry = await readFile(join(root, "src/entry/packs/group-1/booking.ts"), "utf8");
+  expect(entry).toContain('from "../../../packs/booking"');
+  expect(entry).not.toContain('packs/booking/components"');
+  expect(entry).not.toContain('packs/booking/archetypes"');
+  expect(entry).toContain("Ready: Ready.Ready");
 });
 
 it("generates scoped drafts, ready renderers, pack data and inlined examples", async () => {
@@ -91,9 +100,17 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
   expect(catalog.packExamples.booking).toBe('{"c":"Ready"}\n');
-  const renderers = await readFile(join(root, "src/entry/renderers.ts"), "utf8");
-  expect(renderers).toContain("{ Core, Ready }");
-  expect(renderers).not.toContain("Draft");
+  const renderers = await build({
+    entryPoints: [join(root, "src/entry/renderers.ts")],
+    bundle: true,
+    write: false,
+    platform: "node",
+    format: "esm",
+  });
+  const views = await import(
+    `data:text/javascript;base64,${Buffer.from(renderers.outputFiles[0]!.text).toString("base64")}`
+  );
+  expect(Object.keys(views.renderers)).toEqual(["Core", "Ready"]);
 });
 
 it.each([
@@ -132,6 +149,7 @@ it("regenerates a new scaffold without changing the draft index or Director prom
     join(root, "src/packs/commerce/pack.ts"),
     `export const pack = { id: "commerce", example: "example.jsonl", probes: [] };`,
   );
+  await writeFile(join(root, "src/packs/commerce/index.ts"), 'export { pack } from "./pack";\n');
   const after = await loadCatalog(root);
   expect(Object.keys(after.packs)).toEqual(["booking", "commerce"]);
   expect(after.buildPackIndex({ includeDrafts: true })).toBe(before.buildPackIndex({ includeDrafts: true }));
