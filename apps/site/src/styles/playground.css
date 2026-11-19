@@ -1,0 +1,105 @@
+.playground h1 {
+  margin-top: 12px;
+}
+.pickline {
+  margin: 12px 0 24px;
+  max-width: 70ch;
+}
+.pg-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 32px;
+}
+.pg-controls {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 720px;
+  overflow: auto;
+}
+.pg-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pg-bar label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pg-stage {
+  position: sticky;
+  top: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 4px 0;
+}
+.row .name {
+  font: 500 0.8rem var(--mono);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  word-break: break-all;
+}
+.object {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.object .object {
+  padding-left: 10px;
+  border-left: 2px solid var(--line);
+}
+.list-field .item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+.item-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+.list-field button,
+.item-head button {
+  font: 600 0.75rem var(--sans);
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.issues {
+  color: var(--bad);
+  font-size: 0.8rem;
+  margin: 0;
+  padding-left: 18px;
+}
+@media (max-width: 900px) {
+  .pg-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pg-stage {
+    position: static;
+  }
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
