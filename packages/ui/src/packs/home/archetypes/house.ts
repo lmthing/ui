@@ -6,6 +6,9 @@ export const house = {
   defaultLayout: "rooms",
   layouts: {
     rooms: {
+      writeHints: [
+        "With an empty cast use the valid neutral device fallback. Do not fake an empty sensor with on/level/temp; sensors are read-only with reading and unit, never switch settings. Show empty state in host state, not invalid device props.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
@@ -21,7 +24,7 @@ export const house = {
     },
     home_control: {
       writeHints: [
-        "Use focused style with focus naming an existing heat or sensor device, or omit focus to use the first device. No standalone slider preference replaces the connected device.",
+        "Use focused style with focus naming an existing device key, or omit focus to use the first device. No standalone slider preference replaces the connected device. Every scene target follows its referenced device's capabilities: blind targets have on:null and temp:null, only level; heat targets have level:null; sensors cannot be targets.",
       ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },

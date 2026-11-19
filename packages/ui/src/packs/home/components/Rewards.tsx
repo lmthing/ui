@@ -15,7 +15,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-// Core first: Ring/default tracks one goal, not children's points spent on claimable prizes.
+// Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
   id: "Rewards",
   status: "draft",

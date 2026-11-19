@@ -11,7 +11,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-// Core first: Timer/countdown times one task, not feed/nappy/sleep tiles and a baby's daily log.
+// Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 export const meta = {
   id: "BabyLog",
   status: "draft",

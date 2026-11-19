@@ -20,8 +20,8 @@ export const meta = {
   id: "Agenda",
   status: "draft",
   group: "data",
-  purpose: "See several family members' plans together over the coming days.",
-  pick: "Family plans across several days with day headings, times and each event's people. Not one day by the hour (Timeline), a month of marked dates (Calendar), or class timetables (Timetable).",
+  purpose: "Group the family's events by date across multiple days, showing who attends each.",
+  pick: "The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).",
   writeHints: [
     "days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels. Write event times and attendees, never a conflict flag; code computes conflicts.",
   ],

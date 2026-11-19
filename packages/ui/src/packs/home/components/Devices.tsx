@@ -17,12 +17,13 @@ export const meta = {
   status: "draft",
   group: "input",
   purpose: "Read and control household devices by room, with thermostat, sensor and saved scene options.",
-  pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not stored app preferences (Field, List), navigation shortcuts (Actions), manual measurements (Stats, Sparkline), or a person's body readings (Vitals).",
+  pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",
   writeHints: [
-    "Use unique keys across all rooms. Switches and heat require on; lock on:true means locked. Heat requires temp 5–30 °C; reading is optional. Light/fan/blind may have level 0–100. Blind and sensor never have on.",
-    "Sensors require reading and unit (celsius, percent, ppm, lux), optionally normal:{low,high} with low<=high; no commands. Reading is only for heat/sensor, unit/normal only for sensor.",
+    "Use unique keys across all rooms. Light/heat/plug/lock/fan require on; lock on:true means locked. Heat requires temp 5–30 °C and may have reading; heat MUST have level:null, unit:null, normal:null. Celsius is implicit for heat: never write unit:celsius on a thermostat.",
+    "Sensors require reading and unit (celsius, percent, ppm, lux), optionally normal:{low,high} with low<=high. Sensors MUST have on:null, level:null, temp:null. Light/fan/blind may have level 0–100; blinds MUST have on:null. All non-heat devices MUST have temp:null. Only sensors have unit/normal, only heat/sensor have reading; use null for unsupported optional fields.",
     "Scenes default to []. Each has 2–6 distinct device targets, with key and at least one supported absolute on/level/temp setting. Never target sensors or unknown keys. focus must name a device.",
     "Never write active-scene, out-of-range, pending or command-outcome flags. Code chooses apply versus secure from lock targets. Lock changes and lock scenes always confirm.",
+    'Valid heat: {"key":"heat","name":"Thermostat","kind":"heat","on":true,"level":null,"temp":21,"reading":20.5,"unit":null,"normal":null,"goto":null}. Valid blind scene target: {"key":"blind","on":null,"level":0,"temp":null}. Scene targets obey the referenced device kind, not the other devices in the scene.',
   ],
   region: "body",
   weight: 3,
@@ -181,9 +182,12 @@ export const probes = [
     "Three buttons navigate to my app's settings, history and help screens, without device commands",
     "Actions",
   ),
-  choose("A local app preference shown as one settings row with a toggle, not connected to hardware", "List"),
   choose(
-    "Show the manually recorded count of indoor humidity readings as a summary number, no live device or commands",
+    "Scan local app preference rows, each with a trailing on/off switch; not labelled form inputs or connected hardware",
+    "List",
+  ),
+  choose(
+    "Show two independent manual summary measurements together: number of indoor humidity readings and average humidity. No comparison across days or categories, recent chart, live device or commands",
     "Stats",
   ),
   write(

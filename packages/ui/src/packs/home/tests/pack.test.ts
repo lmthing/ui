@@ -54,7 +54,7 @@ it("keeps an incomplete pack out of live registries and core prompts", () => {
   expect(core.ids.some((id) => ids.includes(id))).toBe(false);
   expect(core.archetypes).not.toHaveProperty("family");
   expect(Object.hasOwn(live.archetypes, "family")).toBe(ready);
-  expect(/^home:/m.test(buildPackIndex())).toBe(ready);
+  expect(/^- home:/m.test(buildPackIndex())).toBe(ready);
   const format = JSON.stringify(writerFormat(draft));
   for (const id of ids) {
     expect(format).toContain(`"const":"${id}"`);
