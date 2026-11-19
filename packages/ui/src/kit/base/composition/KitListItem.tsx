@@ -55,19 +55,29 @@ function ItemText(props: ItemProps) {
   );
 }
 function ShelfItem(props: ItemProps) {
-  const { row, density, mark, surface } = props;
+  const { row, density, lead, mark, surface } = props;
+  const leading = lead === undefined ? undefined : itemLead(props);
   return (
-    <KitRow item={row.id} label={row.title} goto={row.goto} inset="none" {...{ density, mark, surface }}>
+    <KitRow
+      item={row.id}
+      label={row.title}
+      goto={row.goto}
+      inset="none"
+      trailing={itemTrail(props)}
+      {...{ density, mark, surface, leading }}
+    >
       <KitContent lineRole="body" density={density}>
-        {row.photo && <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />}
+        {lead === undefined && row.photo && (
+          <KitPhoto photo={row.photo} shape="wide" part="icon" label={row.title} />
+        )}
         <ItemText {...props} />
       </KitContent>
     </KitRow>
   );
 }
-function itemLead({ row, style, index, lead }: ItemProps) {
+function itemLead({ row, style, index, lead, density }: ItemProps) {
   if (lead === "none") return null;
-  if (lead === "number") return <KitRank place={index + 1} part="rank" />;
+  if (lead === "number") return <KitRank place={index + 1} part="rank" density={density} />;
   if (lead === "check")
     return row.done === undefined ? null : (
       <KitCheck done={row.done} readonly label={row.title} part="icon" />
@@ -78,19 +88,19 @@ function itemLead({ row, style, index, lead }: ItemProps) {
       row.photo && <KitPhoto photo={row.photo} shape={lead === "avatar" ? "round" : "thumb"} part="icon" />
     );
   }
-  if (style === "ranked") return <KitRank place={index + 1} />;
+  if (style === "ranked") return <KitRank place={index + 1} density={density} />;
   if (row.photo) return <KitPhoto photo={row.photo} part="icon" />;
   return <KitIcon name={row.icon} part="icon" />;
 }
-function itemTrail({ row, style, trail }: ItemProps) {
-  if (style === "expand") return null;
+function itemTrail({ row, style, trail, density }: ItemProps) {
+  if (trail === undefined && (style === "expand" || style === "shelf")) return null;
   const kind =
     style === "ranked" && trail === undefined
       ? row.value
         ? "value"
         : "none"
       : (row.trail ?? trail ?? "none");
-  return kind === "none" ? null : <KitTrail kind={kind} value={row.value} part="trail" />;
+  return kind === "none" ? null : <KitTrail kind={kind} value={row.value} part="trail" density={density} />;
 }
 
 /** A shelf, expandable or ranked row, retaining the same addresses and live controls. */

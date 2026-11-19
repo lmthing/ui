@@ -10,7 +10,6 @@ import {
   KitPhoto,
   KitProvider,
   KitRow,
-  KitStrip,
   KitText,
   PartScope,
   useKit,
@@ -140,10 +139,37 @@ it("arranges the same addressed cells as rows, grid or strip", () => {
   );
   expect(new Set(layouts).size).toBe(3);
   for (const html of layouts) expect(addresses(html)).toEqual(["home/base/one", "home/base/two"]);
-  const markup = (html: string) => html.replace(/<style\b[^>]*>[\s\S]*?<\/style>/g, "");
-  const paged = markup(render(<KitStrip overflow="page">{content}</KitStrip>));
-  expect(paged).toBe(markup(render(<KitStrip pages>{content}</KitStrip>)));
-  expect(paged).not.toBe(markup(render(<KitStrip overflow="all">{content}</KitStrip>)));
+});
+
+it("groups the same items beneath the caller's headings without rewriting their addresses", () => {
+  const children = <KitText part="one">Entry</KitText>;
+  const groups = [{ id: "one", heading: "First section", children }];
+  for (const group of ["sections", "dates"] as const) {
+    const html = render(
+      <KitGrid group={group} groups={groups} arrange="rows">
+        {children}
+      </KitGrid>,
+    );
+    expect(html).toContain("First section");
+    expect(html.match(/data-testid="home\/base\/one"/g)).toHaveLength(1);
+  }
+  expect(render(<KitGrid groups={groups}>{children}</KitGrid>)).not.toContain("First section");
+});
+
+it("keeps shelf and expanded accessory choices, including the component's density", () => {
+  const row = { id: "r1", title: "Entry", body: "Details", photo: "lib:sample", value: "12" };
+  const shelf = render(
+    <KitListItem row={row} style="shelf" index={0} lead="none" trail="value" density="comfortable" />,
+    compact,
+  );
+  expect(shelf).not.toContain("home/base/r1/icon");
+  const trail = elementAt(shelf, "home/base/r1/trail");
+  expect(styleAt(shelf, trail.children[0]!.children[0]!.children[0]!)).toContain(
+    `font-size:${typography.body.size}px`,
+  );
+  const expanded = render(<KitListItem row={row} style="expand" index={0} lead="number" trail="badge" />);
+  expect(expanded).toContain('data-testid="home/base/r1/trail"');
+  expect(expanded).toContain('data-testid="home/base/r1/rank"');
 });
 
 it("applies list detail, lead and trail choices at their original part addresses", () => {

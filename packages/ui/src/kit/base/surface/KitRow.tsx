@@ -104,9 +104,10 @@ function RowStatusRule({ tone }: { tone: "good" | "warn" | "bad" }) {
   );
 }
 
-function useRowStatus(tone: TextTone | undefined, inset: boolean) {
+function useRowStatus(tone: TextTone | undefined, inset: boolean, surface: RowProps["surface"]) {
   const dark = useThemeName().includes("dark");
-  return dark && inset && (tone === "good" || tone === "warn" || tone === "bad") ? tone : null;
+  const semantic = tone === "good" || tone === "warn" || tone === "bad";
+  return semantic && (surface ? surface !== "tinted" : dark && inset) ? tone : null;
 }
 
 function useRowPress(address: string, part: RowProps["part"], goto: RowProps["goto"]) {
@@ -125,7 +126,7 @@ export function Row(props: RowProps) {
   const ks = useKitStyle();
   const spacing = useVariantDensity(density);
   const semanticTone = rowTone === "neutral" ? undefined : rowTone;
-  const status = useRowStatus(semanticTone, !inline && inset === "md" && surface === undefined);
+  const status = useRowStatus(semanticTone, !inline && inset === "md", surface);
   const dimmed = !selected && mark === "muted";
   const address = usePart(part ?? "root", addressed && part !== null);
   return (
@@ -141,7 +142,7 @@ export function Row(props: RowProps) {
       aria-expanded={expanded}
       onPress={useRowPress(address.testID, part, goto)}
     >
-      {(status || dimmed) && <RowDecoration fade />}
+      {((status && surface === undefined) || dimmed) && <RowDecoration fade />}
       <Content
         gap={inline ? space.xs : space[spacing.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}

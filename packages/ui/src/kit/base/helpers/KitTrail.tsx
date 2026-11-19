@@ -2,7 +2,7 @@ import { useKit } from "../../provider";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
-import { component, radius, size, space, type AxisValue } from "../../../catalog";
+import { component, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
 
@@ -54,7 +54,8 @@ type TrailProps = {
   on?: boolean;
   part?: string;
   disabled?: boolean;
-  tone?: TextTone;
+  tone?: TextTone | undefined;
+  density?: ThemeDensity | undefined;
 };
 
 function ToggleTrail({
@@ -88,12 +89,8 @@ function ValueTrail({
   value,
   tone,
   loading,
-}: {
-  kind: TrailKind;
-  value: string | undefined;
-  tone: TextTone | undefined;
-  loading: boolean;
-}) {
+  density,
+}: Pick<TrailProps, "kind" | "value" | "tone" | "density"> & { loading: boolean }) {
   const text = (
     <YStack
       {...(loading
@@ -105,6 +102,7 @@ function ValueTrail({
         numberScale="compact"
         tabular
         tone={tone ?? (kind === "badge" ? "accent" : "text")}
+        density={density}
         part={null}
       >
         {value ?? ""}
@@ -141,7 +139,15 @@ function ValueTrail({
 }
 
 /** The end of a row: chevron (goes somewhere), check (done), switch (on/off), value or badge. */
-export function KitTrail({ kind, value, on = false, part = "trail", disabled = false, tone }: TrailProps) {
+export function KitTrail({
+  kind,
+  value,
+  on = false,
+  part = "trail",
+  disabled = false,
+  tone,
+  density,
+}: TrailProps) {
   const address = usePart(part, kind !== "none");
   const kit = useKit();
   const loading = useComponentState() === "loading";
@@ -178,7 +184,7 @@ export function KitTrail({ kind, value, on = false, part = "trail", disabled = f
   if (kind === "value" || kind === "badge") {
     return (
       <Frame {...address} aria-hidden={loading || undefined} aria-busy={loading || undefined}>
-        <ValueTrail {...{ kind, value, tone, loading }} />
+        <ValueTrail {...{ kind, value, tone, loading, density }} />
       </Frame>
     );
   }

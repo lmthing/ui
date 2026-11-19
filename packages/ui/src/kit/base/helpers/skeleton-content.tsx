@@ -7,7 +7,7 @@ export type SkeletonLine = {
   role: TextRole;
   align?: "start" | "center" | "end" | undefined;
   numberScale?: "display" | "compact" | undefined;
-};
+} & TextFinish;
 export type SkeletonItem = {
   lines?: SkeletonLine[];
   title?: string;
@@ -30,7 +30,7 @@ export type ShapeProps = {
   points?: { value: number }[];
   ring?: "md" | "lg";
   inset?: "md" | "none" | "card";
-  aspect?: "wide" | "square" | "tall" | "none" | "avatar";
+  aspect?: "auto" | "wide" | "square" | "tall" | "none" | "avatar";
   contentGap?: "xs" | "sm";
   lines?: SkeletonLine[] | undefined;
   content?: [TextRole, string | undefined, ("start" | "center" | "end")?, ("display" | "compact")?][];
@@ -43,7 +43,7 @@ export type ShapeProps = {
   playback?: boolean;
   centered?: boolean;
   split?: boolean;
-};
+} & TextFinish;
 
 export function linesOf(item: SkeletonItem, heading = false): SkeletonLine[] {
   return (
@@ -63,7 +63,7 @@ export function SkeletonText({
   numberScale = "display",
   density,
   emphasis,
-}: SkeletonLine & TextFinish) {
+}: SkeletonLine) {
   const stepOf = useTextStep({ density, emphasis });
   const scale = typography[stepOf(role === "number" && numberScale === "compact" ? "body" : role)];
   const line = scale.lineHeight;
@@ -105,11 +105,11 @@ export function SkeletonText({
   );
 }
 
-export function SkeletonContent({ lines = [] }: Pick<ShapeProps, "lines">) {
+export function SkeletonContent({ lines = [], density, emphasis }: Pick<ShapeProps, "lines"> & TextFinish) {
   return (
-    <KitContent>
+    <KitContent {...{ density, emphasis }}>
       {lines.map((line, index) => (
-        <SkeletonText key={index} {...line} />
+        <SkeletonText key={index} {...{ density, emphasis }} {...line} />
       ))}
     </KitContent>
   );

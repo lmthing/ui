@@ -2,7 +2,22 @@ import { Children, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useVariantDensity } from "../../provider";
+import { KitText } from "../text";
 import { KitStrip } from "./KitStrip";
+
+type GridProps = {
+  columns?: 2 | 3;
+  /** Let the final column fit a short label, leaving the remaining width to the main content. */
+  fitLast?: boolean;
+  density?: ThemeDensity | undefined;
+  /** Keep the same child addresses while switching to a flat row sequence or a sideways strip. */
+  arrange?: AxisValue<"arrange">;
+  overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined;
+  group?: AxisValue<"group">;
+  /** Group membership and headings come from the caller; no group IDs are used to address items. */
+  groups?: readonly { id: string; heading: string; children: ReactNode }[];
+  children: ReactNode;
+};
 
 /**
  * Cells in equal-width columns (default 2). Cells in one row share a top edge; columns share left
@@ -14,18 +29,27 @@ export function KitGrid({
   density,
   arrange = "grid",
   children,
-}: {
-  columns?: 2 | 3;
-  /** Let the final column fit a short label, leaving the remaining width to the main content. */
-  fitLast?: boolean;
-  density?: ThemeDensity | undefined;
-  /** Keep the same child addresses while switching to a flat row sequence or a sideways strip. */
-  arrange?: AxisValue<"arrange">;
-  children: ReactNode;
-}) {
+  group = "none",
+  groups,
+  overflow,
+}: GridProps) {
   const spacing = useVariantDensity(density);
+  if (group !== "none" && groups?.length) {
+    return (
+      <YStack width="100%" gap={space[spacing.gap]}>
+        {groups.map(({ id, heading, children }) => (
+          <YStack key={id} gap={space[spacing.contentGap]}>
+            <KitText density={density} role="label" tone="muted" part={null}>
+              {heading}
+            </KitText>
+            <KitGrid {...{ columns, fitLast, density, arrange, overflow }}>{children}</KitGrid>
+          </YStack>
+        ))}
+      </YStack>
+    );
+  }
   if (arrange === "rows") return <>{children}</>;
-  if (arrange === "strip") return <KitStrip density={density}>{children}</KitStrip>;
+  if (arrange === "strip") return <KitStrip {...{ density, overflow }}>{children}</KitStrip>;
   const cells = Children.toArray(children);
   const rows = Array.from({ length: Math.ceil(cells.length / columns) }, (_, row) =>
     cells.slice(row * columns, row * columns + columns),
