@@ -79,7 +79,7 @@ export function planAct(
   values: Values,
   steps: ActStep[],
 ): ActResult {
-  const screen = migrateScreen(input);
+  const screen = migrateScreen(input, { variantOnly: true });
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];

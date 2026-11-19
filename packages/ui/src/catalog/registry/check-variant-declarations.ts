@@ -50,6 +50,16 @@ const legacyStyles: Readonly<Partial<Record<string, Readonly<Record<string, stri
 const itemAxes = { tone: true, mark: true, trail: true } satisfies Record<keyof ItemVariants, true>;
 
 const choices = (field?: Schema) => field?.enum ?? (field?.const === undefined ? [] : [field.const]);
+const branchesOf = (schema: Schema) => [
+  ...(schema.anyOf ?? []),
+  ...(schema.oneOf ?? []),
+  ...(schema.allOf ?? []),
+];
+
+/** Schema wrappers keep scalar metadata and values on their branches, not the containing property. */
+function scalarBranches(schema: Schema): Schema[] {
+  return [schema, ...branchesOf(schema).flatMap(scalarBranches)];
+}
 
 function checkSchemaAxes(
   label: string,
@@ -59,7 +69,9 @@ function checkSchemaAxes(
 ): string[] {
   if (!schema) return [];
   const fields = Object.entries(schema.properties ?? {}).flatMap(([key, field]) => {
-    const misplaced = field.variantAxis && (field.variantAxis !== key || !Object.hasOwn(axes ?? {}, key));
+    const misplaced = scalarBranches(field).some(
+      ({ variantAxis }) => variantAxis && (variantAxis !== key || !Object.hasOwn(axes ?? {}, key)),
+    );
     const issues = misplaced ? [`${label}: schema exposes undeclared variant ${key}`] : [];
     if (key !== item?.key) return [...issues, ...checkSchemaAxes(`${label}.${key}`, undefined, field)];
     const { items, ...container } = field;
@@ -72,10 +84,17 @@ function checkSchemaAxes(
   return [
     ...fields,
     ...checkSchemaAxes(`${label}[]`, undefined, schema.items),
-    ...[...(schema.anyOf ?? []), ...(schema.oneOf ?? []), ...(schema.allOf ?? [])].flatMap((branch) =>
-      checkSchemaAxes(label, undefined, branch),
-    ),
+    ...branchesOf(schema).flatMap((branch) => checkSchemaAxes(label, undefined, branch)),
   ];
+}
+
+function checkDuplicateStyles(id: string, field?: Schema): string[] {
+  const values = new Set(field ? scalarBranches(field).flatMap(choices) : []);
+  return [...values].flatMap((value) =>
+    typeof value === "string" && duplicateStyles.has(value) && !legacyStyles[id]?.[value]
+      ? [`${id}: style.${value} duplicates a shared variant`]
+      : [],
+  );
 }
 
 function checkAxes(
@@ -120,11 +139,7 @@ export function checkVariantDeclarations(def: Definition): string[] {
     ...checkAxes(`${meta.id} items`, meta.items?.variants, itemSchema, {
       mayInheritTrail: !!meta.variants?.trail,
     }),
-    ...choices(schema.properties?.style).flatMap((value) =>
-      typeof value === "string" && duplicateStyles.has(value) && !legacyStyles[meta.id]?.[value]
-        ? [`${meta.id}: style.${value} duplicates a shared variant`]
-        : [],
-    ),
+    ...checkDuplicateStyles(meta.id, schema.properties?.style),
     ...Object.keys(meta.variantParts ?? {}).flatMap((key) => {
       const [axis, value, extra] = key.split(".") as [Axis, string, string?];
       if (!Object.hasOwn(variantAxes, axis) || extra !== undefined)

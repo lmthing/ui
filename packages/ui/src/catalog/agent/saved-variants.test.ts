@@ -2,14 +2,17 @@ import { expect, it, vi } from "vitest";
 import { z } from "zod";
 import { components, planAct, readComponent, readScreen, text, variantProps } from "@lmthing/ui/catalog";
 import type { ScreenLike } from "./read";
+import type { MigrationOptions } from "../migrations";
 
 vi.mock("../migrations", async (load) => {
   const migrations = await load<typeof import("../migrations")>();
   const options = { variantComponents: ["Card"] };
   return {
     ...migrations,
-    migrateLine: (line: Record<string, unknown>) => migrations.migrateLine(line, options),
-    migrateScreen: (screen: ScreenLike) => migrations.migrateScreen(screen, options),
+    migrateLine: (line: Record<string, unknown>, caller?: MigrationOptions) =>
+      migrations.migrateLine(line, { ...options, ...caller }),
+    migrateScreen: (screen: ScreenLike, caller?: MigrationOptions) =>
+      migrations.migrateScreen(screen, { ...options, ...caller }),
   };
 });
 
@@ -50,7 +53,18 @@ it("ignores malformed retired lines during reading and action planning", () => {
     ...screen,
     components: [...screen.components, { c: "DayTimeline", id: "bad", blocks: [null] }],
   };
-  expect(planAct(saved, { Card: card }, {}, []).ok).toBe(true);
-  expect(planAct(saved, { Card: card }, {}, [{ address: "c1", action: "press" }]).ok).toBe(true);
-  expect(readScreen(saved, { Card: card })).toContain("bad DayTimeline (unknown)");
+  const defs = { Card: card, Timeline: components.Timeline };
+  expect(planAct(saved, defs, {}, []).ok).toBe(true);
+  expect(planAct(saved, defs, {}, [{ address: "c1", action: "press" }]).ok).toBe(true);
+  expect(readScreen(saved, defs)).toContain("bad DayTimeline (unknown)");
+});
+
+it("does not run retired component migrations while reading and planning variant lines", () => {
+  const saved = {
+    ...screen,
+    components: [...screen.components, { c: "DayTimeline", id: "bad", blocks: [{}] }],
+  };
+  const defs = { Card: card, Timeline: components.Timeline };
+  expect(readScreen(saved, defs)).toContain("bad DayTimeline (unknown)");
+  expect(planAct(saved, defs, {}, [{ address: "c1", action: "press" }]).ok).toBe(true);
 });

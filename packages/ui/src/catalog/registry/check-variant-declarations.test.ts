@@ -92,6 +92,28 @@ it("rejects an axis that offers only its default", () => {
   expect(checkVariantDeclarations(def)).toEqual(["VariantFixture: variant surface has no alternative"]);
 });
 
+it("rejects an undeclared axis even through nullable or union wrappers", () => {
+  const density = variantProps({ density: ["comfortable", "compact"] }).density;
+  for (const wrapped of [density.nullable(), z.union([z.null(), density])]) {
+    const def = { ...fixture, props: fixture.props.extend({ density: wrapped }) };
+    expect(checkVariantDeclarations(def)).toEqual([
+      "VariantFixture: schema exposes undeclared variant density",
+    ]);
+  }
+});
+
+it("rejects style duplicates in wrapped enums and union literals", () => {
+  for (const style of [
+    z.enum(["other", "compact"]).nullable().default("other"),
+    z.union([z.literal("other"), z.literal("compact")]),
+  ]) {
+    const def = { ...fixture, props: fixture.props.extend({ style }) };
+    expect(checkVariantDeclarations(def)).toEqual([
+      "VariantFixture: style.compact duplicates a shared variant",
+    ]);
+  }
+});
+
 it("rejects unknown axes, empty options, bad values and disallowed item axes", () => {
   const bad = {
     ...fixture,

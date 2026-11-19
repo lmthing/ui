@@ -2,7 +2,11 @@ import type { ScreenLike } from "../agent";
 import { legacyTarget, normalizeComponentId } from "./aliases";
 import { effectiveLegacyList, migrateVariantProps, variantMoves } from "./variant-line";
 
-export type MigrationOptions = { variantComponents?: readonly string[] };
+export type MigrationOptions = {
+  variantComponents?: readonly string[];
+  /** Only apply prop moves; do not admit retired component IDs into the caller's scope. */
+  variantOnly?: boolean;
+};
 // Enable each staged migration here in the same change that adopts the component schema.
 const adoptedVariants: readonly string[] = [];
 const isBlock = (value: unknown): value is Record<string, unknown> =>
@@ -11,7 +15,7 @@ const isBlock = (value: unknown): value is Record<string, unknown> =>
 /** Preserve component ids, state, links, tones and time ordering while migrating the retired shape. */
 export function migrateLine<T extends Record<string, unknown>>(
   line: T,
-  { variantComponents = adoptedVariants }: MigrationOptions = {},
+  { variantComponents = adoptedVariants, variantOnly = false }: MigrationOptions = {},
 ): T | (Record<string, unknown> & { c: string }) {
   const { c: name, ...props } = line;
   const c =
@@ -24,6 +28,7 @@ export function migrateLine<T extends Record<string, unknown>>(
     if (migrated !== props || c !== name) return { ...migrated, c };
   }
   if (
+    variantOnly ||
     legacyTarget(String(line.c)) !== "Timeline" ||
     !Array.isArray(line.blocks) ||
     !line.blocks.every(isBlock)

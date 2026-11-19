@@ -88,7 +88,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props)
 function migrateInput(component: string, input: unknown) {
   if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
   const line = { ...input, c: component };
-  const migrated = migrateLine(line);
+  const migrated = migrateLine(line, { variantOnly: true });
   if (migrated === line) return input;
   const { c: _c, ...props } = migrated;
   return props;
@@ -170,9 +170,11 @@ export function readScreen(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = migrateScreen(screen).components.flatMap(({ id, c, state, ...props }) => {
-    const def = defs[c];
-    return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
-  });
+  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
+    ({ id, c, state, ...props }) => {
+      const def = defs[c];
+      return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
+    },
+  );
   return [header, ...lines].join("\n");
 }
