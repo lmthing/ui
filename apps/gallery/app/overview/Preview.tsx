@@ -35,7 +35,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
   const legacyScreen = `${cell.id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
   const screen = variant ? `${cell.id.toLowerCase()}_variant_${variant.index}` : legacyScreen;
   const theme = { preset, mode, accent: accents[0]!.id } as never;
-  const controller = cell.drawn ? createSeededDraw(def, input, screen) : undefined;
+  const controller = View ? createSeededDraw(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   return (
     <YStack

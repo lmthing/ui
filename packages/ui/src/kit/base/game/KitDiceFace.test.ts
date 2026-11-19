@@ -53,7 +53,7 @@ describe("KitDiceFace", () => {
     const hold = elementAt(html, "home/c1/r1/hold");
     expect(hold.attributes).toContain('aria-disabled="true"');
     expect(styleAt(html, hold)).toContain(`opacity:${component.base.disabledOpacity}`);
-    expect(styleAt(html, hold.children[0]!)).toContain(`font-size:${typography.body.size}px`);
+    expect(styleAt(html, hold.children[0]!)).toContain(`font-size:${typography.heading.size}px`);
     expect(html).toContain(`>${sides}</span>`);
     expect(render({ ...die, sides, style: "numbers" })).not.toContain('role="text"');
     expect(render({ ...die, sides, style: "numbers", value: sides + 1 })).not.toContain('role="text"');

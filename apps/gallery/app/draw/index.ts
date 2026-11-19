@@ -1,4 +1,4 @@
-import { type Definition } from "@lmthing/ui/catalog";
+import { type Definition, type StateName } from "@lmthing/ui/catalog";
 import { createScreenController, type Environment } from "@lmthing/ui/kit";
 
 const previewSeed = 123456789;
@@ -20,12 +20,16 @@ export function createSeededDraw(
   def: Definition,
   input: Record<string, unknown>,
   screen: string,
-  seed = previewSeed,
+  {
+    seed = previewSeed,
+    state = "filled",
+    drawn,
+  }: { seed?: number | undefined; state?: StateName; drawn?: true },
 ) {
   const { draw, id, items } = def.meta;
-  if (!draw) return;
+  if (!draw || (!drawn && state !== "success")) return;
   const controller = createScreenController({
-    screen: { id: screen, components: [{ ...input, id: previewComponent, c: id, state: "filled" }] },
+    screen: { id: screen, components: [{ ...input, id: previewComponent, c: id, state }] },
     defs: { [id]: def },
     random: seededRandom(seed),
     now: () => 0,

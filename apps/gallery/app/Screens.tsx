@@ -27,7 +27,7 @@ function Screen({
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
   const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
-  const controller = cell.drawn ? createSeededDraw(def, input, screen) : undefined;
+  const controller = View ? createSeededDraw(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   return (
     <YStack gap={space.xs}>

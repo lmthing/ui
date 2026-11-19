@@ -28,6 +28,7 @@ it.each([
       await page.goto(`${server.resolvedUrls!.local[0]}?c=Dice&${query}`, { waitUntil: "networkidle" });
       const drawn = page.locator(`${prefix}_drawn"]`);
       const unrolled = page.locator(`${prefix}_filled"]`);
+      const success = page.locator(`${prefix}_success"]`);
       expect(await unrolled.innerText()).toContain("Ready to roll");
       expect(await unrolled.locator('[aria-pressed="true"]').count()).toBe(0);
       expect(await drawn.getByTestId("dice_calm_light_0_drawn/c1/sum").innerText()).toBe("Total 9");
@@ -35,6 +36,8 @@ it.each([
       expect(await held.count()).toBe(1);
       expect(await held.getAttribute("data-testid")).toBe("dice_calm_light_0_drawn/c1/r1/hold");
       expect(await drawn.getByRole("button", { name: "Roll again" }).count()).toBe(1);
+      expect(await success.getByTestId("dice_calm_light_0_success/c1/sum").innerText()).toBe("Total 9");
+      expect(await success.getByRole("button", { name: "Roll again" }).count()).toBe(1);
       await page.evaluate(() => document.fonts.ready);
       return await drawn.screenshot();
     } finally {
@@ -55,7 +58,7 @@ async function seedOutcomes(page: Page, catalog: string) {
       const { createSeededDraw, previewComponent } = await load("/app/draw/index.ts");
       function outcome(def: Definition, seed?: number, screen = "drawn") {
         const input = def.props.parse(def.examples[0]) as Record<string, unknown>;
-        const preview = createSeededDraw(def, input, screen, seed);
+        const preview = createSeededDraw(def, input, screen, { seed, drawn: true });
         return drawState(def.meta, input, (part) =>
           preview.store.get(`${screen}/${previewComponent}/${part}`),
         );

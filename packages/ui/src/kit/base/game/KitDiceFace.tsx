@@ -94,7 +94,7 @@ function FaceValue({ loading, value, sides, style }: DiceFaceProps) {
     );
   if (sides === 6 && style !== "numbers") return <Pips value={value} />;
   return (
-    <KitText role="number" numberScale="compact" align="center" part={null} tabular>
+    <KitText role="number" numberScale="compact" emphasis="hero" align="center" part={null} tabular>
       {value}
     </KitText>
   );
@@ -125,8 +125,8 @@ function Face(props: DiceFaceProps) {
       >
         <FaceValue {...props} />
         {showHold && (
-          <YStack position="absolute" top={space.xs} right={space.xs} pointerEvents="none" aria-hidden>
-            <KitIcon name={props.held ? "lock" : "unlock"} scale="sm" tone="text" decorative />
+          <YStack position="absolute" top={space.sm} alignSelf="center" pointerEvents="none" aria-hidden>
+            <KitIcon name={props.held ? "lock" : "unlock"} scale="md" tone="text" decorative />
           </YStack>
         )}
       </YStack>
