@@ -33,18 +33,12 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
   const box = look === "box";
   const custom = box || Boolean(swatch) || disabled;
   const edge = custom ? (on ? "$accent" : "$muted") : segment ? "$line" : on ? "$accent" : "$muted";
-  const fill = custom
-    ? on
-      ? "$accentSoft"
-      : disabled
-        ? "$raised"
-        : "$surface"
-    : on
-      ? segment
-        ? "$surface"
-        : "$accent"
-      : "transparent";
-  const tone = disabled || (segment && !on) ? "muted" : on && !custom && !segment ? "onAccent" : "text";
+  const idleFill = disabled ? "$raised" : "$surface";
+  const onFill = segment ? "$surface" : "$accent";
+  const fill = custom ? (on ? "$accentSoft" : idleFill) : on ? onFill : "transparent";
+  const dim = !loading && (disabled || (segment && !on));
+  const accent = !loading && on && !custom && !segment;
+  const tone = dim ? "muted" : accent ? "onAccent" : "text";
   const text = (
     <KitText role="label" tone={tone} part={stamped ? labelPart : null} lines={1} strike={disabled ?? false}>
       {label}
@@ -73,7 +67,16 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
         ) : (
           <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
         ))}
-      {loading ? <YStack opacity={component.base.none}>{text}</YStack> : text}
+      {loading ? (
+        <YStack
+          opacity={component.base.none}
+          {...(isWeb ? { style: { visibility: "hidden" } as never } : {})}
+        >
+          {text}
+        </YStack>
+      ) : (
+        text
+      )}
     </XStack>
   );
 }
@@ -92,17 +95,8 @@ function SwatchMark({ swatch, loading }: { swatch: Swatch; loading: boolean }) {
   );
 }
 
-function Chip({
-  label,
-  value = label,
-  on,
-  role,
-  look,
-  stamped,
-  part = "root",
-  disabled,
-  ...props
-}: ChipProps & { stamped: boolean }) {
+function Chip(input: ChipProps & { stamped: boolean }) {
+  const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
   const state = useComponentState();
   const loading = state === "loading" && (look === "box" || disabled !== undefined || Boolean(props.swatch));
   const addressed = stamped && part !== null && !loading;
