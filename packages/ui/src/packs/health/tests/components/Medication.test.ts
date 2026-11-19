@@ -8,8 +8,8 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { elementAt, renderInstance } from "../../../../test/render";
-import { medicationLabels } from "../copy";
+import { elementAt, renderInstance } from "../../../../../test/render";
+import { medicationLabels } from "../../copy";
 
 const { props, meta, examples, fallback, probes } = components.Medication;
 const dose = { name: "Vitamin D", dose: "1 tablet", time: "08:00" };
