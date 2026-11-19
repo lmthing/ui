@@ -4,6 +4,7 @@ import { Line, Svg } from "react-native-svg";
 import { component, radius, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
+import { KitCode } from "../codes";
 import { shifted, surfaceOf } from "../text";
 import { PanelEmpty, usePanelTarget } from "./KitFlip";
 
@@ -103,30 +104,10 @@ function TicketBody({ children, label, loading = false, style, target }: TicketP
   );
 }
 
-function TicketStub({ code, loading }: Pick<TicketProps, "code" | "loading">) {
-  const ks = useKitStyle();
+function TicketStub({ code, label, loading }: Pick<TicketProps, "code" | "label" | "loading">) {
   return (
     <YStack paddingHorizontal={space.lg} paddingTop={space.sm} paddingBottom={space.lg} alignItems="center">
-      {loading ? (
-        <YStack
-          width={component.base.ringLg}
-          height={component.base.ringLg}
-          borderRadius={shifted("md", ks.radiusShift)}
-          alignItems="center"
-          justifyContent="center"
-          backgroundColor="$raised"
-          aria-hidden
-        >
-          <YStack
-            width={component.base.ringMd}
-            height={component.base.ringMd}
-            borderRadius={radius.sm}
-            backgroundColor="$line"
-          />
-        </YStack>
-      ) : (
-        code
-      )}
+      {loading ? <KitCode part={null} label={label} loading /> : code}
     </YStack>
   );
 }
@@ -157,7 +138,7 @@ export function KitTicket({ part = "root", ...props }: TicketProps) {
         </PartContext.Provider>
         <Perforation />
         {stub ? (
-          <TicketStub code={props.code} loading={Boolean(props.loading)} />
+          <TicketStub code={props.code} label={props.label} loading={Boolean(props.loading)} />
         ) : (
           <YStack height={space.md} aria-hidden />
         )}

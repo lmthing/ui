@@ -13,6 +13,7 @@ type CodeProps = { part?: string | null; loading?: boolean; value?: string; labe
 // QR uses a four-module quiet zone on all sides, independent of the theme and the matrix size.
 const quiet = 4;
 const edge = component.base.ringLg;
+const frameEdge = edge + space.md * 2;
 
 function encode(value: string | undefined) {
   if (!value) return;
@@ -59,14 +60,14 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
   return (
     <YStack
       {...(part === null ? {} : address)}
-      width={edge}
-      height={edge}
+      width={frameEdge}
+      height={frameEdge}
       alignSelf="center"
       alignItems="center"
       justifyContent="center"
       gap={space.sm}
       borderRadius={shifted("md", ks.radiusShift)}
-      {...(drawing ? {} : surfaceOf(ks.surface))}
+      {...surfaceOf(ks.surface)}
       aria-busy={loading || undefined}
       accessibilityRole={drawing ? "image" : undefined}
       accessibilityLabel={drawing ? label : undefined}
@@ -77,13 +78,7 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
           <Path d={drawing.path} fill={component.swatch.black} />
         </Svg>
       ) : loading ? (
-        <YStack
-          width={component.base.ringMd}
-          height={component.base.ringMd}
-          borderRadius={radius.sm}
-          backgroundColor="$line"
-          aria-hidden
-        />
+        <YStack width={edge} height={edge} borderRadius={radius.sm} backgroundColor="$line" aria-hidden />
       ) : (
         <YStack alignItems="center" gap={space.md} padding={space.md}>
           <YStack

@@ -51,7 +51,8 @@ it("draws empty without a code stub; loading keeps the supplied stub but not its
   const loading = render({ ...input, loading: true, target: { part: "open" } });
   expect(loading).toContain('aria-busy="true"');
   expect(loading).not.toMatch(/role="button"|\/(open|summary|code)"/);
-  expect(
-    styleAt(loading, elementAt(loading, "home/c1/root").children[0]!.children[2]!.children[0]!),
-  ).toContain("height:168px");
+  const filledCodeFrame = styleAt(render(input), "home/c1/code");
+  expect(styleAt(loading, elementAt(loading, "home/c1/root").children[0]!.children[2]!.children[0]!)).toBe(
+    filledCodeFrame,
+  );
 });

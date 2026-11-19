@@ -43,8 +43,14 @@ it("mounts only the active face and addresses it with the caller's item", () => 
   const back = render({ ...input, flipped: true, disabled: true });
   expect(back).toContain('data-testid="home/c1/r2/answer"');
   expect(back).not.toContain("/question");
-  expect(back).not.toContain(">Turn</");
-  expect(elementAt(back, "home/c1/r2/turn").attributes).toContain('aria-disabled="true"');
+  const disabledButton = elementAt(back, "home/c1/r2/turn");
+  expect(disabledButton.attributes).toContain('aria-disabled="true"');
+  const enabledHint = elementAt(front, "home/c1/r2/turn").children[0]!.children[1]!;
+  const disabledHint = disabledButton.children[0]!.children[1]!;
+  expect(disabledHint.attributes).toContain('aria-hidden="true"');
+  expect(styleAt(back, disabledHint)).toContain("opacity:0");
+  expect(styleAt(back, disabledHint)).toContain(`margin-top:${space.sm}px`);
+  expect(styleAt(back, disabledHint.children[0]!)).toBe(styleAt(front, enabledHint.children[0]!));
 });
 
 it("draws empty/static and loading cards without mounting either slot", () => {

@@ -56,13 +56,18 @@ export function usePanelTarget(
 
 function FlipPlaceholder({ hint }: { hint: boolean }) {
   const ks = useKitStyle();
+  const rowHeights = [
+    typography.caption.lineHeight,
+    typography.heading.lineHeight,
+    typography.label.lineHeight,
+  ];
   return (
     <YStack width="100%" maxWidth={component.base.ringLg} gap={space.xs} alignItems="center" aria-hidden>
       {(hint ? ["42%", "100%", "36%"] : ["42%", "100%"]).map((width, index) => (
         <YStack
           key={width}
           width={width}
-          height={index === 1 ? typography.heading.lineHeight : typography.caption.lineHeight}
+          height={rowHeights[index]}
           marginTop={index === 2 ? space.sm : undefined}
           justifyContent="center"
         >
@@ -73,6 +78,21 @@ function FlipPlaceholder({ hint }: { hint: boolean }) {
           />
         </YStack>
       ))}
+    </YStack>
+  );
+}
+
+function FlipHint({ label, disabled }: { label: string; disabled: boolean }) {
+  return (
+    <YStack
+      marginTop={space.sm}
+      opacity={disabled ? component.base.none : undefined}
+      aria-hidden
+      accessibilityElementsHidden
+    >
+      <KitText tone="accent" role="label" align="center" part={null}>
+        {label}
+      </KitText>
     </YStack>
   );
 }
@@ -93,7 +113,7 @@ function FlipFace({
   const reveal = useAnimatedValue(Number(flipped), settled);
   const offset = settled ? 0 : Math.min(1, Math.abs(Number(flipped) - reveal));
   const face = flipped ? back : front;
-  const hint = target.part !== null && !disabled;
+  const hint = target.part !== null;
   return (
     <YStack
       {...interactive}
@@ -117,13 +137,7 @@ function FlipFace({
           opacity={disabled ? 1 - component.base.skeletonOpacity / 2 : 1 - offset / 4}
         >
           {face}
-          {hint && (
-            <YStack marginTop={space.sm} aria-hidden accessibilityElementsHidden>
-              <KitText tone="muted" role="caption" align="center" part={null}>
-                {label}
-              </KitText>
-            </YStack>
-          )}
+          {hint && <FlipHint label={label} disabled={disabled} />}
         </YStack>
       )}
     </YStack>

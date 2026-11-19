@@ -2,9 +2,9 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
-import { component, themeName } from "@lmthing/ui/catalog";
+import { component, space, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitCode } from "@lmthing/ui/kit";
-import { config, styleAt } from "../../../../test/render";
+import { config, elementAt, styleAt } from "../../../../test/render";
 import { codeDrawing } from "./KitCode";
 function render(props: Parameters<typeof KitCode>[0], mode: "light" | "dark" = "light") {
   const theme = { preset: "calm", mode: mode, accent: "moss" } as const;
@@ -41,6 +41,7 @@ it("renders the same fixed QR matrix and four-module quiet zone in light and dar
   for (const html of [light, dark]) {
     expect(html).toContain(expected);
     expect(html).toContain(`fill="${component.swatch.white}"`);
+    expect(html).toContain(`width="${component.base.ringLg}" height="${component.base.ringLg}"`);
     expect(html).toContain('aria-label="Scan pass"');
     expect(html).not.toContain(input.value);
   }
@@ -54,7 +55,9 @@ it("encodes distinct Unicode payloads and declines values exceeding capacity", (
 });
 
 it("uses the same footprint for empty, used and loading, with no QR matrix", () => {
-  const filled = render(input);
+  const filledFrame = styleAt(render(input), "home/c1/root");
+  const edge = component.base.ringLg + space.md * 2;
+  expect(filledFrame).toContain(`height:${edge}px`);
   for (const props of [
     { ...input, value: "" },
     { ...input, used: true },
@@ -62,8 +65,11 @@ it("uses the same footprint for empty, used and loading, with no QR matrix", () 
   ]) {
     const html = render(props);
     expect(html).not.toContain(`fill="${component.swatch.black}"`);
-    expect(styleAt(html, "home/c1/root")).toContain("height:168px");
-    expect(styleAt(filled, "home/c1/root")).toContain("height:168px");
+    expect(styleAt(html, "home/c1/root")).toBe(filledFrame);
   }
+  const loading = render({ ...input, loading: true });
+  const plate = elementAt(loading, "home/c1/root").children[0]!;
+  expect(styleAt(loading, plate)).toContain(`width:${component.base.ringLg}px`);
+  expect(styleAt(loading, plate)).toContain(`height:${component.base.ringLg}px`);
   expect(render({ ...input, part: null })).not.toContain("data-testid=");
 });
