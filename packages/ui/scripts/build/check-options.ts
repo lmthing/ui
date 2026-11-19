@@ -48,10 +48,13 @@ export function changeSelection(paths: readonly string[]) {
       local === "test/render.tsx"
     )
       full = true;
-    if (id) ids.add(id);
-    else full = true;
     const pack = local.match(/^src\/packs\/([^/]+)\//)?.[1];
     if (pack) packs.add(pack);
+    // A pack file with no component id (lang/, copy door, contracts, READMEs) runs that pack's tests;
+    // the pack's own definition (pack.ts, its root door, example.jsonl) still runs everything.
+    const packRoot = /^src\/packs\/[^/]+\/(?:pack\.ts|index\.ts|example\.jsonl)$/.test(local);
+    if (id) ids.add(id);
+    else if (!pack || packRoot) full = true;
   }
   return { full, ids: [...ids].sort(), packs: [...packs].sort() };
 }

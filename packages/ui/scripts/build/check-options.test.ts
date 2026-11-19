@@ -76,3 +76,10 @@ it("filters ids, entries and individual layouts, and restores full coverage with
   expect(selectedEntries({ List: 1, Cycle: 2 })).toEqual([["Cycle", 2]]);
   expect(selectedLayouts(metas)).toEqual(["sample/second"]);
 });
+
+it.each(["src/packs/home/lang/en.ts", "src/packs/home/copy/index.ts", "src/packs/home/device-contract.ts"])(
+  "runs only the pack's tests for a pack file with no component id: %s",
+  (path) => {
+    expect(changeSelection([path])).toEqual({ full: false, ids: [], packs: ["home"] });
+  },
+);
