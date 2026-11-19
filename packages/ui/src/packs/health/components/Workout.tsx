@@ -136,12 +136,11 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   return (
     <kit.KitSetRow item={item} part={`set_${pos}`} label={label} labelPart={`label_${pos}`} fields={fields}
       done={<kit.KitCheck part={`done_${pos}`} done={set.done} label={w.completeSet(label)} />}
-      detail={rest && <kit.KitContent>
+      detail={rest && <kit.KitRow label={rest} inline trailing={stop && <kit.PartContext.Provider value={scope}>
+        <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />
+      </kit.PartContext.Provider>}>
         <kit.KitText part={`remaining_${pos}`} role="number" numberScale="compact" tabular>{rest}</kit.KitText>
-        {stop && <kit.PartContext.Provider value={scope}>
-          <kit.KitAction part="rest" action="stop" kind="quiet" label={w.stopRest} />
-        </kit.PartContext.Provider>}
-      </kit.KitContent>}
+      </kit.KitRow>}
     />
   );
 }
