@@ -10,6 +10,7 @@ All versions are exact in manifests and `pnpm-lock.yaml`. Node 26, pnpm 12.16.1.
 | tamagui/@tamagui/core 1.144.4 | Matched stable design primitives; latest majors lack matching Lucide. |
 | @tamagui/lucide-icons 1.144.4 | Curated icons, matching Tamagui; no custom icon artwork. |
 | react-native-svg 15.15.3 | Lucide's web SVG renderer; no native runtime in this slice. |
+| qrcode-generator 2.0.4 | Dependency-free QR matrix encoder for KitCode; the kit renders its own cross-platform modules rather than using a DOM or canvas generator. |
 | vite 8.3.8 | Minimal web gallery as requested; Expo deferred. |
 | typescript 5.9.3 | Strict types, stable compiler; preview major deferred. |
 | vitest 5.1.0 | Schema, type, token, address and kit tests; Jest deferred. |

@@ -5,6 +5,8 @@ const places = { cupboard: "Cupboard", fridge: "Fridge", freezer: "Freezer" };
 
 export const en = {
   kcalUnit: "kcal",
+  kcalLine: (value: string, unit: string) => `${value} ${unit}`,
+  cookStepUses: (uses: readonly string[]) => uses.join(" · "),
   cookStepsLabels: {
     timer: "Cooking timer",
     next: "Next step",
