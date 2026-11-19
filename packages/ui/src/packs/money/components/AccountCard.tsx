@@ -4,7 +4,7 @@ import {
   placeholderTitle,
   probesFor,
   screenId,
-  swatch,
+  swatchNames,
   text,
   thingOf,
   titleOf,
@@ -40,7 +40,7 @@ export const props = z.strictObject({
           .regex(/^\d{4}$/)
           .optional(),
         balance: z.number(),
-        swatch,
+        swatch: z.enum(swatchNames),
         goto: screenId,
       }),
     )
