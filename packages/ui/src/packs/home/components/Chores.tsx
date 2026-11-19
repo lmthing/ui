@@ -1,5 +1,4 @@
 import {
-  wordsFor,
   isoDate,
   itemsOf,
   photo,
@@ -14,14 +13,31 @@ import {
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitCheck,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitPhoto,
+  KitRow,
+  KitText,
+  KitTrail,
+  PartContext,
+  useComponentState,
+  usePartContext,
+  useWords,
+} from "../../../kit";
+import { choreIsDone, choreLines, choreReading } from "../copy";
 import { homeWordsFor } from "../lang";
 import { z } from "zod";
 
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
   id: "Chores",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Share recurring household jobs with owners and points earned for completing them.",
   pick: "Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).",
@@ -33,22 +49,16 @@ export const meta = {
   tier: "phone",
   partTiers: { done: "people" },
   realPath: "Chores stay on the device; each person ticking their own on another phone needs a shared app.",
-  items: { key: "chores", parts: ["root", "title", "who", "photo", "repeat", "last", "points", "done"] },
-  parts: ["root"],
-  states: ["filled", "empty", "success"],
-  actions: { items: { done: ["check"], root: ["press"] } },
-  read: (input, state, lang?: string) => {
-    const { repeatLabels } = wordsFor(lang);
-    const { choreLabels } = homeWordsFor(lang);
-    return state === "filled"
-      ? (input as z.output<typeof props>).chores.map(
-          (row) =>
-            `${row.title} · ${row.who} · ${row.every} ${repeatLabels[row.repeat]}${row.points === undefined ? "" : ` · ${row.points} ${choreLabels.points}`}`,
-        )
-      : [];
+  items: {
+    key: "chores",
+    parts: ["root", "title", "who", "photo", "repeat", "last", "next", "points", "done"],
   },
+  parts: ["root", "message"],
+  states: ["filled", "empty", "success"],
+  actions: { items: { done: ["check"], root: ["press"] }, when: { "done.check": { done: false } } },
+  read: (input, state, lang) =>
+    state === "filled" ? choreReading((input as z.output<typeof props>).chores, lang) : [],
 } as const satisfies Meta;
-
 export const props = z.strictObject({
   chores: z
     .array(
@@ -64,53 +74,34 @@ export const props = z.strictObject({
       }),
     )
     .min(1)
-    .max(6),
+    .max(6)
+    .overwrite((chores) => chores.map((chore) => ({ ...chore, done: choreIsDone(chore) }))),
 });
-
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast),
     items = itemsOf(cast, 6);
   return {
     chores: (items.length ? items : [undefined]).map((item, index) => ({
-      title: item
-        ? (titleOf(item, 28, thing) ?? placeholderTitle(index, lang))
-        : placeholderTitle(index, lang),
-      who: item
-        ? (detailOf(item, 16, thing) ?? placeholderTitle(index, lang))
-        : placeholderTitle(index, lang),
+      title: (item && titleOf(item, 28, thing)) ?? placeholderTitle(index, lang),
+      who: (item && detailOf(item, 16, thing)) ?? placeholderTitle(index, lang),
       repeat: "weekly",
       every: 1,
       goto: item && screenId.safeParse(item.id).success ? item.id : "detail",
     })),
   };
 }
+// prettier-ignore
 export const examples = [
   {
     chores: [
-      {
-        title: "Mist the fern",
-        who: "Sam",
-        photo: "lib:people",
-        repeat: "daily",
-        every: 1,
-        last: "2026-11-18",
-        points: 5,
-        goto: "fern",
-      },
+      { title: "Mist the fern", who: "Sam", photo: "lib:people", repeat: "daily", every: 1, last: "2026-11-16", points: 5, goto: "fern" },
+      { title: "Dust shelves", who: "Alex", repeat: "weekly", every: 1, points: 10, goto: "shelves" },
     ],
   },
   {
     chores: [
-      {
-        title: "Wash Clover's bowl",
-        who: "Alex",
-        photo: "lib:people",
-        repeat: "weekly",
-        every: 2,
-        last: "2026-11-15",
-        points: 10,
-        goto: "clover",
-      },
+      { title: "Wash dog bowl", who: "Alex", photo: "lib:people", repeat: "weekly", every: 2, last: "2026-11-15", points: 10, goto: "clover" },
+      { title: "Hang lead rack", who: "Sam", repeat: "never", every: 1, last: "2026-11-17", goto: "lead_rack" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -121,3 +112,89 @@ export const probes = [
   write("Sam mists the fern every day, last done 18 November 2026, earns five points, opens fern details"),
   read("Mark Sam's misting job done", { address: "c1/r1/done", action: "check" }),
 ] satisfies Probe[];
+type Chore = Props<typeof props, typeof meta>["chores"][number];
+function ChoreDetails({ copy }: { copy: ReturnType<typeof choreLines> }) {
+  return (
+    <KitGrid>
+      <>
+        <KitText part="repeat" role="caption" tone="muted">
+          {copy.repeat}
+        </KitText>
+        {copy.points && (
+          <KitText part="points" role="caption" tone="muted">
+            <KitText part={null} role="number" numberScale="compact" tone="muted" tabular>
+              {copy.points.count}
+            </KitText>
+            {copy.points.suffix}
+          </KitText>
+        )}
+      </>
+      <>
+        <KitText part="next" role="caption" tone={copy.tone}>
+          {copy.next}
+        </KitText>
+        {copy.last && (
+          <KitText part="last" role="caption" tone="muted">
+            {copy.last}
+          </KitText>
+        )}
+      </>
+    </KitGrid>
+  );
+}
+
+function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
+  const context = usePartContext();
+  const { lang } = useWords(homeWordsFor);
+  const copy = choreLines(chore, undefined, lang);
+  const { photo, who: label } = chore;
+  const avatar = { label, initials: copy.initials, ...(photo ? { photo } : {}) };
+  return (
+    <PartContext.Provider value={{ ...context, item: chore.id }}>
+      <KitContent group={first ? "content" : "response"}>
+        <KitGrid fitLast>
+          <KitRow
+            part="root"
+            goto={chore.goto}
+            label={copy.label}
+            inline
+            lineRole="heading"
+            leadingAlign="row"
+            leading={<KitPhoto part="photo" shape="round" {...avatar} />}
+          >
+            <KitText part="title" role="heading">
+              {copy.headline}
+            </KitText>
+            <KitText part="who" role="caption" tone="muted">
+              {chore.who}
+            </KitText>
+          </KitRow>
+          {copy.done ? (
+            <KitTrail kind="check" part="done" />
+          ) : (
+            <KitCheck done={false} label={copy.check} part="done" />
+          )}
+        </KitGrid>
+        <ChoreDetails copy={copy} />
+      </KitContent>
+    </PartContext.Provider>
+  );
+}
+
+export function Chores({ chores }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const { words } = useWords(homeWordsFor);
+  return (
+    <KitCard part="root" padded={state === "filled"}>
+      {state === "filled" ? (
+        chores.map((chore, index) => <ChoreRow key={chore.id} chore={chore} first={index === 0} />)
+      ) : (
+        <KitEmpty
+          part="message"
+          decorativeIcon
+          {...(state === "success" ? { icon: "check", tone: "good", title: words.choreLabels.complete } : {})}
+        />
+      )}
+    </KitCard>
+  );
+}
