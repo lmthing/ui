@@ -9,10 +9,12 @@ type Meal = {
 
 export const foodLogLabels = { ...kitchenWordsFor().foodLogLabels, share: percentLine };
 
-export const kcalLine = (value: number, lang?: string): string =>
-  `${numberLine(value, lang)} ${kitchenWordsFor(lang).kcalUnit}`;
-export const targetLine = (target: number, lang?: string): string =>
-  `${goalLine(target, lang)} ${kitchenWordsFor(lang).kcalUnit}`;
+function withKcal(value: string, lang?: string): string {
+  const words = kitchenWordsFor(lang);
+  return words.kcalLine(value, words.kcalUnit);
+}
+export const kcalLine = (value: number, lang?: string): string => withKcal(numberLine(value, lang), lang);
+export const targetLine = (target: number, lang?: string): string => withKcal(goalLine(target, lang), lang);
 export const foodLogTotal = (meals: readonly Meal[]): number =>
   meals.reduce((sum, meal) => sum + meal.items.reduce((subtotal, item) => subtotal + item.kcal, 0), 0);
 export function foodLogGroups<T>(meals: readonly Meal[], rows: readonly T[]): T[][] {
