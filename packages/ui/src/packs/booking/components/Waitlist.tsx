@@ -1,15 +1,6 @@
 import { z } from "zod";
-import {
-  probesFor,
-  queueAhead,
-  queueCount,
-  queueExact,
-  queueLabels,
-  type CastLike,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+import { probesFor, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import { queueAhead, queueCount, queueExact, queueLabels } from "../copy";
 import { KitAction, KitCard, KitContent, KitText } from "../../../kit";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.

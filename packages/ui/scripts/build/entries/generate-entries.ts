@@ -1,47 +1,50 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
-import { dataExports, scanEntries } from "./index";
+import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { format, resolveConfig } from "prettier";
+import { dataExports, scanEntries } from "./scan-entries";
+import { generatePackEntries } from "./generate-pack-entries";
 
-function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) {
+export type Entries = Awaited<ReturnType<typeof scanEntries>>;
+
+export function componentLines(defs: Entries["defs"]) {
   return [
-    `import { registryOf, packReady as packReadyOf, buildPackIndex as packIndexOf, type Definition, type RegistryOptions, type PackId, type PackMeta, type ArchetypeMeta } from "../catalog";`,
-    ...defs.map(({ name, path, pack, door }) =>
-      door ? `import { ${name} } from "../packs/${pack}/components";` : `import * as ${name} from "${path}";`,
-    ),
-    ...packs
-      .filter(({ meta }) => meta)
-      .map(({ id }) => `import { pack as ${id}Pack } from "../packs/${id}/pack";`),
-    ...packs.flatMap(({ id, archetypes, door }) =>
-      archetypes.map(
-        ({ name, file }, i) =>
-          `import { ${name} as ${id}Archetype${i} } from "../packs/${id}/archetypes${door ? "" : "/" + file}";`,
-      ),
-    ),
-    `export * from "../catalog";`,
+    "// prettier-ignore",
     "export const components = {",
     ...defs.map(
       ({ name }) => `  ${name}: { ${dataExports.map((key) => `${key}: ${name}.${key}`).join(", ")} },`,
     ),
     "} satisfies Record<string, Definition>;",
+  ];
+}
+
+function rendererEntry(defs: Entries["defs"]) {
+  const ready = defs.filter(({ draft }) => !draft);
+  return [
+    ...ready.map(({ name, path }) => `import { ${name} } from "${path}";`),
+    "export const renderers = {",
+    ...ready.map(({ name }) => `  ${name},`),
+    "};",
+  ];
+}
+
+function componentEntry(defs: Entries["defs"]) {
+  return [
+    `import type { Definition } from "../catalog";`,
+    ...defs.map(({ name, path }) => `import * as ${name} from "${path}";`),
+    ...componentLines(defs),
+  ];
+}
+
+function catalogLines() {
+  return [
+    `import { registryOf, packReady as packReadyOf, buildPackIndex as packIndexOf, type RegistryOptions, type PackId } from "../catalog";`,
+    `import { components as coreComponents } from "./core";`,
+    `import { components as surfaceComponents } from "./surfaces";`,
+    `import { components as packComponents, packOf, packs, packArchetypes, packExamples } from "./packs";`,
+    `export * from "../catalog";`,
+    `export { packOf, packs, packArchetypes, packExamples };`,
+    "export const components = { ...coreComponents, ...packComponents, ...surfaceComponents };",
     "export type ComponentName = keyof typeof components;",
-    "export const packOf = {",
-    ...defs.filter(({ pack }) => pack).map(({ name, pack }) => `  ${name}: "${pack}",`),
-    "} satisfies Partial<Record<ComponentName, PackId>>;",
-    "export const packs = {",
-    ...packs.filter(({ meta }) => meta).map(({ id }) => `  ${id}: ${id}Pack,`),
-    "} satisfies Partial<Record<PackId, PackMeta>>;",
-    "export const packArchetypes = {",
-    ...packs
-      .filter(({ meta, archetypes }) => meta || archetypes.length)
-      .map(
-        ({ id, archetypes }) => `  ${id}: [${archetypes.map((_, i) => `${id}Archetype${i}`).join(", ")}],`,
-      ),
-    "} satisfies Partial<Record<PackId, readonly ArchetypeMeta[]>>;",
-    "export const packExamples = {",
-    ...packs
-      .filter(({ example }) => example !== undefined)
-      .map(({ id, example }) => `  ${id}: ${JSON.stringify(example)},`),
-    "} satisfies Partial<Record<PackId, string>>;",
     "export function packReady(id: PackId) {",
     "  return packReadyOf(id, { components, packOf, packs, packExamples });",
     "}",
@@ -54,24 +57,36 @@ function catalogLines({ defs, packs }: Awaited<ReturnType<typeof scanEntries>>) 
   ];
 }
 
+async function removeOldPackEntries(folder: string) {
+  const entries = await readdir(folder, { withFileTypes: true }).catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return [];
+    throw error;
+  });
+  for (const entry of entries)
+    if (
+      (entry.isDirectory() && /^group-\d+$/.test(entry.name)) ||
+      (entry.isFile() && /^group-\d+\.ts$/.test(entry.name))
+    )
+      await rm(join(folder, entry.name), { recursive: entry.isDirectory() });
+}
+
 export async function generateEntries(root: string) {
   const entries = await scanEntries(root);
-  const ready = entries.defs.filter((def) => !def.draft);
-  const renderers = [
-    ...ready.flatMap(({ name, path, pack, door }) =>
-      door
-        ? [
-            `import { ${name} as ${name}Definition } from "../packs/${pack}/components";`,
-            `const ${name} = ${name}Definition.${name};`,
-          ]
-        : [`import { ${name} } from "${path}";`],
-    ),
-    `export const renderers = { ${ready.map((def) => def.name).join(", ")} };`,
-  ];
+  const core = entries.defs.filter(({ pack, path }) => !pack && !path.includes("/surfaces/"));
+  const surfaces = entries.defs.filter(({ path }) => path.includes("/surfaces/"));
   const outputs = {
-    catalog: catalogLines(entries),
-    renderers,
-    kit: [
+    "catalog.ts": catalogLines(),
+    "core.ts": componentEntry(core),
+    "core-renderers.ts": rendererEntry(core),
+    "surfaces.ts": componentEntry(surfaces),
+    "surface-renderers.ts": rendererEntry(surfaces),
+    "renderers.ts": [
+      `import { renderers as coreRenderers } from "./core-renderers";`,
+      `import { renderers as packRenderers } from "./views";`,
+      `import { renderers as surfaceRenderers } from "./surface-renderers";`,
+      `export const renderers = { ...coreRenderers, ...packRenderers, ...surfaceRenderers };`,
+    ],
+    "kit.ts": [
       `import { createElement } from "react";`,
       `import { PhoneScreen as BasePhoneScreen, type PhoneScreenProps as BasePhoneScreenProps } from "../kit/screen";`,
       `import { components } from "./catalog";`,
@@ -83,11 +98,23 @@ export async function generateEntries(root: string) {
       `  return createElement(BasePhoneScreen, { ...props, defs: components, renderers });`,
       `}`,
     ],
+    ...generatePackEntries(entries),
   };
-  await mkdir(join(root, "src/entry"), { recursive: true });
-  for (const [name, lines] of Object.entries(outputs))
-    await writeFile(
-      join(root, "src/entry", `${name}.ts`),
-      `// Generated by scripts/build-entries.ts. Do not edit.\n${lines.join("\n")}\n`,
-    );
+  const options = await resolveConfig(join(root, "package.json"));
+  await removeOldPackEntries(join(root, "src/entry/packs"));
+  await removeOldPackEntries(join(root, "src/entry/views"));
+  for (const [name, lines] of Object.entries(outputs)) {
+    const file = join(root, "src/entry", name);
+    const source = `${lines.join("\n")}\n`;
+    const text = name.endsWith(".ts")
+      ? await format(`// Generated by scripts/build-entries.ts. Do not edit.\n${source}`, {
+          ...options,
+          parser: "typescript",
+        })
+      : source;
+    if (text.trimEnd().split("\n").length > 200)
+      throw new Error(`Generated entry exceeds 200 lines: ${file}`);
+    await mkdir(dirname(file), { recursive: true });
+    await writeFile(file, text);
+  }
 }

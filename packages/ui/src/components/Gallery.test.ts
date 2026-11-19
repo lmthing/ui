@@ -8,7 +8,6 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-
 import { elementAt, renderInstance, styleAt } from "../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const { props, meta, examples, fallback, probes } = components.Gallery;
@@ -190,6 +189,7 @@ describe("Gallery view", () => {
     expect(html.match(/aria-busy="true"/g)).toHaveLength(example.photos.length);
     expect(html).not.toContain('data-testid="home/c1/r1/photo"');
     const filled = renderInstance("Gallery", example, "filled", theme);
+    expect(styleAt(html, "home/c1/root")).toBe(styleAt(filled, "home/c1/root"));
     const layout = elementAt(html, "home/c1/root").children[0]!;
     expect(layout.children.length).toBe(elementAt(filled, "home/c1/root").children[0]!.children.length);
     const empty = renderInstance("Gallery", example, "empty", theme);

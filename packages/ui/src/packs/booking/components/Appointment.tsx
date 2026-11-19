@@ -1,9 +1,6 @@
 import { z } from "zod";
 import {
   appointmentDate,
-  appointmentDetails,
-  appointmentLabels,
-  appointmentReading,
   balancedLine,
   cancelLabel,
   clock,
@@ -20,6 +17,7 @@ import {
   type Probe,
   type Props,
 } from "../../../catalog";
+import { appointmentDetails, appointmentLabels, appointmentReading } from "../copy";
 import {
   KitAction,
   KitCard,
@@ -136,14 +134,13 @@ export const probes = [
 ] satisfies Probe[];
 function AppointmentLine({ value, part, loading }: { value: string; part: string; loading: boolean }) {
   const number = ["time", "price", "minutes"].includes(part);
-  if (loading)
-    return (
-      <KitSkeleton shape="figure" inset="none" content={[[part === "time" ? "number" : "label", value]]} />
-    );
+  const role = number ? "number" : "label";
+  const scale = part === "time" ? "display" : "compact";
+  if (loading) return <KitSkeleton shape="figure" inset="none" content={[[role, value, "start", scale]]} />;
   return (
     <KitText
-      role={number ? "number" : "label"}
-      numberScale={part === "time" ? "display" : "compact"}
+      role={role}
+      numberScale={scale}
       tone={["date", "time", "service", "price", "minutes"].includes(part) ? "text" : "muted"}
       tabular={number}
       part={part}
@@ -178,9 +175,12 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
         <KitGrid>
           {appointmentDetails(input)
             .filter(({ part }) => part !== "policy")
-            .map(({ part, text }) => (
-              <AppointmentLine key={part} value={text} part={part} loading={loading} />
-            ))}
+            .flatMap(({ part, text }, index) => [
+              ...(part === "price" && index % 2 === 0
+                ? [<KitContent key="price-gap">{null}</KitContent>]
+                : []),
+              <AppointmentLine key={part} value={text} part={part} loading={loading} />,
+            ])}
         </KitGrid>
         {input.policy && <AppointmentLine value={input.policy} part="policy" loading={loading} />}
       </KitContent>

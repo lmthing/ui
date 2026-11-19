@@ -25,7 +25,7 @@ it.each([
   else
     expect(await scanEntries(root)).toEqual({
       defs: [],
-      packs: [{ id: "booking", meta: false, archetypes: [], example: undefined, door: false }],
+      packs: [{ id: "booking", meta: false, archetypes: [], example: undefined }],
     });
 });
 
@@ -39,5 +39,6 @@ it("rejects component ids shared by core and packs", async () => {
       `export const meta = { status: "draft" }; export const props = {}; export const fallback = () => ({}); export const examples = []; export const probes = [];`,
     );
   }
+  await writeFile(join(root, "src/packs/booking/index.ts"), 'export * from "./components";\n');
   await expect(scanEntries(root)).rejects.toThrow("Component id collision: Draft");
 });

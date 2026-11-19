@@ -109,13 +109,13 @@ export function SkeletonRing({ ring = "md" }: ShapeProps) {
   );
 }
 
-export function SkeletonMedia({ aspect = "wide", lines, inset, playback }: ShapeProps) {
+export function SkeletonMedia({ aspect = "wide", lines, inset, playback, contentGap = "sm" }: ShapeProps) {
   const ks = useKitStyle();
   return (
     <YStack
       accessibilityLabel={loadingLabel}
       aria-busy
-      gap={lines?.length === 0 && !playback ? component.base.none : space.sm}
+      gap={lines?.length === 0 && !playback ? component.base.none : space[contentGap]}
       padding={skeletonInset(inset)}
     >
       {aspect !== "none" && (
