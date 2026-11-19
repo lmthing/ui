@@ -2,6 +2,7 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { ItemVariants, VariantParts, Variants } from "../types";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
@@ -42,6 +43,8 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
+  variants?: Variants;
+  variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
   adjust?: NumericAdjustments;
   /** Component parts with a declared `set` action and a finite numeric destination prop. */
@@ -57,6 +60,7 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */

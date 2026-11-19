@@ -1,6 +1,7 @@
 import { controlValueKey, liveProps, parseControlProps, projectControlInput } from "./live-props";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
+import { migrateScreen } from "../migrations";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { resolveKeypadValue, validateActionValue } from "./validate-value";
@@ -101,10 +102,6 @@ function affordancesOfScreen(
   });
 }
 
-function initialOn(found: Affordance) {
-  return found.detail === ":on" || found.detail === ":done";
-}
-
 function selectStep(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -142,11 +139,12 @@ function selectStep(
  * a caller commits `values` only when `ok` (atomic batches; a dry run is simply not committing).
  */
 export function planAct(
-  screen: ScreenLike,
+  input: ScreenLike,
   defs: Record<string, Definition>,
   values: Values,
   steps: ActStep[],
 ): ActResult {
+  const screen = migrateScreen(input, { variantOnly: true });
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];
@@ -180,7 +178,8 @@ export function planAct(
       next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
       next[key] = amount;
     } else if (step.action === "toggle" || step.action === "check") {
-      const now = (next[key] as boolean | undefined) ?? initialOn(found);
+      const initial = found.detail === ":on" || found.detail === ":done";
+      const now = (next[key] as boolean | undefined) ?? initial;
       next[key] = (result.value as boolean | undefined) ?? !now;
     } else if (step.action === "increment" || step.action === "decrement") {
       next[key] = Number(next[key] ?? 0) + (step.action === "increment" ? 1 : -1);

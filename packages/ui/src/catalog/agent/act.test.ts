@@ -1,9 +1,23 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { z } from "zod";
+import { components, text, variantProps } from "@lmthing/ui/catalog";
+import type { MigrationOptions } from "../migrations";
 import type { Definition } from "../probes";
 import { planAct, type ActStep, type Values } from "./act";
 import { liveProps } from "./live-props";
-import { readScreen } from "./read";
+import { readComponent, readScreen, type ScreenLike } from "./read";
+
+vi.mock("../migrations", async (load) => {
+  const migrations = await load<typeof import("../migrations")>();
+  const options = { variantComponents: ["Card"] };
+  return {
+    ...migrations,
+    migrateLine: (line: Record<string, unknown>, caller?: MigrationOptions) =>
+      migrations.migrateLine(line, { ...options, ...caller }),
+    migrateScreen: (screen: ScreenLike, caller?: MigrationOptions) =>
+      migrations.migrateScreen(screen, { ...options, ...caller }),
+  };
+});
 
 const fixture = {
   meta: {
@@ -127,4 +141,59 @@ it("uses the last numeric item value for both adjustments in the pure planner an
     expect(read).toContain("24 — 20");
     expect(read).toContain("[p1/r1/value set = 24]");
   }
+});
+
+const card = {
+  ...components.Card,
+  meta: {
+    ...components.Card.meta,
+    variants: { surface: ["plain", "outlined"] },
+    set: { amount: { prop: "amount", min: 0, max: 4 } },
+    actions: { parts: { root: ["press"], amount: ["set"] }, when: { amount: { surface: "outlined" } } },
+  },
+  props: z
+    .strictObject({
+      ...variantProps({ surface: ["plain", "outlined"] }),
+      title: text(40),
+      goto: z.string(),
+      amount: z.number().default(0),
+    })
+    .overwrite((props) => ({ ...props, amount: Math.round(props.amount) })),
+} as const;
+const oldCard = { style: "outlined", title: "One", goto: "details" };
+const saved = { id: "home", components: [{ c: "c-a_r d", id: "c1", ...oldCard }] };
+const press = { address: "home/c1", action: "press" };
+const cardDefs = { Card: card, Timeline: components.Timeline };
+
+it.each([oldCard, { title: "One", goto: "details" }])("migrates saved Card props: %j", (props) => {
+  const current = { ...saved, components: [{ c: "c-a_r d", id: "c1", ...props }] };
+  expect(readComponent(card, props, "c1").join("\n")).toContain('"One"');
+  expect(readScreen(current, cardDefs)).toContain("[c1 press→details]");
+  expect(planAct(current, cardDefs, {}, [press])).toMatchObject({
+    ok: true,
+    links: [{ address: "home/c1", goto: "details" }],
+  });
+  expect(current.components[0]).toEqual({ c: "c-a_r d", id: "c1", ...props });
+});
+
+it.each([null, {}])("leaves retired component lines out of variant migration: %j", (block) => {
+  const current = {
+    ...saved,
+    components: [...saved.components, { c: "DayTimeline", id: "bad", blocks: [block] }],
+  };
+  expect(planAct(current, cardDefs, {}, []).ok).toBe(true);
+  expect(planAct(current, cardDefs, {}, [press]).ok).toBe(true);
+  expect(readScreen(current, cardDefs)).toContain("bad DayTimeline (unknown)");
+});
+
+it("validates and reads staged numeric edits on migrated props", () => {
+  const step = { address: "home/c1/amount", action: "set", value: 2.6 };
+  const result = planAct(saved, cardDefs, {}, [step]);
+  if (!result.ok) throw new Error(`Expected the migrated control to be actionable: ${result.code}`);
+  const part = "[c1/amount set = 3]";
+  const values = { "c1/$adjust/amount": 2.6 };
+  expect(readScreen(saved, cardDefs, result.values)).toContain(part);
+  expect(readComponent(card, oldCard, "c1", "filled", values).join("\n")).toContain(part);
+  const rejected = planAct(saved, cardDefs, {}, [{ ...step, value: 5 }]);
+  expect(rejected).toMatchObject({ ok: false, code: "invalid_value" });
 });

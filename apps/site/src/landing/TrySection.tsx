@@ -1,0 +1,33 @@
+import { lazy, useState } from "react";
+import { Lazy } from "../shared/Lazy";
+import { SectionLabel } from "../shared/SectionLabel";
+import { Reveal } from "../shared/Reveal";
+
+const TryPanel = lazy(() => import("../tryit/panel/TryPanel"));
+const ViewActDemo = lazy(() => import("../view/ViewActDemo"));
+const tabs = ["Build with a model", "Read and act"] as const;
+
+export function TrySection() {
+  const [tab, setTab] = useState<(typeof tabs)[number]>(tabs[0]);
+  return (
+    <section className="sec" id="try" aria-labelledby="try-h">
+      <SectionLabel n="03" name="Try" note={"Three tiers: Chrome AI, WebLLM, recorded replay."} />
+      <Reveal>
+        <h2 id="try-h">Try it with a model</h2>
+        <p className="lede">
+          A small model runs in this tab and writes one screen from ten core components and at most one pack.
+          Chrome's built-in model is used if you have it; WebLLM only after you choose to download a model;
+          otherwise you see a real recorded run. Nothing leaves the page.
+        </p>
+        <div className="tabs" role="tablist" aria-label="Demo">
+          {tabs.map((t) => (
+            <button key={t} role="tab" aria-selected={t === tab} onClick={() => setTab(t)}>
+              {t}
+            </button>
+          ))}
+        </div>
+        {tab === tabs[0] ? <Lazy view={TryPanel} /> : <Lazy view={ViewActDemo} />}
+      </Reveal>
+    </section>
+  );
+}

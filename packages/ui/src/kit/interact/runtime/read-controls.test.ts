@@ -1,7 +1,16 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { type Definition, type ScreenLike, readScreen } from "@lmthing/ui/catalog";
+import { type Definition, type ScreenLike, readScreen, text, variantProps } from "@lmthing/ui/catalog";
 import { readControls } from "./read-controls";
+
+vi.mock("../../../catalog/migrations", async (load) => {
+  const migrations = await load<typeof import("../../../catalog/migrations")>();
+  return {
+    ...migrations,
+    migrateScreen: (screen: ScreenLike, options?: Parameters<typeof migrations.migrateScreen>[1]) =>
+      migrations.migrateScreen(screen, { variantComponents: ["Card"], ...options }),
+  };
+});
 
 const def: Definition = {
   meta: {
@@ -64,4 +73,25 @@ it("hides only the disabled row's action and preserves the amount and quoted con
   expect(read).toContain(`first Fixture 2 — 3. — ${JSON.stringify(label)}`);
   expect(read).toContain("[first/r1/amount type]");
   expect(read).not.toContain('[first/r2/amount type = "3."]');
+});
+
+it("migrates saved variant lines when a keypad draft is present", () => {
+  const screen: ScreenLike = {
+    id: "home",
+    components: [
+      { id: "card", c: "c-a_r d", title: "Details", style: "outlined" },
+      { id: "entry", c: "Fixture", rows: [{ value: 3 }] },
+    ],
+  };
+  const defs = {
+    Card: {
+      ...def,
+      meta: { ...def.meta, id: "Card", read: () => [] },
+      props: z.strictObject({ title: text(40), ...variantProps({ surface: ["plain", "outlined"] }) }),
+    },
+    Fixture: def,
+  };
+  const read = readControls(screen, defs, { "home/entry/r1/amount": "3." });
+  expect(read).toContain('card Card "Details"');
+  expect(read).toContain('[entry/r1/amount type = "3."]');
 });

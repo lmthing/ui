@@ -1,0 +1,149 @@
+.try {
+  margin-top: 20px;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tiers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+.tabs button[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.tabs small {
+  font-weight: 400;
+}
+.running,
+.status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  min-height: 1.4em;
+}
+.ask {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ask input {
+  flex: 1 1 260px;
+}
+.chip.pick {
+  border: 0;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.chip.pick:hover {
+  outline: 2px solid var(--accent);
+}
+.try-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+}
+.try-code {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.try-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.viewact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+}
+.va-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.va-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 900px) {
+  .viewact {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .va-text {
+    width: 100%;
+  }
+}
+.line-in {
+  animation: lineIn 0.45s var(--ease) both;
+  margin-bottom: 8px;
+}
+.badge {
+  display: inline-block;
+  margin: 4px 6px 0 0;
+  padding: 1px 8px;
+  border-radius: 0;
+  font: 600 0.7rem var(--sans);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+.badge.bad {
+  background: var(--raised);
+  color: var(--bad);
+}
+.rejected {
+  opacity: 0.7;
+}
+.answer {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--good);
+  border-radius: 0;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+.answer.bad {
+  border-left-color: var(--bad);
+}
+.answer p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-family: var(--sans);
+}
+.try-note {
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .try-grid {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .try-code {
+    width: 100%;
+  }
+}
+
+.seg.tier {
+  flex-wrap: wrap;
+}
+.seg.tier button {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  padding: 6px 14px;
+}
+.seg.tier small {
+  font: 400 0.68rem var(--mono);
+  opacity: 0.8;
+}
