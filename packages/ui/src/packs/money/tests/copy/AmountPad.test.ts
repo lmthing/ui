@@ -32,7 +32,7 @@ describe("AmountPad copy", () => {
         "1 2 3 4 5 6 7 8 9 , 0 Effacer",
         "Ajouter une note",
       ]);
-      expect(amountPadReading({ value: "", note: false })).toEqual(["1 2 3 4 5 6 7 8 9 . 0 ⌫"]);
+      expect(amountPadReading({ value: "", note: false })).toEqual(["1 2 3 4 5 6 7 8 9 . 0 Delete"]);
     } finally {
       unregister();
     }

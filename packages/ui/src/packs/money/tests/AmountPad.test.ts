@@ -112,6 +112,7 @@ describe("AmountPad states and parts", () => {
     for (const key of ["r1", "r9", "r10", "r11", "r12"]) {
       expect(elementAt(html, part(`${key}/root`)).children[0]?.attributes).toContain('role="button"');
     }
+    expect(elementAt(html, part("r12/root")).children[0]?.attributes).toContain('aria-label="Delete"');
   });
 
   it("shows a blank but editable entry without a seed and omits the disabled note option", () => {
@@ -141,11 +142,11 @@ describe("AmountPad states and parts", () => {
 describe("AmountPad read and act", () => {
   it("preserves draft digits, backspace, replacement and independent note text", () => {
     const { controller, store } = setup({ ...sample, value: 2 });
-    expect(controller.read()).toContain('2 — 1 2 3 4 5 6 7 8 9 . 0 ⌫ — Add a note — "Supplies"');
+    expect(controller.read()).toContain('2 — 1 2 3 4 5 6 7 8 9 . 0 Delete — Add a note — "Supplies"');
     for (const append of ["4", ".", "5", "0"]) {
       expect(controller.act(type({ append }))).toMatchObject({ ok: true });
     }
-    expect(controller.read()).toContain("24.50 — 1 2 3 4 5 6 7 8 9 . 0 ⌫");
+    expect(controller.read()).toContain("24.50 — 1 2 3 4 5 6 7 8 9 . 0 Delete");
     expect(controller.act(type({ backspace: true }))).toMatchObject({ ok: true });
     expect(store.get(part("pad"))).toBe("24.5");
     expect(controller.act(type("Potting soil", "note"))).toMatchObject({ ok: true });
@@ -153,7 +154,7 @@ describe("AmountPad read and act", () => {
     expect(controller.read()).toContain('[a1/note type = "Potting soil"]');
     expect(controller.read()).toContain('[a1/pad type = "25.00"]');
     expect(controller.act(type(""))).toMatchObject({ ok: true });
-    expect(controller.read()).toContain("a1 AmountPad 1 2 3 4 5 6 7 8 9 . 0 ⌫");
+    expect(controller.read()).toContain("a1 AmountPad 1 2 3 4 5 6 7 8 9 . 0 Delete");
   });
 
   it("rejects over-limit or malformed edits and non-actions without changing the draft", () => {

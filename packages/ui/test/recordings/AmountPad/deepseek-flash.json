@@ -91,5 +91,14 @@
       "{\"c\":\"AmountPad\",\"label\":\"Supplies\",\"value\":24.5,\"max\":500,\"note\":true}",
       "{\"c\":\"AmountPad\",\"label\":\"Supplies\",\"value\":24.5,\"max\":500,\"note\":true}"
     ]
+  },
+  "f1968aa453b2bd71": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\na1 AmountPad 24.5 — 1 2 3 4 5 6 7 8 9 . 0 Delete — Add a note — \"Ledge supplies\" [a1/pad type] [a1/note type]\n\nTask: Type 25 into the amount keypad\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"a1/pad\", \"action\": \"type\"}",
+    "replies": [
+      "{\"address\": \"a1/pad\", \"action\": \"type\"}",
+      "{\"address\": \"a1/pad\", \"action\": \"type\"}",
+      "{\"address\": \"a1/pad\", \"action\": \"type\"}"
+    ]
   }
 }
