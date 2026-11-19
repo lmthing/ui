@@ -13,6 +13,7 @@ import {
   KitAction,
   KitCard,
   KitChip,
+  KitContent,
   KitEmpty,
   KitLinePlot,
   KitSkeleton,
@@ -37,8 +38,8 @@ export const meta = {
   id: "Measurements",
   status: "ready",
   group: "data",
-  purpose: "Track one body measurement over weeks against a goal.",
-  pick: "One body measurement over weeks with a dashed goal, latest value, change and month/quarter/year ranges. Not a short trend under one number (Sparkline), a holding's price (PriceChart), or business series (LineChart).",
+  purpose: "Follow a body measurement's long-term history against a goal across selectable time ranges.",
+  pick: "Long body-measurement history with a dashed goal reference, latest value, change and month/quarter/year switching. Not today's weight with a tiny recent trend and no goal or range switching (Sparkline), progress toward a total (Ring), a holding's price (PriceChart), or business series (LineChart).",
   region: "body",
   weight: 2,
   tier: "phone",
@@ -101,6 +102,8 @@ function MeasurementSummary({ label, copy }: { label: string; copy: ReturnType<t
   return useComponentState() === "loading" ? (
     <KitSkeleton
       rows={1}
+      shape="figure"
+      inset="none"
       lead="none"
       content={[
         ["label", label],
@@ -111,7 +114,7 @@ function MeasurementSummary({ label, copy }: { label: string; copy: ReturnType<t
       ]}
     />
   ) : (
-    <>
+    <KitContent>
       <KitText role="label" tone="muted" part="label">
         {label}
       </KitText>
@@ -129,7 +132,7 @@ function MeasurementSummary({ label, copy }: { label: string; copy: ReturnType<t
           {copy.goal}
         </KitText>
       )}
-    </>
+    </KitContent>
   );
 }
 
@@ -156,7 +159,7 @@ export function Measurements({ label, unit, points, goal, range, goto }: Props<t
         {...(goal === undefined ? {} : { goal: { value: goal, label: copy.goal! } })}
       />
       {state === "loading" ? (
-        <KitSkeleton rows={1} shape="control" full />
+        <KitSkeleton rows={1} shape="control" label={measurementLabels.ranges} full />
       ) : (
         <KitTrack look="segments" part="range" role="radiogroup" label={measurementLabels.ranges}>
           {measurementRanges.map((option) => (
