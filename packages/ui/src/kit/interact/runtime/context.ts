@@ -97,6 +97,10 @@ function controllerScreen({ screen, defs }: ControllerOptions, standalone: boole
   }));
   return { ...migrated, components };
 }
+function relativeAddress(screen: string, address: string) {
+  const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
+  return local.replace(/\/root$/, "");
+}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs } = options;
   const screen = controllerScreen(options, standalone);
@@ -142,7 +146,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     mounted: new Map<string, symbol>(),
     disabledParts: new Map<string, symbol>(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
-    relative: (address: string) => address.replace(`${screen.id}/`, "").replace(/\/root$/, ""),
+    relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
     inputOf: (entry: ScreenComponent) => {
       const { id: _id, c: _c, state: _state, ...input } = entry;
@@ -189,5 +193,6 @@ export function introducedPart(
     return false;
   const sheet = ctx.status.openSheet;
   const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
-  return !planAct(source, ctx.defs, initial, [action], null).ok;
+  return !planAct(source, ctx.defs, initial, [{ ...action, address: `${source.id}/${action.address}` }], null)
+    .ok;
 }

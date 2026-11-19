@@ -45,7 +45,12 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
-    return affordancesOf(def.meta, props, id, local, (props.state as typeof state) ?? state);
+    const { draw, emptyActions, session, successActions } = def.meta;
+    // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
+    const liveState =
+      (props.state as typeof state) ??
+      (draw || emptyActions || session || successActions?.length ? state : undefined);
+    return affordancesOf(def.meta, props, id, local, liveState);
   });
 }
 

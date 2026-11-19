@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { planAct, type Definition } from "../../../../catalog";
-import { createAgentAccess, createInteractionStore } from "../../index";
+import { type Definition } from "../../../../catalog";
+import { createAgentAccess, createInteractionStore, createScreenController } from "../../index";
 
 const def: Definition = {
   meta: {
@@ -35,7 +35,9 @@ it("allows only declared success actions and keeps confirmation on the standalon
   expect(agent.read()).not.toContain("[confirm/confirm press]");
   const { successActions: _successActions, ...meta } = def.meta;
   const legacy = { [def.meta.id]: { ...def, meta } };
-  expect(planAct(screen, legacy, {}, [step("reset")]).ok).toBe(false);
+  const controller = createScreenController({ screen, defs: legacy });
+  expect(controller.act(step("reset")).ok).toBe(false);
+  expect(controller.read()).not.toContain("[game/reset press]");
 });
 
 it("keeps host navigation for an unrelated button in a standalone success-action batch", () => {
@@ -45,7 +47,7 @@ it("keeps host navigation for an unrelated button in a standalone success-action
       ...def.meta,
       id: "NavFixture",
       successActions: [],
-      actions: { parts: { root: ["press"] } },
+      actions: { parts: { go: ["press"] } },
     },
     props: z.strictObject({ goto: z.string() }),
   };
@@ -53,17 +55,34 @@ it("keeps host navigation for an unrelated button in a standalone success-action
     id: "s",
     components: [
       { id: "game", c: def.meta.id, state: "success" as const },
-      { id: "nav", c: nav.meta.id, goto: "sheet" },
+      { id: "s", c: nav.meta.id, goto: "sheet" },
     ],
   };
   const onLink = vi.fn();
   const defs = { [def.meta.id]: def, [nav.meta.id]: nav };
   const agent = createAgentAccess({ current: () => screen, defs, store: createInteractionStore(), onLink });
-  const navStep = { address: "nav", action: "press" };
+  const navStep = { address: "s/s/go", action: "press" };
   const reset = { address: "game/reset", action: "press" };
   expect(agent.act([navStep, reset, navStep]).ok).toBe(false);
   expect(onLink).not.toHaveBeenCalled();
   expect(agent.act([navStep, reset])).toMatchObject({ ok: true });
-  expect(onLink).toHaveBeenCalledExactlyOnceWith("sheet", "s/nav");
+  expect(onLink).toHaveBeenCalledExactlyOnceWith("sheet", "s/s/go");
   expect(agent.read()).toContain("[confirm/confirm press]");
+});
+
+it("keeps legacy data-only dispatch on authored non-filled entries without opt-ins", () => {
+  const legacy: Definition = {
+    ...def,
+    meta: { ...def.meta, id: "LegacyFixture", successActions: [], actions: { parts: { root: ["press"] } } },
+    props: z.strictObject({ goto: z.string() }),
+  };
+  const screen = {
+    id: "s",
+    components: [{ id: "nav", c: legacy.meta.id, state: "success" as const, goto: "another" }],
+  };
+  const onLink = vi.fn();
+  const defs = { [legacy.meta.id]: legacy };
+  const agent = createAgentAccess({ current: () => screen, defs, store: createInteractionStore(), onLink });
+  expect(agent.act({ address: "s/nav", action: "press" }).ok).toBe(true);
+  expect(onLink).toHaveBeenCalledExactlyOnceWith("another", "s/nav");
 });
