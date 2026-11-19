@@ -82,6 +82,8 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
         props.style === "media" && props.icon && !props.photo ? { media: "thumb", ...props } : props,
     },
   ],
+  // Named rows are the default; the overlapping stack stays a structural style.
+  People: [{ from: "style", values: { rows: {} } }],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */
