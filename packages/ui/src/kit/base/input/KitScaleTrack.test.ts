@@ -9,7 +9,11 @@ import { config, elementAt, styleAt } from "../../../../test/render";
 const labels = ["1 star", "2 stars", "3 stars", "4 stars", "5 stars"] as const;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
-function render(props: Parameters<typeof KitScaleTrack>[0], choice: ThemeChoice = theme) {
+function render(
+  props: Parameters<typeof KitScaleTrack>[0],
+  choice: ThemeChoice = theme,
+  state: "filled" | "loading" = "filled",
+) {
   return renderToStaticMarkup(
     createElement(
       TamaguiProvider,
@@ -19,7 +23,7 @@ function render(props: Parameters<typeof KitScaleTrack>[0], choice: ThemeChoice 
         { theme: choice, interactive: true, children: null },
         createElement(
           PartScope,
-          { screen: "home", component: "c1", rev: 1, state: "filled", children: null },
+          { screen: "home", component: "c1", item: "r1", rev: 1, state, children: null },
           createElement("div", { "data-testid": "base" }, createElement(KitScaleTrack, props)),
         ),
       ),
@@ -63,7 +67,7 @@ describe("compact readonly stars", () => {
     const html = render({ ...props, compact: true });
     expect(html).toBe(render(props));
     for (let index = 1; index <= 5; index++) {
-      const target = elementAt(html, `home/c1/l${index}`);
+      const target = elementAt(html, `home/c1/r1/l${index}`);
       expect(target.attributes).toContain('role="radio"');
       expect(target.attributes).toContain(`aria-checked="${index === 3}"`);
       expect(styleAt(html, target)).toContain(`min-width:${size.control.md}px`);
@@ -77,5 +81,47 @@ describe("compact readonly stars", () => {
     if (style !== "stars") expect(html).toBe(render({ ...props, compact: true }));
     for (const cell of elementAt(html, "base").children[0]!.children)
       expect(styleAt(html, cell)).toContain(`min-width:${size.control.md}px`);
+  });
+});
+
+describe("single readonly mood", () => {
+  const input = {
+    style: "mood",
+    labels: ["Angry", "Sad", "Neutral", "Good", "Great"],
+    readonly: true,
+    single: true,
+    part: "mood",
+  } as const;
+
+  it.each([1, 2, 3, 4, 5])("draws only the chosen face and uses its caller label at level %d", (value) => {
+    const html = render({ ...input, value });
+    const face = elementAt(html, "home/c1/r1/mood");
+    expect(face.attributes).toContain('role="img"');
+    expect(face.attributes).toContain(`aria-label="${input.labels[value - 1]}"`);
+    expect(face.children).toHaveLength(1);
+    expect(html).not.toContain('role="radio"');
+    expect(html).not.toContain('data-testid="home/c1/r1/l');
+    expect(styleAt(html, face)).toContain(`width:${size.icon.lg}px`);
+    expect(styleAt(html, face)).toContain(`height:${size.icon.lg}px`);
+  });
+  it("keeps its slot for an unset or loading value without a face, label or address", () => {
+    for (const html of [render({ ...input, value: 0 }), render({ ...input, value: 4 }, theme, "loading")]) {
+      const slot = elementAt(html, "base").children[0]!;
+      expect(slot.children).toHaveLength(0);
+      expect(slot.attributes).toContain('aria-hidden="true"');
+      expect(styleAt(html, slot)).toContain(`width:${size.icon.lg}px`);
+      expect(styleAt(html, slot)).toContain(`height:${size.icon.lg}px`);
+      expect(html).not.toContain('data-testid="home/c1/r1/mood"');
+    }
+    expect(render({ ...input, part: null, value: 4 })).toContain('aria-label="Good"');
+    expect(render({ ...input, part: null, value: 4 })).not.toContain('data-testid="home/c1/r1/');
+  });
+  it.each([
+    { style: "mood", readonly: false },
+    { style: "stars", readonly: true },
+    { style: "dots", readonly: true },
+  ] as const)("ignores single outside readonly mood: %j", ({ style, readonly }) => {
+    const props = { ...input, value: 4, style, readonly };
+    expect(render(props)).toBe(render({ ...props, single: false }));
   });
 });

@@ -138,7 +138,7 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
       {!done && step.uses.length > 0 && (
         <KitContent group="response">
           <KitText role="label" tone="muted" part="uses">
-            {cookStepUses(step.uses)}
+            {cookStepUses(step.uses, lang)}
           </KitText>
         </KitContent>
       )}

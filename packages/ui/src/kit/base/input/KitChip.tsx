@@ -1,141 +1,158 @@
-import { createContext, useContext } from "react";
-import { useKit } from "../../provider";
-import type { ReactNode } from "react";
-import { XStack, YStack, styled } from "tamagui";
-import { component, radius, size, space, type IconName } from "../../../catalog";
-import { useKitStyle } from "../../provider";
-import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon } from "../text";
-import { KitText } from "../text";
-import { shifted } from "../text";
+import { createContext, useContext, type ReactNode } from "react";
+import { Line, Svg } from "react-native-svg";
+import { XStack, YStack, isWeb, styled, useTheme } from "tamagui";
+import { component, radius, size, space, type IconName, type Swatch } from "../../../catalog";
+import { useKit, useKitStyle } from "../../provider";
+import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
+import { KitIcon, KitText, shifted } from "../text";
 
 // The 44px touch area carries the role; the visible pill or segment sits inside it.
 const Hit = styled(YStack, { minHeight: size.control.md, justifyContent: "center" });
-const Pill = styled(XStack, {
-  alignItems: "center",
-  gap: space.xs,
-  paddingHorizontal: space.md,
-  minHeight: size.control.md,
-  borderRadius: radius.pill,
-  borderWidth: component.base.borderWidth,
-  variants: {
-    on: {
-      true: { backgroundColor: "$accent", borderColor: "$accent" },
-      false: { backgroundColor: "transparent", borderColor: "$muted" },
-    },
-  } as const,
-});
-
 const ChoiceTarget = createContext<string | undefined>(undefined);
-
-function ChipContent({
-  label,
-  on,
-  icon,
-  look,
-  stamped,
-  labelPart = "label",
-}: Pick<Parameters<typeof Chip>[0], "label" | "on" | "icon" | "look" | "stamped" | "labelPart">) {
-  const ks = useKitStyle();
-  if (look === "segment") {
-    return (
-      <XStack
-        justifyContent="center"
-        alignItems="center"
-        minHeight={size.control.sm}
-        paddingHorizontal={space.sm}
-        borderRadius={shifted("sm", ks.radiusShift)}
-        backgroundColor={on ? "$surface" : "transparent"}
-        {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
-      >
-        <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? labelPart : null} lines={1}>
-          {label}
-        </KitText>
-      </XStack>
-    );
-  }
-  return (
-    <Pill on={on}>
-      {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
-      <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? labelPart : null} lines={1}>
-        {label}
-      </KitText>
-    </Pill>
-  );
-}
-
-function Chip({
-  label,
-  value = label,
-  on,
-  role,
-  icon,
-  look,
-  stamped,
-  part = "root",
-  labelPart = "label",
-}: {
+const diagonal = { x1: "0%", y1: "100%", x2: "100%", y2: "0%" };
+type ChipProps = {
   label: string;
   on: boolean;
+  /** Stable choice value for an unstamped chip, independent of the display label. */
   value?: string;
   role: "checkbox" | "radio" | "tab";
   icon?: IconName | undefined;
-  look: "pill" | "segment";
-  stamped: boolean;
-  part?: string;
+  look?: "pill" | "segment" | "box" | undefined;
+  disabled?: boolean | undefined;
+  swatch?: Swatch;
+  /** Named control under this item; null leaves it unaddressed and inert. */
+  part?: string | null;
+  /** Label address; null leaves caller-owned group labels untouched. */
   labelPart?: string | null;
-}) {
-  const address = usePart(part, stamped);
+};
+
+function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
+  const { label, on, icon, look, stamped, disabled, swatch, loading, labelPart = "label" } = props;
+  const ks = useKitStyle();
+  const segment = look === "segment";
+  const box = look === "box";
+  const custom = box || Boolean(swatch) || disabled;
+  const edge = disabled ? "$line" : on ? "$accent" : "$muted";
+  const idleFill = disabled ? "$raised" : "$surface";
+  const onFill = segment ? "$surface" : "$accent";
+  const fill = custom ? (on ? "$accentSoft" : idleFill) : on ? onFill : "transparent";
+  const tone =
+    !loading && !disabled && segment && !on
+      ? "muted"
+      : !loading && on && !custom && !segment
+        ? "onAccent"
+        : "text";
+  const labelProps = { role: "label", tone, part: stamped ? labelPart : null, lines: 1 } as const;
+  const text = <KitText {...labelProps}>{label}</KitText>;
+  const slashed = disabled && !loading;
+  const labelLayer = loading
+    ? { opacity: component.base.none, ...(isWeb ? { style: { visibility: "hidden" } as never } : {}) }
+    : slashed
+      ? { position: "relative" as const }
+      : undefined;
+  return (
+    <XStack
+      alignItems="center"
+      justifyContent={segment || custom ? "center" : undefined}
+      gap={!segment || custom ? space.xs : undefined}
+      minWidth={custom ? size.control.md : undefined}
+      minHeight={segment ? size.control.sm : size.control.md}
+      paddingHorizontal={box || segment ? space.sm : space.md}
+      borderRadius={box || segment ? shifted("sm", ks.radiusShift) : radius.pill}
+      borderWidth={
+        custom ? component.base.strongBorder : segment && !on ? undefined : component.base.borderWidth
+      }
+      borderColor={segment && !custom && !on ? undefined : loading || (segment && !custom) ? "$line" : edge}
+      backgroundColor={loading ? "$line" : fill}
+      overflow={slashed ? "hidden" : undefined}
+    >
+      {slashed && <DisabledSlash />}
+      {swatch && <SwatchMark swatch={swatch} loading={loading} dim={disabled ?? false} />}
+      {icon &&
+        !segment &&
+        (loading ? (
+          <YStack width={size.icon.sm} />
+        ) : (
+          <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
+        ))}
+      {labelLayer ? (
+        <YStack {...labelLayer}>
+          {slashed && <YStack fullscreen backgroundColor={fill} aria-hidden />}
+          {slashed ? <YStack position="relative">{text}</YStack> : text}
+        </YStack>
+      ) : (
+        text
+      )}
+    </XStack>
+  );
+}
+
+function DisabledSlash() {
+  const theme = useTheme();
+  return (
+    <YStack fullscreen pointerEvents="none" aria-hidden>
+      <Svg width="100%" height="100%">
+        <Line {...diagonal} stroke={theme.line?.val} strokeWidth={component.base.borderWidth} />
+      </Svg>
+    </YStack>
+  );
+}
+
+function SwatchMark({ swatch, loading, dim }: { swatch: Swatch; loading: boolean; dim: boolean }) {
+  return (
+    <YStack
+      width={size.icon.sm}
+      height={size.icon.sm}
+      borderRadius={radius.pill}
+      borderWidth={component.base.borderWidth}
+      borderColor={loading ? "$line" : component.swatchBorder}
+      backgroundColor={loading ? "$line" : component.swatch[swatch]}
+      opacity={!loading && dim ? component.base.disabledOpacity : undefined}
+      aria-hidden
+    />
+  );
+}
+
+function Chip(input: ChipProps & { stamped: boolean }) {
+  const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
+  const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
+  const loading = useComponentState() === "loading" && variant;
+  const addressed = stamped && part !== null && !loading;
+  const address = usePart(part ?? "root", addressed);
   const kit = useKit();
   const parent = useContext(ChoiceTarget);
-  const target = stamped ? address.testID : parent;
-  const hit = stamped ? address : {};
-  const segment = look === "segment";
+  const target = part === null ? undefined : stamped ? address.testID : parent;
+  const press =
+    kit.interactive && kit.controller && target && !disabled && !loading
+      ? () =>
+          stamped
+            ? kit.controller!.press(target)
+            : kit.controller!.act({ address: target, action: "select", value })
+      : undefined;
   return (
     <Hit
-      {...hit}
-      {...(segment ? { flex: 1 } : {})}
-      accessibilityRole={role}
-      {...(kit.interactive && kit.controller && target
-        ? {
-            onPress: () =>
-              stamped
-                ? kit.controller!.press(target)
-                : kit.controller!.act({ address: target, action: "select", value }),
-          }
-        : {})}
-      aria-checked={role === "tab" ? undefined : on}
-      aria-selected={role === "tab" ? on : undefined}
-      accessibilityLabel={label}
+      {...(addressed ? address : {})}
+      {...(look === "segment" ? { flex: component.base.bodyFlex } : {})}
+      paddingHorizontal={look === "segment" && variant ? space.xs : undefined}
+      {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
+      {...(press ? { onPress: press } : {})}
+      aria-hidden={loading || undefined}
+      aria-disabled={(!loading && disabled) || undefined}
+      accessibilityRole={loading ? undefined : role}
+      aria-checked={loading || role === "tab" ? undefined : on}
+      aria-selected={!loading && role === "tab" ? on : undefined}
+      accessibilityLabel={loading ? undefined : label}
     >
-      <ChipContent label={label} on={on} icon={icon} look={look} stamped={stamped} labelPart={labelPart} />
+      <ChipContent
+        {...{ ...props, label, on, role, look, disabled, loading }}
+        stamped={stamped && !loading}
+      />
     </Hit>
   );
 }
 
-/**
- * One selectable item: a `pill` (Chips) or a `segment` (Segmented, inside `KitTrack`). The 44px touch
- * area is the item's root part and carries `role` (checkbox for toggle, radio or tab for select).
- */
-export function KitChip({
-  item,
-  look = "pill",
-  ...props
-}: {
-  /** The item id; `null` inside a track that is itself the control (no per-chip address). */
-  item: string | null;
-  label: string;
-  on: boolean;
-  /** Stable choice value for an unstamped chip, when its display label is localized. */
-  value?: string;
-  role: "checkbox" | "radio" | "tab";
-  icon?: IconName | undefined;
-  look?: "pill" | "segment";
-  /** Named control under this item; omitted callers retain the item root. */
-  part?: string;
-  /** Label address; null leaves caller-owned group labels untouched. */
-  labelPart?: string | null;
-}) {
+/** One selectable pill, segment or box. Pass `item: null` for a track-owned control. */
+export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: string | null }) {
   const context = usePartContext();
   if (item === null) return <Chip {...props} look={look} stamped={false} />;
   return (
@@ -145,7 +162,6 @@ export function KitChip({
   );
 }
 
-/** A row of chips that wraps (`pills`), or a tinted track of equal segments (`segments`). */
 export function KitTrack({
   look = "pills",
   part = "root",
@@ -163,24 +179,18 @@ export function KitTrack({
 }) {
   const ks = useKitStyle();
   const address = usePart(part);
-  return look === "segments" ? (
+  const segments = look === "segments";
+  return (
     <XStack
       {...address}
-      backgroundColor="$raised"
-      borderRadius={shifted("md", ks.radiusShift)}
-      paddingHorizontal={space.xs}
-      {...({ role: role ?? "tablist" } as object)}
-      {...(label ? { "aria-label": label } : {})}
-    >
-      <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
-    </XStack>
-  ) : (
-    <XStack
-      {...address}
-      flexWrap="wrap"
-      columnGap={space.sm}
-      rowGap={space.sm}
-      {...({ role: role ?? "list" } as object)}
+      {...(segments
+        ? {
+            backgroundColor: "$raised",
+            borderRadius: shifted("md", ks.radiusShift),
+            paddingHorizontal: space.xs,
+          }
+        : { flexWrap: "wrap" as const, columnGap: space.sm, rowGap: space.sm })}
+      {...({ role: role ?? (segments ? "tablist" : "list") } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
       <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>
