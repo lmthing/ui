@@ -1,5 +1,5 @@
 export { choreLabels } from "./Chores";
-export { rewardLabels } from "./Rewards";
+export { rewardAmount, rewardJarRatio, rewardReading } from "./Rewards";
 export { careLabels, careLines, careReading, careTaskLabel, careToday, nextCareDate } from "./CareSchedule";
 export { turnLabels } from "./Turns";
 export {
