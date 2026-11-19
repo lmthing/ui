@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isoDate, probesFor, type CastLike, type Meta, type Probe } from "../../../catalog";
+import { cycleLabels } from "..";
 
 // Core first: Calendar/month cannot derive cycle phases, next period and a fertile window from period dates.
 export const meta = {
@@ -19,6 +20,7 @@ export const meta = {
   parts: ["root", "day", "phase", "next", "window", "disclaimer", "log"],
   states: ["filled", "empty"],
   actions: { parts: { log: ["press"] } },
+  read: (_input, state) => (state === "filled" ? [cycleLabels.log, cycleLabels.disclaimer] : []),
 } as const satisfies Meta;
 export const props = z.strictObject({
   start: isoDate,

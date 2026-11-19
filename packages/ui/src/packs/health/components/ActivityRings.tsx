@@ -16,7 +16,7 @@ export const meta = {
   status: "draft",
   group: "data",
   purpose: "See two or three daily activity goals together.",
-  pick: "Two or three simultaneous daily goals as concentric rings, each with its own value and target. Not one daily goal (Ring), or targets drawn as bars (Progress).",
+  pick: "Choose only for two or three simultaneous daily goals as concentric rings, each with its own value and target. Not one daily goal (Ring): even a step or exercise goal drawn as a circle remains Ring when it is the only goal. Not targets drawn as bars (Progress).",
   region: "body",
   weight: 2,
   tier: "phone",
