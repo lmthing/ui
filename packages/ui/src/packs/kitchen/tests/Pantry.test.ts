@@ -3,15 +3,16 @@ import {
   affordancesOf,
   components,
   createRegistry,
-  formatAddress,
   readComponent,
   stampItemIds,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
+import { elementAt, renderInstance } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Pantry;
 const item = { name: "Item", qty: "2", place: "cupboard", goto: "details" };
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 beforeEach(() => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date(2026, 10, 19, 12));
@@ -57,7 +58,7 @@ describe("Pantry contract and boundaries", () => {
     expect(props.safeParse({ items: Array.from({ length: 20 }, () => max) }).success).toBe(true);
     expect(props.safeParse({ items: [{ ...item, useBy: "2024-02-29" }] }).success).toBe(true);
     expect(props.parse({ items: [{ ...item, name: " Item ", qty: " 2 " }] })).toEqual({
-      items: [{ ...item, used: {} }],
+      items: [{ ...item, use_by: undefined, used: {} }],
     });
     expectTypeOf<Props<typeof props, typeof meta>["items"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();
@@ -89,7 +90,7 @@ describe("Pantry fallback and metadata", () => {
     expect(fallback({ cast: casts[3]! }).items[0]?.name).toHaveLength(24);
   });
   it("preserves the core-first near miss, bounded dense phone contract and pack gate", () => {
-    expect([meta.status, meta.dense, meta.tier, meta.weight]).toEqual(["draft", true, "phone", 3]);
+    expect([meta.status, meta.dense, meta.tier, meta.weight]).toEqual(["ready", true, "phone", 3]);
     expect(meta.states).toEqual(["filled", "empty"]);
     expect(meta.confirmParts).toEqual(["used"]);
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -111,6 +112,12 @@ describe("Pantry parts and read/act", () => {
     (place) => {
       for (const useBy of [undefined, "2026-11-18", "2026-11-19", "2026-11-22", "2026-11-23"]) {
         const input = { items: [{ ...item, place, useBy }] };
+        const html = renderInstance("Pantry", input, "filled", theme);
+        for (const part of ["root", "name", "qty", "place", "used"])
+          expect(html).toContain(`home/c1/r1/${part}`);
+        expect(html.includes('data-testid="home/c1/r1/use_by"')).toBe(Boolean(useBy));
+        expect(elementAt(html, "home/c1/r1/root").attributes).toContain('role="link"');
+        expect(elementAt(html, "home/c1/r1/used").attributes).toContain('role="button"');
         expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "p1")).toEqual([
           { address: "p1/r1", part: "root", action: "press", detail: "→details" },
           { address: "p1/r1/used", part: "used", action: "press", detail: "" },
@@ -122,6 +129,7 @@ describe("Pantry parts and read/act", () => {
           [undefined, "2026-11-18", "2026-11-19", "2026-11-22", "2026-11-23"].indexOf(useBy)
         ]!;
         expect(reading).toContain(label);
+        expect(html).toContain(label);
       }
     },
   );
@@ -131,17 +139,19 @@ describe("Pantry parts and read/act", () => {
       useBy: index % 2 ? "2026-11-18" : undefined,
     }));
     const reading = readComponent(components.Pantry, { items }, "p1").join("\n");
+    const html = renderInstance("Pantry", { items }, "filled", theme);
+    expect(html.indexOf('data-testid="home/c1/r2/root"')).toBeLessThan(
+      html.indexOf('data-testid="home/c1/r1/root"'),
+    );
     for (let index = 1; index <= 20; index++) expect(reading).toContain(`p1/r${index}/used`);
     expect(items[0]?.useBy).toBeUndefined();
   });
   it("reads the empty state without record content", () => {
+    const html = renderInstance("Pantry", { items: [item] }, "empty", theme, "plant");
+    expect(html).toContain("No plants yet");
+    expect(html).not.toContain("home/c1/r1");
+    expect(html).not.toContain('role="button"');
     expect(readComponent(components.Pantry, { items: [item] }, "p1", "empty")).toEqual(["p1 Pantry (empty)"]);
-  });
-  it("captures the shared grammar blocker without renaming the required useBy part", () => {
-    expect(meta.items.parts).toContain("useBy");
-    expect(() => formatAddress({ screen: "home", component: "p1", item: "r1", part: "useBy" })).toThrow(
-      "Invalid address segments",
-    );
   });
 });
 describe("Pantry confirmation and navigation", () => {

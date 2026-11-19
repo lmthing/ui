@@ -13,13 +13,15 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
-import { pantryReading } from "../copy";
+import { KitCard, KitContent, KitEmpty, KitGrid, KitRow, KitText, useComponentState } from "../../../kit";
+import { pantryDates, pantryLabels, pantryOrder, pantryReading } from "../copy";
 
 // Core first: List/cards cannot order food by use-by date or expose a confirmed used-up removal.
 export const meta = {
   id: "Pantry",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Know what food is stored at home and what needs using soon.",
   pick: "Food in the cupboard, fridge and freezer with quantities and use-by dates. Not ordinary things to browse (List), things owned generally (Things), or groceries to buy (GroceryList).",
@@ -31,7 +33,7 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Food and dates stored on the device, entered by typing or Camera scan.",
-  items: { key: "items", parts: ["root", "name", "qty", "place", "useBy", "used"] },
+  items: { key: "items", parts: ["root", "name", "qty", "place", "use_by", "used"] },
   parts: ["root"],
   states: ["filled", "empty"],
   confirmParts: ["used"],
@@ -56,7 +58,7 @@ export const props = z
   .overwrite((value) => ({
     ...value,
     // The destructive part must not inherit the item's details navigation.
-    items: value.items.map((item) => ({ ...item, used: {} })),
+    items: value.items.map((item) => ({ ...item, use_by: item.useBy, used: {} })),
   }));
 export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -101,3 +103,74 @@ export const probes = [
   ),
   read("Mark the ricotta as used up", { address: "p1/r1/used", action: "press" }),
 ] satisfies Probe[];
+
+function PantryDate({ useBy }: { useBy?: string | undefined }) {
+  const expiry = pantryDates(useBy);
+  return (
+    <KitRow {...(useBy ? { part: "use_by" } : {})} label={expiry.label} inline>
+      <KitContent>
+        <KitText part={null} role="caption" tone={expiry.tone}>
+          {expiry.label}
+        </KitText>
+        <KitText part={null} role="caption" tone={expiry.tone} tabular>
+          {expiry.date}
+        </KitText>
+      </KitContent>
+    </KitRow>
+  );
+}
+
+function PantryFood({ item }: { item: Props<typeof props, typeof meta>["items"][number] }) {
+  return (
+    <KitContent>
+      <KitText part="name" role="body">
+        {item.name}
+      </KitText>
+      <KitText part="qty" role="number" numberScale="compact" tabular>
+        {item.qty}
+      </KitText>
+      <KitText part="place" role="caption" tone="muted">
+        {item.place}
+      </KitText>
+    </KitContent>
+  );
+}
+
+export function Pantry({ items }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  if (state === "empty")
+    return (
+      <KitCard part="root">
+        <KitEmpty part="name" decorativeIcon />
+      </KitCard>
+    );
+  const tiles = pantryOrder(items).map((item) => (
+    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} inline>
+      <KitContent>
+        {items.length === 1 ? (
+          <KitGrid columns={2}>
+            <PantryFood item={item} />
+            <PantryDate useBy={item.useBy} />
+          </KitGrid>
+        ) : (
+          <KitContent>
+            <PantryFood item={item} />
+            <KitContent group="response">
+              <PantryDate useBy={item.useBy} />
+            </KitContent>
+          </KitContent>
+        )}
+        <KitRow part="used" label={pantryLabels.used} role="button" inline>
+          <KitText part={null} role="label" tone="accent">
+            {pantryLabels.used}
+          </KitText>
+        </KitRow>
+      </KitContent>
+    </KitRow>
+  ));
+  return (
+    <KitCard part="root" style="inset" padded>
+      {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
+    </KitCard>
+  );
+}
