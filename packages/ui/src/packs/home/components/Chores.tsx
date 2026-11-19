@@ -37,7 +37,7 @@ import { z } from "zod";
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
   id: "Chores",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Share recurring household jobs with owners and points earned for completing them.",
   pick: "Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).",

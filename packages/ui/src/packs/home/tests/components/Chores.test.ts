@@ -10,6 +10,14 @@ import {
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
+// Keep exercising the view while the generated public map excludes drafts.
+vi.mock("@lmthing/ui/kit", async (importOriginal) => {
+  const kit = await importOriginal<typeof import("@lmthing/ui/kit")>();
+  if (Object.hasOwn(kit.renderers, "Chores")) return kit;
+  const { Chores } = await import("../../components");
+  return { ...kit, renderers: { ...kit.renderers, Chores: Chores.Chores } };
+});
+
 const { props, meta, examples, fallback, probes } = components.Chores;
 const chore = examples[0]!.chores[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
