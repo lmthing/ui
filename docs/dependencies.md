@@ -18,3 +18,5 @@ All versions are exact in manifests and `pnpm-lock.yaml`. Node 26, pnpm 12.16.1.
 | @types/node 26.6.6 | Generator APIs; matches Node major. |
 | @types/react/@types/react-dom 19.3.0 | React types; matches runtime major. |
 | @types/react-native-web 0.19.3 | Part ref types; RN types would pull the native runtime. |
+| @mlc-ai/web-llm 0.2.88 (apps/site) | Tier 2 of the landing site's "Try it live" panel: runs a small instruction model (Qwen2.5 1.5B, q4) on WebGPU in a Web Worker, with grammar-constrained JSON (`response_format` with a schema). Loaded lazily and only after the visitor clicks the download button. Alternative considered: transformers.js, which has no schema-constrained decoding. |
+| apps/site: react, react-dom, tamagui, react-native-web, react-native-svg, zod | The same exact versions as the gallery: the site draws real kit components. No animation library: motion is CSS transitions plus IntersectionObserver and requestAnimationFrame, and respects `prefers-reduced-motion`. |

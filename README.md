@@ -47,4 +47,6 @@ Built tooling: pnpm, strict TypeScript, Prettier, Vitest, esbuild and TypeScript
 
 Writers use strict structured output from `writerFormat(registry)` (2026-11-18 design). No component aliases, alias-conflict check or off-pack repair. Migration aliases stay.
 
+Landing site: `pnpm site` builds [apps/site](apps/site/README.md) (live playgrounds, create/view/act demos, packs by wave, a browser-model "Try it live" panel, the static gallery) into `apps/site/dist`; `.github/workflows/pages.yml` rebuilds and deploys it to GitHub Pages on every push to `main`.
+
 Checks: `pnpm format:check`, `pnpm typecheck`, `pnpm test`, `pnpm build:catalog`. See plan 7.1 for package builds, probes and screenshots. Markdown is ignored by the root formatter; format edited documents explicitly.
