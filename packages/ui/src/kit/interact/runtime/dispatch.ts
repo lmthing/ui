@@ -26,6 +26,7 @@ function prepareStep(
   const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
   if (entry.state && entry.state !== "filled") return fail("not_actionable", "This component is not filled");
+  if (ctx.disabledParts.has(action.address)) return fail("disabled", "This control is disabled");
   let input: Values;
   try {
     input = ctx.inputOf(entry);

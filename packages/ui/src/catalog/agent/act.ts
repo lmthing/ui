@@ -25,14 +25,16 @@ function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, addres
   return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
 }
 
-/** `pad` is the numeric type part. Its owner provides the initial value and optional bounds. */
-function keypadInput(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
-  const [id, item, part] = address.split("/");
+/** An opted-in part's owner supplies the initial value and optional bounds. */
+function keypadInput(screen: ScreenLike, defs: Record<string, Definition>, found: Affordance) {
+  const [id, item, part] = found.address.split("/");
   const entry = screen.components.find((entry) => entry.id === id)!;
   const { id: _id, c, state: _state, ...raw } = entry;
   const def = defs[c]!;
+  const keypadParts = def.props.meta()?.keypadParts;
+  if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
   const input = stampItemIds(def.meta, def.props.parse(raw) as Values);
-  if (!part) return input;
+  if (!part && !(item && found.part === "root")) return input;
   const rows = input[def.meta.items?.key ?? ""];
   return (rows as Values[] | undefined)?.find((row) => row.id === item) ?? {};
 }
@@ -44,10 +46,8 @@ function actionValue(
   found: Affordance,
   current: unknown,
 ) {
-  if (step.action === "type" && found.part === "pad") {
-    const input = keypadInput(screen, defs, found.address);
-    return resolveKeypadValue(step.value, current ?? input.value, input);
-  }
+  const input = step.action === "type" ? keypadInput(screen, defs, found) : undefined;
+  if (input) return resolveKeypadValue(step.value, current ?? input.value, input);
   return (
     validateActionValue(step.action, step.value, nestedSpec(screen, defs, found.address)) ?? {
       value: step.value,

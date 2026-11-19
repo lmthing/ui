@@ -3,6 +3,7 @@ import { component, formatAddress, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
+import { useKeypadTarget } from "./use-keypad-target";
 
 type Target = { item?: string; part: string };
 type KeyValue = string | { append: string } | { backspace: true } | { clear: true };
@@ -96,7 +97,7 @@ function PadGrid({
   const kit = useKit();
   const context = usePartContext();
   const addressed = split && !loading;
-  const address = usePart(targetPart, addressed);
+  const address = useKeypadTarget(targetPart, addressed, disabled);
   const editable = kit.interactive && kit.controller && !disabled;
   const onKeyDown = (event: { key?: string; preventDefault(): void }) => {
     const hit = keys.find(

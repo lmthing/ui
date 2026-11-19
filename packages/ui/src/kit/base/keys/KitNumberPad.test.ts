@@ -3,8 +3,15 @@ import * as runtime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { size, themeName } from "@lmthing/ui/catalog";
-import { KitNumberPad, KitProvider, PartScope, type ScreenController } from "@lmthing/ui/kit";
+import { z } from "zod";
+import { size, text, themeName, type Definition } from "@lmthing/ui/catalog";
+import {
+  KitNumberPad,
+  KitProvider,
+  PartScope,
+  createScreenController,
+  type ScreenController,
+} from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
@@ -126,4 +133,54 @@ describe("KitNumberPad dispatch", () => {
       ...(split ? [[{ address, action: "type", value: digit }]] : []),
     ]);
   });
+});
+
+it("keeps the rendered value and controller reading in sync after typing and clearing", () => {
+  const address = "home/c1/amount";
+  const definition: Definition = {
+    meta: {
+      id: "Fixture",
+      group: "input",
+      purpose: "Enter a number",
+      pick: "Enter a number",
+      region: "body",
+      weight: 1,
+      tier: "phone",
+      realPath: "Local entry",
+      actions: { parts: { amount: ["type"] } },
+      read: (input) => {
+        const { value } = input as { value?: string | number };
+        return value === "" ? [] : [`Current ${value}`];
+      },
+    },
+    props: z.strictObject({ label: text(20), value: z.number() }).meta({ keypadParts: ["amount"] }),
+    fallback: () => ({ label: "Value", value: 2 }),
+    examples: [],
+    probes: [],
+  };
+  const controller = createScreenController({
+    screen: { id: "home", components: [{ id: "c1", c: "Fixture", label: "Value", value: 2 }] },
+    defs: { Fixture: definition },
+  });
+  const shown = () => {
+    const html = render(
+      {
+        ...input,
+        target: { part: "amount" },
+        displayPart: "value",
+        value: String(controller.store.get(address) ?? 2),
+      },
+      controller,
+    );
+    const display = elementAt(html, "home/c1/value");
+    return html.slice(html.indexOf(display.attributes) + display.attributes.length).split("<")[0];
+  };
+  expect(shown()).toBe("2");
+  expect(controller.read()).toContain("Current 2");
+  expect(controller.act({ address, action: "type", value: "24.50" }).ok).toBe(true);
+  expect(shown()).toBe("24.50");
+  expect(controller.read()).toContain('Current 24.50 — "Value" [c1/amount type = "24.50"]');
+  expect(controller.act({ address, action: "type", value: { clear: true } }).ok).toBe(true);
+  expect(shown()?.trim()).toBe("");
+  expect(controller.read()).toContain('Fixture "Value" [c1/amount type = ""]');
 });
