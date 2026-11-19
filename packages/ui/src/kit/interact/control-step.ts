@@ -3,6 +3,7 @@ import {
   nestedAt,
   adjustmentAt,
   clearItemSets,
+  controlValueKey,
   projectControlInput,
   type ActStep,
   type Definition,
@@ -34,14 +35,24 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
   return found ? { ...step, value: found.value } : step;
 }
 
-function clearSets(ctx: ControlContext) {
-  const { step, def, input, entry, target, put, get } = ctx;
-  if (step.action !== "press" || !def.meta.clearItems) return true;
+/** Stage the clear only from the dispatcher's confirmation-resume path. */
+export function stageConfirmedClear(
+  screen: string,
+  entry: Entry,
+  input: Values,
+  def: Definition,
+  step: ActStep,
+  values: Values,
+): Values | undefined {
+  if (step.action !== "press" || !def.meta.clearItems) return values;
+  const target = step.address.split("/").slice(1).join("/") || "root";
   const changes = Object.entries(clearItemSets(def.meta, input, target));
-  if (!changes.length) return true;
-  changes.forEach(([part, value]) => put(part, value));
+  if (!changes.length) return values;
+  const next = { ...values };
+  for (const [part, value] of changes) next[valueKey(screen, entry.id, controlValueKey(def, part))] = value;
   const { id: _id, c: _c, state: _state, ...wire } = entry;
-  return def.props.safeParse(projectControlInput(def, wire, get)).success;
+  const get = (part: string) => next[valueKey(screen, entry.id, part)];
+  if (def.props.safeParse(projectControlInput(def, wire, get)).success) return next;
 }
 
 export function controlStep(
@@ -76,7 +87,6 @@ export function controlStep(
   };
   const selection = selectControl(ctx);
   if (selection.error) return selection;
-  if (!clearSets(ctx)) return ctx.bad("Clear conflicts with component props");
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, adjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));

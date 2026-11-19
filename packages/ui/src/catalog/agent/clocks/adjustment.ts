@@ -106,7 +106,7 @@ export function adjustmentAt(
   const saved = get(key);
   const current = clock
     ? clockTime(clock, state, get(clockPropKey(clock)), now)
-    : saved === undefined
+    : saved === undefined || (setter && row < 0)
       ? (row < 0 ? props : rows[row])?.[prop]
       : saved;
   const min = Math.max(spec.min ?? -Infinity, bounds?.min ?? -Infinity, clock ? 0 : -Infinity);
@@ -154,14 +154,19 @@ function projectItemSets(meta: Meta, row: Values, base: string, get: (part: stri
   return row;
 }
 
-function projectMatrix(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+export function projectMatrix(
+  meta: Meta,
+  props: Values,
+  get: (part: string) => unknown,
+  defaultValues: (rows: string, values: string) => unknown,
+): Values {
   const items = meta.items!;
   const cells = knownRows(props[items.key]);
   for (const { prop, matrix } of Object.values(items.set ?? {})) {
     if (!matrix || !Array.isArray(props[matrix.rows])) continue;
     let index = 0;
     const rows = knownRows(props[matrix.rows]).map((row) => {
-      const values = row[matrix.values];
+      const values = row[matrix.values] ?? defaultValues(matrix.rows, matrix.values);
       if (!Array.isArray(values)) return row;
       const next = values.map((seed: unknown) => {
         const id = rowId(meta, cells[index] ?? {}, index++);
@@ -178,16 +183,10 @@ function projectMatrix(meta: Meta, props: Values, get: (part: string) => unknown
 /** Read from the store after parsing so this also works for derived, addressed item rows. */
 export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown): Values {
   const setters = new Set(Object.values(meta.set ?? {}).map(({ prop }) => prop));
-  if (meta.adjust)
-    props = projectHolder(
-      props,
-      Object.values(meta.adjust).filter((spec) => !spec || !setters.has(spec.prop)),
-      "",
-      get,
-    );
+  const top = Object.values(meta.adjust ?? {}).filter((spec) => spec && !setters.has(spec.prop));
+  if (top.length) props = projectHolder(props, top, "", get);
   const items = meta.items;
   if (!items?.adjust && !items?.set) return props;
-  if (items.set) props = projectMatrix(meta, props, get);
   if (!Array.isArray(props[items.key])) return props;
   const specs = Object.values(items.adjust ?? {});
   return {

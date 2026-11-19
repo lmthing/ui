@@ -15,4 +15,5 @@ export {
   numericSetAt,
   projectAdjustments,
   projectComponentSets,
+  projectMatrix,
 } from "./adjustment";

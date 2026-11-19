@@ -1,4 +1,4 @@
-import { liveProps, parseControlProps, projectParsedControls } from "./live-props";
+import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
@@ -60,10 +60,11 @@ const risks: Record<string, string> = {
 function withValues(
   affordances: Affordance[],
   values: Record<string, unknown>,
-  meta: Meta,
+  def: Definition,
   props: Props,
   instance: string,
 ) {
+  const { meta } = def;
   return affordances.map((a) => {
     const risk = risks[meta.partTiers?.[a.part] ?? meta.tier] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
@@ -72,7 +73,7 @@ function withValues(
     const value = choices
       ? props[meta.select!.prop]
       : set
-        ? values[`${instance}/${set.key}`] === undefined
+        ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined
           : set.value
         : (values[`${a.address}/$draft`] ?? values[a.address]);
@@ -115,7 +116,7 @@ export function readComponent(
   const affordances = withValues(
     affordancesOf(def.meta, props, instance, values),
     values,
-    def.meta,
+    def,
     props,
     instance,
   );

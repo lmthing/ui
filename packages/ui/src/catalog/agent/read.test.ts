@@ -3,7 +3,7 @@ import { z } from "zod";
 import { readComponent, readScreen, type Definition, text } from "../index";
 import { planAct } from "./act";
 import { affordancesOf } from "./affordances";
-import { parseControlProps } from "./live-props";
+import { controlValueKey, parseControlProps } from "./live-props";
 
 const parts = ["root", "roll", "reset", "restart", "reverse", "remake", "r", "r1x", "r1_suffix"];
 const props = z.strictObject({
@@ -94,7 +94,7 @@ it("recomputes derived choices from a staged item edit in a pure reader and plan
   const current = { id: "test", components: [{ id: "p1", c: def.meta.id, ...seed }] };
   const defs = { [def.meta.id]: def };
   expect(readScreen(current, defs)).not.toContain("p1/pick select");
-  const get = (part: string) => (part === "r1/$adjust/score" ? 5 : undefined);
+  const get = (part: string) => (part === controlValueKey(def, "r1/$adjust/score") ? 5 : undefined);
   expect(parseControlProps(def, seed, get).modes).toEqual(["edit", "review"]);
   const steps = [
     { address: "p1/r1/score", action: "set", value: 5 },

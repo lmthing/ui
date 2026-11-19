@@ -1,11 +1,11 @@
-import { liveProps, parseControlProps, projectControlInput } from "./live-props";
+import { controlValueKey, liveProps, parseControlProps, projectControlInput } from "./live-props";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
 import { nestedAt, selectionAt, selectionChanges, selectionError } from "./selection";
-import { adjustmentAt, numericSetAt } from "./clocks";
+import { adjustmentAt, numericSetAt, projectAdjustments } from "./clocks";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -41,9 +41,12 @@ function numericStep(
   const get = (part: string) => values[`${screen.id}/${id}/${part}`];
   const props = parseControlProps(def, raw, get);
   const target = parts.join("/") || "root";
-  if (action === "set") return { id, set: numericSetAt(def.meta, props, target) };
+  if (action === "set") {
+    const set = numericSetAt(def.meta, props, target);
+    if (set) return { id, set, slot: controlValueKey(def, set.key) };
+  }
   const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
-  if (adjustment?.atSet) return { id, adjustment };
+  if (adjustment?.atSet) return { id, adjustment, slot: controlValueKey(def, adjustment.key) };
 }
 
 function controlsAreValid(
@@ -95,7 +98,9 @@ function selectStep(
   if (!def?.meta.select) return { step };
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const target = parts.join("/") || "root";
-  const props = parseControlProps(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
+  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
+  const parsed = parseControlProps(def, raw, get);
+  const props = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;
   const error = selectionError(def.meta, props, target, step.value);
   return {
     step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
@@ -144,10 +149,10 @@ export function planAct(
     if (error) return { ok: false, at, ...error };
     const key = `${screen.id}/${address}`;
     if (number?.adjustment) {
-      const { next: amount, key: slot, atSet } = number.adjustment;
+      const { next: amount, atSet } = number.adjustment;
       if (amount === undefined) return { ok: false, code: "not_actionable", at };
       const base = `${screen.id}/${number.id}`;
-      next[`${base}/${slot}`] = amount;
+      next[`${base}/${number.slot}`] = amount;
       next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
       next[key] = amount;
     } else if (step.action === "toggle" || step.action === "check") {
@@ -160,13 +165,10 @@ export function planAct(
       if (step.action === "select") next[key] = step.value;
     } else {
       next[key] = step.value;
-      if (number?.set) next[`${screen.id}/${number.id}/${number.set.key}`] = step.value;
+      if (number?.set) next[`${screen.id}/${number.id}/${number.slot}`] = step.value;
     }
     Object.assign(next, selected.changes);
-    if (
-      (number?.set || number?.adjustment || selected.declared) &&
-      !controlsAreValid(screen, defs, address, next)
-    )
+    if ((limits || number?.adjustment || selected.declared) && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }

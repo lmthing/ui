@@ -4,13 +4,35 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import type { Values } from "./act";
 import { projectNested, projectSelection } from "./selection";
-import { projectAdjustments, projectClocks, projectComponentSets } from "./clocks";
+import { projectAdjustments, projectClocks, projectComponentSets, projectMatrix } from "./clocks";
 
-function wireSeed(def: Definition, key: string, input: Values): unknown {
-  if (input[key] !== undefined) return input[key];
-  let field = def.props instanceof z.ZodObject ? def.props.shape[key] : undefined;
+function unwrapField(field: unknown) {
+  while (
+    field instanceof z.ZodOptional ||
+    field instanceof z.ZodNullable ||
+    field instanceof z.ZodDefault ||
+    field instanceof z.ZodPrefault
+  )
+    field = field.unwrap();
+  return field;
+}
+function defaultInput(field: unknown) {
   while (field instanceof z.ZodOptional || field instanceof z.ZodNullable) field = field.unwrap();
   return field instanceof z.ZodDefault || field instanceof z.ZodPrefault ? field.def.defaultValue : undefined;
+}
+const fieldOf = (schema: unknown, key: string) =>
+  schema instanceof z.ZodObject ? schema.shape[key] : undefined;
+
+/** Wire-backed edits go through schema parsing; derived-only rows are overlaid after parsing. */
+export function controlValueKey(def: Definition, key: string): string {
+  const items = def.meta.items;
+  if (!items?.set || !key.includes("/$adjust/")) return key;
+  const wireRows = fieldOf(def.props, items.key);
+  return Object.values(items.set).some(
+    ({ prop, matrix }) => (wireRows || matrix) && key.endsWith(`/$adjust/${prop}`),
+  )
+    ? `$wire/${key}`
+    : key;
 }
 
 /** Apply stored control edits to wire input, never copying schema-derived output into it. */
@@ -22,9 +44,19 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   if (!items || (!items.set && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
   for (const { matrix } of Object.values(items.set ?? {})) if (matrix) keys.add(matrix.rows);
-  const seeded = Object.fromEntries([...keys].map((key) => [key, wireSeed(def, key, source)]));
+  const seeded = Object.fromEntries(
+    [...keys].map((key) => [key, source[key] ?? defaultInput(fieldOf(def.props, key))]),
+  );
   const nested = projectNested(meta, seeded, get);
-  const projected = items.set ? projectAdjustments(meta, nested, get) : nested;
+  const wireGet = (part: string) => get(controlValueKey(def, part));
+  const projected = items.set
+    ? projectMatrix(meta, projectAdjustments(meta, nested, wireGet), wireGet, (rows, values) => {
+        const array = unwrapField(fieldOf(def.props, rows));
+        return array instanceof z.ZodArray
+          ? defaultInput(fieldOf(unwrapField(array.element), values))
+          : undefined;
+      })
+    : nested;
   for (const key of keys) {
     const next = projected[key],
       seed = seeded[key];

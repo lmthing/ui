@@ -1,6 +1,6 @@
 import { wordsFor } from "../../../catalog";
-import { planAct, type ActStep, type Values } from "../../../catalog";
-import { selectedStep, type ActOptions, type ActReply } from "../index";
+import { planAct, projectAdjustments, type ActStep, type Values } from "../../../catalog";
+import { selectedStep, stageConfirmedClear, type ActOptions, type ActReply } from "../index";
 import {
   actionFailure,
   confirmationAction,
@@ -25,10 +25,13 @@ function prepareStep(
   const entry = active.components.find((item) => item.id === id);
   const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
+  const def = ctx.defs[entry.c]!;
   if (entry.state && entry.state !== "filled") return fail("not_actionable", "This component is not filled");
   let input: Values;
   try {
     input = ctx.inputOf(entry);
+    if (def.meta.items?.set)
+      input = projectAdjustments(def.meta, input, (part) => state.values[ctx.key(id, part)]);
   } catch {
     return fail("invalid_value", "This component has invalid props");
   }
@@ -36,7 +39,7 @@ function prepareStep(
     return fail("disabled", "Write a reply before sending");
   if (entry.c === "Counter" && action.action === "decrement" && Number(input.value) < Number(input.step))
     return fail("disabled", "The counter cannot go below zero");
-  const selected = selectedStep(action, entry, input, ctx.defs[entry.c]!);
+  const selected = selectedStep(action, entry, input, def);
   const plan = planAct(active, ctx.defs, state.values, [selected]);
   if (!plan.ok) return { error: { ...plan, at } };
   const introduced =
@@ -45,8 +48,12 @@ function prepareStep(
       state.values[ctx.key(id, "$cursor")] !== ctx.store.get(ctx.key(id, "$cursor")));
   if (ctx.options.requireMounted && !confirmed && !introduced && !ctx.mounted.has(action.address))
     return fail("not_mounted", "This control is not mounted");
+  const values = confirmed
+    ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
+    : plan.values;
+  if (!values) return fail("invalid_value", "Clear conflicts with component props");
   return {
-    state: { ...state, values: plan.values, changes: [...state.changes, ...plan.changed] },
+    state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     context: {
       screen: ctx.screen,
       active,
