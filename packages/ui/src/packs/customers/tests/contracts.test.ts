@@ -1,3 +1,4 @@
+import { selectedEntries } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import { components, type Definition } from "@lmthing/ui/catalog";
 
@@ -102,7 +103,7 @@ const invalid: Record<string, unknown[]> = {
 
 describe("customers schema boundaries", () => {
   it("rejects every documented overflow, invalid choice, computed input and unknown key", () => {
-    for (const [id, inputs] of Object.entries(invalid)) {
+    for (const [id, inputs] of selectedEntries(invalid)) {
       const def = defs[id]!;
       for (const input of [{}, ...inputs, { ...(def.examples[0] as object), color: "red" }])
         expect(def.props.safeParse(input).success, `${id}: ${JSON.stringify(input)}`).toBe(false);
@@ -140,7 +141,7 @@ describe("customers schema boundaries", () => {
       Loyalty: { stamps: 12, of: 12, reward: "a".repeat(40), name: "a".repeat(24) },
       Agreement: { ...agreement, title: "a".repeat(32), terms: "a".repeat(600), name: "a".repeat(28) },
     };
-    for (const [id, input] of Object.entries(valid))
+    for (const [id, input] of selectedEntries(valid))
       expect(defs[id]!.props.safeParse(input).success).toBe(true);
     expect(components.Invoice.props.parse(invoice).style).toBe("invoice");
     expect(components.Review.props.parse(summary).style).toBe("summary");

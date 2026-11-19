@@ -1,3 +1,4 @@
+import { selectedIds, selectedEntries } from "../../../../scripts/build";
 import { expect, it } from "vitest";
 import { components, type Definition } from "@lmthing/ui/catalog";
 
@@ -38,7 +39,7 @@ const numberLimits = {
 };
 const defs = components as Record<string, Definition>;
 function limits(table: Record<string, Record<string, number | number[]>>, kind: Limit["kind"]): Limit[] {
-  return Object.entries(table).flatMap(([id, fields]) =>
+  return selectedEntries(table).flatMap(([id, fields]) =>
     Object.entries(fields).map(([path, bound]) => ({
       id,
       path,
@@ -65,49 +66,56 @@ const cases = [
   ...limits(arrayLimits, "array"),
   ...limits(numberLimits, "number"),
 ];
-it.each(cases)("$id $path honors its exact $kind limits", ({ id, path, kind, min, max }) => {
-  const def = defs[id]!;
-  const seed = def.examples[0];
-  const value = (size: number) =>
-    kind === "text"
-      ? "a".repeat(size)
-      : kind === "number"
-        ? size
-        : Array.from({ length: size }, () => (valueAt(seed, path) as unknown[])[0]);
-  for (const boundary of [min, max])
-    expect(def.props.safeParse(replace(seed, path, value(boundary))).success).toBe(true);
-  for (const boundary of [min - 1, max + 1])
-    expect(def.props.safeParse(replace(seed, path, value(boundary))).success).toBe(false);
-});
-it.each(Object.keys(numberLimits))("%s rejects nonfinite numeric input", (id) => {
+it.each(cases.filter(({ id }) => selectedIds([id]).length))(
+  "$id $path honors its exact $kind limits",
+  ({ id, path, kind, min, max }) => {
+    const def = defs[id]!;
+    const seed = def.examples[0];
+    const value = (size: number) =>
+      kind === "text"
+        ? "a".repeat(size)
+        : kind === "number"
+          ? size
+          : Array.from({ length: size }, () => (valueAt(seed, path) as unknown[])[0]);
+    for (const boundary of [min, max])
+      expect(def.props.safeParse(replace(seed, path, value(boundary))).success).toBe(true);
+    for (const boundary of [min - 1, max + 1])
+      expect(def.props.safeParse(replace(seed, path, value(boundary))).success).toBe(false);
+  },
+);
+it.each(selectedIds(Object.keys(numberLimits)))("%s rejects nonfinite numeric input", (id) => {
   const path = Object.keys(numberLimits[id as keyof typeof numberLimits])[0]!;
   for (const value of [NaN, Infinity, -Infinity])
     expect(defs[id]!.props.safeParse(replace(defs[id]!.examples[0], path, value)).success).toBe(false);
 });
-it.each([
-  "Workout",
-  "Exercise",
-  "Measurements",
-  "Medication",
-  "HabitGrid",
-  "Vitals",
-  "SymptomLog",
-  "Cycle",
-  "ActivityRings",
-])("%s rejects missing fields and presentation keys", (id) => {
+it.each(
+  selectedIds([
+    "Workout",
+    "Exercise",
+    "Measurements",
+    "Medication",
+    "HabitGrid",
+    "Vitals",
+    "SymptomLog",
+    "Cycle",
+    "ActivityRings",
+  ]),
+)("%s rejects missing fields and presentation keys", (id) => {
   const def = defs[id]!;
   expect(def.props.safeParse({}).success).toBe(false);
   expect(def.props.safeParse({ ...(def.examples[0] as object), color: "#ffffff" }).success).toBe(false);
 });
-it.each([
-  ["Workout", "unit", "stone"],
-  ["Measurements", "range", "week"],
-  ["Medication", "doses.0.status", "missed"],
-  ["HabitGrid", "habits.0.icon", "unknown"],
-  ["Exercise", "photo", "https://example.com/photo"],
-  ["Vitals", "goto", "Bad ID"],
-  ["Cycle", "start", "2026-02-30"],
-])("%s rejects an invalid vocabulary or reference at %s", (id, path, value) => {
+it.each(
+  [
+    ["Workout", "unit", "stone"],
+    ["Measurements", "range", "week"],
+    ["Medication", "doses.0.status", "missed"],
+    ["HabitGrid", "habits.0.icon", "unknown"],
+    ["Exercise", "photo", "https://example.com/photo"],
+    ["Vitals", "goto", "Bad ID"],
+    ["Cycle", "start", "2026-02-30"],
+  ].filter(([id]) => selectedIds([id!]).length),
+)("%s rejects an invalid vocabulary or reference at %s", (id, path, value) => {
   const def = defs[id]!;
   expect(def.props.safeParse(replace(def.examples[0], path, value)).success).toBe(false);
 });

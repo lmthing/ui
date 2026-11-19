@@ -7,7 +7,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
   const props = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local);
-  const part = affordancesOf(meta, props, ctx.entry.id).find(
+  const part = affordancesOf(meta, props, ctx.entry.id, local).find(
     (offered) => offered.address === action.address && offered.action === action.action,
   )?.part;
   return (part && meta.confirmParts?.includes(part)) ||

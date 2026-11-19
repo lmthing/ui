@@ -7,6 +7,7 @@ import {
   type ControllerOptions,
 } from "./runtime";
 export type { Confirmation } from "./runtime";
+import { projectScreen } from "./live-screen";
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions) {
@@ -28,12 +29,16 @@ export function createScreenController(options: ControllerOptions) {
     get confirmation() {
       return ctx.status.confirmation;
     },
-    snapshotScreen: () => ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet),
+    snapshotScreen: () => {
+      const values = ctx.valuesOf();
+      return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
+    },
     reset() {
       ctx.status.openSheet = undefined;
       ctx.status.confirmation = undefined;
       media.reset();
       ctx.store.reset(ctx.screen.id);
+      ctx.resetValues();
       clock.scheduleClock();
       ctx.notifyChange();
     },
