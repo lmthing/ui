@@ -1,9 +1,9 @@
-import { lazy } from "react";
+import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { SectionLabel } from "../shared/SectionLabel";
 import { Reveal } from "../shared/Reveal";
 
-const Replay = lazy(() => import("./PipelineReplay"));
+const Replay = lazyChunk(() => import("./PipelineReplay"));
 
 /** How a screen gets made: five fixed stages, no model chooses the next step. */
 export function Pipeline() {
