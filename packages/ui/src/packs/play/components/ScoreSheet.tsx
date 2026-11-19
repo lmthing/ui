@@ -126,7 +126,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
   const columns = visible.map((round) => ({
     id: roundKey(round), label: rounds[round]!.label,
     header: <KitRow item={cellId(round, 0)} inline part="round" label={rounds[round]!.label}>
-      {line("label", rounds[round]!.label, round === selected ? "accent" : "text")}
+      {line("label", rounds[round]!.label, round === selected ? "accent" : "text", readonly ? "end" : "start")}
     </KitRow>,
   }));
   const rows = totals.map(({ name, total, standing, winner }, player) => ({
@@ -144,7 +144,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
         <KitRow item={cellId(round, player)} inline label={label}>
           {loading ? <KitSkeleton shape="control" kind="secondary" label={labels.unplayed} full />
             : readonly
-            ? <KitText role="number" numberScale="compact" tabular part="score">
+            ? <KitText role="number" numberScale="compact" tabular align="end" part="score">
                 {score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
