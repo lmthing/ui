@@ -7,13 +7,25 @@ import {
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
 import { seedTitles } from "..";
+import { medicationLabels, medicationReading, orderedDoses, refillLine, stockLine } from "../copy";
+import {
+  KitAction,
+  KitCard,
+  KitCheck,
+  KitEmpty,
+  KitRow,
+  KitText,
+  KitTime,
+  useComponentState,
+} from "../../../kit";
 
 // Core first: Checklist/plain cannot log timed doses, skipped marks and remaining stock with refill thresholds.
 export const meta = {
   id: "Medication",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Log today's medicine doses by time, including taken, skipped and remaining pills.",
   pick: "Medicines or supplements on schedule, with doses, taken/skipped marks and refill stock. Not ordinary jobs (Checklist) or nudging one count (Counter).",
@@ -26,7 +38,12 @@ export const meta = {
   items: { key: "doses", parts: ["root", "name", "dose", "time", "taken", "skip", "left"] },
   parts: ["root", "refill"],
   states: ["filled", "empty", "success"],
-  actions: { items: { taken: ["check"], skip: ["press"] } },
+  confirmParts: ["skip"],
+  actions: {
+    items: { taken: ["check"], skip: ["press"] },
+    when: { taken: { status: "due" }, skip: { status: "due" } },
+  },
+  read: (input) => medicationReading(input as z.output<typeof props>),
 } as const satisfies Meta;
 export const props = z.strictObject({
   doses: z
@@ -62,6 +79,7 @@ export const examples = [
     refillAt: 5,
   },
   { doses: [{ name: "Iron supplement", dose: "1 tablet", time: "09:30", status: "skipped" }] },
+  { doses: [{ name: "Vitamin B12", dose: "1 tablet", time: "08:00", status: "taken", left: 30 }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Medication");
 export const probes = [
@@ -73,3 +91,83 @@ export const probes = [
   read("Mark the morning vitamin D dose taken", { address: "m1/r1/taken", action: "check" }),
   read("Skip the morning vitamin D dose", { address: "m1/r1/skip", action: "press" }),
 ] satisfies Probe[];
+
+type Dose = Props<typeof props, typeof meta>["doses"][number];
+function MedicationDose({ dose }: { dose: Dose }) {
+  const due = dose.status === "due";
+  return (
+    <KitRow item={dose.id} label={dose.name}>
+      <KitText role="body" part="name">
+        {dose.name}
+      </KitText>
+      <KitRow
+        inline
+        label={dose.dose}
+        leading={<KitTime value={dose.time} part="time" />}
+        trailing={
+          <KitCheck
+            done={dose.status === "taken"}
+            readonly={!due}
+            part="taken"
+            label={medicationLabels.taken}
+          />
+        }
+      >
+        <KitText role="caption" tone="muted" part="dose">
+          {dose.dose}
+        </KitText>
+      </KitRow>
+      <KitRow
+        inline
+        label={medicationLabels[dose.status]}
+        trailing={due ? <KitAction label={medicationLabels.skip} kind="quiet" part="skip" /> : undefined}
+      >
+        <KitText
+          role="caption"
+          tone={due ? "muted" : dose.status === "taken" ? "good" : "muted"}
+          part={dose.status === "skipped" ? "skip" : null}
+        >
+          {medicationLabels[dose.status]}
+        </KitText>
+        {dose.left !== undefined && (
+          <KitText role="number" numberScale="compact" tabular tone="muted" part="left">
+            {stockLine(dose.left)}
+          </KitText>
+        )}
+      </KitRow>
+    </KitRow>
+  );
+}
+
+export function Medication({ doses, refillAt }: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  if (state === "empty")
+    return (
+      <KitCard part="root">
+        <KitEmpty part="name" />
+      </KitCard>
+    );
+  const refill = refillLine(doses, refillAt);
+  const complete = doses.every((dose) => dose.status === "taken");
+  return (
+    <KitCard style="inset" part="root">
+      {complete && (
+        <KitRow label={medicationLabels.success}>
+          <KitText role="body" tone="good">
+            {medicationLabels.success}
+          </KitText>
+        </KitRow>
+      )}
+      {orderedDoses(doses).map((dose) => (
+        <MedicationDose key={dose.id} dose={dose} />
+      ))}
+      {refill && (
+        <KitRow label={refill}>
+          <KitText role="caption" tone="warn" part="refill">
+            {refill}
+          </KitText>
+        </KitRow>
+      )}
+    </KitCard>
+  );
+}
