@@ -1,20 +1,15 @@
 // Checks the value an action carries, before anything changes. Errors say the allowed format in
 // under 10 words (plan 4.12).
+import { localeOf } from "../lang";
 
 export type ValueError = { code: "invalid_value"; hint: string };
 
 const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
+// The decimal keypad uses ASCII decimal drafts, not localized display notation.
+const plainDecimal = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
 
 function decimalText(value: number) {
-  const text = String(value);
-  const [coefficient, exponent] = text.split("e");
-  if (exponent === undefined) return text;
-  const [whole, fraction = ""] = coefficient!.split(".");
-  const digits = whole! + fraction;
-  const point = whole!.length + Number(exponent);
-  if (point <= 0) return `0.${"0".repeat(-point)}${digits}`;
-  if (point >= digits.length) return digits.padEnd(point, "0");
-  return `${digits.slice(0, point)}.${digits.slice(point)}`;
+  return plainDecimal.format(value === 0 ? 0 : value);
 }
 
 function exceeds(text: string, max: number) {

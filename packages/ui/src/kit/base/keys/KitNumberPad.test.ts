@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { size, text, themeName, type Definition } from "@lmthing/ui/catalog";
+import { localeOf, size, text, themeName, type Definition } from "@lmthing/ui/catalog";
 import {
   KitNumberPad,
   KitProvider,
@@ -139,6 +139,9 @@ describe("KitNumberPad dispatch", () => {
 });
 
 it.each(["amount", "root"])("keeps the %s display and reading in sync after typing and clearing", (part) => {
+  const format = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
+  const initial = part === "amount" ? 1e-7 : 2;
+  const shownInitial = part === "amount" ? "0.0000001" : "2";
   const address = `home/c1/${part}`;
   const draftKey = address.replace(/\/root$/, "");
   const relative = draftKey.replace("home/", "");
@@ -155,7 +158,7 @@ it.each(["amount", "root"])("keeps the %s display and reading in sync after typi
       actions: { parts: { [part]: ["type"] } },
       read: (input) => {
         const { value } = input as { value?: string | number };
-        return value === "" ? [] : [`Current ${value}`];
+        return value === "" ? [] : [`Current ${typeof value === "number" ? format.format(value) : value}`];
       },
     },
     props: z.strictObject({ label: text(20), value: z.number() }).meta({ keypadParts: [part] }),
@@ -164,7 +167,7 @@ it.each(["amount", "root"])("keeps the %s display and reading in sync after typi
     probes: [],
   };
   const controller = createScreenController({
-    screen: { id: "home", components: [{ id: "c1", c: "Fixture", label: "Value", value: 2 }] },
+    screen: { id: "home", components: [{ id: "c1", c: "Fixture", label: "Value", value: initial }] },
     defs: { Fixture: definition },
   });
   const shown = () => {
@@ -173,15 +176,17 @@ it.each(["amount", "root"])("keeps the %s display and reading in sync after typi
         ...input,
         target: { part },
         displayPart: "value",
-        value: String(controller.store.get(draftKey) ?? 2),
+        value: String(controller.store.get(draftKey) ?? format.format(initial)),
       },
       controller,
     );
     const display = elementAt(html, "home/c1/value");
     return html.slice(html.indexOf(display.attributes) + display.attributes.length).split("<")[0];
   };
-  expect(shown()).toBe("2");
-  expect(controller.read()).toContain("Current 2");
+  expect(shown()).toBe(shownInitial);
+  expect(controller.read()).toContain(`Current ${shownInitial}`);
+  expect(controller.act({ address, action: "type", value: { backspace: true } }).ok).toBe(true);
+  expect(shown()?.trim()).toBe(shownInitial.slice(0, -1));
   expect(controller.act({ address, action: "type", value: "24.50" }).ok).toBe(true);
   expect(shown()).toBe("24.50");
   expect(controller.read()).toContain(`Current 24.50 — "Value" [${relative} type = "24.50"]`);

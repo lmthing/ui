@@ -104,3 +104,12 @@ it("blocks agent edits to a mounted disabled keypad and allows edits after clean
   expect(agent.act(type({ backspace: true })).ok).toBe(true);
   expect(store.get(pad)).toBe("24.5");
 });
+
+it("does not publish an invalid keypad replacement as a draft through controller.edit", () => {
+  const { agent, store, runtime } = setup(true);
+  expect(agent.act(type("24.50")).ok).toBe(true);
+  expect(runtime!.edit(pad, "51")).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(store.get(pad)).toBe("24.50");
+  expect(store.get(`${pad}/$draft`)).toBeUndefined();
+  expect(agent.read()).toContain('Value 24.50 — "Value" [c1/amount type = "24.50"]');
+});

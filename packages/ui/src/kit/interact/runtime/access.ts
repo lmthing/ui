@@ -1,4 +1,4 @@
-import { wordsFor, affordancesOf, liveProps, stampItemIds } from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, parseAddress, stampItemIds } from "../../../catalog";
 import type { ActStep } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
@@ -81,6 +81,13 @@ function read(ctx: ControllerContext) {
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
+function isKeypad(ctx: ControllerContext, full: string) {
+  const address = parseAddress(full);
+  const entry = address?.component && ctx.sourceOf(address.component);
+  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
+  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
+
 export function createAccess(ctx: ControllerContext, act: Act) {
   return {
     actionsAt: (address: string) => actionsAt(ctx, address),
@@ -93,10 +100,11 @@ export function createAccess(ctx: ControllerContext, act: Act) {
       const result = act({ address, action: "type", value: text });
       if (!result.ok && result.code === "invalid_value") {
         const full = `${ctx.screen.id}/${ctx.relative(address)}`;
-        ctx.store.setMany({
-          [`${full}/$draft`]: text,
-          [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
-        });
+        if (!isKeypad(ctx, full))
+          ctx.store.setMany({
+            [`${full}/$draft`]: text,
+            [`${full}/$error`]: result.hint ?? wordsFor(ctx.options.lang).checkValue,
+          });
       }
       return result;
     },

@@ -61,9 +61,10 @@ function PadGrid({
       {...(addressed
         ? {
             ...address,
-            role: "textbox" as never,
             "aria-label": label,
-            ...(isWeb ? { "aria-describedby": display.id } : { accessibilityValue: { text: display.value } }),
+            ...(isWeb
+              ? { role: "textbox" as never, "aria-describedby": display.id }
+              : { accessibilityValue: { text: display.value } }),
             "aria-disabled": disabled || undefined,
             ...(editable ? { tabIndex: 0 as const, onKeyDown } : { "aria-readonly": true }),
           }
