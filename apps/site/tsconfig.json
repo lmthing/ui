@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "paths": {
+      "@lmthing/ui/catalog": ["../../packages/ui/src/entry/catalog.ts"],
+      "@lmthing/ui/kit": ["../../packages/ui/src/entry/kit.ts"]
+    }
+  },
+  "include": ["scripts", "src"]
+}

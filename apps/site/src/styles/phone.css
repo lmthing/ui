@@ -1,0 +1,40 @@
+.phone {
+  margin: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.phone-screen {
+  width: 100%;
+  overflow: auto;
+  border: 6px solid var(--text);
+  border-radius: 32px;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  scrollbar-width: none;
+}
+.phone-screen::-webkit-scrollbar {
+  display: none;
+}
+.phone figcaption {
+  font: 500 0.72rem var(--mono);
+  color: var(--muted);
+}
+.addr-hit {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.addr-tip {
+  font: 500 0.75rem var(--mono);
+  color: var(--muted);
+  min-height: 1.4em;
+}
+.phone-skel {
+  border: 6px solid var(--line);
+  border-radius: 32px;
+  background: var(--raised);
+  animation: shimmer 1.4s linear infinite;
+}
