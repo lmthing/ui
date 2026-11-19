@@ -124,8 +124,10 @@ it("keeps ordinary prices exact and bounds large displayed prices", () => {
     "$9,999.99",
   ]);
   expect(compactMoneyLine(10000)).toBe("$10K");
+  expect(compactMoneyLine(-10000)).toBe("-$10K");
   expect(compactMoneyLine(1e15)).toBe("$1E15");
   expect(compactMoneyLine(Number.MAX_VALUE)).toBe("$1.8E308");
+  expect(compactMoneyLine(-Number.MAX_VALUE)).toBe("-$1.8E308");
 });
 
 it("names the debt priority choices separately from the terms editor", () => {

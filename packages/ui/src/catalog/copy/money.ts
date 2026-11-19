@@ -178,13 +178,14 @@ export function documentReading(input: DocumentInput, state: string, lang?: stri
   ];
 }
 
-/** Keep record prices readable even at the schema's largest finite value. */
+/** Keep record amounts readable even at the schema's largest finite magnitude. */
 export function compactMoneyLine(value: number, currency: Currency = defaultCurrency, lang?: string): string {
-  if (value < 10000) return moneyLine(value, currency, undefined, lang);
+  const magnitude = Math.abs(value);
+  if (magnitude < 10000) return moneyLine(value, currency, undefined, lang);
   return new Intl.NumberFormat(localeOf(lang), {
     style: "currency",
     currency,
-    notation: value < 1e15 ? "compact" : "scientific",
+    notation: magnitude < 1e15 ? "compact" : "scientific",
     maximumSignificantDigits: 3,
   }).format(value);
 }

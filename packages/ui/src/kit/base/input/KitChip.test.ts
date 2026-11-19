@@ -3,7 +3,7 @@ import * as jsx from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { components, themeName } from "@lmthing/ui/catalog";
+import { component, components, size, space, themeName } from "@lmthing/ui/catalog";
 import {
   KitChip,
   KitProvider,
@@ -12,13 +12,18 @@ import {
   createScreenController,
   type ScreenController,
 } from "@lmthing/ui/kit";
-import { config, elementAt } from "../../../../test/render";
+import { config, elementAt, styleAt } from "../../../../test/render";
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
 type ChipProps = Parameters<typeof KitChip>[0];
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const chip = { item: "r1", label: "Headache", on: true, role: "checkbox" } as const;
-function render(input: ChipProps, controller?: ScreenController, track = false) {
+function render(
+  input: ChipProps,
+  controller?: ScreenController,
+  track = false,
+  state: "filled" | "loading" = "filled",
+) {
   const content = createElement(KitChip, input);
   return renderToStaticMarkup(
     createElement(
@@ -29,7 +34,7 @@ function render(input: ChipProps, controller?: ScreenController, track = false) 
         { theme, controller, interactive: Boolean(controller), children: null },
         createElement(
           PartScope,
-          { screen: "home", component: "c1", rev: 1, state: "filled", children: null },
+          { screen: "home", component: "c1", rev: 1, state, children: null },
           track ? createElement(KitTrack, { part: "field", children: content }) : content,
         ),
       ),
@@ -91,6 +96,76 @@ describe("KitChip optional named parts", () => {
     expect(render(input, controller, true)).toContain('aria-label="[US]"');
     (await capture(input, controller, true)).onPress!();
     expect(act).toHaveBeenCalledWith({ address: "home/c1/field", action: "select", value: "US" });
+  });
+});
+
+describe("KitChip variant options", () => {
+  it.each(["pill", "segment", "box"] as const)(
+    "draws fixed swatches in the %s without addressing them",
+    (look) => {
+      const html = render({ ...chip, look, swatch: "navy", part: "option" });
+      const hit = elementAt(html, "home/c1/r1/option");
+      const face = hit.children[0]!;
+      const mark = face.children[0]!;
+      expect(mark.attributes).toContain('aria-hidden="true"');
+      expect(styleAt(html, mark)).toContain(component.swatch.navy);
+      expect(styleAt(html, face)).toContain(`min-width:${size.control.md}px`);
+      expect(styleAt(html, face)).toContain(
+        `min-height:${look === "segment" ? size.control.sm : size.control.md}px`,
+      );
+      expect(elementAt(html, "home/c1/r1/label")).toBeDefined();
+    },
+  );
+  it("keeps unavailable choices readable and blocks both controller dispatch paths", async () => {
+    const controller = { press: vi.fn(), act: vi.fn() } as unknown as ScreenController;
+    for (const item of ["r1", null]) {
+      const input = { ...chip, item, on: false, disabled: true, look: "box" } as const;
+      const html = render(input, controller, true);
+      expect(html).toContain('aria-disabled="true"');
+      expect(html).toContain('aria-checked="false"');
+      expect((await capture(input, controller, true)).onPress).toBeUndefined();
+    }
+  });
+  it("softens disabled decoration and leaves room between variant segments", () => {
+    const input = { ...chip, look: "segment", swatch: "navy", disabled: true } as const;
+    const html = render(input);
+    const hit = elementAt(html, "home/c1/r1/root");
+    const face = hit.children[0]!;
+    expect(styleAt(html, hit)).toContain(`padding-left:${space.xs}px`);
+    expect(styleAt(html, face)).toContain("border-left-color:var(--line)");
+    expect(styleAt(html, face.children[1]!)).toContain(`opacity:${component.base.disabledOpacity}`);
+    const normal = render({ ...chip, look: "segment" });
+    expect(styleAt(normal, "home/c1/r1/root")).not.toContain(`padding-left:${space.xs}px`);
+  });
+});
+describe("KitChip variant layers and loading", () => {
+  it("paints the single-glyph label above the decorative slash", () => {
+    const input = { ...chip, look: "box", label: "L", on: false, disabled: true } as const;
+    const html = render(input);
+    const [back, front] = elementAt(html, "home/c1/r1/root").children[0]!.children;
+    expect(back!.attributes).toContain('aria-hidden="true"');
+    expect(styleAt(html, back!)).toContain("position:absolute");
+    expect(back!.children[0]!.children[0]!.attributes).toMatch(
+      /<line\b.*x1="0%".*y1="100%".*x2="100%".*y2="0%"/,
+    );
+    expect(styleAt(html, front!.children[0]!)).toContain("background-color:var(--raised)");
+    expect(styleAt(html, front!.children[1]!)).toContain("position:relative");
+    const glyph = elementAt(html, "home/c1/r1/label");
+    expect(front!.children[1]!.children[0]).toEqual(glyph);
+    expect(styleAt(html, glyph)).toContain("color:var(--text)");
+    expect(render(input, undefined, false, "loading")).not.toContain("<line");
+  });
+  it("renders loading variants without a control and lets callers omit the control part", async () => {
+    const controller = { press: vi.fn() } as unknown as ScreenController;
+    const input = { ...chip, look: "box", swatch: "navy", part: null, labelPart: null } as const;
+    const staticHtml = render(input);
+    expect(staticHtml).not.toContain('data-testid="home/c1/r1/');
+    expect((await capture(input, controller)).onPress).toBeUndefined();
+    const html = render({ ...input, part: "root", labelPart: "label" }, controller, false, "loading");
+    expect(html).not.toContain('data-testid="home/c1/r1/');
+    expect(html).not.toContain('role="checkbox"');
+    expect(html).not.toContain('aria-label="Headache"');
+    expect(html).toContain('aria-hidden="true"');
   });
 });
 describe("KitChip dispatch", () => {
