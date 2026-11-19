@@ -8,5 +8,4 @@ export {
   cycleReading,
   type CycleSeed,
 } from "./Cycle";
-export { cycleLabels } from "./Cycle";
 export { activityRingLine } from "./ActivityRings";
