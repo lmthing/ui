@@ -1,6 +1,17 @@
 import { z } from "zod";
-import { probesFor, text, type CastLike, type Meta, type Probe } from "../../../catalog";
+import { probesFor, text, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  KitCard,
+  KitChip,
+  KitRow,
+  KitSlider,
+  KitText,
+  KitTrack,
+  useControlValue,
+  usePart,
+} from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
+import { symptomChosen, symptomSeverity, symptomLevelLine, symptomReading } from "../copy";
 
 // Core first: Scale/mood cannot select several grouped symptoms and set a severity for each.
 export const meta = {
@@ -14,7 +25,17 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
-  items: { key: "groups", parts: ["root", "label", ...indexedParts(8, ["symptom", "severity"])] },
+  items: {
+    key: "groups",
+    parts: ["root", "label", "chips", ...indexedParts(8, ["symptom", "severity", "reading"])],
+    nested: {
+      key: "symptoms",
+      parts: {
+        symptom: { action: "toggle", prop: "on" },
+        severity: { action: "set", prop: "severity", min: 1, max: 5, integer: true, when: "symptom" },
+      },
+    },
+  },
   parts: ["root"],
   states: ["filled"],
   actions: {
@@ -22,13 +43,7 @@ export const meta = {
     when: indexedWhen(8, ["symptom", "severity"]),
   },
   read: (input, state) =>
-    state !== "filled"
-      ? []
-      : (input as z.output<typeof props>).groups.flatMap((group) =>
-          group.symptoms.map(
-            (symptom, index) => `${group.label} / ${index + 1}: ${symptom.label} ${symptom.severity}/5`,
-          ),
-        ),
+    state !== "filled" ? [] : symptomReading((input as z.output<typeof props>).groups),
 } as const satisfies Meta;
 export const props = z.strictObject({
   groups: z
@@ -38,10 +53,13 @@ export const props = z.strictObject({
           label: text(16),
           symptoms: z
             .array(
-              z.strictObject({
-                label: text(16),
-                severity: z.int().min(0).max(5).default(0),
-              }),
+              z
+                .strictObject({
+                  label: text(16),
+                  severity: z.int().min(0).max(5).default(0),
+                  on: z.boolean().optional(),
+                })
+                .overwrite((symptom) => ({ ...symptom, on: symptomChosen(symptom) })),
             )
             .min(2)
             .max(8),
@@ -50,7 +68,7 @@ export const props = z.strictObject({
           ...group,
           ...indexedValues(
             group.symptoms.map((symptom) => ({
-              symptom: { on: symptom.severity > 0 },
+              symptom: { on: symptomChosen(symptom) },
               severity: symptom.severity,
             })),
             8,
@@ -78,7 +96,7 @@ export const examples = [
       {
         label: "Head",
         symptoms: [
-          { label: "Headache", severity: 2 },
+          { label: "Headache", severity: 2, on: true },
           { label: "Dizziness", severity: 0 },
         ],
       },
@@ -115,3 +133,60 @@ export const probes = [
   read("Change the severity of headache", { address: "s1/r1/severity_1", action: "set" }),
   read("Select dizziness", { address: "s1/r1/symptom_2", action: "toggle" }),
 ] satisfies Probe[];
+
+type Group = Props<typeof props, typeof meta>["groups"][number];
+function SymptomChip({ group, index }: { group: Group; index: number }) {
+  const symptom = group.symptoms[index]!;
+  const part = `symptom_${index + 1}`;
+  const address = usePart(part).testID;
+  const on = useControlValue(address, symptomChosen(symptom));
+  return (
+    <KitChip item={group.id} part={part} labelPart={null} label={symptom.label} on={on} role="checkbox" />
+  );
+}
+function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number]; index: number }) {
+  const part = `severity_${index + 1}`;
+  const address = usePart(part).testID;
+  const on = useControlValue(address.replace(/severity_(\d+)$/, "symptom_$1"), symptomChosen(symptom));
+  const severity = useControlValue(address, symptom.severity);
+  if (!on) return null;
+  const current = { ...symptom, on, severity };
+  return (
+    <KitRow
+      label={symptom.label}
+      inline
+      lineRole="label"
+      trailing={
+        <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
+          {symptomLevelLine(current)}
+        </KitText>
+      }
+    >
+      <KitText role="label" tone="muted" part={null}>
+        {symptom.label}
+      </KitText>
+      <KitSlider part={part} label={symptom.label} value={symptomSeverity(current)} min={1} max={5} />
+    </KitRow>
+  );
+}
+export function SymptomLog({ groups }: Props<typeof props, typeof meta>) {
+  return (
+    <KitCard style="inset" part="root">
+      {groups.map((group) => (
+        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading">
+          <KitText role="heading" part="label">
+            {group.label}
+          </KitText>
+          <KitTrack part="chips" label={group.label}>
+            {group.symptoms.map((_, index) => (
+              <SymptomChip key={index} group={group} index={index} />
+            ))}
+          </KitTrack>
+          {group.symptoms.map((symptom, index) => (
+            <SymptomSeverity key={index} symptom={symptom} index={index} />
+          ))}
+        </KitRow>
+      ))}
+    </KitCard>
+  );
+}
