@@ -57,6 +57,18 @@ describe("KitSetRow", () => {
     expect(elementAt(html, "home/c1/r1/done").attributes).toContain('aria-disabled="true"');
     expect(render({ ...input, part: "set" })).toContain('data-testid="home/c1/r1/set"');
   });
+  it("indexes the label address or leaves visible text unaddressed", () => {
+    const indexed = render({ ...input, part: "set_1", labelPart: "label_1" });
+    expect(indexed).toContain('data-testid="home/c1/r1/set_1"');
+    expect(indexed).toContain('data-testid="home/c1/r1/label_1"');
+    expect(indexed).not.toContain('data-testid="home/c1/r1/label"');
+    const unaddressed = render({ ...input, labelPart: null });
+    expect(unaddressed).toContain("Set 1");
+    expect(unaddressed).not.toContain('data-testid="home/c1/r1/label');
+    expect(render({ ...input, loading: true, labelPart: "label_1" })).not.toContain(
+      'data-testid="home/c1/r1/label_1"',
+    );
+  });
   it("retains field and optional detail geometry in inert loading slots", () => {
     const html = render({ ...input, loading: true });
     expect(html).toContain('aria-busy="true"');
