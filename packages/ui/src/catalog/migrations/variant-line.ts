@@ -22,6 +22,15 @@ export function effectiveLegacyList(props: Line): Line {
   if (!legacy || (alreadyAdopted && style !== "ranked" && style !== "inset" && style !== "plain"))
     return props;
   const rows = props.rows.filter((row): row is Line => !!row && typeof row === "object");
+  if (!alreadyAdopted && rows.some((row) => row.photo && row.icon))
+    props = {
+      ...props,
+      rows: (props.rows as unknown[]).map((row) => {
+        if (!row || typeof row !== "object" || !("photo" in row) || !row.photo) return row;
+        const { icon: _icon, ...rest } = row as Line;
+        return rest;
+      }),
+    };
   const hasBody = rows.some((row) => row.body);
   // Mixed rows inferred expansion after validation; explicit expand would fail its all-bodies check.
   if (hasBody && rows.some((row) => !row.body) && style !== "expand") {

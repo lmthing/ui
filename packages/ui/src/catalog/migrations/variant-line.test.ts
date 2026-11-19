@@ -23,11 +23,11 @@ const list = {
 const card = { id: "card_one", c: "Card", style: "media", title: "One", photo: "lib:plants" } as const;
 const options = { variantComponents: ["List", "Card"] };
 
-it("leaves List unchanged while its migration is staged and upgrades Card before strict parsing", () => {
-  expect(migrateLine(list)).toBe(list);
+it("activates both migrations before strict parsing", () => {
+  expect(migrateLine(list)).not.toHaveProperty("style");
   const { id: _id, c: _c, state: _state, ...oldList } = list;
   const { id: _cardId, c: _cardC, ...oldCard } = card;
-  expect(components.List.props.safeParse(oldList).success).toBe(true);
+  expect(components.List.props.safeParse(oldList).success).toBe(false);
   expect(components.Card.props.safeParse(oldCard).success).toBe(false);
   const { id, c, ...upgraded } = migrateLine(card);
   expect({ id, c }).toEqual({ id: card.id, c: card.c });
@@ -99,7 +99,6 @@ it("keeps an icon authored for legacy Card media without overriding a new media 
 
 it("replays List's legacy body and me inference in that order", () => {
   const implicit = { c: "List", rows: [{ title: "One", me: true, value: "42", trail: "toggle" }] };
-  expect(components.List.props.parse({ rows: implicit.rows }).style).toBe("ranked");
   const migrated = migrateLine(implicit, options);
   expect(migrated).toEqual({
     c: "List",
@@ -109,7 +108,6 @@ it("replays List's legacy body and me inference in that order", () => {
   });
   expect(migrateLine(migrated, options)).toBe(migrated);
   const rows = [{ ...implicit.rows[0], title: "One", body: "Answer" }];
-  expect(components.List.props.parse({ style: "ranked", rows }).style).toBe("expand");
   expect(migrateLine({ c: "List", style: "ranked", rows }, options)).toEqual({
     c: "List",
     style: "expand",
@@ -120,10 +118,20 @@ it("replays List's legacy body and me inference in that order", () => {
 it("preserves Lists that inferred expansion from only some rows", () => {
   const rows = [{ title: "With answer", body: "Answer" }, { title: "Without answer" }];
   const original = { c: "List", style: "inset", rows };
-  expect(components.List.props.parse({ style: "inset", rows }).style).toBe("expand");
   const { c: _c, ...migrated } = migrateLine(original, options);
   expect(migrated).toEqual({ rows });
   expect(components.List.props.parse(migrated).style).toBe("expand");
+});
+
+it("preserves the old photo priority without overriding an adopted lead", () => {
+  const rows = [{ title: "One", photo: "lib:plants", icon: "leaf" }];
+  expect(migrateLine({ c: "List", style: "inset", rows })).toEqual({
+    c: "List",
+    surface: "card",
+    rows: [{ title: "One", photo: "lib:plants" }],
+  });
+  const adopted = { c: "List", lead: "icon", rows };
+  expect(migrateLine(adopted)).toBe(adopted);
 });
 
 it.each(["list", "l-i_s t"])("migrates normalizable List id %s before validation", (c) => {

@@ -97,7 +97,7 @@ Choose only axes and values that visibly change this component. These are candid
    [visual rubric](visual-rubric.md#variants-sheet).
 
 See `src/components/Card.tsx` for Card finish and content axes and `src/components/List.tsx` for
-List's row structure and trail actions.
+List's grouped rows, peek disclosure, inherited trail and per-row tone and mark.
 
 ## Words and language
 

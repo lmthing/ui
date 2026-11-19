@@ -294,8 +294,10 @@ validator and a `patch` `set` handle them like any prop; there is no variant op.
 **Parts.** Finish axes never change parts or addresses. Content and collection axes may show or hide
 parts, declared in `meta.variantParts` (`{ "trail.toggle": { adds: ["toggle"] }, "detail.brief": {
 hides: ["meta"] } }`), and never rename or renumber one: addresses come from data, not from a variant.
-An item hidden by `overflow: "peek"` keeps its address, readers say "and N more", and an action on it
-still resolves. The conformance test renders every declared value and checks these rules.
+`overflow: "peek"` shows the first two items by default. The `more` toggle reveals the full list
+without modifying the wire props. A hidden item keeps its address and actions; the reader shows
+the same prefix and localized "and N more" count as the view. The conformance test renders every
+declared value and checks these rules.
 
 **Tokens.** `tokens/variants.ts` maps each finish value to token steps and roles per preset kind
 (for example `emphasis.hero` lifts the type step and weight, `surface.card` uses `surface` plus
@@ -324,7 +326,8 @@ destination values win. Card `style: "plain"` was a filled surface and maps to `
 `"thumb"` if an icon was authored instead of a photo). The
 default `media: "thumb"` preserves the old inline thumbnail or icon treatment when no axis was
 requested. List's per-row cards are structural: keep `style: "cards"` to distinguish them from a
-single enclosing card and use `surface` for the finish. Ranked rows use `lead: "number"` and
+single enclosing card and use `surface` for the finish. List `inset` becomes `surface: "card"` and
+List `plain` becomes `surface: "plain"`. Ranked rows use `lead: "number"` and
 `trail: "value"`, and historical rows without scores hide their trail. Other moves include Button
 `md|lg` to `emphasis`, Player `compact` to `density`, Success `row|centered` to `align`, Photo
 `square|wide|tall` to `aspect`, and per-component `tone` enums to the shared helper. Each adoption

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
+import { affordancesOf, components, migrateLine, readComponent, stampItemIds } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../test/render";
 
 const { props, meta } = components.List;
@@ -11,7 +11,8 @@ describe("List shelf, expand and ranked", () => {
     { style: "shelf", rows: [photoRow("Fern"), { title: "Basil" }] },
     { style: "expand", rows: [{ title: "Q", body: "A" }, { title: "Q2" }] },
     {
-      style: "ranked",
+      lead: "number",
+      trail: "value",
       rows: [
         { title: "Anna", me: true },
         { title: "Ben", me: true },
@@ -22,10 +23,9 @@ describe("List shelf, expand and ranked", () => {
     expect(props.safeParse(input).success).toBe(false),
   );
   it("lets a body make the rows expand and a me row make a ranking", () => {
-    expect(props.parse({ style: "inset", rows: [{ title: "Q", body: "A", goto: "x" }] }).style).toBe(
-      "expand",
-    );
-    expect(props.parse({ rows: [{ title: "Anna", me: true }] }).style).toBe("ranked");
+    const { c: _c, ...ranking } = migrateLine({ c: "List", rows: [{ title: "Anna", me: true }] });
+    expect(props.parse({ rows: [{ title: "Q", body: "A", goto: "x" }] }).style).toBe("expand");
+    expect(props.parse(ranking)).toMatchObject({ lead: "number", trail: "value" });
   });
   it("offers press on linked rows of a shelf and toggle on every row of an expand", () => {
     const shelf = props.parse({
@@ -51,7 +51,8 @@ describe("List shelf, expand and ranked", () => {
 describe("List ranked and expanded rendering", () => {
   it("numbers a ranking, reads it in order and offers nothing without links", () => {
     const input = {
-      style: "ranked",
+      lead: "number",
+      trail: "value",
       rows: [
         { title: "Anna", value: "412" },
         { title: "You", value: "351", me: true },

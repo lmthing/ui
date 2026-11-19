@@ -4,6 +4,8 @@ export type { Words } from "./en";
 export type { LDMLPluralRule } from "./plural";
 
 export const defaultLang = en.tag;
+/** The number of items shown before a peek disclosure is opened. */
+export const peekLimit = 2;
 
 export function localeOf(lang: string = defaultLang): string {
   try {
