@@ -5,7 +5,10 @@ describe("parseRoute", () => {
   it("reads component and pack routes, and treats anything else as home", () => {
     expect(parseRoute("#/c/List")).toEqual({ name: "component", id: "List" });
     expect(parseRoute("#/p/booking")).toEqual({ name: "pack", id: "booking" });
+    expect(parseRoute("#/components")).toEqual({ name: "components" });
     expect(parseRoute("#packs")).toEqual({ name: "home" });
     expect(parseRoute("")).toEqual({ name: "home" });
+    expect(parseRoute("#/")).toEqual({ name: "home" });
+    expect(parseRoute("#/nope/x")).toEqual({ name: "missing", path: "/nope/x" });
   });
 });

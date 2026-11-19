@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 
-export type Route = { name: "home" } | { name: "component"; id: string } | { name: "pack"; id: string };
+export type Route =
+  | { name: "home" }
+  | { name: "components" }
+  | { name: "component"; id: string }
+  | { name: "pack"; id: string }
+  | { name: "missing"; path: string };
 
 export function parseRoute(hash: string): Route {
+  if (hash === "#/components") return { name: "components" };
   const match = /^#\/(c|p)\/([A-Za-z0-9_]+)/.exec(hash);
   if (match) return match[1] === "c" ? { name: "component", id: match[2]! } : { name: "pack", id: match[2]! };
+  if (hash.startsWith("#/") && hash !== "#/") return { name: "missing", path: hash.slice(1) };
   return { name: "home" };
 }
 

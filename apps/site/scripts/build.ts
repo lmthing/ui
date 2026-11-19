@@ -7,6 +7,7 @@ import { build } from "vite";
 import { runGallery } from "./run-gallery";
 import { loadSiteData } from "./site-data";
 import { siteViteConfig } from "./vite-config";
+import { writeBrand } from "./brand";
 import { writeData } from "./write-data";
 
 const site = new URL("../", import.meta.url).pathname;
@@ -25,6 +26,7 @@ async function main() {
   rmSync(out, { recursive: true, force: true });
   await build(siteViteConfig(out));
   cpSync(cache, `${out}/gallery`, { recursive: true });
+  await writeBrand(out, data);
   writeFileSync(`${out}/.nojekyll`, "");
   console.log(
     `SITE ${out} (${data.stats.built} components, ${data.packs.length} packs) in ${Math.round((Date.now() - started) / 1000)}s`,

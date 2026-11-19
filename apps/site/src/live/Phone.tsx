@@ -12,6 +12,8 @@ export type PhoneProps = {
   /** The tallest the frame grows; it fits its content from `minHeight` up to this. */
   height?: number;
   minHeight?: number;
+  /** Hold the frame at `height` so nothing around it shifts while the screen grows. */
+  fixed?: boolean;
   /** Fixed theme for this phone (worked examples in all three presets). Default: the page's theme. */
   theme?: Partial<ThemeState>;
   /** An address to outline, e.g. `t1/next`. */
@@ -32,7 +34,11 @@ const addressOf = (target: EventTarget | null, screen: string) => {
 function findPart(root: HTMLElement, address: string): Element | null {
   const by = (op: string, value: string) =>
     root.querySelector(`[data-testid${op}="${value.replace(/"/g, '\\"')}"]`);
-  return by("", address) ?? by("", `${address}/root`) ?? by("^", `${address}/`);
+  for (let at = address; at.includes("/"); at = at.slice(0, at.lastIndexOf("/"))) {
+    const found = by("", at) ?? by("", `${at}/root`) ?? by("^", `${at}/`);
+    if (found) return found;
+  }
+  return null;
 }
 
 /** A live kit screen in a phone frame. The frame's width is one of the shared phone widths. */
@@ -41,6 +47,7 @@ export function Phone({
   width = 390,
   height = 640,
   minHeight = 300,
+  fixed = false,
   theme,
   highlight,
   onHover,
@@ -73,7 +80,7 @@ export function Phone({
       <div
         ref={frame}
         className="phone-screen"
-        style={{ minHeight, maxHeight: height }}
+        style={{ minHeight: fixed ? height : minHeight, maxHeight: height }}
         onPointerMove={onHover ? (e) => onHover(addressOf(e.target, screen.id)) : undefined}
         onPointerLeave={onHover ? () => onHover(null) : undefined}
       >

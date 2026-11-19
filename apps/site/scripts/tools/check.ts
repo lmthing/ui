@@ -33,14 +33,13 @@ async function open(browser: Browser, width: number, init?: string) {
 async function checkCreate(browser: Browser, width: number) {
   const page = await open(browser, width);
   await page.goto(base, { waitUntil: "networkidle" });
-  const caption = page.locator(".phone figcaption").first();
-  await page.waitForTimeout(1500);
-  const early = await caption.textContent();
-  await page.waitForTimeout(3500);
-  expect(
-    (await caption.textContent()) !== early,
-    `create stream advances at ${width}px (${early} -> ${await caption.textContent()})`,
-  );
+  const caption = page.locator(".demo-code .caption span").last();
+  const seen = new Set<string | null>();
+  for (let i = 0; i < 8; i++) {
+    seen.add(await caption.textContent());
+    await page.waitForTimeout(700);
+  }
+  expect(seen.size > 1, `create stream changes over time at ${width}px (${seen.size} distinct states)`);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
     `no horizontal scroll at ${width}px`,
@@ -68,8 +67,8 @@ async function checkTry(browser: Browser, width: number, init: string | undefine
 
 async function checkViewAct(browser: Browser) {
   const page = await open(browser, 1280);
-  await page.goto(`${base}#llm`, { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: "View and act" }).click();
+  await page.goto(`${base}#try`, { waitUntil: "networkidle" });
+  await page.getByRole("tab", { name: "Read and act" }).click();
   await page.getByRole("button", { name: /Show the answer/ }).click();
   await page.waitForSelector(".addr-hit", { timeout: 10000 });
   expect(true, "view and act: the recorded answer's part is highlighted on the phone");
@@ -79,11 +78,12 @@ async function checkViewAct(browser: Browser) {
 
 async function checkTheme(browser: Browser) {
   const page = await open(browser, 390);
-  await page.goto(`${base}#themes`, { waitUntil: "networkidle" });
+  await page.goto(`${base}`, { waitUntil: "networkidle" });
   const before = await page.evaluate(() =>
     getComputedStyle(document.documentElement).getPropertyValue("--bg"),
   );
-  await page.getByRole("radio", { name: "dark" }).first().click();
+  await page.getByRole("button", { name: /Theme:/ }).click();
+  await page.getByLabel("dark").check({ force: true });
   await page.waitForTimeout(800);
   const after = await page.evaluate(() =>
     getComputedStyle(document.documentElement).getPropertyValue("--bg"),
