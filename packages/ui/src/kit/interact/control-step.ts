@@ -1,6 +1,13 @@
-import { selectionAt, type ActStep, type Definition, type ScreenLike, type Values } from "../../catalog";
+import {
+  selectionAt,
+  nestedAt,
+  type ActStep,
+  type Definition,
+  type ScreenLike,
+  type Values,
+} from "../../catalog";
 import { valueKey } from "./live-screen";
-import { selectControl, fieldControl, valueControl, type ControlContext } from "./controls";
+import { clockChanges, selectControl, fieldControl, valueControl, type ControlContext } from "./controls";
 type Entry = ScreenLike["components"][number];
 export type ControlChange = {
   values: Values;
@@ -49,9 +56,14 @@ export function controlStep(
   };
   const selection = selectControl(ctx);
   if (selection.error) return selection;
+  const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now);
+  Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));
+  if (nestedAt(ctx.def.meta, input, target)) return { values: next, value: ctx.get(target) };
   const result = entry.c === "Field" ? fieldControl(ctx) : valueControl(ctx);
   if (result.error || result.send || result.requestPhoto) return result;
   let changed = "value" in result ? result.value : selection.value;
+  if (Object.keys(clocks).length && ["start", "stop"].includes(step.action))
+    changed = step.action === "start" ? "running" : "stopped";
   if (entry.c === "List" && input.style === "expand" && step.action === "toggle") changed = ctx.get(target);
   if (entry.c === "SwipeStack" && step.action === "swipe") {
     ctx.put("$cursor", Number(ctx.get("$cursor") ?? 0) + 1);

@@ -1,3 +1,4 @@
+import { selectedIds, selectedEntries } from "../../../../scripts/build";
 import { expect, it } from "vitest";
 import { components, packOf, placeholderTitle, type CastLike, type Definition } from "@lmthing/ui/catalog";
 
@@ -31,7 +32,7 @@ const casts: CastLike[] = [
 
 it("accepts examples, bounded neutral/matching/malformed cast fallbacks and full metadata", () => {
   expect(defs).toHaveLength(7);
-  for (const def of defs) {
+  for (const def of defs.filter((def) => selectedIds([def.meta.id]).length)) {
     expect(def.examples.length).toBeGreaterThanOrEqual(2);
     for (const example of def.examples) expect(def.props.safeParse(example).success).toBe(true);
     for (const cast of casts) expect(def.props.safeParse(def.fallback({ cast })).success).toBe(true);
@@ -106,7 +107,7 @@ const invalid: Record<string, unknown[]> = {
   ],
 };
 it("rejects contract limits, derived fields and vocabulary violations", () => {
-  for (const [id, inputs] of Object.entries(invalid))
+  for (const [id, inputs] of selectedEntries(invalid))
     for (const input of inputs)
       expect((components as Record<string, Definition>)[id]!.props.safeParse(input).success).toBe(false);
 });

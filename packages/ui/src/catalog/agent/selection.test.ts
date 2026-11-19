@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Meta } from "../meta";
 import { projectSelection, selectionAt, selectionChanges, selectionError } from "./selection";
+import { nestedAt, nestedControls, projectNested } from "./selection";
+import { validateActionValue } from "./validate-value";
 
 const meta: Meta = {
   id: "Fixture",
@@ -66,5 +68,83 @@ describe("declared selection", () => {
       { ...props.rows[0], chosen: false },
       { ...props.rows[1], chosen: true },
     ]);
+  });
+});
+
+const nestedMeta: Meta = {
+  ...meta,
+  items: {
+    key: "rows",
+    parts: ["root"],
+    nested: {
+      key: "children",
+      parts: {
+        active: { action: "toggle", prop: "on" },
+        amount: { action: "set", prop: "value", min: 0, max: 5, integer: true, when: "active" },
+      },
+    },
+  },
+};
+const nestedProps = {
+  rows: [
+    {
+      children: [
+        { on: false, value: 0 },
+        { on: true, value: 2 },
+      ],
+    },
+    { children: [{ on: true, value: 5 }] },
+  ],
+};
+
+describe("nested declarations", () => {
+  it("enumerates actual sub-items and resolves exact one-based addresses", () => {
+    expect(nestedControls(nestedMeta, nestedProps).map(({ target }) => target)).toEqual([
+      "r1/active_1",
+      "r1/amount_1",
+      "r1/active_2",
+      "r1/amount_2",
+      "r2/active_1",
+      "r2/amount_1",
+    ]);
+    expect(nestedAt(nestedMeta, nestedProps, "r1/amount_1")?.enabled).toBe(false);
+    expect(nestedAt(nestedMeta, nestedProps, "r1/amount_2")?.enabled).toBe(true);
+    for (const target of ["r1/amount_0", "r1/amount_01", "r1/amount_3", "r3/active_1", "r1/unknown_1"])
+      expect(nestedAt(nestedMeta, nestedProps, target)).toBeUndefined();
+  });
+  it("honors row ids and prefixes and leaves undeclared or absent arrays alone", () => {
+    expect(
+      nestedAt(nestedMeta, { rows: [{ id: "o9", children: [{ on: true }] }] }, "o9/active_1"),
+    ).toBeDefined();
+    expect(
+      nestedAt({ ...nestedMeta, items: { ...nestedMeta.items!, prefix: "o" } }, nestedProps, "o2/active_1"),
+    ).toBeDefined();
+    expect(nestedControls(nestedMeta, { rows: [{}, { children: [] }] })).toEqual([]);
+    expect(nestedControls(nestedMeta, {})).toEqual([]);
+    expect(projectNested(meta, props, () => true)).toBe(props);
+  });
+  it("projects false and zero without mutating seeds or other controls", () => {
+    const values = { "r1/active_2": false, "r1/amount_2": 0 };
+    const projected = projectNested(nestedMeta, nestedProps, (part) => values[part as keyof typeof values]);
+    expect(projected.rows).toEqual([
+      {
+        children: [
+          { on: false, value: 0 },
+          { on: false, value: 0 },
+        ],
+      },
+      nestedProps.rows[1],
+    ]);
+    expect(nestedProps.rows[0]!.children[1]).toEqual({ on: true, value: 2 });
+    expect(projectNested(nestedMeta, { rows: [{}] }, () => true)).toEqual({ rows: [{}] });
+  });
+  it("uses shared finite numeric, integer and inclusive bound validation", () => {
+    const limits = nestedMeta.items!.nested!.parts.amount!;
+    for (const value of [0, 5]) expect(validateActionValue("set", value, limits)).toBeNull();
+    for (const value of [-1, 6, 0.5, "2", NaN, Infinity, undefined])
+      expect(validateActionValue("set", value, limits)?.code).toBe("invalid_value");
+    expect(validateActionValue("set", 0.5, { min: 0 })).toBeNull();
+    expect(validateActionValue("set", 5.5, { max: 5 })?.code).toBe("invalid_value");
+    expect(validateActionValue("toggle", undefined, nestedMeta.items!.nested!.parts.active!)).toBeNull();
   });
 });

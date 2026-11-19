@@ -1,4 +1,6 @@
 import type { Meta } from "../meta";
+import { nestedControls } from "./selection";
+import { clockActionValid } from "./clocks";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
@@ -62,7 +64,7 @@ function partsOf(
  * Every action a model may take on one component instance, with its address relative to the screen
  * (`l1/r1/trail`). The reader prints these and act checks verify each one exists on screen.
  */
-export function affordancesOf(meta: Meta, props: Props, instance: string): Affordance[] {
+export function affordancesOf(meta: Meta, props: Props, instance: string, values: Props = {}): Affordance[] {
   const when = meta.actions?.when as When;
   const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
   const key = meta.items?.key;
@@ -77,7 +79,34 @@ export function affordancesOf(meta: Meta, props: Props, instance: string): Affor
       { ...props, $first: index === 0 },
     ),
   );
-  return [...own, ...itemActions];
+  const controls = nestedControls(meta, props);
+  const targets = new Set(controls.map((control) => `${instance}/${control.target}`));
+  const nested = controls
+    .filter((control) => control.enabled)
+    .map(({ target, part, spec, item }) => ({
+      address: `${instance}/${target}`,
+      part,
+      action: spec.action,
+      detail:
+        spec.action === "toggle"
+          ? `:${item[spec.prop] ? "on" : "off"}`
+          : item[spec.prop] === undefined
+            ? ""
+            : ` = ${JSON.stringify(item[spec.prop])}`,
+    }));
+  const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
+  if (!values[`${instance}/$runtime`]) return offered;
+  if (props.state && props.state !== "filled") return [];
+  return offered.filter((control) =>
+    clockActionValid(
+      meta,
+      props,
+      control.address === instance ? "root" : control.address.slice(instance.length + 1),
+      control.action,
+      (part) => values[`${instance}/${part}`],
+      Number(values[`${instance}/$now`] ?? Date.now()),
+    ),
+  );
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */

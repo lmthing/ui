@@ -1,3 +1,4 @@
+import { selectedIds, selectedLayouts } from "../../../../scripts/build";
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
@@ -6,6 +7,7 @@ import {
   checkArchetypes,
   checkPacks,
   checkScreen,
+  packComposition,
   components,
   createRegistry,
   packArchetypes,
@@ -35,7 +37,7 @@ it("exports generated definitions through the root door and keeps incomplete pac
   );
   const draftFormat = JSON.stringify(writerFormat(draft));
   const liveFormat = JSON.stringify(writerFormat(live));
-  for (const id of ids) {
+  for (const id of selectedIds(ids)) {
     expect(core.ids).not.toContain(id);
     expect(core.resolve(id)).toBeUndefined();
     expect(draftFormat).toContain(`"const":"${id}"`);
@@ -64,7 +66,7 @@ it("validates the pack, archetypes and every exact worked-example line", () => {
     expect(id).toMatch(/^[a-z][a-z0-9_]*$/);
     expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success, c).toBe(true);
   }
-  for (const id of ids) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
   const split = lines.find((line) => line.c === "Split");
   expect(split.people).toHaveLength(4);
   // Independent Kitty seeds leave two payers owed and two flatmates owing.
@@ -92,21 +94,23 @@ it("exports every planned archetype and layout without status", () => {
 const layouts = (packArchetypes.money as readonly ArchetypeMeta[]).flatMap((meta) =>
   Object.entries(meta.layouts).map(([layout, data]) => ({ meta, layout, data })),
 );
-it.each(layouts)(
-  "completes $meta.id/$layout from neutral fallbacks using only core and money",
-  ({ meta, layout, data }) => {
-    const registry = createRegistry({ packs: ["money"], includeDrafts: true });
-    for (const slot of data.recipe)
-      for (const id of slot.allow)
-        expect(
-          packOf[id as keyof typeof packOf] === undefined || packOf[id as keyof typeof packOf] === "money",
-        ).toBe(true);
-    const screen = registry.defaultLines(meta.id, layout, neutral);
-    expect(checkScreen(screen, registry)).toEqual([]);
-    expect(screen.components.map((line) => line.c)).toEqual(data.defaults.map((line) => line.c));
-    for (const line of screen.components) {
-      const { id: _id, c, ...input } = line;
-      expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success).toBe(true);
-    }
-  },
-);
+it.each(
+  layouts.filter(
+    ({ meta, layout }) =>
+      selectedLayouts([packComposition(meta)])?.includes(`${meta.id}/${layout}`) !== false,
+  ),
+)("completes $meta.id/$layout from neutral fallbacks using only core and money", ({ meta, layout, data }) => {
+  const registry = createRegistry({ packs: ["money"], includeDrafts: true });
+  for (const slot of data.recipe)
+    for (const id of slot.allow)
+      expect(
+        packOf[id as keyof typeof packOf] === undefined || packOf[id as keyof typeof packOf] === "money",
+      ).toBe(true);
+  const screen = registry.defaultLines(meta.id, layout, neutral);
+  expect(checkScreen(screen, registry)).toEqual([]);
+  expect(screen.components.map((line) => line.c)).toEqual(data.defaults.map((line) => line.c));
+  for (const line of screen.components) {
+    const { id: _id, c, ...input } = line;
+    expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success).toBe(true);
+  }
+});

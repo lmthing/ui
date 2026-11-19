@@ -1,3 +1,4 @@
+import { selectedIds, selectedLayouts } from "../../../../scripts/build";
 import { expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
@@ -53,7 +54,7 @@ it("validates generated metadata, archetypes and each worked line", () => {
     expect(registry.schema(c)?.safeParse(input).success).toBe(true);
   }
   const health = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "health");
-  for (const id of health) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of selectedIds(health)) expect(lines.some((line) => line.c === id)).toBe(true);
   for (const [start, end] of [
     [0, 3],
     [3, 6],
@@ -70,7 +71,7 @@ it("keeps the default core registry isolated and loads health only when ready", 
   expect(health).toHaveLength(9);
   expect(draft.ids.filter((id) => health.includes(id))).toHaveLength(9);
   if (!packReady("health")) expect(live.ids).toEqual(core.ids);
-  for (const id of health) {
+  for (const id of selectedIds(health)) {
     expect(core.ids).not.toContain(id);
     expect(JSON.stringify(writerFormat(core))).not.toContain(`"const":"${id}"`);
     expect(JSON.stringify(writerFormat(draft))).toContain(`"const":"${id}"`);
@@ -87,6 +88,7 @@ it("completes every layout's neutral defaults and checks the real compose scorer
     expect(meta).not.toHaveProperty("status");
     expect(Object.keys(meta.layouts)).toEqual(layouts[meta.id as keyof typeof layouts]);
     for (const layout of Object.keys(meta.layouts)) {
+      if (selectedLayouts([packComposition(meta)])?.includes(`${meta.id}/${layout}`) === false) continue;
       for (const cast of casts) {
         const screen = registry.defaultLines(meta.id, layout, cast);
         expect(checkScreen(screen, registry)).toEqual([]);
