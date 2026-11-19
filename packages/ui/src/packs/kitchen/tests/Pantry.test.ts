@@ -7,6 +7,7 @@ import {
   stampItemIds,
   type CastLike,
   type Props,
+  packReady,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
@@ -102,7 +103,8 @@ describe("Pantry fallback and metadata", () => {
       address: "p1/r1/used",
       action: "press",
     });
-    expect(createRegistry({ packs: ["kitchen"] }).ids).not.toContain("Pantry");
+    // Live once the whole pack is ready (packReady), hidden while any kitchen component is draft.
+    expect(createRegistry({ packs: ["kitchen"] }).ids.includes("Pantry")).toBe(packReady("kitchen"));
     expect(createRegistry({ packs: ["kitchen"], includeDrafts: true }).ids).toContain("Pantry");
   });
 });
