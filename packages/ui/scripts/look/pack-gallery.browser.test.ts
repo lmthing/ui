@@ -38,7 +38,9 @@ async function grid(page: Page, id: string) {
   await page.getByTestId(`variants_${id}`).waitFor();
   const def = defs[id]!;
   const cells =
-    def.examples.length + (def.meta.states ?? ["filled"]).filter((state) => state !== "filled").length;
+    def.examples.length +
+    (def.meta.states ?? ["filled"]).filter((state) => state !== "filled").length +
+    (def.meta.draw && def.meta.status !== "draft" ? def.examples.length : 0);
   const previews = await page.locator('[data-testid^="preview_"]').allTextContents();
   expect(previews).toHaveLength(cells * presets.length * 2);
   if (def.meta.status === "draft") for (const text of previews) expect(text).toContain(`${id} · draft`);

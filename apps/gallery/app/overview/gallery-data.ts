@@ -10,20 +10,27 @@ import {
 export const modes = ["light", "dark"] as const;
 export const groups = ["structure", "content", "data", "input", "action", "beyond", "escape"] as const;
 export type GalleryGroup = string;
-export type Cell = { id: ComponentName; example: unknown; index: number; state: StateName };
+export type Cell = { id: ComponentName; example: unknown; index: number; state: StateName; drawn?: true };
 export const componentIds = (Object.keys(components) as ComponentName[]).sort();
 
-// Keep the original grid: filled examples, then other states using the first example.
+// Keep existing frames in place, then append one drawn preview per playable example.
 export function cellsOf(id: ComponentName): Cell[] {
-  const { meta, examples } = components[id];
-  const states = (meta as Meta).states ?? ["filled"];
+  const { meta, examples }: { meta: Meta; examples: readonly unknown[] } = components[id];
+  const states = meta.states ?? ["filled"];
+  const filled = examples.map((example, index) => ({ id, example, index, state: "filled" as const }));
   return [
-    ...examples.map((example, index) => ({ id, example, index, state: "filled" as const })),
+    ...filled,
     ...states
       .filter((state) => state !== "filled")
       .map((state) => ({ id, example: examples[0], index: 0, state })),
+    ...(meta.draw && meta.status !== "draft"
+      ? filled.map((cell) => ({ ...cell, drawn: true as const }))
+      : []),
   ];
 }
+
+export const cellKey = (cell: Cell) => `${cell.index}_${cell.drawn ? "drawn" : cell.state}`;
+export const cellLabel = (cell: Cell) => `${cell.drawn ? "drawn" : cell.state} ${cell.index + 1}`;
 
 export function variantCount(id: ComponentName): number {
   return cellsOf(id).length * presets.length * modes.length;

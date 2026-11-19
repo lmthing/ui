@@ -1,8 +1,8 @@
 import { YStack, XStack } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
+import { KitIcon, KitText, shifted } from "../text";
 
 type DiceFaceProps = {
   part?: string;
@@ -51,7 +51,7 @@ function useHold(props: DiceFaceProps) {
   };
 }
 
-function Pips({ value, loading }: { value: number | undefined; loading: boolean | undefined }) {
+function Pips({ value, hasHold }: { value: number; hasHold: boolean }) {
   const dots: Record<number, readonly number[]> = {
     1: [4],
     2: [0, 8],
@@ -60,9 +60,9 @@ function Pips({ value, loading }: { value: number | undefined; loading: boolean 
     5: [0, 2, 4, 6, 8],
     6: [0, 2, 3, 5, 6, 8],
   };
-  const face = dots[value ?? 0] ?? dots[5]!;
+  const face = dots[value]!;
   return (
-    <YStack gap={space.sm} aria-hidden>
+    <YStack gap={space.sm} position="relative" top={hasHold ? space.sm : undefined} aria-hidden>
       {[0, 1, 2].map((row) => (
         <XStack key={row} gap={space.sm}>
           {[0, 1, 2].map((column) => (
@@ -71,7 +71,7 @@ function Pips({ value, loading }: { value: number | undefined; loading: boolean 
               width={component.base.dot}
               height={component.base.dot}
               borderRadius={radius.pill}
-              backgroundColor={loading ? "$line" : "$text"}
+              backgroundColor="$text"
               opacity={face.includes(row * 3 + column) ? 1 : component.base.none}
             />
           ))}
@@ -81,23 +81,34 @@ function Pips({ value, loading }: { value: number | undefined; loading: boolean 
   );
 }
 
+function FaceValue({ loading, value, sides, style, holdPart }: DiceFaceProps) {
+  if (loading || value === undefined || !Number.isInteger(value) || value < 1 || value > sides)
+    return (
+      <YStack
+        width={loading ? size.icon.lg + space.md : size.icon.lg}
+        height={loading ? space.sm : component.base.dot}
+        borderRadius={radius.pill}
+        backgroundColor="$line"
+        aria-hidden
+      />
+    );
+  if (sides === 6 && style !== "numbers") return <Pips value={value} hasHold={!!holdPart} />;
+  return (
+    <KitText role="number" numberScale="compact" emphasis="hero" align="center" part={null} tabular>
+      {value}
+    </KitText>
+  );
+}
+
 function Face(props: DiceFaceProps) {
   const ks = useKitStyle();
   const target = useHold(props);
-  const address = usePart(
-    props.part ?? "root",
-    !props.loading && !!props.holdPart && props.holdPart !== (props.part ?? "root"),
-  );
-  const valid =
-    props.value !== undefined &&
-    Number.isInteger(props.value) &&
-    props.value >= 1 &&
-    props.value <= props.sides;
-  const pips = props.sides === 6 && props.style !== "numbers";
+  const showHold = !props.loading && !!props.holdPart;
+  const ownPart = props.part ?? "root";
+  const separateFace = showHold && props.holdPart !== ownPart;
+  const address = usePart(ownPart, separateFace);
   return (
-    <YStack
-      {...(!props.loading && props.holdPart && props.holdPart !== (props.part ?? "root") ? address : {})}
-    >
+    <YStack {...(separateFace ? address : {})}>
       <YStack
         {...(target as object)}
         width={size.control.md * 2}
@@ -107,25 +118,16 @@ function Face(props: DiceFaceProps) {
         justifyContent="center"
         borderRadius={shifted("lg", ks.radiusShift)}
         borderWidth={component.base.strongBorder}
-        borderColor={props.held && !props.loading ? "$accent" : "$muted"}
-        backgroundColor={props.held && !props.loading ? "$accentSoft" : "$surface"}
+        borderColor={props.loading ? "$line" : props.held ? "$accent" : "$muted"}
+        backgroundColor={props.held && !props.loading ? "$accentSoft" : showHold ? "$raised" : "$surface"}
         aria-busy={!!props.loading}
         opacity={props.disabled && !props.loading ? component.base.disabledOpacity : 1}
       >
-        {pips && (valid || props.loading) ? (
-          <Pips value={props.value} loading={props.loading} />
-        ) : props.loading || !valid ? (
-          <YStack
-            width={props.loading ? String(props.value ?? props.sides).length * size.icon.lg : size.icon.lg}
-            height={props.loading ? typography.number.lineHeight - space.sm : component.base.dot}
-            borderRadius={props.loading ? shifted("sm", ks.radiusShift) : radius.pill}
-            backgroundColor="$line"
-            aria-hidden
-          />
-        ) : (
-          <KitText role="number" align="center" part={null} tabular>
-            {props.value}
-          </KitText>
+        <FaceValue {...props} />
+        {showHold && (
+          <YStack position="absolute" top={space.sm} alignSelf="center" pointerEvents="none" aria-hidden>
+            <KitIcon name={props.held ? "lock" : "unlock"} scale="md" tone="text" decorative />
+          </YStack>
         )}
       </YStack>
     </YStack>
