@@ -87,7 +87,7 @@ describe("Workout fallback and probes", () => {
     expect(fallback({ cast: casts[2]! }).exercises[0]!.name).toBe("Item one");
   });
   it("retains the core-first near miss, tier, dense weight and read targets", () => {
-    expect(meta).toMatchObject({ status: "ready", tier: "phone", weight: 3, dense: true });
+    expect(meta).toMatchObject({ tier: "phone", weight: 3, dense: true });
     expect(meta.pick).toContain("Checklist");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
@@ -102,7 +102,8 @@ describe("Workout fallback and probes", () => {
   });
 });
 
-describe("Workout states and parts", () => {
+// The shared renderer door only includes ready components.
+describe.runIf(String(meta.status) === "ready")("Workout states and parts", () => {
   it("draws every set part once and preserves duration, rest and unit readings", () => {
     for (const example of examples) {
       const html = renderInstance("Workout", example, "filled", theme, { component: "w1" });

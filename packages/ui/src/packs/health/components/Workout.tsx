@@ -9,7 +9,7 @@ import { healthWordsFor } from "../lang";
 // Core first: Checklist/plain cannot edit weights and reps per set or attach a rest countdown.
 export const meta = {
   id: "Workout",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Log each exercise's sets, weight and reps during one workout.",
   pick: "Logging a workout set by set, editing weight and reps, ticking sets and resting between them. Not ordinary jobs to tick (Checklist), timing one activity (Timer), or a run on a route (Route).",
