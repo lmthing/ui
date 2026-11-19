@@ -1,20 +1,33 @@
 import { z } from "zod";
 import {
   clock,
-  durationLine,
+  itemsOf,
   probesFor,
   text,
-  timerLabels,
+  textsOf,
+  thingOf,
   type CastLike,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
-import { babyLabels } from "../copy";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitGrid,
+  KitRow,
+  KitText,
+  KitTile,
+  KitTime,
+  useComponentState,
+} from "../../../kit";
+import { babyCopy, babyLabels, babyRead } from "../copy";
 
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 export const meta = {
   id: "BabyLog",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Quickly log a baby's feeds, nappies and sleeps and time an active feed or sleep.",
   pick: "Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).",
@@ -26,8 +39,8 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Baby entries and running timers stay on the device; two parents sharing need a shared app.",
-  items: { key: "entries", parts: ["root", "kind", "time", "minutes", "amount"] },
-  parts: ["root", "running"],
+  items: { key: "entries", parts: ["root", "kind", "time", "minutes", "amount", "icon", "label"] },
+  parts: ["root", "running", "elapsed", "heading", "empty"],
   states: ["filled", "empty"],
   actions: {
     items: { root: ["start", "stop", "press"] },
@@ -37,47 +50,50 @@ export const meta = {
       "root.press": { entryKind: "log" },
     },
   },
-  read: (input, state) => {
-    if (state !== "filled") return [];
-    const { log, running, entries } = input as z.output<typeof props> & { entries: { id?: string }[] };
-    return [
-      babyLabels[running],
-      ...kinds.map(
-        (kind, index) =>
-          `${entries[index]?.id ?? ""} ${babyLabels[kind]} · ${running === kind ? timerLabels.stop : timerLabels.start}`,
-      ),
-      ...log.map(
-        (entry, index) =>
-          `${entries[kinds.length + index]?.id ?? ""} ${babyLabels[entry.kind]} · ${entry.time}${entry.minutes === undefined ? "" : ` · ${durationLine(entry.minutes)}`}${entry.amount ? ` · ${entry.amount}` : ""}`,
-      ),
-    ];
-  },
+  read: (input, state) => (state === "filled" ? babyRead(input as z.output<typeof props>) : []),
 } as const satisfies Meta;
 const kinds = ["feed_left", "feed_right", "bottle", "nappy", "sleep"] as const;
-export const props = z
-  .strictObject({
-    log: z
-      .array(
-        z.strictObject({
-          kind: z.enum(kinds),
-          time: clock,
-          minutes: z.number().min(0).optional(),
-          amount: text(10).optional(),
-        }),
-      )
-      .min(0)
-      .max(12),
-    running: z.enum(["none", ...kinds]).default("none"),
-  })
-  .overwrite((value) => ({
-    ...value,
-    entries: [
-      ...kinds.map((kind) => ({ kind, entryKind: "tile", active: value.running === kind })),
-      ...value.log.map((entry) => ({ ...entry, entryKind: "log" })),
-    ],
-  }));
-export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
-  return { log: [], running: "none" };
+const logLimit = 12;
+const entry = z.strictObject({
+  kind: z.enum(kinds),
+  time: clock,
+  minutes: z.number().min(0).optional(),
+  amount: text(10).optional(),
+});
+const schema = z.strictObject({
+  log: z.array(entry).min(0).max(logLimit),
+  running: z.enum(["none", ...kinds]).default("none"),
+});
+const withEntries = (value: z.output<typeof schema>) => ({
+  ...value,
+  entries: [
+    ...kinds.map((kind) => ({
+      kind,
+      entryKind: "tile" as const,
+      active: value.running === kind,
+      last: value.log
+        .filter((row) => row.kind === kind)
+        .map((row) => row.time)
+        .sort()
+        .at(-1),
+    })),
+    ...value.log.map((row) => ({ ...row, entryKind: "log" as const })),
+  ],
+});
+export const props = schema.overwrite(withEntries) as typeof schema &
+  z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
+
+export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
+  const thing = thingOf(cast);
+  const log = itemsOf(cast, logLimit).flatMap((item) => {
+    const values = textsOf(item, thing);
+    const kind = kinds.find((key) =>
+      [item.type, ...values].some((value) => value === key || value === babyLabels[key]),
+    );
+    const time = values.find((value) => clock.safeParse(value).success);
+    return kind && time ? [{ kind, time }] : [];
+  });
+  return { log, running: "none" };
 }
 export const examples = [
   {
@@ -108,3 +124,77 @@ export const probes = [
   read("Start a left-side feed", { address: "b1/r1", action: "start" }),
   read("Open the feed recorded at 07:30", { address: "b1/r6", action: "press" }),
 ] satisfies Probe[];
+
+type BabyLogProps = Props<typeof props, typeof meta>;
+
+function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }>) {
+  return (
+    <KitRow
+      item={row.id}
+      label={babyCopy.entry(row)}
+      role="button"
+      lineRole="label"
+      inline
+      leading={<KitTime value={row.time} />}
+    >
+      <KitText role="label" part="kind" children={babyLabels[row.kind]} />
+      {row.minutes !== undefined && <BabyNote part="minutes" text={babyCopy.duration(row.minutes)} />}
+      {row.amount && <BabyNote part="amount" text={row.amount} />}
+    </KitRow>
+  );
+}
+
+function BabyNote({ text, part = null }: { text: string; part?: string | null }) {
+  return (
+    <KitText role="caption" tone="muted" align={part ? "start" : "center"} part={part} children={text} />
+  );
+}
+
+export function BabyLog({ entries, running }: BabyLogProps) {
+  if (useComponentState() === "empty") {
+    return (
+      <KitCard part="root">
+        <KitEmpty part="empty" icon="clock" decorativeIcon />
+      </KitCard>
+    );
+  }
+  const log = entries.filter((row) => row.entryKind === "log");
+  return (
+    <KitCard part="root" padded>
+      <KitGrid columns={3}>
+        {entries
+          .filter((row) => row.entryKind === "tile")
+          .map((row) => (
+            <KitTile
+              key={row.id}
+              item={row.id}
+              icon={babyCopy.icons[row.kind]}
+              label={babyLabels[row.kind]}
+              on={row.active}
+              action={row.active ? "stop" : "start"}
+              detail={
+                <>
+                  <BabyNote text={babyCopy.action(row.active)} />
+                  {row.last && <BabyNote text={babyCopy.last(row.last)} />}
+                </>
+              }
+            />
+          ))}
+        <KitContent>
+          <BabyNote part="running" text={babyCopy.running(running)} />
+          {running !== "none" && (
+            <KitText role="number" tone="accent" tabular part="elapsed" children={babyCopy.clock} />
+          )}
+        </KitContent>
+      </KitGrid>
+      <KitContent group="response">
+        <KitText role="label" tone="muted" part="heading" children={babyCopy.title} />
+        {log.length ? (
+          log.map((row) => <BabyLogRow key={row.id} {...row} />)
+        ) : (
+          <KitText role="caption" tone="muted" part="empty" children={babyCopy.empty} />
+        )}
+      </KitContent>
+    </KitCard>
+  );
+}
