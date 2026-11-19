@@ -21,13 +21,13 @@ import {
   useComponentState,
   KitAction,
 } from "../../../kit";
-import { vitalBand, vitalLabels, vitalLine, vitalRangeLine, vitalStatusLine, vitalUnitLine } from "../copy";
+import { vitalBand, vitalLabels, vitalLine, vitalPairLine, vitalRangeLine, vitalStatusLine } from "../copy";
 import { seedTitles } from "..";
 
 // Core first: Stats/tiles (the default) cannot place readings on a low/normal/high reference band.
 export const meta = {
   id: "Vitals",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Log vital readings alongside their reference ranges without diagnosing.",
   pick: "Body readings with a supplied low/normal/high band, unit and time: pressure, pulse, glucose or temperature. Not numbers without reference ranges (Stats), or progress toward a goal (Progress).",
@@ -118,28 +118,35 @@ export const probes = [
 type Reading = Props<typeof props, typeof meta>["readings"][number];
 
 function VitalValue({ reading }: { reading: Reading }) {
-  const band = (
+  const pair = reading.value2 === undefined ? "" : vitalPairLine(reading.value2);
+  const numberScale = `${reading.value}${pair}`.length > 12 ? "compact" : "display";
+  const tone = vitalBand(reading).tone;
+  return (
     <KitRangeBand
       part="band"
-      label={vitalUnitLine(reading)}
+      label={reading.unit}
       value={reading.value}
       low={reading.low}
       high={reading.high}
       {...vitalBand(reading)}
+      reading={
+        <KitContent group="response">
+          <KitGrid fitLast>
+            <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value">
+              {reading.value}
+              {reading.value2 !== undefined && (
+                <KitText role="number" numberScale={numberScale} tone={tone} tabular part="value2">
+                  {pair}
+                </KitText>
+              )}
+            </KitText>
+            <KitText role="caption" tone="muted" align="end" part="unit">
+              {reading.unit}
+            </KitText>
+          </KitGrid>
+        </KitContent>
+      }
     />
-  );
-  return (
-    <KitRow part="value" label={String(reading.value)} inline>
-      <KitRow part="unit" label={reading.unit} inline>
-        {reading.value2 === undefined ? (
-          band
-        ) : (
-          <KitRow part="value2" label={String(reading.value2)} inline>
-            {band}
-          </KitRow>
-        )}
-      </KitRow>
-    </KitRow>
   );
 }
 

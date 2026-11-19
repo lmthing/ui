@@ -10,6 +10,10 @@ type Vital = {
 
 export const vitalLabels = { add: "Add reading" } as const;
 
+export function vitalPairLine(value: number): string {
+  return ` / ${value}`;
+}
+
 /** Only the primary value has a supplied reference range, including both endpoints. */
 export function vitalBand({ value, low, high }: Pick<Vital, "value" | "low" | "high">) {
   const padding = Math.max(high - low, 1) / 2;

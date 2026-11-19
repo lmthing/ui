@@ -3,6 +3,7 @@ import {
   vitalBand,
   vitalLabels,
   vitalLine,
+  vitalPairLine,
   vitalRangeLine,
   vitalStatusLine,
   vitalUnitLine,
@@ -24,6 +25,9 @@ describe("Vitals copy and reference geometry", () => {
     expect(vitalLabels.add).toBe("Add reading");
     expect(vitalUnitLine({ unit: "bpm" })).toBe("bpm");
     expect(vitalUnitLine({ unit: "mmHg", value2: 0 })).toBe("/ 0 mmHg");
+    expect(vitalPairLine(76)).toBe(" / 76");
+    expect(vitalPairLine(0)).toBe(" / 0");
+    expect(vitalPairLine(-1000000)).toBe(" / -1000000");
   });
   it.each([
     [89, "warn"],

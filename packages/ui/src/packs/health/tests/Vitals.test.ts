@@ -4,14 +4,14 @@ import {
   components,
   readComponent,
   stampItemIds,
+  type as typography,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Vitals;
-const rendered = String(meta.status) === "ready" ? describe : describe.skip;
 const reading = examples[2]!.readings[0]!;
 const input = { readings: [reading], goto: "add_reading" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -119,7 +119,7 @@ describe("Vitals fallback and contract", () => {
     expect(fallback({ cast: casts[4]! }).readings).toHaveLength(2);
   });
   it("preserves the core-first near miss, tier, state and action contract", () => {
-    expect(meta.status).toMatch(/^(draft|ready)$/);
+    expect(meta.status).toBe("ready");
     expect(meta.tier).toBe("phone");
     expect(meta.realPath).toContain("read permission");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -131,7 +131,7 @@ describe("Vitals fallback and contract", () => {
   });
 });
 
-rendered("Vitals states, parts and read/act", () => {
+describe("Vitals states, parts and read/act", () => {
   it.each(examples)("draws every present part once, and exposes matching readings and actions", (example) => {
     const html = renderInstance("Vitals", example, "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
@@ -157,7 +157,7 @@ rendered("Vitals states, parts and read/act", () => {
     ]);
   });
 });
-rendered("Vitals empty, paired and repeated actions", () => {
+describe("Vitals empty, paired and repeated actions", () => {
   it("shows a calm cast-aware empty state without stale reading parts", () => {
     const html = renderInstance("Vitals", input, "empty", theme, "reading");
     expect(html).toContain("No readings yet");
@@ -166,11 +166,16 @@ rendered("Vitals empty, paired and repeated actions", () => {
     expect(html).not.toContain('data-testid="home/c1/r1/root"');
     expect(meta.read(input, "empty")).toEqual([]);
   });
-  it.each([undefined, 0, -1000000, 1000000])("draws the second number only when present: %s", (value2) => {
+  it.each([undefined, 0, 76, -1000000, 1000000])("renders a paired value %s", (value2) => {
     const html = renderInstance("Vitals", { ...input, readings: [{ ...reading, value2 }] }, "filled", theme);
     expect(html.includes('data-testid="home/c1/r1/value2"')).toBe(value2 !== undefined);
     expect(html).not.toContain("NaN");
     expect(html).not.toContain("Infinity");
+    const compact = value2 === -1000000 || value2 === 1000000;
+    const size = typography[compact ? "body" : "number"].size;
+    for (const part of value2 === undefined ? ["value"] : ["value", "value2"])
+      expect(styleAt(html, `home/c1/r1/${part}`)).toContain(`font-size:${size}px`);
+    expect(styleAt(html, "home/c1/r1/unit")).toContain(`font-size:${typography.caption.size}px`);
   });
   it("dispatches repeated row presses and add navigation through the real controller", () => {
     const onAction = vi.fn(),
