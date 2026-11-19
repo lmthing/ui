@@ -12,7 +12,7 @@ export function symptomSeverity(symptom: SymptomSeed): number {
 }
 
 export function symptomSeverityLine(symptom: SymptomSeed, lang?: string): string {
-  return `${symptom.label} · ${symptomLevelLine(symptom, lang)}`;
+  return healthWordsFor(lang).symptomSeverity(symptom.label, symptomLevelLine(symptom, lang));
 }
 
 export function symptomLevelLine(symptom: SymptomSeed, lang?: string): string {
