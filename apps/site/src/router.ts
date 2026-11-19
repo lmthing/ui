@@ -31,3 +31,24 @@ export function useRoute(): Route {
   }, []);
   return route;
 }
+
+/**
+ * Scrolls a section hash (`#try`, `#packs`) into view. The browser's own anchor scroll is lost when the page's
+ * HTML is replaced by the live app, and when a link from another route lands on content that is not drawn yet.
+ * Routes (`#/c/...`, `#/p/...`) are untouched. The header offset comes from `scroll-padding-top`.
+ */
+export function useHashScroll(routeName: string): void {
+  useEffect(() => {
+    if (routeName !== "home") return;
+    const go = () => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      if (id && !id.startsWith("/"))
+        document.getElementById(id)?.scrollIntoView({ block: "start", behavior: "auto" });
+    };
+    // Once the content is drawn, and again after fonts and skeletons have settled the layout.
+    const frame = requestAnimationFrame(go);
+    const later = setTimeout(go, 600);
+    addEventListener("hashchange", go);
+    return () => (cancelAnimationFrame(frame), clearTimeout(later), removeEventListener("hashchange", go));
+  }, [routeName]);
+}

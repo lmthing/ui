@@ -121,6 +121,21 @@ async function checkIndex(browser: Browser) {
   await page.close();
 }
 
+/** A link to a section must land on it, from a cold load: the section's top is just under the header. */
+async function checkAnchors(browser: Browser) {
+  for (const id of ["try", "packs", "components"]) {
+    const page = await open(browser, 1280);
+    await page.goto(`${base}#${id}`, { waitUntil: "networkidle" });
+    await page.waitForTimeout(1200);
+    const top = await page.evaluate(
+      (target) => document.getElementById(target)?.getBoundingClientRect().top ?? 9999,
+      id,
+    );
+    expect(top > -40 && top < 200, `anchor #${id} lands near the top (section top at ${Math.round(top)} px)`);
+    await page.close();
+  }
+}
+
 async function checkPlayground(browser: Browser) {
   const page = await open(browser, 1280);
   await page.goto(`${base}#/c/List`, { waitUntil: "networkidle" });
@@ -165,6 +180,7 @@ await checkPlayground(browser);
 await checkViewAct(browser);
 await checkStaleChunk(browser);
 await checkIndex(browser);
+await checkAnchors(browser);
 await checkEdges(browser);
 await checkTheme(browser);
 for (const width of [1280, 390]) await checkPack(browser, width);
