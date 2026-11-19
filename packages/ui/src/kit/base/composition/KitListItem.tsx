@@ -63,6 +63,7 @@ function ShelfItem(props: ItemProps) {
       label={row.title}
       goto={row.goto}
       inset="none"
+      leadingAlign={row.photo && (lead === "thumb" || lead === "avatar") ? "row" : "line"}
       trailing={itemTrail(props)}
       {...{ density, mark, surface, leading }}
     >

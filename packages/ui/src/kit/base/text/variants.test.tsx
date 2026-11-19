@@ -1,7 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
-import { expect, it } from "vitest";
+import { expect, expectTypeOf, it } from "vitest";
 import { size, space, themeName, type as typography, variants, type ThemeChoice } from "@lmthing/ui/catalog";
 import {
   KitCard,
@@ -138,6 +138,12 @@ it("arranges the same addressed cells as rows, grid or strip", () => {
     render(<KitGrid arrange={arrange}>{content}</KitGrid>),
   );
   expect(new Set(layouts).size).toBe(3);
+  expectTypeOf<{ arrange: "rows"; overflow: "page"; children: null }>().not.toExtend<
+    Parameters<typeof KitGrid>[0]
+  >();
+  expectTypeOf<{ arrange: "strip"; overflow: "page"; children: null }>().toExtend<
+    Parameters<typeof KitGrid>[0]
+  >();
   for (const html of layouts) expect(addresses(html)).toEqual(["home/base/one", "home/base/two"]);
 });
 
@@ -170,6 +176,9 @@ it("keeps shelf and expanded accessory choices, including the component's densit
   const expanded = render(<KitListItem row={row} style="expand" index={0} lead="number" trail="badge" />);
   expect(expanded).toContain('data-testid="home/base/r1/trail"');
   expect(expanded).toContain('data-testid="home/base/r1/rank"');
+  const photo = render(<KitListItem row={row} style="shelf" index={0} lead="avatar" />, compact);
+  const lead = elementAt(photo, "home/base/r1/root").children[0]!.children[0]!;
+  expect(styleAt(photo, lead)).toContain("align-self:center");
 });
 
 it("applies list detail, lead and trail choices at their original part addresses", () => {

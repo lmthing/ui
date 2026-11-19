@@ -23,7 +23,8 @@ export function KitStrip({ children, pages = false, overflow, density }: StripPr
   const paged = overflow === undefined ? pages : overflow === "page";
   const gap = space[useVariantDensity(density).stripGap];
   const cell = Math.round(width * (paged ? component.base.pageShare : component.base.stripShare));
-  const webSnap = isWeb && overflow === "page" && cells.length > 1;
+  const explicitPages = overflow === "page" && cells.length > 1;
+  const webSnap = isWeb && explicitPages;
   return (
     <YStack width="100%" gap={gap} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
       <ScrollView
@@ -31,7 +32,7 @@ export function KitStrip({ children, pages = false, overflow, density }: StripPr
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{
           flexGrow: component.base.bodyFlex,
-          ...(webSnap ? { paddingRight: width - cell } : {}),
+          ...(explicitPages ? { paddingRight: width - cell } : {}),
         }}
         {...(webSnap ? { style: { scrollSnapType: "x mandatory" } as never } : {})}
         {...(paged && cell
