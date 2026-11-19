@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { components, type ScreenLike } from "@lmthing/ui/catalog";
+import { z } from "zod";
+import { components, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
 import { createAgentAccess } from "./agent";
 import { createInteractionStore } from "./store";
 
@@ -59,4 +60,32 @@ describe("agent access", () => {
       hint: "press takes no value",
     });
   });
+});
+
+it("blocks standalone draws while loading without a controller runtime marker", () => {
+  const fixture: Definition = {
+    meta: {
+      ...components.Button.meta,
+      id: "ChanceFixture",
+      actions: { parts: { draw: ["press"] } },
+      emptyActions: ["draw.press"],
+      draw: { kind: "pick", press: "draw", pool: "options" },
+    },
+    props: z.strictObject({ options: z.array(z.string()).min(2).max(4) }),
+    examples: [],
+    fallback: () => ({ options: ["A", "B"] }),
+    probes: [],
+  };
+  const current = (): ScreenLike => ({
+    id: "s",
+    components: [{ c: "ChanceFixture", id: "c1", state: "empty", options: ["A", "B"] }],
+  });
+  const store = createInteractionStore({ "s/c1/$state": "loading" });
+  const agent = createAgentAccess({ current, defs: { ChanceFixture: fixture }, store, random: () => 1 });
+  const press = { address: "c1/draw", action: "press" };
+  expect(agent.read()).toBe("screen s\nc1 ChanceFixture (loading)");
+  expect(agent.act(press).ok).toBe(false);
+  store.set("s/c1/$state", undefined);
+  expect(agent.act(press).ok).toBe(true);
+  expect(agent.read()).toContain("index=1");
 });

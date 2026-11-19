@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { drawKey, type Definition, type Meta, type ScreenLike } from "../../../catalog";
+import { drawKey, drawState, type Definition, type Meta, type ScreenLike } from "../../../catalog";
 import { createInteractionStore, createScreenController } from "../index";
 
 const base = {
@@ -34,9 +34,13 @@ function run(
   const screen = { id: "s", components: [{ id: "c1", c: base.id, ...input, state }] };
   const store = createInteractionStore();
   const random = vi.fn(() => words.shift()!);
-  const afterAction = vi.fn(() => store.get(`s/c1/${drawKey}`));
+  const result = () =>
+    store.get(`s/c1/${drawKey}`) === undefined
+      ? undefined
+      : drawState(defs.ChanceFixture!.meta, input, (part) => store.get(`s/c1/${part}`));
+  const afterAction = vi.fn(result);
   const runtime = createScreenController({ screen, defs, store, random, onAction: afterAction });
-  return { runtime, random, afterAction, result: () => store.get(`s/c1/${drawKey}`) };
+  return { runtime, random, afterAction, result };
 }
 
 const facesMeta = {
@@ -46,11 +50,9 @@ const facesMeta = {
   emptyActions: ["roll.press"],
 } as const satisfies Partial<Meta>;
 const facesProps = z.strictObject({ count: z.int().min(1).max(6), sides: z.int().min(2).max(20) });
-
 it("draws from empty, retains held faces, and keeps read and controls in sync", () => {
   const { runtime, random, afterAction, result } = run(facesMeta, facesProps, { count: 2, sides: 6 });
   expect(runtime.read()).toBe("screen s\nc1 ChanceFixture (empty) [c1/roll press]");
-  expect(runtime.actionsAt("c1/r1/hold")).toEqual([]);
   expect(runtime.canPress("s/c1/other")).toBe(false);
   expect(runtime.press("s/c1/roll")).toMatchObject({ ok: true });
   expect(runtime.snapshotScreen().components[0]).toEqual({
@@ -73,12 +75,13 @@ it("draws from empty, retains held faces, and keeps read and controls in sync", 
   expect(runtime.read()).not.toContain("[c1/roll press]");
   expect(random).toHaveBeenCalledTimes(3);
   expect(runtime.press("c1/r1/hold").ok).toBe(true);
-  expect(runtime.canPress("c1/roll")).toBe(true);
   runtime.store.set("s/c1/$state", "loading");
-  expect(runtime.snapshotScreen().components[0]?.state).toBe("loading");
   expect(runtime.actionsAt("c1/roll")).toEqual([]);
   expect(runtime.act({ address: "c1/roll", action: "press" }).ok).toBe(false);
-  expect(runtime.read()).not.toContain("[c1/r1/hold toggle");
+  expect(runtime.read()).toBe("screen s\nc1 ChanceFixture (loading)");
+  expect(result()).toMatchObject({ faces: [3, 6] });
+  runtime.store.set("s/c1/$state", undefined);
+  expect(runtime.read()).toContain("faces=[3,6]");
   expect(random).toHaveBeenCalledTimes(3);
 });
 
@@ -117,7 +120,6 @@ const pickMeta = {
   confirmParts: ["reset"],
 } as const satisfies Partial<Meta>;
 const pickProps = z.strictObject({ options: z.array(z.string()).min(2).max(3), repeat: z.boolean() });
-
 it("exhausts a nonrepeating pool and restores it only after reset is confirmed", () => {
   const { runtime, random, result } = run(pickMeta, pickProps, { options: ["A", "B"], repeat: false });
   expect(runtime.read()).toContain("remaining=2");

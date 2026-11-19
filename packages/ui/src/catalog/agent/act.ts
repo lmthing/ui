@@ -6,7 +6,15 @@ import type { ScreenLike } from "./read";
 import { validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { nestedAt } from "./selection";
-import { deviceRandom, drawKey, drawRole, holdIndex, performDraw, type RandomSource } from "./draw";
+import {
+  deviceRandom,
+  drawKey,
+  drawRole,
+  holdIndex,
+  performDraw,
+  storeDraw,
+  type RandomSource,
+} from "./draw";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -70,7 +78,7 @@ function stageDraw(
   const get = (part: string) => next[`${screen}/${id}/${part}`];
   const props = def.props.parse(raw) as Values;
   const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
-  next[`${screen}/${id}/${drawKey}`] = outcome;
+  next[`${screen}/${id}/${drawKey}`] = storeDraw(def.meta, props, outcome);
   if (!random && (role === "draw" || role === "redraw")) return "";
   const value =
     role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;

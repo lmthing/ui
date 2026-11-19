@@ -11,6 +11,7 @@ export function liveProps(meta: Meta, props: Values, instance: string, values: V
   props = projectNested(meta, props, (part) => values[`${instance}/${part}`]);
   if (values[`${instance}/$runtime`])
     props = projectClocks(meta, projectAdjustments(meta, props, get), get, Number(get("$now") ?? Date.now()));
+  else if (meta.draw && get("$state") !== undefined) props = { ...props, state: get("$state") };
   props = projectDraw(meta, props, get);
   if (values[`${instance}/$runtime`]) {
     if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))

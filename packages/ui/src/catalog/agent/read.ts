@@ -129,7 +129,9 @@ export function readComponent(
     def.meta.partTiers,
   );
   if (state !== "filled" && !(draw && state === "success"))
-    return [[head, ...readDraw(draw), ...affordances.map(formatAffordance)].join(" ")];
+    return [
+      [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
+    ];
   const key = def.meta.items?.key;
   const own = [
     ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),

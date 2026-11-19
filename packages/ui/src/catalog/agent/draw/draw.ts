@@ -1,7 +1,10 @@
-import type { Meta } from "../meta";
-import type { StateName } from "../types";
-import { stampItemIds } from "../lines";
-import type { Values } from "./act";
+import type { Meta } from "../../meta";
+import type { StateName } from "../../types";
+import { stampItemIds } from "../../lines";
+import type { Values } from "../act";
+import { drawPartition, partitionPlan } from "./partition";
+import { randomIndex, type RandomSource } from "./random";
+
 export const drawKey = "$draw";
 export type DrawState =
   | { kind: "faces"; faces: readonly number[]; held: readonly boolean[] }
@@ -11,6 +14,31 @@ export type DrawState =
 type Draw = NonNullable<Meta["draw"]>;
 type DrawRole = "draw" | "redraw" | "reset" | "hold";
 type Get = (part: string) => unknown;
+type StoredDraw = Readonly<{ inputs: string; state: DrawState }>;
+
+// Readers receive stamped items while action planning receives the original rows.
+function unstamp(value: unknown): unknown {
+  if (!Array.isArray(value)) return value;
+  return value.map((item: unknown) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return item;
+    const { id: _id, ...props } = item as Values;
+    return props;
+  });
+}
+
+function inputsFor(draw: Draw, props: Values): string {
+  if (draw.kind === "faces") return JSON.stringify([props[draw.count], props[draw.sides]]);
+  if (draw.kind === "pick")
+    return JSON.stringify([
+      unstamp(props[draw.pool]),
+      draw.repeat === undefined || props[draw.repeat] !== false,
+    ]);
+  return JSON.stringify([unstamp(props[draw.players]), unstamp(props[draw.teams])]);
+}
+
+export function storeDraw(meta: Meta, props: Values, state: DrawState): StoredDraw {
+  return { inputs: inputsFor(meta.draw!, props), state };
+}
 
 const list = (value: unknown): readonly unknown[] => (Array.isArray(value) ? value : []);
 const repeats = (draw: Extract<Draw, { kind: "pick" }>, props: Values) =>
@@ -26,7 +54,7 @@ function partition(draw: Extract<Draw, { kind: "partition" }>, props: Values) {
 }
 export function holdIndex(meta: Meta, target: string): number {
   const prefix = meta.items?.prefix ?? "r";
-  const [item, part, extra] = target.split("/");
+  const [item, part = "root", extra] = target.split("/");
   if (meta.draw?.kind !== "faces" || !meta.draw.hold || part !== meta.draw.hold || extra !== undefined)
     return -1;
   const index = Number(item?.slice(prefix.length));
@@ -46,8 +74,8 @@ export function drawRole(meta: Meta, target: string, action: string): DrawRole |
 export function drawState(meta: Meta, props: Values, get: Get): DrawState | undefined {
   const draw = meta.draw;
   if (!draw) return;
-  const stored = get(drawKey) as DrawState | undefined;
-  if (stored?.kind === draw.kind) return stored;
+  const stored = get(drawKey) as StoredDraw | undefined;
+  if (stored?.state?.kind === draw.kind && stored.inputs === inputsFor(draw, props)) return stored.state;
   if (draw.kind === "pick") return { kind: "pick", used: [], remaining: list(props[draw.pool]).length };
   if (draw.kind === "faces") return { kind: "faces", faces: [], held: [] };
   return { kind: "partition", teams: [] };
@@ -125,72 +153,4 @@ export function performDraw(
   if (draw.kind === "partition")
     return { kind: "partition", teams: drawPartition(partition(draw, props)!, random) };
   return state;
-}
-
-/** Each call supplies an unsigned, uniformly distributed 32-bit integer. */
-export type RandomSource = () => number;
-const range = 2 ** 32;
-export const deviceRandom: RandomSource = () => globalThis.crypto.getRandomValues(new Uint32Array(1))[0]!;
-
-export function randomIndex(size: number, random: RandomSource): number {
-  if (!Number.isInteger(size) || size < 1 || size > range) throw new RangeError("Invalid draw size");
-  if (size === 1) return 0;
-  const limit = range - (range % size);
-  for (;;) {
-    const sample = random();
-    if (!Number.isInteger(sample) || sample < 0 || sample >= range)
-      throw new RangeError("Invalid random word");
-    if (sample < limit) return sample % size;
-  }
-}
-
-type Partition = {
-  locked: readonly (number | undefined)[];
-  sizes: number[];
-  eligible: number[];
-  extra: number;
-};
-
-export function partitionPlan(locks: readonly unknown[], teams: number): Partition | undefined {
-  if (!Number.isInteger(teams) || teams < 1 || teams > locks.length) return;
-  const base = Math.floor(locks.length / teams);
-  const max = Math.ceil(locks.length / teams);
-  const sizes = Array<number>(teams).fill(0);
-  const locked: (number | undefined)[] = [];
-  for (const lock of locks) {
-    if (lock === undefined) locked.push(undefined);
-    else {
-      if (typeof lock !== "number" || !Number.isInteger(lock) || lock < 0 || lock >= teams) return;
-      const count = sizes[lock]! + 1;
-      if (count > max) return;
-      sizes[lock] = count;
-      locked.push(lock);
-    }
-  }
-  const eligible = sizes.flatMap((size, team) => (size <= base ? [team] : []));
-  const extra = (locks.length % teams) - (teams - eligible.length);
-  if (extra < 0) return;
-  return { locked, sizes: sizes.map((size) => Math.max(size, base)), eligible, extra };
-}
-
-export function drawPartition(plan: Partition, random: RandomSource): number[] {
-  const { locked, eligible, extra } = plan;
-  const capacities = [...plan.sizes];
-  const candidates = [...eligible];
-  // Pick the extra-capacity teams uniformly from those not forced by locks.
-  for (let i = 0; i < extra; i++) {
-    const team = candidates.splice(randomIndex(candidates.length, random), 1)[0]!;
-    capacities[team] = capacities[team]! + 1;
-  }
-  for (const team of locked) if (team !== undefined) capacities[team] = capacities[team]! - 1;
-  const seats = capacities.flatMap((size, team) => Array<number>(size).fill(team));
-  // A uniformly shuffled roster in the open slots is equivalent to drawing slots without replacement.
-  return locked.map((team) => {
-    if (team !== undefined) return team;
-    const index = randomIndex(seats.length, random);
-    const picked = seats[index]!;
-    const last = seats.pop()!;
-    if (index < seats.length) seats[index] = last;
-    return picked;
-  });
 }
