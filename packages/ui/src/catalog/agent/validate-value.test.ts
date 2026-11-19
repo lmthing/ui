@@ -22,6 +22,13 @@ it.each([
   expect(validateActionValue(action as string, value) === null).toBe(valid);
 });
 
+it("requires a finite number even when no numeric bounds are declared", () => {
+  expect(validateActionValue("set", "2026-11-19")).toBeNull();
+  for (const value of ["1", NaN, Infinity, -Infinity, undefined, null])
+    expect(validateActionValue("set", value, { numeric: true })?.code).toBe("invalid_value");
+  expect(validateActionValue("set", 0.5, { numeric: true })).toBeNull();
+});
+
 it.each([
   [{ append: "5" }, 12, {}, "125"],
   [{ append: "." }, 0, {}, "0."],

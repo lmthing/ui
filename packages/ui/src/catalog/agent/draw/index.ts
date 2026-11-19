@@ -12,3 +12,4 @@ export {
   type DrawState,
 } from "./draw";
 export { deviceRandom, type RandomSource } from "./random";
+export { readDraw } from "./read-draw";

@@ -1,6 +1,6 @@
 import type { Meta } from "../meta";
 import type { StateName } from "../types";
-import { nestedControls } from "./selection";
+import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 
@@ -74,7 +74,7 @@ export function affordancesOf(
   state = (props.state as StateName | undefined) ?? "filled",
 ): Affordance[] {
   const when = meta.actions?.when as When;
-  const own = partsOf(meta.actions?.parts as Record<string, readonly string[]>, props, instance, when, props);
+  const own = ownActions(meta, props, instance, when);
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // `$first` in a rule is true only for the first item (the top card of a stack).
@@ -103,6 +103,7 @@ export function affordancesOf(
             : ` = ${JSON.stringify(item[spec.prop])}`,
     }));
   const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
+  const runtime = values[`${instance}/$runtime`];
   const get = (part: string) => values[`${instance}/${part}`];
   state = drawStatus(meta, props, state, get);
   const now = Number(get("$now") ?? Date.now());
@@ -113,12 +114,26 @@ export function affordancesOf(
       if (!meta.emptyActions?.some((allowed) => allowed === `${part}.${action}`)) return false;
     } else if (state !== "filled" && !(state === "success" && role)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
-    if (!get("$runtime")) return true;
+    if (!runtime && !meta.set && !meta.items?.set) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
+    if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)
     );
+  });
+}
+
+function ownActions(meta: Meta, props: Props, instance: string, when: When) {
+  return partsOf(
+    meta.actions?.parts as Record<string, readonly string[]>,
+    props,
+    instance,
+    when,
+    props,
+  ).flatMap((a) => {
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
 }
 

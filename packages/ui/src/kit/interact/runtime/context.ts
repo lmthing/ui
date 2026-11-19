@@ -1,5 +1,7 @@
 import {
   drawKey,
+  liveProps,
+  stampItemIds,
   staleDraw,
   migrateScreen,
   resolveDefinition,
@@ -65,12 +67,16 @@ function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, valu
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
+  const local = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key.replace(`${screen.id}/`, ""), value]),
+  );
   for (const { id, c, state: _state, ...input } of projected.components) {
     const def = defs[c];
     const key = valueKey(screen.id, id, drawKey);
     const props = def?.props.safeParse(input);
-    if (def && props?.success && staleDraw(def.meta, props.data as Values, values[key]))
-      expired[key] = undefined;
+    if (!def || !props?.success) continue;
+    const live = liveProps(def.meta, stampItemIds(def.meta, props.data as Values), id, local, true);
+    if (staleDraw(def.meta, live, values[key])) expired[key] = undefined;
   }
   return expired;
 }
@@ -133,3 +139,18 @@ export function createControllerContext(options: ControllerOptions) {
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
+
+export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+  const at = ctx.now();
+  const values = ctx.valuesOf(at);
+  return {
+    ...ctx,
+    now: () => at,
+    valuesOf: () => values,
+    status: { ...ctx.status },
+    mounted: new Map(ctx.mounted),
+    disabledParts: new Map(ctx.disabledParts),
+    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    expiredDraws: (next) => ctx.expiredDraws(next, at),
+  };
+}

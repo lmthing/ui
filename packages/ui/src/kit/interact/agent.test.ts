@@ -1,10 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { components, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
-import { drawKey } from "../../catalog";
+import { components, planAct, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
 import { createAgentAccess } from "./agent";
+import { createScreenController } from "./controller";
 import { createInteractionStore } from "./store";
-
 const screen: ScreenLike = {
   id: "home",
   components: [
@@ -12,7 +11,6 @@ const screen: ScreenLike = {
     { id: "b1", c: "Button", label: "Log watering" },
   ],
 };
-
 function access() {
   const links: string[] = [];
   const store = createInteractionStore();
@@ -24,7 +22,6 @@ function access() {
   });
   return { agent, store, links };
 }
-
 describe("agent access", () => {
   it("toggles a part and reads it back", () => {
     const { agent, store } = access();
@@ -63,95 +60,141 @@ describe("agent access", () => {
   });
 });
 
-it("blocks standalone draws while loading without a controller runtime marker", () => {
-  const fixture: Definition = {
-    meta: {
-      ...components.Button.meta,
-      id: "ChanceFixture",
-      actions: { parts: { draw: ["press"] } },
-      emptyActions: ["draw.press"],
-      draw: { kind: "pick", press: "draw", pool: "options" },
+const matrixProps = z
+  .strictObject({
+    rows: z
+      .array(z.strictObject({ values: z.array(z.int().min(-999).max(999).nullable()) }))
+      .default([{ values: [4, null] }]),
+  })
+  .overwrite((props) => ({
+    ...props,
+    rows: props.rows.map((row) => ({ ...row, editable: true })),
+    cells: props.rows.flatMap(({ values }) => values.map((score) => ({ score }))),
+  }));
+const matrix = {
+  meta: {
+    id: "MatrixFixture",
+    group: "input",
+    purpose: "Edit a number matrix.",
+    pick: "A fixture for addressed cells.",
+    region: "body",
+    weight: 1,
+    tier: "phone",
+    realPath: "Local storage.",
+    items: {
+      key: "cells",
+      parts: ["score"],
+      set: {
+        score: {
+          prop: "score",
+          min: -999,
+          max: 999,
+          integer: true,
+          matrix: { rows: "rows", values: "values" },
+        },
+      },
     },
-    props: z.strictObject({ options: z.array(z.string()).min(2).max(4) }),
-    examples: [],
-    fallback: () => ({ options: ["A", "B"] }),
-    probes: [],
+    confirmParts: ["reset"],
+    clearItems: { reset: "score" },
+    actions: { parts: { reset: ["press"] }, items: { score: ["set"] } },
+    read: (input: unknown) => [
+      JSON.stringify((input as z.output<typeof matrixProps>).rows.map((row) => row.values)),
+    ],
+  },
+  props: matrixProps,
+  fallback: () => ({}),
+  examples: [],
+  probes: [],
+} satisfies Definition;
+function matrixSetup(useDefaults = false) {
+  const rows = [{ values: [4, null] }, { values: [null, 5] }];
+  const screen = {
+    id: "game",
+    components: ["s1", "s2"].map((id) => ({ id, c: matrix.meta.id, ...(useDefaults ? {} : { rows }) })),
   };
-  const current = (): ScreenLike => ({
-    id: "s",
-    components: [{ c: "ChanceFixture", id: "c1", state: "empty", options: ["A", "B"] }],
-  });
-  const store = createInteractionStore({ "s/c1/$state": "loading" });
-  const agent = createAgentAccess({ current, defs: { ChanceFixture: fixture }, store, random: () => 1 });
-  const press = { address: "c1/draw", action: "press" };
-  expect(agent.read()).toBe("screen s\nc1 ChanceFixture (loading)");
-  expect(agent.act(press).ok).toBe(false);
-  store.set("s/c1/$state", undefined);
-  expect(agent.act(press).ok).toBe(true);
-  expect(agent.read()).toContain("index=1");
+  const defs = { [matrix.meta.id]: matrix };
+  const onAction = vi.fn();
+  const runtime = createScreenController({ screen, defs, onAction });
+  const agent = createAgentAccess({ current: () => screen, defs, store: runtime.store, runtime });
+  const snapshot = (index = 0) => runtime.snapshotScreen().components[index]?.rows;
+  return { agent, runtime, snapshot, rows, onAction };
+}
+const edit = (address: string, value: unknown) => ({ address, value, action: "set" });
+const reset = { address: "s1/reset", action: "press" };
+const confirm = { address: "confirm/confirm", action: "press" };
+it("validates integer cell bounds and projects edits into the wire matrix and read", () => {
+  const { agent, snapshot, rows, onAction } = matrixSetup();
+  for (const invalid of [-1000, 1000, 1.5, "20", Infinity, null])
+    expect(agent.act(edit("s1/r2/score", invalid))).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(agent.act(edit("s1/r5/score", 1))).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(onAction).not.toHaveBeenCalled();
+  expect(agent.act([edit("s1/r2/score", -999), edit("s1/r3/score", 999)])).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [4, -999] }, { values: [999, 5] }]);
+  expect(agent.read()).toContain("[[4,-999],[999,5]]");
+  expect(rows).toEqual([{ values: [4, null] }, { values: [null, 5] }]);
 });
 
-it("draws with the standalone selection and permanently expires invalidated results in a batch", () => {
-  const fixture: Definition = {
-    meta: {
-      ...components.Button.meta,
-      id: "ChanceFixture",
-      actions: { parts: { roll: ["press"], two: ["select"], three: ["select"] } },
-      emptyActions: ["roll.press", "two.select", "three.select"],
-      draw: { kind: "faces", press: "roll", count: "count", sides: "sides" },
-      select: { prop: "count", value: "index", parts: { two: 2, three: 3 } },
-    },
-    props: z.strictObject({ count: z.int().min(1), sides: z.int().min(2) }),
-    examples: [],
-    fallback: () => ({ count: 2, sides: 6 }),
-    probes: [],
-  };
-  const current = (): ScreenLike => ({
-    id: "s",
-    components: [{ c: "ChanceFixture", id: "c1", state: "empty", count: 2, sides: 6 }],
-  });
-  const store = createInteractionStore();
-  const agent = createAgentAccess({ current, defs: { ChanceFixture: fixture }, store, random: () => 4 });
-  expect(
-    agent.act([
-      { address: "c1/three", action: "select" },
-      { address: "c1/roll", action: "press" },
-    ]).ok,
-  ).toBe(true);
-  expect(agent.read()).toContain("faces=[5,5,5]");
-  expect(
-    agent.act([
-      { address: "c1/two", action: "select" },
-      { address: "c1/three", action: "select" },
-    ]).ok,
-  ).toBe(true);
-  expect(store.get(`s/c1/${drawKey}`)).toBeUndefined();
-  expect(agent.read()).toContain("ChanceFixture (empty)");
+it("projects edits and confirmed clears into snapshots with defaulted matrix rows", () => {
+  const { agent, runtime, snapshot } = matrixSetup(true);
+  expect(snapshot()).toBeUndefined();
+  expect(agent.read()).toContain("[[4,null]]");
+  expect(agent.act(edit("s1/r1/score", 17))).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [17, null] }]);
+  expect(agent.act([reset, confirm])).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [null, null] }]);
+  expect(runtime.snapshotScreen().components[0]).not.toHaveProperty("cells");
 });
 
-it("blocks a non-draw empty action while the standalone store reports loading", () => {
-  const fixture: Definition = {
+it("rejects a declared set that makes the schema invalid in the planner and controller", () => {
+  const def = {
+    ...matrix,
     meta: {
-      ...components.Button.meta,
-      id: "EmptyFixture",
-      actions: { parts: { start: ["press"] } },
-      emptyActions: ["start.press"],
+      id: matrix.meta.id,
+      group: "input",
+      purpose: "Set a range.",
+      pick: "A range fixture.",
+      region: "body",
+      weight: 1,
+      tier: "phone",
+      realPath: "Local.",
+      set: { lower: { prop: "low", min: 0, max: 100 } },
+      actions: { parts: { lower: ["set"] } },
     },
-    props: z.strictObject({}),
-    examples: [{}],
-    fallback: () => ({}),
-    probes: [],
-  };
-  const current = (): ScreenLike => ({
-    id: "s",
-    components: [{ c: "EmptyFixture", id: "c1", state: "empty" }],
-  });
-  const store = createInteractionStore();
-  const agent = createAgentAccess({ current, defs: { EmptyFixture: fixture }, store });
-  const press = { address: "c1/start", action: "press" };
-  expect(agent.read()).toContain("[c1/start press]");
-  expect(agent.act(press).ok).toBe(true);
-  store.set("s/c1/$state", "loading");
-  expect(agent.read()).toBe("screen s\nc1 EmptyFixture (loading)");
-  expect(agent.act(press).ok).toBe(false);
+    props: z
+      .strictObject({ low: z.number(), high: z.number() })
+      .refine(({ low, high }) => low <= high)
+      .overwrite((input) => ({ ...input, low: Math.round(input.low * 10) / 10 })),
+  } satisfies Definition;
+  const screen = { id: "range", components: [{ id: "s1", c: def.meta.id, low: 1, high: 8 }] };
+  const defs = { [def.meta.id]: def };
+  const onAction = vi.fn();
+  const runtime = createScreenController({ screen, defs, onAction });
+  const steps = [edit("s1/lower", 10), edit("s1/lower", 2)];
+  expect(planAct(screen, defs, {}, steps)).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+  expect(runtime.act(steps[0]!)).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+  expect(runtime.snapshotScreen()).toEqual(screen);
+  expect(() => runtime.read()).not.toThrow();
+  expect(onAction).not.toHaveBeenCalled();
+  expect(runtime.act(edit("s1/lower", 2.46))).toMatchObject({ ok: true });
+  expect(runtime.read()).toContain("[s1/lower set = 2.5]");
+});
+
+it("clears only the confirmed component, leaves cancelled edits intact and rolls back failed batches", () => {
+  const { agent, runtime, snapshot, rows } = matrixSetup();
+  expect(agent.act(edit("s1/r1/score", 17))).toMatchObject({ ok: true });
+  expect(agent.act(reset)).toMatchObject({ ok: true });
+  expect(runtime.confirmation).toBeDefined();
+  const edited = [{ values: [17, null] }, { values: [null, 5] }];
+  expect(snapshot()).toEqual(edited);
+  expect(agent.act({ address: "confirm/cancel", action: "dismiss" })).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual(edited);
+  expect(agent.act([reset, confirm, edit("s1/r1/score", 1000)])).toMatchObject({ ok: false, at: 2 });
+  expect(runtime.confirmation).toBeUndefined();
+  expect(snapshot()).toEqual(edited);
+  expect(agent.act([reset, confirm])).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [null, null] }, { values: [null, null] }]);
+  expect(agent.read()).toContain("[[null,null],[null,null]]");
+  expect(snapshot(1)).toEqual(rows);
+  expect(agent.act(edit("s1/r4/score", 0))).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [null, null] }, { values: [null, 0] }]);
 });

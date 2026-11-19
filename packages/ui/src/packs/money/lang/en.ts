@@ -1,4 +1,17 @@
 export const en = {
+  bills: {
+    month: "Monthly estimate",
+    year: "Yearly total",
+    separator: "\u00a0· ",
+    due: (date: string) => `Due ${date}`,
+    overdue: (name: string) => `${name}, overdue`,
+    markPaid: (name: string) => `Mark ${name} as paid`,
+    repeat: {
+      weekly: "Weekly",
+      monthly: "Monthly",
+      yearly: "Yearly",
+    },
+  },
   accountKinds: {
     current: "Current",
     savings: "Savings",
@@ -17,6 +30,12 @@ export const en = {
     options: { day: "1D", week: "1W", month: "1M", year: "1Y", all: "All" },
     change: (amount: string) => `${amount} this period`,
     compactChange: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
+  },
+  transactions: {
+    today: "Today",
+    yesterday: "Yesterday",
+    date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
+    entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
   },
 };
 

@@ -1,0 +1,16 @@
+import { useEffect, useState } from "react";
+
+const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/** How many lines have arrived: one more every `every` ms, restarting when `key` changes or `run` bumps. */
+export function useStream(total: number, key: string, run: number, every = 950, active = true, initial = 0) {
+  const [count, setCount] = useState(() => Math.min(initial, total));
+  useEffect(() => {
+    if (reduced()) return setCount(total);
+    setCount(Math.min(initial, total));
+    if (!active) return;
+    const timer = setInterval(() => setCount((n) => (n >= total ? n : n + 1)), every);
+    return () => clearInterval(timer);
+  }, [total, key, run, every, active, initial]);
+  return count;
+}

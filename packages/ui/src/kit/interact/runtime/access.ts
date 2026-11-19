@@ -1,4 +1,4 @@
-import { wordsFor, affordancesOf, liveProps, parseAddress, stampItemIds } from "../../../catalog";
+import { wordsFor, affordancesOf, liveProps, parseAddress, parseControlProps } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
@@ -27,17 +27,21 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
       : ["confirm/cancel", "confirm/close"].includes(local)
         ? ["dismiss"]
         : [];
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
   const entry = ctx
-    .liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet))
+    .liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now)
     .components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
   if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length) return [];
   try {
     const localValues = Object.fromEntries(
-      Object.entries(ctx.valuesOf()).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
+      Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
-    const props = liveProps(def.meta, stampItemIds(def.meta, ctx.inputOf(entry)), id, localValues);
+    const { id: _id, c: _c, state: _state, ...raw } = entry;
+    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
+    const props = liveProps(def.meta, parsed, id, localValues, true);
     return affordancesOf(
       def.meta,
       props,

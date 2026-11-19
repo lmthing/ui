@@ -1,15 +1,15 @@
-import { liveProps } from "./live-props";
+import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { projectSelection, projectNested } from "./selection";
-import { projectAdjustments, projectClocks } from "./clocks";
+import { numericSetAt, projectClocks } from "./clocks";
+import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
-import { drawState, drawStatus, projectDraw, type DrawState } from "./draw";
+import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
+import { migrateLine, migrateScreen } from "../migrations";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -62,44 +62,48 @@ const risks: Record<string, string> = {
 function withValues(
   affordances: Affordance[],
   values: Record<string, unknown>,
-  tier: string,
-  partTiers: Readonly<Record<string, string>> = {},
+  def: Definition,
+  props: Props,
+  instance: string,
 ) {
+  const { meta } = def;
   return affordances.map((a) => {
-    const risk = risks[partTiers[a.part] ?? tier] ?? "";
-    const value = values[`${a.address}/$draft`] ?? values[a.address];
+    const risk = risks[meta.partTiers?.[a.part] ?? meta.tier] ?? "";
+    const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
+    const choices = a.action === "select" && choiceValues(meta, props, target);
+    const set = a.action === "set" && numericSetAt(meta, props, target);
+    const value = choices
+      ? props[meta.select!.prop]
+      : set
+        ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
+          ? undefined
+          : set.value
+        : (values[`${a.address}/$draft`] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
+    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
     return { ...a, detail: `${detail}${risk}` };
   });
 }
 
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const reading = projectNested(meta, projectSelection(meta, props, get), get);
-  return projectDraw(
-    meta,
-    values[`${instance}/$runtime`]
-      ? projectClocks(meta, projectAdjustments(meta, reading, get), get, Number(get("$now") ?? Date.now()))
-      : reading,
-    get,
-  );
+  const runtime = Boolean(get("$runtime"));
+  const reading = projectParsedControls(meta, props, get, runtime);
+  const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
+  return projectDraw(meta, timed, get);
 }
 
-function readDraw(state: DrawState | undefined): string[] {
-  if (state?.kind === "pick")
-    return [
-      ...(state.index === undefined ? [] : [`index=${state.index}`]),
-      `used=${JSON.stringify(state.used)}`,
-      `remaining=${state.remaining}`,
-    ];
-  if (state?.kind === "faces" && state.faces.length)
-    return [`faces=${JSON.stringify(state.faces)}`, `held=${JSON.stringify(state.held)}`];
-  if (state?.kind === "partition" && state.teams.length) return [`teams=${JSON.stringify(state.teams)}`];
-  return [];
+function migrateInput(component: string, input: unknown) {
+  if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
+  const line = { ...input, c: component };
+  const migrated = migrateLine(line, { variantOnly: true });
+  if (migrated === line) return input;
+  const { c: _c, ...props } = migrated;
+  return props;
 }
 
 /**
@@ -115,9 +119,9 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
-  const props = liveProps(def.meta, validated, instance, values);
   const get = (part: string) => values[`${instance}/${part}`];
+  const validated = parseControlProps(def, migrateInput(def.meta.id, input), get);
+  const props = liveProps(def.meta, validated, instance, values, true);
   state = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
@@ -125,8 +129,9 @@ export function readComponent(
   const affordances = withValues(
     affordancesOf(def.meta, props, instance, values, state),
     values,
-    def.meta.tier,
-    def.meta.partTiers,
+    def,
+    props,
+    instance,
   );
   if (state !== "filled" && !(draw && state === "success"))
     return [
@@ -184,9 +189,11 @@ export function readScreen(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = screen.components.flatMap(({ id, c, state, ...props }) => {
-    const def = defs[c];
-    return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
-  });
+  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
+    ({ id, c, state, ...props }) => {
+      const def = defs[c];
+      return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
+    },
+  );
   return [header, ...lines].join("\n");
 }

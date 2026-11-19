@@ -40,11 +40,18 @@ const screen: ScreenLike = {
 const pad = "home/c1/amount";
 const type = (value: unknown, address = pad) => ({ address, action: "type", value });
 
-function setup(mounted: boolean) {
+function setup(mounted: boolean, definitions = defs) {
   const store = createInteractionStore();
-  const runtime = mounted ? createScreenController({ screen, defs, store, requireMounted: true }) : undefined;
-  for (const part of [pad, "home/c1/pad"]) runtime?.registerPart(part);
-  const agent = createAgentAccess({ defs, current: () => screen, store, ...(runtime ? { runtime } : {}) });
+  const runtime = mounted
+    ? createScreenController({ screen, defs: definitions, store, requireMounted: true })
+    : undefined;
+  for (const part of [pad, "home/c1/pad", "home/c1/seed"]) runtime?.registerPart(part);
+  const agent = createAgentAccess({
+    defs: definitions,
+    current: () => screen,
+    store,
+    ...(runtime ? { runtime } : {}),
+  });
   return { act: runtime?.act ?? agent.act, agent, store, runtime };
 }
 
@@ -88,6 +95,34 @@ describe.each([true, false])("numeric typing with controller: %s", (mounted) => 
     expect(store.get(pad)).toBeUndefined();
   });
 });
+
+it.each([true, false])(
+  "uses a staged numeric set as the first keypad edit's seed (mounted: %s)",
+  (mounted) => {
+    const { act, agent, store } = setup(mounted, {
+      Fixture: {
+        ...definition,
+        meta: {
+          ...definition.meta,
+          parts: [...definition.meta.parts!, "seed"],
+          actions: { parts: { ...definition.meta.actions?.parts, seed: ["set"] } },
+          set: { seed: { prop: "value", min: 0, max: 9, integer: true } },
+        },
+      },
+    });
+    const set = { address: "home/c1/seed", action: "set", value: 4 };
+    expect(act([set, type({ append: "2" }), type({ append: "0" })])).toMatchObject({
+      ok: false,
+      code: "invalid_value",
+      at: 2,
+    });
+    expect(store.get(pad)).toBeUndefined();
+    expect(agent.read()).toContain("Value 2");
+    expect(act([set, type({ append: "2" })])).toMatchObject({ ok: true });
+    expect(agent.read()).toContain('Value 42 — "Value" [c1/amount type = "42"]');
+    expect(agent.read()).toContain("[c1/seed set = 4]");
+  },
+);
 
 it("blocks agent edits to a mounted disabled keypad and allows edits after cleanup", () => {
   const { agent, store, runtime } = setup(true);
