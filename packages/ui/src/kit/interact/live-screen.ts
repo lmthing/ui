@@ -1,5 +1,6 @@
 import {
   projectControls,
+  projectControlInput,
   projectClocks,
   projectAdjustments,
   type ClockState,
@@ -61,8 +62,10 @@ function projectEntry(
   const get = (part: string) => values[valueKey(screen.id, entry.id, part)];
   const result = { ...entry };
   const { id: _id, c: _c, state: _state, ...input } = entry;
-  const parsed = defs[entry.c]?.props.parse(input) as Values | undefined;
-  if (!parsed) return result;
+  const def = defs[entry.c];
+  if (!def) return result;
+  const parsed = def.props.parse(input) as Values;
+  Object.assign(result, projectControlInput(def, input, parsed, get));
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;

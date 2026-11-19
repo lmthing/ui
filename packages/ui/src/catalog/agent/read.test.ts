@@ -1,6 +1,9 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
-import { readComponent, type Definition, text } from "../index";
+import { readComponent, readScreen, type Definition, text } from "../index";
+import { planAct } from "./act";
+import { affordancesOf } from "./affordances";
+import { parseControlProps } from "./live-props";
 
 const parts = ["root", "roll", "reset", "restart", "reverse", "remake", "r", "r1x", "r1_suffix"];
 const props = z.strictObject({
@@ -59,4 +62,63 @@ it("still omits all controls in a non-filled state", () => {
   expect(readComponent(fixture, fixture.examples[0], "c1", "loading")).toEqual([
     "c1 ReaderFixture (loading)",
   ]);
+});
+
+it("recomputes derived choices from a staged item edit in a pure reader and planner", () => {
+  const def = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      items: {
+        key: "cells",
+        parts: ["score"],
+        set: { score: { prop: "score", min: 0, max: 10, matrix: { rows: "rows", values: "points" } } },
+      },
+      select: { prop: "mode", choices: { pick: { prop: "modes" } } },
+      actions: { parts: { pick: ["select"] }, items: { score: ["set"] } },
+    },
+    props: z
+      .strictObject({
+        mode: z.string(),
+        rows: z.array(z.strictObject({ points: z.array(z.number().nullable()) })),
+      })
+      .overwrite((input) => ({
+        ...input,
+        cells: input.rows.flatMap(({ points }) => points.map((score) => ({ score }))),
+        modes: input.rows.some(({ points }) => points.some((value) => value !== null))
+          ? ["edit", "review"]
+          : [],
+      })),
+  } satisfies Definition;
+  const seed = { mode: "edit", rows: [{ points: [null] }] };
+  const current = { id: "test", components: [{ id: "p1", c: def.meta.id, ...seed }] };
+  const defs = { [def.meta.id]: def };
+  expect(readScreen(current, defs)).not.toContain("p1/pick select");
+  const get = (part: string) => (part === "r1/$adjust/score" ? 5 : undefined);
+  expect(parseControlProps(def, seed, get).modes).toEqual(["edit", "review"]);
+  const steps = [
+    { address: "p1/r1/score", action: "set", value: 5 },
+    { address: "p1/pick", action: "select", value: "review" },
+  ];
+  const plan = planAct(current, defs, {}, steps);
+  expect(plan).toMatchObject({ ok: true });
+  if (plan.ok)
+    expect(readScreen(current, defs, plan.values)).toContain('select = "review"; choices ["edit","review"]');
+});
+
+it("does not offer shared nudges past the pure reader's bound", () => {
+  const meta = {
+    ...fixture.meta,
+    items: {
+      key: "rows",
+      parts: ["points", "plus"],
+      set: { points: { prop: "amount", max: 30 } },
+      adjust: { "plus.increment": { prop: "amount", delta: 0.5 } },
+    },
+    actions: { items: { points: ["set"], plus: ["increment"] } },
+  } satisfies Definition["meta"];
+  const props = { rows: [{ id: "r1", amount: 20 }] };
+  expect(affordancesOf(meta, props, "p1").map(({ action }) => action)).toEqual(["set", "increment"]);
+  const values = { "p1/r1/$adjust/amount": 30 };
+  expect(affordancesOf(meta, props, "p1", values).map(({ action }) => action)).toEqual(["set"]);
 });

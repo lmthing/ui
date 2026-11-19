@@ -1,4 +1,4 @@
-import { liveProps, parseControlProps } from "./live-props";
+import { liveProps, parseControlProps, projectControlInput } from "./live-props";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { affordancesOf, type Affordance } from "./affordances";
@@ -46,6 +46,21 @@ function numericStep(
   if (adjustment?.atSet) return { id, adjustment };
 }
 
+function controlsAreValid(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  address: string,
+  values: Values,
+) {
+  const [id] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id)!;
+  const def = defs[entry.c]!;
+  const { id: _id, c: _c, state: _state, ...raw } = entry;
+  const parsed = def.props.parse(raw) as Values;
+  const projected = projectControlInput(def, raw, parsed, (part) => values[`${screen.id}/${id}/${part}`]);
+  return projected === raw || def.props.safeParse(projected).success;
+}
+
 function affordancesOfScreen(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -88,6 +103,7 @@ function selectStep(
   return {
     step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
     error,
+    declared: Object.hasOwn(def.meta.select.choices ?? {}, target),
     changes: Object.fromEntries(
       Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
         `${screen.id}/${id}/${part}`,
@@ -150,6 +166,11 @@ export function planAct(
       if (number?.set) next[`${screen.id}/${number.id}/${number.set.key}`] = step.value;
     }
     Object.assign(next, selected.changes);
+    if (
+      (number?.set || number?.adjustment || selected.declared) &&
+      !controlsAreValid(screen, defs, address, next)
+    )
+      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return { ok: true, values: next, changed, links };

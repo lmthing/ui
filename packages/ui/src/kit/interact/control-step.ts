@@ -3,6 +3,7 @@ import {
   nestedAt,
   adjustmentAt,
   clearItemSets,
+  projectControlInput,
   type ActStep,
   type Definition,
   type ScreenLike,
@@ -32,6 +33,17 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
   const found = selectionAt(def.meta, input, local);
   return found ? { ...step, value: found.value } : step;
 }
+
+function clearSets(ctx: ControlContext) {
+  const { step, def, input, entry, target, put, get } = ctx;
+  if (step.action !== "press" || !def.meta.clearItems) return true;
+  const changes = Object.entries(clearItemSets(def.meta, input, target));
+  if (!changes.length) return true;
+  changes.forEach(([part, value]) => put(part, value));
+  const { id: _id, c: _c, state: _state, ...wire } = entry;
+  return def.props.safeParse(projectControlInput(def, wire, input, get)).success;
+}
+
 export function controlStep(
   screen: ScreenLike,
   entry: Entry,
@@ -64,10 +76,7 @@ export function controlStep(
   };
   const selection = selectControl(ctx);
   if (selection.error) return selection;
-  if (step.action === "press" && ctx.def.meta.clearItems)
-    Object.entries(clearItemSets(ctx.def.meta, input, target)).forEach(([part, value]) =>
-      ctx.put(part, value),
-    );
+  if (!clearSets(ctx)) return ctx.bad("Clear conflicts with component props");
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
   const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, adjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));

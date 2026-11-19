@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
-import { components, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
+import { components, planAct, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
 import { createAgentAccess } from "./agent";
 import { createScreenController } from "./controller";
 import { createInteractionStore } from "./store";
@@ -64,7 +64,11 @@ describe("agent access", () => {
 });
 
 const matrixProps = z
-  .strictObject({ rows: z.array(z.strictObject({ values: z.array(z.int().min(-999).max(999).nullable()) })) })
+  .strictObject({
+    rows: z
+      .array(z.strictObject({ values: z.array(z.int().min(-999).max(999).nullable()) }))
+      .default([{ values: [4, null] }]),
+  })
   .overwrite((props) => ({
     ...props,
     cells: props.rows.flatMap(({ values }) => values.map((score) => ({ score }))),
@@ -105,9 +109,12 @@ const matrix = {
   probes: [],
 } satisfies Definition;
 
-function matrixSetup() {
+function matrixSetup(useDefaults = false) {
   const rows = [{ values: [4, null] }, { values: [null, 5] }];
-  const screen = { id: "game", components: ["s1", "s2"].map((id) => ({ id, c: matrix.meta.id, rows })) };
+  const screen = {
+    id: "game",
+    components: ["s1", "s2"].map((id) => ({ id, c: matrix.meta.id, ...(useDefaults ? {} : { rows }) })),
+  };
   const defs = { [matrix.meta.id]: matrix };
   const onAction = vi.fn();
   const runtime = createScreenController({ screen, defs, onAction });
@@ -129,6 +136,44 @@ it("validates integer cell bounds and projects edits into the wire matrix and re
   expect(snapshot()).toEqual([{ values: [4, -999] }, { values: [999, 5] }]);
   expect(agent.read()).toContain("[[4,-999],[999,5]]");
   expect(rows).toEqual([{ values: [4, null] }, { values: [null, 5] }]);
+});
+
+it("projects edits and confirmed clears into snapshots with defaulted matrix rows", () => {
+  const { agent, runtime, snapshot } = matrixSetup(true);
+  expect(agent.act(edit("s1/r1/score", 17))).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [17, null] }]);
+  expect(agent.act([reset, confirm])).toMatchObject({ ok: true });
+  expect(snapshot()).toEqual([{ values: [null, null] }]);
+  expect(runtime.snapshotScreen().components[0]).not.toHaveProperty("cells");
+});
+
+it("rejects a declared set that makes the schema invalid in the planner and controller", () => {
+  const def = {
+    ...matrix,
+    meta: {
+      id: matrix.meta.id,
+      group: "input",
+      purpose: "Set a range.",
+      pick: "A range fixture.",
+      region: "body",
+      weight: 1,
+      tier: "phone",
+      realPath: "Local.",
+      set: { lower: { prop: "low", min: 0, max: 100 } },
+      actions: { parts: { lower: ["set"] } },
+    },
+    props: z.strictObject({ low: z.number(), high: z.number() }).refine(({ low, high }) => low <= high),
+  } satisfies Definition;
+  const screen = { id: "range", components: [{ id: "s1", c: def.meta.id, low: 1, high: 8 }] };
+  const defs = { [def.meta.id]: def };
+  const onAction = vi.fn();
+  const runtime = createScreenController({ screen, defs, onAction });
+  const steps = [edit("s1/lower", 10), edit("s1/lower", 2)];
+  expect(planAct(screen, defs, {}, steps)).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+  expect(runtime.act(steps[0]!)).toMatchObject({ ok: false, code: "invalid_value", at: 0 });
+  expect(runtime.snapshotScreen()).toEqual(screen);
+  expect(() => runtime.read()).not.toThrow();
+  expect(onAction).not.toHaveBeenCalled();
 });
 
 it("clears only the confirmed component, leaves cancelled edits intact and rolls back failed batches", () => {

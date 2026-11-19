@@ -2,7 +2,7 @@ export { affordancesOf, formatAffordance, type Affordance } from "./affordances"
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { validateActionValue, type ValueError } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type Values } from "./act";
-export { liveProps, projectControls } from "./live-props";
+export { liveProps, projectControlInput, projectControls } from "./live-props";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
 export { nestedControls, nestedAt, projectNested } from "./selection";
 export {

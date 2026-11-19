@@ -103,13 +103,15 @@ export function affordancesOf(meta: Meta, props: Props, instance: string, values
     ...itemActions.filter((control) => !targets.has(control.address)),
     ...nested,
   ];
-  if (!values[`${instance}/$runtime`]) return offered;
-  if (props.state && props.state !== "filled") return [];
+  const runtime = values[`${instance}/$runtime`];
+  if (!runtime && !meta.set && !meta.items?.set) return offered;
+  if (runtime && props.state && props.state !== "filled") return [];
   const get = (part: string) => values[`${instance}/${part}`];
   const now = Number(get("$now") ?? Date.now());
   return offered.filter(({ address, action }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
+    if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)
