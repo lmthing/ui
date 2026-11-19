@@ -1,4 +1,4 @@
-import { valueKey, type TimerState, type ControlChange } from "../index";
+import { valueKey, type ControlChange } from "../index";
 import type { ControlContext } from "./types";
 function composerControl(ctx: ControlContext): ControlChange {
   const { step, input, put, get, values, bad } = ctx;
@@ -41,17 +41,6 @@ function scaleControl(ctx: ControlContext): ControlChange {
   put("$value", value);
   return { values, value };
 }
-function timerControl(ctx: ControlContext): ControlChange {
-  const { step, input, put, values, now } = ctx;
-  if (!["start", "stop"].includes(step.action)) return { values };
-  put("$timer", {
-    running: step.action === "start",
-    from: now,
-    seconds: Number(input.seconds),
-  } satisfies TimerState);
-  put("$seconds", input.seconds);
-  return { values, value: step.action === "start" ? "running" : "stopped" };
-}
 export function valueControl(ctx: ControlContext): ControlChange {
   switch (ctx.entry.c) {
     case "Composer":
@@ -60,8 +49,6 @@ export function valueControl(ctx: ControlContext): ControlChange {
       return counterControl(ctx);
     case "Scale":
       return scaleControl(ctx);
-    case "Timer":
-      return timerControl(ctx);
     default:
       return { values: ctx.values };
   }
