@@ -36,7 +36,7 @@ Load animation: the three parts snap in one after the other, like ops folding in
    by a recorded model's lines going through the real validator.
 4. Try it: a model in your browser (three tiers), and the recorded read-and-act demo as a second tab.
 5. Packs: waves as a table with status dots, a shelf of the live packs.
-6. Components: eight specimens and a link to the full index (own route, #/components).
+6. Components: six specimens and a link to the full index (own route, #/components).
 7. Themes, footer.
 
 ## Copy

@@ -61,15 +61,14 @@
   font-size: 0.86rem;
 }
 .spec-line {
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  font-size: 0.68rem;
+  display: block;
+  font: 400 0.68rem/1.55 var(--mono);
   color: var(--muted);
   border-left: 2px solid var(--line);
   padding-left: 8px;
-  word-break: break-all;
+}
+.spec-line .row.item {
+  padding-left: 1em;
 }
 .specimen small {
   font: 500 0.68rem var(--mono);
@@ -109,6 +108,10 @@
 .empty {
   padding: 48px 0;
   max-width: 52ch;
+}
+.notfound {
+  max-width: 52ch;
+  padding-top: 24px;
 }
 .empty h2 {
   margin-bottom: 12px;

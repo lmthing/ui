@@ -32,6 +32,7 @@ export function ThemePopover() {
     };
     addEventListener("keydown", close);
     addEventListener("pointerdown", close);
+    addEventListener("hashchange", () => setOpen(false), { once: true });
     return () => (removeEventListener("keydown", close), removeEventListener("pointerdown", close));
   }, [open]);
   return (

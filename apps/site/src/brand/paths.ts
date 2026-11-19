@@ -10,7 +10,7 @@ export const markParts = [
 // Wordmark: lowercase monoline letters on a 36-unit line, drawn as paths. The dots of the i are the accent,
 // then a slanted address slash and `ui`.
 export const wordStrokes = [
-  "M3 3V24",
+  "M3 3V20C3 23 4.5 24 8 24",
   "M11 12V24M11 17C11 11.5 19 11.5 19 17V24M19 17C19 11.5 27 11.5 27 17V24",
   "M37 6V19C37 23 39 24 42 24M33 12H42",
   "M49 3V24M49 17C49 11.5 57 11.5 57 17V24",
