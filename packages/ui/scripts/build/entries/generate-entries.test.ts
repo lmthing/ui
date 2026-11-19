@@ -78,7 +78,10 @@ it("imports pack data and views only through the root door", async () => {
   expect(entry).toContain('from "../../../packs/booking"');
   expect(entry).not.toContain('packs/booking/components"');
   expect(entry).not.toContain('packs/booking/archetypes"');
-  expect(entry).toContain("Ready: Ready.Ready");
+  const views = await readFile(join(root, "src/entry/views/group-1.ts"), "utf8");
+  expect(views).toContain('from "../../packs/booking"');
+  expect(views).toContain("Ready: booking.Ready.Ready");
+  expect(views).not.toContain("Draft");
 });
 
 it("generates scoped drafts, ready renderers, pack data and inlined examples", async () => {

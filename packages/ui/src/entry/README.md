@@ -5,10 +5,10 @@ Generated files. Never edit by hand. Regenerate with `pnpm build:entries` (`scri
 Files:
 
 - `catalog.ts` wires unchanged public data, membership, pack maps and readiness/registry/index wrappers.
-- `core.ts` and `surfaces.ts` hold component data and ready renderer maps.
+- `core.ts` and `surfaces.ts` hold data; `core-renderers.ts` and `surface-renderers.ts` hold ready views.
 - `packs/index.ts` combines groups; each `packs/group-N/` door combines at most nine generated pack files.
 - Pack files import metadata, components, archetypes and example text only through the pack root door.
-- `renderers.ts` combines ready views in core/pack/surface order; `kit.ts` wraps the public kit.
+- `views/index.ts` combines pack renderer groups; `renderers.ts` keeps core/pack/surface order and `kit.ts` wraps the kit.
 
 Rules:
 
