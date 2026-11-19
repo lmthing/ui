@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import {
   archetypes,
   components,
@@ -7,6 +8,9 @@ import {
   scoreComposition,
   runComposeProbes,
   variantVocabulary,
+  itemVariantProps,
+  variantProps,
+  text,
 } from "@lmthing/ui/catalog";
 const cast = { things: [], items: [] };
 it("adds the vocabulary once and the screen caps only for recipes with shared axes", () => {
@@ -22,6 +26,47 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
   const prompt = composePrompt(meta, "thread", cast, defs);
   expect(prompt.split(variantVocabulary)).toHaveLength(2);
   expect(prompt).toContain("highlight at most one third");
+});
+
+it("uses the effective List trail for toggle recipes and respects row overrides", () => {
+  const meta = archetypes.settings.meta;
+  const trail = { trail: ["chevron", "toggle"] } as const;
+  const defs = {
+    ...components,
+    List: {
+      ...components.List,
+      meta: {
+        ...components.List.meta,
+        variants: trail,
+        items: { ...components.List.meta.items, variants: trail },
+      },
+      props: z.strictObject({
+        ...variantProps(trail),
+        style: z.string().optional(),
+        rows: z.array(
+          z.strictObject({
+            title: text(28),
+            goto: z.string().optional(),
+            value: z.string().optional(),
+            ...itemVariantProps(trail, { inheritTrail: true }),
+          }),
+        ),
+      }),
+    },
+  };
+  expect(composePrompt(meta, "simple", cast, defs)).toContain("can inherit the List trail");
+  const screen = createRegistry().defaultLines("settings", "simple", cast);
+  const reply = (row: { title: string; trail?: string }) =>
+    JSON.stringify({
+      ...screen,
+      components: screen.components.map((entry) =>
+        entry.c === "List" ? { id: entry.id, c: "List", trail: "toggle", rows: [row] } : entry,
+      ),
+    });
+  expect(scoreComposition(reply({ title: "Alerts" }), meta, "simple", defs).issues).toEqual([]);
+  expect(
+    scoreComposition(reply({ title: "Alerts", trail: "chevron" }), meta, "simple", defs).issues,
+  ).toContain("Missing required slot2: List:toggle");
 });
 
 describe("composition scoring", () => {

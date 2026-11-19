@@ -23,5 +23,5 @@ Photo: Show one picture with an optional caption.
 props: { bleed?: inset|edge="inset", aspect?: wide|square|tall="wide", photo: photo lib:<tag>|local:<n>, caption?: text≤80 }
 example: {"c":"Photo","bleed":null,"aspect":null,"photo":"lib:plants","caption":"Morning light"}
 
-For every variant not requested below, write JSON null. Do not fill in defaults.
+Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.
 Brief: Show the photo lib:dogs cropped to a square.

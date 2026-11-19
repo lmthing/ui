@@ -27,7 +27,9 @@ export function writePrompt(def: Definition, brief: string): string {
     buildEntry(def),
     "",
     ...(hasVariants
-      ? ["For every variant not requested below, write JSON null. Do not fill in defaults."]
+      ? [
+          "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.",
+        ]
       : []),
     `Brief: ${brief}`,
   ].join("\n");

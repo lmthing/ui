@@ -28,7 +28,7 @@ const list = variantFixture(
   [
     [
       { axis: "density", value: "compact" },
-      "Fit more on the walks list: Clover, Pip and Scout.",
+      "Use tighter vertical spacing between walks: Clover, Pip and Scout.",
       "List today's walks: Clover, Pip and Scout.",
     ],
     [
@@ -43,7 +43,7 @@ const list = variantFixture(
     ],
     [
       { axis: "overflow", value: "peek" },
-      "List watering, pruning, feeding and repotting, but show just the first few with a See all link.",
+      "List watering, pruning, feeding and repotting. Show only the first few, with one See all link for the whole list.",
       "List watering, pruning, feeding and repotting.",
     ],
     [
@@ -71,6 +71,7 @@ const list = variantFixture(
     items: { key: "rows", parts: ["root", "title"], variants: itemAxes },
     writeHints: [
       "Use group dates only for date headings. A day mentioned in item content is not a heading request.",
+      "Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.",
     ],
   },
 );
@@ -95,12 +96,12 @@ const card = variantFixture(
     [
       { axis: "surface", value: "outlined" },
       "Show Fern care in a card with just an outline and no filled background.",
-      "Make a card titled Fern care.",
+      "Make a plant care card titled Fern Schedule with the body Water on Friday.",
     ],
     [
       { axis: "align", value: "center" },
       "On the Fern card, center all the text horizontally.",
-      "Add a Fern card with the detail Water Friday.",
+      "Create a card titled Fern. Body: Remember to water on Friday.",
     ],
     [
       { axis: "detail", value: "brief" },
@@ -117,6 +118,7 @@ const card = variantFixture(
     writeHints: [
       "Set detail to brief only when asked to hide secondary text. Keep the body text in the data; supplying body copy by itself does not request a detail setting.",
       "Keep media null for a photo reference alone. Only change media when asked how to display the image, such as a large cover.",
+      "A request for a focal point changes emphasis only. Supplying a title or body does not request emphasis. Do not add a photo or set media unless asked.",
     ],
   },
 );
@@ -165,14 +167,14 @@ const bars = variantFixture(
     ],
     [
       { axis: "labels", value: "all" },
-      "Chart 7 walks on Monday and 8 on Tuesday, with the value written above every bar.",
+      "Show a value label above each bar. The walks were seven on Monday and eight on Tuesday.",
       "Chart 7 walks on Monday and 8 on Tuesday.",
     ],
   ],
   {
     items: { key: "points", parts: ["root", "label"] },
     writeHints: [
-      "Keep figures and labels null if the brief just supplies data. Set figures only for a requested number format; set labels only for a requested policy for labeling bar values.",
+      "Leave both figures and labels null for plain data. Asking for values above the bars changes only labels; asking to abbreviate values changes only figures and does not request bar labels.",
     ],
   },
 );

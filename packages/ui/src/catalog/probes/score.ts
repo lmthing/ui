@@ -54,16 +54,24 @@ function scoreVariant(
   const rows = meta.items && input[meta.items.key];
   const target = item === undefined ? input : Array.isArray(rows) ? rows[item] : undefined;
   if (!target || typeof target !== "object") return { pass: false, detail: `missing item ${item}` };
-  const actual =
-    item !== undefined && value === null && Array.isArray(rows)
-      ? rows.find((row: Record<string, unknown>) => row[axis] !== undefined)?.[axis]
-      : (target as Record<string, unknown>)[axis];
-  const pass = actual === (value ?? undefined);
+  const actual = (target as Record<string, unknown>)[axis];
   const expected = value === null ? "omitted" : value;
-  return {
-    pass,
-    detail: pass ? `${axis}: ${expected}` : `expected ${axis}: ${expected}, got ${String(actual)}`,
-  };
+  if (actual !== (value ?? undefined))
+    return { pass: false, detail: `expected ${axis}: ${expected}, got ${String(actual)}` };
+  const unexpected = (props: unknown, declared: Variants | undefined, index?: number) =>
+    props && typeof props === "object"
+      ? Object.keys(declared ?? {}).find(
+          (key) => (key !== axis || item !== index) && (props as Record<string, unknown>)[key] !== undefined,
+        )
+      : undefined;
+  const extra = unexpected(input, meta.variants);
+  if (extra) return { pass: false, detail: `unrequested variant: ${extra}` };
+  if (Array.isArray(rows))
+    for (const [index, row] of rows.entries()) {
+      const extra = unexpected(row, meta.items?.variants, index);
+      if (extra) return { pass: false, detail: `unrequested item ${index} variant: ${extra}` };
+    }
+  return { pass: true, detail: `${axis}: ${expected}` };
 }
 
 const normalAddress = (address: string) => address.replace(/^home\//, "").replace(/\/root$/, "");

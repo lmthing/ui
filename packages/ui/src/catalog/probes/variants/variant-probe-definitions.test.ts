@@ -26,9 +26,11 @@ it("scores the authored variant without repairing it or letting defaults hide an
   const hero = { axis: "emphasis", value: "hero" } as const;
   const plain = { axis: "emphasis", value: null } as const;
   expect(scoreWrite(reply({ emphasis: "hero" }), def, hero).pass).toBe(true);
+  expect(scoreWrite(reply({ emphasis: "hero", media: "cover" }), def, hero).pass).toBe(false);
   expect(scoreWrite(reply({ emphasis: "normal" }), def, hero).pass).toBe(false);
   expect(scoreWrite(reply({ emphasis: "heroic" }), def, hero).pass).toBe(false);
   expect(scoreWrite(reply({ emphasis: null }), def, plain).pass).toBe(true);
+  expect(scoreWrite(reply({ emphasis: null, detail: "brief" }), def, plain).pass).toBe(false);
   expect(scoreWrite(reply({ emphasis: "normal" }), def, plain).pass).toBe(false);
   expect(scoreWrite(reply({}), def, { axis: "labels", value: null }).pass).toBe(false);
 });
@@ -46,6 +48,7 @@ it("checks item positives at the target row and rejects an unsolicited choice on
   const mark = { axis: "mark", value: "highlight", item: 0 } as const;
   const plain = { ...mark, value: null } as const;
   expect(scoreWrite(reply("highlight", null), def, mark).pass).toBe(true);
+  expect(scoreWrite(reply("highlight", "highlight"), def, mark).pass).toBe(false);
   expect(scoreWrite(reply(null, "highlight"), def, mark).pass).toBe(false);
   expect(scoreWrite(reply(null, null), def, plain).pass).toBe(true);
   expect(scoreWrite(reply(null, "highlight"), def, plain).pass).toBe(false);

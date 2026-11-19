@@ -31,10 +31,16 @@ export function composePrompt(
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
   const offersVariants = names.some((name) => defs[name]?.meta.variants || defs[name]?.meta.items?.variants);
+  const inheritedToggle =
+    slots.some((slot) => slot.variant === "toggle" && slot.allow.includes("List")) &&
+    defs.List?.meta.variants?.trail?.includes("toggle");
+  const toggle = inheritedToggle
+    ? 'toggle means every List row has an effective trail of "toggle"; a row without a trail can inherit the List trail.'
+    : "toggle means every List row has trail: toggle.";
   return [
     "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
-    `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.`,
+    `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; ${toggle}`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
     ...(offersVariants
       ? [
@@ -49,6 +55,18 @@ export function composePrompt(
     "Write a useful screen for the supplied content, using the recipe. Reply with JSON only.",
   ].join("\n\n");
 }
+
+function hasToggleRows(entry: ScreenLike["components"][number], def: Definition | undefined): boolean {
+  if (!def?.meta.variants?.trail && !def?.meta.items?.variants?.trail) {
+    return Array.isArray(entry.rows) && entry.rows.every((row) => row?.trail === "toggle");
+  }
+  const { id: _id, c: _c, state: _state, ...input } = entry;
+  const parsed = def.props.safeParse(input);
+  if (!parsed.success || !def.meta.items) return false;
+  const rows: unknown = parsed.data[def.meta.items.key];
+  return Array.isArray(rows) && rows.every((row) => (row?.trail ?? parsed.data.trail) === "toggle");
+}
+
 export function scoreComposition(
   reply: string,
   meta: ArchetypeMeta,
@@ -71,10 +89,7 @@ export function scoreComposition(
       .filter((entry) => {
         if (!slot.allow.includes(entry.c)) return false;
         if (!slot.variant) return true;
-        if (slot.variant === "toggle")
-          return (
-            Array.isArray(entry.rows) && entry.rows.every((row: { trail?: string }) => row.trail === "toggle")
-          );
+        if (slot.variant === "toggle") return hasToggleRows(entry, defs[entry.c]);
         if (slot.variant === "prices")
           return (
             Array.isArray(entry.options) &&
