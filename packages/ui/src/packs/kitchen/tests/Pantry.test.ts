@@ -14,10 +14,7 @@ import { elementAt, renderInstance } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Pantry;
 const item = { name: "Item", qty: "2", place: "cupboard", goto: "details" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(new Date(2026, 10, 19, 12));
-});
+beforeEach(() => void vi.useFakeTimers().setSystemTime(new Date(2026, 10, 19, 12)));
 afterEach(() => vi.useRealTimers());
 describe("Pantry contract and boundaries", () => {
   it.each(examples)("accepts each domain example", (example) =>
@@ -103,7 +100,6 @@ describe("Pantry fallback and metadata", () => {
       address: "p1/r1/used",
       action: "press",
     });
-    // Live once the whole pack is ready (packReady), hidden while any kitchen component is draft.
     expect(createRegistry({ packs: ["kitchen"] }).ids.includes("Pantry")).toBe(packReady("kitchen"));
     expect(createRegistry({ packs: ["kitchen"], includeDrafts: true }).ids).toContain("Pantry");
   });

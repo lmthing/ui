@@ -122,7 +122,6 @@ describe("Ingredients fallback and metadata", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Checklist")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Ingredients" });
     expect(probes.filter((probe) => probe.kind === "read")).toHaveLength(2);
-    // Live once the whole pack is ready (packReady), hidden while any kitchen component is draft.
     expect(createRegistry({ packs: ["kitchen"] }).ids.includes("Ingredients")).toBe(packReady("kitchen"));
     expect(createRegistry({ packs: ["kitchen"], includeDrafts: true }).ids).toContain("Ingredients");
   });
