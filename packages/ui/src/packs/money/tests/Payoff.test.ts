@@ -97,7 +97,8 @@ describe("Payoff fallback and metadata", () => {
 describe("Payoff states and parts", () => {
   it("draws strategy and extra at stable addresses, and preserves item ids when sorted", () => {
     const html = renderInstance("Payoff", { ...example, strategy: "small_balance" }, "filled", theme);
-    for (const part of meta.parts.filter((part) => part !== "empty")) expect(hasPart(html, part)).toBe(true);
+    for (const part of meta.parts.filter((part) => part !== "empty" && part !== "sub"))
+      expect(hasPart(html, part)).toBe(true);
     for (const item of ["r1", "r2"])
       for (const part of meta.items.parts) expect(hasPart(html, `${item}/${part}`)).toBe(true);
     expect(elementAt(html, "home/c1/strategy").attributes).toContain('role="radiogroup"');
@@ -117,11 +118,18 @@ describe("Payoff states and parts", () => {
     const html = renderInstance("Payoff", example, state, theme);
     expect(html).toContain(text);
     expect(hasPart(html, "strategy")).toBe(false);
+    if (state === "empty") {
+      expect(html).toContain(words.emptyHelp);
+      expect(hasPart(html, "sub")).toBe(true);
+    }
   });
   it("shows the error with context and offers no actions in a host-forced error state", () => {
     const html = renderInstance("Payoff", example, "error", theme);
     expect(html).toContain(words.unavailable);
-    expect(elementAt(html, "home/c1/extra").attributes).toContain('aria-disabled="true"');
+    expect(html).toContain(words.errorHelp);
+    for (const part of ["total", "budget", "line", "strategy", "extra", "edit"]) {
+      expect(hasPart(html, part)).toBe(false);
+    }
     expect(readComponent(def, example, "p1", "error")).toEqual(["p1 Payoff (error)"]);
   });
   it("shows a geometry-preserving loading state without readings or controls", () => {

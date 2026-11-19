@@ -21,7 +21,7 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "A local projection from recorded terms and payments, never a transfer or lender statement.",
-  parts: ["root", "total", "budget", "finish", "line", "strategy", "extra", "edit", "empty"],
+  parts: ["root", "total", "budget", "finish", "line", "strategy", "extra", "edit", "empty", "sub"],
   items: { key: "debts", parts: ["root", "name", "balance", "clearance", "order"] },
   states: ["filled", "empty", "loading", "success", "error"],
   select: { prop: "strategy", choices: { strategy: ["high_rate", "small_balance"] } },
@@ -155,34 +155,45 @@ export function Payoff(input: PayoffProps) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const labels = words.payoff;
-  const empty = state === "empty";
-  if (empty || state === "success") {
-    const message = empty ? { part: "empty" } : { part: "finish", title: labels.cleared };
+  if (state === "empty" || state === "success") {
+    const message =
+      state === "empty"
+        ? { part: "empty", sub: labels.emptyHelp }
+        : { part: "finish", title: labels.cleared };
     return (
       <kit.KitCard padded>
         <kit.KitEmpty {...message} decorativeIcon />
       </kit.KitCard>
     );
   }
+  if (state === "error") {
+    return (
+      <kit.KitCard padded>
+        <kit.KitContent>
+          <PayoffText role="title" tone="bad" part="finish" text={labels.unavailable} />
+          <kit.KitText tone="muted" part={null} children={labels.errorHelp} />
+        </kit.KitContent>
+      </kit.KitCard>
+    );
+  }
   const { total, budget, finish, rows, series, stalled } = payoffCopy(input, lang);
-  const loading = state === "loading";
-  const error = state === "error";
-  const plot = input.style === "plan" && !error;
-  const headline = { role: "title", part: "finish", tone: error || stalled ? "bad" : "text" } as const;
+  const chart = { part: "line", style: "compact", series, loading: state === "loading" } as const;
+  const headline = { role: "title", part: "finish", tone: stalled ? "bad" : "text" } as const;
   const figures = { total: [labels.owed, total], budget: [labels.budget, budget] } as const;
   return (
     <kit.KitCard padded>
       <kit.KitContent>
-        {!error && <PayoffText text={labels.finish} />}
-        <PayoffText {...headline} text={error ? labels.unavailable : finish} />
-        {Object.entries(figures).map(([part, [label, value]]) => {
-          const trailing = <PayoffText {...amountStyle} part={part} text={value} />;
-          const children = <PayoffText text={label} />;
-          return <kit.KitRow key={part} inline {...{ label, trailing, children }} />;
-        })}
+        <PayoffText text={labels.finish} />
+        <PayoffText {...headline} text={finish} />
+        {Object.entries(figures).map(([part, [label, value]]) => (
+          <kit.KitGrid key={part} fitLast>
+            <PayoffText text={label} />
+            <PayoffText {...amountStyle} part={part} text={value} />
+          </kit.KitGrid>
+        ))}
       </kit.KitContent>
-      {plot && <kit.KitLinePlot part="line" style="compact" series={series} loading={loading} />}
-      {!error && <PayoffRows debts={input.debts} rows={rows} />}
+      {input.style === "plan" && <kit.KitLinePlot {...chart} />}
+      <PayoffRows debts={input.debts} rows={rows} />
       <PayoffControls {...input} />
     </kit.KitCard>
   );
