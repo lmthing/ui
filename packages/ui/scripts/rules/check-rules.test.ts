@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { afterEach, expect, it } from "vitest";
 import { checkRules, formatRules } from "./index";
+import { ruleNames } from "./config";
 
 const folders: string[] = [];
 afterEach(async () => {
@@ -26,8 +27,9 @@ it("audits all four roots and reports every violation grouped by rule", async ()
   expect(output).toContain("4 rule violation(s).");
 });
 it("prints all rules on a clean tree", () => {
-  expect(formatRules("/ui", [])).toContain("All rules pass.");
-  expect(formatRules("/ui", []).split(": PASS")).toHaveLength(8);
+  const result = formatRules("/ui", []);
+  expect(result).toContain("All rules pass.");
+  for (const rule of ruleNames) expect(result).toContain(`${rule}: PASS\n`);
 });
 it("audits source only and skips recordings, generated files and non-README markdown", async () => {
   const folder = await mkdtemp(resolve(".rules-test-"));

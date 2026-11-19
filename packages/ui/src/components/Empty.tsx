@@ -74,13 +74,17 @@ export const probes = [
 
 const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
 
-export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
+function RetryAction(props: { kind: "secondary"; part: "retry"; full: true }) {
   const { messageLabels } = useWords().words;
+  return <KitAction {...props} label={messageLabels.retry} />;
+}
+
+export function Empty({ title, sub, icon, kind }: Props<typeof props, typeof meta>) {
   const shown = icon ?? kindIcon[kind];
   return (
     <KitCard style="plain" part="root">
       <KitEmpty title={title} {...(sub ? { sub } : {})} {...(shown ? { icon: shown } : {})} fill />
-      {kind !== "none" && <KitAction label={messageLabels.retry} kind="secondary" part="retry" full />}
+      {kind !== "none" && <RetryAction kind="secondary" part="retry" full />}
     </KitCard>
   );
 }

@@ -71,33 +71,37 @@ export const probes = [
   write("A small message at the bottom saying Walk cancelled, with a way to undo it"),
 ] satisfies Probe[];
 
-export function Success({ style, title, sub, icon, undo }: Props<typeof props, typeof meta>) {
+type SuccessProps = Props<typeof props, typeof meta>;
+function SuccessToast({ title, sub, icon, undo }: SuccessProps) {
   const { messageLabels } = useWords().words;
-  if (style === "toast") {
-    return (
-      <KitCard style="inset" look="tinted" tone="good" part="root" padded>
-        <KitRow
-          label={title}
-          inline
-          lineRole="label"
-          leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
-          trailing={[
-            undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
-            <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
-          ]}
-        >
-          <KitText role="label" part="title">
-            {title}
+  return (
+    <KitCard style="inset" look="tinted" tone="good" part="root" padded>
+      <KitRow
+        label={title}
+        inline
+        lineRole="label"
+        leading={<KitIcon name={icon} tone="good" scale="sm" part="icon" />}
+        trailing={[
+          undo && <KitAction key="undo" label={messageLabels.undo} kind="quiet" part="undo" />,
+          <KitAction key="close" icon="close" a11y={messageLabels.dismiss} kind="quiet" part="close" />,
+        ]}
+      >
+        <KitText role="label" part="title">
+          {title}
+        </KitText>
+        {sub && (
+          <KitText role="caption" tone="muted" part="sub">
+            {sub}
           </KitText>
-          {sub && (
-            <KitText role="caption" tone="muted" part="sub">
-              {sub}
-            </KitText>
-          )}
-        </KitRow>
-      </KitCard>
-    );
-  }
+        )}
+      </KitRow>
+    </KitCard>
+  );
+}
+
+export function Success(input: SuccessProps) {
+  if (input.style === "toast") return <SuccessToast {...input} />;
+  const { title, sub, icon } = input;
   return (
     <KitCard style="plain" part="root">
       <KitEmpty title={title} {...(sub ? { sub } : {})} icon={icon} fill tone="good" />
