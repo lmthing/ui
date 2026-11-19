@@ -5,6 +5,7 @@ import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
+import { applyPackListDefaults } from "./pack-list-defaults";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
 function fitArrays(def: Definition, input: Record<string, unknown>): void {
@@ -117,6 +118,7 @@ export function defaultLines(
     if (grouped.length && line.c === "SectionTitle") groupIndex++;
     const lineCast = grouped.length && line.c === "List" ? { ...cast, items: grouped[groupIndex]![1] } : cast;
     const input = inputOf(line, defs, lineCast);
+    if (line.c === "List") applyPackListDefaults(input, `${meta.id}/${layout}`);
     if (grouped.length && line.c === "SectionTitle") input.text = clip(grouped[groupIndex]![0], 24);
     if (grouped.length && line.c === "Chips")
       input.items = [

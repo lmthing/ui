@@ -1,4 +1,4 @@
-import type { ArchetypeMeta } from "../../../catalog";
+import { packListDefaults, type ArchetypeMeta } from "../../../catalog";
 
 export const food = {
   id: "food",
@@ -19,18 +19,18 @@ export const food = {
     },
     add: {
       writeHints: [
-        'List uses style: "inset", with simple food rows, not shelf, expand or ranked. Omit or null photo and body; me is false or null.',
+        'Use one List with surface "card", no style or numbered lead, and simple food rows. Omit or null photo and body; me is false or null.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },
-        { allow: ["List"], required: true, variant: "inset" },
+        { allow: ["List"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Search" },
-        { id: "l1", c: "List", style: "inset" },
+        { id: "l1", c: "List", ...packListDefaults["food/add"] },
         { id: "b1", c: "Button" },
       ],
     },

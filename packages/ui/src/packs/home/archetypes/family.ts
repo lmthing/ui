@@ -1,4 +1,4 @@
-import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
+import { packListDefaults, type ArchetypeMeta, type ComposeProbe } from "../../../catalog";
 
 export const family = {
   id: "family",
@@ -33,17 +33,17 @@ export const family = {
     },
     leaders: {
       writeHints: [
-        'List uses style:"ranked", 1–6 rows with short titles. Do not write points totals computed from chore data.',
+        'Use List with lead "number", trail "value", no style, and 1–6 short titles. Use trail "none" on rows with no supplied score. Do not write points totals computed from chore data.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
-        { allow: ["List"], required: true, variant: "ranked" },
+        { allow: ["List"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Segmented" },
-        { id: "l1", c: "List", style: "ranked" },
+        { id: "l1", c: "List", ...packListDefaults["family/leaders"] },
       ],
     },
   },
