@@ -76,6 +76,7 @@ export const en = {
     high_rate: "Highest rate first",
     small_balance: "Smallest balance first",
     choice: { high_rate: "Highest rate", small_balance: "Smallest balance" },
+    strategyCodes: (first: string, second: string) => `Codes: ${first} · ${second}`,
     extra: "Extra monthly repayment",
     edit: "Open terms editor",
   },

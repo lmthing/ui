@@ -24,6 +24,7 @@ const defs = { Payoff: def };
 const screen: ScreenLike = { id: "home", components: [{ id: "p1", c: "Payoff", ...example }] };
 const theme: ThemeChoice = { preset: "calm", mode: "light", accent: "moss" };
 const words = moneyWordsFor().payoff;
+const strategyCodes = words.strategyCodes("high_rate", "small_balance");
 const hasPart = (html: string, part: string) => html.includes(`data-testid="home/c1/${part}"`);
 
 describe("Payoff schema", () => {
@@ -102,6 +103,7 @@ describe("Payoff states and parts", () => {
     for (const item of ["r1", "r2"])
       for (const part of meta.items.parts) expect(hasPart(html, `${item}/${part}`)).toBe(true);
     expect(elementAt(html, "home/c1/strategy").attributes).toContain('role="radiogroup"');
+    expect(html).toContain(strategyCodes);
     expect(elementAt(html, "home/c1/extra").attributes).toContain('role="spinbutton"');
     expect(elementAt(html, "home/c1/edit").attributes).toContain('role="button"');
   });
@@ -161,6 +163,7 @@ describe("Payoff read and act", () => {
       expect(controller.act({ address: "p1/extra", action: "set", value: 100 })).toMatchObject({ ok: true });
       const reading = readScreen(screen, defs, controller.store.snapshot("home"));
       expect(reading).toContain("$1,300 monthly budget");
+      expect(reading).toContain(strategyCodes);
       expect(reading).toContain('[p1/strategy select = "high_rate"; choices ["high_rate","small_balance"]]');
       expect(reading).toContain("[p1/extra set = 100]");
       expect(screen.components[0]).toMatchObject(example);

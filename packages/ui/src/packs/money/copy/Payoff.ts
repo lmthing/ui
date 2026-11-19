@@ -78,6 +78,7 @@ export function payoffReading(input: Input, lang?: string): string[] {
     ...rows.flatMap(({ order, balance, clearance }) => [order, balance, clearance]),
     words.strategy,
     ...payoffStrategies.flatMap((option) => [words.choice[option], words[option]]),
+    words.strategyCodes(...payoffStrategies),
     words.extra,
     numberLine(input.extra, lang),
     ...(input.goto ? [words.edit] : []),

@@ -89,10 +89,9 @@ type PayoffProps = Props<typeof props, typeof meta>;
 type Summary = ReturnType<typeof payoffCopy>;
 
 function PayoffControls({ strategy, extra, goto }: Pick<PayoffProps, "strategy" | "extra" | "goto">) {
-  const { words } = kit.useWords(moneyWordsFor);
+  const labels = kit.useWords(moneyWordsFor).words.payoff;
   const state = kit.useComponentState();
   const inactive = state === "filled" ? {} : { disabled: true };
-  const { payoff: labels } = words;
   const chip = { item: null, role: "radio", look: "segment", ...inactive } as const;
   const field = { kind: "number", action: "set", min: 0, part: "extra", ...inactive } as const;
   const editor = { part: "edit", label: labels.edit, goto, kind: "secondary", ...inactive } as const;
@@ -105,6 +104,7 @@ function PayoffControls({ strategy, extra, goto }: Pick<PayoffProps, "strategy" 
           return <kit.KitChip key={value} {...option} />;
         })}
       </kit.KitTrack>
+      <PayoffText text={labels.strategyCodes(...payoffStrategies)} />
       <kit.KitContent group="response">
         <PayoffText text={labels.extra} />
         {state === "loading" ? (
