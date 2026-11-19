@@ -10,10 +10,18 @@ export type Chip = { key: number; name: string; status: Status };
 
 /** A recorded Writer reply, one line at a time through the real Validator, as chips and a growing screen. */
 export function usePipeline() {
-  const recorded = useMemo(() => site.screens.find((s) => s.screen.components.length >= 5), []);
+  const recorded = useMemo(() => {
+    const rich = (s: (typeof site.screens)[number]) =>
+      s.screen.components[0]?.c === "Header" &&
+      s.screen.components.some((c) => ["List", "Stats", "Card", "Progress"].includes(c.c));
+    return (
+      site.screens.find((s) => s.screen.components.length >= 5 && rich(s)) ??
+      site.screens.find((s) => s.screen.components.length >= 5)
+    );
+  }, []);
   const lines = useMemo(() => (recorded?.screen.components ?? []).map((c) => JSON.stringify(c)), [recorded]);
   const [round, setRound] = useState(0);
-  const shown = useStream(lines.length, "pipeline", round, 1100, true, 0);
+  const shown = useStream(lines.length, "pipeline", round, 1100, true, 2);
   useEffect(() => {
     if (!lines.length || shown < lines.length) return;
     const again = setTimeout(() => setRound((n) => n + 1), 4500);
