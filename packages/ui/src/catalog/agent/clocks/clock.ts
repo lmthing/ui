@@ -144,10 +144,10 @@ export function clockActionValid(
       if (!["start", "stop"].includes(action) && operation !== "reset") return [true];
       const state = get(clockKey(clock)) as ClockState | undefined;
       const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
-      const running = Boolean(state?.running) && !clockEnded(clock, seconds);
+      const running = Boolean(state?.running);
       return [
         operation === "start"
-          ? !running && !clockEnded(clock, seconds)
+          ? !running
           : operation === "stop"
             ? running
             : running || seconds !== (state?.seed ?? clockSeed(clock)),

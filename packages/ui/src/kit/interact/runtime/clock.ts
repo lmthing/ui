@@ -1,11 +1,4 @@
-import {
-  clockTargets,
-  clockKey,
-  clockPropKey,
-  clockTime,
-  clockEnded,
-  type ClockState,
-} from "../../../catalog";
+import { clockTargets, clockKey, clockTime, type ClockState } from "../../../catalog";
 import { tickClocks } from "../controls";
 import type { ControllerContext } from "./context";
 function needsClock(ctx: ControllerContext) {
@@ -18,8 +11,7 @@ function needsClock(ctx: ControllerContext) {
       const state = get(clockKey(clock)) as ClockState | undefined;
       return clock.spec.kind === "until"
         ? clockTime(clock, undefined, undefined, ctx.now()) > 0
-        : Boolean(state?.running) &&
-            !clockEnded(clock, clockTime(clock, state, get(clockPropKey(clock)), ctx.now()));
+        : Boolean(state?.running);
     });
   });
 }
