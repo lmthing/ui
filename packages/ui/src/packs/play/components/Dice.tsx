@@ -1,0 +1,54 @@
+import { z } from "zod";
+import { probesFor, type CastLike, type Meta, type Probe } from "../../../catalog";
+
+// Core first: Counter/default cannot draw unbiased numbered dice or hold faces between rerolls.
+export const meta = {
+  id: "Dice",
+  status: "draft",
+  group: "action",
+  purpose: "Roll numbered dice and hold individual faces while rerolling the others.",
+  pick: "Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.",
+  writeHints: [
+    'sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.',
+  ],
+  region: "body",
+  weight: 2,
+  tier: "phone",
+  realPath: "Unbiased random faces are generated and saved on the device before the reveal animation.",
+  items: { key: "dice", parts: ["root", "face", "hold"] },
+  parts: ["root", "sum", "roll"],
+  states: ["empty", "filled", "loading", "success"],
+  actions: { parts: { roll: ["press"] }, items: { hold: ["toggle"] } },
+  read: (input) => {
+    const value = input as z.output<typeof props>;
+    return [String(value.count), String(value.sides)];
+  },
+} as const satisfies Meta;
+export const props = z
+  .strictObject({
+    count: z.int().min(1).max(6).default(2),
+    sides: z
+      .union([z.literal(4), z.literal(6), z.literal(8), z.literal(10), z.literal(12), z.literal(20)])
+      .default(6),
+    style: z.enum(["pips", "numbers"]).default("pips"),
+  })
+  .refine(({ sides, style }) => sides === 6 || style === "numbers", {
+    path: ["style"],
+    message: "Non-six-sided dice need numbers",
+  });
+export function fallback({ cast: _cast }: { cast: CastLike }): z.input<typeof props> {
+  return { count: 2, sides: 6, style: "pips" };
+}
+export const examples = [
+  // Ledge's game-night pair.
+  { count: 2, sides: 6, style: "pips" },
+  // Trot's walkers play a tabletop adventure.
+  { count: 1, sides: 20, style: "numbers" },
+] satisfies z.input<typeof props>[];
+const { choose, write, read } = probesFor("Dice");
+export const probes = [
+  choose("Roll two six-sided dice and hold one face while rerolling the other"),
+  choose("Manually increase or decrease one number, with no random draw", "Counter"),
+  write("Roll three eight-sided dice, showing numbered faces rather than pips"),
+  read("Roll the dice", { address: "d1/roll", action: "press" }),
+] satisfies Probe[];
