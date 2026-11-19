@@ -177,12 +177,16 @@ it("gives nested declarations ownership over duplicate indexed actions and their
 });
 
 it("keeps core read prompts identical because core components have no nested declaration", () => {
-  for (const def of Object.values(components)) {
+  for (const def of Object.values(components) as Definition[]) {
     expect(def.meta.items?.nested).toBeUndefined();
     for (const probe of def.probes) {
       if (probe.kind !== "read") continue;
       const instance = probe.expect.address.split("/")[0]!;
-      const meta = { ...def.meta, items: def.meta.items && { ...def.meta.items, nested: undefined } };
+      const meta = { ...def.meta };
+      if (meta.items) {
+        const { nested: _nested, ...items } = meta.items;
+        meta.items = items;
+      }
       expect(readPrompt(def, probe.screen, instance, probe.task)).toBe(
         readPrompt({ ...def, meta }, probe.screen, instance, probe.task),
       );
