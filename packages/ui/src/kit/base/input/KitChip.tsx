@@ -1,66 +1,94 @@
 import { createContext, useContext } from "react";
-import { useKit } from "../../provider";
 import type { ReactNode } from "react";
-import { XStack, YStack, styled } from "tamagui";
-import { component, radius, size, space, type IconName } from "../../../catalog";
-import { useKitStyle } from "../../provider";
-import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon } from "../text";
-import { KitText } from "../text";
-import { shifted } from "../text";
+import { XStack, YStack, isWeb, styled } from "tamagui";
+import { component, radius, size, space, type IconName, type Swatch } from "../../../catalog";
+import { useKit, useKitStyle } from "../../provider";
+import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
+import { KitIcon, KitText, shifted } from "../text";
 
 // The 44px touch area carries the role; the visible pill or segment sits inside it.
 const Hit = styled(YStack, { minHeight: size.control.md, justifyContent: "center" });
-const Pill = styled(XStack, {
-  alignItems: "center",
-  gap: space.xs,
-  paddingHorizontal: space.md,
-  minHeight: size.control.md,
-  borderRadius: radius.pill,
-  borderWidth: component.base.borderWidth,
-  variants: {
-    on: {
-      true: { backgroundColor: "$accent", borderColor: "$accent" },
-      false: { backgroundColor: "transparent", borderColor: "$muted" },
-    },
-  } as const,
-});
-
 const ChoiceTarget = createContext<string | undefined>(undefined);
 
-function ChipContent({
-  label,
-  on,
-  icon,
-  look,
-  stamped,
-  labelPart = "label",
-}: Pick<Parameters<typeof Chip>[0], "label" | "on" | "icon" | "look" | "stamped" | "labelPart">) {
+type ChipProps = {
+  label: string;
+  on: boolean;
+  /** Stable choice value for an unstamped chip, independent of the display label. */
+  value?: string;
+  role: "checkbox" | "radio" | "tab";
+  icon?: IconName | undefined;
+  look?: "pill" | "segment" | "box" | undefined;
+  disabled?: boolean | undefined;
+  swatch?: Swatch;
+  /** Named control under this item; null leaves it unaddressed and inert. */
+  part?: string | null;
+  /** Label address; null leaves caller-owned group labels untouched. */
+  labelPart?: string | null;
+};
+
+function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
+  const { label, on, icon, look, stamped, disabled, swatch, loading, labelPart = "label" } = props;
   const ks = useKitStyle();
-  if (look === "segment") {
-    return (
-      <XStack
-        justifyContent="center"
-        alignItems="center"
-        minHeight={size.control.sm}
-        paddingHorizontal={space.sm}
-        borderRadius={shifted("sm", ks.radiusShift)}
-        backgroundColor={on ? "$surface" : "transparent"}
-        {...(on ? { borderWidth: component.base.borderWidth, borderColor: "$line" } : {})}
-      >
-        <KitText role="label" tone={on ? "text" : "muted"} part={stamped ? labelPart : null} lines={1}>
-          {label}
-        </KitText>
-      </XStack>
-    );
-  }
+  const segment = look === "segment";
+  const box = look === "box";
+  const custom = box || Boolean(swatch) || disabled;
+  const edge = custom ? (on ? "$accent" : "$muted") : segment ? "$line" : on ? "$accent" : "$muted";
+  const fill = custom
+    ? on
+      ? "$accentSoft"
+      : disabled
+        ? "$raised"
+        : "$surface"
+    : on
+      ? segment
+        ? "$surface"
+        : "$accent"
+      : "transparent";
+  const tone = disabled || (segment && !on) ? "muted" : on && !custom && !segment ? "onAccent" : "text";
+  const text = (
+    <KitText role="label" tone={tone} part={stamped ? labelPart : null} lines={1} strike={disabled ?? false}>
+      {label}
+    </KitText>
+  );
   return (
-    <Pill on={on}>
-      {icon && <KitIcon name={icon} tone={on ? "onAccent" : "muted"} scale="sm" />}
-      <KitText role="label" tone={on ? "onAccent" : "text"} part={stamped ? labelPart : null} lines={1}>
-        {label}
-      </KitText>
-    </Pill>
+    <XStack
+      alignItems="center"
+      justifyContent={segment || custom ? "center" : undefined}
+      gap={!segment || custom ? space.xs : undefined}
+      minWidth={custom ? size.control.md : undefined}
+      minHeight={segment ? size.control.sm : size.control.md}
+      paddingHorizontal={box || segment ? space.sm : space.md}
+      borderRadius={box || segment ? shifted("sm", ks.radiusShift) : radius.pill}
+      borderWidth={
+        custom ? component.base.strongBorder : segment && !on ? undefined : component.base.borderWidth
+      }
+      borderColor={segment && !custom && !on ? undefined : loading ? "$line" : edge}
+      backgroundColor={loading ? "$line" : fill}
+    >
+      {swatch && <SwatchMark swatch={swatch} loading={loading} />}
+      {icon &&
+        !segment &&
+        (loading ? (
+          <YStack width={size.icon.sm} />
+        ) : (
+          <KitIcon name={icon} tone={tone === "text" ? "muted" : tone} scale="sm" />
+        ))}
+      {loading ? <YStack opacity={component.base.none}>{text}</YStack> : text}
+    </XStack>
+  );
+}
+
+function SwatchMark({ swatch, loading }: { swatch: Swatch; loading: boolean }) {
+  return (
+    <YStack
+      width={size.icon.sm}
+      height={size.icon.sm}
+      borderRadius={radius.pill}
+      borderWidth={component.base.borderWidth}
+      borderColor={loading ? "$line" : component.swatchBorder}
+      backgroundColor={loading ? "$line" : component.swatch[swatch]}
+      aria-hidden
+    />
   );
 }
 
@@ -69,72 +97,56 @@ function Chip({
   value = label,
   on,
   role,
-  icon,
   look,
   stamped,
   part = "root",
-  labelPart = "label",
-}: {
-  label: string;
-  on: boolean;
-  value?: string;
-  role: "checkbox" | "radio" | "tab";
-  icon?: IconName | undefined;
-  look: "pill" | "segment";
-  stamped: boolean;
-  part?: string;
-  labelPart?: string | null;
-}) {
-  const address = usePart(part, stamped);
+  disabled,
+  ...props
+}: ChipProps & { stamped: boolean }) {
+  const state = useComponentState();
+  const loading = state === "loading" && (look === "box" || disabled !== undefined || Boolean(props.swatch));
+  const addressed = stamped && part !== null && !loading;
+  const address = usePart(part ?? "root", addressed);
   const kit = useKit();
   const parent = useContext(ChoiceTarget);
-  const target = stamped ? address.testID : parent;
-  const hit = stamped ? address : {};
-  const segment = look === "segment";
+  const target = part === null ? undefined : stamped ? address.testID : parent;
+  const press =
+    kit.interactive && kit.controller && target && !disabled && !loading
+      ? () =>
+          stamped
+            ? kit.controller!.press(target)
+            : kit.controller!.act({ address: target, action: "select", value })
+      : undefined;
   return (
     <Hit
-      {...hit}
-      {...(segment ? { flex: 1 } : {})}
-      accessibilityRole={role}
-      {...(kit.interactive && kit.controller && target
-        ? {
-            onPress: () =>
-              stamped
-                ? kit.controller!.press(target)
-                : kit.controller!.act({ address: target, action: "select", value }),
-          }
-        : {})}
-      aria-checked={role === "tab" ? undefined : on}
-      aria-selected={role === "tab" ? on : undefined}
-      accessibilityLabel={label}
+      {...(addressed ? address : {})}
+      {...(look === "segment" ? { flex: component.base.bodyFlex } : {})}
+      {...(disabled && !isWeb ? { accessibilityState: { disabled: true } } : {})}
+      {...(press ? { onPress: press } : {})}
+      aria-hidden={loading || undefined}
+      aria-disabled={(!loading && disabled) || undefined}
+      accessibilityRole={loading ? undefined : role}
+      aria-checked={loading || role === "tab" ? undefined : on}
+      aria-selected={!loading && role === "tab" ? on : undefined}
+      accessibilityLabel={loading ? undefined : label}
     >
-      <ChipContent label={label} on={on} icon={icon} look={look} stamped={stamped} labelPart={labelPart} />
+      <ChipContent
+        {...props}
+        {...{ label, on, role, look, disabled, loading }}
+        stamped={stamped && !loading}
+      />
     </Hit>
   );
 }
 
-/**
- * One selectable item: a `pill` (Chips) or a `segment` (Segmented, inside `KitTrack`). The 44px touch
- * area is the item's root part and carries `role` (checkbox for toggle, radio or tab for select).
- */
+/** One selectable pill, segment or box. */
 export function KitChip({
   item,
   look = "pill",
   ...props
-}: {
+}: ChipProps & {
   /** The item id; `null` inside a track that is itself the control (no per-chip address). */
   item: string | null;
-  label: string;
-  on: boolean;
-  /** Stable choice value for an unstamped chip, when its display label is localized. */
-  value?: string;
-  role: "checkbox" | "radio" | "tab";
-  icon?: IconName | undefined;
-  look?: "pill" | "segment";
-  /** Named control under this item; omitted callers retain the item root. */
-  part?: string;
-  /** Label address; null leaves caller-owned group labels untouched. */
-  labelPart?: string | null;
 }) {
   const context = usePartContext();
   if (item === null) return <Chip {...props} look={look} stamped={false} />;
@@ -145,7 +157,6 @@ export function KitChip({
   );
 }
 
-/** A row of chips that wraps (`pills`), or a tinted track of equal segments (`segments`). */
 export function KitTrack({
   look = "pills",
   part = "root",

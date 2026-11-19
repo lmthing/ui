@@ -3,7 +3,7 @@ import { XStack, YStack, styled } from "tamagui";
 import { component, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { CardStyleContext, shifted, surfaceOf, tintOf, type SurfaceTone } from "../text";
+import { CardStyleContext, shifted, surfaceOf, tintOf, type SurfaceTone, type TextTone } from "../text";
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
@@ -22,7 +22,9 @@ type RowProps = {
   role?: "listitem" | "text" | "button";
   /** A row that opens in place (role `button`): whether its content is shown. */
   expanded?: boolean;
+  selected?: boolean;
   tone?: SurfaceTone | undefined;
+  rowTone?: TextTone | undefined;
   /** `line`: centre the leading item on the first line (icons). `row`: centre it on the whole text (a thumbnail taller than a line). */
   leadingAlign?: "line" | "row";
   /** Reserve the same avatar-width leading column for every row in a mixed list. */
@@ -30,10 +32,42 @@ type RowProps = {
   /** An inset-free, tightly spaced row inside an already padded surface. */
   inline?: boolean;
   addressed?: boolean;
-  part?: string;
+  part?: string | null;
   /** Horizontal inset: `md` (a row in a card) or `none` (a cell in a `KitGrid`, which spaces its own columns). */
   inset?: "md" | "none";
 };
+
+function rowTint(tone: TextTone | undefined) {
+  if (!tone) return {};
+  if (tone === "text" || tone === "muted") return { backgroundColor: "$raised" } as const;
+  return {
+    backgroundColor: tintOf(tone === "accent" || tone === "onAccent" ? "neutral" : tone).backgroundColor,
+  };
+}
+
+function useRowSurface(tone: RowProps["tone"], rowTone: RowProps["rowTone"]) {
+  const style = useContext(CardStyleContext);
+  const { surface } = useKitStyle();
+  return { ...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(surface) : {}), ...rowTint(rowTone) };
+}
+
+function RowOutline() {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      position="absolute"
+      top={component.base.none}
+      right={component.base.none}
+      bottom={component.base.none}
+      left={component.base.none}
+      pointerEvents="none"
+      aria-hidden
+      borderRadius={shifted("md", ks.radiusShift)}
+      borderWidth={component.base.strongBorder}
+      borderColor="$accent"
+    />
+  );
+}
 
 export function Row({
   children,
@@ -44,7 +78,9 @@ export function Row({
   lineRole = "body",
   role,
   expanded,
+  selected,
   tone,
+  rowTone,
   leadingAlign = "line",
   leadingWidth,
   inline = false,
@@ -52,24 +88,24 @@ export function Row({
   part = "root",
   inset = "md",
 }: RowProps) {
-  const line = typography[lineRole].lineHeight;
-  const ks = useKitStyle(),
-    kit = useKit(),
-    style = useContext(CardStyleContext);
-  const address = usePart(part, addressed);
+  const line = typography[lineRole].lineHeight,
+    ks = useKitStyle(),
+    kit = useKit();
+  const address = usePart(part ?? "root", addressed && part !== null);
   return (
     <Frame
-      {...(addressed ? address : {})}
-      {...(tone ? tintOf(tone) : style === "cards" ? surfaceOf(ks.surface) : {})}
+      {...(addressed && part !== null ? address : {})}
+      {...useRowSurface(tone, rowTone ?? (selected ? "accent" : undefined))}
       paddingVertical={inline ? component.base.none : space[ks.density.rowPad]}
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={goto ? "link" : (role ?? "listitem")}
       accessibilityLabel={label}
-      {...(expanded === undefined ? {} : { "aria-expanded": expanded })}
-      {...(kit.interactive && kit.controller
+      aria-current={selected || undefined}
+      aria-expanded={expanded}
+      {...(part !== null && kit.interactive && kit.controller
         ? { onPress: () => kit.controller!.press(address.testID) }
-        : kit.interactive && goto
+        : part !== null && kit.interactive && goto
           ? { onPress: () => kit.onLink?.(goto, address.testID) }
           : {})}
     >
@@ -86,26 +122,35 @@ export function Row({
           </Edge>
         )}
         <Body>{children}</Body>
-        {trailing && (
-          <Edge height={line}>
-            <XStack alignItems="center">{trailing}</XStack>
-          </Edge>
-        )}
+        {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
       </Content>
+      {selected && <RowOutline />}
     </Frame>
   );
 }
+
+function RowTrailing({ line, children }: { line: number; children: ReactNode }) {
+  return (
+    <Edge height={line}>
+      <XStack alignItems="center">{children}</XStack>
+    </Edge>
+  );
+}
+
 export function KitRow({
   item,
+  tone,
   ...props
 }: {
   item?: string;
-  /** Address a named non-item control; omitted non-item rows stay unaddressed. */
-  part?: string;
+  /** Named control; omit for the item root or pass null to leave the row unaddressed. */
+  part?: string | null;
   label: string;
   children: ReactNode;
   role?: "listitem" | "text" | "button";
   expanded?: boolean;
+  selected?: boolean;
+  tone?: TextTone;
   leading?: ReactNode;
   trailing?: ReactNode;
   goto?: string | undefined;
@@ -117,10 +162,10 @@ export function KitRow({
   inset?: "md" | "none";
 }) {
   const context = usePartContext();
-  if (!item) return <Row addressed={props.part !== undefined} role="text" {...props} />;
+  if (!item) return <Row addressed={props.part !== undefined} role="text" rowTone={tone} {...props} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
-      <Row {...props} />
+      <Row rowTone={tone} {...props} />
     </PartContext.Provider>
   );
 }
