@@ -19,6 +19,7 @@ export type Pack = {
   example: string;
   plannedComponents: number;
   plannedArchetypes: number;
+  builtArchetypes: number;
   items: Item[];
   planned: Planned[];
   wave: number;

@@ -67,9 +67,17 @@
 }
 @media (max-width: 760px) {
   .nav {
-    display: none;
+    order: 2;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+  .brand {
+    margin-right: 0;
   }
   .theme-switcher {
+    order: 3;
     width: 100%;
     flex-wrap: nowrap;
     overflow-x: auto;

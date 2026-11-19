@@ -195,3 +195,15 @@
     width: 100%;
   }
 }
+.textlink {
+  align-self: center;
+  font-weight: 600;
+  padding: 10px 6px;
+}
+.phone-skel {
+  border: 8px solid var(--text);
+  border-radius: 38px;
+  background: var(--raised);
+  opacity: 0.5;
+  animation: shimmer 1.4s linear infinite;
+}

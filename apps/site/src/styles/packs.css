@@ -1,35 +1,44 @@
+.growth-total {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+.growth-total strong {
+  font: 600 2.4rem/1 var(--serif);
+  color: var(--accent);
+}
 .waves {
   list-style: none;
   padding: 0;
-  margin: 32px 0;
+  margin: 0 0 32px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   gap: 10px;
+  align-items: end;
 }
 .waves li {
-  position: relative;
-  padding: 12px 14px 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  gap: 2px;
+  font-size: 0.85rem;
 }
+.waves li .col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: 10px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.waves li .col i {
+  display: block;
+  background: var(--accent);
+  transition: height 1.2s var(--ease);
+}
+.waves li small,
 .waves li span {
   color: var(--muted);
-  font-size: 0.8rem;
-}
-.waves li i {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 4px;
-  background: var(--accent);
-  transition: width 1s var(--ease);
-}
-.waves li.done {
-  border-color: var(--accent);
 }
 .wave-group {
   margin-top: 36px;
@@ -195,4 +204,38 @@ input[type="search"] {
 
 main.block h2 {
   margin: 48px 0 20px;
+}
+
+.strip {
+  display: flex;
+  gap: 6px;
+  height: 84px;
+}
+.strip .thumb {
+  flex: 1;
+  min-width: 0;
+  background: var(--raised);
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  padding: 4px;
+}
+.strip img {
+  max-width: 100%;
+  max-height: 76px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+.pack .chips {
+  gap: 4px;
+}
+.more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+main.block {
+  padding-top: 40px;
 }

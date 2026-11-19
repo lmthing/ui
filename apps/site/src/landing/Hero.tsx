@@ -18,13 +18,13 @@ export function Hero() {
         </p>
         <div className="cta">
           <a className="btn primary" href="#try">
-            Try it with a model
+            Try it live
           </a>
           <a className="btn" href="#components">
-            Browse {stats.built} components
+            Browse components
           </a>
-          <a className="btn" href="gallery/">
-            Static gallery
+          <a className="textlink" href="gallery/">
+            Static gallery &rarr;
           </a>
         </div>
         <p className="hero-note">

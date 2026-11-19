@@ -86,6 +86,8 @@ export function loadSiteData(): SiteData {
     example: (catalog.packs as Record<string, { example?: string } | undefined>)[id]?.example ?? "",
     plannedComponents: table[id]?.components ?? 0,
     plannedArchetypes: table[id]?.archetypes ?? 0,
+    builtArchetypes:
+      (catalog.packArchetypes as Record<string, readonly unknown[] | undefined>)[id]?.length ?? 0,
     items: items.filter((item) => item.pack === id),
     planned: readPlanned(`${repoRoot}docs/catalog/packs/${id}.md`),
     wave: waveOf(id),

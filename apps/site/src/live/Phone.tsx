@@ -9,7 +9,9 @@ import { useTheme, type ThemeState } from "../theme/ThemeContext";
 export type PhoneProps = {
   screen: ScreenLike;
   width?: number;
+  /** The tallest the frame grows; it fits its content from `minHeight` up to this. */
   height?: number;
+  minHeight?: number;
   /** Fixed theme for this phone (worked examples in all three presets). Default: the page's theme. */
   theme?: Partial<ThemeState>;
   /** An address to outline, e.g. `t1/next`. */
@@ -38,6 +40,7 @@ export function Phone({
   screen,
   width = 390,
   height = 640,
+  minHeight = 300,
   theme,
   highlight,
   onHover,
@@ -70,7 +73,7 @@ export function Phone({
       <div
         ref={frame}
         className="phone-screen"
-        style={{ height }}
+        style={{ minHeight, maxHeight: height }}
         onPointerMove={onHover ? (e) => onHover(addressOf(e.target, screen.id)) : undefined}
         onPointerLeave={onHover ? () => onHover(null) : undefined}
       >

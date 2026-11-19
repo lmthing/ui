@@ -28,8 +28,8 @@ function ideas(): Idea[] {
       code: '// no "color": "#...", no "width": 320\n{ "kind": "primary" }   // an enum, not a style',
     },
     {
-      title: "Themes are three enums",
-      body: `A theme is preset, accent and mode. ${site.stats.presetsBuilt} presets and ${site.stats.accentsBuilt} accents are built; 12 of each are planned (288 themes).`,
+      title: "Themes are enums",
+      body: `A theme is preset, accent and mode, plus density and motion (planned, step U6a). ${site.stats.presetsBuilt} presets and ${site.stats.accentsBuilt} accents are built; 12 of each are planned (288 themes).`,
       code: `{ "preset": "${t}", "accent": "${a}", "mode": "dark" }\n// -> kit_${t}_dark_${a}`,
     },
     {

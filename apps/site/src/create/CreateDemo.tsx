@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Json } from "../shared/Json";
 import { cleanScreen, screenOfLines } from "../live/screen";
 import { Phone } from "../live/Phone";
@@ -12,14 +12,32 @@ export function CreateDemo({ compact = false }: { compact?: boolean }) {
   const [run, setRun] = useState(0);
   const source = all[at];
   const total = source?.lines.length ?? 0;
-  const shown = useStream(total, source?.key ?? "", run);
+  const root = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  // Start streaming only once the demo is on screen.
+  useEffect(() => {
+    const node = root.current;
+    if (!node) return;
+    const watch = new IntersectionObserver(
+      ([e]) => e?.isIntersecting && (setVisible(true), watch.disconnect()),
+    );
+    watch.observe(node);
+    return () => watch.disconnect();
+  }, []);
+  const shown = useStream(total, source?.key ?? "", run, compact ? 650 : 950, visible);
+  // The hero demo loops through its sources.
+  useEffect(() => {
+    if (!compact || !total || shown < total) return;
+    const next = setTimeout(() => (setAt((a) => (a + 1) % all.length), setRun((n) => n + 1)), 3500);
+    return () => clearTimeout(next);
+  }, [compact, shown, total, all.length]);
   const screen = useMemo(
     () => (source ? cleanScreen(screenOfLines(source.key, source.lines.slice(0, shown))) : null),
     [source, shown],
   );
   if (!source || !screen) return null;
   return (
-    <div className={`create ${compact ? "compact" : ""}`}>
+    <div ref={root} className={`create ${compact ? "compact" : ""}`}>
       <div className="create-code">
         <div className="tabs" role="tablist" aria-label="Choose a screen to watch">
           {all.map((s, i) => (
@@ -48,12 +66,19 @@ export function CreateDemo({ compact = false }: { compact?: boolean }) {
           Replay
         </button>
       </div>
-      <Phone
-        screen={screen}
-        width={compact ? 340 : 390}
-        height={compact ? 560 : 620}
-        label={`${shown} of ${total} components`}
-      />
+      {screen.components.length ? (
+        <Phone
+          screen={screen}
+          width={compact ? 340 : 390}
+          height={compact ? 560 : 620}
+          label={`${shown} of ${total} components`}
+        />
+      ) : (
+        <div
+          className="phone-skel"
+          style={{ width: (compact ? 340 : 390) + 16, height: 360, maxWidth: "100%" }}
+        />
+      )}
     </div>
   );
 }
