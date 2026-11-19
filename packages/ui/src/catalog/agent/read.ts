@@ -9,40 +9,14 @@ import { numericSetAt, projectClocks } from "./clocks";
 import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
+import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
+import { componentTexts, itemTexts, type ReadSchema as Json } from "./reading";
 
-type Json = {
-  properties?: Record<string, Json>;
-  items?: Json;
-  kind?: string;
-  default?: unknown;
-  type?: string;
-};
 type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
 const variantKeys = ["style", "kind", "tone"];
-
-function itemTexts(schema: Json | undefined, item: Props, nestedKey: string | undefined): string[] {
-  const nested =
-    nestedKey && Array.isArray(item[nestedKey])
-      ? (item[nestedKey] as Props[]).flatMap((child) =>
-          textsOf(schema?.properties?.[nestedKey]?.items, child),
-        )
-      : [];
-  return [...textsOf(schema, item), ...nested];
-}
-
-function textsOf(schema: Json | undefined, value: Props): string[] {
-  return Object.entries(schema?.properties ?? {}).flatMap(([key, field]) => {
-    const v = value[key];
-    if (field.kind === "text" && typeof v === "string") return [quote(v)];
-    if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
-    if (field.kind === "secret" && typeof v === "string") return ["(secret)"];
-    if (field.type === "object" && v && typeof v === "object") return textsOf(field, v as Props);
-    return [];
-  });
-}
 
 function variantsOf(schema: Json, props: Props): string {
   return variantKeys
@@ -89,12 +63,15 @@ function withValues(
   });
 }
 
-function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
+function readingProps(meta: Meta, props: Props, instance: string, values: Props, session?: SessionState) {
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  return projectDraw(meta, timed, get);
+  const projected = projectDraw(meta, timed, get);
+  if (!session) return projected;
+  const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
+  return { ...projected, ...current, [sessionKey]: session };
 }
 
 function migrateInput(component: string, input: unknown) {
@@ -122,10 +99,12 @@ export function readComponent(
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(def.meta.id, input), get);
   const props = liveProps(def.meta, validated, instance, values, true);
-  state = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
+  const base = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
+  state = sessionStatus(def.meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get);
+  const session = sessionState(def.meta, props, get);
   const affordances = withValues(
     affordancesOf(def.meta, props, instance, values, state),
     values,
@@ -133,24 +112,36 @@ export function readComponent(
     props,
     instance,
   );
-  if (state !== "filled" && !(draw && state === "success"))
+  if (state !== "filled" && !(state === "success" && (draw || session)))
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
-  const key = def.meta.items?.key;
+  const roundKey = session?.kind === "rounds" ? def.meta.session?.items : undefined;
+  const key = def.meta.items?.key === roundKey ? undefined : def.meta.items?.key;
   const own = [
-    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values), state, lang) ?? []),
+    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values, session), state, lang) ?? []),
     ...readDraw(draw),
-    ...textsOf(
-      { properties: Object.fromEntries(Object.entries(schema.properties ?? {}).filter(([k]) => k !== key)) },
-      props,
-    ),
+    ...componentTexts(schema, props, key, roundKey, session?.kind === "rounds" ? session.item : undefined),
   ];
+  return readItems(def.meta, schema, props, instance, key, head, own, affordances, lang);
+}
+
+function readItems(
+  meta: Meta,
+  schema: Json,
+  props: Props,
+  instance: string,
+  key: string | undefined,
+  head: string,
+  own: string[],
+  affordances: Affordance[],
+  lang?: string,
+) {
   const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // A stack shows only its first item; the rest are counted, not read.
-  const firstOnly = def.meta.items?.visible === "first";
+  const firstOnly = meta.items?.visible === "first";
   const items = firstOnly ? all.slice(0, 1) : all;
   const itemSchema = key ? schema.properties?.[key]?.items : undefined;
   return [
@@ -160,7 +151,7 @@ export function readComponent(
       const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
       return `  ${[
         String(item.id),
-        itemTexts(itemSchema, item, def.meta.items?.nested?.key).join(" · "),
+        itemTexts(itemSchema, item, meta.items?.nested?.key).join(" · "),
         ...mine.map((a) => formatAffordance(a)),
       ]
         .filter(Boolean)

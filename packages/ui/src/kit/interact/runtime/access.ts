@@ -2,7 +2,9 @@ import { wordsFor, affordancesOf, liveProps, parseAddress, parseControlProps } f
 import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
-import type { ControllerContext } from "./context";
+import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
+import { createAct } from "./dispatch";
+import { createMediaRuntime } from "./media";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = [
@@ -34,7 +36,16 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
     .components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
-  if (entry.state && entry.state !== "filled" && !def.meta.draw && !def.meta.emptyActions?.length) return [];
+  const { draw, emptyActions, session, successActions } = def.meta;
+  if (
+    entry.state &&
+    entry.state !== "filled" &&
+    !draw &&
+    !emptyActions?.length &&
+    !session &&
+    !successActions?.length
+  )
+    return [];
   try {
     const localValues = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
@@ -81,8 +92,10 @@ function read(ctx: ControllerContext) {
   if (ctx.status.confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
+  const reading = readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang, ctx.disabledParts);
+  if (ctx.standalone) return reading;
   return [
-    readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang, ctx.disabledParts),
+    reading,
     ...visible.components
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
@@ -93,6 +106,11 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const entry = address?.component && ctx.sourceOf(address.component);
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
+
+export function createStandaloneAccess(options: ControllerOptions) {
+  const ctx = createControllerContext(options, true);
+  return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
 }
 
 export function createAccess(ctx: ControllerContext, act: Act) {

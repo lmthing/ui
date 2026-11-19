@@ -8,7 +8,7 @@ import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part"
 import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 type Node = { id: string; label: string; content: ReactNode };
-type NodeProps = { node: Node; current: boolean; loading: boolean; queue?: boolean };
+type NodeProps = { node: Node; current: boolean; loading: boolean; queue?: boolean; namePart?: boolean };
 type OrbitProps = {
   part?: string;
   loading?: boolean;
@@ -16,10 +16,12 @@ type OrbitProps = {
   at: string;
   reverse?: boolean;
   style?: "ring" | "queue";
+  namePart?: boolean;
 };
+type LayoutProps = Pick<OrbitProps, "nodes" | "at" | "loading" | "reverse" | "namePart">;
 const nodeWidth = size.avatar.md + space.md * 2 + component.base.strongBorder * 2;
 const nodeHeight = nodeWidth + typography.body.lineHeight + space.sm;
-function NodeLabel({ node, current, loading, queue = false }: NodeProps) {
+function NodeLabel({ node, current, loading, queue = false, namePart }: NodeProps) {
   return (
     <YStack
       height={typography.body.lineHeight}
@@ -41,7 +43,7 @@ function NodeLabel({ node, current, loading, queue = false }: NodeProps) {
           align={queue ? "start" : "center"}
           tone={current ? "accent" : "text"}
           lines={1}
-          part={null}
+          part={namePart ? "name" : null}
         >
           {node.label}
         </KitText>
@@ -49,7 +51,7 @@ function NodeLabel({ node, current, loading, queue = false }: NodeProps) {
     </YStack>
   );
 }
-function OrbitNode({ node, current, loading, queue = false }: NodeProps) {
+function OrbitNode({ node, current, loading, queue = false, namePart = false }: NodeProps) {
   const ks = useKitStyle();
   const address = usePart("root", !loading);
   return (
@@ -84,11 +86,11 @@ function OrbitNode({ node, current, loading, queue = false }: NodeProps) {
           node.content
         )}
       </YStack>
-      <NodeLabel node={node} current={current} loading={loading} queue={queue} />
+      <NodeLabel node={node} current={current} loading={loading} queue={queue} namePart={namePart} />
     </YStack>
   );
 }
-function Ring({ nodes, at, loading, reverse }: Pick<OrbitProps, "nodes" | "at" | "loading" | "reverse">) {
+function Ring({ nodes, at, loading, reverse, namePart = false }: LayoutProps) {
   const theme = useTheme();
   const context = usePartContext();
   const r = Math.max(nodeHeight / Math.sqrt(2), (nodes.length * nodeHeight) / (Math.PI * 2));
@@ -127,7 +129,7 @@ function Ring({ nodes, at, loading, reverse }: Pick<OrbitProps, "nodes" | "at" |
               top={box / 2 - Math.cos(angle) * r - nodeHeight / 2}
             >
               <PartContext.Provider value={{ ...context, item: node.id }}>
-                <OrbitNode node={node} current={node.id === at} loading={!!loading} />
+                <OrbitNode node={node} current={node.id === at} loading={!!loading} namePart={namePart} />
               </PartContext.Provider>
             </YStack>
           );
@@ -136,7 +138,7 @@ function Ring({ nodes, at, loading, reverse }: Pick<OrbitProps, "nodes" | "at" |
     </ScrollView>
   );
 }
-function Queue({ nodes, at, loading }: Pick<OrbitProps, "nodes" | "at" | "loading">) {
+function Queue({ nodes, at, loading, namePart = false }: LayoutProps) {
   const context = usePartContext();
   const ks = useKitStyle();
   const start = Math.max(
@@ -148,7 +150,7 @@ function Queue({ nodes, at, loading }: Pick<OrbitProps, "nodes" | "at" | "loadin
     <YStack gap={space[ks.density.gap]} alignItems="center">
       {ordered.map((node) => (
         <PartContext.Provider key={node.id} value={{ ...context, item: node.id }}>
-          <OrbitNode node={node} current={node.id === at} loading={!!loading} queue />
+          <OrbitNode node={node} current={node.id === at} loading={!!loading} namePart={namePart} queue />
         </PartContext.Provider>
       ))}
     </YStack>
@@ -162,6 +164,7 @@ export function KitOrbit({
   at,
   reverse = false,
   style = "ring",
+  namePart = false,
 }: OrbitProps) {
   const { lang } = useWords();
 
@@ -175,7 +178,7 @@ export function KitOrbit({
   return (
     <YStack {...usePart(part)} width="100%" minWidth={component.base.none} aria-busy={loading} gap={space.md}>
       {ordered.length ? (
-        <Drawing nodes={ordered} at={at} loading={loading} reverse={reverse} />
+        <Drawing nodes={ordered} at={at} loading={loading} reverse={reverse} namePart={namePart} />
       ) : (
         <YStack paddingVertical={space.xl} alignItems="center" gap={space.md}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
