@@ -1,4 +1,4 @@
-# money copy
+# Money copy
 
-Pure display and reading helpers for pack components. Import through `index.ts`.
-Built-in words come from `../lang`; shared money formatting comes from the catalog.
+Data-only formatting shared by the money components and their readers.
+Built-in words live in `../lang/`; import these helpers through `index.ts`.

@@ -103,6 +103,7 @@ function IngredientRow({ row, scale, system }: RowProps) {
     <kit.KitRow
       item={row.id}
       label={row.name}
+      inline
       leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}
     >
       <kit.KitText part="name">{row.name}</kit.KitText>
@@ -129,23 +130,21 @@ function IngredientRow({ row, scale, system }: RowProps) {
 function Servings({ value }: { value: number }) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const { ingredientsLabels } = words;
-  const controls = (
-    <kit.KitTrack part="controls">
-      {copy.servingControls.map(({ label, ...control }) => (
-        <kit.KitAction
-          key={control.action}
-          {...control}
-          a11y={ingredientsLabels[label]}
-          part="servings"
-          kind="quiet"
-          disabled={value === control.bound}
-        />
-      ))}
-    </kit.KitTrack>
-  );
   return (
-    <kit.KitRow label={ingredientsLabels.servings} trailing={controls}>
-      <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />
+    <kit.KitRow label={ingredientsLabels.servings}>
+      <kit.KitTrack part="controls">
+        <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />
+        {copy.servingControls.map(({ label, ...control }) => (
+          <kit.KitAction
+            key={control.action}
+            {...control}
+            a11y={ingredientsLabels[label]}
+            part="servings"
+            kind="quiet"
+            disabled={value === control.bound}
+          />
+        ))}
+      </kit.KitTrack>
       <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />
     </kit.KitRow>
   );
@@ -179,17 +178,15 @@ export function Ingredients({ servings: seed, system: initial, groups, rows }: V
           ))}
         </kit.KitTrack>
       </kit.KitRow>
-      {groups.flatMap((group, groupIndex) => [
-        group.label && (
-          <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
-            <kit.KitText role="label" tone="muted" part={null} children={group.label} />
-          </kit.KitContent>
-        ),
-        ...group.items.map(() => {
-          const row = rows[index++]!;
-          return <IngredientRow key={row.id} row={row} scale={servings / seed} system={system} />;
-        }),
-      ])}
+      {groups.map((group, groupIndex) => (
+        <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
+          {group.label && <kit.KitText role="label" tone="muted" part={null} children={group.label} />}
+          {group.items.map(() => {
+            const row = rows[index++]!;
+            return <IngredientRow key={row.id} row={row} scale={servings / seed} system={system} />;
+          })}
+        </kit.KitContent>
+      ))}
       <kit.KitRow label={ingredientsLabels.shop}>
         <kit.KitAction part="shop" label={ingredientsLabels.shop} kind="secondary" full />
       </kit.KitRow>

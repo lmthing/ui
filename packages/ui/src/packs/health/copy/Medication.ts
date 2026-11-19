@@ -29,12 +29,12 @@ export function medicationReading(
   },
   lang?: string,
 ): string[] {
-  const { medicationLabels } = healthWordsFor(lang);
+  const { medicationLabels, medicationReading: doseLine } = healthWordsFor(lang);
   const refill = refillLine(doses, refillAt, lang);
   return [
     ...(doses.every((dose) => dose.status === "taken") ? [medicationLabels.success] : []),
     ...orderedDoses(doses).flatMap((dose) => [
-      `${dose.name}: ${timeOfDayLine(dose.time, lang)} · ${medicationLabels[dose.status]}`,
+      doseLine(dose.name, timeOfDayLine(dose.time, lang), medicationLabels[dose.status]),
       ...(dose.status === "due" ? [medicationLabels.taken, medicationLabels.skip] : []),
       ...(dose.left !== undefined ? [stockLine(dose.left, lang)] : []),
     ]),

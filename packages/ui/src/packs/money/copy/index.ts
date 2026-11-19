@@ -1,3 +1,4 @@
+export { accountCopy, accountReading } from "./AccountCard";
 export {
   priceChartCopy,
   priceChartPoints,
