@@ -1,0 +1,1 @@
+export { KitSlider } from "./KitSlider";

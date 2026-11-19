@@ -31,7 +31,7 @@ export { KitSwipeStack } from "./media";
 export { KitAvatarStack } from "./media";
 export { KitBubble } from "./media";
 export { KitHours, type HourBlock } from "./time";
-export { KitSlider } from "./input";
+export { KitSlider } from "./slider";
 export { KitInput } from "./input";
 export { KitStrip } from "./surface";
 export { KitScroll } from "./surface";

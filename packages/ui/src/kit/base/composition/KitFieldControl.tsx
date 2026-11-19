@@ -1,5 +1,6 @@
 import { photoLabels, placeholderTitle, placeholderValue } from "../../../catalog";
-import { KitAction, KitChip, KitTrack, KitInput, KitSlider } from "../input";
+import { KitAction, KitChip, KitTrack, KitInput } from "../input";
+import { KitSlider } from "../slider";
 import { KitContent, KitText } from "../text";
 import { KitPhoto } from "../media";
 import { KitTrail } from "../helpers";
