@@ -1,5 +1,7 @@
 # kitchen/copy
 
+Component-owned kitchen labels and data-only reading text.
+Import through this folder's index.ts door.
 Pure copy owned by kitchen components. Import through `index.ts`.
 
 - `FoodLog.ts`: meal labels, calorie totals, target copy, and addressed reading lines.
