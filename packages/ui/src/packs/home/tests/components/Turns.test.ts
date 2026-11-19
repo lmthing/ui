@@ -134,8 +134,18 @@ describe("Turns states and parts", () => {
   it("never repeats the current holder in a two-person rotation", () => {
     const html = renderInstance("Turns", trot, "filled", theme);
     expect(elementAt(html, "home/c1/r1/root").attributes).toContain('aria-label="Current turn: Jo"');
-    expect(elementAt(html, "home/c1/r2/root").attributes).toContain('aria-label="Up next: Alex"');
+    expect(elementAt(html, "home/c1/r2/root").attributes).toContain('aria-label="Alex"');
+    expect(html).toContain("Up next");
     expect(html).not.toContain("home/c1/r3");
+  });
+  it("uses a host portrait when supplied and initials for the other people", () => {
+    const resolvePhoto = vi.fn(() => "https://example.test/sam.png");
+    const people = [{ ...ledge.people[0]!, photo: "local:1" }, ...ledge.people.slice(1)];
+    const html = renderInstance("Turns", { ...ledge, people }, "filled", theme, { resolvePhoto });
+    expect(resolvePhoto).toHaveBeenCalledExactlyOnceWith("local:1");
+    expect(html).not.toContain(">S</span>");
+    expect(html).toContain(">A</span>");
+    expect(elementAt(html, "home/c1/r2/photo").attributes).toContain('aria-label="Alex"');
   });
 });
 
