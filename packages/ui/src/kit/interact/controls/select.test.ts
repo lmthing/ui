@@ -1,6 +1,14 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { components, type Values, type ActStep, type ScreenLike, type Definition } from "@lmthing/ui/catalog";
+import {
+  components,
+  planAct,
+  readScreen,
+  type Values,
+  type ActStep,
+  type ScreenLike,
+  type Definition,
+} from "@lmthing/ui/catalog";
 import { controlStep, createAgentAccess, createScreenController, selectedStep } from "../index";
 function select(c: keyof typeof components, raw: Values, step: ActStep) {
   const entry = { id: "c1", c, ...raw };
@@ -106,7 +114,9 @@ it("keeps tap, agent read, and the projected screen in agreement across edits", 
   expect(agent.act([selectStep("simple"), set(0)])).toMatchObject({ ok: true });
   expect(runtime.snapshotScreen().components[0]).toMatchObject({ mode: "simple", amount: 0 });
   expect(onChange.mock.lastCall?.[0].components[0]).toMatchObject({ mode: "simple", amount: 0 });
-  expect(agent.read()).toContain('simple / 0 [p1/l1 select = "simple"] [p1/quantity set = 0]');
+  expect(agent.read()).toContain(
+    'simple / 0 [p1/l1 select = "simple"; choices ["simple","custom"]] [p1/quantity set = 0]',
+  );
   expect(runtime.act(selectStep("custom"))).toMatchObject({ ok: true });
   expect(agent.read()).toContain("custom / 0");
   expect(seed).toMatchObject({ mode: "simple", amount: 3 });
@@ -121,4 +131,42 @@ it("rejects implicit choices, out-of-list values and invalid numbers without cha
   expect(runtime.snapshotScreen().components[0]).toMatchObject(seed);
   expect(agent.read()).toContain("simple / 3");
   expect(onChange).not.toHaveBeenCalled();
+});
+
+it("shares live derived choices and top-level numeric values across both planners", () => {
+  const derived = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      adjust: { "plus.increment": { prop: "amount", delta: 1 } },
+      actions: { parts: { ...fixture.meta.actions.parts, plus: ["increment"], edit: ["press"] } },
+    },
+    props: z
+      .strictObject({ mode: props.shape.mode, amount: props.shape.amount, goto: z.string() })
+      .overwrite((input) => ({ ...input, modes: input.amount >= 2 ? ["simple", "custom"] : [] })),
+  } satisfies Definition;
+  const screen = {
+    id: "test",
+    components: [{ id: "p1", c: derived.meta.id, mode: "simple", amount: 0, goto: "editor" }],
+  };
+  const defs = { [derived.meta.id]: derived };
+  const onLink = vi.fn();
+  const runtime = createScreenController({ screen, defs, onLink });
+  expect(runtime.actionsAt("p1/l1")).toEqual([]);
+  expect(runtime.read()).not.toContain("p1/l1 select");
+  const plus = { address: "p1/plus", action: "increment" };
+  const steps = [plus, set(2), selectStep("custom")];
+  const dry = planAct(screen, defs, {}, steps);
+  expect(dry).toMatchObject({ ok: true, links: [] });
+  if (!dry.ok) return;
+  const read = readScreen(screen, defs, dry.values);
+  const payloads = JSON.parse(read.match(/choices (\[[^\]]*\])/)![1]!);
+  expect(payloads).toEqual(["simple", "custom"]);
+  expect(runtime.act(steps)).toMatchObject({ ok: true });
+  expect(runtime.read()).toBe(read);
+  expect(runtime.snapshotScreen().components[0]).toMatchObject({ mode: "custom", amount: 2 });
+  expect(runtime.act(selectStep(payloads[0]))).toMatchObject({ ok: true });
+  expect(onLink).not.toHaveBeenCalled();
+  expect(runtime.press("p1/edit")).toMatchObject({ ok: true });
+  expect(onLink).toHaveBeenCalledExactlyOnceWith("editor", "test/p1/edit");
 });

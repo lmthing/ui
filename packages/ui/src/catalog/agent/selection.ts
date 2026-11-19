@@ -7,19 +7,21 @@ const rowsOf = (meta: Meta, props: Values): Values[] =>
 const idOf = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
 
+/** Undefined means a legacy selection; an empty list means there are no offered choices. */
+export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
+  const choices = meta.select?.choices;
+  if (!choices || !Object.hasOwn(choices, target)) return undefined;
+  const source = choices[target]!;
+  const allowed = "prop" in source ? props[source.prop] : source;
+  return Array.isArray(allowed) ? allowed.filter((value) => !validateActionValue("select", value)) : [];
+}
+
 /** Resolve a row or a named part without knowing which component owns it. */
 export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
   const select = meta.select;
   if (!select) return undefined;
-  const choices = Object.hasOwn(select.choices ?? {}, target) ? select.choices![target] : undefined;
-  if (choices) {
-    const allowed = "prop" in choices ? props[choices.prop] : choices;
-    return Array.isArray(allowed) &&
-      !validateActionValue("select", explicit) &&
-      allowed.some((value) => value === explicit)
-      ? { value: explicit }
-      : undefined;
-  }
+  const choices = choiceValues(meta, props, target);
+  if (choices) return choices.includes(explicit) ? { value: explicit } : undefined;
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };
   if (!select.value) return undefined;
   const rows = rowsOf(meta, props);

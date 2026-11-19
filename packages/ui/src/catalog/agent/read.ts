@@ -1,12 +1,12 @@
-import { liveProps, projectControls } from "./live-props";
+import { liveProps, parseControlProps, projectControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { stampItemIds } from "../lines";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { projectAdjustments, projectClocks } from "./clocks";
+import { numericSetAt, projectAdjustments, projectClocks } from "./clocks";
+import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
 
 type Json = {
@@ -60,17 +60,26 @@ const risks: Record<string, string> = {
 function withValues(
   affordances: Affordance[],
   values: Record<string, unknown>,
-  tier: string,
-  partTiers: Readonly<Record<string, string>> = {},
+  meta: Meta,
+  props: Props,
+  instance: string,
 ) {
   return affordances.map((a) => {
-    const risk = risks[partTiers[a.part] ?? tier] ?? "";
-    const value = values[`${a.address}/$draft`] ?? values[a.address];
+    const risk = risks[meta.partTiers?.[a.part] ?? meta.tier] ?? "";
+    const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
+    const choices = a.action === "select" && choiceValues(meta, props, target);
+    const set = a.action === "set" && numericSetAt(meta, props, target);
+    const value = choices
+      ? props[meta.select!.prop]
+      : set
+        ? values[`${instance}/${set.key}`]
+        : (values[`${a.address}/$draft`] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
+    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
     return { ...a, detail: `${detail}${risk}` };
   });
 }
@@ -96,7 +105,7 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const validated = stampItemIds(def.meta, def.props.parse(input) as Props);
+  const validated = parseControlProps(def, input, (part) => values[`${instance}/${part}`]);
   const props = liveProps(def.meta, validated, instance, values);
   state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -105,8 +114,9 @@ export function readComponent(
   const affordances = withValues(
     affordancesOf(def.meta, props, instance, values),
     values,
-    def.meta.tier,
-    def.meta.partTiers,
+    def.meta,
+    props,
+    instance,
   );
   const key = def.meta.items?.key;
   const own = [
