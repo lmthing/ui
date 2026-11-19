@@ -1,4 +1,7 @@
 import { expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { URL } from "node:url";
+import { example } from "..";
 import {
   archetypes,
   checkArchetypes,
@@ -31,6 +34,11 @@ const layouts = {
   body_trends: ["measure", "summary", "add"],
   bodylog: ["symptoms", "vitals", "cycle", "med_edit"],
 };
+
+it("keeps the root door's worked example synchronized with the JSON Lines file", () => {
+  expect(example).toBe(readFileSync(new URL("../example.jsonl", import.meta.url), "utf8"));
+  expect(packExamples.health).toBe(example);
+});
 
 it("validates generated metadata, archetypes and each worked line", () => {
   expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
