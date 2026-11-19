@@ -12,6 +12,7 @@ import {
   drawRole,
   holdIndex,
   performDraw,
+  staleDraw,
   storeDraw,
   type RandomSource,
 } from "./draw";
@@ -39,9 +40,7 @@ function affordancesOfScreen(
   defs: Record<string, Definition>,
   values: Values,
 ): Affordance[] {
-  const local = Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
-  );
+  const local = localValues(screen.id, values);
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
@@ -55,6 +54,22 @@ function affordancesOfScreen(
       liveState ?? (def.meta.draw || def.meta.emptyActions ? state : undefined),
     );
   });
+}
+
+function localValues(screen: string, values: Values): Values {
+  return Object.fromEntries(
+    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
+  );
+}
+
+function expireDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+  for (const { id, c, state: _state, ...raw } of screen.components) {
+    const def = defs[c];
+    const key = `${screen.id}/${id}/${drawKey}`;
+    if (!def?.meta.draw || values[key] === undefined) continue;
+    const props = liveProps(def.meta, def.props.parse(raw) as Values, id, localValues(screen.id, values));
+    if (staleDraw(def.meta, props, values[key])) values[key] = undefined;
+  }
 }
 
 function drawStep(screen: ScreenLike, defs: Record<string, Definition>, address: string, action: string) {
@@ -76,7 +91,7 @@ function stageDraw(
 ): string {
   const { id, c: _c, state: _state, ...raw } = entry;
   const get = (part: string) => next[`${screen}/${id}/${part}`];
-  const props = def.props.parse(raw) as Values;
+  const props = liveProps(def.meta, def.props.parse(raw) as Values, id, localValues(screen, next));
   const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
   next[`${screen}/${id}/${drawKey}`] = storeDraw(def.meta, props, outcome);
   if (!random && (role === "draw" || role === "redraw")) return "";
@@ -166,6 +181,7 @@ export function planAct(
       next[key] = step.value;
     }
     Object.assign(next, selected.changes);
+    expireDraws(screen, defs, next);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return { ok: true, values: next, changed, links };

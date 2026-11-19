@@ -78,7 +78,7 @@ function projectEntry(
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   Object.assign(result, projectAdjustments(defs[entry.c]!.meta, result, get));
-  if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
+  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
   if (meta.draw) {
     const state = drawStatus(meta, result, result.state ?? "filled", get);

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { components, type Definition, type ScreenLike } from "@lmthing/ui/catalog";
+import { drawKey } from "../../catalog";
 import { createAgentAccess } from "./agent";
 import { createInteractionStore } from "./store";
 
@@ -88,4 +89,42 @@ it("blocks standalone draws while loading without a controller runtime marker", 
   store.set("s/c1/$state", undefined);
   expect(agent.act(press).ok).toBe(true);
   expect(agent.read()).toContain("index=1");
+});
+
+it("draws with the standalone selection and permanently expires invalidated results in a batch", () => {
+  const fixture: Definition = {
+    meta: {
+      ...components.Button.meta,
+      id: "ChanceFixture",
+      actions: { parts: { roll: ["press"], two: ["select"], three: ["select"] } },
+      emptyActions: ["roll.press", "two.select", "three.select"],
+      draw: { kind: "faces", press: "roll", count: "count", sides: "sides" },
+      select: { prop: "count", value: "index", parts: { two: 2, three: 3 } },
+    },
+    props: z.strictObject({ count: z.int().min(1), sides: z.int().min(2) }),
+    examples: [],
+    fallback: () => ({ count: 2, sides: 6 }),
+    probes: [],
+  };
+  const current = (): ScreenLike => ({
+    id: "s",
+    components: [{ c: "ChanceFixture", id: "c1", state: "empty", count: 2, sides: 6 }],
+  });
+  const store = createInteractionStore();
+  const agent = createAgentAccess({ current, defs: { ChanceFixture: fixture }, store, random: () => 4 });
+  expect(
+    agent.act([
+      { address: "c1/three", action: "select" },
+      { address: "c1/roll", action: "press" },
+    ]).ok,
+  ).toBe(true);
+  expect(agent.read()).toContain("faces=[5,5,5]");
+  expect(
+    agent.act([
+      { address: "c1/two", action: "select" },
+      { address: "c1/three", action: "select" },
+    ]).ok,
+  ).toBe(true);
+  expect(store.get(`s/c1/${drawKey}`)).toBeUndefined();
+  expect(agent.read()).toContain("ChanceFixture (empty)");
 });

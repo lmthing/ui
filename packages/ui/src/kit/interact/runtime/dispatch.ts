@@ -143,8 +143,9 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (opts.dryRun)
       return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
     // Prepare media after validation, before consuming randomness or committing values.
+    let settleMedia: (commit: boolean) => void;
     try {
-      media.prepare(preview.performed);
+      settleMedia = media.prepare(preview.performed, Boolean(preview.drew));
     } catch (error) {
       return actionFailure(
         0,
@@ -153,7 +154,10 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       );
     }
     const result = preview.drew ? planSteps(list, ctx, media, ctx.options.random) : preview;
-    if (result.error) return result.error;
+    if (result.error) {
+      settleMedia(false);
+      return result.error;
+    }
     const { state, effects } = result;
     ctx.status.openSheet = state.sheet;
     ctx.status.confirmation = state.confirmation;
@@ -161,6 +165,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
     state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
     ctx.store.setMany(state.values);
+    settleMedia(true);
     for (const effect of effects) effect();
     scheduleClock();
     ctx.notifyChange();
