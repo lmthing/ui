@@ -96,6 +96,7 @@ export function affordancesOf(meta: Meta, props: Props, instance: string, values
     }));
   const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
   if (!values[`${instance}/$runtime`]) return offered;
+  if (props.state && props.state !== "filled") return [];
   return offered.filter((control) =>
     clockActionValid(
       meta,

@@ -74,7 +74,7 @@ function projectEntry(
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   if (clocks) Object.assign(result, projectClocks(defs[entry.c]!.meta, result, get, now));
-  else if (get("$state") !== undefined) result.state = get("$state") as Entry["state"];
+  else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));
   if (entry.c === "Bubbles" && Array.isArray(get("$messages"))) result.messages = get("$messages");

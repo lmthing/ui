@@ -44,7 +44,7 @@ export function clockTargets(meta: Meta, props: Values): ClockTarget[] {
 }
 export const clockKey = (clock: ClockTarget) => `${clock.base}$${clock.spec.id}${clock.suffix}`;
 export const clockPropKey = (clock: ClockTarget, prop = clock.spec.prop ?? "") =>
-  `${clock.base}$${prop}${clock.suffix}`;
+  `${clock.base}$${prop}${clock.suffix}${prop === clock.spec.id ? "/seconds" : ""}`;
 export const clockSeed = (clock: ClockTarget) =>
   Number(clock.holder[clock.spec.from ?? ""] ?? clock.outer[clock.spec.from ?? ""] ?? 0);
 export function clockTime(clock: ClockTarget, state: ClockState | undefined, held: unknown, now: number) {
@@ -110,6 +110,25 @@ export function projectClocks(
   return state === undefined ? props : { ...props, state };
 }
 /** Shared addresses (for example stop-all) are valid if any owning clock can act. */
+function declaredControl(meta: Meta, target: string, action: string) {
+  const [row, part = "root"] = target.split("/");
+  const groups = [
+    { specs: meta.clocks, local: target, own: true },
+    { specs: meta.items?.clocks, local: part, own: false },
+    { specs: meta.items?.nested?.clocks, local: part.replace(/_[1-9][0-9]*$/, ""), own: false },
+  ];
+  return groups.some(({ specs, local, own }) =>
+    (specs ?? []).some((spec) =>
+      [spec.start, spec.stop, spec.reset].some(
+        (trigger) =>
+          trigger?.action === action &&
+          (trigger.scope === "component"
+            ? target === trigger.part
+            : (own || row?.startsWith(meta.items?.prefix ?? "r")) && local === trigger.part),
+      ),
+    ),
+  );
+}
 export function clockActionValid(
   meta: Meta,
   props: Values,
@@ -135,5 +154,5 @@ export function clockActionValid(
       ];
     }),
   );
-  return !owners.length || owners.some(Boolean);
+  return owners.length ? owners.some(Boolean) : !declaredControl(meta, target, action);
 }
