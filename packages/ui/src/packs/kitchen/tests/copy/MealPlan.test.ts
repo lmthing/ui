@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../../copy";
+import { mealPlanDays, mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../../copy";
 
 describe("MealPlan copy", () => {
   it("formats the stored Monday independently of the local timezone", () => {
     expect(mealPlanWeek("2026-11-16")).toBe("Week of 16 Nov 2026");
+  });
+  it("provides compact headings without changing the full weekday reading", () => {
+    expect(mealPlanDays.map((day) => day.short)).toEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+    expect(mealPlanDays[2]).toEqual({ id: "2", label: "Wednesday", short: "Wed" });
   });
   it("names each meal and distinguishes filled recipes from empty add cells", () => {
     expect(

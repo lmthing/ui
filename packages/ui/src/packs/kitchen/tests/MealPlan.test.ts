@@ -147,9 +147,9 @@ describe("MealPlan states, parts, reading and conditional actions", () => {
       expect(offered).toContainEqual(action);
       if (row.filled) {
         const [lead, body] = elementAt(html, root).children[0]!.children;
-        expect(styleAt(html, lead!)).toContain("align-self:center");
+        expect(Boolean(body)).toBe(count <= 2);
+        if (body) expect(styleAt(html, lead!)).toContain("align-self:center");
         expect(lead!.children[0]!.attributes).toContain(`data-testid="home/m1/${row.id}/photo"`);
-        expect(body!.children[0]!.attributes).toContain(`data-testid="home/m1/${row.id}/title"`);
         expect(styleAt(html, `home/m1/${row.id}/title`)).toContain("-webkit-line-clamp:2");
         expect(html).not.toContain(`data-testid="home/m1/${row.id}/add"`);
       } else expect(elementAt(html, `home/m1/${row.id}/add`).attributes).toContain('role="button"');

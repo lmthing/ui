@@ -7,6 +7,11 @@ export const mealPlanLabels = {
   snack: "Snack",
   add: "Add",
 } as const;
+export const mealPlanDays = weekdayNames.map((label, day) => ({
+  id: String(day),
+  label,
+  short: label.slice(0, 3),
+}));
 type MealCell = { id?: string; day: number; meal: keyof Omit<typeof mealPlanLabels, "add">; title?: string };
 export const mealPlanWeek = (week: string): string => `Week of ${appointmentDate(week)}`;
 export function mealPlanReading(week: string, cells: readonly MealCell[]): string[] {

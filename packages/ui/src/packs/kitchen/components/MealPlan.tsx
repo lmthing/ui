@@ -9,14 +9,13 @@ import {
   text,
   thingOf,
   titleOf,
-  weekdayNames,
   type CastLike,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
 import { KitCard, KitEmpty, KitPhoto, KitRow, KitText, KitWeekMatrix, useComponentState } from "../../../kit";
-import { mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
+import { mealPlanDays, mealPlanLabels, mealPlanReading, mealPlanWeek, mealPlanToday } from "../copy";
 // Core first: Calendar/week cannot place recipe names in a seven-day by meal matrix with empty add cells.
 export const meta = {
   id: "MealPlan",
@@ -131,24 +130,29 @@ function MatrixLabel({ label }: { label: string }) {
     </KitText>
   );
 }
-function MealCell({ cell }: { cell: Cell }) {
-  const photo = cell.filled && cell.photo ? { photo: cell.photo } : {};
-  const leading =
-    cell.filled && cell.photo ? <KitPhoto {...photo} part="photo" label={cell.title} /> : undefined;
+function MealCell({ cell, compact, stackPhoto }: { cell: Cell; compact?: boolean; stackPhoto: boolean }) {
+  const photo = cell.filled && cell.photo && (
+    <KitPhoto photo={cell.photo} shape={stackPhoto ? "wide" : "thumb"} part="photo" label={cell.title} />
+  );
+  const leading = !stackPhoto && photo;
+  const title = cell.filled && (
+    <KitText part="title" role={compact && !leading ? "caption" : "body"} lines={2}>
+      {cell.title}
+    </KitText>
+  );
+  const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell])[0]! };
   return (
-    <KitRow
-      item={cell.id}
-      label={mealPlanReading("", [cell])[0]!}
-      inline
-      goto={cell.goto}
-      leading={leading}
-      leadingAlign="row"
-    >
-      {cell.filled ? (
-        <KitText part="title" role="body" lines={2}>
-          {cell.title}
-        </KitText>
-      ) : (
+    <KitRow {...target} inline leading={leading} leadingAlign="row">
+      {stackPhoto && photo}
+      {cell.filled &&
+        (leading ? (
+          <KitRow inline label={cell.title}>
+            {title}
+          </KitRow>
+        ) : (
+          title
+        ))}
+      {!cell.filled && (
         <KitRow part="add" role="button" label={mealPlanLabels.add} inline>
           <KitText part="title" role="caption" tone="accent">
             {mealPlanLabels.add}
@@ -159,31 +163,29 @@ function MealCell({ cell }: { cell: Cell }) {
   );
 }
 export function MealPlan(input: Props<typeof props, typeof meta>) {
-  const { week, meals } = input;
-  const { rows } = input as typeof input & { rows: Cell[] };
-  const state = useComponentState();
-  if (state === "empty")
+  const { week, meals, rows } = input as typeof input & { rows: Cell[] };
+  if (useComponentState() === "empty")
     return (
       <KitCard part="root">
         <KitEmpty part="meals" decorativeIcon />
       </KitCard>
     );
-  const days = weekdayNames.map((label, day) => ({
-    id: String(day),
-    label,
-    header: <MatrixLabel label={label} />,
-  }));
+  const days = mealPlanDays.map((day) => ({ ...day, header: <MatrixLabel label={day.short} /> }));
+  const stackPhoto = meals.length > 2;
   const columns = meals.map((meal) => ({
     id: meal,
     label: mealPlanLabels[meal],
     heading: <MatrixLabel label={mealPlanLabels[meal]} />,
     cells: days.map((day, index) => {
       const cell = rows.find((cell) => cell.day === index && cell.meal === meal)!;
-      return { id: day.id, content: <MealCell cell={cell} /> };
+      return {
+        id: day.id,
+        content: <MealCell cell={cell} stackPhoto={stackPhoto} />,
+        compactContent: <MealCell cell={cell} compact stackPhoto={stackPhoto} />,
+      };
     }),
   }));
-  const matrix = { days, rows: columns, corner: null, orientation: "daysDown" as const };
-  const today = mealPlanToday(week);
+  const matrix = { days, rows: columns, today: mealPlanToday(week) };
   return (
     <KitCard part="root">
       <KitRow part="week" label={mealPlanWeek(week)}>
@@ -191,7 +193,7 @@ export function MealPlan(input: Props<typeof props, typeof meta>) {
           {mealPlanWeek(week)}
         </KitText>
       </KitRow>
-      <KitWeekMatrix part="meals" {...matrix} {...(today === undefined ? {} : { today })} />
+      <KitWeekMatrix part="meals" orientation="daysDown" corner={null} fitColumns {...matrix} />
     </KitCard>
   );
 }
