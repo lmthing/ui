@@ -1,9 +1,18 @@
 import { defaultEnvironment, type Environment, type NativeHost } from "./environment";
 import { useMemo, useRef, type ReactNode } from "react";
 import { Theme, YStack, type TamaguiElement } from "tamagui";
-import { defaultLang, kitStyleOf, localeOf, presets, themeName, type ThemeChoice } from "../../catalog";
+import {
+  defaultLang,
+  kitStyleOf,
+  localeOf,
+  presets,
+  themeName,
+  themePreferencesOf,
+  type ThemeChoice,
+} from "../../catalog";
 import { noopParts, type PartRegistry } from "../registry";
 import { KitContext, type KitContextValue } from "./context";
+import { useReducedMotion } from "./useReducedMotion";
 
 type KitProviderProps = {
   children: ReactNode;
@@ -31,14 +40,18 @@ export function KitProvider({
 }: KitProviderProps) {
   const root = useRef<TamaguiElement>(null);
   const preset = presets.find((value) => value.id === theme.preset)!;
+  const osReduced = useReducedMotion(theme.motion === "lively" && !environment.reduceMotion, nativeHost);
+  const { density, motion } = themePreferencesOf(theme, environment.reduceMotion || osReduced);
   const value = useMemo(
     () => ({
-      style: kitStyleOf(preset),
+      style: kitStyleOf(preset, density),
+      density,
+      motion,
       lang: localeOf(lang),
       parts,
       root,
       interactive,
-      environment,
+      environment: osReduced ? { ...environment, reduceMotion: true } : environment,
       ...(nativeHost ? { nativeHost } : {}),
       ...(controller ? { controller } : {}),
       ...(controller
@@ -52,7 +65,20 @@ export function KitProvider({
           : {}),
       ...(resolvePhoto ? { resolvePhoto } : {}),
     }),
-    [preset, lang, parts, interactive, environment, nativeHost, controller, onLink, resolvePhoto],
+    [
+      preset,
+      density,
+      motion,
+      lang,
+      parts,
+      interactive,
+      environment,
+      osReduced,
+      nativeHost,
+      controller,
+      onLink,
+      resolvePhoto,
+    ],
   );
   return (
     <Theme name={themeName(theme)}>
