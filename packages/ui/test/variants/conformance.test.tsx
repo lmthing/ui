@@ -6,6 +6,7 @@ import { variantChoices, variantLabel, variantPairs, variantSheet } from "../../
 import { renderInstance } from "../render";
 import { renderedAddresses, variantPartIssues } from "./variant-parts";
 import { peekHiddenItems, variantPeekIssues } from "./variant-peek";
+import { rowAddressIssues } from "./row-addresses";
 
 type Props = Record<string, unknown>;
 type Choice = ReturnType<typeof variantChoices>[number];
@@ -16,20 +17,31 @@ function checkPair(id: Id, def: Definition, choice: Choice, { baseline, input, i
   const baseProps = stampItemIds(def.meta, def.props.parse(baseline) as Props);
   const props = stampItemIds(def.meta, def.props.parse(input) as Props);
   const key = def.meta.items?.key;
-  const ids = (value: Props) => (key ? ((value[key] ?? []) as { id: string }[]).map(({ id }) => id) : []);
-  expect(ids(props)).toEqual(ids(baseProps));
+  const rowsOf = (value: Props) => (key ? ((value[key] ?? []) as (Props & { id: string })[]) : []);
+  const rows = rowsOf(baseProps);
+  const items = rows.map(({ id }) => id);
+  expect(rowsOf(props).map(({ id }) => id)).toEqual(items);
   const render = (value: unknown) =>
-    renderedAddresses(renderInstance(id, value, "filled", variantSheet, { resolvePhoto: (ref) => ref }));
-  const before = render(baseline);
-  const after = render(input);
-  const items = ids(baseProps);
+    renderInstance(id, value, "filled", variantSheet, { resolvePhoto: (ref) => ref });
+  const beforeHTML = render(baseline);
+  const afterHTML = render(input);
+  const before = renderedAddresses(beforeHTML);
+  const after = renderedAddresses(afterHTML);
   const isPeek = choice.axis === "overflow" && choice.value === "peek";
   const { hidden, issues } = isPeek ? peekHiddenItems(items, after) : { hidden: [], issues: [] };
+  const item = itemIndex === undefined ? undefined : items[itemIndex];
   expect([
     ...issues,
-    ...variantPartIssues(def.meta, choice, before, after, { item: items[itemIndex!], items, hidden }),
+    ...rowAddressIssues(rows, beforeHTML, afterHTML),
+    ...variantPartIssues(def.meta, choice, before, after, { ...(item ? { item } : {}), items, hidden }),
     ...(hidden.length
-      ? variantPeekIssues(def, input, baseProps, hidden, readComponent(def, input, "c1"))
+      ? variantPeekIssues(
+          def,
+          input,
+          { input: baseline, props: baseProps },
+          hidden,
+          readComponent(def, input, "c1"),
+        )
       : []),
   ]).toEqual([]);
   return hidden.length;

@@ -74,12 +74,11 @@ it("uses a valid authored example once and does not mutate the examples", () => 
       { title: "Second", mark: "highlight" },
     ],
   });
-  expect(examples[0]?.rows[1]?.mark).toBe("highlight");
+  expect(examples[0]?.rows[1]).toHaveProperty("mark", "highlight");
   expect(examples[0]?.rows[0]).not.toHaveProperty("mark");
 });
 
 it("omits a sheet when there are no alternatives", () => {
-  expect(variantPreviews({ ...fixture, meta: { ...fixture.meta, variants: {}, items: undefined } })).toEqual(
-    [],
-  );
+  const { variants: _variants, items: _items, ...meta } = fixture.meta;
+  expect(variantPreviews({ ...fixture, meta })).toEqual([]);
 });
