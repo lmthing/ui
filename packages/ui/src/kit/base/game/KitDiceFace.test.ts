@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, size, space, themeName } from "@lmthing/ui/catalog";
+import { component, presets, size, space, type as typography, themeName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitDiceFace } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
@@ -50,8 +50,10 @@ describe("KitDiceFace", () => {
   });
   it.each([4, 6, 8, 10, 12, 20] as const)("draws caller-owned numbered %s-sided faces", (sides) => {
     const html = render({ ...die, sides, style: "numbers", value: sides, disabled: true });
-    expect(elementAt(html, "home/c1/r1/hold").attributes).toContain('aria-disabled="true"');
-    expect(styleAt(html, "home/c1/r1/hold")).toContain(`opacity:${component.base.disabledOpacity}`);
+    const hold = elementAt(html, "home/c1/r1/hold");
+    expect(hold.attributes).toContain('aria-disabled="true"');
+    expect(styleAt(html, hold)).toContain(`opacity:${component.base.disabledOpacity}`);
+    expect(styleAt(html, hold.children[0]!)).toContain(`font-size:${typography.body.size}px`);
     expect(html).toContain(`>${sides}</span>`);
     expect(render({ ...die, sides, style: "numbers" })).not.toContain('role="text"');
     expect(render({ ...die, sides, style: "numbers", value: sides + 1 })).not.toContain('role="text"');
@@ -82,4 +84,16 @@ describe("KitDiceFace", () => {
       expect(loading).not.toEqual(render(die, id, mode));
     }
   });
+});
+
+it("marks both dice hold controls and distinguishes the held value without relying on color", () => {
+  const unheld = render({ ...die, value: 6 });
+  const held = render({ ...die, value: 6, held: true });
+  expect(styleAt(unheld, "home/c1/r1/hold")).toContain("var(--raised)");
+  expect(elementAt(unheld, "home/c1/r1/hold").attributes).toContain('aria-pressed="false"');
+  const iconOf = (html: string) => html.match(/<svg\b.*?<\/svg>/)?.[0];
+  expect(iconOf(unheld)).toBeDefined();
+  expect(iconOf(held)).toBeDefined();
+  expect(iconOf(held)).not.toEqual(iconOf(unheld));
+  expect(iconOf(render({ ...die, value: 6, loading: true }))).toBeUndefined();
 });

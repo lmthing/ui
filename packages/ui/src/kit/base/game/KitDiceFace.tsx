@@ -2,7 +2,7 @@ import { YStack, XStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
-import { KitText, shifted } from "../text";
+import { KitIcon, KitText, shifted } from "../text";
 
 type DiceFaceProps = {
   part?: string;
@@ -81,23 +81,34 @@ function Pips({ value }: { value: number }) {
   );
 }
 
+function FaceValue({ loading, value, sides, style }: DiceFaceProps) {
+  if (loading || value === undefined || !Number.isInteger(value) || value < 1 || value > sides)
+    return (
+      <YStack
+        width={loading ? size.icon.lg + space.md : size.icon.lg}
+        height={loading ? space.sm : component.base.dot}
+        borderRadius={radius.pill}
+        backgroundColor="$line"
+        aria-hidden
+      />
+    );
+  if (sides === 6 && style !== "numbers") return <Pips value={value} />;
+  return (
+    <KitText role="number" numberScale="compact" align="center" part={null} tabular>
+      {value}
+    </KitText>
+  );
+}
+
 function Face(props: DiceFaceProps) {
   const ks = useKitStyle();
   const target = useHold(props);
-  const address = usePart(
-    props.part ?? "root",
-    !props.loading && !!props.holdPart && props.holdPart !== (props.part ?? "root"),
-  );
-  const valid =
-    props.value !== undefined &&
-    Number.isInteger(props.value) &&
-    props.value >= 1 &&
-    props.value <= props.sides;
-  const pips = props.sides === 6 && props.style !== "numbers";
+  const showHold = !props.loading && !!props.holdPart;
+  const ownPart = props.part ?? "root";
+  const separateFace = showHold && props.holdPart !== ownPart;
+  const address = usePart(ownPart, separateFace);
   return (
-    <YStack
-      {...(!props.loading && props.holdPart && props.holdPart !== (props.part ?? "root") ? address : {})}
-    >
+    <YStack {...(separateFace ? address : {})}>
       <YStack
         {...(target as object)}
         width={size.control.md * 2}
@@ -108,24 +119,15 @@ function Face(props: DiceFaceProps) {
         borderRadius={shifted("lg", ks.radiusShift)}
         borderWidth={component.base.strongBorder}
         borderColor={props.loading ? "$line" : props.held ? "$accent" : "$muted"}
-        backgroundColor={props.held && !props.loading ? "$accentSoft" : "$surface"}
+        backgroundColor={props.held && !props.loading ? "$accentSoft" : showHold ? "$raised" : "$surface"}
         aria-busy={!!props.loading}
         opacity={props.disabled && !props.loading ? component.base.disabledOpacity : 1}
       >
-        {props.loading || !valid ? (
-          <YStack
-            width={props.loading ? size.icon.lg + space.md : size.icon.lg}
-            height={props.loading ? space.sm : component.base.dot}
-            borderRadius={radius.pill}
-            backgroundColor="$line"
-            aria-hidden
-          />
-        ) : pips ? (
-          <Pips value={props.value!} />
-        ) : (
-          <KitText role="number" align="center" part={null} tabular>
-            {props.value}
-          </KitText>
+        <FaceValue {...props} />
+        {showHold && (
+          <YStack position="absolute" top={space.xs} right={space.xs} pointerEvents="none" aria-hidden>
+            <KitIcon name={props.held ? "lock" : "unlock"} scale="sm" tone="text" decorative />
+          </YStack>
         )}
       </YStack>
     </YStack>
