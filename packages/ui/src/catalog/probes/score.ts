@@ -42,16 +42,29 @@ export function scoreWrite(reply: string, def: Definition, variant?: WriteProbe[
   return { pass: false, detail: issues.slice(0, 3).join("; ") };
 }
 
+function hasItemTitles(rows: unknown, titles: readonly string[]): boolean {
+  return (
+    Array.isArray(rows) &&
+    rows.length === titles.length &&
+    titles.every((title, index) => {
+      const actual: unknown = rows[index]?.title;
+      return typeof actual === "string" && actual.trim().toLowerCase() === title.toLowerCase();
+    })
+  );
+}
+
 function scoreVariant(
   input: Record<string, unknown>,
   { meta }: Definition,
-  { axis, value, item }: NonNullable<WriteProbe["variant"]>,
+  { axis, value, item, itemTitles }: NonNullable<WriteProbe["variant"]>,
 ): Score {
   const axes: Variants | undefined = item === undefined ? meta.variants : meta.items?.variants;
   const values: readonly string[] | undefined = axes?.[axis];
   if (!values || (value !== null && !values.includes(value)))
     return { pass: false, detail: `probe expects undeclared ${axis}` };
   const rows = meta.items && input[meta.items.key];
+  if (itemTitles && !hasItemTitles(rows, itemTitles))
+    return { pass: false, detail: `expected items in order: ${itemTitles.join(", ")}` };
   const target = item === undefined ? input : Array.isArray(rows) ? rows[item] : undefined;
   if (!target || typeof target !== "object") return { pass: false, detail: `missing item ${item}` };
   const actual = (target as Record<string, unknown>)[axis];

@@ -53,3 +53,28 @@ it("checks item positives at the target row and rejects an unsolicited choice on
   expect(scoreWrite(reply(null, null), def, plain).pass).toBe(true);
   expect(scoreWrite(reply(null, "highlight"), def, plain).pass).toBe(false);
 });
+
+it("rejects shortened or reordered collections even when the correct variant is authored", () => {
+  const def = variantProbeDefinitions.find(({ meta }) => meta.id === "List")!;
+  const mark = def.probes.find((probe) => probe.kind === "write" && probe.variant?.value === "highlight");
+  const peek = def.probes.find((probe) => probe.kind === "write" && probe.variant?.value === "peek");
+  if (mark?.kind !== "write" || peek?.kind !== "write") throw new Error("Missing shared probe");
+  const highlight = (items: string[]) =>
+    JSON.stringify({
+      c: "List",
+      rows: items.map((title, index) => ({ title, ...(index === 0 ? { mark: "highlight" } : {}) })),
+    });
+  const preview = (items: string[]) =>
+    JSON.stringify({
+      c: "List",
+      overflow: "peek",
+      rows: items.map((title) => ({ title })),
+    });
+  expect(scoreWrite(highlight(["Fern"]), def, mark.variant).pass).toBe(false);
+  expect(scoreWrite(highlight(["Fern", "Aloe", "Basil"]), def, mark.variant).pass).toBe(false);
+  expect(scoreWrite(highlight(["Fern", "Basil", "Aloe"]), def, mark.variant).pass).toBe(true);
+  expect(scoreWrite(preview(["Watering", "Pruning", "Feeding"]), def, peek.variant).pass).toBe(false);
+  expect(scoreWrite(preview(["watering", "pruning", "feeding", "repotting"]), def, peek.variant).pass).toBe(
+    true,
+  );
+});

@@ -3498,189 +3498,6 @@
       "{\"c\":\"Bars\",\"figures\":null,\"labels\":\"all\",\"title\":\"Walks\",\"points\":[{\"label\":\"Mon\",\"value\":7},{\"label\":\"Tue\",\"value\":8}]}"
     ]
   },
-  "c73b962b32d56067": {
-    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { density?: comfortable|compact, arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: List watering, pruning, feeding and repotting. Show only the first few, with one See all link for the whole list.",
-    "format": {
-      "type": "json_schema",
-      "json_schema": {
-        "name": "writer_line",
-        "strict": true,
-        "schema": {
-          "type": "object",
-          "properties": {
-            "c": {
-              "type": "string",
-              "const": "List",
-              "enum": [
-                "List"
-              ]
-            },
-            "density": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "comfortable",
-                    "compact"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "arrange": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "rows",
-                    "grid",
-                    "strip"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "group": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "none",
-                    "sections",
-                    "dates"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "overflow": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "all",
-                    "peek",
-                    "page"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "lead": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "none",
-                    "icon",
-                    "avatar",
-                    "number"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "trail": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "enum": [
-                    "none",
-                    "chevron",
-                    "value",
-                    "toggle"
-                  ]
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "rows": {
-              "minItems": 1,
-              "maxItems": 6,
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string",
-                    "minLength": 1,
-                    "maxLength": 28
-                  },
-                  "tone": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "neutral",
-                          "good",
-                          "warn",
-                          "bad"
-                        ]
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  },
-                  "mark": {
-                    "anyOf": [
-                      {
-                        "type": "string",
-                        "enum": [
-                          "none",
-                          "highlight",
-                          "muted",
-                          "new"
-                        ]
-                      },
-                      {
-                        "type": "null"
-                      }
-                    ]
-                  }
-                },
-                "required": [
-                  "title",
-                  "tone",
-                  "mark"
-                ],
-                "additionalProperties": false
-              }
-            }
-          },
-          "required": [
-            "c",
-            "density",
-            "arrange",
-            "group",
-            "overflow",
-            "lead",
-            "trail",
-            "rows"
-          ],
-          "additionalProperties": false
-        }
-      }
-    },
-    "reply": "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
-    "replies": [
-      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}"
-    ]
-  },
   "c89679c1be369a8e": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { density?: comfortable|compact, arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: List Fern, Basil and Aloe with a number at the start of each row.",
     "format": {
@@ -4689,6 +4506,189 @@
       "{\"c\":\"Photo\",\"bleed\":null,\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}",
       "{\"c\":\"Photo\",\"bleed\":null,\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}",
       "{\"c\":\"Photo\",\"bleed\":null,\"aspect\":null,\"photo\":\"lib:dogs\",\"caption\":null}"
+    ]
+  },
+  "f766689ea6392f56": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet variants only as requested. Otherwise use null, not the default.\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed (gutter): inset|edge\naspect: auto|square|wide|tall\ndetail (secondary text): full|brief\nmedia (image): none|icon|thumb|cover\nfigures (numbers): exact|short\nlabels (charts): key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead (row start): none|icon|avatar|thumb|number|check\ntrail (row end): none|chevron|value|badge|toggle|check\ntone (status): neutral|good|warn|bad\nmark: none|highlight|muted|new\nList: Show several things of the same kind.\nprops: { density?: comfortable|compact, arrange?: rows|grid|strip=\"rows\", group?: none|sections|dates=\"none\", overflow?: all|peek|page=\"all\", lead?: none|icon|avatar|number=\"none\", trail?: none|chevron|value|toggle=\"none\", rows: [1..6 { title: text≤28, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use group dates only for date headings. A day mentioned in item content is not a heading request.\nRule: Tighter spacing changes density only. A See all link for the whole list changes overflow, not the row trail.\nexample: {\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":null,\"lead\":null,\"trail\":null,\"rows\":[{\"tone\":null,\"mark\":null,\"title\":\"Fern\"},{\"tone\":null,\"mark\":null,\"title\":\"Basil\"},{\"tone\":null,\"mark\":null,\"title\":\"Aloe\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Keep all four items in the list: Watering, Pruning, Feeding and Repotting. On screen, show only the first few, with one See all link for the whole list.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "List",
+              "enum": [
+                "List"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "rows",
+                    "grid",
+                    "strip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "group": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "sections",
+                    "dates"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "overflow": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "peek",
+                    "page"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "icon",
+                    "avatar",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "chevron",
+                    "value",
+                    "toggle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rows": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "arrange",
+            "group",
+            "overflow",
+            "lead",
+            "trail",
+            "rows"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"List\",\"density\":null,\"arrange\":null,\"group\":null,\"overflow\":\"peek\",\"lead\":null,\"trail\":null,\"rows\":[{\"title\":\"Watering\",\"tone\":null,\"mark\":null},{\"title\":\"Pruning\",\"tone\":null,\"mark\":null},{\"title\":\"Feeding\",\"tone\":null,\"mark\":null},{\"title\":\"Repotting\",\"tone\":null,\"mark\":null}]}"
     ]
   },
   "f903492ee60855c8": {

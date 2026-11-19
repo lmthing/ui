@@ -42,8 +42,8 @@ const list = variantFixture(
       "List Water Fern and Prune Basil.",
     ],
     [
-      { axis: "overflow", value: "peek" },
-      "List watering, pruning, feeding and repotting. Show only the first few, with one See all link for the whole list.",
+      { axis: "overflow", value: "peek", itemTitles: ["Watering", "Pruning", "Feeding", "Repotting"] },
+      "Keep all four items in the list: Watering, Pruning, Feeding and Repotting. On screen, show only the first few, with one See all link for the whole list.",
       "List watering, pruning, feeding and repotting.",
     ],
     [
@@ -62,7 +62,7 @@ const list = variantFixture(
       "List the plants in order: Fern first, Basil second, Aloe third.",
     ],
     [
-      { axis: "mark", value: "highlight", item: 0 },
+      { axis: "mark", value: "highlight", item: 0, itemTitles: ["Fern", "Basil", "Aloe"] },
       "List Fern, Basil and Aloe, in that order. Visually highlight only the first row for Fern.",
       "List three plants, in this order: Fern, Basil and Aloe.",
     ],
