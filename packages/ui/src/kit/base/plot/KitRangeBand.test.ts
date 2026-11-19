@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
 import { component, presets, themeName } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, KitRangeBand } from "@lmthing/ui/kit";
+import { KitProvider, PartScope, KitRangeBand, KitText } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
 const input = { label: "Reading", min: 0, max: 100, low: 30, high: 70, value: 50 };
@@ -66,5 +66,39 @@ describe("KitRangeBand", () => {
     expect(render({ ...input, part: "band", value: NaN, label: "No reading yet" })).toContain(
       "No reading yet",
     );
+  });
+});
+
+describe("KitRangeBand caller-owned reading", () => {
+  const reading = createElement(KitText, { role: "number", part: "value", children: "118 / 76" });
+  it("replaces only the default heading while the numeric value still drives the marker", () => {
+    const html = render({ ...input, part: "band", reading });
+    expect(html).toContain("118 / 76");
+    expect(html).not.toContain(">Reading<");
+    expect(html).not.toContain(">50<");
+    expect(styleAt(html, drawing(html).children[1]!)).toContain("left:50%");
+    expect(html.match(/data-testid=/g)).toHaveLength(2);
+  });
+  it("leaves existing omitted and undefined-slot callers identical", () => {
+    for (const preset of presets)
+      for (const loading of [false, true])
+        expect(render({ ...input, loading, reading: undefined }, preset.id)).toBe(
+          render({ ...input, loading }, preset.id),
+        );
+  });
+  it("retains custom loading geometry while hiding and disabling its content", () => {
+    const filled = render({ ...input, part: "band", reading });
+    const loading = render({ ...input, part: "band", reading, loading: true });
+    expect(styleAt(loading, drawing(loading))).toBe(styleAt(filled, drawing(filled)));
+    expect(loading).toContain('aria-busy="true"');
+    const content = elementAt(loading, "home/c1/band").children[0]!.children[0]!;
+    expect(content.attributes).toContain('aria-hidden="true"');
+    expect(content.attributes).toContain("inert");
+    expect(styleAt(loading, content)).toContain("visibility:hidden");
+  });
+  it("accepts a zero-valued slot and retains the existing empty reading", () => {
+    expect(render({ ...input, reading: 0 })).toContain(">0<");
+    expect(render({ ...input, reading, value: NaN, label: "No reading yet" })).toContain("No reading yet");
+    expect(render({ ...input, reading, value: NaN })).not.toContain("118 / 76");
   });
 });

@@ -9,6 +9,7 @@ import {
   type ScreenLike,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
+import { selectedIds } from "../scripts/build";
 
 const base: Meta = {
   id: "Fixture",
@@ -106,7 +107,7 @@ describe.each([true, false])("selection with controller: %s", (mounted) => {
 });
 
 it("keeps every core read probe prompt identical when selection metadata is present", () => {
-  for (const id of ["Calendar", "Choice", "Segmented", "TabBar", "Sheet", "Chips"] as const) {
+  for (const id of selectedIds(["Calendar", "Choice", "Segmented", "TabBar", "Sheet", "Chips"] as const)) {
     const def = components[id];
     const { select: _select, ...meta } = def.meta;
     for (const probe of def.probes) {

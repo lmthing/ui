@@ -1,6 +1,7 @@
 import type { ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
+import type { ClockMeta } from "./clocks";
 
 export type Meta = {
   id: string;
@@ -20,6 +21,7 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
+  clocks?: readonly ClockMeta[];
   /**
    * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
    * counts the rest ("+2 more"), and conformance expects only the first item on screen.
@@ -29,8 +31,10 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    clocks?: readonly ClockMeta[];
     nested?: {
       key: string;
+      clocks?: readonly ClockMeta[];
       parts: Readonly<
         Record<
           string,

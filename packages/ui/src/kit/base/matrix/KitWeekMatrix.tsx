@@ -15,7 +15,9 @@ type WeekMatrixProps = Drawing & {
   rows: readonly MatrixRow[];
   corner: ReactNode;
   orientation?: "daysAcross" | "daysDown";
-  today?: string;
+  /** Fit a small set of days-down columns instead of scrolling them sideways. */
+  fitColumns?: boolean;
+  today?: string | undefined;
   trailing?: readonly { row: string; content: ReactNode }[];
 };
 
@@ -38,13 +40,26 @@ function weekRows(days: readonly Column[], rows: readonly MatrixRow[]) {
       return {
         ...cell,
         content: <WeekContent item={cell.target?.item ?? row.id}>{cell.content}</WeekContent>,
+        ...(cell.compactContent === undefined
+          ? {}
+          : {
+              compactContent: (
+                <WeekContent item={cell.target?.item ?? row.id}>{cell.compactContent}</WeekContent>
+              ),
+            }),
       };
     }),
   }));
 }
 
 /** A seven-day table. Days-down transposes caller headings and cells without recomputing values. */
-export function KitWeekMatrix({ orientation = "daysAcross", today, trailing, ...props }: WeekMatrixProps) {
+export function KitWeekMatrix({
+  orientation = "daysAcross",
+  fitColumns,
+  today,
+  trailing,
+  ...props
+}: WeekMatrixProps) {
   if (props.days.length !== 7) throw new Error("KitWeekMatrix requires exactly seven day headers");
   const totals = Boolean(trailing?.length && props.rows.length);
   const source = weekRows(props.days, props.rows);
@@ -65,6 +80,7 @@ export function KitWeekMatrix({ orientation = "daysAcross", today, trailing, ...
     <MatrixSelectionContext.Provider value={props.rows.filter((row) => row.selected).map((row) => row.id)}>
       <KitTable
         {...props}
+        fitColumns={fitColumns}
         columns={transposed.columns}
         headerTargets={props.rows.flatMap((row) =>
           row.target ? [{ column: row.id, target: row.target }] : [],

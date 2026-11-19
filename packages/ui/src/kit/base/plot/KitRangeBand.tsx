@@ -1,5 +1,6 @@
-import { YStack, XStack } from "tamagui";
-import { component, radius, space } from "../../../catalog";
+import type { ReactNode } from "react";
+import { isWeb, YStack, XStack } from "tamagui";
+import { component, radius, space, type as typography } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitIcon, KitText } from "../text";
 import { PlotLabel } from "./PlotParts";
@@ -8,6 +9,7 @@ type RangeBandProps = {
   part?: string;
   loading?: boolean;
   label: string;
+  reading?: ReactNode;
   min: number;
   max: number;
   low: number;
@@ -60,8 +62,44 @@ function RangeDrawing({ min, max, low, high, value, tone, loading }: RangeBandPr
   );
 }
 
+function BandReading({ reading, loading }: { reading: ReactNode; loading: boolean }) {
+  return (
+    <YStack position="relative" pointerEvents={loading ? "none" : "auto"}>
+      <YStack
+        {...(loading
+          ? {
+              opacity: 0,
+              "aria-hidden": true,
+              accessibilityElementsHidden: true,
+              ...(isWeb ? { style: { visibility: "hidden" } as never, inert: true } : {}),
+            }
+          : {})}
+      >
+        {reading}
+      </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          width="100%"
+          top={(typography.number.lineHeight - typography.number.size * 0.6) / 2}
+          height={typography.number.size * 0.6}
+          backgroundColor="$line"
+          borderRadius={radius.sm}
+          aria-hidden
+        />
+      )}
+    </YStack>
+  );
+}
+
 /** A caller-labelled reading and decorative normal band; visual endpoints stay inside the track. */
-export function KitRangeBand({ part = "root", loading = false, tone = "text", ...props }: RangeBandProps) {
+export function KitRangeBand({
+  part = "root",
+  loading = false,
+  tone = "text",
+  reading,
+  ...props
+}: RangeBandProps) {
   const empty = !Number.isFinite(props.value);
   return (
     <YStack {...usePart(part)} gap={space.sm} width="100%" aria-busy={loading}>
@@ -80,12 +118,16 @@ export function KitRangeBand({ part = "root", loading = false, tone = "text", ..
         </YStack>
       ) : (
         <>
-          <XStack alignItems="center" gap={space.md}>
-            <PlotLabel label={String(props.value)} role="number" tone={tone} loading={loading} />
-            <YStack flex={1}>
-              <PlotLabel label={props.label} tone="muted" loading={loading} />
-            </YStack>
-          </XStack>
+          {reading === undefined ? (
+            <XStack alignItems="center" gap={space.md}>
+              <PlotLabel label={String(props.value)} role="number" tone={tone} loading={loading} />
+              <YStack flex={1}>
+                <PlotLabel label={props.label} tone="muted" loading={loading} />
+              </YStack>
+            </XStack>
+          ) : (
+            <BandReading reading={reading} loading={loading} />
+          )}
           <RangeDrawing {...props} tone={tone} loading={loading} />
         </>
       )}
