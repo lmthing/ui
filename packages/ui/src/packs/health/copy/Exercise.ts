@@ -12,13 +12,13 @@ export function exerciseReading(
   },
   lang?: string,
 ): string[] {
-  const { exerciseLabels, exerciseStart } = healthWordsFor(lang);
+  const { exerciseLabels, exerciseDetail, exerciseStart } = healthWordsFor(lang);
   return [
-    `${exerciseLabels.muscles}: ${input.muscles.map((value) => JSON.stringify(value)).join(", ")}`,
-    `${exerciseLabels.cues}: ${input.cues.map((value) => JSON.stringify(value)).join("; ")}`,
-    ...(input.equipment ? [`${exerciseLabels.equipment}: ${JSON.stringify(input.equipment)}`] : []),
-    ...(input.best ? [`${exerciseLabels.best}: ${input.best}`] : []),
-    ...(input.last ? [`${exerciseLabels.last}: ${input.last}`] : []),
+    exerciseDetail(exerciseLabels.muscles, input.muscles.map((value) => JSON.stringify(value)).join(", ")),
+    exerciseDetail(exerciseLabels.cues, input.cues.map((value) => JSON.stringify(value)).join("; ")),
+    ...(input.equipment ? [exerciseDetail(exerciseLabels.equipment, JSON.stringify(input.equipment))] : []),
+    ...(input.best ? [exerciseDetail(exerciseLabels.best, input.best)] : []),
+    ...(input.last ? [exerciseDetail(exerciseLabels.last, input.last)] : []),
     exerciseStart(JSON.stringify(exerciseLabels.start)),
   ];
 }

@@ -5,6 +5,7 @@ import { URL } from "node:url";
 import { example } from "..";
 import {
   archetypes,
+  buildPackIndex,
   checkArchetypes,
   checkPacks,
   checkScreen,
@@ -69,13 +70,20 @@ it("keeps the default core registry isolated and loads health only when ready", 
   const draft = createRegistry({ packs: ["health"], includeDrafts: true });
   const health = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "health");
   expect(health).toHaveLength(9);
+  expect(packReady("health")).toBe(true);
+  expect(
+    buildPackIndex()
+      .split("\n")
+      .some((line) => line.startsWith("- health: ")),
+  ).toBe(true);
   expect(draft.ids.filter((id) => health.includes(id))).toHaveLength(9);
-  if (!packReady("health")) expect(live.ids).toEqual(core.ids);
+  expect(live.ids.filter((id) => !health.includes(id))).toEqual(core.ids);
+  expect(live.ids.filter((id) => health.includes(id))).toHaveLength(9);
   for (const id of selectedIds(health)) {
     expect(core.ids).not.toContain(id);
     expect(JSON.stringify(writerFormat(core))).not.toContain(`"const":"${id}"`);
     expect(JSON.stringify(writerFormat(draft))).toContain(`"const":"${id}"`);
-    expect((live.ids as readonly string[]).includes(id)).toBe(packReady("health"));
+    expect(JSON.stringify(writerFormat(live))).toContain(`"const":"${id}"`);
   }
   expect(packs.health.probes.filter((probe) => probe.kind === "pack")).toHaveLength(4);
   expect(packs.health.probes.find((probe) => probe.kind === "choose")).toMatchObject({ expect: "Ring" });

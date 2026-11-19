@@ -32,6 +32,7 @@
     "rules": "tsx scripts/rules/run.ts"
   },
   "dependencies": {
+    "qrcode-generator": "2.0.4",
     "zod": "4.6.7"
   },
   "peerDependencies": {

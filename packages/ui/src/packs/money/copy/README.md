@@ -1,4 +1,4 @@
-# packs/money/copy
+# Money copy
 
-Pure presentation helpers for money components, exported through `index.ts`.
-Words and grammar live in `../lang/en.ts`. Tests live in `../tests/copy/`.
+Data-only formatting shared by the money components and their readers.
+Built-in words live in `../lang/`; import these helpers through `index.ts`.
