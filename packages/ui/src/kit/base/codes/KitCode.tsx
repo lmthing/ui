@@ -6,7 +6,7 @@ import qrcode from "qrcode-generator";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
-import { KitIcon, KitText, shifted } from "../text";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 
 type CodeProps = { part?: string | null; loading?: boolean; value?: string; label: string; used?: boolean };
 
@@ -66,7 +66,7 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
       justifyContent="center"
       gap={space.sm}
       borderRadius={shifted("md", ks.radiusShift)}
-      backgroundColor={drawing ? undefined : "$raised"}
+      {...(drawing ? {} : surfaceOf(ks.surface))}
       aria-busy={loading || undefined}
       accessibilityRole={drawing ? "image" : undefined}
       accessibilityLabel={drawing ? label : undefined}
@@ -85,13 +85,23 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
           aria-hidden
         />
       ) : (
-        <YStack alignItems="center" gap={space.sm} padding={space.md}>
-          {used ? (
-            <KitIcon name="circle_check" tone="good" scale="lg" decorative />
-          ) : (
-            <QrCode size={size.icon.lg} color="$muted" aria-hidden />
-          )}
-          <KitText part={null} tone="muted" align="center" role="label">
+        <YStack alignItems="center" gap={space.md} padding={space.md}>
+          <YStack
+            width={size.control.md}
+            height={size.control.md}
+            alignItems="center"
+            justifyContent="center"
+            borderRadius={radius.pill}
+            backgroundColor={used ? "$goodSoft" : "$raised"}
+            aria-hidden
+          >
+            {used ? (
+              <KitIcon name="circle_check" tone="good" scale="lg" decorative />
+            ) : (
+              <QrCode size={size.icon.lg} color="$muted" aria-hidden />
+            )}
+          </YStack>
+          <KitText part={null} align="center" role="label">
             {label}
           </KitText>
         </YStack>

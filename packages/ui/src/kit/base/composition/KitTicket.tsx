@@ -1,10 +1,11 @@
 import { Children, type ReactNode } from "react";
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, useTheme } from "tamagui";
+import { Line, Svg } from "react-native-svg";
 import { component, radius, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
 import { shifted, surfaceOf } from "../text";
-import { PanelEmpty, PanelPlaceholder, usePanelTarget } from "./KitFlip";
+import { PanelEmpty, usePanelTarget } from "./KitFlip";
 
 type TicketProps = {
   part?: string | null;
@@ -19,6 +20,7 @@ type TicketProps = {
 
 function Perforation() {
   const notch = space.md + space.xs;
+  const theme = useTheme();
   return (
     <XStack height={notch} alignItems="center" pointerEvents="none" aria-hidden accessibilityElementsHidden>
       <YStack
@@ -29,13 +31,19 @@ function Perforation() {
         borderRadius={radius.pill}
         backgroundColor="$bg"
       />
-      <YStack
-        flex={1}
-        marginHorizontal={space.lg}
-        borderTopWidth={component.base.borderWidth}
-        borderColor="$muted"
-        borderStyle="dashed"
-      />
+      <YStack flex={1} marginHorizontal={space.lg}>
+        <Svg width="100%" height={component.base.strongBorder}>
+          <Line
+            x1="0%"
+            x2="100%"
+            y1="50%"
+            y2="50%"
+            stroke={theme.line?.val}
+            strokeWidth={component.base.borderWidth}
+            strokeDasharray={[space.xs, space.xs]}
+          />
+        </Svg>
+      </YStack>
       <YStack
         position="absolute"
         right={-notch / 2}
@@ -45,6 +53,29 @@ function Perforation() {
         backgroundColor="$bg"
       />
     </XStack>
+  );
+}
+
+function TicketHeaderPlaceholder({ centered }: { centered: boolean }) {
+  const ks = useKitStyle();
+  return (
+    <YStack
+      width="100%"
+      maxWidth={component.base.ringLg}
+      gap={space.sm}
+      alignItems={centered ? "center" : "flex-start"}
+      aria-hidden
+    >
+      {["48%", "88%", "68%"].map((width, index) => (
+        <YStack
+          key={width}
+          width={width}
+          height={index === 1 ? space.md : space.xs + component.base.strongBorder}
+          borderRadius={shifted("sm", ks.radiusShift)}
+          backgroundColor="$line"
+        />
+      ))}
+    </YStack>
   );
 }
 
@@ -62,7 +93,7 @@ function TicketBody({ children, label, loading = false, style, target }: TicketP
       gap={space.xs}
     >
       {loading ? (
-        <PanelPlaceholder centered={pass} />
+        <TicketHeaderPlaceholder centered={pass} />
       ) : Children.toArray(children).length ? (
         children
       ) : (
@@ -128,14 +159,7 @@ export function KitTicket({ part = "root", ...props }: TicketProps) {
         {stub ? (
           <TicketStub code={props.code} loading={Boolean(props.loading)} />
         ) : (
-          <YStack alignItems="center" paddingBottom={space.sm} aria-hidden>
-            <YStack
-              width={props.style === "pass" ? space.xl : space.lg}
-              height={space.xs}
-              backgroundColor={props.used && !props.loading ? "$good" : "$line"}
-              borderRadius={radius.pill}
-            />
-          </YStack>
+          <YStack height={space.md} aria-hidden />
         )}
       </YStack>
     </YStack>

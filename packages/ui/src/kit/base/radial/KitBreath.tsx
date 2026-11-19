@@ -55,7 +55,7 @@ export function breathRatio(phase: BreathProps["phase"], progress: number) {
 }
 
 const box = component.base.ringLg + space.lg * 2;
-const minimum = component.base.ringMd + space.md;
+const minimum = component.base.ringMd + space.xl;
 
 function BreathCircle(props: BreathProps) {
   const { environment } = useKit();
@@ -65,8 +65,7 @@ function BreathCircle(props: BreathProps) {
   const ratio = breathRatio(props.phase, props.progress);
   const settled = Boolean(props.loading || props.paused || environment.reduceMotion || environment.agentMode);
   const animated = useAnimatedValue(ratio, settled);
-  const diameter =
-    minimum + (box - minimum) * (props.loading ? 1 : settled ? ratio : Math.max(0, Math.min(1, animated)));
+  const diameter = minimum + (box - minimum) * (settled ? ratio : Math.max(0, Math.min(1, animated)));
   return (
     <YStack
       {...target}
@@ -90,9 +89,9 @@ function BreathCircle(props: BreathProps) {
         pointerEvents="none"
         aria-hidden
       />
-      <YStack maxWidth={minimum - space.lg} alignItems="center" gap={space.xs}>
+      <YStack maxWidth={minimum - space.xl} alignItems="center" gap={space.xs}>
         {props.loading
-          ? [2, 3].map((divisor) => (
+          ? [3, 2].map((divisor) => (
               <YStack
                 key={divisor}
                 width={component.base.ringMd / divisor}

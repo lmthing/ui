@@ -58,4 +58,9 @@ it("keeps the circle footprint, shows caller slots and inactivates loading", () 
   expect(styleAt(loading, elementAt(loading, "home/c1/root").children[0]!)).toContain(
     `height:${component.base.ringLg + space.lg * 2}px`,
   );
+  const min = component.base.ringMd + space.xl;
+  const diameter = min + (component.base.ringLg + space.lg * 2 - min) * input.progress;
+  expect(styleAt(loading, elementAt(loading, "home/c1/root").children[0]!.children[0]!)).toContain(
+    `height:${diameter}px`,
+  );
 });

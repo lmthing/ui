@@ -1,6 +1,6 @@
 import { Children, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
-import { component, space } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useAnimatedValue } from "../../motion";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
@@ -54,18 +54,24 @@ export function usePanelTarget(
   };
 }
 
-export function PanelPlaceholder({ centered = false }: { centered?: boolean }) {
+function FlipPlaceholder({ hint }: { hint: boolean }) {
   const ks = useKitStyle();
   return (
-    <YStack width="100%" gap={space.sm} alignItems={centered ? "center" : "flex-start"} aria-hidden>
-      {["64%", "42%"].map((width) => (
+    <YStack width="100%" maxWidth={component.base.ringLg} gap={space.xs} alignItems="center" aria-hidden>
+      {(hint ? ["42%", "100%", "36%"] : ["42%", "100%"]).map((width, index) => (
         <YStack
           key={width}
           width={width}
-          height={space.sm}
-          borderRadius={shifted("sm", ks.radiusShift)}
-          backgroundColor="$line"
-        />
+          height={index === 1 ? typography.heading.lineHeight : typography.caption.lineHeight}
+          marginTop={index === 2 ? space.sm : undefined}
+          justifyContent="center"
+        >
+          <YStack
+            height={index === 1 ? space.md : space.xs + component.base.strongBorder}
+            borderRadius={shifted("sm", ks.radiusShift)}
+            backgroundColor="$line"
+          />
+        </YStack>
       ))}
     </YStack>
   );
@@ -87,19 +93,19 @@ function FlipFace({
   const reveal = useAnimatedValue(Number(flipped), settled);
   const offset = settled ? 0 : Math.min(1, Math.abs(Number(flipped) - reveal));
   const face = flipped ? back : front;
+  const hint = target.part !== null && !disabled;
   return (
     <YStack
       {...interactive}
       {...surfaceOf(ks.surface)}
-      borderRadius={shifted("lg", ks.radiusShift)}
-      minHeight={component.base.ringLg}
+      borderRadius={shifted("md", ks.radiusShift)}
+      minHeight={component.base.ringMd + space.md}
       padding={space.lg}
       alignItems="center"
       justifyContent="center"
-      backgroundColor={disabled && !loading ? "$raised" : "$surface"}
     >
       {loading ? (
-        <PanelPlaceholder centered />
+        <FlipPlaceholder hint={hint} />
       ) : Children.toArray(face).length === 0 ? (
         <PanelEmpty icon="sparkles" label={label} />
       ) : (
@@ -108,9 +114,16 @@ function FlipFace({
           alignItems="center"
           gap={space.xs}
           y={offset * space.xs}
-          opacity={1 - offset / 4}
+          opacity={disabled ? 1 - component.base.skeletonOpacity / 2 : 1 - offset / 4}
         >
           {face}
+          {hint && (
+            <YStack marginTop={space.sm} aria-hidden accessibilityElementsHidden>
+              <KitText tone="muted" role="caption" align="center" part={null}>
+                {label}
+              </KitText>
+            </YStack>
+          )}
         </YStack>
       )}
     </YStack>
@@ -120,7 +133,17 @@ function FlipFace({
 export function PanelEmpty({ icon, label }: { icon: "sparkles" | "ticket"; label: string }) {
   return (
     <YStack alignItems="center" gap={space.sm}>
-      <KitIcon name={icon} scale="lg" decorative />
+      <YStack
+        width={size.control.md}
+        height={size.control.md}
+        alignItems="center"
+        justifyContent="center"
+        borderRadius={radius.pill}
+        backgroundColor="$raised"
+        aria-hidden
+      >
+        <KitIcon name={icon} scale="md" decorative />
+      </YStack>
       <KitText tone="muted" align="center" part={null}>
         {label}
       </KitText>
