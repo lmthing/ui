@@ -145,6 +145,8 @@ export async function bundleCheck() {
   emitTypes();
   await writeFile(resolve(root, "dist/catalog.d.ts"), 'export * from "./types/entry/catalog";\n');
   const catalog = await import(new URL("../../dist/catalog.js", import.meta.url).href);
+  const variantIssues = Object.values(catalog.components).flatMap(catalog.checkVariantDeclarations);
+  if (variantIssues.length) throw new Error(variantIssues.join("\n"));
   const registry = catalog.createRegistry({ includeDrafts: true });
   for (const id of registry.ids) {
     const def = registry.get(id);

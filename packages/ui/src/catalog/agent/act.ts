@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import { resolveKeypadValue, validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { nestedAt } from "./selection";
+import { migrateScreen } from "../migrations";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -103,11 +104,12 @@ function selectStep(screen: ScreenLike, defs: Record<string, Definition>, step: 
  * a caller commits `values` only when `ok` (atomic batches; a dry run is simply not committing).
  */
 export function planAct(
-  screen: ScreenLike,
+  input: ScreenLike,
   defs: Record<string, Definition>,
   values: Values,
   steps: ActStep[],
 ): ActResult {
+  const screen = migrateScreen(input, { variantOnly: true });
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: { goto: string; address: string }[] = [];
