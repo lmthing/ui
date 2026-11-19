@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Children, createElement, isValidElement, type ReactNode } from "react";
 import { YStack } from "tamagui";
 import { component, radius, size } from "@lmthing/ui/catalog";
-import { KitCheck, KitText } from "@lmthing/ui/kit";
+import { KitCheck, KitInput, KitText } from "@lmthing/ui/kit";
 import { disabledContent, loadingGeometry, loadingRadius, matrixKey, transposeWeek } from "./matrix-layout";
 
 describe("matrix layout", () => {
@@ -74,6 +74,13 @@ describe("matrix disabled content", () => {
   it("preserves caller text and numeric values, including zero", () => {
     expect(disabledContent(["Caller value", 0, false, null])).toEqual(["Caller value", 0]);
     expect(disabledContent(null)).toBeNull();
+  });
+  it("uses the existing inactive drawing for disabled inputs without mutating caller props", () => {
+    const input = createElement(KitInput, { hint: "Score", part: "score", value: "12" });
+    expect(Children.toArray(disabledContent(input))[0]).toMatchObject({
+      props: { hint: "Score", part: "score", value: "12", disabled: true, inactive: true },
+    });
+    expect(input.props.inactive).toBeUndefined();
   });
 });
 

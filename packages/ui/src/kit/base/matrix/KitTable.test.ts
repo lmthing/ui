@@ -2,7 +2,7 @@ import { createElement } from "react";
 import * as jsxRuntime from "react/jsx-dev-runtime";
 import { describe, expect, it, vi } from "vitest";
 import { presets, size, component } from "@lmthing/ui/catalog";
-import { KitTable, type ScreenController } from "@lmthing/ui/kit";
+import { KitInput, KitTable, type ScreenController } from "@lmthing/ui/kit";
 import { elementAt, styleAt } from "../../../../test/render";
 import { renderMatrix, text } from "./matrix-drawing.test";
 
@@ -68,6 +68,35 @@ describe("KitTable", () => {
     expect(
       renderMatrix(createElement(KitTable, { columns: [], rows: [], corner: null, loading: true })),
     ).toContain('aria-busy="true"');
+  });
+});
+
+describe("KitTable disabled input cells", () => {
+  it("mutes the actual input and restores its filled drawing when enabled again", () => {
+    const field = createElement(KitInput, { hint: "Score", part: "score", value: "12" });
+    for (const disabled of [false, true, false]) {
+      const html = renderMatrix(
+        createElement(KitTable, {
+          columns,
+          corner: text("Rows"),
+          rows: [
+            {
+              id: "r1",
+              label: "First",
+              heading: text("First"),
+              cells: [{ id: "score", content: field, disabled }],
+            },
+          ],
+        }),
+      );
+      const input = elementAt(html, "home/c1/r1/score");
+      expect(input.attributes).toContain('role="textbox"');
+      expect(styleAt(html, input)).toMatch(
+        new RegExp(`(?:^|;)\\s*color:\\s*var\\(--${disabled ? "muted" : "text"}\\)`),
+      );
+      if (disabled) expect(html).toContain('inert=""');
+    }
+    expect(field.props.inactive).toBeUndefined();
   });
 });
 
