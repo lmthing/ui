@@ -6,6 +6,8 @@ const aliases: Record<string, string> = {
   daily: "Timeline",
   chronology: "Timeline",
 };
+export const normalizeComponentId = (name: string) => name.replace(/[\s_-]/g, "").toLowerCase();
+
 export function legacyTarget(name: string): string | undefined {
-  return aliases[name.replace(/[\s_-]/g, "").toLowerCase()];
+  return aliases[normalizeComponentId(name)];
 }
