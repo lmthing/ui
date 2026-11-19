@@ -41,7 +41,7 @@ function clearSets(ctx: ControlContext) {
   if (!changes.length) return true;
   changes.forEach(([part, value]) => put(part, value));
   const { id: _id, c: _c, state: _state, ...wire } = entry;
-  return def.props.safeParse(projectControlInput(def, wire, input, get)).success;
+  return def.props.safeParse(projectControlInput(def, wire, get)).success;
 }
 
 export function controlStep(

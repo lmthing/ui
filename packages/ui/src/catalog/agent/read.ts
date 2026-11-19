@@ -1,11 +1,11 @@
-import { liveProps, parseControlProps, projectControls } from "./live-props";
+import { liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
-import { numericSetAt, projectAdjustments, projectClocks } from "./clocks";
+import { numericSetAt, projectClocks } from "./clocks";
 import { choiceValues } from "./selection";
 import type { Meta } from "../meta";
 
@@ -72,7 +72,9 @@ function withValues(
     const value = choices
       ? props[meta.select!.prop]
       : set
-        ? values[`${instance}/${set.key}`]
+        ? values[`${instance}/${set.key}`] === undefined
+          ? undefined
+          : set.value
         : (values[`${a.address}/$draft`] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
@@ -86,9 +88,8 @@ function withValues(
 
 function readingProps(meta: Meta, props: Props, instance: string, values: Props) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const runtime = values[`${instance}/$runtime`];
-  const live = projectControls(meta, props, get);
-  const reading = runtime || meta.items?.set ? projectAdjustments(meta, live, get) : live;
+  const runtime = Boolean(get("$runtime"));
+  const reading = projectParsedControls(meta, props, get, runtime);
   return runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
 }
 
@@ -106,7 +107,7 @@ export function readComponent(
   lang?: string,
 ): string[] {
   const validated = parseControlProps(def, input, (part) => values[`${instance}/${part}`]);
-  const props = liveProps(def.meta, validated, instance, values);
+  const props = liveProps(def.meta, validated, instance, values, true);
   state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;

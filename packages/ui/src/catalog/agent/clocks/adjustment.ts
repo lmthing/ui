@@ -2,14 +2,12 @@ import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockPropKey, clockTargets, clockTime } from "./clock";
-
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
 const keyFor = (base: string, prop: string) => `${base}$adjust/${prop}`;
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 type SetSpec = NonNullable<Meta["set"]>[string];
-
 function effectiveLimits(set: SetSpec, adjustments: Meta["adjust"]) {
   const related = Object.values(adjustments ?? {}).filter((adjust) => adjust?.prop === set.prop);
   return {
@@ -18,7 +16,6 @@ function effectiveLimits(set: SetSpec, adjustments: Meta["adjust"]) {
     max: Math.min(set.max ?? Infinity, ...related.map((adjust) => adjust?.max ?? Infinity)),
   };
 }
-
 function nextNumber(current: number, delta: number, min: number, max: number) {
   if (!finite(delta) || min > max) return;
   const next = Math.min(max, Math.max(min, current + delta));
@@ -32,8 +29,13 @@ export function itemSetAt(meta: Meta, props: Values, target: string) {
   if (rest.length || !Object.hasOwn(sets, part)) return;
   const spec = sets[part]!;
   const rows = knownRows(props[meta.items!.key]);
-  if (rows.some((holder, index) => rowId(meta, holder, index) === id))
-    return { key: keyFor(`${id}/`, spec.prop), spec: effectiveLimits(spec, meta.items?.adjust) };
+  const holder = rows.find((row, index) => rowId(meta, row, index) === id);
+  if (holder)
+    return {
+      key: keyFor(`${id}/`, spec.prop),
+      spec: effectiveLimits(spec, meta.items?.adjust),
+      value: holder[spec.prop],
+    };
 }
 
 export function numericSetAt(meta: Meta, props: Values, target: string) {
@@ -42,7 +44,7 @@ export function numericSetAt(meta: Meta, props: Values, target: string) {
   const sets = meta.set;
   if (!sets || !Object.hasOwn(sets, target)) return;
   const spec = effectiveLimits(sets[target]!, meta.adjust);
-  return { key: keyFor("", spec.prop), spec };
+  return { key: keyFor("", spec.prop), spec, value: props[spec.prop] };
 }
 
 export function projectComponentSets(meta: Meta, props: Values, get: (part: string) => unknown): Values {
@@ -147,7 +149,7 @@ function projectHolder(
 function projectItemSets(meta: Meta, row: Values, base: string, get: (part: string) => unknown): Values {
   for (const { prop } of Object.values(meta.items?.set ?? {})) {
     const value = get(keyFor(base, prop));
-    if (value === null || finite(value)) row = { ...row, [prop]: value };
+    if ((value === null || finite(value)) && value !== row[prop]) row = { ...row, [prop]: value };
   }
   return row;
 }
@@ -161,14 +163,12 @@ function projectMatrix(meta: Meta, props: Values, get: (part: string) => unknown
     const rows = knownRows(props[matrix.rows]).map((row) => {
       const values = row[matrix.values];
       if (!Array.isArray(values)) return row;
-      return {
-        ...row,
-        [matrix.values]: values.map((seed: unknown) => {
-          const id = rowId(meta, cells[index] ?? {}, index++);
-          const value = get(keyFor(`${id}/`, prop));
-          return value === null || finite(value) ? value : seed;
-        }),
-      };
+      const next = values.map((seed: unknown) => {
+        const id = rowId(meta, cells[index] ?? {}, index++);
+        const value = get(keyFor(`${id}/`, prop));
+        return value === null || finite(value) ? value : seed;
+      });
+      return next.some((value, at) => value !== values[at]) ? { ...row, [matrix.values]: next } : row;
     });
     props = { ...props, [matrix.rows]: rows };
   }
@@ -177,7 +177,14 @@ function projectMatrix(meta: Meta, props: Values, get: (part: string) => unknown
 
 /** Read from the store after parsing so this also works for derived, addressed item rows. */
 export function projectAdjustments(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  if (meta.adjust) props = projectHolder(props, Object.values(meta.adjust), "", get);
+  const setters = new Set(Object.values(meta.set ?? {}).map(({ prop }) => prop));
+  if (meta.adjust)
+    props = projectHolder(
+      props,
+      Object.values(meta.adjust).filter((spec) => !spec || !setters.has(spec.prop)),
+      "",
+      get,
+    );
   const items = meta.items;
   if (!items?.adjust && !items?.set) return props;
   if (items.set) props = projectMatrix(meta, props, get);

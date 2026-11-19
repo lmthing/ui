@@ -4,7 +4,6 @@ import { components, planAct, type Definition, type ScreenLike } from "@lmthing/
 import { createAgentAccess } from "./agent";
 import { createScreenController } from "./controller";
 import { createInteractionStore } from "./store";
-
 const screen: ScreenLike = {
   id: "home",
   components: [
@@ -12,7 +11,6 @@ const screen: ScreenLike = {
     { id: "b1", c: "Button", label: "Log watering" },
   ],
 };
-
 function access() {
   const links: string[] = [];
   const store = createInteractionStore();
@@ -24,7 +22,6 @@ function access() {
   });
   return { agent, store, links };
 }
-
 describe("agent access", () => {
   it("toggles a part and reads it back", () => {
     const { agent, store } = access();
@@ -71,6 +68,7 @@ const matrixProps = z
   })
   .overwrite((props) => ({
     ...props,
+    rows: props.rows.map((row) => ({ ...row, editable: true })),
     cells: props.rows.flatMap(({ values }) => values.map((score) => ({ score }))),
   }));
 const matrix = {
@@ -108,7 +106,6 @@ const matrix = {
   examples: [],
   probes: [],
 } satisfies Definition;
-
 function matrixSetup(useDefaults = false) {
   const rows = [{ values: [4, null] }, { values: [null, 5] }];
   const screen = {
@@ -125,7 +122,6 @@ function matrixSetup(useDefaults = false) {
 const edit = (address: string, value: unknown) => ({ address, value, action: "set" });
 const reset = { address: "s1/reset", action: "press" };
 const confirm = { address: "confirm/confirm", action: "press" };
-
 it("validates integer cell bounds and projects edits into the wire matrix and read", () => {
   const { agent, snapshot, rows, onAction } = matrixSetup();
   for (const invalid of [-1000, 1000, 1.5, "20", Infinity, null])
@@ -140,6 +136,8 @@ it("validates integer cell bounds and projects edits into the wire matrix and re
 
 it("projects edits and confirmed clears into snapshots with defaulted matrix rows", () => {
   const { agent, runtime, snapshot } = matrixSetup(true);
+  expect(snapshot()).toBeUndefined();
+  expect(agent.read()).toContain("[[4,null]]");
   expect(agent.act(edit("s1/r1/score", 17))).toMatchObject({ ok: true });
   expect(snapshot()).toEqual([{ values: [17, null] }]);
   expect(agent.act([reset, confirm])).toMatchObject({ ok: true });
@@ -162,7 +160,10 @@ it("rejects a declared set that makes the schema invalid in the planner and cont
       set: { lower: { prop: "low", min: 0, max: 100 } },
       actions: { parts: { lower: ["set"] } },
     },
-    props: z.strictObject({ low: z.number(), high: z.number() }).refine(({ low, high }) => low <= high),
+    props: z
+      .strictObject({ low: z.number(), high: z.number() })
+      .refine(({ low, high }) => low <= high)
+      .overwrite((input) => ({ ...input, low: Math.round(input.low * 10) / 10 })),
   } satisfies Definition;
   const screen = { id: "range", components: [{ id: "s1", c: def.meta.id, low: 1, high: 8 }] };
   const defs = { [def.meta.id]: def };
@@ -174,6 +175,8 @@ it("rejects a declared set that makes the schema invalid in the planner and cont
   expect(runtime.snapshotScreen()).toEqual(screen);
   expect(() => runtime.read()).not.toThrow();
   expect(onAction).not.toHaveBeenCalled();
+  expect(runtime.act(edit("s1/lower", 2.46))).toMatchObject({ ok: true });
+  expect(runtime.read()).toContain("[s1/lower set = 2.5]");
 });
 
 it("clears only the confirmed component, leaves cancelled edits intact and rolls back failed batches", () => {

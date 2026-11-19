@@ -124,17 +124,18 @@ export function projectNested(meta: Meta, props: Values, get: (part: string) => 
     [items.key]: rowsOf(meta, props).map((row, index) => {
       if (!Array.isArray(row[nested.key])) return row;
       const id = idOf(meta, row, index);
-      return {
-        ...row,
-        [nested.key]: (row[nested.key] as Values[]).map((item, at) => {
-          const next = { ...item };
-          for (const [part, spec] of Object.entries(nested.parts)) {
-            const value = get(`${id}/${part}_${at + 1}`);
-            if (value !== undefined) next[spec.prop] = value;
-          }
-          return next;
-        }),
-      };
+      const children = row[nested.key] as Values[];
+      const projected = children.map((item, at) => {
+        let next = item;
+        for (const [part, spec] of Object.entries(nested.parts)) {
+          const value = get(`${id}/${part}_${at + 1}`);
+          if (value !== undefined && value !== next[spec.prop]) next = { ...next, [spec.prop]: value };
+        }
+        return next;
+      });
+      return projected.some((child, at) => child !== children[at])
+        ? { ...row, [nested.key]: projected }
+        : row;
     }),
   };
 }

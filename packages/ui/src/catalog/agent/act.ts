@@ -56,8 +56,7 @@ function controlsAreValid(
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const parsed = def.props.parse(raw) as Values;
-  const projected = projectControlInput(def, raw, parsed, (part) => values[`${screen.id}/${id}/${part}`]);
+  const projected = projectControlInput(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
   return projected === raw || def.props.safeParse(projected).success;
 }
 
@@ -73,7 +72,7 @@ function affordancesOfScreen(
     const def = defs[c];
     if (!def) return [];
     const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, local);
+    const props = liveProps(def.meta, parsed, id, local, true);
     return affordancesOf(def.meta, props, id, local);
   });
 }
@@ -96,9 +95,7 @@ function selectStep(
   if (!def?.meta.select) return { step };
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const target = parts.join("/") || "root";
-  const props = Object.hasOwn(def.meta.select.choices ?? {}, target)
-    ? parseControlProps(def, raw, (part) => values[`${screen.id}/${id}/${part}`])
-    : stampItemIds(def.meta, def.props.parse(raw) as Values);
+  const props = parseControlProps(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
   const error = selectionError(def.meta, props, target, step.value);
   return {
     step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },

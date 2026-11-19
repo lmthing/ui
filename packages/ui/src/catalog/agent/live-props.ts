@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
@@ -5,41 +6,41 @@ import type { Values } from "./act";
 import { projectNested, projectSelection } from "./selection";
 import { projectAdjustments, projectClocks, projectComponentSets } from "./clocks";
 
-/** Copy only schema-owned control fields to the wire, seeding omitted arrays from parsed defaults. */
-export function projectControlInput(
-  def: Definition,
-  input: Values,
-  parsed: Values,
-  get: (part: string) => unknown,
-): Values {
+function wireSeed(def: Definition, key: string, input: Values): unknown {
+  if (input[key] !== undefined) return input[key];
+  let field = def.props instanceof z.ZodObject ? def.props.shape[key] : undefined;
+  while (field instanceof z.ZodOptional || field instanceof z.ZodNullable) field = field.unwrap();
+  return field instanceof z.ZodDefault || field instanceof z.ZodPrefault ? field.def.defaultValue : undefined;
+}
+
+/** Apply stored control edits to wire input, never copying schema-derived output into it. */
+export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, input, get);
   if (meta.select?.choices) source = projectSelection(meta, source, get);
   const items = meta.items;
-  if (!items?.set) return source;
-  const shape = "shape" in def.props ? def.props.shape : undefined;
-  const keys = new Set<string>();
-  if (
-    Object.hasOwn(input, items.key) ||
-    (shape && typeof shape === "object" && Object.hasOwn(shape, items.key))
-  )
-    keys.add(items.key);
-  for (const { matrix } of Object.values(items.set)) if (matrix) keys.add(matrix.rows);
-  if (!keys.size) return source;
-  const seeded = Object.fromEntries([...keys].map((key) => [key, source[key] ?? parsed[key]]));
-  const projected = projectAdjustments(meta, seeded, get);
+  if (!items || (!items.set && !(items.nested && (meta.select || meta.set)))) return source;
+  const keys = new Set([items.key]);
+  for (const { matrix } of Object.values(items.set ?? {})) if (matrix) keys.add(matrix.rows);
+  const seeded = Object.fromEntries([...keys].map((key) => [key, wireSeed(def, key, source)]));
+  const nested = projectNested(meta, seeded, get);
+  const projected = items.set ? projectAdjustments(meta, nested, get) : nested;
   for (const key of keys) {
-    if (projected[key] !== undefined && projected[key] !== source[key])
-      source = { ...source, [key]: projected[key] };
+    const next = projected[key],
+      seed = seeded[key];
+    if (Array.isArray(next) && Array.isArray(seed) && next.some((row, index) => row !== seed[index]))
+      source = { ...source, [key]: next };
   }
   return source;
 }
 
 /** Recompute derived props from the wire after applying staged edits, never from draft input. */
 export function parseControlProps(def: Definition, input: unknown, get: (part: string) => unknown): Values {
-  const parsed = def.props.parse(input) as Values;
-  const projected = projectControlInput(def, input as Values, parsed, get);
-  return stampItemIds(def.meta, projected === input ? parsed : (def.props.parse(projected) as Values));
+  const source =
+    input && typeof input === "object" && !Array.isArray(input)
+      ? projectControlInput(def, input as Values, get)
+      : input;
+  return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
 
 /** Shared schema-prop projection for the planner, reader and kit screen. */
@@ -48,11 +49,33 @@ export function projectControls(meta: Meta, props: Values, get: (part: string) =
   return projectComponentSets(meta, projected, get);
 }
 
+/** Preserve parsed values for component setters already applied to the wire. */
+export function projectParsedControls(
+  meta: Meta,
+  props: Values,
+  get: (part: string) => unknown,
+  runtime: boolean,
+): Values {
+  const selected = meta.select?.choices ? props : projectSelection(meta, props, get);
+  const nested = projectNested(meta, selected, get);
+  return runtime || meta.items?.set ? projectAdjustments(meta, nested, get) : nested;
+}
+
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
-export function liveProps(meta: Meta, props: Values, instance: string, values: Values): Values {
+export function liveProps(
+  meta: Meta,
+  props: Values,
+  instance: string,
+  values: Values,
+  wireApplied = false,
+): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  props = projectControls(meta, props, get);
-  if (meta.items?.set || values[`${instance}/$runtime`]) props = projectAdjustments(meta, props, get);
+  const runtime = Boolean(get("$runtime"));
+  if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
+  else {
+    props = projectControls(meta, props, get);
+    if (meta.items?.set || runtime) props = projectAdjustments(meta, props, get);
+  }
   if (values[`${instance}/$runtime`])
     props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
   if (values[`${instance}/$runtime`]) {

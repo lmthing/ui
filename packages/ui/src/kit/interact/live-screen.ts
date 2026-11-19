@@ -65,7 +65,7 @@ function projectEntry(
   const def = defs[entry.c];
   if (!def) return result;
   const parsed = def.props.parse(input) as Values;
-  Object.assign(result, projectControlInput(def, input, parsed, get));
+  Object.assign(result, projectControlInput(def, input, get));
   if (entry.c === "Field" && get("field") !== undefined) {
     if (parsed.kind === "repeat") result.repeat = get("field");
     else result.value = String(get("field")).trim() ? String(get("field")) : undefined;

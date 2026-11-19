@@ -122,3 +122,59 @@ it("does not offer shared nudges past the pure reader's bound", () => {
   const values = { "p1/r1/$adjust/amount": 30 };
   expect(affordancesOf(meta, props, "p1", values).map(({ action }) => action)).toEqual(["set"]);
 });
+
+it("resolves ordinary row payloads from the current wire after a numeric set", () => {
+  const def = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      select: { prop: "mode", value: { field: "option" } },
+      set: { amount: { prop: "amount" } },
+      actions: { parts: { amount: ["set"] }, items: { root: ["select"] } },
+    },
+    props: z
+      .strictObject({ mode: z.string(), amount: z.number() })
+      .overwrite((input) => ({ ...input, rows: [{ option: input.amount ? "new" : "old" }] })),
+  } satisfies Definition;
+  const current = { id: "test", components: [{ id: "p1", c: def.meta.id, amount: 0, mode: "old" }] };
+  expect(
+    planAct(current, { [def.meta.id]: def }, {}, [
+      { address: "p1/amount", action: "set", value: 1 },
+      { address: "p1/r1", action: "select" },
+    ]),
+  ).toMatchObject({ ok: true, values: { "test/p1/$mode": "new" } });
+});
+
+it("rederives prop-backed choices from a nested control edit", () => {
+  const def = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      items: {
+        key: "rows",
+        parts: ["root"],
+        nested: { key: "children", parts: { toggle: { action: "toggle", prop: "on" } } },
+      },
+      select: { prop: "mode", choices: { pick: { prop: "modes" } } },
+      actions: { parts: { pick: ["select"] } },
+    },
+    props: z
+      .strictObject({
+        mode: z.string(),
+        rows: z.array(z.strictObject({ children: z.array(z.strictObject({ on: z.boolean() })) })),
+      })
+      .overwrite((input) => ({ ...input, modes: input.rows[0]?.children[0]?.on ? ["off", "on"] : ["off"] })),
+  } satisfies Definition;
+  const current = {
+    id: "test",
+    components: [{ id: "p1", c: def.meta.id, mode: "off", rows: [{ children: [{ on: false }] }] }],
+  };
+  const defs = { [def.meta.id]: def };
+  const plan = planAct(current, defs, {}, [
+    { address: "p1/r1/toggle_1", action: "toggle", value: true },
+    { address: "p1/pick", action: "select", value: "on" },
+  ]);
+  expect(plan).toMatchObject({ ok: true });
+  if (plan.ok)
+    expect(readScreen(current, defs, plan.values)).toContain('select = "on"; choices ["off","on"]');
+});
