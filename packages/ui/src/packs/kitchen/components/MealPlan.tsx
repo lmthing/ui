@@ -96,11 +96,13 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return { week: "2026-11-16", meals: ["dinner"], cells };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     week: "2026-11-16",
     meals: ["lunch", "dinner"],
     cells: [{ day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" }],
   },
+  // Trot: breakfast before the walking round.
   {
     week: "2026-11-23",
     meals: ["breakfast", "snack"],

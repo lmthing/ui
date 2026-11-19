@@ -14,7 +14,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-// Core first: Checklist/inset cannot group groceries by aisle with quantities and shared authors.
+// Core first: Checklist/default cannot group groceries by aisle with quantities and shared authors.
 export const meta = {
   id: "GroceryList",
   status: "draft",
@@ -89,12 +89,14 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     aisles: [
       { label: "Produce", items: [{ name: "Tomatoes", qty: "600 g", got: false, by: "Sam" }] },
       { label: "Dairy", items: [{ name: "Ricotta", qty: "250 g", got: true }] },
     ],
   },
+  // Trot: breakfast before the walking round.
   {
     aisles: [
       {

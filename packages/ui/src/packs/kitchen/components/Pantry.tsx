@@ -65,12 +65,14 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     items: [
       { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
       { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
     ],
   },
+  // Trot: breakfast before the walking round.
   {
     items: [
       { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" },

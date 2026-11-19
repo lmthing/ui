@@ -12,7 +12,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-// Core first: Timer/ring cannot run independently named concurrent countdowns with add-minute controls.
+// Core first: Timer/down cannot run independently named concurrent countdowns with add-minute controls.
 export const meta = {
   id: "KitchenTimers",
   status: "draft",
@@ -55,12 +55,14 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     timers: [
       { label: "Béchamel", seconds: 372 },
       { label: "Oven", seconds: 1120 },
     ],
   },
+  // Trot: breakfast before the walking round.
   {
     timers: [
       { label: "Porridge", seconds: 300 },

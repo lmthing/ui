@@ -91,6 +91,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return { steps: steps.length ? steps : [{ text: placeholderDetail, uses: [] }], at: 1 };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     steps: [
       { text: "Simmer the tomato sauce.", uses: ["Tomatoes", "Olive oil"], minutes: 20 },
@@ -99,6 +100,7 @@ export const examples = [
     ],
     at: 1,
   },
+  // Trot: breakfast before the walking round.
   {
     steps: [
       { text: "Mix the oats and milk.", uses: ["Oats", "Milk"] },

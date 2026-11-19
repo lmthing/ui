@@ -95,6 +95,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   return { meals: [{ meal: "dinner", items }], goto: "details" };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     meals: [
       { meal: "dinner", items: [{ name: "Lasagne", kcal: 520, amount: "1 slice" }] },
@@ -103,6 +104,7 @@ export const examples = [
     target: 2000,
     goto: "food_add",
   },
+  // Trot: breakfast before the walking round.
   {
     meals: [
       {

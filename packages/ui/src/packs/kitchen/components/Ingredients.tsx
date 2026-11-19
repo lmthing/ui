@@ -12,7 +12,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-// Core first: Checklist/inset cannot scale numeric ingredient amounts by servings or switch units.
+// Core first: Checklist/default cannot scale numeric ingredient amounts by servings or switch units.
 export const meta = {
   id: "Ingredients",
   status: "draft",
@@ -94,6 +94,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
   };
 }
 export const examples = [
+  // Ledge: the plant keeper's household supper.
   {
     servings: 4,
     groups: [
@@ -102,6 +103,7 @@ export const examples = [
     ],
     system: "metric",
   },
+  // Trot: breakfast before the walking round.
   {
     servings: 2,
     groups: [
