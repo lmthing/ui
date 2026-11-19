@@ -1,5 +1,6 @@
 import type { z } from "zod";
-import { deviceUnits, homeLabels, type StateName } from "../../catalog";
+import type { StateName } from "../../catalog";
+import { deviceUnits, deviceLabels } from "./copy";
 import type { deviceProps } from ".";
 
 /** Keep each nested device/scene's label beside its validator-owned addressed row. */
@@ -19,15 +20,15 @@ export function readDevices(input: unknown, state: StateName): string[] {
           ? ""
           : row.kind === "lock"
             ? row.on
-              ? homeLabels.locked
-              : homeLabels.unlocked
+              ? deviceLabels.locked
+              : deviceLabels.unlocked
             : String(row.on),
-        row.temp === undefined ? "" : `${homeLabels.setPoint} ${row.temp} ${deviceUnits.celsius}`,
+        row.temp === undefined ? "" : `${deviceLabels.setPoint} ${row.temp} ${deviceUnits.celsius}`,
         row.reading === undefined
           ? ""
-          : `${homeLabels.reading} ${row.reading} ${deviceUnits[row.unit ?? "celsius"]}`,
+          : `${deviceLabels.reading} ${row.reading} ${deviceUnits[row.unit ?? "celsius"]}`,
         row.normal
-          ? `${homeLabels.normal} ${row.normal.low}–${row.normal.high}${row.reading! < row.normal.low || row.reading! > row.normal.high ? ` · ${homeLabels.outOfRange}` : ""}`
+          ? `${deviceLabels.normal} ${row.normal.low}–${row.normal.high}${row.reading! < row.normal.low || row.reading! > row.normal.high ? ` · ${deviceLabels.outOfRange}` : ""}`
           : "",
       ]
         .filter(Boolean)
@@ -35,7 +36,7 @@ export function readDevices(input: unknown, state: StateName): string[] {
     ),
     ...scenes.map(
       (scene, index) =>
-        `${entries[devices.length + index]?.id ?? ""} ${scene.name} · ${scene.targets.some((target) => devices.find((row) => row.key === target.key)?.kind === "lock") ? homeLabels.secure : homeLabels.apply}`,
+        `${entries[devices.length + index]?.id ?? ""} ${scene.name} · ${scene.targets.some((target) => devices.find((row) => row.key === target.key)?.kind === "lock") ? deviceLabels.secure : deviceLabels.apply}`,
     ),
   ];
 }

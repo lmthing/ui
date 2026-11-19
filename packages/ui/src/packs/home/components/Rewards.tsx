@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  homeLabels,
   icon,
   itemsOf,
   photo,
@@ -14,6 +13,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { rewardLabels } from "../copy";
 
 // Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
@@ -42,13 +42,13 @@ export const meta = {
     const { kids, prizes, entries } = input as z.output<typeof props> & { entries: { id?: string }[] };
     return [
       ...kids.map(
-        (kid, index) => `${entries[index]?.id ?? ""} ${kid.name}: ${kid.points} ${homeLabels.points}`,
+        (kid, index) => `${entries[index]?.id ?? ""} ${kid.name}: ${kid.points} ${rewardLabels.points}`,
       ),
       ...prizes.map(
         (prize, index) =>
-          `${entries[kids.length + index]?.id ?? ""} ${prize.title}: ${homeLabels.cost} ${prize.cost}`,
+          `${entries[kids.length + index]?.id ?? ""} ${prize.title}: ${rewardLabels.cost} ${prize.cost}`,
       ),
-      homeLabels.claim,
+      rewardLabels.claim,
     ];
   },
 } as const satisfies Meta;

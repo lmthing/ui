@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   clock,
-  homeLabels,
   durationLine,
   probesFor,
   text,
@@ -10,6 +9,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { babyLabels } from "../copy";
 
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
 export const meta = {
@@ -41,14 +41,14 @@ export const meta = {
     if (state !== "filled") return [];
     const { log, running, entries } = input as z.output<typeof props> & { entries: { id?: string }[] };
     return [
-      homeLabels[running],
+      babyLabels[running],
       ...kinds.map(
         (kind, index) =>
-          `${entries[index]?.id ?? ""} ${homeLabels[kind]} · ${running === kind ? timerLabels.stop : timerLabels.start}`,
+          `${entries[index]?.id ?? ""} ${babyLabels[kind]} · ${running === kind ? timerLabels.stop : timerLabels.start}`,
       ),
       ...log.map(
         (entry, index) =>
-          `${entries[kinds.length + index]?.id ?? ""} ${homeLabels[entry.kind]} · ${entry.time}${entry.minutes === undefined ? "" : ` · ${durationLine(entry.minutes)}`}${entry.amount ? ` · ${entry.amount}` : ""}`,
+          `${entries[kinds.length + index]?.id ?? ""} ${babyLabels[entry.kind]} · ${entry.time}${entry.minutes === undefined ? "" : ` · ${durationLine(entry.minutes)}`}${entry.amount ? ` · ${entry.amount}` : ""}`,
       ),
     ];
   },

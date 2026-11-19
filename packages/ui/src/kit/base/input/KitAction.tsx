@@ -5,12 +5,9 @@ import { XStack, styled, isWeb } from "tamagui";
 import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
-import { KitIcon, type IconTone } from "../text";
-import { KitText, type TextTone } from "../text";
-import { shifted } from "../text";
+import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
-
 const Frame = styled(XStack, {
   alignItems: "center",
   justifyContent: "center",
@@ -34,7 +31,6 @@ const Frame = styled(XStack, {
     },
   } as const,
 });
-
 const toneOf: Record<ActionKind, TextTone & IconTone> = {
   primary: "onAccent",
   secondary: "accent",
@@ -53,11 +49,6 @@ const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
   quiet: "muted",
   danger: "bad",
 };
-
-/**
- * Something the person presses: a labelled button, or an icon-only button when `label` is absent
- * (give `a11y` then). Presses follow `goto` through the host's onLink when the kit is interactive.
- */
 type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
@@ -66,7 +57,23 @@ type ActionProps = {
   part?: string;
   a11y?: string;
   full?: boolean;
-  action?: "press" | "dismiss" | "play" | "pause";
+  action?:
+    | "press"
+    | "dismiss"
+    | "play"
+    | "pause"
+    | "toggle"
+    | "select"
+    | "check"
+    | "set"
+    | "type"
+    | "increment"
+    | "decrement"
+    | "start"
+    | "stop"
+    | "send"
+    | "scan";
+  value?: string | number | boolean;
   disabled?: boolean;
 };
 
@@ -117,6 +124,23 @@ function ActionContent({
   );
 }
 
+function useActionPress(props: ActionProps, address: string, inactive: boolean) {
+  const kit = useKit();
+  if (!kit.interactive || inactive) return {};
+  if (kit.controller)
+    return {
+      onPress: () =>
+        props.action
+          ? kit.controller!.act({
+              address,
+              action: props.action,
+              ...(props.value === undefined ? {} : { value: props.value }),
+            })
+          : kit.controller!.press(address),
+    };
+  return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
+}
+
 export function KitAction({
   label,
   icon,
@@ -126,6 +150,7 @@ export function KitAction({
   a11y,
   full = false,
   action,
+  value,
   disabled = false,
 }: ActionProps) {
   const kit = useKit();
@@ -138,10 +163,16 @@ export function KitAction({
     pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
     kit.environment.reduceMotion || kit.environment.agentMode,
   );
-  const blocked = kit.interactive && kit.controller && !kit.controller.canPress(address.testID);
+  const blocked =
+    kit.interactive &&
+    kit.controller &&
+    !(action
+      ? kit.controller.actionsAt(address.testID).includes(action)
+      : kit.controller.canPress(address.testID));
   const inactive = loading || disabled || Boolean(blocked);
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
+  const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
   return (
     <Frame
       {...address}
@@ -161,16 +192,7 @@ export function KitAction({
       aria-disabled={inactive || undefined}
       {...(inactive ? { tabIndex: -1 } : {})}
       accessibilityLabel={label ?? a11y}
-      {...(kit.interactive && !inactive && kit.controller
-        ? {
-            onPress: () =>
-              action
-                ? kit.controller!.act({ address: address.testID, action })
-                : kit.controller!.press(address.testID),
-          }
-        : kit.interactive && !inactive && goto
-          ? { onPress: () => kit.onLink?.(goto, address.testID) }
-          : {})}
+      {...handlers}
     >
       <ActionContent {...{ label, icon, part, tone: captionTone, loading, quiet: kind === "quiet" }} />
     </Frame>

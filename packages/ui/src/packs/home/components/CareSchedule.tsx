@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  homeLabels,
   icon,
   isoDate,
   itemsOf,
@@ -17,6 +16,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { careLabels } from "../copy";
 
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
 export const meta = {
@@ -42,7 +42,7 @@ export const meta = {
     state === "filled"
       ? (input as z.output<typeof props>).tasks.map(
           (row) =>
-            `${row.title}${row.for ? ` · ${row.for}` : ""} · ${row.every} ${repeatLabels[row.repeat]} · ${homeLabels.last} ${row.last}`,
+            `${row.title}${row.for ? ` · ${row.for}` : ""} · ${row.every} ${repeatLabels[row.repeat]} · ${careLabels.last} ${row.last}`,
         )
       : [],
 } as const satisfies Meta;

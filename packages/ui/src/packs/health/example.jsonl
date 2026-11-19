@@ -1,0 +1,14 @@
+{"id":"h1","c":"Header","title":"Rep · today"}
+{"id":"a1","c":"ActivityRings","rings":[{"label":"Exercise","value":20,"of":30,"unit":"min"},{"label":"Sessions","value":2,"of":3,"unit":"this wk"},{"label":"Water","value":5,"of":8,"unit":"glasses"}]}
+{"id":"h2","c":"HabitGrid","habits":[{"name":"Stretch","icon":"check","days":[true,true,false,false,false,false,false]},{"name":"Drink water","icon":"drop","days":[true,true,true,false,false,false,false]}]}
+{"id":"h3","c":"Header","title":"Rep · push day"}
+{"id":"t1","c":"Timer","label":"Session","style":"up","seconds":0}
+{"id":"w1","c":"Workout","exercises":[{"name":"Bench press","sets":[{"weight":40,"reps":8,"done":true},{"weight":40,"reps":8,"done":false}]},{"name":"Overhead press","sets":[{"weight":20,"reps":8,"done":false}]},{"name":"Incline dumbbell press","sets":[{"weight":12,"reps":10,"done":false}]},{"name":"Lateral raise","sets":[{"weight":5,"reps":12,"done":false}]},{"name":"Triceps extension","sets":[{"weight":8,"reps":12,"done":false}]}],"rest":90,"unit":"kg"}
+{"id":"h4","c":"Header","title":"Rep · body weight"}
+{"id":"m1","c":"Measurements","label":"Body weight","unit":"kg","points":[78,77.5,77.2,76.8],"goal":75,"range":"month","goto":"add_measurement"}
+{"id":"s1","c":"Stats","tiles":[{"label":"Sessions","value":"2"},{"label":"Rest days","value":"1"}]}
+{"id":"e1","c":"Exercise","name":"Bench press","photo":"lib:exercise","muscles":["Chest","Triceps"],"cues":["Keep feet planted","Lower slowly"],"equipment":"Barbell and bench","best":"50 kg × 8","last":"40 kg × 8"}
+{"id":"m2","c":"Medication","doses":[{"name":"Vitamin D","dose":"1 tablet","time":"08:00","status":"due","left":4}],"refillAt":5}
+{"id":"v1","c":"Vitals","readings":[{"label":"Resting pulse","value":68,"unit":"bpm","low":60,"high":100,"at":"08:12"}],"goto":"add_reading"}
+{"id":"s2","c":"SymptomLog","groups":[{"label":"Head","symptoms":[{"label":"Headache","severity":2},{"label":"Dizziness","severity":0}]}]}
+{"id":"c1","c":"Cycle","start":"2026-11-01","length":28,"period":5}

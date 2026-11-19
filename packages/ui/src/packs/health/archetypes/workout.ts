@@ -1,0 +1,45 @@
+import type { ArchetypeMeta } from "../../../catalog";
+
+export const workout = {
+  id: "workout",
+  job: "A session",
+  defaultLayout: "log",
+  layouts: {
+    log: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Timer"], required: true, variant: "up" },
+        { allow: ["Workout"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "t1", c: "Timer", style: "up" },
+        { id: "w1", c: "Workout" },
+      ],
+    },
+    exercise: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Exercise"], required: true },
+        { allow: ["Stats"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "e1", c: "Exercise" },
+        { id: "s1", c: "Stats" },
+      ],
+    },
+    history: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Calendar"], required: true, variant: "month" },
+        { allow: ["List"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "c1", c: "Calendar", style: "month" },
+        { id: "l1", c: "List" },
+      ],
+    },
+  },
+} as const satisfies ArchetypeMeta;

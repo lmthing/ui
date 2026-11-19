@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  homeLabels,
   itemsOf,
   photo,
   placeholderTitle,
@@ -12,6 +11,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { turnLabels } from "../copy";
 
 // Core first: People/stack lists people, not a current duty holder and an advancing rotation.
 export const meta = {
@@ -35,7 +35,7 @@ export const meta = {
   read: (input, state) => {
     if (state !== "filled") return [];
     const { people, at } = input as z.output<typeof props>;
-    return [people[at]!.name, homeLabels.next, homeLabels.skip];
+    return [people[at]!.name, turnLabels.next, turnLabels.skip];
   },
 } as const satisfies Meta;
 export const props = z

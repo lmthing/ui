@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  homeLabels,
   isoDate,
   itemsOf,
   photo,
@@ -17,6 +16,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { choreLabels } from "../copy";
 
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
@@ -41,7 +41,7 @@ export const meta = {
     state === "filled"
       ? (input as z.output<typeof props>).chores.map(
           (row) =>
-            `${row.title} · ${row.who} · ${row.every} ${repeatLabels[row.repeat]}${row.points === undefined ? "" : ` · ${row.points} ${homeLabels.points}`}`,
+            `${row.title} · ${row.who} · ${row.every} ${repeatLabels[row.repeat]}${row.points === undefined ? "" : ` · ${row.points} ${choreLabels.points}`}`,
         )
       : [],
 } as const satisfies Meta;

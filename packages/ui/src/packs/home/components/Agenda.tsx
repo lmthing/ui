@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   clock,
-  homeLabels,
   isoDate,
   itemsOf,
   placeholderTitle,
@@ -14,6 +13,7 @@ import {
   type Meta,
   type Probe,
 } from "../../../catalog";
+import { agendaLabels } from "../copy";
 
 // Core first: Timeline/hours cannot group several days and identify all family attendees.
 export const meta = {
@@ -45,7 +45,7 @@ export const meta = {
           `${entries[at++]?.id ?? ""} ${event.time ?? ""} ${event.title} · ${event.who.join(", ")}`.trim(),
         ),
       ]),
-      homeLabels.add,
+      agendaLabels.add,
     ];
   },
 } as const satisfies Meta;

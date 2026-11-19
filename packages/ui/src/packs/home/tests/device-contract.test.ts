@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
-import { components, homeLabels, readComponent } from "@lmthing/ui/catalog";
+import { components, readComponent } from "@lmthing/ui/catalog";
+import { deviceLabels } from "../copy";
 import { deviceProps } from "..";
 
 const heat = { key: "heat", name: "Thermostat", kind: "heat", on: true, temp: 21 };
@@ -106,7 +107,7 @@ it("accepts exact device, room, scene and numeric boundaries without model-owned
       input([{ ...sensor, reading, normal: { low: 40, high: 60 } }]),
       "d1",
     ).join("\n");
-    expect(text).not.toContain(homeLabels.outOfRange);
+    expect(text).not.toContain(deviceLabels.outOfRange);
     expect(text).not.toContain(" toggle");
   }
   for (const reading of [39.9, 60.1])
@@ -116,5 +117,5 @@ it("accepts exact device, room, scene and numeric boundaries without model-owned
         input([{ ...sensor, reading, normal: { low: 40, high: 60 } }]),
         "d1",
       ).join("\n"),
-    ).toContain(homeLabels.outOfRange);
+    ).toContain(deviceLabels.outOfRange);
 });

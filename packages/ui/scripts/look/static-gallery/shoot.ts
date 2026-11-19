@@ -19,19 +19,19 @@ async function open(browser: Browser, url: string, id: string, scale: number): P
   return page;
 }
 
-/** The first preview's component, without the preview label or the frame's minimum height. */
+/** The first preview's component root (its `…/root` address), without the preview label or frame. */
 function firstComponentBox(id: string) {
   const preview = document.querySelector(`[data-testid="variants_${id}"] [data-testid^="preview_"]`);
-  let frame = preview?.lastElementChild ?? null;
-  while (frame && frame.children.length === 1 && getComputedStyle(frame).paddingTop === "0px")
-    frame = frame.firstElementChild;
-  const r = (frame?.firstElementChild ?? frame)!.getBoundingClientRect();
-  return { x: r.x + scrollX, y: r.y + scrollY, width: r.width, height: r.height };
+  const root = preview?.querySelector('[data-testid$="/root"]');
+  const r = root?.getBoundingClientRect();
+  return r ? { x: r.x + scrollX, y: r.y + scrollY, width: r.width, height: r.height } : null;
 }
 
 async function shootOne(browser: Browser, base: string, id: string, dir: string) {
   const card = await open(browser, `${base}?c=${id}&preset=calm&mode=light`, id, 2);
   const box = await card.evaluate(firstComponentBox, id);
+  // Never write an empty crop: a zero box means the preview markup changed or did not render.
+  if (!box || box.width < 8 || box.height < 8) throw new Error(`No visible component root for ${id}`);
   const pad = 16;
   const clip = { x: box.x - pad, y: box.y - pad, width: box.width + 2 * pad, height: box.height + 2 * pad };
   await card.screenshot({ path: `${dir}/${id}.card.jpg`, type: "jpeg", quality: 82, clip, fullPage: true });
