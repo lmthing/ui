@@ -25,10 +25,12 @@ export function choreLines(chore: ChoreSeed, today = careToday(), lang?: string)
   const done = choreIsDone(chore, today);
   return {
     label: [title, who, done ? words.choreLabels.done : undefined].filter(Boolean).join(" · "),
-    headline: `${title}${words.choreLabels.detailMark}`,
     initials: agendaInitial(who, lang),
     check: done ? words.choreLabels.done : words.choreCheck(title),
-    repeat: care?.repeat ?? words.careRepeat(repeat, numberLine(every, lang), pluralForm(every, lang)),
+    repeat:
+      repeat === "never"
+        ? words.choreLabels.once
+        : (care?.repeat ?? words.careRepeat(repeat, numberLine(every, lang), pluralForm(every, lang))),
     last: care?.last,
     next: care?.next ?? (repeat === "never" ? words.choreLabels.ready : words.choreLabels.today),
     tone: care?.tone ?? (repeat === "never" ? "muted" : "accent"),
@@ -43,9 +45,9 @@ export function choreLines(chore: ChoreSeed, today = careToday(), lang?: string)
 export function choreReading(chores: readonly ChoreSeed[], lang?: string): string[] {
   const today = careToday();
   return chores.map((chore) => {
-    const { headline, repeat, last, next, points, done, check } = choreLines(chore, today, lang);
+    const { repeat, last, next, points, done, check } = choreLines(chore, today, lang);
     const reward = points ? `${points.count}${points.suffix}` : undefined;
-    return [headline, chore.who, repeat, last, next, reward, done ? check : undefined]
+    return [chore.title, chore.who, repeat, last, next, reward, done ? check : undefined]
       .filter(Boolean)
       .join(" · ");
   });

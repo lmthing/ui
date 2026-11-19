@@ -21,6 +21,7 @@ import {
   KitContent,
   KitEmpty,
   KitGrid,
+  KitIcon,
   KitPhoto,
   KitRow,
   KitText,
@@ -33,11 +34,10 @@ import {
 import { choreIsDone, choreLines, choreReading } from "../copy";
 import { homeWordsFor } from "../lang";
 import { z } from "zod";
-
 // Core first: Checklist/default ticks today's jobs, not owners, repeats and earned points.
 export const meta = {
   id: "Chores",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Share recurring household jobs with owners and points earned for completing them.",
   pick: "Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).",
@@ -142,40 +142,41 @@ function ChoreDetails({ copy }: { copy: ReturnType<typeof choreLines> }) {
     </KitGrid>
   );
 }
-
 function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
   const context = usePartContext();
   const { lang } = useWords(homeWordsFor);
   const copy = choreLines(chore, undefined, lang);
   const { photo, who: label } = chore;
   const avatar = { label, initials: copy.initials, ...(photo ? { photo } : {}) };
+  const leading = <KitPhoto part="photo" shape="round" {...avatar} />;
+  const done = copy.done ? (
+    <KitTrail kind="check" part="done" />
+  ) : (
+    <KitCheck done={false} label={copy.check} part="done" />
+  );
   return (
     <PartContext.Provider value={{ ...context, item: chore.id }}>
       <KitContent group={first ? "content" : "response"}>
-        <KitGrid fitLast>
-          <KitRow
-            part="root"
-            goto={chore.goto}
-            label={copy.label}
-            inline
-            lineRole="heading"
-            leadingAlign="row"
-            leading={<KitPhoto part="photo" shape="round" {...avatar} />}
-          >
-            <KitText part="title" role="heading">
-              {copy.headline}
-            </KitText>
-            <KitText part="who" role="caption" tone="muted">
-              {chore.who}
-            </KitText>
+        <KitRow label={copy.label} inline leadingAlign="row" leading={leading}>
+          <KitRow label={copy.label} inline lineRole="heading" trailing={done}>
+            <KitRow
+              part="root"
+              goto={chore.goto}
+              label={copy.label}
+              inline
+              lineRole="heading"
+              trailing={<KitIcon name="chevron_right" scale="sm" decorative />}
+            >
+              <KitText part="title" role="heading">
+                {chore.title}
+              </KitText>
+              <KitText part="who" role="caption" tone="muted">
+                {chore.who}
+              </KitText>
+            </KitRow>
           </KitRow>
-          {copy.done ? (
-            <KitTrail kind="check" part="done" />
-          ) : (
-            <KitCheck done={false} label={copy.check} part="done" />
-          )}
-        </KitGrid>
-        <ChoreDetails copy={copy} />
+          <ChoreDetails copy={copy} />
+        </KitRow>
       </KitContent>
     </PartContext.Provider>
   );
@@ -184,16 +185,14 @@ function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
 export function Chores({ chores }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
   const { words } = useWords(homeWordsFor);
+  const title = words.choreLabels.complete;
+  const success = state === "success" ? ({ icon: "check", tone: "good", title } as const) : {};
   return (
     <KitCard part="root" padded={state === "filled"}>
       {state === "filled" ? (
         chores.map((chore, index) => <ChoreRow key={chore.id} chore={chore} first={index === 0} />)
       ) : (
-        <KitEmpty
-          part="message"
-          decorativeIcon
-          {...(state === "success" ? { icon: "check", tone: "good", title: words.choreLabels.complete } : {})}
-        />
+        <KitEmpty part="message" decorativeIcon {...success} />
       )}
     </KitCard>
   );
