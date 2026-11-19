@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
 import { cookStepText, cookStepUses, cookStepsLabels, cookStepsReading } from "../../copy";
+import { kitchenWordsFor, registerKitchenWords } from "../../lang";
 
 it("reads only the current instruction and its timer controls", () => {
   const steps = [
@@ -34,6 +35,22 @@ it("quotes instruction text and preserves the longest timer", () => {
   expect(cookStepText("Stir until thickened.")).toBe("Stir until\u00a0thickened.");
   expect(cookStepUses([])).toBe("");
   expect(cookStepUses(["First", "Second"])).toBe("First · Second");
+});
+
+it("uses the registered ingredient-list grammar without translating authored names", () => {
+  const lang = "en-XA";
+  const unregister = registerKitchenWords(lang, {
+    ...kitchenWordsFor(),
+    cookStepUses: (uses) => uses.join(" / "),
+  });
+  const uses = ["First", "Second"];
+  try {
+    expect(cookStepUses(uses, lang)).toBe("First / Second");
+    expect(cookStepsReading([{ text: "Stir", uses }], 1, lang)).toContain('"First / Second"');
+    expect(cookStepUses(uses)).toBe("First · Second");
+  } finally {
+    unregister();
+  }
 });
 
 it.each([
