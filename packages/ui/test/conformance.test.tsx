@@ -7,14 +7,17 @@ import {
   emptyLine,
   loadingLabel,
   presets,
+  stampItemIds,
   themeName,
   themeRoles,
   type ComponentName,
+  type Meta,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
 import { config, renderInstance } from "./render";
 import { selectedIds } from "../scripts/build";
+import { peekForExample } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const modes = ["light", "dark"] as const;
@@ -50,13 +53,17 @@ describe.each(ready)("%s conformance", (id) => {
           if (state === "empty") expect(html).toContain(emptyLine("walk"));
           if (state === "loading") expect(html).toContain(loadingLabel);
           if (state === "filled" && items) {
-            const count = (components[id].props.parse(example) as unknown as Record<string, unknown[]>)[
-              items.key
-            ]!.length;
+            const props = stampItemIds(meta, components[id].props.parse(example) as Record<string, unknown>);
+            const rows = props[items.key] as { id: string }[];
+            const { hidden, issues } = peekForExample(meta, props, html);
+            expect(issues).toEqual([]);
             if (items.visible === "first") expect(html).not.toContain('data-testid="home/c1/r2/root"');
-            for (let index = 1; index <= (items.visible === "first" ? 1 : count); index++) {
-              expect(html).toContain(`data-testid="home/c1/r${index}/root"`);
-            }
+            const pageHidesRoots =
+              props.overflow === "page" &&
+              (meta as Meta).variantParts?.["overflow.page"]?.hides?.includes("root");
+            if (!pageHidesRoots)
+              for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
+                if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
           }
         }
       }
