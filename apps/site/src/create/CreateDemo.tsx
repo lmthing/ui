@@ -27,7 +27,7 @@ export default function CreateDemo() {
         <pre className="wire-pane" ref={pane} aria-label="Wire lines as they arrive" tabIndex={0}>
           {d.source.lines.slice(0, d.shown).map((line, i) => (
             <div key={`${d.source!.key}-${i}`} className="wire-line">
-              <JsonLine line={line} lit={d.lit} onLit={d.setLit} />
+              <JsonLine line={line} lit={d.lit} onLit={d.setLit} summary={i < d.shown - 1} />
             </div>
           ))}
         </pre>
