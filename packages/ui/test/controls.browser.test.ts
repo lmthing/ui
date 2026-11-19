@@ -26,7 +26,7 @@ async function open(kind: string) {
   await page.waitForFunction(() => Boolean(window.__lmthingUI));
 }
 describe("human and agent control paths", () => {
-  it("selects and toggles real options", { timeout: 15000 }, async () => {
+  it("selects and toggles real options", async () => {
     await open("choice");
     await part("c1/r2/root").click();
     expect(await part("c1/r2/root").getAttribute("aria-checked")).toBe("true");
@@ -41,38 +41,34 @@ describe("human and agent control paths", () => {
     expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("toggle:on");
     expect(errors).toEqual([]);
   });
-  it(
-    "edits and clears fields, chooses recurrence, switches and adjusts a slider",
-    { timeout: 15000 },
-    async () => {
-      await open("form");
-      await part("f1/field").fill("Basil");
-      expect(await part("f1/field").inputValue()).toBe("Basil");
-      expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain('"Basil"');
-      await part("f1/field").fill("");
-      expect(await part("f1/field").inputValue()).toBe("");
-      await part("f2/field").getByRole("radio", { name: "Weekly", exact: true }).click();
-      await page.waitForFunction(() => window.__lmthingUI!.read().includes("Weekly chosen"));
-      await part("f3/field").click();
-      expect(await part("f3/field").getAttribute("aria-checked")).toBe("true");
-      await part("f4/field").focus();
-      await page.keyboard.press("ArrowRight");
-      expect(await part("f4/field").getAttribute("aria-valuenow")).toBe("6");
-      await part("f5/field").fill("-");
-      expect(await part("f5/field").inputValue()).toBe("-");
-      await part("f5/field").fill("14");
-      expect(await part("f5/field").inputValue()).toBe("14");
-      await part("f6/field").fill("2026-12-01");
-      await part("f7/field").fill("10:30");
-      expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("2026-12-01");
-      expect(await page.evaluate("changes.length")).toBeGreaterThan(0);
-      expect(errors).toEqual([]);
-    },
-  );
+  it("edits and clears fields, chooses recurrence, switches and adjusts a slider", async () => {
+    await open("form");
+    await part("f1/field").fill("Basil");
+    expect(await part("f1/field").inputValue()).toBe("Basil");
+    expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain('"Basil"');
+    await part("f1/field").fill("");
+    expect(await part("f1/field").inputValue()).toBe("");
+    await part("f2/field").getByRole("radio", { name: "Weekly", exact: true }).click();
+    await page.waitForFunction(() => window.__lmthingUI!.read().includes("Weekly chosen"));
+    await part("f3/field").click();
+    expect(await part("f3/field").getAttribute("aria-checked")).toBe("true");
+    await part("f4/field").focus();
+    await page.keyboard.press("ArrowRight");
+    expect(await part("f4/field").getAttribute("aria-valuenow")).toBe("6");
+    await part("f5/field").fill("-");
+    expect(await part("f5/field").inputValue()).toBe("-");
+    await part("f5/field").fill("14");
+    expect(await part("f5/field").inputValue()).toBe("14");
+    await part("f6/field").fill("2026-12-01");
+    await part("f7/field").fill("10:30");
+    expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("2026-12-01");
+    expect(await page.evaluate("changes.length")).toBeGreaterThan(0);
+    expect(errors).toEqual([]);
+  });
 });
 
 describe("human and agent control paths", () => {
-  it("blocks empty replies, sends typed content and clears the box", { timeout: 15000 }, async () => {
+  it("blocks empty replies, sends typed content and clears the box", async () => {
     await open("chat");
     expect(await part("c1/send").getAttribute("aria-disabled")).toBe("true");
     await part("c1/field").fill("Thanks, see you at nine.");
@@ -84,26 +80,22 @@ describe("human and agent control paths", () => {
     expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Thanks, see you at nine.");
     expect(errors).toEqual([]);
   });
-  it(
-    "checks tasks and expands rows without navigating when a switch is pressed",
-    { timeout: 15000 },
-    async () => {
-      await open("lists");
-      await part("q1/r1/check").click();
-      expect(await part("q1/r1/check").getAttribute("aria-checked")).toBe("true");
-      expect(await part("l1/r1/root").getAttribute("aria-expanded")).toBe("false");
-      await part("l1/r1/root").click();
-      expect(await part("l1/r1/root").getAttribute("aria-expanded")).toBe("true");
-      expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Check the soil first.");
-      await part("l1/r1/root").click();
-      expect(await page.evaluate(() => window.__lmthingUI!.read())).not.toContain("Check the soil first.");
-      await part("l2/r1/trail").click();
-      expect(await page.evaluate("links.length")).toBe(0);
-      expect(await part("l2/r1/trail").getAttribute("aria-checked")).toBe("true");
-      expect(errors).toEqual([]);
-    },
-  );
-  it("uses counter steps, runs and pauses time, and selects a level", { timeout: 15000 }, async () => {
+  it("checks tasks and expands rows without navigating when a switch is pressed", async () => {
+    await open("lists");
+    await part("q1/r1/check").click();
+    expect(await part("q1/r1/check").getAttribute("aria-checked")).toBe("true");
+    expect(await part("l1/r1/root").getAttribute("aria-expanded")).toBe("false");
+    await part("l1/r1/root").click();
+    expect(await part("l1/r1/root").getAttribute("aria-expanded")).toBe("true");
+    expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Check the soil first.");
+    await part("l1/r1/root").click();
+    expect(await page.evaluate(() => window.__lmthingUI!.read())).not.toContain("Check the soil first.");
+    await part("l2/r1/trail").click();
+    expect(await page.evaluate("links.length")).toBe(0);
+    expect(await part("l2/r1/trail").getAttribute("aria-checked")).toBe("true");
+    expect(errors).toEqual([]);
+  });
+  it("uses counter steps, runs and pauses time, and selects a level", async () => {
     await open("numbers");
     expect(await part("c1/minus").getAttribute("aria-disabled")).toBe("true");
     await part("c1/plus").click();
@@ -123,7 +115,7 @@ describe("human and agent control paths", () => {
 });
 
 describe("human and agent control paths", () => {
-  it("selects filters, views, dates and linked tabs with count badges", { timeout: 15000 }, async () => {
+  it("selects filters, views, dates and linked tabs with count badges", async () => {
     await open("navigation");
     await part("s1/r2/root").click();
     expect(await part("s1/r2/root").getAttribute("aria-selected")).toBe("true");
@@ -139,7 +131,7 @@ describe("human and agent control paths", () => {
     expect(await part("c1/r12/root").getAttribute("aria-pressed")).toBe("true");
     expect(errors).toEqual([]);
   });
-  it("swipes cards by pointer and keyboard while preserving item ids", { timeout: 15000 }, async () => {
+  it("swipes cards by pointer and keyboard while preserving item ids", async () => {
     await open("swipe");
     const box = await part("s1/r1/root").boundingBox();
     await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height / 2);
@@ -153,7 +145,7 @@ describe("human and agent control paths", () => {
     expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Monstera");
     expect(errors).toEqual([]);
   });
-  it("requests a host photo and updates its referenced image", { timeout: 15000 }, async () => {
+  it("requests a host photo and updates its referenced image", async () => {
     await open("photo");
     await part("f1/field").click();
     await page.waitForFunction(

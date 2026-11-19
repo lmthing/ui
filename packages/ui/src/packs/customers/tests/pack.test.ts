@@ -1,3 +1,4 @@
+import { selectedIds, selectedLayouts } from "../../../../scripts/build";
 import { describe, expect, it } from "vitest";
 import {
   archetypes,
@@ -52,7 +53,7 @@ describe("customers contracts", () => {
         .map(([id]) => id)
         .sort(),
     ).toEqual([...ids].sort());
-    for (const id of ids) {
+    for (const id of selectedIds(ids)) {
       const def = defs[id]!;
       expect(def.meta).toMatchObject({ id, region: "body" });
       // A draft has no view yet; a built component exports one.
@@ -118,7 +119,7 @@ describe("customers pack pipeline", () => {
     );
     const draftFormat = JSON.stringify(writerFormat(draft)),
       liveFormat = JSON.stringify(writerFormat(live));
-    for (const id of ids) {
+    for (const id of selectedIds(ids)) {
       expect(draftFormat).toContain(`"const":"${id}"`);
       expect(core.ids).not.toContain(id);
       expect(live.ids.some((value) => value === id)).toBe(ready);
@@ -147,7 +148,7 @@ describe("customers pack pipeline", () => {
       .trim()
       .split(/\r?\n/)
       .map((line) => JSON.parse(line).c);
-    for (const id of ids) expect(entries).toContain(id);
+    for (const id of selectedIds(ids)) expect(entries).toContain(id);
   });
 });
 
@@ -161,6 +162,7 @@ describe("customers archetype layouts", () => {
       expect(meta).not.toHaveProperty("status");
       for (const [layout, recipe] of Object.entries(meta.layouts)) {
         layouts++;
+        if (selectedLayouts([packComposition(meta)])?.includes(`${meta.id}/${layout}`) === false) continue;
         expect(recipe.defaults.map((line) => line.c)).toEqual(recipe.recipe.map((slot) => slot.allow[0]));
         for (const cast of casts) {
           for (const { id: _id, c, ...seed } of recipe.defaults)

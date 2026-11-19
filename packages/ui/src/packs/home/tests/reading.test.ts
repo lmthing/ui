@@ -1,3 +1,4 @@
+import { selectedIds } from "../../../../scripts/build";
 import { expect, it } from "vitest";
 import {
   affordancesOf,
@@ -12,7 +13,7 @@ it("offers every read-probe action on its actual example and reads all filled/st
   const defs = Object.values(components).filter(
     (def) => (packOf as Record<string, string>)[def.meta.id] === "home",
   ) as Definition[];
-  for (const def of defs) {
+  for (const def of defs.filter((def) => selectedIds([def.meta.id]).length)) {
     for (const probe of def.probes) {
       if (probe.kind !== "read") continue;
       const instance = probe.expect.address.split("/")[0]!;
