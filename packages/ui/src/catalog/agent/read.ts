@@ -10,6 +10,7 @@ import { projectSelection, projectNested } from "./selection";
 import { projectAdjustments, projectClocks } from "./clocks";
 import type { Meta } from "../meta";
 import { migrateLine, migrateScreen } from "../migrations";
+import { repairVariants } from "../rules";
 
 type Json = {
   properties?: Record<string, Json>;
@@ -107,7 +108,8 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
-  const validated = stampItemIds(def.meta, def.props.parse(migrateInput(def.meta.id, input)) as Props);
+  const repaired = repairVariants(def, migrateInput(def.meta.id, input));
+  const validated = stampItemIds(def.meta, def.props.parse(repaired.props) as Props);
   const props = liveProps(def.meta, validated, instance, values);
   state = (props.state as StateName | undefined) ?? state;
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;

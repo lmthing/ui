@@ -7,6 +7,11 @@ import { resolveKeypadValue, validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { nestedAt } from "./selection";
 import { migrateScreen } from "../migrations";
+import { repairVariants } from "../rules";
+
+function parseProps(def: Definition, input: Values): Values {
+  return def.props.parse(repairVariants(def, input).props) as Values;
+}
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -23,7 +28,7 @@ function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, addres
   const def = entry && defs[entry.c];
   if (!def?.meta.items?.nested) return undefined;
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  return nestedAt(def.meta, stampItemIds(def.meta, def.props.parse(raw) as Values), parts.join("/"))?.spec;
+  return nestedAt(def.meta, stampItemIds(def.meta, parseProps(def, raw)), parts.join("/"))?.spec;
 }
 
 /** An opted-in part's owner supplies the initial value and optional bounds. */
@@ -34,7 +39,7 @@ function keypadInput(screen: ScreenLike, defs: Record<string, Definition>, found
   const def = defs[c]!;
   const keypadParts = def.props.meta()?.keypadParts;
   if (!Array.isArray(keypadParts) || !keypadParts.includes(found.part)) return undefined;
-  const input = stampItemIds(def.meta, def.props.parse(raw) as Values);
+  const input = stampItemIds(def.meta, parseProps(def, raw));
   if (!part && !(item && found.part === "root")) return input;
   const rows = input[def.meta.items?.key ?? ""];
   return (rows as Values[] | undefined)?.find((row) => row.id === item) ?? {};
@@ -67,7 +72,7 @@ function affordancesOfScreen(
   return screen.components.flatMap(({ id, c, state: _state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveProps(def.meta, stampItemIds(def.meta, def.props.parse(input) as Values), id, local);
+    const props = liveProps(def.meta, stampItemIds(def.meta, parseProps(def, input)), id, local);
     return affordancesOf(def.meta, props, id, local);
   });
 }
@@ -83,7 +88,7 @@ function selectStep(screen: ScreenLike, defs: Record<string, Definition>, step: 
   const def = entry && defs[entry.c];
   if (!def?.meta.select) return { step };
   const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const props = stampItemIds(def.meta, def.props.parse(raw) as Values);
+  const props = stampItemIds(def.meta, parseProps(def, raw));
   const target = parts.join("/");
   const error = selectionError(def.meta, props, target, step.value);
   return {
