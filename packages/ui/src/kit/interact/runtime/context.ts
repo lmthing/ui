@@ -3,6 +3,10 @@ import {
   liveProps,
   stampItemIds,
   staleDraw,
+  sessionKey,
+  sessionEvent,
+  planAct,
+  staleSession,
   migrateScreen,
   resolveDefinition,
   type ActStep,
@@ -60,10 +64,12 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
   }
   return initial;
 }
-function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
+function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
   const candidates = screen.components.filter(
-    (entry) => values[valueKey(screen.id, entry.id, drawKey)] !== undefined,
+    (entry) =>
+      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
+      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -72,44 +78,59 @@ function expiredDraws(screen: ScreenLike, defs: Record<string, Definition>, valu
   );
   for (const { id, c, state: _state, ...input } of projected.components) {
     const def = defs[c];
-    const key = valueKey(screen.id, id, drawKey);
+    const draw = valueKey(screen.id, id, drawKey);
+    const session = valueKey(screen.id, id, sessionKey);
     const props = def?.props.safeParse(input);
     if (!def || !props?.success) continue;
     const live = liveProps(def.meta, stampItemIds(def.meta, props.data as Values), id, local, true);
-    if (staleDraw(def.meta, live, values[key])) expired[key] = undefined;
+    if (staleDraw(def.meta, live, values[draw])) expired[draw] = undefined;
+    if (staleSession(def.meta, live, values[session])) expired[session] = undefined;
   }
   return expired;
 }
-export function createControllerContext(options: ControllerOptions) {
+function controllerScreen({ screen, defs }: ControllerOptions, standalone: boolean): ScreenLike {
+  const migrated = migrateScreen(screen, standalone ? { variantOnly: true } : undefined);
+  if (standalone) return migrated;
+  const components = migrated.components.map((entry) => ({
+    ...entry,
+    c: resolveDefinition(defs, entry.c)?.meta.id ?? entry.c,
+  }));
+  return { ...migrated, components };
+}
+function relativeAddress(screen: string, address: string) {
+  const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
+  return local.replace(/\/root$/, "");
+}
+export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs } = options;
-  const migrated = migrateScreen(options.screen);
-  const screen: ScreenLike = {
-    ...migrated,
-    components: migrated.components.map((entry) => ({
-      ...entry,
-      c: resolveDefinition(defs, entry.c)?.meta.id ?? entry.c,
-    })),
-  };
+  const screen = controllerScreen(options, standalone);
   const now = options.now ?? Date.now;
   const store = options.store ?? createInteractionStore();
-  let initial = initialValues(screen, defs, now);
+  let initial = standalone ? {} : initialValues(screen, defs, now);
   const status = {
     disposed: false,
-    openSheet: store.get(`${screen.id}/$sheet`) as string | undefined,
+    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const valuesOf = (at = now()) => ({
-    ...initial,
-    ...store.snapshot(),
-    ...Object.fromEntries(screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at])),
-  });
+  const valuesOf = (at = now()) =>
+    standalone
+      ? store.snapshot(screen.id)
+      : {
+          ...initial,
+          ...store.snapshot(),
+          ...Object.fromEntries(
+            screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at]),
+          ),
+        };
   const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
+    if (standalone) return screen;
     const projected = projectScreen(screen, defs, values, at, sheet, false, false);
     return covered
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
   };
   return {
+    standalone,
     options,
     screen,
     defs,
@@ -118,14 +139,14 @@ export function createControllerContext(options: ControllerOptions) {
     status,
     valuesOf,
     liveScreen,
-    expiredDraws: (values: Values, at = now()) => expiredDraws(screen, defs, values, at),
+    expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },
     mounted: new Map<string, symbol>(),
     disabledParts: new Map<string, symbol>(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
-    relative: (address: string) => address.replace(`${screen.id}/`, "").replace(/\/root$/, ""),
+    relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
     inputOf: (entry: ScreenComponent) => {
       const { id: _id, c: _c, state: _state, ...input } = entry;
@@ -151,6 +172,28 @@ export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredDraws: (next) => ctx.expiredDraws(next, at),
+    expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
+}
+
+/** Check whether an earlier step introduced the part before the view could update. */
+export function introducedPart(
+  ctx: ControllerContext,
+  staged: { sheet: string | undefined; values: Values },
+  entry: ScreenComponent,
+  action: ActStep,
+  sessionOnly = false,
+) {
+  const initial = ctx.valuesOf();
+  const cursor = ctx.key(entry.id, "$cursor");
+  if (!sessionOnly && entry.c === "Sheet" && staged.sheet !== ctx.status.openSheet) return true;
+  if (!sessionOnly && entry.c === "SwipeStack" && staged.values[cursor] !== initial[cursor]) return true;
+  const target = action.address.split("/").slice(1).join("/") || "root";
+  const key = ctx.key(entry.id, sessionKey);
+  if (staged.values[key] === initial[key] || !sessionEvent(ctx.defs[entry.c]!.meta, target, action.action))
+    return false;
+  const sheet = ctx.status.openSheet;
+  const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
+  return !planAct(source, ctx.defs, initial, [{ ...action, address: `${source.id}/${action.address}` }], null)
+    .ok;
 }

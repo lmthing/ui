@@ -1,4 +1,4 @@
-import { affordancesOf, liveProps, stampItemIds, type ActStep } from "../../../catalog";
+import { affordancesOf, liveProps, stampItemIds, type ActStep, type StateName } from "../../../catalog";
 import { controlsAction, mediaAction, showConfirmation } from "./families";
 import type { ActionContext, ActionHandler, ActionState } from "./types";
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
@@ -14,9 +14,13 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
   const props = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local, true);
-  const part = affordancesOf(meta, props, ctx.entry.id, local).find(
-    (offered) => offered.address === action.address && offered.action === action.action,
-  )?.part;
+  const part = affordancesOf(
+    meta,
+    props,
+    ctx.entry.id,
+    local,
+    (props.state as StateName | undefined) ?? ctx.entry.state,
+  ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
     ? showConfirmation(state, ctx.selected, ctx)

@@ -40,7 +40,8 @@ export function useWriter(pick: (request: string) => Engine, setStatus: (status:
           signal: controller.signal,
         };
         await chosen.run({ ...input, onText, onStatus: setStatus });
-        if (!controller.signal.aborted) setStatus(chosen.tier === 3 ? "Replay finished." : "Done.");
+        if (!controller.signal.aborted)
+          setStatus(chosen.tier === 3 ? `Replay finished.${chosen.note ? ` ${chosen.note}` : ""}` : "Done.");
       } catch (error) {
         if (!controller.signal.aborted) setStatus(`${chosen.label} failed (${(error as Error).message}).`);
       } finally {

@@ -6,6 +6,7 @@ import {
   liveProps,
   parseControlProps,
   drawStatus,
+  sessionStatus,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -92,6 +93,11 @@ function projectEntry(
     const props = liveProps(meta, parseControlProps(def, input, get), entry.id, local, true);
     const state = drawStatus(meta, props, (props.state as Entry["state"]) ?? result.state ?? "filled", get);
     if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
+  }
+  if (meta.session) {
+    const { id: _id, c: _c, state: _state, ...wire } = result;
+    const state = sessionStatus(meta, parseControlProps(def, wire, get), result.state ?? "filled", get);
+    if (result.state !== undefined || state !== "filled") result.state = state;
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));

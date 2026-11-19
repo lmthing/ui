@@ -17,6 +17,7 @@ import {
   storeDraw,
   type RandomSource,
 } from "./draw";
+import { advanceSession, sessionEvent, sessionKey, staleSession } from "./session";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -44,23 +45,28 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
+    const { draw, emptyActions, session, successActions } = def.meta;
+    // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
     const liveState =
-      (props.state as typeof state) ?? (def.meta.draw || def.meta.emptyActions ? state : undefined);
+      (props.state as typeof state) ??
+      (draw || emptyActions || session || successActions?.length ? state : undefined);
     return affordancesOf(def.meta, props, id, local, liveState);
   });
 }
 
-function expireDraws(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+function expireProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
   for (const { id, c, state: _state, ...raw } of screen.components) {
     const def = defs[c];
-    const key = `${screen.id}/${id}/${drawKey}`;
-    if (!def?.meta.draw || values[key] === undefined) continue;
+    const draw = `${screen.id}/${id}/${drawKey}`;
+    const session = `${screen.id}/${id}/${sessionKey}`;
+    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
     const props = liveInput(def, raw, id, localValues(screen.id, values));
-    if (staleDraw(def.meta, props, values[key])) values[key] = undefined;
+    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
+    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
   }
 }
 
-function stageDraw(
+function stageProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   address: string,
@@ -72,11 +78,17 @@ function stageDraw(
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const target = parts.join("/") || "root";
+  const event = sessionEvent(def.meta, target, step.action);
   const role = drawRole(def.meta, target, step.action);
-  if (!role) return;
+  if (!event && !role) return;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
   const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const props = liveInput(def, raw, entry.id, localValues(screen.id, next));
+  if (event) {
+    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(def.meta, props, get, event);
+    return "";
+  }
+  if (!role) return;
   const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
   next[`${screen.id}/${id}/${drawKey}`] = storeDraw(def.meta, props, outcome);
   if (!random && (role === "draw" || role === "redraw")) return "";
@@ -159,9 +171,9 @@ export function planAct(
       : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
     if ("code" in result) return { ok: false, at, ...result };
     try {
-      const draw = stageDraw(screen, defs, address, step, next, random);
-      if (draw !== undefined) {
-        changed.push(`${address} ${step.action}${draw}`);
+      const progress = stageProgress(screen, defs, address, step, next, random);
+      if (progress !== undefined) {
+        changed.push(`${address} ${step.action}${progress}`);
         continue;
       }
     } catch {
@@ -172,7 +184,7 @@ export function planAct(
     Object.assign(next, selected.changes);
     if ((limits || number?.adjustment || selected.declared) && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
-    expireDraws(screen, defs, next);
+    expireProgress(screen, defs, next);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return { ok: true, values: next, changed, links };
