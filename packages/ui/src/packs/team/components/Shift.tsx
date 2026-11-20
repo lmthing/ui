@@ -21,27 +21,29 @@ export const meta = {
   states: ["filled", "loading"],
   actions: { parts: { swap: ["press"], offer: ["press"] } },
   read: (input, _state, lang): string[] => {
-    const { date, from, to, status } = input as z.output<typeof props>;
+    const { date, from, to, status, detail, place, with: coworkers } = input as z.output<typeof props>;
     return [
       c.appointmentDate(date, lang),
       `${c.timeOfDayLine(from, lang)}–${c.timeOfDayLine(to, lang)}`,
       status,
+      ...(detail === "brief"
+        ? []
+        : [place, coworkers].filter((value) => value !== undefined).map((value) => JSON.stringify(value))),
     ];
   },
 } as const satisfies c.Meta;
 
-export const props = z
-  .strictObject({
-    ...c.variantProps(meta.variants),
-    date: c.isoDate,
-    from: c.clock,
-    to: c.clock,
-    place: c.text(28).optional(),
-    role: c.text(16).optional(),
-    with: c.text(48).optional(),
-    status: z.enum(["confirmed", "offered", "swap_requested"]),
-  })
-  .overwrite((input) => (input.detail === "brief" ? { ...input, place: undefined, with: undefined } : input));
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
+  date: c.isoDate,
+  from: c.clock,
+  to: c.clock,
+  // The custom reader controls visibility; the wire keeps both authored values.
+  place: c.text(28).optional().meta({ kind: undefined }),
+  role: c.text(16).optional(),
+  with: c.text(48).optional().meta({ kind: undefined }),
+  status: z.enum(["confirmed", "offered", "swap_requested"]),
+});
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const [item] = c.itemsOf(cast, 1);

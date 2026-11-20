@@ -33,7 +33,8 @@ export const meta = {
       });
       return details.length ? `${name}: ${details.join(", ")}` : name;
     });
-    return [c.appointmentDate(week, lang), ...rows];
+    // Keep staff summaries on separate lines; the shared reader appends the addressed cell actions.
+    return [[c.appointmentDate(week, lang), ...rows].join("\n")];
   },
 } as const satisfies c.Meta;
 
@@ -52,7 +53,7 @@ export const props = z
           day: z.int().min(0).max(6),
           from: c.clock,
           to: c.clock,
-          role: c.text(12).optional(),
+          role: c.text(12).optional().meta({ kind: undefined }),
         }),
       )
       .min(0)

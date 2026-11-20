@@ -1724,6 +1724,15 @@
       "{\n  \"id\": \"rota_open\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_open_shifts\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Open shifts\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"banner_saturday_cover\",\n      \"c\": \"Banner\",\n      \"surface\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Saturday needs cover\",\n      \"icon\": null,\n      \"goto\": null\n    },\n    {\n      \"id\": \"open_shift_barista\",\n      \"c\": \"OpenShift\",\n      \"density\": null,\n      \"shifts\": [\n        {\n          \"date\": \"2026-11-21\",\n          \"from\": \"08:00\",\n          \"to\": \"14:00\",\n          \"role\": \"Barista\",\n          \"pay\": 96\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
+  "15005f79bcce220c": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Roster 16 Nov 2026\nAnna: Mon 07:00–12:00 Watering (r1), Wed 08:00–14:00 (r3)\nRae: Mon 12:00–17:00 Potting (r2)\n  r1 [r1/r1 press !needs-people]\n  r2 [r1/r2 press !needs-people]\n  r3 [r1/r3 press !needs-people]\n\nTask: Open Anna's Wednesday shift at 08:00\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/r3\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/r3\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r3\", \"action\": \"press\"}",
+      "{\"address\": \"r1/r3\", \"action\": \"press\"}"
+    ]
+  },
   "16b9eb88352bb95c": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nShift: See one assigned shift and ask to swap it or offer it to someone else.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", date: date YYYY-MM-DD, from: time HH:MM, to: time HH:MM, place?: text≤28, role?: text≤16, with?: text≤48, status: confirmed|offered|swap_requested }\nRule: Use detail \"brief\" only when asked to hide where and with whom; retain those values in place and with. Omit unrequested variants.\nexample: {\"c\":\"Shift\",\"date\":\"2026-11-16\",\"from\":\"07:00\",\"to\":\"12:00\",\"place\":\"East greenhouse\",\"role\":\"Morning care\",\"with\":\"Anna and Rae\",\"status\":\"confirmed\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show my confirmed 2026-11-16 shift, 07:00–12:00, at East greenhouse with Anna, role Morning care.",
     "format": {
@@ -5770,6 +5779,15 @@
       "{\"address\": \"t1/break\", \"action\": \"press\"}",
       "{\"address\": \"t1/break\", \"action\": \"press\"}",
       "{\"address\": \"t1/break\", \"action\": \"press\"}"
+    ]
+  },
+  "d6a6b7b7673b0fae": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Shift 16 Nov 2026 — 07:00–12:00 — confirmed — \"East greenhouse\" — \"Anna and Rae\" — \"Morning care\" [s1/swap press !needs-people] [s1/offer press !needs-people]\n\nTask: Ask to swap my morning care shift\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/swap\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"s1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"s1/swap\", \"action\": \"press\"}"
     ]
   },
   "dd9d9346b062dc18": {
