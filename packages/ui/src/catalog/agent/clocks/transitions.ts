@@ -11,6 +11,7 @@ import {
   clockEnded,
   clockTriggerTarget,
   isPlaybackClock,
+  canReplay,
 } from "./clock";
 
 function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
@@ -53,7 +54,9 @@ export function clockChanges(
       const state = get(clockKey(clock)) as ClockState | undefined;
       const seed = state?.seed ?? clockSeed(clock);
       const current = clockTime(clock, state, get(clockPropKey(clock)), now);
-      const seconds = operation === "reset" ? seed : current;
+      const replay =
+        operation === "start" && canReplay(clock) && (state?.expired || clockEnded(clock, current));
+      const seconds = replay ? 0 : operation === "reset" ? seed : current;
       const playback = isPlaybackClock(clock.spec);
       const zero = clock.spec.zero;
       changes[clockKey(clock)] = {
@@ -62,7 +65,7 @@ export function clockChanges(
         seconds,
         seed,
         ...(playback
-          ? { remainder: state && operation !== "reset" ? clockMillis(state, now) % 1000 : 0 }
+          ? { remainder: state && operation !== "reset" && !replay ? clockMillis(state, now) % 1000 : 0 }
           : {}),
       } satisfies ClockState;
       if (clock.spec.prop) changes[clockPropKey(clock)] = seconds;
