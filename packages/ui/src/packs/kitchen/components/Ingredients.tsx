@@ -72,7 +72,7 @@ export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof 
 // prettier-ignore
 const supper = { servings: 4, system: "metric", groups: [
   { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
-  { label: "Layers", items: [{ name: "Lasagne sheets", amount: 8, unit: "piece" }] },
+  { label: "Layers", items: [{ name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" }] },
 ] } satisfies z.input<typeof props>;
 // prettier-ignore
 export const examples = [
@@ -142,24 +142,22 @@ function IngredientRow({ row, scale, system, detail }: RowProps) {
     </kit.KitRow>
   );
 }
-function Servings({ value }: { value: number }) {
+// prettier-ignore
+function Servings({ value, brief }: { value: number; brief: boolean }) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const { ingredientsLabels } = words;
+  const count = <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />;
+  const label = <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />;
+  const controls = <kit.KitTrack part="controls">
+    {!brief && count}
+    {copy.servingControls.map(({ label, ...control }) => (
+      <kit.KitAction key={control.action} {...control} a11y={ingredientsLabels[label]}
+        kind="quiet" disabled={value === control.bound} />
+    ))}
+  </kit.KitTrack>;
   return (
-    <kit.KitRow label={ingredientsLabels.servings}>
-      <kit.KitTrack part="controls">
-        <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />
-        {copy.servingControls.map(({ label, ...control }) => (
-          <kit.KitAction
-            key={control.action}
-            {...control}
-            a11y={ingredientsLabels[label]}
-            kind="quiet"
-            disabled={value === control.bound}
-          />
-        ))}
-      </kit.KitTrack>
-      <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />
+    <kit.KitRow label={ingredientsLabels.servings} {...(brief ? { density: "compact" as const } : {})}>
+      {brief ? <kit.KitGrid fitLast><kit.KitContent>{count}{label}</kit.KitContent>{controls}</kit.KitGrid> : <>{controls}{label}</>}
     </kit.KitRow>
   );
 }
@@ -177,7 +175,7 @@ export function Ingredients({ servings: seed, servingsShown = seed, system: init
   let index = 0;
   return (
     <kit.KitCard style="inset" part="root">
-      <Servings value={servings} />
+      <Servings value={servings} brief={detail === "brief"} />
       <kit.KitRow label={ingredientsLabels.system}>
         <kit.KitTrack part="system" look="segments" role="radiogroup" label={ingredientsLabels.system}>
           {(["metric", "us"] as const).map((choice) => <kit.KitChip key={choice} item={null} label={ingredientsLabels[choice]} value={copy.ingredientsLabels[choice]} on={system === choice} role="radio" look="segment" />)}
@@ -186,10 +184,12 @@ export function Ingredients({ servings: seed, servingsShown = seed, system: init
       {groups.map((group, groupIndex) => (
         <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
           {group.label && <kit.KitText role="label" tone="muted" part={null} children={group.label} />}
-          {group.items.map(() => {
-            const row = rows[index++]!;
-            return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail }} />;
-          })}
+          <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="group">
+            {group.items.map(() => {
+              const row = rows[index++]!;
+              return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail }} />;
+            })}
+          </kit.KitGrid>
         </kit.KitContent>
       ))}
       <kit.KitRow label={ingredientsLabels.shop}>

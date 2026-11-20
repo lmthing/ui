@@ -37,7 +37,7 @@ describe.each(variants)("%s %s", (id, axis, defaultValue, alternative, part, lab
     const isHidden = (address: string | undefined) =>
       new RegExp(id === "CookSteps" ? `/c1/${part}$` : `/r\\d+/${part}$`).test(address ?? "");
     expect(baseline.some(isHidden)).toBe(true);
-    expect(addresses(variant)).toEqual(baseline.filter((address) => !isHidden(address)));
+    expect(addresses(variant).sort()).toEqual(baseline.filter((address) => !isHidden(address)).sort());
     expect(actions(variant)).toEqual(actions(input));
     if (label) {
       expect(readComponent(def, input, "c1").join("\n")).toContain(label);
