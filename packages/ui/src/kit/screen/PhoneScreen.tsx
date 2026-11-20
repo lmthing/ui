@@ -2,15 +2,17 @@ import { useMemo } from "react";
 import { usePhoneController } from "./use-phone-controller";
 import { usePhoneLifecycle } from "./use-phone-lifecycle";
 import {
+  emptyDeviceData,
   type ActStep,
   type Definition,
+  type DeviceData,
   type ScreenLike,
   type ThemeChoice,
   type Values,
   type Issue,
 } from "../../catalog";
 import { KitProvider, useEnvironment, type NativeHost } from "../provider";
-import { createAgentAccess, type InteractionStore, type MediaAdapter } from "../interact";
+import { createAgentAccess, DeviceDataContext, type InteractionStore, type MediaAdapter } from "../interact";
 import type { PartRegistry } from "../registry";
 import { Screen, type RendererMap } from "./Screen";
 
@@ -39,6 +41,7 @@ export type PhoneScreenProps = {
   onSend?: ((text: string, address: string) => void) | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interaction?: InteractionStore | undefined;
+  deviceData?: DeviceData | undefined;
   interactive?: boolean | undefined;
   onReport?: ((issues: Issue[]) => void) | undefined;
   nativeHost?: NativeHost | undefined;
@@ -72,11 +75,13 @@ export function PhoneScreen(props: PhoneScreenProps) {
       environment={environment}
       {...(nativeHost ? { nativeHost } : {})}
     >
-      <Screen
-        controller={controller}
-        renderers={props.renderers}
-        {...(props.onReport ? { onReport: props.onReport } : {})}
-      />
+      <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
+        <Screen
+          controller={controller}
+          renderers={props.renderers}
+          {...(props.onReport ? { onReport: props.onReport } : {})}
+        />
+      </DeviceDataContext.Provider>
     </KitProvider>
   );
 }
