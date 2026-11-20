@@ -15,6 +15,15 @@ export const en = {
     emptyHere: "Nothing stored here",
     countUnit: (form: Intl.LDMLPluralRule) => (form === "one" ? " item" : " items"),
   },
+  loans: {
+    way: { lent: "Lent to ", borrowed: "Borrowed from " },
+    since: (date: string) => `Since ${date}`,
+    due: (date: string) => `Due back ${date}`,
+    overdue: "Overdue",
+    returned: "Mark returned",
+    remind: "Remind",
+    reading: (fields: string[]) => fields.join(" · "),
+  },
 };
 
 export type InventoryWords = typeof en;
