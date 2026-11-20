@@ -18,7 +18,7 @@ export const meta = createMeta(
       "Use each supplied photo with a distinct caption and a goto to its entry, such as entry_fern. When photos share a reference, use the record name and an exact, plain-language fact from the cast. With care intervals, use “Fern · every 7 days” within the 24-character limit, never abbreviate days to d. Leave Gallery axes null.",
     ],
     write: [
-      "Name the task in Header.title, e.g. Write a journal entry, and show one short instruction in Header.sub about dating, rating and writing the entry. Leave Header axes and action null. Use one Save entry button that goes to the journal after saving; do not make it a navigation shortcut before the entry is saved.",
+      "Use Header.title “Write a journal entry” and Header.sub “Pick a date, note your mood, then save”. Keep Header action null. Field is a date labelled Entry date; leave its value null unless a date is explicitly supplied for this entry. Scale asks “How did you feel that day?”, uses mood faces and starts unset. The Composer asks for one thing that happened that day. The only Button says Save entry and goes to journal after saving. Leave Header, Field, Scale and Button axes null.",
     ],
   },
 ) satisfies ArchetypeMeta;
