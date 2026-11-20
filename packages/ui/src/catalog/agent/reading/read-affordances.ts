@@ -5,6 +5,7 @@ import {
   controlValueKey,
   numericSetAt,
   partTierAt,
+  resolveChoice,
   selectionOffer,
   sessionActionProps,
   type Affordance,
@@ -35,9 +36,16 @@ export function readAffordances(
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
     const selected = options ? props[selectionOffer(meta, target)!.prop] : undefined;
+    // Advertise a label only when copying it back selects this option.
+    const choices =
+      options &&
+      options.map(({ label, value }) => ({
+        value,
+        offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
+      }));
     const set = a.action === "set" && numericSetAt(meta, props, target);
-    const value = options
-      ? (options.find(({ value }) => value === selected)?.label ?? selected)
+    const value = choices
+      ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
       : set
         ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined
@@ -51,9 +59,8 @@ export function readAffordances(
       detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
-    if (options) {
-      const labels = options.map(({ label, value }) => label ?? value);
-      detail += `${detail ? ";" : ""} choices ${JSON.stringify(labels)}`;
+    if (choices) {
+      detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
     }
     return { ...a, detail: `${detail}${risk}` };
   });

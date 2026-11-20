@@ -19,20 +19,21 @@ const scoreScreen = {
   ],
 };
 const chooseRound = (value: string) => ({ address: "game/s1/root", action: "select", value });
+const labelledScoreSheet = {
+  ...scoreSheet,
+  meta: {
+    ...scoreSheet.meta,
+    select: { prop: "selectedRound", choices: { root: { prop: "roundOptions" } } },
+  },
+  props: scoreSheet.props.overwrite((input) => ({
+    ...input,
+    roundOptions: input.rounds.map(({ label }, index) => ({ value: String(index + 1), label })),
+  })),
+} satisfies Definition;
+const scoreDefs = { ScoreSheet: labelledScoreSheet };
 
 it("offers ScoreSheet round names and keeps stored round keys and score addresses", () => {
-  const def = {
-    ...scoreSheet,
-    meta: {
-      ...scoreSheet.meta,
-      select: { prop: "selectedRound", choices: { root: { prop: "roundOptions" } } },
-    },
-    props: scoreSheet.props.overwrite((input) => ({
-      ...input,
-      roundOptions: input.rounds.map(({ label }, index) => ({ value: String(index + 1), label })),
-    })),
-  } satisfies Definition;
-  const runtime = createScreenController({ screen: scoreScreen, defs: { ScoreSheet: def } });
+  const runtime = createScreenController({ screen: scoreScreen, defs: scoreDefs });
   try {
     const choices = 'choices ["First hand","Second hand"]';
     expect(runtime.read()).toContain(`[s1 select = "First hand"; ${choices}]`);
@@ -48,6 +49,28 @@ it("offers ScoreSheet round names and keeps stored round keys and score addresse
     expect(runtime.read()).toContain(`[s1 select = "First hand"; ${choices}]`);
   } finally {
     runtime.dispose();
+  }
+});
+
+it.each([
+  { names: ["2", "Second hand"], offered: ["1", "Second hand"] },
+  { names: ["Same", "Same"], offered: ["1", "2"] },
+])("offers round choices that can actually be selected for $names", ({ names, offered }) => {
+  const score = scoreScreen.components[0]!;
+  const screen = {
+    ...scoreScreen,
+    components: [
+      { ...score, rounds: score.rounds.map((round, index) => ({ ...round, label: names[index]! })) },
+    ],
+  };
+  const list = readScreen(screen, scoreDefs).match(/\[s1 select = "1"; choices (\[[^\]]*\])\]/)?.[1];
+  expect(list).toBe(JSON.stringify(offered));
+  const choices = JSON.parse(list!) as string[];
+  for (const [index, choice] of choices.entries()) {
+    expect(planAct(screen, scoreDefs, {}, [chooseRound(choice)])).toMatchObject({
+      ok: true,
+      values: { "game/s1/$selectedRound": String(index + 1) },
+    });
   }
 });
 

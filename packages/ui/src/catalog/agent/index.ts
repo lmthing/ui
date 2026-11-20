@@ -12,6 +12,7 @@ export { projectLiveInputs } from "./live-inputs";
 export {
   choiceOptions,
   choiceValues,
+  resolveChoice,
   resolveKeypadValue,
   selectionOffer,
   validateActionValue,

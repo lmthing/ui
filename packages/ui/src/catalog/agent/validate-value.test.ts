@@ -63,9 +63,17 @@ it.each([
 });
 
 it("normalizes mixed choices, ignores malformed options and keeps the runtime clear value", () => {
-  const meta = {
+  const meta: Meta = {
+    id: "Fixture",
+    group: "input",
+    purpose: "Choose an option",
+    pick: "Choose an option",
+    region: "body",
+    weight: 1,
+    tier: "phone",
+    realPath: "Local selection",
     selections: { option: { prop: "current", choices: { prop: "options" }, runtime: true, clear: "none" } },
-  } as Meta;
+  };
   const props = {
     options: [0, { value: 2, label: "Second" }, { value: 3, label: "" }, { label: "Bad" }, Infinity, null],
   };
