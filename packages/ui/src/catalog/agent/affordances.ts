@@ -1,7 +1,8 @@
 import type { Meta } from "../meta";
-import type { StateName } from "../types";
+import type { StateName, Tier } from "../types";
 import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
+import { isAdjustOnlyItem } from "./live-props";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
@@ -10,8 +11,8 @@ type Props = Record<string, unknown>;
 
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
 
-function detailOf(action: string, holder: Props): string {
-  if ((action === "press" || action === "select") && typeof holder.goto === "string")
+function detailOf(action: string, holder: Props, suppressLink: boolean): string {
+  if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
     return `→${holder.goto}`;
   if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
   if (action === "toggle" || action === "check") {
@@ -44,6 +45,7 @@ function partsOf(
   base: string,
   when: When,
   outer: Props,
+  noGoto?: readonly string[],
 ) {
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
     present(part, holder, when, outer)
@@ -56,7 +58,11 @@ function partsOf(
               address: part === "root" ? base : `${base}/${part}`,
               part,
               action,
-              detail: detailOf(action, nested),
+              detail: detailOf(
+                action,
+                nested,
+                action === "press" && nested === holder && !!noGoto?.includes(part),
+              ),
             };
           })
       : [],
@@ -86,6 +92,7 @@ export function affordancesOf(
       `${instance}/${String(item.id)}`,
       when,
       { ...props, $first: index === 0 },
+      meta.actions?.noGoto?.items,
     ),
   );
   const controls = nestedControls(meta, props);
@@ -116,9 +123,10 @@ export function affordancesOf(
     const event = sessionEvent(meta, target, action);
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
-    if (!runtime && !meta.set && !meta.items?.set) return true;
+    if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
-    if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
+    if (!runtime)
+      return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)
@@ -139,10 +147,22 @@ function ownActions(meta: Meta, props: Props, instance: string, when: When) {
     instance,
     when,
     props,
+    meta.actions?.noGoto?.parts,
   ).flatMap((a) => {
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
+}
+
+/** Resolve a part against live props, without changing the component's tier. */
+export function partTierAt(meta: Meta, props: Props, part: string): Tier {
+  const rule = Object.hasOwn(meta.partTiersBy ?? {}, part) ? meta.partTiersBy![part] : undefined;
+  const value = rule && props[rule.prop];
+  if (rule && ["string", "number", "boolean"].includes(typeof value)) {
+    const key = String(value);
+    if (Object.hasOwn(rule.tiers, key) && rule.tiers[key]) return rule.tiers[key];
+  }
+  return meta.partTiers?.[part] ?? meta.tier;
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */

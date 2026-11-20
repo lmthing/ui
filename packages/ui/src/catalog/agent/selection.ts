@@ -7,21 +7,27 @@ const rowsOf = (meta: Meta, props: Values): Values[] =>
 const idOf = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
 
-/** Undefined means a legacy selection; an empty list means there are no offered choices. */
-export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
+export function selectionOffer(meta: Meta, target: string) {
+  if (Object.hasOwn(meta.selections ?? {}, target)) return meta.selections![target];
   const choices = meta.select?.choices;
-  if (!choices || !Object.hasOwn(choices, target)) return undefined;
-  const source = choices[target]!;
+  if (choices && Object.hasOwn(choices, target))
+    return { prop: meta.select!.prop, choices: choices[target]! };
+}
+
+/** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
+export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
+  const source = selectionOffer(meta, target)?.choices;
+  if (!source) return undefined;
   const allowed = "prop" in source ? props[source.prop] : source;
   return Array.isArray(allowed) ? allowed.filter((value) => !validateActionValue("select", value)) : [];
 }
 
 /** Resolve a row or a named part without knowing which component owns it. */
 export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
-  const select = meta.select;
-  if (!select) return undefined;
   const choices = choiceValues(meta, props, target);
   if (choices) return choices.includes(explicit) ? { value: explicit } : undefined;
+  const select = meta.select;
+  if (!select) return undefined;
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };
   if (!select.value) return undefined;
   const rows = rowsOf(meta, props);
@@ -35,8 +41,7 @@ export function selectionAt(meta: Meta, props: Values, target: string, explicit?
 
 export function selectionError(meta: Meta, props: Values, target: string, value: unknown) {
   const found = selectionAt(meta, props, target, value);
-  if (Object.hasOwn(meta.select?.choices ?? {}, target))
-    return found ? undefined : "Select an allowed value at this address";
+  if (selectionOffer(meta, target)) return found ? undefined : "Select an allowed value at this address";
   if (!found || found.value === undefined) return "No option at this address";
   if (value === undefined || value === found.value) return undefined;
   if (found.row) {
@@ -50,7 +55,10 @@ export function selectionError(meta: Meta, props: Values, target: string, value:
 export function selectionChanges(meta: Meta, props: Values, target: string, explicit?: unknown): Values {
   const select = meta.select;
   const found = selectionAt(meta, props, target, explicit);
-  if (!select || !found) return {};
+  if (!found) return {};
+  if (Object.hasOwn(meta.selections ?? {}, target))
+    return { [target]: found.value, [`$${meta.selections![target]!.prop}`]: found.value };
+  if (!select) return {};
   const values: Values = {};
   rowsOf(meta, props).forEach((row, index) => {
     const id = idOf(meta, row, index);
@@ -61,7 +69,7 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
       });
   });
   [...Object.keys(select.parts ?? {}), ...Object.keys(select.choices ?? {})].forEach((part) => {
-    values[part] = undefined;
+    if (!Object.hasOwn(meta.selections ?? {}, part)) values[part] = undefined;
   });
   if (select.mode !== "flags") {
     values[`$${select.prop}`] = found.value;
@@ -72,7 +80,7 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
 }
 
 /** Flags belong to rows; single selections belong to the declared component prop. */
-export function projectSelection(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+export function projectLegacySelection(meta: Meta, props: Values, get: (part: string) => unknown): Values {
   const select = meta.select;
   if (!select) return props;
   if (select.mode === "flags" && meta.items?.key)
@@ -85,6 +93,18 @@ export function projectSelection(meta: Meta, props: Values, get: (part: string) 
     };
   const value = get(`$${select.prop}`);
   return value === undefined ? props : { ...props, [select.prop]: value };
+}
+
+export function projectNamedSelections(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  for (const { prop } of Object.values(meta.selections ?? {})) {
+    const value = get(`$${prop}`);
+    if (value !== undefined && value !== props[prop]) props = { ...props, [prop]: value };
+  }
+  return props;
+}
+
+export function projectSelection(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get);
 }
 
 /** Enumerate controls from real sub-items, never from a fixed maximum count. */

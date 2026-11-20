@@ -4,9 +4,9 @@ import { numberLine } from "../format";
 import { peekLimit, wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+import { affordancesOf, formatAffordance, partTierAt, type Affordance } from "./affordances";
 import { numericSetAt, projectClocks } from "./clocks";
-import { choiceValues } from "./selection";
+import { choiceValues, selectionOffer } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
@@ -42,12 +42,12 @@ function withValues(
 ) {
   const { meta } = def;
   return affordances.map((a) => {
-    const risk = risks[meta.partTiers?.[a.part] ?? meta.tier] ?? "";
+    const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const choices = a.action === "select" && choiceValues(meta, props, target);
     const set = a.action === "set" && numericSetAt(meta, props, target);
     const value = choices
-      ? props[meta.select!.prop]
+      ? props[selectionOffer(meta, target)!.prop]
       : set
         ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined

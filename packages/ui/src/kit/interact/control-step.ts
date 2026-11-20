@@ -1,5 +1,7 @@
 import {
   selectionAt,
+  selectionOffer,
+  isAdjustOnlyItem,
   nestedAt,
   adjustmentAt,
   clearItemSets,
@@ -28,7 +30,7 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
     /\/root$/,
     "",
   );
-  if (Object.hasOwn(def.meta.select?.choices ?? {}, local)) return step;
+  if (selectionOffer(def.meta, local)) return step;
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
   const found = selectionAt(def.meta, input, local);
@@ -88,9 +90,11 @@ export function controlStep(
   const selection = selectControl(ctx);
   if (selection.error) return selection;
   const adjustment = adjustmentAt(ctx.def.meta, input, target, step.action, ctx.get, now);
-  const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, adjustment);
+  const planned = isAdjustOnlyItem(adjustment, step.action);
+  const clockAdjustment = planned ? { ...adjustment, next: undefined } : adjustment;
+  const clocks = clockChanges(ctx.def.meta, input, ctx.get, target, step, now, clockAdjustment);
   Object.entries(clocks).forEach(([part, value]) => ctx.put(part, value));
-  if (adjustment?.atSet) return { values: next, value: ctx.get(target) };
+  if (planned || adjustment?.atSet) return { values: next, value: ctx.get(target) };
   if (adjustment?.next !== undefined) return { values: next, value: adjustment.next };
   if (nestedAt(ctx.def.meta, input, target)) return { values: next, value: ctx.get(target) };
   const result = entry.c === "Field" ? fieldControl(ctx) : valueControl(ctx);

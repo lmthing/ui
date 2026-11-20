@@ -1,9 +1,10 @@
-export { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+export { affordancesOf, formatAffordance, partTierAt, type Affordance } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { validateActionValue, type ValueError } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type Values } from "./act";
 export {
   controlValueKey,
+  isAdjustOnlyItem,
   liveProps,
   parseControlProps,
   projectControlInput,
@@ -18,7 +19,7 @@ export {
   type DrawState,
   type RandomSource,
 } from "./draw";
-export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export { selectionAt, selectionError, selectionChanges, selectionOffer, projectSelection } from "./selection";
 export { nestedControls, nestedAt, projectNested } from "./selection";
 export {
   sessionAvailable,
