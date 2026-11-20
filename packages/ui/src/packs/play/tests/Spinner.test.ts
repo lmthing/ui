@@ -113,12 +113,18 @@ describe("Spinner states and parts", () => {
     expect(html).not.toContain(address("result"));
   });
 
-  it("shows the empty message while keeping spin available; loading exposes no controls or result", () => {
-    const empty = renderInstance("Spinner", strip, "empty", theme, { component: "s1", thing: "game" });
+  it.each(examples)("separates the empty message from Spin with the drawing", (setup) => {
+    const empty = renderInstance("Spinner", setup, "empty", theme, { component: "s1", thing: "game" });
     expect(empty).toContain(emptyLine("game"));
-    expect(elementAt(empty, address("empty"))).toBeDefined();
+    const order = [...addressedElements(empty).keys()];
+    for (const part of ["empty", "wheel", "spin"]) expect(order).toContain(address(part));
+    expect(order.indexOf(address("empty"))).toBeLessThan(order.indexOf(address("wheel")));
+    expect(order.indexOf(address("wheel"))).toBeLessThan(order.indexOf(address("spin")));
     expect(elementAt(empty, address("spin")).attributes).not.toContain("aria-disabled");
     expect(empty).not.toContain(address("reset"));
+  });
+
+  it("exposes no controls or result while loading", () => {
     const loading = renderInstance("Spinner", strip, "loading", theme, { component: "s1" });
     expect(loading).toContain(loadingLabel);
     expect(elementAt(loading, address("wheel")).attributes).toContain('aria-busy="true"');

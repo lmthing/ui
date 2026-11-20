@@ -101,11 +101,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Spinner\",\"density\":\"comfortable\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
+    "reply": "{\"c\":\"Spinner\",\"density\":\"compact\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
     "replies": [
-      "{\"c\":\"Spinner\",\"density\":\"comfortable\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
-      "{\"c\":\"Spinner\",\"density\":\"comfortable\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
-      "{\"c\":\"Spinner\",\"density\":\"comfortable\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}"
+      "{\"c\":\"Spinner\",\"density\":\"compact\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
+      "{\"c\":\"Spinner\",\"density\":\"compact\",\"surface\":\"card\",\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}",
+      "{\"c\":\"Spinner\",\"density\":null,\"surface\":null,\"options\":[{\"label\":\"Mime\"},{\"label\":\"Sketch\"},{\"label\":\"Riddle\"}],\"repeat\":false,\"style\":\"strip\"}"
     ]
   },
   "41ac1126658391a8": {

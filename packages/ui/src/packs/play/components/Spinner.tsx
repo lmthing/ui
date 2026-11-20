@@ -92,11 +92,13 @@ function SpinnerOptions({
   options,
   density,
   loading,
+  empty,
   title,
 }: {
   options: (Setup["options"][number] & { disabled: boolean })[];
   density: Setup["density"];
   loading: boolean;
+  empty: boolean;
   title: string;
 }) {
   const scope = kit.usePartContext();
@@ -104,7 +106,7 @@ function SpinnerOptions({
     <kit.KitSkeleton shape="figure" inset="none" content={[["caption", label, "center"]]} />
   );
   return (
-    <kit.KitContent density={density}>
+    <kit.KitContent density={density} group={empty ? "response" : "content"}>
       {loading ? (
         bar(title)
       ) : (
@@ -131,7 +133,7 @@ function SpinnerOptions({
 
 // prettier-ignore
 function SpinnerResponse({ lines, loading, density, empty }: {
-  lines: Lines; loading: boolean; density: Setup["density"]; empty?: string;
+  lines: Lines; loading: boolean; density: Setup["density"]; empty: boolean;
 }) {
   const { selected, status, spin, reset, exhausted } = lines;
   const group = density === "compact" ? "content" : "response";
@@ -139,11 +141,7 @@ function SpinnerResponse({ lines, loading, density, empty }: {
     <kit.KitContent {...{ group, density }}>
       {loading ? (
         <kit.KitSkeleton shape="figure" inset="none" content={[["caption", status, "center"]]} />
-      ) : empty ? (
-        <kit.KitContent group={group}>
-          <kit.KitText part="empty" role="heading" align="center">{empty}</kit.KitText>
-        </kit.KitContent>
-      ) : (
+      ) : !empty && (
         <>
           {selected && (
             <kit.KitText part="result" role="title" align="center">
@@ -153,7 +151,7 @@ function SpinnerResponse({ lines, loading, density, empty }: {
           <kit.KitText part={null} tone="muted" role="caption" align="center">{status}</kit.KitText>
         </>
       )}
-      <kit.KitContent {...{ group, density }}>
+      <kit.KitContent group={empty ? "content" : group} density={density}>
         {loading ? <kit.KitSkeleton shape="control" label={spin} full /> : (
           <kit.KitAction part="spin" action="press" label={spin} kind={selected ? "secondary" : "primary"} disabled={exhausted} full />
         )}
@@ -179,10 +177,16 @@ export function Spinner(setup: Setup) {
   const drawing = options.map((option) => (option.id === at ? { ...option, disabled: false } : option));
   const rotation = index === undefined ? 0 : setup.repeat ? index + 1 : used.length;
   const loading = state === "loading";
+  const empty = state === "empty";
   const lines = spinnerLines(options, setup.repeat, draw, lang);
   return (
     <kit.KitCard part="root" padded {...{ density, surface: setup.surface }}>
-      <SpinnerOptions {...{ options, density, loading }} title={words.spinner.pool} />
+      {empty && (
+        <kit.KitText part="empty" role="title" align="center">
+          {thing ? c.emptyLine(thing, lang) : words.spinner.empty}
+        </kit.KitText>
+      )}
+      <SpinnerOptions {...{ options, density, loading, empty }} title={words.spinner.pool} />
       <kit.KitWheel
         part="wheel"
         style={setup.style}
@@ -190,10 +194,7 @@ export function Spinner(setup: Setup) {
         {...{ loading, rotation }}
         {...(at && { at })}
       />
-      <SpinnerResponse
-        {...{ loading, lines, density }}
-        {...(state === "empty" && { empty: thing ? c.emptyLine(thing, lang) : words.spinner.empty })}
-      />
+      <SpinnerResponse {...{ loading, lines, density, empty }} />
     </kit.KitCard>
   );
 }
