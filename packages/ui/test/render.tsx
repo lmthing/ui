@@ -114,6 +114,17 @@ export function elementAt(html: string, address: string): RenderedElement {
   if (!found) throw new Error(`No rendered part at ${address}`);
   return found;
 }
+/** A shared-address stepper has one accessible button per direction within its addressed group. */
+export function hasStepTarget(group: RenderedElement, action: string): boolean {
+  if (!["increment", "decrement"].includes(action) || !/\brole="group"/.test(group.attributes)) return false;
+  return group.children.some(
+    ({ attributes }) =>
+      /\brole="button"/.test(attributes) &&
+      /\baria-label="[^"]+"/.test(attributes) &&
+      !/\bdata-testid=/.test(attributes) &&
+      attributes.includes(`data-step-action="${action}"`),
+  );
+}
 export function styleAt(html: string, address: string | RenderedElement): string {
   const { attributes } = typeof address === "string" ? elementAt(html, address) : address;
   const inline = attributes.match(/style="([^"]*)"/)?.[1] ?? "";

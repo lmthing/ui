@@ -1,5 +1,6 @@
-# commerce/copy
+# Commerce copy
 
 Pure helpers for localized commerce component copy. Import through `index.ts`.
 
+- `ProductGrid.ts` formats current and previous product prices for the view and reading.
 - `VariantPicker.ts`: visible price differences and per-option reading.
