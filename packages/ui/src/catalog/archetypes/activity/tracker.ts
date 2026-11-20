@@ -14,7 +14,7 @@ export const meta = createMeta(
     ],
     scale: [
       "This is a daily mood check-in for the person, not a rating of objects. Scale uses mood style, the supplied current value, readonly false and meta null. Bars must copy only the supplied prior-day ratings and their three-letter labels (Mon, Tue, Wed and so on). Do not write full day names or include Today in Bars. The Button saves today's rating and continues to checkin_saved. Keep Header action null.",
-      "Make the sequence clear: Header says to rate today's mood and save it; Scale asks how the person feels today; Bars is titled as recent mood ratings and labels the same rating unit; the primary Button says Save mood. Keep prior ratings as context, not a second task.",
+      'Header title is "Daily mood"; its subtitle is "Rate how you feel, then tap Save mood". Scale asks how the person feels today. Title Bars "Recent ratings out of 5", set detail "brief" to hide the meaningless sum of separate ratings, and leave density null. Keep every supplied prior rating unchanged as context, not a second task. Use one primary Button labelled "Save mood".',
     ],
     timer: [
       "Name the supplied activity in Header.title, e.g. Time your care session. Header.action, detail, density and emphasis are null; avoid a generic subtitle. Timer counts up from the supplied current seconds. The Note gives one clear sequence using the visible control labels: Start when you begin, Stop when finished, then Save session to review the saved entry. Note.media, tone, emphasis and density stay null.",

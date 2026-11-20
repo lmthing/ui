@@ -1,18 +1,19 @@
-export type LearningWords = {
-  flashcard: {
-    left: (count: string, category: Intl.LDMLPluralRule) => string;
-    reveal: string;
-    again: string;
-    hard: string;
-    good: string;
-    easy: string;
-    complete: string;
-  };
-};
-
 export const en = {
+  assignments: {
+    handedIn: "Handed in?",
+    graded: "Work graded",
+    gradeSeparator: " · ",
+    dueToday: (date: string) => `Today · ${date}`,
+    dueIn: (days: string, plural: Intl.LDMLPluralRule, date: string) =>
+      `In ${days}\u00a0${plural === "one" ? "day" : "days"} · ${date}`,
+    dueOn: (date: string) => `Due ${date}`,
+    deadlinePassed: (date: string) => `Deadline passed · ${date}`,
+    handInLabel: (title: string) => `${title}: handed in`,
+    reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
+  },
   flashcard: {
-    left: (count, category) => `${count} ${category === "one" ? "card" : "cards"} left`,
+    left: (count: string, category: Intl.LDMLPluralRule) =>
+      `${count} ${category === "one" ? "card" : "cards"} left`,
     reveal: "Reveal answer",
     again: "Again",
     hard: "Hard",
@@ -20,4 +21,34 @@ export const en = {
     easy: "Easy",
     complete: "Done for today",
   },
-} satisfies LearningWords;
+  lesson: { example: "Worked example", next: "Continue" },
+  path: {
+    status: { done: "Completed", current: "Start unit", locked: "Locked" },
+    milestone: "Badge",
+    separator: " · ",
+    label: (title: string, status: string, milestone?: string) =>
+      [title, status, milestone].filter(Boolean).join(" · "),
+  },
+  quiz: {
+    check: "Check answer",
+    next: "Next question",
+    type: "Type your answer",
+    true: "True",
+    false: "False",
+    left: "Match from",
+    right: "Match to",
+    pickLeft: "Pick an item on the left.",
+    pickRight: "Pick its match on the right.",
+    photo: "Question photo",
+    correct: "Correct",
+    incorrect: "Not quite",
+    solution: "Correct answer",
+    progress: (at: string, count: string) => `Question ${at} of ${count}`,
+    score: (right: string, count: string) => `${right} of ${count} correct`,
+    keyed: (label: string, key: string) => `${key} · ${label}`,
+    paired: (label: string, other: string) => `${label} (${other})`,
+    pair: (left: string, right: string) => `${left} → ${right}`,
+  },
+};
+
+export type LearningWords = typeof en;

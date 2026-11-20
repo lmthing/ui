@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { renderInstance } from "../../test/render";
 
 import {
   affordancesOf,
@@ -22,6 +23,7 @@ describe("Bars schema", () => {
       props.parse({ title: " This week ", unit: " walks ", points: [{ label: " Mon ", value: 0 }, point] }),
     ).toEqual({
       style: "columns",
+      detail: "full",
       title: "This week",
       unit: "walks",
       points: [{ label: "Mon", value: 0 }, point],
@@ -47,6 +49,8 @@ describe("Bars schema", () => {
       points: [{ ...point, ...invalid }, point],
     })),
     { ...input, style: "donut" },
+    { ...input, detail: "all" },
+    { ...input, density: "narrow" },
     { ...input, style: "share", points: Array.from({ length: 7 }, () => point) },
     { ...input, style: "share", points: [{ ...point, label: "a".repeat(17) }, point] },
     { ...input, color: "red" },
@@ -69,6 +73,16 @@ describe("Bars schema", () => {
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
+});
+
+it("hides only the combined total while retaining the point addresses and values", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const brief = { ...input, detail: "brief" };
+  const html = renderInstance("Bars", brief, "filled", theme);
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["total"]);
+  expect(html).not.toContain('data-testid="home/c1/total"');
+  for (const item of ["r1", "r2"]) expect(html).toContain(`data-testid="home/c1/${item}/label"`);
+  expect(meta.read(props.parse(brief), "filled")).toEqual(["Mon 3, Tue 5"]);
 });
 
 describe("Bars fallback", () => {

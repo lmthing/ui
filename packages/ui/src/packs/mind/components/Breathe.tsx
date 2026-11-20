@@ -1,10 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { breathCopy, breathFrame, breathReading, breathSeconds } from "../copy";
+import { mindWordsFor } from "../lang";
 
 // Core first: Timer/down counts time but cannot pace repeating inhale, hold, exhale and rest phases.
 export const meta = {
   id: "Breathe",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Follow paced breaths with repeats, phase cues and start or pause.",
   pick: "A growing and shrinking circle guiding inhale, hold, exhale and rest over several rounds. Not counting down an activity (Timer) or playing a recording (Player).",
@@ -12,18 +15,41 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Breathing is paced by an on-device animation with optional gentle haptics.",
-  variants: { surface: ["card", "plain"], emphasis: ["normal", "quiet"] },
+  variants: { surface: ["card", "plain"], emphasis: ["normal", "quiet"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["rounds"] } },
   parts: ["root", "circle", "phase", "rounds"],
   states: ["filled", "success"],
   actions: { parts: { circle: ["play", "pause"] } },
+  readSuccess: true,
+  clocks: [
+    {
+      id: "breath",
+      kind: "up",
+      prop: "elapsed",
+      runningProp: "running",
+      max: (input): number => breathSeconds(input as z.output<typeof props>),
+      start: { part: "circle", action: "play" },
+      stop: { part: "circle", action: "pause" },
+      zero: { state: "success" },
+    },
+  ],
   writeHints: [
+    "Leave surface, emphasis and detail null unless individually requested. Never write their default values just because they are listed.",
     'For "custom", write all four whole seconds: inhale, hold, exhale and rest (each 0–10, at least one positive). A skipped phase is the number 0, never null. Example: {"pattern":"custom","rounds":5,"inhale":4,"hold":0,"exhale":6,"rest":0}.',
-    'Presets are "box" (4-4-4-4), "calm" (4-7-8) and "even" (5-5). Set all four duration fields to null for preset patterns only.',
+    'Presets already include the timing: "box" (4-4-4-4), "calm" (4-7-8) and "even" (5-5). Set inhale, hold, exhale and rest to null for any preset, even if the brief mentions the preset seconds.',
+    'If asked only to hide the remaining-round count, use {"surface":null,"emphasis":null,"detail":"brief"}. Keep the requested rounds.',
   ],
   read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
-    const { pattern, rounds } = input as z.output<typeof props>;
-    return [pattern, c.numberLine(rounds, lang)];
+    if (state !== "filled" && state !== "success") return [];
+    const seed = input as z.output<typeof props> & { elapsed?: number; running?: boolean };
+    const [phase, rounds] = breathReading(
+      breathFrame(seed, state === "success" ? Infinity : seed.elapsed),
+      lang,
+    );
+    const { play, pause } = mindWordsFor(lang).breathe;
+    const lines = state === "success" ? [phase] : seed.running ? [phase, pause] : [play, phase];
+    if (seed.detail === "full") lines.push(rounds);
+    return lines;
   },
 } as const satisfies c.Meta;
 
@@ -51,7 +77,7 @@ export const props = z
     },
   );
 
-export function fallback(): z.input<typeof props> {
+export function fallback(_input: c.FallbackInput): z.input<typeof props> {
   return { pattern: "box", rounds: 1 };
 }
 
@@ -59,7 +85,6 @@ export const examples = [
   { pattern: "box", rounds: 4 },
   {
     surface: "plain",
-    emphasis: "quiet",
     pattern: "custom",
     rounds: 6,
     inhale: 4,
@@ -67,6 +92,8 @@ export const examples = [
     exhale: 6,
     rest: 0,
   },
+  { pattern: "calm", rounds: 4, emphasis: "quiet" },
+  { pattern: "even", rounds: 4, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Breathe");
@@ -79,5 +106,80 @@ export const probes = [
     "Timer",
   ),
   write("Lead six rounds of custom breathing: inhale four seconds, hold two, exhale six, rest zero."),
-  read("Start the breathing exercise.", { address: "b1/circle", action: "play" }),
+  {
+    ...write(
+      "Guide four rounds of your even breathing preset. Show the breathing cue but hide the remaining-round count.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Play the breathing exercise using the playback action shown in brackets, not press.", {
+    address: "b1/circle",
+    action: "play",
+  }),
 ] satisfies c.Probe[];
+
+function RoundCount({ before, count, after }: ReturnType<typeof breathCopy>["rounds"]) {
+  return (
+    <kit.KitText part="rounds" role="caption" tone="muted" align="center">
+      {before}
+      <kit.KitText part={null} role="number" numberScale="compact" tabular>
+        {count}
+      </kit.KitText>
+      {after}
+    </kit.KitText>
+  );
+}
+
+export function Breathe(input: c.Props<typeof props, typeof meta>) {
+  const live = kit.useLiveControls(meta, input);
+  const complete = kit.useComponentState() === "success";
+  const running = !complete && live.running === true;
+  const frame = breathFrame(input, complete ? Infinity : Number(live.elapsed ?? 0));
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang, words } = kit.useWords(mindWordsFor);
+  const { cue, rounds } = breathCopy(frame, lang);
+  const action = running ? words.breathe.pause : words.breathe.play;
+  const controlFirst = !running && !complete;
+  const phaseLine = (
+    <kit.KitText
+      part="phase"
+      role={controlFirst ? "caption" : "heading"}
+      align="center"
+      tone={controlFirst ? "muted" : "text"}
+      emphasis={emphasis}
+    >
+      {cue}
+    </kit.KitText>
+  );
+  const control = !complete && (
+    <kit.KitText
+      part={null}
+      role={controlFirst ? "heading" : "caption"}
+      align="center"
+      tone="accent"
+      emphasis={emphasis}
+    >
+      {action}
+    </kit.KitText>
+  );
+  return (
+    <kit.KitCard part="root" surface={surface} padded>
+      <kit.KitContent>
+        <kit.KitBreath
+          part={null}
+          target={{ part: complete ? null : "circle" }}
+          phase={frame.phase}
+          progress={frame.progress}
+          paused={!running}
+          label={complete ? cue : words.breathe.controlLabel(action, cue)}
+        >
+          {controlFirst ? control : phaseLine}
+          {controlFirst ? phaseLine : control}
+        </kit.KitBreath>
+        {detail === "full" && <RoundCount {...rounds} />}
+      </kit.KitContent>
+    </kit.KitCard>
+  );
+}
