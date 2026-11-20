@@ -69,7 +69,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { style: "filter", items: labels.map((label, index) => ({ label, on: index === 0 })) };
 }
 
-const walkFilters = [
+const walkFilters: z.input<typeof props>["items"] = [
   { label: "Park", icon: "dog", on: true },
   { label: "River", icon: "drop" },
 ];
