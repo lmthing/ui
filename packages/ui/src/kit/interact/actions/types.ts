@@ -31,6 +31,10 @@ export type ActionContext = {
 };
 export type ActionHandler = (state: ActionState, action: ActStep, ctx: ActionContext) => ActionResult;
 export type ActionEvent = ActStep & { delivery?: SendDraft };
+/** Read the admitted delivery from a host action callback, including PhoneScreen's ActStep callback. */
+export function actionDelivery(action: ActStep): SendDraft | undefined {
+  return (action as ActionEvent).delivery;
+}
 export type SendHandler = (text: string, address: string, audience?: string) => void;
 export function deliverSend({ text, address, audience }: SendDraft, send?: SendHandler) {
   if (audience === undefined) send?.(text, address);

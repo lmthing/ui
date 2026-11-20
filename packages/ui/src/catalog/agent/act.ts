@@ -54,7 +54,6 @@ function stageStandaloneClock(
   if (!live?.derive || (!clocks && !items?.clocks && !items?.nested?.clocks)) return;
   const base = `${screen.id}/${id}/`;
   const get = (part: string) => next[`${base}${part}`];
-  if (get("$runtime")) return;
   const props = liveInput(def, input, id!, localValues(screen.id, next));
   const now = Number(get("$now") ?? Date.now());
   const changes = clockChanges(def.meta, props, get, parts.join("/") || "root", step, now);
@@ -133,10 +132,11 @@ export function planAct(
   values: Values,
   steps: ActStep[],
   random: RandomSource | null = deviceRandom,
+  clockOwner: "planner" | "controller" = "planner",
 ): ActResult {
   const screen = migrateScreen(input, { variantOnly: true });
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null);
+    const preview = planAct(input, defs, values, steps, null, clockOwner);
     if (!preview.ok) return preview;
   }
   const next: Values = { ...values };
@@ -168,7 +168,8 @@ export function planAct(
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
     const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
-    stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value });
+    if (clockOwner === "planner")
+      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value });
     if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);

@@ -43,3 +43,16 @@ it("stages clock transitions before evaluating finish in a standalone or mounted
     expect(runtime.read()).toContain("[w/finish press]");
   }
 });
+
+it("stages clocks when a standalone agent takes over a former controller store", () => {
+  const store = createInteractionStore();
+  const controller = createScreenController({ screen, defs, store });
+  expect(controller.act(check).ok).toBe(true);
+  expect(store.get("s/w/$runtime")).toBe(true);
+  controller.dispose();
+  const agent = createAgentAccess({ current: () => screen, defs, store });
+  expect(agent.act([start, finish])).toMatchObject({ ok: false, at: 1 });
+  expect(agent.act(start).ok).toBe(true);
+  expect(agent.act(finish).ok).toBe(false);
+  expect(agent.act([stop, finish]).ok).toBe(true);
+});

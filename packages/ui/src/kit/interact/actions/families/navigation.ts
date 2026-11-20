@@ -19,8 +19,9 @@ export function navigationAction(state: ActionState, action: ActStep, ctx: Actio
   }
   effects.push(() =>
     ctx.options.onAction?.({
-      ...action,
       address: `${ctx.screen.id}/${action.address}`,
+      action: action.action,
+      ...(Object.hasOwn(action, "value") ? { value: action.value } : {}),
       ...(ctx.send ? { delivery: ctx.send } : {}),
     }),
   );

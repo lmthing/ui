@@ -1,6 +1,5 @@
 import {
   drawRole,
-  planAct,
   projectAdjustments,
   sessionEvent,
   parseControlProps,
@@ -19,7 +18,7 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { inactive, introducedPart, standaloneEffects } from "./introduced-part";
+import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
@@ -35,7 +34,6 @@ function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Val
   const input = ctx.inputOf(entry);
   return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
 }
-const qualified = (screen: string, step: ActStep) => ({ ...step, address: `${screen}/${step.address}` });
 
 function disabledHint(component: string, action: string, input: Values) {
   if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
@@ -70,7 +68,7 @@ function prepareStep(
   const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
   if (hint) return fail("disabled", hint);
   const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = planAct(active, ctx.defs, state.values, [qualified(active.id, selected)], null);
+  const plan = dispatchPlan(ctx, active, state.values, selected, null);
   if (!plan.ok) return { error: { ...plan, at } };
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
@@ -136,7 +134,7 @@ function stepRunner(
       execution.drew = true;
       if (random !== null) {
         const { active, selected: planned } = prepared.context;
-        const plan = planAct(active, ctx.defs, before.values, [qualified(active.id, planned)], random);
+        const plan = dispatchPlan(ctx, active, before.values, planned, random);
         if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
         prepared.state.values = plan.values;
         prepared.state.changes = [...before.changes, ...plan.changed];

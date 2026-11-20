@@ -4,10 +4,29 @@ import {
   sessionEvent,
   sessionKey,
   type ActStep,
+  type RandomSource,
+  type ScreenLike,
   type Values,
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
+
+export function dispatchPlan(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  random: RandomSource | null | undefined,
+) {
+  return planAct(
+    screen,
+    ctx.defs,
+    values,
+    [{ ...step, address: `${screen.id}/${step.address}` }],
+    random,
+    ctx.standalone ? "planner" : "controller",
+  );
+}
 
 export function standaloneEffects({ links, send, options }: ActionContext) {
   const effects = links.map(
@@ -49,12 +68,6 @@ export function introducedPart(
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;
   const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
-  const plan = planAct(
-    source,
-    ctx.defs,
-    initial,
-    [{ ...action, address: `${source.id}/${action.address}` }],
-    null,
-  );
+  const plan = dispatchPlan(ctx, source, initial, action, null);
   return !plan.ok && (Boolean(session) || plan.code === "not_actionable");
 }

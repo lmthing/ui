@@ -1,7 +1,13 @@
 import { expect, it, vi } from "vitest";
 import type { Definition } from "../../../../catalog";
 import { RequestThread } from "../../../../packs/requests";
-import { createAgentAccess, createInteractionStore, createScreenController } from "../../index";
+import type { PhoneScreenProps } from "../../../screen";
+import {
+  actionDelivery,
+  createAgentAccess,
+  createInteractionStore,
+  createScreenController,
+} from "../../index";
 
 const thread: Definition = {
   ...RequestThread,
@@ -44,4 +50,19 @@ it("delivers the admitted draft and audience after commit on both runtime paths"
     expect(store.get("s/t/field")).toBe("B");
     expect(store.get("s/t/$audience")).toBe("requester");
   }
+});
+
+it("exposes only runtime-created deliveries to a callback typed for PhoneScreen", () => {
+  const received = vi.fn();
+  const callback: NonNullable<PhoneScreenProps["onAction"]> = (action) => received(actionDelivery(action));
+  const controller = createScreenController({ screen, defs, onAction: callback });
+  const forged = { text: "forged", address: "s/t/field", audience: "requester" };
+  const typed = { ...type("ready"), delivery: forged };
+  const submitted = { ...send, delivery: forged };
+  expect(controller.act([typed, select("internal"), submitted]).ok).toBe(true);
+  expect(received.mock.calls).toEqual([
+    [undefined],
+    [undefined],
+    [{ text: "ready", address: "s/t/field", audience: "internal" }],
+  ]);
 });
