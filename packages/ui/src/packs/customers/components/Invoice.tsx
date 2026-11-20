@@ -1,31 +1,8 @@
-import {
-  useWords,
-  KitAction,
-  KitCard,
-  KitContent,
-  KitGrid,
-  KitRow,
-  KitText,
-  useComponentState,
-} from "../../../kit";
+// prettier-ignore
+import { useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText, useComponentState, useVariant } from "../../../kit";
 import { z } from "zod";
-import {
-  isoDate,
-  documentCopy,
-  documentReading,
-  itemsOf,
-  moneyLine,
-  placeholderTitle,
-  probesFor,
-  quantityLine,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
+// prettier-ignore
+import { isoDate, documentCopy, documentReading, itemsOf, moneyLine, placeholderTitle, probesFor, quantityLine, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 // Core first: KeyValue/rows cannot show quantity-price lines, computed tax totals and bill/quote actions.
 export const meta = {
   id: "Invoice",
@@ -36,12 +13,15 @@ export const meta = {
   writeHints: [
     "Write only line quantities and unit prices plus optional tax percent; code computes subtotal, tax, total and overdue.",
     'style: "quote" cannot have status: "paid". Use draft or sent for quotes.',
+    'Hiding the note changes only detail: {"density":null,"surface":null,"detail":"brief"}. Keep the note in the data. Never emit "card" or "comfortable" just to indicate the default.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "A document made on the device; sending it needs email or SMS.",
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["note"] } },
   items: { key: "lines", parts: ["root", "item", "qty", "price"] },
   parts: [
     "root",
@@ -65,10 +45,12 @@ export const meta = {
     parts: { send: ["press"], accept: ["press"], decline: ["press"] },
     when: { accept: { style: "quote" }, decline: { style: "quote" } },
   },
-  read: (input, state, lang?: string) => documentReading(input as z.infer<typeof props>, state, lang),
+  read: (input, state, lang?: string): string[] =>
+    documentReading(input as z.infer<typeof props>, state, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     number: text(12),
     to: text(28),
     date: isoDate,
@@ -88,7 +70,8 @@ export const props = z
     note: text(100).optional(),
     style: z.enum(["invoice", "quote"]).default("invoice"),
   })
-  .refine(({ status, style }) => style !== "quote" || status !== "paid", { path: ["status"] });
+  .refine(({ status, style }) => style !== "quote" || status !== "paid", { path: ["status"] })
+  .overwrite((value) => (value.detail === "brief" ? { ...value, note: undefined } : value));
 const draft = "draft" as const;
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0],
@@ -101,6 +84,13 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     status: draft,
   };
 }
+// prettier-ignore
+const variantExample = {
+  number: "T-043", to: "Ben Carter", date: "2026-11-19", due: "2026-12-03", status: draft,
+  lines: [{ item: "Afternoon river walks", qty: 6, price: 18 }],
+  note: "Thank you for booking with Trot.",
+} satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
   {
     number: "L-042",
@@ -124,6 +114,10 @@ export const examples = [
     status: "sent",
     style: "quote",
   },
+  variantExample,
+  { ...variantExample, density: "compact" },
+  { ...variantExample, surface: "outlined" },
+  { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Invoice");
 export const probes = [
@@ -134,64 +128,71 @@ export const probes = [
   write(
     "Draft invoice T-042 to Ben Carter dated 2026-11-18, due 2026-12-02, eight park walks at 15 each, tax ten percent",
   ),
+  {
+    ...write(
+      'Draft invoice T-043 to Ben Carter dated 2026-11-19 for six river walks at 18 each. Note: "Thank you for booking with Trot." Keep the note on file without showing it.',
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Send this bill to Anna", { address: "i1/send", action: "press" }),
   read("Accept this quote", { address: "i1/accept", action: "press" }, 1),
   read("Decline this quote", { address: "i1/decline", action: "press" }, 1),
 ] satisfies Probe[];
-function InvoiceLines({ lines }: Props<typeof props, typeof meta>) {
+type InvoiceProps = Props<typeof props, typeof meta>;
+// prettier-ignore
+function InvoiceLines({ lines, density }: Pick<InvoiceProps, "lines" | "density">) {
   const { lang } = useWords();
   return lines.map((line) => (
-    <KitRow key={line.id} item={line.id} inline label={line.item}>
-      <KitText part="item">{line.item}</KitText>
-      <KitGrid fitLast>
-        <KitText role="caption" part="qty" tone="muted" tabular>
-          {quantityLine(line.qty, lang)}
-        </KitText>
-        <KitText role="caption" part="price" tone="muted" tabular align="end">
-          {moneyLine(line.price, undefined, "each", lang)}
-        </KitText>
-      </KitGrid>
+    <KitRow key={line.id} item={line.id} inline label={line.item} {...{ density }} trailing={
+      <KitText role="label" part="price" tone="muted" tabular align="end" {...{ density }}
+        children={moneyLine(line.price, undefined, "each", lang)} />
+    }>
+      <KitText part="item" {...{ density }} children={line.item} />
+      <KitText role="label" part="qty" tone="muted" tabular {...{ density }} children={quantityLine(line.qty, lang)} />
     </KitRow>
   ));
 }
-export function Invoice(input: Props<typeof props, typeof meta>) {
+export function Invoice(input: InvoiceProps) {
   const { lang, words } = useWords();
   const { documentLabels: copy } = words;
+  const density = useVariant("density", meta.variants.density, input.density);
   const state = useComponentState(),
-    { note, style } = input;
+    { note, style, surface } = input;
   const labels = documentCopy(input, state, lang);
+  const send = <KitAction part="send" {...labels.send} full />;
   return (
-    <KitCard padded part="root">
-      <KitContent>
-        <KitGrid fitLast>
-          <KitText part="number">{labels.heading}</KitText>
-          <KitText role="caption" part="status" tone="muted" children={labels.status} />
+    <KitCard padded part="root" {...{ density, surface }}>
+      <KitContent {...{ density }}>
+        <KitGrid fitLast {...{ density }}>
+          <KitText part="number" {...{ density }} children={labels.heading} />
+          <KitText role="label" part="status" tone="muted" {...{ density }} children={labels.status} />
         </KitGrid>
         {labels.fields.map(({ part, text }) => (
-          <KitText key={part} role="caption" part={part} tone="muted" children={text} />
+          <KitText key={part} role="label" part={part} tone="muted" {...{ density }} children={text} />
         ))}
       </KitContent>
-      <InvoiceLines {...input} />
-      <KitContent>
+      <InvoiceLines lines={input.lines} {...{ density }} />
+      <KitContent {...{ density }}>
         {labels.amounts.map(({ part, label, value }) => (
-          <KitGrid key={part} fitLast>
-            <KitText role="caption" part={null} tone="muted">
+          <KitGrid key={part} fitLast {...{ density }}>
+            <KitText role="label" part={null} tone="muted" {...{ density }}>
               {label}
             </KitText>
-            <KitText role={part === "total" ? "number" : "caption"} part={part} tabular>
+            <KitText role={part === "total" ? "number" : "label"} part={part} tabular {...{ density }}>
               {value}
             </KitText>
           </KitGrid>
         ))}
       </KitContent>
-      {note && <KitText role="caption" part="note" tone="muted" children={note} />}
-      <KitAction part="send" {...labels.send} full />
+      {note && <KitText role="label" part="note" tone="muted" {...{ density }} children={note} />}
+      {labels.send.kind !== "quiet" && send}
       {style === "quote" && (
-        <KitGrid>
+        <KitGrid {...{ density }}>
           <KitAction part="accept" label={copy.accept} full />
           <KitAction part="decline" label={copy.decline} kind="danger" full />
         </KitGrid>
       )}
+      {labels.send.kind === "quiet" && send}
     </KitCard>
   );
 }

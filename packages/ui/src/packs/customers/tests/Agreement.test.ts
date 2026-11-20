@@ -1,13 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
-} from "@lmthing/ui/catalog";
+// prettier-ignore
+import { affordancesOf, balancedLine, components, createRegistry, readComponent, stampItemIds, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
 
@@ -24,6 +17,8 @@ describe("Agreement schema and boundaries", () => {
       title: "Consent",
       terms: "Terms",
       signed: false,
+      detail: "full",
+      surface: "card",
     });
     expect(props.parse({ ...seed, name: "  Ben Carter  " }).name).toBe("Ben Carter");
   });
@@ -41,6 +36,9 @@ describe("Agreement schema and boundaries", () => {
     { ...seed, date: "tomorrow" },
     { ...seed, color: "#fff" },
     { ...seed, pixels: 44 },
+    { ...seed, detail: "short" },
+    { ...seed, density: "dense" },
+    { ...seed, surface: "tinted" },
     { ...seed, id: "a1" },
   ])("rejects invalid content and presentation props", (input) =>
     expect(props.safeParse(input).success).toBe(false),
@@ -124,7 +122,7 @@ describe("Agreement contract and probes", () => {
 
 describe("Agreement states, parts and reading", () => {
   it.each([false, true])("draws only valid actions when signed is %s", (signed) => {
-    const input = { ...examples[1]!, signed };
+    const input = { ...props.parse(examples[1]!), signed };
     const html = renderInstance("Agreement", input, "filled", theme);
     const actions = affordancesOf(meta, stampItemIds(meta, props.parse(input)), "a1");
     expect(actions.map(({ part, action }) => [part, action])).toEqual(
@@ -139,14 +137,16 @@ describe("Agreement states, parts and reading", () => {
     expect(elementAt(html, "home/c1/agree").attributes).toContain(`role="${signed ? "img" : "checkbox"}"`);
     expect(elementAt(html, "home/c1/name").attributes.includes('role="textbox"')).toBe(!signed);
     const reading = readComponent(components.Agreement, input, "a1").join("\n");
-    for (const text of [input.title, input.terms, input.name!, "Full name", "Signed · 2026-11-18"])
+    expect(reading).toContain(balancedLine(input.terms));
+    for (const text of [input.title, input.name!, "Full name", "Signed · 2026-11-18"])
       expect(reading).toContain(text);
     expect(reading).toContain(signed ? "Accepted" : "I agree");
     expect(reading.includes("[a1/agree check")).toBe(!signed);
   });
   it("keeps the optional name control present, omits absent dates and bounds maximum terms", () => {
     const html = renderInstance("Agreement", { ...seed, terms: "a".repeat(600) }, "filled", theme);
-    expect(elementAt(html, "home/c1/name").attributes).toContain('role="textbox"');
+    expect(elementAt(html, "home/c1/name").attributes).toMatch(/role="textbox"/);
+    expect(html).not.toContain('placeholder="Full name"');
     expect(html).not.toContain("home/c1/date");
     expect(elementAt(html, "home/c1/terms").children.length).toBeGreaterThan(0);
     expect(html).toContain("a".repeat(600));
