@@ -101,17 +101,17 @@ export const examples = [
     })),
   },
   // Trot's walking week.
+  // prettier-ignore
   {
-    detail: "brief",
     density: "compact",
     days: weekdays.map((day) => ({
-      day,
-      on: ["mon", "wed", "fri"].includes(day),
-      from: "08:00",
-      to: "16:00",
+      day, on: ["mon", "wed", "fri"].includes(day), from: "08:00", to: "16:00",
       ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
     })),
   },
+  // prettier-ignore
+  { detail: "brief", days: weekdays.map((day) => ({ day, on: !["sat", "sun"].includes(day),
+    from: "09:00", to: "17:00", ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}) })) },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Availability");
 export const probes = [

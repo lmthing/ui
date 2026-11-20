@@ -70,7 +70,8 @@ export const examples = [
   { ahead: 4, joined: false },
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
-  { position: 12, ahead: 11, joined: true, detail: "brief", density: "compact" },
+  { position: 12, ahead: 11, joined: true, detail: "brief" },
+  { position: 3, ahead: 2, joined: true, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [

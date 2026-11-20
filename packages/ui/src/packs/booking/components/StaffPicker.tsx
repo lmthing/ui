@@ -84,7 +84,6 @@ export const examples = [
   { staff: [{ name: "Anna", photo: "lib:people", role: "Plant care" }], anyone: true, at: 0 },
   {
     density: "compact",
-    detail: "brief",
     staff: [
       { name: "Sam", photo: "lib:people", role: "Walker" },
       { name: "Alex", photo: "lib:people" },
@@ -92,6 +91,7 @@ export const examples = [
     anyone: false,
     at: 1,
   },
+  { staff: [{ name: "Sam", photo: "lib:people", role: "Walker" }], at: 1, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("StaffPicker");
 export const probes = [

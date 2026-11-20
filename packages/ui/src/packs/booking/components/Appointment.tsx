@@ -19,7 +19,7 @@ export const meta = {
   pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
   writeHints: [
     'policy is only allowed with style: "summary". For style: "card", omit policy.',
-    'Leave axes null unless requested. For a brief booking that hides who and where, use detail "brief"; retain with and place in the data.',
+    'Hiding who and where changes ONLY detail to "brief"; retain with and place in the data. Always set density to null unless a spacing change is requested; do not spell out "comfortable".',
   ],
   region: "body",
   weight: 2,
@@ -89,6 +89,7 @@ export const examples = [
   },
   {
     style: "summary",
+    density: "compact",
     service: "Morning park walk",
     with: "Sam",
     date: "2026-11-21",
@@ -101,7 +102,7 @@ export const examples = [
   },
   // prettier-ignore
   { service: "Home visit", with: "Sam", place: "Home", date: "2026-11-22", time: "16:00",
-    minutes: 30, price: 15, status: "confirmed", goto: "time", detail: "brief", density: "compact" },
+    minutes: 30, price: 15, status: "confirmed", goto: "time", detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Appointment");
 export const probes = [

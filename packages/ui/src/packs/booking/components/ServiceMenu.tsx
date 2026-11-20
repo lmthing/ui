@@ -24,7 +24,7 @@ export const meta = {
   tier: "phone",
   realPath: "Services stored on the device by the provider.",
   writeHints: [
-    'Leave axes null unless requested. For names, lengths and prices without descriptive lines, use detail "brief"; keep descriptions in sub.',
+    'A request to hide descriptions changes ONLY detail to "brief". Keep the supplied description in sub. Set density, surface, lead, style and every row tone/mark to null unless separately asked; do not spell out defaults. An absent photo does not request lead "none".',
   ],
   // prettier-ignore
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"],
@@ -32,7 +32,7 @@ export const meta = {
   items: {
     key: "services",
     parts: ["root", "name", "minutes", "price", "sub", "group", "photo"],
-    variants: { tone: ["neutral", "good"], mark: ["none", "highlight"] },
+    variants: { tone: ["neutral", "good"], mark: ["none", "muted"] },
   },
   variantParts: { "detail.brief": { hides: ["sub"] }, "lead.none": { hides: ["photo"] } },
   parts: ["root", "empty"],
@@ -84,6 +84,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // prettier-ignore
+const walkingServices = [
+  { name: "Park walk", minutes: 30, price: 15, sub: "Clover and Pip", photo: "lib:dogs", goto: "time" },
+  { name: "Home visit", minutes: 30, goto: "time" },
+];
+// prettier-ignore
 export const examples = [
   {
     services: [
@@ -98,14 +103,11 @@ export const examples = [
       { name: "Long walk", minutes: 60, price: 25, photo: "lib:dogs", goto: "time" },
     ],
   },
-  {
-    density: "compact", surface: "outlined", detail: "brief", lead: "none",
-    services: [
-      { name: "Park walk", minutes: 30, price: 15, sub: "Clover and Pip", photo: "lib:dogs", goto: "time", tone: "good", mark: "highlight" },
-      { name: "Long walk", minutes: 60, price: 25, goto: "time" },
-      { name: "Home visit", minutes: 30, goto: "time" },
-    ],
-  },
+  { density: "compact", services: walkingServices },
+  { surface: "outlined", services: walkingServices },
+  { detail: "brief", services: walkingServices },
+  { lead: "none", services: walkingServices },
+  { services: [{ ...walkingServices[0]!, tone: "good" }, { ...walkingServices[1]!, mark: "muted" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ServiceMenu");
 export const probes = [
@@ -120,22 +122,22 @@ export const probes = [
   },
   read("Book the plant care visit", { address: "s1/r1", action: "press" }),
 ] satisfies Probe[];
-
-type ServiceLine = { value: string; part: string | null; role?: TextRole; tone?: TextTone };
-function ServiceText({ value, part, role = "body", tone = "text" }: ServiceLine) {
+// prettier-ignore
+function ServiceText({ value, part, density, role = "body", tone = "text" }:
+  { value: string; part: string | null; density: ThemeDensity; role?: TextRole; tone?: TextTone }) {
   const loading = useComponentState() === "loading";
   const skeleton = (
-    <KitSkeleton shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
+    <KitSkeleton density={density} shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
   );
   if (loading) return role === "number" ? <KitContent lead={skeleton}>{null}</KitContent> : skeleton;
   return (
-    <KitText role={role} tone={tone} numberScale="compact" tabular={role === "number"} part={part}>
+    <KitText {...{ role, tone, density, part }} numberScale="compact" tabular={role === "number"}>
       {value}
     </KitText>
   );
 }
-
 type MenuProps = Props<typeof props, typeof meta>;
+// prettier-ignore
 function ServiceRows({ services, density, style, surface }: MenuProps & { density: ThemeDensity }) {
   const { lang, words } = useWords();
   const { bookLabel } = bookingWordsFor(lang);
@@ -147,7 +149,6 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
         <KitRow
           key={service.id}
           item={service.id}
-          density={density}
           tone={service.tone}
           mark={service.mark}
           surface={style === "cards" ? surface : undefined}
@@ -157,24 +158,19 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
           leadingWidth={photos ? "avatar" : undefined}
           leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
         >
-          <KitGrid columns={2} fitLast>
+          <KitGrid columns={2} fitLast density={density}>
             <KitContent>
               {service.group && service.group !== services[index - 1]?.group && (
-                <ServiceText value={service.group} role="caption" tone="muted" part="group" />
+                <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
               )}
-              <ServiceText value={service.name} part="name" />
-              <ServiceText
-                value={durationLine(service.minutes, lang)}
-                role="number"
-                tone="muted"
-                part="minutes"
-              />
-              {service.sub && <ServiceText value={service.sub} role="caption" tone="muted" part="sub" />}
+              <ServiceText {...{ density }} value={service.name} part="name" />
+              <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="number" tone="muted" part="minutes" />
+              {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
             </KitContent>
             <KitContent>
-              <ServiceText value={bookLabel} role="label" tone="accent" part={null} />
+              <ServiceText {...{ density }} value={bookLabel} role="label" tone="accent" part={null} />
               {service.price !== undefined && (
-                <ServiceText value={servicePrice(service.price, lang)} role="number" part="price" />
+                <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="number" part="price" />
               )}
             </KitContent>
           </KitGrid>

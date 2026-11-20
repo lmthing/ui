@@ -166,13 +166,10 @@ describe("ServiceMenu read/act and core-first probes", () => {
       expect(affordancesOf(meta, stampItemIds(meta, input), "s1")).toEqual([
         { address: "s1/r1", part: "root", action: "press", detail: `→${goto}` },
       ]);
-      expect(readComponent(components.ServiceMenu, input, "s1").join("\n")).toContain(
-        `[s1/r1 press→${goto}]`,
-      );
+      const reading = readComponent(components.ServiceMenu, input, "s1").join("\n");
+      expect(reading).toContain(`[s1/r1 press→${goto}]`);
     }
-    expect(meta.tier).toBe("phone");
-    expect(meta.dense).toBe(true);
-    expect(meta.weight).toBe(3);
+    expect(meta).toMatchObject({ tier: "phone", dense: true, weight: 3 });
   });
   it("reads the exact durations, formatted prices and booking cue", () => {
     const reading = readComponent(
