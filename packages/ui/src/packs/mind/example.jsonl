@@ -1,0 +1,31 @@
+{"id":"today","c":"Header","title":"Tide","sub":"Evening check-in"}
+{"id":"mood","c":"Scale","style":"mood","label":"How did today feel?","value":4}
+{"id":"feeling_words","c":"Feelings","families":[{"label":"Calm","words":["Settled","Hopeful","At ease"]},{"label":"Anxious","words":["Restless","Worried","On edge"]},{"label":"Tired","words":["Drained","Sleepy","Heavy"]}],"chosen":["Settled","Hopeful"]}
+{"id":"day_factors","c":"Factors","items":[{"label":"Slept well","icon":"moon","on":false},{"label":"Outdoors","icon":"leaf","on":true},{"label":"Friends","icon":"heart","on":true},{"label":"Quiet time","icon":"sun","on":false}]}
+{"id":"reflection","c":"Composer","style":"entry","label":"A thought from today","hint":"What made today feel different?"}
+{"id":"save_today","c":"Button","label":"Save check-in","goto":"journal"}
+{"id":"journal","c":"Header","title":"Journal"}
+{"id":"journal_streak","c":"Streak","count":9,"label":"days checking in","days":[true,true,true,true,true,true,true]}
+{"id":"journal_entries","c":"Entries","entries":[{"date":"2026-11-19","mood":4,"text":"I felt more settled after a walk outside and a chat with a friend.","tags":["Outdoors","Friends"],"goto":"nov_19"},{"date":"2026-11-17","text":"I wrote a few lines before bed instead of scrolling.","tags":["Quiet time"],"goto":"nov_17"}]}
+{"id":"new_entry","c":"Button","label":"Write an entry","goto":"today"}
+{"id":"breathing","c":"Header","title":"Before bed"}
+{"id":"box_breathing","c":"Breathe","pattern":"box","rounds":4}
+{"id":"breathing_note","c":"Note","style":"hint","text":"You can pause whenever you like."}
+{"id":"sounds","c":"Header","title":"Evening sounds"}
+{"id":"evening_mix","c":"Soundscape","sounds":[{"label":"Rain","icon":"cloud_rain","level":6},{"label":"Wind","icon":"wind","level":2}],"timer":20}
+{"id":"mix_note","c":"Note","style":"hint","text":"Adjust each sound on its own."}
+{"id":"insights","c":"Header","title":"Mood and sleep"}
+{"id":"last_night","c":"SleepLog","bed":"22:45","wake":"06:45","awake":30,"quality":4,"week":[7,7.5,8,6.5,7,8,7.5],"goto":"sleep_log"}
+{"id":"mood_patterns","c":"Patterns","factors":["Outdoors","Slept well"],"minDays":14}
+{"id":"week_stats","c":"Stats","tiles":[{"label":"Mood days (2 weeks)","value":"14"},{"label":"Nights this week","value":"7"}]}
+{"id":"sleep_log","c":"Header","title":"Log sleep"}
+{"id":"bedtime","c":"Field","kind":"time","label":"Bedtime","value":"22:45"}
+{"id":"wake_time","c":"Field","kind":"time","label":"Wake time","value":"06:45"}
+{"id":"sleep_quality","c":"Scale","style":"mood","label":"How was your sleep?","value":4}
+{"id":"save_sleep","c":"Button","label":"Save sleep","goto":"insights"}
+{"id":"nov_19","c":"Header","title":"November 19"}
+{"id":"nov_19_reflection","c":"Note","text":"I felt more settled after a walk outside and a chat with a friend."}
+{"id":"nov_19_back","c":"Button","label":"Back to journal","goto":"journal"}
+{"id":"nov_17","c":"Header","title":"November 17"}
+{"id":"nov_17_reflection","c":"Note","text":"I wrote a few lines before bed instead of scrolling."}
+{"id":"nov_17_back","c":"Button","label":"Back to journal","goto":"journal"}
