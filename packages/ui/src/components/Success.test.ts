@@ -2,12 +2,15 @@ import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   components,
   createRegistry,
+  affordancesOf,
   placeholderDetail,
+  readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 
 import { Success } from "./Success";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Success;
 
@@ -16,7 +19,7 @@ describe("Success schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims text and defaults the optional icon to a check", () => {
-    const derived = { style: "screen", undo: false, undoable: false };
+    const derived = { style: "screen", detail: "full", undo: false, undoable: false, sub: undefined };
     expect(props.parse({ title: "  Saved  " })).toEqual({ ...derived, title: "Saved", icon: "circle_check" });
     expect(props.parse({ title: "  Saved  ", sub: "  Details  ", icon: "leaf" })).toEqual({
       ...derived,
@@ -29,6 +32,7 @@ describe("Success schema", () => {
   it.each([
     { title: "Saved", undoable: true },
     { title: "Saved", style: "banner" },
+    { title: "Saved", detail: "short" },
     {},
     { title: "" },
     { title: " ".repeat(4) },
@@ -130,11 +134,14 @@ describe("Success metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Success")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Success" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      expect: { address: "s1/undo", action: "press" },
+    });
     for (const probe of probes) {
-      const wording = probe.kind === "choose" ? probe.need : probe.brief;
+      const wording =
+        probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : probe.task;
       for (const name of [meta.id, "Banner", "Empty"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
@@ -151,4 +158,17 @@ describe("Success metadata and probes", () => {
     expect(registry.resolve("s-u-c-c-e-s-s")).toBe("Success");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
+});
+
+it.each(["screen", "toast"] as const)("brief hides sub but preserves %s actions", (style) => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const input = { title: "Saved", sub: "Morning light", style, undo: style === "toast" };
+  const brief = { ...input, detail: "brief" };
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["sub"]);
+  expect(renderInstance("Success", input, "filled", theme)).toContain('data-testid="home/c1/sub"');
+  expect(renderInstance("Success", brief, "filled", theme)).not.toContain('data-testid="home/c1/sub"');
+  expect(readComponent(components.Success, brief, "s1").join("\n")).not.toContain(input.sub);
+  expect(affordancesOf(meta, props.parse(brief), "s1")).toEqual(
+    affordancesOf(meta, props.parse(input), "s1"),
+  );
 });
