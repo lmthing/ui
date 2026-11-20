@@ -31,9 +31,10 @@ export const meta = {
     const sample = state === "error" ? { kind: "offline" } : input.from ? typicalExample : forecastExample;
     return { weather: [{ ...sample, ...query }] };
   },
-  read: (input, state, lang, data): string[] => {
+  read: (projected, state, lang, data): string[] => {
     if (state !== "filled") return [];
-    const copy = weatherDisplay(input as z.output<typeof props>, data, lang);
+    const input = projected as z.output<typeof props>;
+    const copy = weatherDisplay(input, data, lang);
     if (copy.notice) return [copy.notice.title, copy.notice.sub];
     const { reading } = tripsWordsFor(lang).weather;
     const { range, condition } = copy.summary;
