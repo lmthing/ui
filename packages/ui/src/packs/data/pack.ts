@@ -20,6 +20,11 @@ export const pack = {
       expect: ["requests"],
     },
     {
+      kind: "pack",
+      idea: "A private personal tally: one counter I can tap to add or subtract one. No records to browse, reports or shared work.",
+      expect: [],
+    },
+    {
       kind: "choose",
       need: "Show three headline numbers: 18 total, 5 due today and 2 late. No table of records or trend over time.",
       expect: "Stats",
