@@ -30,6 +30,12 @@ export type ActionContext = {
   requestPhoto(id: string, target: string): void;
 };
 export type ActionHandler = (state: ActionState, action: ActStep, ctx: ActionContext) => ActionResult;
+export type ActionEvent = ActStep & { delivery?: SendDraft };
+export type SendHandler = (text: string, address: string, audience?: string) => void;
+export function deliverSend({ text, address, audience }: SendDraft, send?: SendHandler) {
+  if (audience === undefined) send?.(text, address);
+  else send?.(text, address, audience);
+}
 export const actionFailure = (at: number, code: string, hint: string): Extract<ActReply, { ok: false }> => ({
   ok: false,
   at,

@@ -1,9 +1,28 @@
 import type { Meta } from "../../meta";
-import type { Affordance, Values } from "../index";
+import type { Affordance, SendDraft, Values } from "../index";
 import { addressedItems } from "../visibility";
 
 export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
+
+/** Undefined means an ordinary send; null means a declared send is not ready. */
+export function sendDraft(
+  meta: Meta,
+  props: Values,
+  part: string,
+  instance: string,
+): SendDraft | null | undefined {
+  const sends = meta.live?.send;
+  if (!sends || !Object.hasOwn(sends, part)) return undefined;
+  const { field, audience: prop } = sends[part]!;
+  const spec = meta.live?.text?.[field];
+  const text = spec && props[spec.prop];
+  if (typeof text !== "string" || !text.trim()) return null;
+  const address = field === "root" ? instance : `${instance}/${field}`;
+  if (prop === undefined) return { address, text };
+  const audience = props[prop];
+  return typeof audience === "string" && audience ? { address, text, audience } : null;
+}
 
 export function projectNamedSelections(
   meta: Meta,

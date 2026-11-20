@@ -1,7 +1,7 @@
 import { clip, limitAt, type ActStep, type Values } from "../../../../catalog";
 import { controlStep } from "../../index";
 import { navigationAction } from "./navigation";
-import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
+import { deliverSend, rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
 function appendMessage(values: Values, message: { text: string }, ctx: ActionContext) {
   const conversation = ctx.active.components.filter((item) => item.c === "Bubbles").at(-1);
   if (!conversation) return;
@@ -37,7 +37,7 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
   const message = ctx.send ?? control.send;
   if (message) {
     if (control.send) appendMessage(values, message, ctx);
-    effects.push(() => ctx.options.onSend?.(message.text, message.address));
+    effects.push(() => deliverSend(message, ctx.options.onSend));
   }
   if (control.requestPhoto && ctx.options.requestPhoto) {
     const target = control.requestPhoto;

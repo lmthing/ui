@@ -7,7 +7,7 @@ import {
   type Values,
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
-import type { ActionContext } from "../../actions";
+import { deliverSend, type ActionContext } from "../../actions";
 
 export function standaloneEffects({ links, send, options }: ActionContext) {
   const effects = links.map(
@@ -15,7 +15,7 @@ export function standaloneEffects({ links, send, options }: ActionContext) {
       () =>
         options.onLink?.(goto, address),
   );
-  if (send) effects.push(() => options.onSend?.(send.text, send.address));
+  if (send) effects.push(() => deliverSend(send, options.onSend));
   return effects;
 }
 

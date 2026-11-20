@@ -23,8 +23,8 @@ export type ScreenAction = "back" | "tab" | "scroll";
 export type LiveActionInputs = {
   text?: Readonly<Record<string, { prop: string; max: number }>>;
   checks?: Readonly<Record<string, string>>;
-  /** Send part → declared text input part. Capture that draft at the admitted step. */
-  send?: Readonly<Record<string, string>>;
+  /** Send part → declared text input and optional audience prop, captured at the admitted step. */
+  send?: Readonly<Record<string, { field: string; audience?: string }>>;
   /** Derive presentation props/gates, optionally closing over trusted host facts for this instance. */
   derive?: (props: Readonly<Record<string, unknown>>, instance: string) => Record<string, unknown>;
 };

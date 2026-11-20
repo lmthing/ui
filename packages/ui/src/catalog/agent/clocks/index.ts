@@ -9,6 +9,7 @@ export {
   projectClocks,
   clockActionValid,
 } from "./clock";
+export { clockChanges } from "./transitions";
 export {
   adjustmentAt,
   clearItemSets,

@@ -15,10 +15,11 @@ import {
   type RandomSource,
 } from "./draw";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "./session";
+import { clockChanges } from "./clocks";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
-export type SendDraft = { address: string; text: string };
+export type SendDraft = { address: string; text: string; audience?: string };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
   | {
@@ -36,6 +37,28 @@ const relative = (screen: string, address: string) =>
 function liveInput(def: Definition, input: Values, id: string, local: Values) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true);
+}
+
+/** A mounted controller already stages clocks through its action table. */
+function stageStandaloneClock(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  address: string,
+  step: ActStep,
+) {
+  const [id, ...parts] = address.split("/");
+  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
+  const def = defs[c]!;
+  const { live, clocks, items } = def.meta;
+  if (!live?.derive || (!clocks && !items?.clocks && !items?.nested?.clocks)) return;
+  const base = `${screen.id}/${id}/`;
+  const get = (part: string) => next[`${base}${part}`];
+  if (get("$runtime")) return;
+  const props = liveInput(def, input, id!, localValues(screen.id, next));
+  const now = Number(get("$now") ?? Date.now());
+  const changes = clockChanges(def.meta, props, get, parts.join("/") || "root", step, now);
+  for (const [part, value] of Object.entries(changes)) next[`${base}${part}`] = value;
 }
 
 function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
@@ -145,6 +168,7 @@ export function planAct(
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
     const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
+    stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value });
     if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);

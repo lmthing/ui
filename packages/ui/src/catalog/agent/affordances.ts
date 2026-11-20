@@ -5,7 +5,8 @@ import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
-import { withLiveInput, type LiveInput } from "./live-inputs";
+import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
+import type { SendDraft } from "./act";
 
 export type Affordance = {
   address: string;
@@ -13,7 +14,7 @@ export type Affordance = {
   action: string;
   detail: string;
   input?: LiveInput;
-  send?: { address: string; text: string };
+  send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
 };
@@ -99,14 +100,8 @@ export function affordancesOf(
   if (meta.errorActions) props = { ...props, state };
   const { parts, items: itemParts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    const sends = meta.live?.send;
-    if (a.action === "send" && sends && Object.hasOwn(sends, a.part)) {
-      const part = sends[a.part]!;
-      const spec = meta.live?.text?.[part];
-      const text = spec && props[spec.prop];
-      const address = part === "root" ? instance : `${instance}/${part}`;
-      return typeof text === "string" && text.trim() ? [{ ...a, send: { address, text } }] : [];
-    }
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
@@ -136,14 +131,13 @@ export function affordancesOf(
     const event = sessionEvent(meta, target, action);
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
+    if ((runtime || meta.live?.derive) && !clockActionValid(meta, props, target, action, get, now))
+      return false;
     if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
     if (!runtime)
       return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
-    return (
-      (!adjustment || adjustment.next !== undefined) &&
-      clockActionValid(meta, props, target, action, get, now)
-    );
+    return !adjustment || adjustment.next !== undefined;
   });
 }
 
