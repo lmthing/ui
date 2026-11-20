@@ -28,7 +28,6 @@ const control = (input: object) =>
       components: [{ id: "t1", c: "Things", ...input }],
     },
   });
-
 describe("Things schema", () => {
   it.each(examples)("accepts a domain example", (input) => expect(props.safeParse(input).success).toBe(true));
 
@@ -147,8 +146,26 @@ describe("Things states and addressed parts", () => {
     const stocked = { items: [{ ...row, qty: 3 }], filter: "low" };
     expect([...addressedElements(render(stocked)).keys()]).toEqual([`${root}/root`, `${root}/empty`]);
     expect(render(stocked)).toContain("Nothing needs restocking");
+    expect(addressedElements(render(stocked, "empty")).get(`${root}/empty`)?.text).toEqual([
+      "Nothing here yet",
+    ]);
+    expect(render(stocked, "loading")).toContain('aria-busy="true"');
     for (const state of ["empty", "loading"] as const)
       expect(affordancesOf(meta, props.parse(input), "t1", {}, state)).toEqual([]);
+  });
+});
+
+describe("Things quantity display", () => {
+  it("keeps the exact count and both control slots in the grid's wide-count layout", () => {
+    const qty = Number.MAX_SAFE_INTEGER;
+    const html = render({ items: [{ ...row, qty }, row] });
+    const parts = addressedElements(html);
+    const stepper = parts.get(`${root}/r1/qty`)!;
+    expect(html).toContain(`>${qty}<`);
+    expect(parts.get(`${root}/r1/photo`)).toBeDefined();
+    expect(stepper.children.at(-1)?.attributes).toContain('aria-disabled="true"');
+    expect(hasStepTarget(stepper, "decrement")).toBe(true);
+    expect(parts.get(`${root}/r2/qty`)).toBeDefined();
   });
 });
 

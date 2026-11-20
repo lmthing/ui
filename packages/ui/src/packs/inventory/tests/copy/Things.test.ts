@@ -26,7 +26,7 @@ it("formats the exact count and a present zero value with the requested locale",
 it("shares the shown stock message in the reading and uses neutral cast-aware empty copy", () => {
   expect(
     thingsReading({ filter: "all", items: [{ name: "Kit", qty: 0, min: 0, where: "Top shelf" }] }),
-  ).toEqual(['"Kit" · Quantity: 0 · Minimum: 0 · "Top shelf" · Low stock']);
+  ).toEqual(['"Kit" · K · Quantity: 0 · Minimum: 0 · "Top shelf" · Low stock']);
   expect(thingsReading({ filter: "low", items: [] })).toEqual([thingsEmpty("low").title]);
   expect(thingsEmpty("all", "en", "box").title).toBe("No boxes yet");
 });

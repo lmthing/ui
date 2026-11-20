@@ -19,7 +19,7 @@ export function thingCopy(record: RecordCopy, lang?: string) {
   };
 }
 
-type ThingReading = RecordCopy & { where?: string | undefined };
+type ThingReading = RecordCopy & { where?: string | undefined; photo?: string | undefined };
 export function thingsReading(
   { items, filter }: { items: readonly ThingReading[]; filter: "all" | "low" },
   lang?: string,
@@ -27,9 +27,10 @@ export function thingsReading(
   const words = inventoryWordsFor(lang).things;
   if (!items.length) return [thingsEmpty(filter, lang).title];
   return items.map((item) => {
-    const { quantity, value, low } = thingCopy(item, lang);
+    const { quantity, value, low, initials } = thingCopy(item, lang);
     return words.reading([
       JSON.stringify(item.name),
+      ...(item.photo ? [] : [initials]),
       words.quantity(quantity),
       ...(item.min === undefined ? [] : [words.minimum(numberLine(item.min, lang))]),
       ...(item.where ? [JSON.stringify(item.where)] : []),

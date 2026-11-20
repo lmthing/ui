@@ -11,21 +11,17 @@ export const meta = {
   status: "ready",
   group: "content",
   purpose: "See what you own, where it is kept and what needs restocking.",
-  pick: "Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a plain directory of names (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).",
+  pick: "Owned or stocked items with editable quantities, storage locations or a per-item low-stock minimum. Not a directory of plain links (List), goods for sale (ProductGrid), food at home (Pantry), or a media library (Library).",
   writeHints: [
-    "qty and min are nonnegative whole counts. Low stock means qty is at or below min; never write a low-stock flag. Keep all records when filter is low.",
-    'Use arrange "rows" only for a row layout; the default is a photo grid. Leave density null unless asked for different spacing.',
+    'qty and min are nonnegative whole counts. A minimum marks low stock automatically. Use filter "all" unless asked to show only low stock, and always keep all records.',
+    'For rows without other styling requests, write arrange "rows", density null and surface null. Leave all three axes null when no presentation is requested.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Stock and ownership records live on the device.",
-  variants: {
-    arrange: ["grid", "rows"],
-    density: ["comfortable", "compact"],
-    surface: ["card", "outlined"],
-  },
+  variants: { arrange: ["grid", "rows"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root", "empty"],
   items: {
     key: "items",
@@ -79,23 +75,18 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 }
 
 // prettier-ignore
+const ledge = [
+  { name: "Clay pot", photo: "lib:plants", qty: 2, min: 2, where: "Potting shelf", value: 8, goto: "pots" },
+  { name: "Seed tray", photo: "lib:seed_tray", qty: 8, min: 2, where: "Greenhouse", value: 12, goto: "trays" },
+];
+// prettier-ignore
 export const examples = [
-  {
-    items: [
-      { name: "Terracotta pot", photo: "lib:plants", qty: 2, min: 2, where: "Potting shelf", value: 8, goto: "pots" },
-      { name: "Seed tray", photo: "lib:seed_tray", qty: 8, min: 2, where: "Greenhouse", value: 12, goto: "trays" },
-    ],
-  },
-  {
-    arrange: "rows",
-    density: "compact",
-    filter: "low",
-    items: [
-      { name: "Spare lead", qty: 4, min: 1, goto: "leads" },
-      { name: "Waste bag roll", qty: 1, min: 2, where: "Van bin", value: 3, goto: "bags" },
-      { name: "Travel bowl", photo: "lib:dogs", qty: 0, min: 1, where: "Kit cupboard", value: 9, goto: "bowls" },
-    ],
-  },
+  { items: ledge },
+  { filter: "low", items: [
+      { name: "Bag roll", qty: 1, min: 2, where: "Van bin", value: 3, goto: "bags" },
+      { name: "Bowl", photo: "lib:dogs", qty: 0, min: 1, where: "Kit cupboard", value: 9, goto: "bowls" },
+  ] },
+  { arrange: "rows", items: ledge },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Things");
@@ -104,7 +95,7 @@ export const probes = [
     "Track the gear I own with quantities I can adjust, storage bins and a minimum on each item that flags low stock",
   ),
   choose(
-    "Show a tappable directory of three people by name, each linked to their profile. No stock or quantities.",
+    "Show three profile links as plain rows: Anna, Ben and Cleo. Each row has just the name and opens that profile screen, no photos, contact buttons, stock or quantities.",
     "List",
   ),
   write(
@@ -116,57 +107,60 @@ export const probes = [
     ),
     variant: { axis: "arrange", value: "rows" },
   },
-  read("I found one more terracotta pot. Increase its quantity by one.", {
+  read("I found one more clay pot. Increase its quantity by one.", {
     address: "t1/r1/qty",
     action: "increment",
   }),
 ] satisfies c.Probe[];
 
 type ThingsProps = c.Props<typeof props, typeof meta>;
-type TileProps = {
-  item: ThingsProps["items"][number];
-  rows: boolean;
-  density: c.ThemeDensity;
-};
-
+type Item = ThingsProps["items"][number];
+const inlineCountMax = 99;
 // prettier-ignore
-function ThingTile({ item, rows, density }: TileProps) {
+type TileProps = { item: Item; peer: Item | undefined; layout: "rows" | "grid" | "wide"; density: c.ThemeDensity };
+// prettier-ignore
+function ThingTile({ item, peer, layout, density }: TileProps) {
+  const rows = layout === "rows";
   const { lang, words } = kit.useWords(inventoryWordsFor);
   const { value, low, initials } = thingCopy(item, lang);
   const photo = <kit.KitPhoto part="photo" label={item.name} initials={initials}
-    {...(item.photo ? { photo: item.photo } : {})} {...(rows ? { shape: "thumb" } : { aspect: "square" })} />;
+    {...(item.photo ? { photo: item.photo } : {})} {...(rows ? { shape: "thumb" } : { aspect: "wide" })} />;
   const labels = { less: words.things.less(item.name), more: words.things.more(item.name) };
   const stepper = <kit.KitStepper part="qty" value={item.qty} min={0} max={maxQuantity} labels={labels} />;
-  const order = density === "compact" ? "content" : "response";
-  return <>
-    <kit.KitRow part="root" goto={item.goto} label={item.name} inline density={density}>
-      <kit.KitContent density={density} {...(rows ? { lead: photo, leadingAlign: "row" } : {})}>
+  const detail = <kit.KitRow part="root" goto={item.goto} label={item.name} density={density} inline>
+      <kit.KitContent density={rows ? "comfortable" : density} lead={rows ? photo : undefined} leadingAlign="row">
         {!rows && photo}
         <kit.KitText part="name" role="body" density={density}>{item.name}</kit.KitText>
-        {item.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{item.where}</kit.KitText>}
-        {value && <kit.KitText part="value" role="caption" tone="muted" density={density}>{value}</kit.KitText>}
-        {low && <kit.KitText part="low" role="caption" tone="warn" density={density}>{low}</kit.KitText>}
+        {([
+          ["where", item.where, peer?.where, "muted"],
+          ["value", value, peer?.value !== undefined, "muted"],
+          ["low", low, peer && isLowStock(peer), "warn"],
+        ] as const).map(([part, text, reserve, tone]) => (text || reserve) &&
+          <kit.KitText key={part} part={text ? part : null} role="caption" {...{ tone, density }}>{text ?? "\u00a0"}</kit.KitText>)}
       </kit.KitContent>
-    </kit.KitRow>
-    <kit.KitContent group={order} density={density}>{stepper}</kit.KitContent>
+  </kit.KitRow>;
+  if (rows && item.qty <= inlineCountMax) return <kit.KitGrid fitLast density="compact">{detail}{stepper}</kit.KitGrid>;
+  return <>{detail}
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>{stepper}</kit.KitContent>
   </>;
 }
 
 // prettier-ignore
-function ThingLoading({ item, rows, density }: TileProps) {
+function ThingLoading({ item, peer, layout, density }: TileProps) {
+  const rows = layout === "rows";
   const { lang } = kit.useWords(inventoryWordsFor);
-  const { value, low, quantity } = thingCopy(item, lang);
-  return <>
-    {!rows && <kit.KitSkeleton shape="media" aspect="square" content={[]} inset="none" density={density} />}
-    <kit.KitSkeleton shape="figure" lead={rows ? "box" : "none"} inset="none" density={density}
+  const { value, low } = thingCopy(item, lang);
+  const detail = <kit.KitSkeleton shape="figure" lead={rows ? "box" : "none"} inset="none" density={density}
       content={[["body", item.name], ["caption", item.where], ["caption", value], ["caption", low]]} />
-    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
-      <kit.KitGrid columns={3} density="compact">
-        <kit.KitSkeleton shape="control" kind="secondary" inset="none" />
-        <kit.KitSkeleton shape="figure" centered inset="none" content={[["number", quantity, "center", "compact"]]} />
-        <kit.KitSkeleton shape="control" kind="secondary" inset="none" />
-      </kit.KitGrid>
+  const button = <kit.KitSkeleton shape="control" kind="secondary" inset="none" />;
+  const controls = <kit.KitContent lead={button} leadingAlign="row" density="comfortable">{button}</kit.KitContent>;
+  if (rows && item.qty <= inlineCountMax) return <kit.KitGrid fitLast density={density}>{detail}{controls}</kit.KitGrid>;
+  return <>
+    {!rows && <kit.KitSkeleton shape="media" aspect="wide" content={[]} inset="none" density={density} />}
+    <kit.KitContent density={density}>{detail}
+      {!low && peer && isLowStock(peer) && <kit.KitText role="caption" part={null} density={density}>{"\u00a0"}</kit.KitText>}
     </kit.KitContent>
+    <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>{controls}</kit.KitContent>
   </>;
 }
 
@@ -177,18 +171,21 @@ export function Things(input: ThingsProps) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
-  const items = c.visibleItems<ThingsProps["items"][number]>(meta, input);
+  const visible = c.visibleItems<Item>(meta, input);
+  const items = visible.length === 0 && context.state === "loading" ? input.items : visible;
+  // Keep the exact quantity and both touch targets visible when a tile needs more room.
+  const layout = arrange === "grid" && items.some(({ qty }) => qty > inlineCountMax) ? "wide" : arrange;
   if (context.state === "empty" || items.length === 0)
     return <kit.KitCard part="root" {...{ surface, density }}>
-      <kit.KitEmpty part="empty" decorativeIcon {...thingsEmpty(input.filter, lang, context.thing)} />
+      <kit.KitEmpty part="empty" decorativeIcon {...thingsEmpty(context.state === "empty" ? "all" : input.filter, lang, context.thing)} />
     </kit.KitCard>;
   const Tile = context.state === "loading" ? ThingLoading : ThingTile;
   return <kit.KitCard part="root" style="cards" density={density}>
-    <kit.KitGrid list listRowGap="cards" {...{ arrange, density }}>
-      {items.map((item) => (
+    <kit.KitGrid list listRowGap="cards" density={density} arrange={layout === "grid" ? "grid" : "rows"}>
+      {items.map((item, index) => (
         <kit.PartScope key={item.id} {...context} item={item.id}>
           <kit.KitCard part="tile" padded {...{ surface, density }}>
-            <Tile {...{ item, density }} rows={arrange === "rows"} />
+            <Tile {...{ item, density, layout }} peer={layout === "grid" ? items[index % 2 ? index - 1 : index + 1] : undefined} />
           </kit.KitCard>
         </kit.PartScope>
       ))}
