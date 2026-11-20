@@ -26,7 +26,7 @@ it("uses the brief's points rules and preserves the input address when the ranks
 });
 
 it("rejects invalid replies and projects a reply and a coach check without touching the seeds", () => {
-  const seed = components.Squad.examples[0];
+  const seed = components.Squad.examples[0]!;
   const screen: ScreenLike = { id: "club", components: [{ id: "s1", c: "Squad", ...seed }] };
   const reply = (value: string) => [{ address: "s1/r1/answer", action: "select", value }];
   const invalid = planAct(screen, components, {}, reply("later"), null, "planner");
