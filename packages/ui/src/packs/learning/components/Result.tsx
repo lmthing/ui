@@ -57,8 +57,9 @@ export const examples = [
     of: 10,
     seconds: 92,
     points: 90,
-    mistakes: [{ question: "What is the reading of 川?", answer: "kawa" }],
+    mistakes: [{ question: "Which part of a fern takes up water?", answer: "Roots" }],
   },
+  // Trot's walking-kit practice passed without mistakes.
   { surface: "outlined", emphasis: "normal", right: 5, of: 5, mistakes: [] },
 ] satisfies z.input<typeof props>[];
 

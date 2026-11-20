@@ -65,9 +65,9 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 export const examples = [
   {
     units: [
-      { title: "Basic strokes", state: "done", icon: "pencil", goto: "strokes" },
-      { title: "Water radical", state: "current", icon: "drop", goto: "water" },
-      { title: "Nature review", state: "locked", icon: "leaf", goto: "review" },
+      { title: "Pick the right light", state: "done", icon: "sun", goto: "light" },
+      { title: "Check the soil", state: "current", icon: "drop", goto: "soil" },
+      { title: "Fern care review", state: "locked", icon: "leaf", goto: "review" },
     ],
     milestones: [2],
   },
@@ -75,9 +75,9 @@ export const examples = [
     density: "compact",
     surface: "outlined",
     units: [
-      { title: "Intervals", state: "done", icon: "music", goto: "intervals" },
-      { title: "Key signatures", state: "current", icon: "key", goto: "keys" },
-      { title: "Relative minors", state: "locked", icon: "lock", goto: "minors" },
+      { title: "Pack a walking kit", state: "done", icon: "clipboard", goto: "kit" },
+      { title: "Practise on a lead", state: "current", icon: "dog", goto: "lead" },
+      { title: "Plan a park route", state: "locked", icon: "map", goto: "park" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -91,5 +91,5 @@ export const probes = [
   write(
     "Map three units: Basic strokes completed, Water radical current and Nature review locked with a trophy milestone. Link to strokes, water and review respectively; use pencil, drop and leaf icons.",
   ),
-  read("Start the current unit, Water radical.", { address: "p1/r2", action: "press" }),
+  read("Start the current unit, Check the soil.", { address: "p1/r2", action: "press" }),
 ] satisfies c.Probe[];

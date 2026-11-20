@@ -19,10 +19,11 @@ export const meta = {
   parts: ["root"],
   items: { key: "items", parts: ["root", "title", "subject", "due", "status", "grade", "done"] },
   states: ["filled", "empty"],
-  actions: { items: { done: ["check"], root: ["press"] } },
+  actions: { items: { done: ["check"], root: ["press"] }, when: { done: { checkable: true } } },
   read: (input, _state, lang): string[] =>
     (input as z.output<typeof props>).items.map(
-      ({ due }, index) => `r${index + 1}: ${c.appointmentDate(due, lang)}`,
+      ({ due, status }, index) =>
+        `r${index + 1}: ${c.appointmentDate(due, lang)}${status === "graded" ? ` · ${status}` : ""}`,
     ),
 } as const satisfies c.Meta;
 
@@ -31,12 +32,12 @@ const assignment = z
     title: c.text(28),
     subject: c.text(20),
     due: c.isoDate,
-    status: z.enum(["todo", "done", "graded"]).meta({ kind: "text" }),
+    status: z.enum(["todo", "done", "graded"]),
     grade: c.text(6).optional(),
     goto: c.screenId,
   })
   .refine(({ grade, status }) => grade === undefined || status === "graded", { path: ["grade"] })
-  .overwrite((value) => ({ ...value, done: value.status !== "todo" }));
+  .overwrite((value) => ({ ...value, done: value.status !== "todo", checkable: value.status !== "graded" }));
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
@@ -61,19 +62,19 @@ export const examples = [
   {
     items: [
       {
-        title: "Water radical worksheet",
-        subject: "Japanese",
+        title: "Fern care worksheet",
+        subject: "Plant care",
         due: "2026-11-25",
         status: "todo",
         goto: "worksheet",
       },
       {
-        title: "Readings practice",
-        subject: "Japanese",
+        title: "Light and shade log",
+        subject: "Plant care",
         due: "2026-11-18",
         status: "graded",
         grade: "A",
-        goto: "readings",
+        goto: "light_log",
       },
     ],
   },
@@ -82,11 +83,11 @@ export const examples = [
     surface: "outlined",
     items: [
       {
-        title: "Harmonic analysis",
-        subject: "Music theory",
+        title: "Route assessment",
+        subject: "Dog walking",
         due: "2026-11-22",
         status: "done",
-        goto: "harmony",
+        goto: "route_assessment",
       },
     ],
   },
@@ -102,7 +103,7 @@ export const probes = [
   write(
     "Japanese homework: Water radical worksheet due 2026-11-25, still to do, links to worksheet; Readings practice due 2026-11-18, graded A, links to readings.",
   ),
-  read("Tick the Water radical worksheet's checkbox to mark it as handed in, without opening it.", {
+  read("Tick the Fern care worksheet's checkbox to mark it as handed in, without opening it.", {
     address: "a1/r1/done",
     action: "check",
   }),

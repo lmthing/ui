@@ -57,16 +57,16 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 export const examples = [
   {
     badges: [
-      { title: "First kanji", icon: "star", earned: "2026-10-04" },
-      { title: "Radical reader", icon: "drop", how: "Master 20 characters with the water radical." },
+      { title: "First fern lesson", icon: "star", earned: "2026-10-04" },
+      { title: "Water-wise", icon: "drop", how: "Pass all five questions on when to water." },
     ],
   },
   {
     density: "compact",
     surface: "outlined",
     badges: [
-      { title: "Perfect pitch drill", icon: "music", earned: "2026-09-08" },
-      { title: "Keys unlocked", icon: "key", how: "Name all 12 major key signatures." },
+      { title: "Lead ready", icon: "dog", earned: "2026-09-08" },
+      { title: "Route reader", icon: "map", how: "Pass the practice drill on park routes." },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -83,5 +83,5 @@ export const probes = [
   write(
     "Give me two badges: First kanji with a star, earned on 2026-10-04, and Radical reader with a drop, unlocked by mastering 20 water-radical characters.",
   ),
-  read("Open the Radical reader badge to see how to earn it.", { address: "a1/r2", action: "press" }),
+  read("Open the Water-wise badge to see how to earn it.", { address: "a1/r2", action: "press" }),
 ] satisfies c.Probe[];

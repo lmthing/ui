@@ -37,15 +37,15 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 export const examples = [
   {
-    title: "The water radical",
-    text: "水 means water. On the left of a character it often becomes three strokes: 氵.",
-    example: "海 (umi) means sea. The three strokes on the left are the water radical.",
-    photo: "lib:ocean",
+    title: "Check the soil first",
+    text: "Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.",
+    example: "The bathroom fern is still damp under its top layer, so skip watering today.",
+    photo: "lib:plants",
   },
   {
-    title: "Relative minor",
-    text: "A major key and its relative minor share the same key signature. Count down three semitones from the major tonic to find the minor tonic.",
-    example: "G major and E minor both have one sharp, F sharp.",
+    title: "Notice leash tension",
+    text: "When the leash goes tight, pause. Continue once the dog turns back and the leash relaxes.",
+    example: "At the park gate, wait for Clover to turn back before walking on.",
     surface: "outlined",
     emphasis: "hero",
   },

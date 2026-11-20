@@ -118,9 +118,9 @@ describe.each(ids)("%s draft contract", (id) => {
 
 it("does not reveal quiz solutions or future questions, or a flashcard's back before flipping", () => {
   const quiz = readComponent(components.Quiz, components.Quiz.examples[0], "q1").join("\n");
-  expect(quiz).toContain("mizu");
-  expect(quiz).not.toContain("Mizu is the common reading");
-  expect(quiz).not.toContain("Type the reading");
+  expect(quiz).toContain("Roots");
+  expect(quiz).not.toContain("Roots take up water and minerals");
+  expect(quiz).not.toContain("What are a fern's leaves called?");
   expect(quiz).not.toContain("[q1/next press]");
   const typed = readComponent(
     components.Quiz,
@@ -132,7 +132,7 @@ it("does not reveal quiz solutions or future questions, or a flashcard's back be
   expect(typed).not.toContain("[q1 select");
   const card = readComponent(components.Flashcard, components.Flashcard.examples[0], "f1").join("\n");
   expect(card).toContain("[f1/card flip]");
-  expect(card).not.toContain("mizu");
+  expect(card).not.toContain("Bright, indirect light");
   expect(card).not.toContain("[f1/good press]");
 });
 

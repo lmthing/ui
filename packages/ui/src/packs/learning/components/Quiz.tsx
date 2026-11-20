@@ -145,28 +145,28 @@ export const examples = [
   {
     questions: [
       {
-        question: "Which reading means water?",
+        question: "Which part of a fern takes up water?",
         kind: "choice",
-        options: ["mizu", "yama", "kawa"],
+        options: ["Roots", "Fronds", "Spores"],
         answer: 0,
-        explain: "Mizu is the common reading of 水.",
-        photo: "lib:ocean",
+        explain: "Roots take up water and minerals from the soil.",
+        photo: "lib:plants",
       },
-      { question: "Type the reading of 川.", kind: "type", answer: "kawa" },
+      { question: "What are a fern's leaves called?", kind: "type", answer: "Fronds" },
     ],
   },
   {
     density: "compact",
     surface: "outlined",
     questions: [
-      { question: "Does G major have one sharp?", kind: "truefalse", answer: true },
+      { question: "Should a dog have access to water on a long walk?", kind: "truefalse", answer: true },
       {
-        question: "Match each key to its relative minor.",
+        question: "Match each walking-kit item to its job.",
         kind: "match",
         pairs: [
-          { left: "C major", right: "A minor" },
-          { left: "G major", right: "E minor" },
-          { left: "F major", right: "D minor" },
+          { left: "Lead", right: "Keep close" },
+          { left: "Water bottle", right: "Offer a drink" },
+          { left: "Waste bags", right: "Pick up litter" },
         ],
       },
     ],

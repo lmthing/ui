@@ -89,17 +89,17 @@ export const examples = [
     days: [
       {
         day: "mon",
-        periods: [{ time: "09:00", subject: "Japanese", room: "B12", teacher: "Ms Tanaka", tone: "good" }],
+        periods: [{ time: "09:00", subject: "Fern care", room: "B12", teacher: "Ms Tanaka", tone: "good" }],
       },
-      { day: "wed", periods: [{ time: "10:30", subject: "Calligraphy", room: "Studio 2" }] },
+      { day: "wed", periods: [{ time: "10:30", subject: "Soil workshop", room: "Glasshouse" }] },
     ],
   },
   {
     density: "compact",
     surface: "outlined",
     days: [
-      { day: "tue", periods: [{ time: "13:00", subject: "Ear training", teacher: "Mr Woods" }] },
-      { day: "thu", periods: [{ time: "14:15", subject: "Music theory", room: "C04" }] },
+      { day: "tue", periods: [{ time: "13:00", subject: "Lead skills", teacher: "Mr Woods" }] },
+      { day: "thu", periods: [{ time: "14:15", subject: "Dog body language", room: "C04" }] },
     ],
   },
 ] satisfies z.input<typeof props>[];

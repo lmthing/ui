@@ -64,16 +64,24 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 export const examples = [
   {
     cards: [
-      { front: "水", back: "mizu · water", hint: "Something you drink", photo: "lib:ocean" },
-      { front: "山", back: "yama · mountain" },
+      {
+        front: "What light suits most ferns?",
+        back: "Bright, indirect light",
+        hint: "Think of a shaded forest floor",
+        photo: "lib:plants",
+      },
+      { front: "What do roots take up?", back: "Water and minerals from the soil" },
     ],
   },
   {
     surface: "outlined",
     align: "start",
     cards: [
-      { front: "Relative minor of G major", back: "E minor" },
-      { front: "How many sharps are in D major?", back: "Two: F sharp and C sharp" },
+      { front: "What should you pack for a long dog walk?", back: "Water, a bowl and waste bags" },
+      {
+        front: "When the lead goes tight, what comes next?",
+        back: "Pause, then continue when the lead relaxes",
+      },
     ],
   },
 ] satisfies z.input<typeof props>[];
