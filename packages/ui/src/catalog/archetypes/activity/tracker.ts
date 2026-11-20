@@ -17,7 +17,7 @@ export const meta = createMeta(
       "Make the sequence clear: Header says to rate today's mood and save it; Scale asks how the person feels today; Bars is titled as recent mood ratings and labels the same rating unit; the primary Button says Save mood. Keep prior ratings as context, not a second task.",
     ],
     timer: [
-      "Name the supplied activity in Header.title, e.g. Time your care session. Header.action is null. Timer counts up from the supplied current seconds. The Note gives one clear sequence: Start when you begin, Stop when finished, then Save session to review the saved entry.",
+      "Name the supplied activity in Header.title, e.g. Time your care session. Header.action, detail, density and emphasis are null; avoid a generic subtitle. Timer counts up from the supplied current seconds. The Note gives one clear sequence using the visible control labels: Start when you begin, Stop when finished, then Save session to review the saved entry. Note.media, tone, emphasis and density stay null.",
       "Bars are context, not a second task: title them Recent session lengths and show only completed sessions, with each supplied minute value and three-letter day label. No padding or Today in Bars. Use one primary Button labeled Save session with goto session_saved; it does not duplicate Start or Stop.",
     ],
   },

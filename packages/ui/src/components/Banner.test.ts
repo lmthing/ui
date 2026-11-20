@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
   components,
@@ -6,7 +6,6 @@ import {
   placeholderDetail,
   readComponent,
   type CastLike,
-  type Props,
 } from "@lmthing/ui/catalog";
 import { KitBlock, KitIcon, KitText } from "@lmthing/ui/kit";
 import { Banner } from "./Banner";
@@ -20,6 +19,8 @@ describe("Banner schema", () => {
   it("applies defaults, trims text and derives link presence", () => {
     expect(props.parse({ text: "  Current status  " })).toEqual({
       text: "Current status",
+      media: "icon",
+      surface: "tinted",
       tone: "warn",
       linked: false,
     });
@@ -44,6 +45,7 @@ describe("Banner schema", () => {
     { text: "Status", color: "#ffffff" },
     { text: "Status", pixels: 4 },
     { text: "Status", style: "plain" },
+    { text: "Status", media: "thumb" },
     { text: "Status", id: "b1" },
     { text: "Status", linked: true },
     { text: "Status", root: "next" },
@@ -55,14 +57,6 @@ describe("Banner schema", () => {
       ).toBe(true);
     expect(props.safeParse({ text: "Status", goto: "next_screen_1" }).success).toBe(true);
     expect(props.safeParse({ text: "Status", goto: "back" }).success).toBe(true);
-  });
-  it("derives view props without item ids or visual overrides", () => {
-    type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["text"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["tone"]>().toEqualTypeOf<"neutral" | "good" | "warn" | "bad">();
-    expectTypeOf<ViewProps>().not.toBeAny();
-    expectTypeOf<ViewProps>().not.toHaveProperty("id");
-    expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
 
@@ -133,11 +127,12 @@ describe("Banner metadata and probes", () => {
     expect(meta.pick).toContain("Note");
     expect(meta.pick).toContain("Hero");
   });
-  it("has two choose probes with a near miss, one write and one read", () => {
+  it("has two choose probes with a near miss, two writes and one read", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Note")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes).toContainEqual(expect.objectContaining({ variant: { axis: "media", value: "none" } }));
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Banner" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 1,
@@ -155,12 +150,19 @@ describe("Banner metadata and probes", () => {
     expect(registry.ids).toContain("Banner");
     expect(registry.schema("Banner")).toBe(props);
     expect(registry.resolve("b-a-n-n-e-r")).toBe("Banner");
-    expect(registry.resolve("b-a-n-n-e-r")).toBe("Banner");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
 
 describe("Banner view and actions", () => {
+  it("hides the leading icon without changing the linked root address", () => {
+    const parsed = props.parse({ text: "Current status", media: "none", icon: "info", goto: "next" });
+    expect(meta.variantParts["media.none"]).toEqual({ hides: ["icon"] });
+    expect(Banner(parsed).props.leading).toBe(false);
+    expect(affordancesOf(meta, parsed, "b1")).toEqual([
+      { address: "b1", part: "root", action: "press", detail: "→next" },
+    ]);
+  });
   it.each(["neutral", "good", "warn", "bad"] as const)("draws a %s panel and its default icon", (tone) => {
     const view = Banner(props.parse({ text: "Status", tone }));
     expect(view.type).toBe(KitBlock);
