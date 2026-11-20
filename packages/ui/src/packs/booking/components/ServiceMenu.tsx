@@ -1,7 +1,7 @@
 // prettier-ignore
 import {
   KitCard, KitContent, KitEmpty, KitGrid, KitPhoto, KitRow, KitSkeleton, KitText,
-  type TextRole, type TextTone, useComponentState, useVariant, useWords,
+  PartContext, type TextRole, type TextTone, useComponentState, usePartContext, useVariant, useWords,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { servicePrice, serviceReading } from "../copy";
@@ -86,7 +86,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 // prettier-ignore
 const walkingServices = [
   { name: "Park walk", minutes: 30, price: 15, sub: "Clover and Pip", photo: "lib:dogs", goto: "time" },
-  { name: "Home visit", minutes: 30, goto: "time" },
+  { name: "Home visit", minutes: 30, photo: "lib:walk", goto: "time" },
 ];
 // prettier-ignore
 export const examples = [
@@ -103,11 +103,13 @@ export const examples = [
       { name: "Long walk", minutes: 60, price: 25, photo: "lib:dogs", goto: "time" },
     ],
   },
+  { services: walkingServices },
   { density: "compact", services: walkingServices },
   { surface: "outlined", services: walkingServices },
   { detail: "brief", services: walkingServices },
   { lead: "none", services: walkingServices },
-  { services: [{ ...walkingServices[0]!, tone: "good" }, { ...walkingServices[1]!, mark: "muted" }] },
+  { services: [{ ...walkingServices[0]!, tone: "good" }, walkingServices[1]!] },
+  { services: [walkingServices[0]!, { ...walkingServices[1]!, mark: "muted" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ServiceMenu");
 export const probes = [
@@ -126,15 +128,8 @@ export const probes = [
 function ServiceText({ value, part, density, role = "body", tone = "text" }:
   { value: string; part: string | null; density: ThemeDensity; role?: TextRole; tone?: TextTone }) {
   const loading = useComponentState() === "loading";
-  const skeleton = (
-    <KitSkeleton density={density} shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
-  );
-  if (loading) return role === "number" ? <KitContent lead={skeleton}>{null}</KitContent> : skeleton;
-  return (
-    <KitText {...{ role, tone, density, part }} numberScale="compact" tabular={role === "number"}>
-      {value}
-    </KitText>
-  );
+  if (loading) return <KitSkeleton density={density} shape="figure" inset="none" content={[[role, value]]} />;
+  return <KitText {...{ role, tone, density, part }} tabular={part === "minutes" || part === "price"}>{value}</KitText>;
 }
 type MenuProps = Props<typeof props, typeof meta>;
 // prettier-ignore
@@ -143,9 +138,17 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
   const { bookLabel } = bookingWordsFor(lang);
   const loading = useComponentState() === "loading";
   const photos = services.some((service) => service.photo);
+  const context = usePartContext();
   return (
     <>
-      {services.map((service, index) => (
+      {services.flatMap((service, index) => [
+        ...(service.group && service.group !== services[index - 1]?.group ? [
+          <PartContext.Provider key={`${service.id}/group`} value={{ ...context, item: service.id }}>
+            <KitRow part={null} label={service.group}>
+              <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
+            </KitRow>
+          </PartContext.Provider>,
+        ] : []),
         <KitRow
           key={service.id}
           item={service.id}
@@ -157,25 +160,20 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
           leadingAlign="row"
           leadingWidth={photos ? "avatar" : undefined}
           leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
+          trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}
         >
-          <KitGrid columns={2} fitLast density={density}>
-            <KitContent>
-              {service.group && service.group !== services[index - 1]?.group && (
-                <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
-              )}
-              <ServiceText {...{ density }} value={service.name} part="name" />
-              <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="number" tone="muted" part="minutes" />
-              {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
-            </KitContent>
-            <KitContent>
-              <ServiceText {...{ density }} value={bookLabel} role="label" tone="accent" part={null} />
+          <KitContent>
+            <ServiceText {...{ density }} value={service.name} part="name" />
+            <KitGrid columns={2} density={density}>
+              <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="caption" tone="muted" part="minutes" />
               {service.price !== undefined && (
-                <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="number" part="price" />
+                <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="caption" tone="muted" part="price" />
               )}
-            </KitContent>
-          </KitGrid>
-        </KitRow>
-      ))}
+            </KitGrid>
+            {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
+          </KitContent>
+        </KitRow>,
+      ])}
     </>
   );
 }
