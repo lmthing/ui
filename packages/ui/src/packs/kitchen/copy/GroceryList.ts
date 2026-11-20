@@ -5,10 +5,10 @@ import { kitchenWordsFor } from "../lang";
 export const { groceryLabels } = kitchenWordsFor();
 
 type GroceryItem = { name: string; qty?: string | undefined; by?: string | undefined; got: boolean };
-type GroceryInput = { aisles: { label: string; items: GroceryItem[] }[] };
+type GroceryInput = { aisles: { label: string; items: GroceryItem[] }[]; detail?: "full" | "brief" };
 
 /** Grouped text retains wire-order row addresses even when bought rows move on screen. */
-export function groceryRead({ aisles }: GroceryInput, lang?: string): string[] {
+export function groceryRead({ aisles, detail = "full" }: GroceryInput, lang?: string): string[] {
   const { groceryLabels } = kitchenWordsFor(lang);
   let index = 0;
   return [
@@ -24,7 +24,7 @@ export function groceryRead({ aisles }: GroceryInput, lang?: string): string[] {
           [
             JSON.stringify(item.name),
             item.qty && JSON.stringify(item.qty),
-            item.by && `${JSON.stringify(item.by)} !needs-people`,
+            detail === "full" && item.by && `${JSON.stringify(item.by)} !needs-people`,
           ]
             .filter(Boolean)
             .join(" · "),

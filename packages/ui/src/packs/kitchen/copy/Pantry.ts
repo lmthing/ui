@@ -32,6 +32,7 @@ export function pantryOrder<T extends { useBy?: string | undefined }>(items: rea
 
 export function pantryReading(
   input: {
+    detail?: "full" | "brief";
     items: {
       id?: string;
       name: string;
@@ -42,13 +43,13 @@ export function pantryReading(
   },
   lang?: string,
 ): string[] {
-  const { pantryLabels } = kitchenWordsFor(lang);
+  const { pantryLabels, pantryPlace } = kitchenWordsFor(lang);
   return pantryOrder(input.items).flatMap((item) => {
     const expiry = pantryDates(item.useBy, undefined, lang);
     return [
       `${item.id ?? item.name}: ${item.name}`,
       item.qty,
-      pantryLabels[item.place],
+      ...(input.detail === "brief" ? [] : [pantryPlace(pantryLabels[item.place])]),
       expiry.label,
       expiry.date,
       ...(item.useBy ? [item.useBy] : []),

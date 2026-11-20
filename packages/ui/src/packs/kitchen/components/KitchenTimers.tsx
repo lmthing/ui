@@ -7,6 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -22,6 +23,7 @@ import {
   KitRow,
   KitText,
   useComponentState,
+  useVariant,
   useWords,
 } from "../../../kit";
 import {
@@ -44,6 +46,7 @@ export const meta = {
   pick: "Two or more named cooking countdowns running independently, each with its own start, pause and add-a-minute controls. Not a single countdown (Timer) or a timed recipe instruction (CookSteps).",
   writeHints: [
     "Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.",
+    'If asked to stack timers one per row instead of side by side, set arrange to "rows"; otherwise leave arrange null.',
   ],
   region: "body",
   weight: 2,
@@ -69,15 +72,17 @@ export const meta = {
     ],
   },
   parts: ["root", "empty"],
+  variants: { arrange: ["grid", "rows"] },
   states: ["filled", "empty"],
   actions: {
     items: { root: ["start", "stop"], more: ["press"] },
     when: { "root.start": { finished: false }, "root.stop": { running: true } },
   },
-  read: (input, state, lang?: string) =>
+  read: (input, state, lang?: string): string[] =>
     state === "filled" ? kitchenTimerReading((input as z.output<typeof props>).timers, lang) : [],
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   timers: z
     .array(
       z
@@ -110,25 +115,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
         ],
   };
 }
+// prettier-ignore
 export const examples = [
-  {
-    timers: [
-      { label: "Béchamel", seconds: 372 },
-      { label: "Oven", seconds: 1120 },
-    ],
-  },
-  {
-    timers: [
-      { label: "Porridge", seconds: 300 },
-      { label: "Tea", seconds: 180 },
-    ],
-  },
+  { timers: [{ label: "Béchamel", seconds: 372 }, { label: "Oven", seconds: 1120 }] },
+  { arrange: "rows", timers: [{ label: "Porridge", seconds: 300 }, { label: "Tea", seconds: 180 }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("KitchenTimers");
 export const probes = [
   choose("Run separate pasta and oven countdowns at the same time, each with pause and add a minute"),
   choose("Run one six-minute countdown with start and stop, without any other timers", "Timer"),
   write("Two concurrent cooking timers: Béchamel for 372 seconds and Oven for 1120 seconds"),
+  {
+    ...write(
+      "Show two independent timers, Pasta for 420 seconds and Oven for 900 seconds. Stack them one above the other, not side by side.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
   read("Begin counting down on the timer named Béchamel", { address: "k1/r1", action: "start" }),
   read("Add a minute to the oven timer", { address: "k1/r2/more", action: "press" }),
 ] satisfies Probe[];
@@ -174,7 +176,9 @@ function CountdownTile({ timer }: { timer: Props<typeof props, typeof meta>["tim
   );
 }
 
-export function KitchenTimers({ timers }: Props<typeof props, typeof meta>) {
+export function KitchenTimers(input: Props<typeof props, typeof meta>) {
+  const { timers } = input;
+  const arrange = useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = useComponentState();
   if (state === "empty")
     return (
@@ -185,7 +189,7 @@ export function KitchenTimers({ timers }: Props<typeof props, typeof meta>) {
   const tiles = kitchenTimerOrder(timers).map((timer) => <CountdownTile key={timer.id} timer={timer} />);
   return (
     <KitCard part="root" padded>
-      {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
+      {tiles.length === 1 ? tiles : <KitGrid arrange={arrange}>{tiles}</KitGrid>}
     </KitCard>
   );
 }

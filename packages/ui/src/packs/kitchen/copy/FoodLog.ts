@@ -30,9 +30,11 @@ export function foodLogRead(
   {
     meals,
     target,
+    detail = "full",
   }: {
     meals: readonly Meal[];
     target?: number | undefined;
+    detail?: "full" | "brief";
   },
   lang?: string,
 ): string[] {
@@ -49,7 +51,7 @@ export function foodLogRead(
       ...meal.items.map((item) =>
         kitchenItemLine(
           index++,
-          `${item.name} ${kcalLine(item.kcal, lang)}${item.amount ? ` · ${item.amount}` : ""}`,
+          `${item.name} ${kcalLine(item.kcal, lang)}${detail === "full" && item.amount ? ` · ${item.amount}` : ""}`,
         ),
       ),
     ]),
