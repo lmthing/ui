@@ -159,7 +159,7 @@ export type Meta = {
   codeOwned?: boolean;
 };
 
-/** Pure check over canonical, schema-valid screen input. Report stable `S.*` codes. */
+/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 
 export type PackMeta = {

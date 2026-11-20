@@ -16,7 +16,7 @@ const registry = createRegistry({ packs: ["booking", "health"], includeDrafts: t
 const screenOf = () => registry.defaultLines("appointments", layout, cast);
 const issue = {
   code: "S.inconsistent_schedule",
-  address: "appointments/a1/root",
+  address: "appointments_upcoming/a1/root",
   message: "Appointment does not match the schedule",
 };
 
@@ -46,7 +46,9 @@ it("validates each used pack once and reports its issues after the built-in chec
   expect(checkScreen(screen, registry, { packContext })).toEqual([...baseline, issue]);
   expect(active).toHaveBeenCalledExactlyOnceWith({
     ...screen,
-    components: [...screen.components.slice(0, -1), { ...appointment, id: "a2" }],
+    components: screen.components.map(({ id, c }) =>
+      expect.objectContaining({ id, c: id === "a2" ? "Appointment" : c }),
+    ),
   });
   expect(second).toHaveBeenCalledTimes(1);
   expect(inactive).not.toHaveBeenCalled();
@@ -65,6 +67,20 @@ it("does not run validators for core-only screens or pass them invalid component
   );
   expect(active).not.toHaveBeenCalled();
   expect(inactive).not.toHaveBeenCalled();
+});
+
+it("gives validators the effective props, including omitted schema defaults", () => {
+  const registry = createRegistry({ packs: ["play"], includeDrafts: true });
+  const screen = { id: "game", components: [{ c: "Dice", id: "dice" }] };
+  const validate = vi.fn<PackScreenValidator>(() => []);
+  const packContext = { packOf, packs: { play: { ...packs.play, screenValidators: [validate] } } };
+
+  checkScreen(screen, registry, { packContext });
+  expect(validate).toHaveBeenCalledExactlyOnceWith({
+    id: "game",
+    components: [expect.objectContaining({ c: "Dice", id: "dice", count: 2 })],
+  });
+  expect(screen.components[0]).not.toHaveProperty("count");
 });
 
 it("counts pack issues in composition scoring and the compose-probe majority", async () => {
