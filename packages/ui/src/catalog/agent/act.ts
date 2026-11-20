@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import {
   controlsAreValid,
   localValues,
+  moveKey,
   selectStep,
   stageProgress,
   stageValue,
@@ -90,6 +91,7 @@ function affordancesOfScreen(
       live ||
       def.meta.linkedEdits ||
       def.meta.items?.edits ||
+      def.meta.items?.move ||
       def.meta.signOff ||
       hasPlaybackClock(def.meta)
         ? state
@@ -151,7 +153,7 @@ export function planAct(
     const found = offered.find((a) => a.address === address && a.action === step.action);
     if (!found) return notOffered(offered, address, at);
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const key = `${screen.id}/${address}`;
+    const key = `${screen.id}/${found.move ? moveKey(address) : address}`;
     const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };

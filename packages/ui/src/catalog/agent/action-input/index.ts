@@ -3,6 +3,7 @@ import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageProgress } from "./progress";
+export { itemActionOffer, moveKey, projectMoves } from "./move";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
@@ -27,7 +28,9 @@ export function validateStep(
   key: string,
 ) {
   const edit = setStep(screen, defs, found.address, step.action, values);
-  const limits = edit?.set?.spec ?? nestedSpec(screen, defs, found.address);
+  const limits = found.move
+    ? { type: "choice" as const, choices: found.move.choices }
+    : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
   const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
   let result = keypad
     ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)

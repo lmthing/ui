@@ -9,6 +9,7 @@ import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import { linkedInput } from "./linked-edits";
 import type { SendDraft } from "./act";
 import { itemEditOffer, reportConfirmation, reportLocked } from "./report-edits";
+import { itemActionOffer } from "./action-input";
 
 export type Affordance = {
   address: string;
@@ -19,6 +20,7 @@ export type Affordance = {
   send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
+  move?: { current: string; choices: string[] };
 };
 type Props = Record<string, unknown>;
 
@@ -103,11 +105,8 @@ function partsOf(
 function actionsForItem(meta: Meta, props: Props, item: Props, instance: string, first: boolean) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true).filter(
-    ({ part, action }) =>
-      action !== "select" ||
-      meta.items?.edits?.[part]?.action !== "select" ||
-      Boolean(choiceValues(meta, props, `${id}/${part}`)?.length),
+  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true).flatMap(
+    (offer) => itemActionOffer(meta, props, item, offer),
   );
 }
 
@@ -150,6 +149,7 @@ export function affordancesOf(
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return offered.filter(({ address, action, part }) => {
+    if (action === "move" && address === instance) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
