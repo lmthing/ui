@@ -24,6 +24,8 @@ type ChipProps = {
   part?: string | null;
   /** Label address; null leaves caller-owned group labels untouched. */
   labelPart?: string | null;
+  /** An optional address for the swatch dot of a stamped chip. */
+  swatchPart?: string;
 };
 
 function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
@@ -67,7 +69,14 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       overflow={slashed ? "hidden" : undefined}
     >
       {slashed && <DisabledSlash />}
-      {swatch && <SwatchMark swatch={swatch} loading={loading} dim={disabled ?? false} />}
+      {swatch && (
+        <SwatchMark
+          swatch={swatch}
+          loading={loading}
+          dim={disabled ?? false}
+          part={stamped ? props.swatchPart : undefined}
+        />
+      )}
       {icon &&
         !segment &&
         (loading ? (
@@ -98,9 +107,21 @@ function DisabledSlash() {
   );
 }
 
-function SwatchMark({ swatch, loading, dim }: { swatch: Swatch; loading: boolean; dim: boolean }) {
+function SwatchMark({
+  swatch,
+  loading,
+  dim,
+  part,
+}: {
+  swatch: Swatch;
+  loading: boolean;
+  dim: boolean;
+  part: string | undefined;
+}) {
+  const address = usePart(part, part !== undefined);
   return (
     <YStack
+      {...(part === undefined ? {} : address)}
       width={size.icon.sm}
       height={size.icon.sm}
       borderRadius={radius.pill}

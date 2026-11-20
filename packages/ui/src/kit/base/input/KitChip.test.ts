@@ -108,6 +108,7 @@ describe("KitChip variant options", () => {
       const face = hit.children[0]!;
       const mark = face.children[0]!;
       expect(mark.attributes).toContain('aria-hidden="true"');
+      expect(mark.attributes).not.toContain("data-testid");
       expect(styleAt(html, mark)).toContain(component.swatch.navy);
       expect(styleAt(html, face)).toContain(`min-width:${size.control.md}px`);
       expect(styleAt(html, face)).toContain(
@@ -116,6 +117,16 @@ describe("KitChip variant options", () => {
       expect(elementAt(html, "home/c1/r1/label")).toBeDefined();
     },
   );
+  it("addresses only an opted-in, stamped, visible swatch dot", () => {
+    const input = { ...chip, swatch: "navy", swatchPart: "swatch" } as const;
+    const address = "home/c1/r1/swatch";
+    const html = render(input);
+    expect(styleAt(html, address)).toContain(component.swatch.navy);
+    expect(elementAt(html, address).attributes).toContain('aria-hidden="true"');
+    expect(elementAt(html, "home/c1/r1/label")).toBeDefined();
+    expect(render({ ...input, item: null }, undefined, true)).not.toContain('/swatch"');
+    expect(render(input, undefined, false, "loading")).not.toContain('/swatch"');
+  });
   it("keeps unavailable choices readable and blocks both controller dispatch paths", async () => {
     const controller = { press: vi.fn(), act: vi.fn() } as unknown as ScreenController;
     for (const item of ["r1", null]) {
