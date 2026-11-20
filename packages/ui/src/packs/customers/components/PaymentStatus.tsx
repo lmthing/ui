@@ -3,6 +3,7 @@ import {
   KitAction,
   KitCard,
   KitContent,
+  KitGrid,
   KitText,
   useComponentState,
   useVariant,
@@ -95,7 +96,49 @@ export const probes = [
   read("Send a reminder for this payment", { address: "p1/remind", action: "press" }),
 ] satisfies Probe[];
 
-export function PaymentStatus(input: Props<typeof props, typeof meta>) {
+type PaymentProps = Props<typeof props, typeof meta>;
+function PaymentFacts({
+  input,
+  density,
+  lang,
+}: {
+  input: PaymentProps;
+  density: NonNullable<PaymentProps["density"]>;
+  lang: string;
+}) {
+  const details = paymentDetails(input, lang);
+  const rows = [
+    details.filter(({ part }) => part === "date" || part === "due"),
+    details.filter(({ part }) => part === "paid" || part === "method"),
+  ];
+  return (
+    <KitContent {...{ density }}>
+      {rows.map((row) => {
+        const fields = row.map(({ part, text }) => (
+          <KitText
+            key={part}
+            role="label"
+            tone="muted"
+            tabular={part !== "method"}
+            part={part}
+            {...{ density }}
+          >
+            {text}
+          </KitText>
+        ));
+        return fields.length > 1 ? (
+          <KitGrid key={row[0]!.part} fitLast {...{ density }}>
+            {fields}
+          </KitGrid>
+        ) : (
+          fields
+        );
+      })}
+    </KitContent>
+  );
+}
+
+export function PaymentStatus(input: PaymentProps) {
   const { lang, words } = useWords(customersWordsFor);
   const { paymentLabels } = words;
   const { surface } = input;
@@ -113,35 +156,16 @@ export function PaymentStatus(input: Props<typeof props, typeof meta>) {
           {paymentAmountLine(input.amount, lang)}
         </KitText>
       </KitContent>
-      <KitContent {...{ density }}>
-        {paymentDetails(input, lang).map(({ part, text }) => (
-          <KitText
-            key={part}
-            role="label"
-            tone="muted"
-            tabular={part !== "method"}
-            part={part}
-            {...{ density }}
-          >
-            {text}
-          </KitText>
-        ))}
-      </KitContent>
+      <PaymentFacts {...{ input, density, lang }} />
       {state === "success" ? (
         <KitText role="label" tone="good" part="confirmation" {...{ density }}>
           {paymentLabels.updated}
         </KitText>
       ) : (input.paid ?? 0) < input.amount ? (
-        <>
-          <KitAction label={paymentLabels.mark} part="mark" disabled={state !== "filled"} full />
-          <KitAction
-            label={paymentLabels.remind}
-            kind="quiet"
-            part="remind"
-            disabled={state !== "filled"}
-            full
-          />
-        </>
+        <KitContent group="response" {...{ density }}>
+          <KitAction label={paymentLabels.mark} part="mark" disabled={state !== "filled"} />
+          <KitAction label={paymentLabels.remind} kind="quiet" part="remind" disabled={state !== "filled"} />
+        </KitContent>
       ) : null}
     </KitCard>
   );
