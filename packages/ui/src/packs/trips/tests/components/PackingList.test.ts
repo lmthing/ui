@@ -174,7 +174,8 @@ describe("PackingList state and action dispatch", () => {
     const controller = controllerFor(state);
     const parts = addressedElements(renderInstance("PackingList", packing, state, theme, { thing: "item" }));
     const read = readComponent(components.PackingList, packing, "p1", state).join("\n");
-    expect(parts.get("home/c1/add")?.attributes).toContain('placeholder="Add an item"');
+    expect(parts.get("home/c1/add")?.attributes).toContain('aria-label="Add an item"');
+    expect(parts.get("home/c1/add_label")?.text).toContain("Add an item");
     expect(read).toContain("[p1/add type]");
     expect(controller.edit("home/p1/add", "Passport").ok).toBe(true);
     expect(controller.store.get("home/p1/add")).toBe("Passport");

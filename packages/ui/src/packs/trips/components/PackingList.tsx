@@ -18,6 +18,7 @@ import {
   KitCheck,
   KitContent,
   KitEmpty,
+  KitGrid,
   KitInput,
   KitMeter,
   KitRow,
@@ -45,7 +46,7 @@ export const meta = {
   pick: "Items to put in luggage, grouped by category or traveller, with optional quantities and an overall packed share. Not everyday tasks (Checklist) or shopping for groceries (GroceryList).",
   writeHints: [
     "Use 1–6 groups, each with 1–10 items. Write each packed flag; never write the packed share.",
-    'For names without visible quantities, set detail to "brief" but keep any supplied quantities in qty. Otherwise leave detail null.',
+    'When only asked to hide quantities, write "density":null,"surface":null,"detail":"brief". Keep supplied qty values. Never write "comfortable", "card", or "full" for an unrequested axis; write null instead.',
   ],
   region: "body",
   weight: 3,
@@ -54,7 +55,7 @@ export const meta = {
   realPath: "The list lives on the device; sharing across a family needs a shared app.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: quantityParts } },
-  parts: ["root", "progress", "add"],
+  parts: ["root", "progress", "add", "add_label"],
   items: { key: "groups", parts: ["root", "label", ...packedParts, ...quantityParts] },
   states: ["filled", "empty", "success"],
   actions: { parts: { add: ["type"] }, items: packedActions },
@@ -101,30 +102,23 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+// prettier-ignore
 export const examples = [
   {
     groups: [
-      {
-        label: "Clothes",
-        items: [
-          { name: "T-shirts", qty: 3, packed: true },
-          { name: "Rain jacket", packed: false },
-        ],
-      },
+      { label: "Clothes", items: [
+        { name: "T-shirts", qty: 3, packed: true },
+        { name: "Rain jacket", packed: false },
+      ] },
       { label: "Tech", items: [{ name: "Travel adapter", qty: 2, packed: false }] },
     ],
   },
   {
-    density: "compact",
-    surface: "plain",
     groups: [
-      {
-        label: "Sam",
-        items: [
-          { name: "Walking boots", packed: true },
-          { name: "Spare socks", qty: 4, packed: true },
-        ],
-      },
+      { label: "Sam", items: [
+        { name: "Walking boots", packed: true },
+        { name: "Spare socks", qty: 4, packed: true },
+      ] },
       { label: "Jo", items: [{ name: "Warm hat", packed: false }] },
     ],
   },
@@ -139,7 +133,7 @@ export const probes = [
   ),
   {
     ...write(
-      "In Clothes, list three packed T-shirts and an unpacked rain jacket. Keep the quantities in the data, but show only item names next to the checkboxes, with no quantities on screen.",
+      "In Clothes, list three packed T-shirts and an unpacked rain jacket. Keep the quantities in the data, but show only item names next to the checkboxes, with no quantities on screen. Leave spacing and surfaces up to the app.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -160,9 +154,11 @@ function PackingSection({ group, detail, density, lang }: PackingFinish & { grou
       const quantity = detail === "full" && qty !== undefined ? packingQuantity(qty, lang) : undefined;
       const label = quantity ? packing.itemLabel(name, quantity) : name;
       const tone = packed ? "muted" : "text";
-      return <KitRow key={packedParts[i]} label={label} inline leadingAlign="row" density={density}
-        leading={<KitCheck done={packed} part={packedParts[i]!} label={label} />}
-        trailing={quantity && <KitText role="caption" tone="muted" part={quantityParts[i]!} tabular lines={1} density={density}>{quantity}</KitText>}>
+      return <KitRow key={packedParts[i]} label={label} inset="none" density={density}
+        trailing={<>
+          {quantity && <KitText role="caption" tone="muted" part={quantityParts[i]!} tabular lines={1} density={density}>{quantity}</KitText>}
+          <KitCheck done={packed} part={packedParts[i]!} label={label} />
+        </>}>
         <KitText role="body" tone={tone} part={null} density={density}>{name}</KitText>
       </KitRow>;
     })}
@@ -182,7 +178,11 @@ export function PackingList(input: PackingProps) {
   return <KitCard padded part="root" {...{ density, surface }}>
     {state === "filled" ? <>
       <KitRow part="progress" label={label} inline density={density}>
-        <KitMeter {...{ label, amount, ratio }} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
+        <KitGrid fitLast density={density}>
+          <KitText role="body" part={null}>{label}</KitText>
+          <KitText role="number" numberScale="compact" tabular part={null}>{amount}</KitText>
+        </KitGrid>
+        <KitMeter label="" amount="" ratio={ratio} tone={ratio === 1 ? "good" : "accent"} addressed={false} />
       </KitRow>
       {groups.map((group) => <KitContent key={group.id} group="response" density={density}>
         <PackingSection {...{ group, detail, density, lang }} />
@@ -191,7 +191,8 @@ export function PackingList(input: PackingProps) {
       icon: "check", title: packing.allPacked, tone: "good",
     } : {})} />}
     <KitContent group={state === "filled" ? "response" : "content"} density={density}>
-      <KitInput part="add" hint={packing.add} icon="plus" compact={density === "compact"} />
+      <KitText role="label" tone="muted" part="add_label" density={density}>{packing.add}</KitText>
+      <KitInput part="add" label={packing.add} hint="" />
     </KitContent>
   </KitCard>;
 }
