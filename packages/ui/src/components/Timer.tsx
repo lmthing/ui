@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitText } from "../kit";
+import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -155,19 +155,28 @@ export function Timer(input: Props<typeof props, typeof meta>) {
   const [amount, ...suffix] = value.split(" ");
   const start = <KitAction label={timerLabels.start} kind="primary" part="start" full />;
   const stop = <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />;
+  const readout = (
+    <>
+      <KitText role="number" align="center" tabular part="time" density={density}>
+        {amount}
+        {(!controls || figures === "short") && (
+          <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
+        )}
+      </KitText>
+      <KitText role="body" tone="muted" align="center" part="label" density={density}>
+        {label}
+      </KitText>
+    </>
+  );
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      <KitContent density={density}>
-        <KitText role="number" align="center" tabular part="time" density={density}>
-          {amount}
-          {(!controls || figures === "short") && (
-            <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
-          )}
-        </KitText>
-        <KitText role="body" tone="muted" align="center" part="label" density={density}>
-          {label}
-        </KitText>
-      </KitContent>
+      {density === "compact" ? (
+        <KitRow label={label} part={null} inline density={density}>
+          {readout}
+        </KitRow>
+      ) : (
+        <KitContent density={density}>{readout}</KitContent>
+      )}
       {controls &&
         (density === "compact" ? (
           <KitContent group="response" density={density}>
