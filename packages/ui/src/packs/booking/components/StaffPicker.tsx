@@ -25,6 +25,7 @@ import {
   type Meta,
   type Probe,
   type Props,
+  type ThemeDensity,
 } from "../../../catalog";
 
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
@@ -109,10 +110,12 @@ export const probes = [
   read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
 
-function StaffLoading({ name, role }: { name: string; role?: string | undefined }) {
+type StaffPreview = { name: string; role?: string | undefined; density: ThemeDensity };
+function StaffLoading({ name, role, density }: StaffPreview) {
   return (
-    <KitRow label={name} inset="none">
+    <KitRow label={name} inset="none" density={density} inline={density === "compact"}>
       <KitSkeleton
+        density={density}
         shape="media"
         aspect="avatar"
         inset="none"
@@ -143,7 +146,7 @@ export function StaffPicker({
       <KitStrip density={density}>
         {choices.map((person) =>
           loading ? (
-            <StaffLoading key={person.position} name={person.name} role={person.role} />
+            <StaffLoading key={person.position} name={person.name} role={person.role} density={density} />
           ) : (
             <KitRow
               key={person.position}
@@ -152,6 +155,7 @@ export function StaffPicker({
               role="button"
               inset="none"
               density={density}
+              inline={density === "compact"}
             >
               <KitPhoto
                 {...(person.photo ? { photo: person.photo } : {})}
@@ -162,11 +166,17 @@ export function StaffPicker({
                 ring={at === person.position ? "accent" : "none"}
               />
               <KitContent lineRole="body">
-                <KitText role="body" part={person.id ? "name" : "anyone_name"} align="center" lines={1}>
+                <KitText
+                  density={density}
+                  role="body"
+                  part={person.id ? "name" : "anyone_name"}
+                  align="center"
+                  lines={1}
+                >
                   {person.name}
                 </KitText>
                 {person.role && (
-                  <KitText role="caption" tone="muted" part="role" align="center">
+                  <KitText density={density} role="caption" tone="muted" part="role" align="center">
                     {person.role}
                   </KitText>
                 )}

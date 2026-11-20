@@ -125,14 +125,16 @@ function AppointmentLine({ value, part, loading, density }: AppointmentText) {
   const number = ["time", "price", "minutes"].includes(part);
   const role = number ? "number" : "label";
   const scale = part === "time" ? "display" : "compact";
+  const align = part === "price" ? "end" : "start";
   if (loading)
     return (
-      <KitSkeleton shape="figure" inset="none" density={density} content={[[role, value, "start", scale]]} />
+      <KitSkeleton shape="figure" inset="none" density={density} content={[[role, value, align, scale]]} />
     );
   return (
     <KitText
       role={role}
       density={density}
+      align={align}
       numberScale={scale}
       tone={["date", "time", "service", "price", "minutes"].includes(part) ? "text" : "muted"}
       tabular={number}
@@ -174,12 +176,19 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
       <KitContent>
         <AppointmentLine value={input.service} part="service" {...finish} />
         {details.filter(({ part }) => part === "with" || part === "place").map(line)}
-        <KitGrid density={density}>
+        <KitGrid fitLast density={density}>
           {details.filter(({ part }) => part === "minutes" || part === "price").map(line)}
         </KitGrid>
         {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
       </KitContent>
-      <KitAction label={appointmentLabels[change]} part={change} goto={input.goto} disabled={!active} full />
+      <KitAction
+        label={appointmentLabels[change]}
+        kind="secondary"
+        part={change}
+        goto={input.goto}
+        disabled={!active}
+        full
+      />
       {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}
     </KitCard>
   );
