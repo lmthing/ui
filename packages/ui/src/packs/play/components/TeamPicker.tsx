@@ -25,7 +25,7 @@ import { playWordsFor } from "../lang";
 // Core first: Choice/multi cannot randomly divide everyone into balanced teams with locked placements.
 export const meta = {
   id: "TeamPicker",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Split players into balanced random teams while preserving optional locked placements.",
   pick: "Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).",
@@ -136,7 +136,7 @@ function TeamColumns({ panels, style, density, loading, words }: {
   const columns = panels.map(({ players, ...panel }) => ({
     ...panel,
     children: players.map(({ id, name, photo, team }) => (
-      <kit.KitRow key={id} item={id} inset="none" density={density}
+      <kit.KitRow key={id} item={id} inset="none" inline={style === "groups" || density === "compact"} density={density}
         label={team === undefined ? name : words.lockedName(name)} leadingAlign="row"
         leading={<kit.KitPhoto {...(photo ? { photo } : { initials: Array.from(name)[0]! })}
           shape="round" part="photo" label={name} />}
@@ -180,8 +180,8 @@ export function TeamPicker(setup: Setup) {
           <kit.KitEmpty part="empty" icon="users" title={thing ? emptyLine(thing, lang) : words.empty} decorativeIcon />
           {button}
         </> : <>
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} /> :
-            <kit.KitText role="heading" part={null} {...{ density }}>{status}</kit.KitText>}
+          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["title", status]]} /> :
+            <kit.KitText role="title" part={null}>{status}</kit.KitText>}
           {action === "make" && button}
           <TeamColumns style={setup.style} {...{ panels, density, loading, words }} />
           {action === "remake" && button}
