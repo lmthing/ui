@@ -1,4 +1,5 @@
-export type Tier = 1 | 2 | 3;
+/** 1 Chrome built-in AI, 2 WebLLM, 3 OpenRouter (the visitor's key), 4 recorded replay. */
+export type Tier = 1 | 2 | 3 | 4;
 
 export type RunInput = {
   prompt: string;
@@ -12,7 +13,7 @@ export type RunInput = {
 
 export type Engine = {
   tier: Tier;
-  /** "Chrome built-in AI", "WebLLM", "Recorded replay". */
+  /** "Chrome built-in AI", "WebLLM", "OpenRouter", "Recorded replay". */
   label: string;
   /** The model that wrote the output, as the visitor should read it. */
   model: string;
