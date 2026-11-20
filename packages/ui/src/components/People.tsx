@@ -33,7 +33,7 @@ export const meta = {
   id: "People",
   group: "content",
   purpose: "Who else is involved, with their names and roles.",
-  pick: "The clients, family or team involved, with a name and optional role for each person. Not general things to scan and tap (List), or the identity of one screen's subject (Profile).",
+  pick: "A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).",
   writeHints: [
     'Keep "density":null and "surface":null unless their appearance is requested. Set "detail":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means "detail":"brief"; keep those roles in role. If asked to show roles, never use brief. Use style "stack" only for overlapping avatars.',
   ],
