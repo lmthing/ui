@@ -92,7 +92,7 @@ describe("KitScore filled and empty", () => {
     const blank = { label: "", value: "" };
     const empty = render({ sides: [blank, blank], center: null });
     expect(empty).toContain("<svg");
-    expect(elementAt(empty, "home/c1/root").children[0]!.children).toHaveLength(2);
+    expect(elementAt(empty, "home/c1/root").children[0]!.children).toHaveLength(1);
     const upcoming = render({
       sides: [
         { ...blank, label: "North Shore" },
@@ -119,11 +119,14 @@ describe("KitScore loading", () => {
       expect(root.children).toHaveLength(elementAt(filled, "home/c1/root").children.length);
       const [left, middle, right] = root.children[0]!.children;
       expect(left!.children[0]!.children[1]!.children[0]!.attributes).toContain('aria-hidden="true"');
-      expect(styleAt(html, left!)).toContain(`flex-basis:${size.control.md * 2 + space.xs}px`);
-      expect(styleAt(html, middle!)).toContain(`flex-basis:${size.avatar.lg}px`);
+      expect(styleAt(html, left!)).toContain(`flex-basis:${size.control.md * 2 + space.sm}px`);
+      expect(styleAt(html, middle!)).toContain(`flex-basis:${size.control.lg + space.xs}px`);
       expect(styleAt(html, right!)).toBe(styleAt(html, left!));
       if (style === "keeper") {
         const group = root.children[1]!.children[0]!.children[0]!;
+        const away = root.children[1]!.children[2]!.children[0]!;
+        expect(group.children).toHaveLength(2);
+        expect(away.children).toHaveLength(1);
         expect(styleAt(html, group)).toContain(`min-height:${size.control.md}px`);
         expect(styleAt(html, group.children[0]!)).toContain(`width:${size.control.md}px`);
         expect(html).toContain(`opacity:${component.base.skeletonOpacity}`);

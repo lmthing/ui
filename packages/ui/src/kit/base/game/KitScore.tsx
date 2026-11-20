@@ -1,8 +1,8 @@
-import { Children, type ReactNode } from "react";
+import { Children, Fragment, isValidElement, type ReactNode } from "react";
 import { XStack, YStack } from "tamagui";
-import { component, emptyLine, radius, size, space, type as typography } from "../../../catalog";
-import { useEmptyThing, usePart } from "../../part";
-import { useKitStyle, useWords } from "../../provider";
+import { component, radius, size, space, type as typography } from "../../../catalog";
+import { usePart } from "../../part";
+import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, useTextStep } from "../text";
 
 type Side = { label: string; value: string; controls?: ReactNode };
@@ -14,13 +14,14 @@ type ScoreProps = {
   style?: "display" | "keeper";
 };
 
-const sideWidth = size.control.md * 2 + space.xs;
+const sideWidth = size.control.md * 2 + space.sm;
+const centerWidth = size.control.lg + space.xs;
 
 function ScoreColumn({ children, middle = false }: { children?: ReactNode; middle?: boolean }) {
   return (
     <YStack
       flex={component.base.bodyFlex}
-      flexBasis={middle ? size.avatar.lg : sideWidth}
+      flexBasis={middle ? centerWidth : sideWidth}
       minWidth={component.base.none}
     >
       {children}
@@ -81,13 +82,25 @@ function ScoreSide({ side, loading }: { side: Side; loading: boolean }) {
   );
 }
 
+function controlCount(controls: ReactNode): number {
+  return Children.toArray(controls).reduce<number>(
+    (count, child) =>
+      count +
+      (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment
+        ? controlCount(child.props.children)
+        : 1),
+    0,
+  );
+}
+
 function ScoreControls({ controls, loading }: { controls?: ReactNode; loading: boolean }) {
   const { radiusShift } = useKitStyle();
-  if (!Children.toArray(controls).length) return null;
+  const count = controlCount(controls);
+  if (!count) return null;
   return (
     <XStack justifyContent="center" alignItems="center" minHeight={size.control.md} gap={space.xs}>
       {loading
-        ? [0, 1].map((index) => (
+        ? Array.from({ length: count }, (_, index) => (
             <YStack
               key={index}
               width={size.control.md}
@@ -124,7 +137,7 @@ function ScoreDrawing({
   const step = useTextStep({});
   return (
     <>
-      <XStack gap={space.xs} alignItems="flex-start">
+      <XStack alignItems="flex-start">
         <ScoreColumn>
           <ScoreSide side={sides[0]} loading={loading} />
         </ScoreColumn>
@@ -141,7 +154,7 @@ function ScoreDrawing({
                 <ScoreBar width={size.control.sm} />
               </>
             ) : typeof center === "string" || typeof center === "number" ? (
-              <KitText role="label" align="center" part={null}>
+              <KitText role="caption" align="center" part={null}>
                 {center}
               </KitText>
             ) : (
@@ -154,7 +167,7 @@ function ScoreDrawing({
         </ScoreColumn>
       </XStack>
       {keep && (
-        <XStack gap={space.xs}>
+        <XStack>
           <ScoreColumn>
             <ScoreControls controls={sides[0].controls} loading={loading} />
           </ScoreColumn>
@@ -170,19 +183,14 @@ function ScoreDrawing({
 
 /** Draws the caller's scores and status. Keeper controls retain their caller-owned addresses. */
 export function KitScore({ part = "root", loading = false, style = "display", sides, center }: ScoreProps) {
-  const { lang } = useWords();
-  const thing = useEmptyThing();
-  const keep = style === "keeper" && sides.some(({ controls }) => Children.toArray(controls).length > 0);
+  const keep = style === "keeper" && sides.some(({ controls }) => controlCount(controls) > 0);
   const empty =
     !keep && !Children.toArray(center).length && sides.every(({ label, value }) => !label && !value);
   return (
     <YStack {...usePart(part)} width="100%" gap={space.sm} aria-busy={loading}>
       {empty && !loading ? (
-        <YStack alignItems="center" gap={space.md} paddingVertical={space.xl}>
+        <YStack alignItems="center" paddingTop={space.xl}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
-          <KitText part={null} tone="muted" align="center">
-            {emptyLine(thing, lang)}
-          </KitText>
         </YStack>
       ) : (
         <ScoreDrawing sides={sides} center={center} loading={loading} keep={keep} />

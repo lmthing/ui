@@ -98,7 +98,8 @@ describe("KitHeatGrid", () => {
       const html = render({ ...input, style, loading: true });
       expect([...addressedElements(html).keys()]).toEqual(["home/c1/heat"]);
       expect(html).toContain('aria-busy="true"');
-      expect(html).not.toMatch(/Monday|>Apr<|>Most</);
+      expect(html).not.toMatch(/Monday|>Apr</);
+      expect(elementAt(html, "home/c1/heat").children[1]!.attributes).toContain('aria-hidden="true"');
       expect(html.match(new RegExp(`_height-${box}px\\b`, "g"))?.length).toBeGreaterThanOrEqual(6);
     },
   );

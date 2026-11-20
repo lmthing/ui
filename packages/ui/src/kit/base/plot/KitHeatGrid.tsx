@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { ScrollView, XStack, YStack } from "tamagui";
-import { component, emptyLine, radius, size, space, type as typography } from "../../../catalog";
-import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
-import { useKitStyle, useWords } from "../../provider";
+import { component, radius, size, space, type as typography } from "../../../catalog";
+import { PartContext, usePart, usePartContext } from "../../part";
+import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, useTextStep } from "../text";
-
+import { PlotLabel } from "./PlotParts";
 type Level = { level: number; label: string };
 type Cell = { id: string } & Level;
 type Axis = { id: string; label: string };
@@ -17,7 +17,7 @@ type HeatGridProps = {
   legend: readonly Level[];
   style: "weeks" | "hours";
 };
-type MarkProps = { max: number; loading: boolean; box: number };
+type MarkProps = { max: number; loading: boolean; box: number; width?: number };
 type LabelProps = { label: string; loading: boolean; align?: "start" | "center" };
 type PlotProps = Pick<HeatGridProps, "rows" | "columns"> & MarkProps;
 type LegendProps = Pick<HeatGridProps, "legend"> & Omit<MarkProps, "box">;
@@ -34,7 +34,14 @@ function heatMax({ legend, rows, columns }: HeatGridProps) {
     for (const { level } of row.cells.slice(0, columns.length)) max = Math.max(max, positive(level));
   return max;
 }
-function HeatMark({ level, max, loading, box, label }: MarkProps & { level: number; label?: string }) {
+function HeatMark({
+  level,
+  max,
+  loading,
+  box,
+  width = box,
+  label,
+}: MarkProps & { level: number; label?: string }) {
   const { radiusShift } = useKitStyle();
   const address = usePart("root", label !== undefined);
   const semantics =
@@ -47,7 +54,7 @@ function HeatMark({ level, max, loading, box, label }: MarkProps & { level: numb
     <YStack
       {...semantics}
       height={box}
-      width={box}
+      width={width}
       borderRadius={shifted("sm", radiusShift)}
       backgroundColor={loading ? "$line" : ratio ? "$accent" : "$raised"}
       opacity={loading || !ratio ? 1 : floor + (1 - floor) * ratio}
@@ -56,14 +63,14 @@ function HeatMark({ level, max, loading, box, label }: MarkProps & { level: numb
     />
   );
 }
-function HeatCell({ cell, max, box, loading }: MarkProps & { cell: Cell | undefined }) {
+function HeatCell({ cell, ...draw }: MarkProps & { cell: Cell | undefined }) {
   const context = usePartContext();
-  if (loading) return <HeatMark level={0} max={max} box={box} loading />;
-  if (!cell) return <YStack width={box} height={box} aria-hidden />;
+  if (draw.loading) return <HeatMark {...draw} level={0} />;
+  if (!cell) return <YStack width={draw.width ?? draw.box} height={draw.box} aria-hidden />;
   return (
     <YStack>
       <PartContext.Provider value={{ ...context, item: cell.id }}>
-        <HeatMark level={cell.level} label={cell.label} max={max} box={box} loading={false} />
+        <HeatMark {...draw} level={cell.level} label={cell.label} />
       </PartContext.Provider>
     </YStack>
   );
@@ -94,13 +101,12 @@ function HeatLegend({ legend, max, loading }: LegendProps) {
       {legend.map(({ label, level }, index) => (
         <XStack key={index} gap={space.xs} alignItems="center">
           <HeatMark level={level} max={max} box={size.icon.sm} loading={loading} />
-          <HeatLabel label={label} loading={loading} />
+          <PlotLabel role="caption" label={label} loading={loading} />
         </XStack>
       ))}
     </XStack>
   );
 }
-
 function HeatThumb({ content, view, offset, loading }: ThumbProps) {
   return (
     <YStack height={space.xs} backgroundColor="$line" borderRadius={radius.pill} aria-hidden>
@@ -120,8 +126,10 @@ function HeatPlot({ rows, columns, loading, box, max }: PlotProps) {
   const gap = space.xs;
   const [view, setView] = useState<number>(0);
   const [offset, setOffset] = useState<number>(0);
-  const content = columns.length * (box + gap) - gap;
-  const overflow = view > 0 && content > view;
+  const visible = Math.max(1, Math.floor((view + gap) / (box + gap)));
+  const overflow = view > 0 && columns.length > visible;
+  const width = overflow ? (view + gap) / visible - gap : box;
+  const content = columns.length * (width + gap) - gap;
   return (
     <XStack gap={space.sm} aria-hidden={loading || undefined}>
       <YStack width={size.avatar.sm} gap={gap} paddingTop={header + gap}>
@@ -143,7 +151,7 @@ function HeatPlot({ rows, columns, loading, box, max }: PlotProps) {
           <YStack gap={gap}>
             <XStack gap={gap} height={header}>
               {columns.map((column) => (
-                <YStack key={column.id} width={box}>
+                <YStack key={column.id} width={width}>
                   <HeatLabel label={column.label} loading={loading} align="center" />
                 </YStack>
               ))}
@@ -151,7 +159,7 @@ function HeatPlot({ rows, columns, loading, box, max }: PlotProps) {
             {rows.map((row) => (
               <XStack key={row.id} gap={gap}>
                 {columns.map(({ id }, index) => (
-                  <HeatCell key={id} cell={row.cells[index]} max={max} box={box} loading={loading} />
+                  <HeatCell key={id} cell={row.cells[index]} {...{ max, box, width, loading }} />
                 ))}
               </XStack>
             ))}
@@ -166,19 +174,14 @@ function HeatPlot({ rows, columns, loading, box, max }: PlotProps) {
 /** Caller-supplied heat levels and scale. Cells are addressed for reading, not controls. */
 export function KitHeatGrid(props: HeatGridProps) {
   const { part = "root", loading = false, style, rows, columns, legend } = props;
-  const { lang } = useWords();
-  const thing = useEmptyThing();
   const ks = useKitStyle();
   const empty = !columns.length || !rows.some(({ cells }) => cells.length);
   const max = loading ? 0 : heatMax(props);
   return (
     <YStack {...usePart(part)} width="100%" gap={space[ks.density.rowPad]} aria-busy={loading}>
       {empty && !loading ? (
-        <YStack alignItems="center" gap={space.md} paddingVertical={space.xl}>
+        <YStack alignItems="center" paddingTop={space.xl}>
           <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
-          <KitText part={null} tone="muted" align="center">
-            {emptyLine(thing, lang)}
-          </KitText>
         </YStack>
       ) : (
         <>
