@@ -50,12 +50,15 @@ export const meta = {
       post: { canPost: true },
       net: { editable: true },
       business_use: { editable: true },
-      category: { editable: true },
-      vat: { editable: true },
+      // A host must supply allowed classification choices and bind them to this split.
+      category: { editable: true, hasCategoryChoices: true },
+      vat: { editable: true, hasVatChoices: true },
     },
     noGoto: { items: ["photo", "void"] },
   },
   emptyActions: ["capture.press"],
+  successActions: ["root.press", "photo.press", "void.press", "capture.press"],
+  readSuccess: true,
   read: (input, _state, lang): string[] => {
     const { rows } = input as ReturnType<typeof withRows>;
     return rows.map((row, index) =>

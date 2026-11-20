@@ -82,11 +82,17 @@ describe("books register contracts", () => {
     expect(edit).toContain("[e1/post press]");
     expect(edit).toContain("[e1/r2/net set");
     expect(edit).toContain("[e1/r2/business_use set");
-    expect(edit).toContain("[e1/r2/category select]");
+    expect(edit).not.toContain("[e1/r2/category select]");
+    expect(edit).not.toContain("[e1/r2/vat select]");
     expect(edit).not.toContain("/void press");
     const register = c.readComponent(Expenses, posted, "e1").join("\n");
     expect(register).toContain("[e1/r1/void press]");
     expect(register).not.toContain("/post press");
+    const success = c.readComponent(Expenses, posted, "e1", "success").join("\n");
+    expect(success).toContain("[e1/r1/void press]");
+    const voided = { ...posted, receipts: [{ ...posted.receipts[0]!, voided: true }] };
+    const voidedRead = c.readComponent(Expenses, voided, "e1", "success").join("\n");
+    expect(voidedRead).not.toContain("/void press");
     expect(Expenses.meta.partTiers).toEqual({ capture: "ok" });
     expect(Expenses.meta.confirmParts).toContain("void");
   });
@@ -116,12 +122,13 @@ describe("books report contracts", () => {
       { ...draft, payees: [{ ...row, hours: undefined }] },
       { ...draft, payees: [{ ...row, basis: "salary" }] },
       { ...draft, payees: [{ ...row, hours: 745 }] },
-      { ...draft, payees: [{ ...row, adjustments: [{ label: "Correction", amount: -121 }] }] },
       { ...draft, payees: [{ ...row, paidAt: "2026-12-01T12:00:00Z" }] },
       { ...paid, voided: true },
       { ...paid, finalizedAt: "2026-12-01T09:00:00" },
     ])
       expect(Payroll.props.safeParse(input).success).toBe(false);
+    const zeroGross = { ...row, rate: 0.3, hours: 3, adjustments: [{ label: "Correction", amount: -0.9 }] };
+    expect(Payroll.props.safeParse({ ...draft, payees: [zeroGross] }).success).toBe(true);
     const before = c.readComponent(Payroll, draft, "p1").join("\n");
     expect(before).toContain("[p1/finalize press]");
     expect(before).toContain("[p1/void press]");

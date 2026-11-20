@@ -86,14 +86,7 @@ const payee = z
     ruleRef: ref,
     paidAt: dateTime.optional(),
   })
-  .refine(({ basis, hours }) => (basis === "hourly") === (hours !== undefined), { path: ["hours"] })
-  .refine(
-    ({ rate, hours, adjustments }) => {
-      const gross = rate * (hours ?? 1) + adjustments.reduce((sum, { amount }) => sum + amount, 0);
-      return Number.isFinite(gross) && gross >= 0;
-    },
-    { path: ["adjustments"], message: "Adjustments cannot make gross pay negative" },
-  );
+  .refine(({ basis, hours }) => (basis === "hourly") === (hours !== undefined), { path: ["hours"] });
 
 export const props = z
   .strictObject({
