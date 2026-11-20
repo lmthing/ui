@@ -289,10 +289,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Banner\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"tone\":\"warn\",\"goto\":\"walk_details\"}",
+    "reply": "{\"c\":\"Banner\",\"text\":\"Dog walk cancelled for 4pm today\",\"icon\":\"dog\",\"tone\":\"warn\",\"goto\":\"walk_details\"}",
     "replies": [
-      "{\"c\":\"Banner\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"tone\":\"warn\",\"goto\":\"walk_details\"}",
-      "{\"c\":\"Banner\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"tone\":\"bad\",\"goto\":\"walk_details\"}",
+      "{\"c\":\"Banner\",\"text\":\"Dog walk cancelled for 4pm today\",\"icon\":\"dog\",\"tone\":\"warn\",\"goto\":\"walk_details\"}",
+      "{\"c\":\"Banner\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"paw\",\"tone\":\"warn\",\"goto\":\"walk_details\"}",
       "{\"c\":\"Banner\",\"text\":\"Today's 4pm dog walk is cancelled\",\"icon\":\"dog\",\"tone\":\"bad\",\"goto\":\"walk_details\"}"
     ]
   },

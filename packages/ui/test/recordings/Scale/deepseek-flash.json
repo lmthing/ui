@@ -96,9 +96,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
+    "reply": "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
     "replies": [
-      "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
+      "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
       "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
       "{\"c\":\"Scale\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}"
     ]
@@ -224,10 +224,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
+    "reply": "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":null,\"meta\":null}",
     "replies": [
-      "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
-      "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
+      "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":null,\"meta\":null}",
+      "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does it look?\",\"value\":3,\"readonly\":null,\"meta\":null}",
       "{\"c\":\"Scale\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}"
     ]
   },

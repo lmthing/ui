@@ -42,7 +42,7 @@
     "reply": "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and score points for each correct answer\"}",
     "replies": [
       "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and score points for each correct answer\"}",
-      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and score points for each correct answer!\"}",
+      "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed from its photo and earn points for each correct guess\"}",
       "{\"c\":\"Canvas\",\"caption\":\"Guess the dog breed and score points for each correct answer\"}"
     ]
   },

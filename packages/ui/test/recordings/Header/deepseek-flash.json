@@ -286,11 +286,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add\",\"goto\":\"new_plant\"}}",
+    "reply": "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"}}",
     "replies": [
-      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add\",\"goto\":\"new_plant\"}}",
-      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"new_plant\"}}",
-      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add\",\"goto\":\"new_plant\"}}"
+      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"}}",
+      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"}}",
+      "{\"c\":\"Header\",\"style\":\"large\",\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add plant\",\"goto\":\"add_plant\"}}"
     ]
   },
   "64c97bbbf4c8445f": {

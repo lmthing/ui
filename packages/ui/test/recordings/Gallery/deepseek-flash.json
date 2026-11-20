@@ -1014,8 +1014,8 @@
     "reply": "{\"c\":\"Gallery\",\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat_front\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:flat_kitchen\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:flat_garden\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
     "replies": [
       "{\"c\":\"Gallery\",\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat_front\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:flat_kitchen\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:flat_garden\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
-      "{\"c\":\"Gallery\",\"style\":\"carousel\",\"photos\":[{\"photo\":\"local:1\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"local:2\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"local:3\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
-      "{\"c\":\"Gallery\",\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat_front\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:flat_kitchen\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:flat_garden\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}"
+      "{\"c\":\"Gallery\",\"style\":\"strip\",\"photos\":[{\"photo\":\"lib:flat\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:flat\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:flat\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
+      "{\"c\":\"Gallery\",\"style\":\"carousel\",\"photos\":[{\"photo\":\"local:1\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"local:2\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"local:3\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}"
     ]
   },
   "e44563d041971ec2": {

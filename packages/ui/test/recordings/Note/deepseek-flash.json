@@ -258,7 +258,7 @@
     "replies": [
       "{\"c\":\"Note\",\"style\":\"hint\",\"text\":\"Keep Clover on a short lead near the road.\",\"tone\":\"warn\",\"icon\":\"paw\"}",
       "{\"c\":\"Note\",\"style\":\"hint\",\"text\":\"Keep Clover on a short lead near the road.\",\"tone\":\"warn\",\"icon\":\"paw\"}",
-      "{\"c\":\"Note\",\"style\":\"hint\",\"text\":\"Keep Clover on a short lead near the road.\",\"tone\":\"warn\",\"icon\":\"dog\"}"
+      "{\"c\":\"Note\",\"style\":\"hint\",\"text\":\"Keep Clover on a short lead near the road.\",\"tone\":\"warn\",\"icon\":\"alert\"}"
     ]
   },
   "4a512acac92bcd3e": {

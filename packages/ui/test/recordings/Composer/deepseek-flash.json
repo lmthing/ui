@@ -5,7 +5,7 @@
     "replies": [
       "Field",
       "Field",
-      "field"
+      "Field"
     ]
   },
   "1cd14a101753753d": {
@@ -120,11 +120,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\"Write your reply\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+    "reply": "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\".\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
     "replies": [
-      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\"Write your reply\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
-      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\"Type your reply…\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
-      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\"Write your reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}"
+      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\".\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\",\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+      "{\"c\":\"Composer\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\"Type your reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}"
     ]
   },
   "8013ce218f663466": {

@@ -167,7 +167,7 @@
     "reply": "{\"c\":\"Progress\",\"style\":\"stack\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null}]}",
     "replies": [
       "{\"c\":\"Progress\",\"style\":\"stack\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"style\":\"stack\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"style\":\"stack\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"over\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"over\":null,\"goto\":null}]}",
       "{\"c\":\"Progress\",\"style\":\"stack\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"over\":\"warn\",\"goto\":null}]}"
     ]
   }
