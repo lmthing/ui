@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { usePhoneController } from "./use-phone-controller";
 import { usePhoneLifecycle } from "./use-phone-lifecycle";
 import {
+  emptyDeviceData,
   type ActStep,
   type Definition,
   type DeviceData,
@@ -11,7 +12,7 @@ import {
   type Issue,
 } from "../../catalog";
 import { KitProvider, useEnvironment, type NativeHost } from "../provider";
-import { createAgentAccess, type InteractionStore, type MediaAdapter } from "../interact";
+import { createAgentAccess, DeviceDataContext, type InteractionStore, type MediaAdapter } from "../interact";
 import type { PartRegistry } from "../registry";
 import { Screen, type RendererMap } from "./Screen";
 
@@ -74,11 +75,13 @@ export function PhoneScreen(props: PhoneScreenProps) {
       environment={environment}
       {...(nativeHost ? { nativeHost } : {})}
     >
-      <Screen
-        controller={controller}
-        renderers={props.renderers}
-        {...(props.onReport ? { onReport: props.onReport } : {})}
-      />
+      <DeviceDataContext.Provider value={props.deviceData ?? emptyDeviceData}>
+        <Screen
+          controller={controller}
+          renderers={props.renderers}
+          {...(props.onReport ? { onReport: props.onReport } : {})}
+        />
+      </DeviceDataContext.Provider>
     </KitProvider>
   );
 }

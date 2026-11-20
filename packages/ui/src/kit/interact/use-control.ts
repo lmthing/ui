@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { createContext, useContext, useSyncExternalStore } from "react";
 import {
   activeParentId,
   emptyDeviceData,
@@ -6,18 +6,21 @@ import {
   nestedRemaining,
   projectControls,
   projectLiveInputs,
+  type DeviceData,
   type Meta,
   type Values,
 } from "../../catalog";
 import { usePartContext } from "../part";
 import { useKit } from "../provider";
 const subscribeNone = () => () => {};
+export const DeviceDataContext = createContext<DeviceData | undefined>(undefined);
 
 /** Get the host's declared records for the current component, outside its parsed props. */
 export function useDeviceData() {
   const { component } = usePartContext();
   const { controller } = useKit();
-  return controller?.deviceDataFor(component) ?? emptyDeviceData;
+  const data = useContext(DeviceDataContext);
+  return controller?.deviceDataFor(component, data) ?? emptyDeviceData;
 }
 
 /** Use the same store-backed presentation and derived gates as the reader and dispatcher. */

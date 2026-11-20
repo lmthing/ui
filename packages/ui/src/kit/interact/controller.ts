@@ -23,10 +23,10 @@ export function createScreenController(options: ControllerOptions) {
     mountMedia: media.mountMedia,
     tick: clock.tick,
     ...createAccess(ctx, act),
-    deviceDataFor(component: string) {
+    deviceDataFor(component: string, data = options.deviceData) {
       const source = ctx.sourceOf(component);
       const def = source && ctx.defs[source.c];
-      return def ? selectDeviceData(def.meta, options.deviceData) : emptyDeviceData;
+      return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
     },
     liveControls(meta: Meta, props: Values, component: string) {
       const values = ctx.valuesOf();
