@@ -1,8 +1,7 @@
-import { useSignatureProgress, countText } from "../../motion";
-import { motion } from "../../../catalog";
 import { Text, isWeb, styled, useTheme } from "tamagui";
-import type { ReactNode } from "react";
-import { fontFamilies, space, type as typography, variants } from "../../../catalog";
+import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
+import { fontFamilies, motion, space, type as typography, variants } from "../../../catalog";
+import { useSignatureProgress, countText } from "../../motion";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useTextStep, type TextFinish, type TextRole } from "./text-step";
@@ -25,15 +24,6 @@ const Frame = styled(Text, {
       label: roleOf("label"),
       caption: roleOf("caption"),
       number: roleOf("number"),
-    },
-    tone: {
-      text: { color: "$text" },
-      muted: { color: "$muted" },
-      accent: { color: "$accent" },
-      onAccent: { color: "$onAccent" },
-      good: { color: "$good" },
-      warn: { color: "$warn" },
-      bad: { color: "$bad" },
     },
     align: {
       start: { textAlign: variants.align.start.text },
@@ -98,19 +88,47 @@ function fontOf(role: TextRole, fonts: ReturnType<typeof useKitStyle>["fonts"]) 
   return fontFamilies[role === "number" ? fonts.number : fonts.text];
 }
 
-const loadingText = {
-  color: "transparent",
-  "aria-hidden": true,
-  ...(isWeb
-    ? {
-        backgroundImage: `linear-gradient(transparent calc(50% - ${space.xs}px), var(--line) calc(50% - ${space.xs}px) calc(50% + ${space.xs}px), transparent calc(50% + ${space.xs}px))`,
-      }
-    : { backgroundColor: "$line" }),
-} as const;
+const LoadingRuns = createContext(false);
+const bar = isWeb
+  ? {
+      backgroundImage: `linear-gradient(transparent calc(50% - ${space.xs}px), var(--line) calc(50% - ${space.xs}px) calc(50% + ${space.xs}px), transparent calc(50% + ${space.xs}px))`,
+    }
+  : { backgroundColor: "$line" as const };
+const options = ({ emphasis, item, goto }: TextProps) =>
+  emphasis === "strong" || emphasis === "emphasis" || item !== undefined || goto !== undefined;
+
+function hasOptions(children: ReactNode): boolean {
+  return Children.toArray(children).some(
+    (node) =>
+      isValidElement<TextProps>(node) &&
+      ((node.type === KitText && options(node.props)) || hasOptions(node.props.children)),
+  );
+}
+
+function useRunLoading(props: TextProps) {
+  const inherited = useContext(LoadingRuns);
+  return usePartContext().state === "loading" && (inherited || options(props) || hasOptions(props.children));
+}
+
+function maskRuns(children: ReactNode) {
+  return (
+    <LoadingRuns.Provider value>
+      {Children.map(children, (run) =>
+        isValidElement(run) ? (
+          run
+        ) : (
+          <Frame color="transparent" {...bar}>
+            {run}
+          </Frame>
+        ),
+      )}
+    </LoadingRuns.Provider>
+  );
+}
 
 function TextRun(props: TextProps) {
   const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
-  const { tabular = false, numberScale = "display", strike = false, emphasis, density, goto, item } = props;
+  const { tabular = false, numberScale = "display", strike = false, emphasis, density, goto } = props;
   const style = useKitStyle();
   const theme = useTheme();
   // Some hosts omit Tamagui's root class; keep the local theme's foreground as a CSS fallback.
@@ -119,7 +137,8 @@ function TextRun(props: TextProps) {
   const spin = useSignatureProgress("timer_spin");
   const state = usePartContext().state;
   const inline = emphasis === "strong" || emphasis === "emphasis";
-  const loading = state === "loading" && (inline || item !== undefined || goto !== undefined);
+  const loading = useRunLoading(props);
+  const nested = loading && Children.toArray(children).some(isValidElement);
   const linked = Boolean(goto && part !== null && state !== "empty" && !loading && children);
   const target = useTextLink(part, linked ? goto : undefined, !loading);
   const finish = inline ? "normal" : (emphasis ?? "normal");
@@ -131,13 +150,16 @@ function TextRun(props: TextProps) {
     emphasis === "strong" && (!heavier || Number(heavier) < Number(typography.display.weight))
       ? typography.display.weight
       : heavier;
+  const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   return (
     <Frame
       {...target}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
-      tone={linked ? "accent" : tone}
-      {...(loading ? loadingText : onAccent && !linked ? { color: `var(--onAccent, ${onAccent})` } : {})}
+      color={
+        loading ? "transparent" : linked ? "$accent" : onAccent ? `var(--onAccent, ${onAccent})` : `$${tone}`
+      }
+      {...(loading && { "aria-hidden": true, ...(!nested && bar) })}
       align={align}
       fontFamily={fontOf(role, style.fonts)}
       {...(weight ? { fontWeight: weight } : {})}
@@ -157,7 +179,7 @@ function TextRun(props: TextProps) {
           }
         : {})}
     >
-      {role === "number" && typeof children === "string" ? countText(children, count) : children}
+      {nested ? maskRuns(children) : content}
     </Frame>
   );
 }

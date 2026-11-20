@@ -47,6 +47,25 @@ describe("KitText runs", () => {
     expect(styleAt(html, root.children[1]!)).toContain("font-size:16px");
     expect(styleAt(html, root.children[2]!)).toContain("font-size:18px");
   });
+
+  it("masks ordinary text and every nested part when a mixed paragraph loads", () => {
+    const loading = draw(
+      <KitText part="body">
+        Before{" "}
+        <KitText part="bold" emphasis="strong">
+          strong
+        </KitText>
+        <KitText part="standard"> words and </KitText>
+        <KitText part="link" goto="details">
+          details
+        </KitText>
+      </KitText>,
+      "loading",
+    );
+    expect(addressedElements(loading).size).toBe(0);
+    expect(loading).not.toContain('role="link"');
+    expect(loading).toMatch(/<span[^>]+aria-hidden="true"[^>]*><span[^>]*>Before<\/span>/);
+  });
 });
 
 describe("KitText links", () => {

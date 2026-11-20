@@ -75,6 +75,7 @@ describe("KitRouteStop", () => {
     expect(elementAt(empty, root).attributes).not.toContain('role="link"');
     expect(loading).not.toContain('role="link"');
     expect(addressedElements(loading).has(root)).toBe(false);
+    expect(addressedElements(loading).has("home/c1/r2/label")).toBe(false);
     expect(loading).toContain('aria-busy="true"');
     expect(loading).toContain('aria-hidden="true"');
   });

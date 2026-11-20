@@ -3,8 +3,14 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { component, size, themeName, type StateName } from "@lmthing/ui/catalog";
-import { KitMapTile, KitProvider, PartScope, type ScreenController } from "@lmthing/ui/kit";
+import { component, components, size, themeName, type StateName } from "@lmthing/ui/catalog";
+import {
+  createScreenController,
+  KitMapTile,
+  KitProvider,
+  PartScope,
+  type ScreenController,
+} from "@lmthing/ui/kit";
 import { addressedElements, config, elementAt, styleAt } from "../render";
 
 vi.mock("react", { spy: true });
@@ -75,7 +81,7 @@ describe("KitMapTile", () => {
   });
 
   it("keeps an empty map and the loaded viewport geometry without pin actions or labels", async () => {
-    const empty = await draw({ pins: [] }, "empty");
+    const empty = await draw({ pins }, "empty");
     const loading = await draw({ pins }, "loading");
     const full = await draw({ pins }, "filled");
     for (const html of [empty, loading]) {
@@ -90,22 +96,41 @@ describe("KitMapTile", () => {
 });
 
 describe("KitMapTile interaction", () => {
-  it("dispatches the addressed selection through the controller", async () => {
+  it("dispatches the declared root action through the controller", async () => {
     const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
-    let press: ((event: object) => void) | undefined;
+    let press: ((event: object) => unknown) | undefined;
     const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
       const props = args[1] as { testID?: string; onPress?: typeof press };
-      if (props.testID === "home/c1/r7/select" && props.onPress) press = props.onPress;
+      if (props.testID === "home/c1/r1/root" && props.onPress) press = props.onPress;
       return jsxDEV(...args);
     });
-    const act = vi.fn();
+    const onLink = vi.fn();
+    const controller = createScreenController({
+      defs: components,
+      requireMounted: true,
+      onLink,
+      screen: { id: "home", components: [{ id: "c1", c: "MapPins", ...components.MapPins.examples[0] }] },
+    });
     try {
-      await draw({ pins }, "filled", { act } as unknown as ScreenController);
+      await draw({ pins: [{ ...pins[0], target: { part: "root" } }] }, "filled", controller);
       expect(press).toBeDefined();
-      press?.({});
-      expect(act).toHaveBeenCalledWith({ address: "home/c1/r7/select", action: "select" });
+      expect(press?.({})).toMatchObject({ ok: false, code: "not_mounted" });
+      const unregister = controller.registerPart("home/c1/r1/root");
+      expect(press?.({})).toMatchObject({ ok: true });
+      expect(onLink).toHaveBeenCalledWith("greenhouse", "home/c1/r1");
+      unregister();
     } finally {
       spy.mockRestore();
+      controller.dispose();
     }
+  });
+
+  it("does not collapse nearby markers even when their boxes share the same edge inset", async () => {
+    const near = { ...pins[0], id: "r4", x: 0.02 };
+    const html = await draw({ pins: [pins[0], near] }, "filled");
+    const first = elementAt(html, "home/c1/r1/pin");
+    const second = elementAt(html, "home/c1/r4/pin");
+    for (const pin of [first, second]) expect(styleAt(html, pin)).toContain("left:0px");
+    expect(styleAt(html, first.children[0]!)).not.toEqual(styleAt(html, second.children[0]!));
   });
 });

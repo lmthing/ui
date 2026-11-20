@@ -1,10 +1,11 @@
 import { useSignatureProgress } from "../../motion";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Check, ChevronRight, MapPin } from "@tamagui/lucide-icons";
-import { isWeb, XStack, YStack } from "tamagui";
+import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { KitText } from "../text";
 
 type Position = "start" | "middle" | "end";
 type RouteProps = {
@@ -106,23 +107,28 @@ function Rail({
   );
 }
 
-function StopContent({ pad, children, loading }: { pad: number; children: ReactNode; loading: boolean }) {
+function StopContent({
+  pad,
+  children,
+  loading,
+  label,
+}: {
+  pad: number;
+  children: ReactNode;
+  loading: boolean;
+  label: string;
+}) {
+  const [height, setHeight] = useState(0);
   if (!loading)
     return (
-      <YStack flex={1} paddingVertical={pad}>
+      <YStack flex={1} paddingVertical={pad} onLayout={(event) => setHeight(event.nativeEvent.layout.height)}>
         {children}
       </YStack>
     );
   return (
-    <YStack flex={1} paddingVertical={pad} position="relative">
-      <YStack
-        aria-hidden
-        accessibilityElementsHidden
-        opacity={component.base.none}
-        pointerEvents="none"
-        {...(isWeb ? { inert: true } : {})}
-      >
-        {children}
+    <YStack flex={1} minHeight={height} paddingVertical={pad} position="relative" aria-hidden>
+      <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
+        <KitText part={null}>{label}</KitText>
       </YStack>
       <YStack
         position="absolute"
@@ -155,7 +161,7 @@ function Stop({ label, position, children, goto, mark = "route" }: Omit<RoutePro
       aria-busy={loading || undefined}
     >
       <Rail {...{ position, mark: empty ? "dot" : mark, loading, empty, pad, line }} />
-      <StopContent {...{ pad, loading }}>{children}</StopContent>
+      <StopContent {...{ pad, loading, label }}>{children}</StopContent>
       {goto && (
         <YStack width={size.icon.sm} height={line} marginTop={pad} justifyContent="center" aria-hidden>
           {!loading && !empty && <ChevronRight size={size.icon.sm} color="$accent" />}

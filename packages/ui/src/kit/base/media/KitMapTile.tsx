@@ -64,9 +64,13 @@ function Streets({ width, height, count }: { width: number; height: number; coun
   );
 }
 
-// Keep the whole hit box inside the clipped tile, even for a pin at a map boundary.
-function offset(coordinate: number, extent: number) {
-  const center = (Number.isFinite(coordinate) ? coordinate : 0.5) * extent;
+function markerCenter(coordinate: number, extent: number, markSize: number) {
+  const share = Number.isFinite(coordinate) ? Math.max(0, Math.min(1, coordinate)) : 0.5;
+  return markSize / 2 + share * (extent - markSize);
+}
+
+// Inset the target independently, so moving its box never moves the visible marker.
+function offset(center: number, extent: number) {
   return Math.max(0, Math.min(extent - size.control.md, center - size.control.md / 2));
 }
 
@@ -74,7 +78,7 @@ function usePinTarget(pin: Pin, loading: boolean) {
   const kit = useKit();
   const target = !loading && pin.target;
   const address = usePart(pin.target?.part, Boolean(target));
-  const press = () => kit.controller?.act({ address: address.testID, action: "select" });
+  const press = () => kit.controller?.press(address.testID);
   return {
     ...(target ? address : {}),
     accessibilityRole: loading ? undefined : target ? ("button" as const) : ("image" as const),
@@ -99,13 +103,13 @@ function usePinTarget(pin: Pin, loading: boolean) {
   };
 }
 
-function Marker({ pin, loading }: { pin: Pin; loading: boolean }) {
+type MarkerBox = { width: number; height: number; left: number; top: number };
+function Marker({ pin, loading, box }: { pin: Pin; loading: boolean; box: MarkerBox }) {
   const dot = pin.mark === "dot";
-  const markSize = dot ? size.icon.sm : size.avatar.sm;
   return (
     <YStack
-      width={markSize}
-      height={markSize}
+      position="absolute"
+      {...box}
       alignItems="center"
       justifyContent="center"
       borderRadius={radius.pill}
@@ -120,32 +124,34 @@ function Marker({ pin, loading }: { pin: Pin; loading: boolean }) {
   );
 }
 
-function PlacedPin({
-  pin,
-  width,
-  height,
-  loading,
-}: {
-  pin: Pin;
-  width: number;
-  height: number;
-  loading: boolean;
-}) {
+type PlacedProps = { pin: Pin; width: number; height: number; loading: boolean };
+function PlacedPin({ pin, width, height, loading }: PlacedProps) {
+  const markSize = pin.mark === "dot" ? size.icon.sm : size.avatar.sm;
+  const x = markerCenter(pin.x, width, markSize),
+    y = markerCenter(pin.y, height, markSize);
+  const left = offset(x, width),
+    top = offset(y, height);
   return (
     <YStack
       {...usePinTarget(pin, loading)}
       position="absolute"
-      left={offset(pin.x, width)}
-      top={offset(pin.y, height)}
+      left={left}
+      top={top}
       width={size.control.md}
       height={size.control.md}
       zIndex={!loading && pin.selected ? component.base.bodyFlex : undefined}
-      alignItems="center"
-      justifyContent="center"
       pointerEvents={!pin.target || loading ? "none" : undefined}
       aria-hidden={loading || undefined}
     >
-      <Marker pin={pin} loading={loading} />
+      <Marker
+        {...{ pin, loading }}
+        box={{
+          width: markSize,
+          height: markSize,
+          left: x - left - markSize / 2,
+          top: y - top - markSize / 2,
+        }}
+      />
     </YStack>
   );
 }
@@ -177,11 +183,12 @@ export function KitMapTile({ count, pins, part = "map" }: TileProps) {
       {width > 0 && (
         <>
           <Streets width={width} height={height} count={pins === undefined ? (count ?? 0) : 0} />
-          {pins?.map((pin) => (
-            <PartContext.Provider key={pin.id} value={{ ...context, item: pin.target?.item ?? pin.id }}>
-              <PlacedPin {...{ pin, width, height, loading }} />
-            </PartContext.Provider>
-          ))}
+          {context.state !== "empty" &&
+            pins?.map((pin) => (
+              <PartContext.Provider key={pin.id} value={{ ...context, item: pin.target?.item ?? pin.id }}>
+                <PlacedPin {...{ pin, width, height, loading }} />
+              </PartContext.Provider>
+            ))}
         </>
       )}
     </YStack>
