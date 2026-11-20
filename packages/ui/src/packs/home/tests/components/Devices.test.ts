@@ -145,6 +145,12 @@ describe("Devices read and act", () => {
 });
 
 describe("Devices safety confirmations", () => {
+  it("reads the actual Review button as a press that opens confirmation", () => {
+    const read = readComponent(components.Devices, tiles, "d1").join("\n");
+    expect(read).toContain('Press "Review" to open confirmation for this scene');
+    expect(read).toContain("[d1/r8/secure press");
+  });
+
   it.each([
     { address: "d1/r2/lock", action: "toggle" },
     { address: "d1/r8/secure", action: "press" },

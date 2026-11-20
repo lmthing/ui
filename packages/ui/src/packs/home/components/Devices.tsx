@@ -22,8 +22,8 @@ type Device = Extract<DevicePanel["entries"][number], { entryKind: "device" }>;
 type Tile = { row: Device; disabled: boolean; focused: boolean };
 
 function DeviceText({ children, ...props }: ComponentProps<typeof KitText> & { children: string }) {
-  const { role = "label", numberScale, density } = props;
-  const lines = [{ text: children, role, numberScale }];
+  const { role = "label", numberScale, density, align } = props;
+  const lines = [{ text: children, role, numberScale, align }];
   return kit.useComponentState() === "loading" ? (
     <kit.KitSkeleton shape="figure" inset="none" {...{ lines, density }} />
   ) : (
@@ -100,15 +100,13 @@ function DeviceTile({ row, disabled, focused }: Tile) {
   const locked = kit.useControlValue(formatAddress({ ...scope, part: "lock" }), row.on);
   const level = kit.useControlValue(formatAddress({ ...scope, part: "level" }), row.level);
   const lockLabel = locked ? labels.locked : labels.unlocked;
-  const { goto } = row;
   const levelLabel = panel.level[row.kind as keyof typeof panel.level];
   const toggle = row.switchable && (
     <kit.KitTrail kind="toggle" part="root" on={row.on ?? false} {...{ disabled }} />
   );
   const name = <DeviceText role={focused ? "heading" : "label"} part="name" children={row.name} />;
-  const details = goto && (
-    <KitAction part="controls" kind="quiet" label={panel.controls} {...{ goto, disabled }} />
-  );
+  const link = { goto: row.goto, disabled };
+  const details = row.goto && <KitAction part="controls" kind="quiet" label={panel.controls} {...link} />;
   const reading = row.reading !== undefined && <Reading {...{ row, focused }} />;
   return (
     <kit.KitRow item={row.id} part={row.switchable ? null : "root"} label={row.name} surface="card">
@@ -150,20 +148,22 @@ export function Devices({ entries, focus, style, rooms }: DevicePanel) {
   const focused = style === "focused" ? focusedDevice(devices, focus) : undefined;
   const roomOrder = new Set([...(focused ? [focused.roomIndex] : []), ...rooms.keys()]);
   const disabled = state !== "filled";
-  const sceneAction = focused ? "secondary" : "quiet";
+  const kind = focused ? "secondary" : "quiet";
+  const multi = scenes.length > 1;
   const tile = (row: Device) => <DeviceTile key={row.id} {...{ row, disabled }} focused={row === focused} />;
   if (state === "empty") return <kit.KitCard children={<kit.KitEmpty decorativeIcon />} />;
   const saved = scenes.length > 0 && (
     <kit.KitContent group={focused ? "response" : "content"}>
       <DeviceText role="label" tone="muted" part={null} children={panel.scenes} />
-      <kit.KitGrid arrange={scenes.length === 1 ? "rows" : "grid"}>
+      <kit.KitGrid arrange={multi ? "grid" : "rows"}>
         {scenes.map((row) => {
           const part = row.secure ? "secure" : "apply";
+          const title = { align: multi ? "center" : "start", density: "compact", part: "name" } as const;
           return (
             <kit.KitRow key={row.id} item={row.id} label={row.name} surface="card">
-              <kit.KitGrid arrange={scenes.length === 1 ? "grid" : "rows"} fitLast>
-                <DeviceText role="label" density="compact" part="name" children={row.name} />
-                <KitAction kind={sceneAction} label={panel[part]} {...{ part, disabled }} />
+              <kit.KitGrid arrange={multi ? "rows" : "grid"} fitLast>
+                <DeviceText {...title} children={row.name} />
+                <KitAction full={multi} label={panel[part]} {...{ kind, part, disabled }} />
               </kit.KitGrid>
             </kit.KitRow>
           );

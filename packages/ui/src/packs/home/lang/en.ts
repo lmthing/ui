@@ -76,6 +76,7 @@ export const en = {
     scenes: "Saved scenes",
     apply: "Apply",
     secure: "Review",
+    reviewScene: (label: string) => `Press ${label} to open confirmation for this scene`,
     controls: "Details",
     increase: "Increase set point",
     decrease: "Decrease set point",

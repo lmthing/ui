@@ -13,7 +13,7 @@ function readEntry(row: Entry, enlarged: boolean, lang?: string) {
     return [
       [row.id, row.name].filter(Boolean).join(" "),
       row.secure ? deviceLabels.secure : deviceLabels.apply,
-      row.secure ? devicePanel.secure : undefined,
+      row.secure ? devicePanel.reviewScene(JSON.stringify(devicePanel.secure)) : undefined,
     ];
   const range = deviceRange(row, lang);
   const unit = row.unit ?? "celsius";
