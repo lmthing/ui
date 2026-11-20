@@ -55,6 +55,12 @@ export const en = {
     success: "Decision recorded",
     detailSeparator: " · ",
   },
+  handover: {
+    seen: "Seen",
+    unseen: "Not seen",
+    markSeen: (note: string) => `Mark as seen: ${note}`,
+    seenNote: (note: string) => `Seen: ${note}`,
+  },
 };
 
 export type TeamWords = typeof en;
