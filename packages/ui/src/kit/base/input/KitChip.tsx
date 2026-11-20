@@ -190,7 +190,7 @@ export function KitTrack({
             paddingHorizontal: space.xs,
           }
         : { flexWrap: "wrap" as const, columnGap: space.sm, rowGap: space.sm })}
-      {...({ role: role ?? (segments ? "tablist" : "list") } as object)}
+      {...({ role: role ?? (segments ? "tablist" : "group") } as object)}
       {...(label ? { "aria-label": label } : {})}
     >
       <ChoiceTarget.Provider value={address.testID}>{children}</ChoiceTarget.Provider>

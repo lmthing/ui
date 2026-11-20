@@ -9,14 +9,31 @@ type StripProps = {
   /** `page` uses snapping pages; `all` exposes every cell in a continuous strip. */
   overflow?: Exclude<AxisValue<"overflow">, "peek"> | undefined;
   density?: ThemeDensity | undefined;
+  list?: boolean;
 };
+
+function StripPosition({ count, at }: { count: number; at: number }) {
+  return (
+    <XStack justifyContent="center" gap={space.xs} aria-hidden>
+      {Array.from({ length: count }, (_, index) => (
+        <YStack
+          key={index}
+          width={component.base.dot}
+          height={component.base.dot}
+          borderRadius={radius.pill}
+          backgroundColor={index === at ? "$accent" : "$line"}
+        />
+      ))}
+    </XStack>
+  );
+}
 
 /**
  * A horizontal strip of cells, each `stripShare` (about 40%) of the strip's width so the third one is
  * partly visible and invites a swipe. With `pages`, each cell is nearly the full width, snaps into
  * place and a dot per cell shows where you are (a carousel). No visible scrollbar; token gap between cells.
  */
-export function KitStrip({ children, pages = false, overflow, density }: StripProps) {
+export function KitStrip({ children, pages = false, overflow, density, list = false }: StripProps) {
   const [width, setWidth] = useState(0);
   const [at, setAt] = useState(0);
   const cells = Children.toArray(children);
@@ -45,10 +62,17 @@ export function KitStrip({ children, pages = false, overflow, density }: StripPr
             }
           : {})}
       >
-        <XStack gap={gap} paddingVertical={space.xs} marginHorizontal="auto" flexShrink={0}>
+        <XStack
+          gap={gap}
+          paddingVertical={space.xs}
+          marginHorizontal="auto"
+          flexShrink={0}
+          accessibilityRole={list && cells.length ? "list" : undefined}
+        >
           {cells.map((child, index) => (
             <YStack
               key={index}
+              accessibilityRole={list ? "listitem" : undefined}
               width={cell || undefined}
               flexShrink={0}
               {...(webSnap ? { style: { scrollSnapAlign: "start" } as never } : {})}
@@ -58,19 +82,7 @@ export function KitStrip({ children, pages = false, overflow, density }: StripPr
           ))}
         </XStack>
       </ScrollView>
-      {paged && (
-        <XStack justifyContent="center" gap={space.xs} aria-hidden>
-          {cells.map((_, index) => (
-            <YStack
-              key={index}
-              width={component.base.dot}
-              height={component.base.dot}
-              borderRadius={radius.pill}
-              backgroundColor={index === at ? "$accent" : "$line"}
-            />
-          ))}
-        </XStack>
-      )}
+      {paged && <StripPosition count={cells.length} at={at} />}
     </YStack>
   );
 }

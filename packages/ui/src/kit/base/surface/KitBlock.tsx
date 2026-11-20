@@ -24,5 +24,5 @@ export function KitBlock(
     inset?: "md" | "none";
   } & TextFinish,
 ) {
-  return <Row {...props} role="text" />;
+  return <Row {...props} />;
 }

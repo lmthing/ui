@@ -1,6 +1,6 @@
 import { useSignatureProgress, countText } from "../../motion";
 import { motion } from "../../../catalog";
-import { Text, styled } from "tamagui";
+import { Text, isWeb, styled, useTheme } from "tamagui";
 import type { ReactNode } from "react";
 import { fontFamilies, type as typography, variants } from "../../../catalog";
 import { useKitStyle } from "../../provider";
@@ -66,6 +66,9 @@ export function KitText(props: TextProps) {
   const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
   const { tabular = false, numberScale = "display", strike = false, emphasis = "normal", density } = props;
   const style = useKitStyle();
+  const theme = useTheme();
+  // Some hosts omit Tamagui's root class; keep the local theme's foreground as a CSS fallback.
+  const onAccent = isWeb && tone === "onAccent" && theme.onAccent?.val;
   const count = useSignatureProgress("count_up");
   const spin = useSignatureProgress("timer_spin");
   const address = usePart(part ?? "root", part !== null);
@@ -85,6 +88,7 @@ export function KitText(props: TextProps) {
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
       tone={tone}
+      {...(onAccent ? { color: `var(--onAccent, ${onAccent})` } : {})}
       align={align}
       fontFamily={fontFamilies[family]}
       {...(heavier ? { fontWeight: heavier } : {})}

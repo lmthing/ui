@@ -33,3 +33,29 @@ describe("themeRoles semantic surfaces", () => {
     }
   });
 });
+
+describe("themeRoles control labels", () => {
+  const cases = presets.flatMap((preset) =>
+    accents.flatMap((accent) => (["light", "dark"] as const).map((mode) => ({ preset, accent, mode }))),
+  );
+  it.each(cases)("$preset.id / $accent.id / $mode", ({ preset, accent, mode }) => {
+    const roles = themeRoles(preset, accent, mode);
+    // Primary button, selected pill, and count badge share the solid pair.
+    expect(contrast(roles.onAccent, roles.accent)).toBeGreaterThanOrEqual(4.5);
+    // Secondary button and accent badge/selected custom chip use the soft fill.
+    expect(contrast(roles.accent, roles.accentSoft)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(roles.text, roles.accentSoft)).toBeGreaterThanOrEqual(4.5);
+    // Segments use muted text on raised (idle) and body text on surface (selected).
+    expect(contrast(roles.muted, roles.raised)).toBeGreaterThanOrEqual(4.5);
+    expect(contrast(roles.text, roles.surface)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("chooses a passing fallback when the preferred on-accent role fails", () => {
+    const [preset] = presets;
+    const [accent] = accents;
+    const darkOnDark = { ...accent, light: { ...accent.light, onAccent: preset.roles.light.text } };
+    const resolved = themeRoles(preset, darkOnDark, "light");
+    expect(resolved.onAccent).not.toBe(darkOnDark.light.onAccent);
+    expect(contrast(resolved.onAccent, resolved.accent)).toBeGreaterThanOrEqual(4.5);
+  });
+});
