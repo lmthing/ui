@@ -6,8 +6,16 @@ export {
   type Affordance,
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
-export { choiceValues, selectionOffer, validateActionValue, type ValueError } from "./validate-value";
-export { planAct, type ActStep, type ActResult, type Values } from "./act";
+export { visibleItems } from "./visibility";
+export { projectLiveInputs } from "./live-inputs";
+export {
+  choiceValues,
+  resolveKeypadValue,
+  selectionOffer,
+  validateActionValue,
+  type ValueError,
+} from "./validate-value";
+export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
   controlValueKey,
   liveProps,
@@ -57,4 +65,5 @@ export {
   projectAdjustments,
   projectClocks,
   clockActionValid,
+  clockChanges,
 } from "./clocks";

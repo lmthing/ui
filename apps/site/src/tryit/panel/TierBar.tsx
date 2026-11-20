@@ -4,6 +4,7 @@ import type { Choice, Local } from "../useEngines";
 
 type Props = {
   chrome: string;
+  openrouter: string;
   gpu: boolean;
   local: Local;
   choice: Choice;
@@ -21,7 +22,7 @@ const chromeNote: Record<string, string> = {
 };
 
 /** Which tiers this browser has, an explicit local download, and which model is running. */
-export function TierBar({ chrome, gpu, local, choice, engine, onChoice, onDownload }: Props) {
+export function TierBar({ chrome, openrouter, gpu, local, choice, engine, onChoice, onDownload }: Props) {
   const chromeOk = ["available", "downloadable", "downloading"].includes(chrome);
   const options: [Choice, string, string, boolean][] = [
     ["auto", "Best available", "", true],
@@ -32,7 +33,8 @@ export function TierBar({ chrome, gpu, local, choice, engine, onChoice, onDownlo
       gpu ? (local === "ready" ? "ready" : "needs download") : "needs WebGPU",
       local === "ready",
     ],
-    ["replay", "3 Recorded replay", "always available", true],
+    ["openrouter", "3 OpenRouter", openrouter, true],
+    ["replay", "4 Recorded replay", "always available", true],
   ];
   return (
     <div className="tiers">

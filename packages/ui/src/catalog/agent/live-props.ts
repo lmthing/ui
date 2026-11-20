@@ -6,7 +6,8 @@ import { repairVariants } from "../rules";
 import type { Values } from "./act";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
-import { projectLegacySelection, projectNamedSelections, projectNested, projectSelection } from "./selection";
+import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
+import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import type { ScreenLike } from "./read";
 import {
   adjustmentAt,
@@ -75,7 +76,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   const { meta } = def;
   let source = projectComponentSets(meta, input, get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
-  source = projectNamedSelections(meta, source, get);
+  source = projectNamedSelections(meta, source, get, "wire");
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
@@ -140,23 +141,22 @@ export function liveProps(
   wireApplied = false,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
+  const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
   else {
     props = projectControls(meta, props, get);
     if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
   }
-  if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
-  else if (
-    (meta.draw || meta.emptyActions?.length || meta.successActions?.length || meta.session) &&
-    get("$state") !== undefined
-  )
-    props = { ...props, state: get("$state") };
-  props = projectDraw(meta, props, get);
-  if (runtime) {
-    if (meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
-      props = { ...props, minus: undefined };
+  if (runtime || meta.live) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
+  else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
+    const state = get("$state");
+    if (state !== undefined) props = { ...props, state };
   }
+  props = projectDraw(meta, props, get);
+  props = projectLiveInputs(meta, props, instance, get);
+  if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
+    props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
     const value = values[`${instance}/field/$draft`] ?? values[`${instance}/field`];
     if (value !== undefined && props.kind !== "repeat" && props.kind !== "photo")

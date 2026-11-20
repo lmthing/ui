@@ -12,7 +12,7 @@ import {
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.Invoice;
-const seed = examples[0]!;
+const seed = props.parse(examples[0]!);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 describe("Invoice schema and boundaries", () => {
   it.each(examples)("accepts a real example", (example) =>

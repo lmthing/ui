@@ -45,7 +45,7 @@ export function selectStep(
   return {
     step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
     error,
-    declared: Boolean(offer),
+    declared: Boolean(offer && !offer.runtime),
     changes: Object.fromEntries(
       Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
         `${screen.id}/${id}/${part}`,

@@ -19,6 +19,15 @@ export type ActionName =
   | "send"
   | "scan";
 export type ScreenAction = "back" | "tab" | "scroll";
+/** Store-backed inputs and derived gates, applied to parsed props, never to Writer input. */
+export type LiveActionInputs = {
+  text?: Readonly<Record<string, { prop: string; max: number }>>;
+  checks?: Readonly<Record<string, string>>;
+  /** Send part → declared text input and optional audience prop, captured at the admitted step. */
+  send?: Readonly<Record<string, { field: string; audience?: string }>>;
+  /** Derive presentation props/gates, optionally closing over trusted host facts for this instance. */
+  derive?: (props: Readonly<Record<string, unknown>>, instance: string) => Record<string, unknown>;
+};
 export type ActionSpec = {
   parts?: Record<string, readonly ActionName[]>;
   items?: Record<string, readonly ActionName[]>;

@@ -22,7 +22,11 @@ describe("ClientHistory contract and boundaries", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims titles and adds item ids only to view props", () => {
-    expect(props.parse({ entries: [{ ...entry, title: " Consultation " }] })).toEqual({ entries: [entry] });
+    expect(props.parse({ entries: [{ ...entry, title: " Consultation " }] })).toEqual({
+      entries: [{ ...entry, mark: "none", tone: "neutral" }],
+      lead: "icon",
+      surface: "card",
+    });
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["entries"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps>().not.toBeAny();

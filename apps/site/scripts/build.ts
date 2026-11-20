@@ -8,6 +8,7 @@ import { runGallery } from "./run-gallery";
 import { loadSiteData } from "./site-data";
 import { siteViteConfig } from "./vite-config";
 import { writeBrand } from "./brand";
+import { writeLlm } from "./llm";
 import { writeData } from "./write-data";
 
 const site = new URL("../", import.meta.url).pathname;
@@ -31,9 +32,10 @@ async function main() {
   // (a static import fails on a clean checkout, where that file does not exist yet).
   const { prerender } = await import("./prerender");
   prerender(out);
+  const texts = writeLlm(out, data);
   writeFileSync(`${out}/.nojekyll`, "");
   console.log(
-    `SITE ${out} (${data.stats.built} components, ${data.packs.length} packs) in ${Math.round((Date.now() - started) / 1000)}s`,
+    `SITE ${out} (${data.stats.built} components, ${data.packs.length} packs, ${texts} text files) in ${Math.round((Date.now() - started) / 1000)}s`,
   );
 }
 

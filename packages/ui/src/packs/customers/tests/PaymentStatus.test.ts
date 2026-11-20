@@ -22,6 +22,8 @@ describe("PaymentStatus schema and boundaries", () => {
     expect(props.parse({ ...base, method: "  Bank transfer  " })).toEqual({
       ...base,
       method: "Bank transfer",
+      detail: "full",
+      surface: "card",
       outstanding: true,
     });
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();

@@ -17,13 +17,17 @@ export function useActing(
   const act = useCallback(
     async (task: string) => {
       const affordances = offered(screen);
-      if (!engine || engine.tier === 3 || !affordances.length)
-        return setAnswer(no("Acting needs a model in tier 1 or 2 and a screen with actions."));
+      if (!engine || engine.tier === 4 || !affordances.length)
+        return setAnswer(no("Acting needs a live model (tier 1, 2 or 3) and a screen with actions."));
       let text = "";
       setStatus("Choosing an action");
       const signal = new AbortController().signal;
       const input = { prompt: actPrompt(view, task), schema: actSchema(affordances), signal };
-      await engine.run({ ...input, onText: (t) => (text = t), onStatus: setStatus });
+      try {
+        await engine.run({ ...input, onText: (t) => (text = t), onStatus: setStatus });
+      } catch (error) {
+        return setStatus(`${engine.label} failed (${(error as Error).message}).`);
+      }
       setAnswer(resolveAnswer(screen, text));
       setStatus("Done.");
     },

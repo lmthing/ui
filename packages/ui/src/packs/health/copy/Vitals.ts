@@ -50,13 +50,13 @@ export function vitalRangeLine(reading: Pick<Vital, "low" | "high" | "value2">, 
 }
 
 /** Read exactly the supplied values and reference, never a diagnosis or rounded measurement. */
-export function vitalLine(reading: Vital, lang?: string): string {
+export function vitalLine(reading: Vital, lang?: string, showTime = true): string {
   return healthWordsFor(lang).vitalReading(
     reading.label,
     numberLine(reading.value, lang),
     vitalUnitLine(reading, lang),
     vitalRangeLine(reading, lang),
     vitalStatusLine(reading, lang),
-    reading.at,
+    showTime ? reading.at : undefined,
   );
 }

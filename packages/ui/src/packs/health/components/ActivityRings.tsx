@@ -5,6 +5,7 @@ import {
   placeholderValue,
   probesFor,
   text,
+  variantProps,
   type CastLike,
   type Meta,
   type Probe,
@@ -19,6 +20,7 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
+  useVariant,
 } from "../../../kit";
 import { activityRingLine } from "../copy";
 import { seedTitles } from "..";
@@ -35,15 +37,21 @@ export const meta = {
   tier: "phone",
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
+  writeHints: [
+    "Write surface null unless asked for an outline. Do not write the default surface card. To hide target captions, use detail brief and still write each target in of.",
+  ],
+  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["of"] } },
   items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings"],
   states: ["filled", "loading"],
-  read: (input, state, lang?: string) =>
-    state !== "filled"
-      ? []
-      : (input as z.output<typeof props>).rings.map((ring) => activityRingLine(ring, lang)),
+  read: (input, state, lang?: string): string[] => {
+    const { rings, detail } = input as z.output<typeof props>;
+    return state === "filled" ? rings.map((ring) => activityRingLine(ring, lang, detail !== "brief")) : [];
+  },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   rings: z
     .array(
       z.strictObject({
@@ -102,6 +110,12 @@ export const probes = [
   ),
   choose("Show just one circular daily step goal, 3000 of 8000, no other goals", "Ring"),
   write("Three daily goals: Move 280 of 400 kcal, Exercise 20 of 30 min, Stand 7 of 12 hours"),
+  {
+    ...write(
+      "Show two daily goals as rings: Move 280 of 400 kcal and Exercise 20 of 30 min. Keep the target numbers in the data for the rings, but hide the target captions.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
 const ringTones = ["accent", "good", "warn"] as const;
@@ -111,11 +125,13 @@ const numberScaleOf = (value: number, count: number) =>
 const ringNumber = (value: number, count: number) =>
   ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
 
-export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function ActivityRings({ rings, detail, surface }: Props<typeof props, typeof meta>) {
+  const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
   return (
-    <KitCard style="inset" part="root" padded>
+    <KitCard style="inset" part="root" padded surface={surface}>
       <KitRadialTrack
         part="rings"
         style="rings"
@@ -141,8 +157,7 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
                   align: "center",
                   numberScale: numberScaleOf(ring.value, rings.length),
                 },
-                { text: goalLine(ring.of, lang), role: "caption", align: "center" },
-                { text: ring.unit, role: "caption", align: "center" },
+                { text: full ? `${goalLine(ring.of, lang)} ${ring.unit}` : ring.unit, role: "caption", align: "center" },
               ]}
             />
           ) : (
@@ -153,12 +168,9 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
               <KitText {...ringNumber(ring.value, rings.length)} part="value">
                 {numberLine(ring.value, lang)}
               </KitText>
-              <KitText role="caption" tone="muted" align="center" part="of">
-                {goalLine(ring.of, lang)}
-              </KitText>
-              <KitText role="caption" tone="muted" align="center" part="unit">
-                {ring.unit}
-              </KitText>
+              {full ? <KitText role="caption" tone="muted" align="center" part="of">
+                {goalLine(ring.of, lang)}{"\u00a0"}<KitText role="caption" tone="muted" part="unit">{ring.unit}</KitText>
+              </KitText> : <KitText role="caption" tone="muted" align="center" part="unit">{ring.unit}</KitText>}
             </KitRow>
           ),
         )}

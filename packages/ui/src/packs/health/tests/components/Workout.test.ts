@@ -109,18 +109,19 @@ describe.runIf(String(meta.status) === "ready")("Workout states and parts", () =
       const reading = readComponent(components.Workout, example, "w1").join("\n");
       const parts = [...html.matchAll(/data-testid="(home\/w1\/[^"]+)"/g)].map((m) => m[1]);
       expect(new Set(parts).size).toBe(parts.length);
-      for (const part of ["root", "time", "finish", "r1/root", "r1/name", "r1/set_2", "r1/label_2"])
+      for (const part of ["root", "finish", "r1/root", "r1/name", "r1/set_2", "r1/label_2"])
         expect(parts).toContain(at(part));
       expect(parts.includes(at("rest"))).toBe(example.rest > 0);
+      expect(parts.includes(at("time")) && reading.includes("Elapsed time")).toBe(true);
       expect(elementAt(html, at("r1/done_1")).attributes).toContain('role="checkbox"');
       expect(elementAt(html, at("r1/weight_2")).attributes).toContain('role="spinbutton"');
       expect(elementAt(html, at("finish")).attributes).toContain('role="button"');
-      for (const value of [`Weight (${example.unit})`, "Reps", "Set 2", "Elapsed time", "Finish workout"])
+      for (const value of [`Weight (${example.unit})`, "Reps", "Set 2", "Finish workout"])
         expect(reading).toContain(value);
     }
     const duration = renderInstance("Workout", examples[0], "filled", theme);
     const resting = renderInstance("Workout", examples[1], "filled", theme);
-    expect(duration).toMatch(/data-testid="home\/c1\/r2\/label_1"[^>]*>Set 1 · 0:45/);
+    expect(duration).toMatch(/data-testid="home\/c1\/r2\/label_1"[^>]*>Set 1 · <span[^>]*>0:45/);
     expect(elementAt(duration, "home/c1/r2/done_1").attributes).toContain('role="checkbox"');
     expect(duration).not.toMatch(/data-testid="home\/c1\/r2\/(?:weight|reps)_1/);
     expect(resting).toContain("Rest · 0:36");
@@ -140,7 +141,6 @@ describe.runIf(String(meta.status) === "ready")("Workout states and parts", () =
     expect(actions.map(({ address }) => address)).not.toContain("w1/rest");
   });
 });
-
 function setup(state: "filled" | "empty" | "success" = "filled") {
   let now = 1000;
   const screen = { id: "home", components: [{ id: "w1", c: "Workout", ...input, state }] };

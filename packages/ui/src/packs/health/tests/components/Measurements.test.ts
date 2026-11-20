@@ -143,7 +143,7 @@ describe("Measurements states, parts, reading and actions", () => {
       `m1 Measurements (${state})`,
     ]);
     if (state === "empty") {
-      expect(html).toContain("Nothing here yet");
+      expect(html).toContain(measurementLabels.empty);
       expect(html).not.toContain("Body weight");
     } else {
       expect(html).toContain('aria-busy="true"');

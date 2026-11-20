@@ -13,13 +13,13 @@ export function TrySection() {
   const [tab, setTab] = useState<(typeof tabs)[number]>(tabs[0]);
   return (
     <section className="sec" id="try" aria-labelledby="try-h">
-      <SectionLabel n="03" name="Try" note={"Three tiers: Chrome AI, WebLLM, recorded replay."} />
+      <SectionLabel n="03" name="Try" note={"Four tiers: Chrome AI, WebLLM, OpenRouter, recorded replay."} />
       <Reveal>
         <h2 id="try-h">Try it with a model</h2>
         <p className="lede">
-          A small model runs in this tab and writes one screen from ten core components and at most one pack.
-          Chrome's built-in model is used if you have it; WebLLM only after you choose to download a model;
-          otherwise you see a real recorded run. Nothing leaves the page.
+          A model writes one screen from ten core components and at most one pack. Chrome's built-in model and
+          WebLLM run in this tab, and nothing leaves the page. OpenRouter runs a free model on your own
+          account, only after you connect it. Otherwise you see a real recorded run.
         </p>
         <div className="tabs" role="tablist" aria-label="Demo">
           {tabs.map((t) => (

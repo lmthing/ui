@@ -83,8 +83,8 @@ describe("repayment boundaries", () => {
 describe("Loan copy", () => {
   it("keeps six rows, adds a localized count, and uses one forecast for both styles", () => {
     const slow = { ...terms, rate: 0, principal: 701, payment: 100 };
-    const schedule = loanCopy({ ...slow, style: "schedule" }, "filled", "en-GB", today, "GBP");
-    const summary = loanCopy({ ...slow, style: "summary" }, "filled", "en-GB", today, "GBP");
+    const schedule = loanCopy({ ...slow, detail: "full" }, "filled", "en-GB", today, "GBP");
+    const summary = loanCopy({ ...slow, detail: "brief" }, "filled", "en-GB", today, "GBP");
     expect(schedule.schedule).toHaveLength(6);
     expect(schedule.schedule[0]?.remaining).toBe("£601.00 left");
     expect(schedule.more).toBe("And 2 more payments");
@@ -93,7 +93,7 @@ describe("Loan copy", () => {
     expect(summary.next).toEqual(schedule.next);
     expect(summary.next?.headline).toBe("Next payment · 31 Jan 2028 · £100");
     expect(summary.finish).toBe(schedule.finish);
-    expect(loanCopy({ ...slow, principal: 700, style: "schedule" }, "filled", "en", today).more).toBe(
+    expect(loanCopy({ ...slow, principal: 700, detail: "full" }, "filled", "en", today).more).toBe(
       "And 1 more payment",
     );
   });

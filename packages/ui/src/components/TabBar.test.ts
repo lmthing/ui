@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  readComponent,
   stampItemIds,
   type CastLike,
   type Props,
@@ -18,10 +19,8 @@ describe("TabBar schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("defaults to the first tab and trims labels", () => {
-    expect(props.parse(inputWith({ ...tab, label: "  Schedule  " }))).toEqual({
-      tabs: [tab, tab],
-      at: 0,
-    });
+    const parsed = props.parse(inputWith({ ...tab, label: "  Schedule  " }));
+    expect(parsed).toEqual({ tabs: [tab, tab], at: 0, trail: "badge" });
   });
   it.each([
     {},
@@ -37,20 +36,16 @@ describe("TabBar schema", () => {
     inputWith({ label: "Schedule", goto: "schedule" }),
     inputWith({ icon: "calendar", goto: "schedule" }),
     inputWith({ icon: "calendar", label: "Schedule" }),
-    inputWith({ ...tab, goto: "" }),
-    inputWith({ ...tab, goto: "Bad ID" }),
-    inputWith({ ...tab, goto: "next-screen" }),
-    inputWith({ ...tab, goto: "a".repeat(65) }),
-    inputWith({ ...tab, goto: "https://example.org" }),
+    ...["", "Bad ID", "next-screen", "a".repeat(65), "https://example.org"].map((goto) =>
+      inputWith({ ...tab, goto }),
+    ),
     inputWith({ ...tab, color: "red" }),
     inputWith({ ...tab, pixels: 4 }),
     inputWith({ ...tab, id: "r2" }),
-    { ...inputWith(tab), at: -1 },
-    { ...inputWith(tab), at: 0.5 },
-    { ...inputWith(tab), at: 2 },
-    { ...inputWith(tab), at: "0" },
-    { ...inputWith(tab), at: null },
+    ...[-1, 0.5, 2, "0", null].map((at) => ({ ...inputWith(tab), at })),
     { ...inputWith(tab), style: "grid" },
+    { ...inputWith(tab), trail: "check" },
+    inputWith({ ...tab, trail: "toggle" }),
     { ...inputWith(tab), color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths, every count and every valid selection", () => {
@@ -139,6 +134,17 @@ describe("TabBar fallback", () => {
   });
 });
 
+it.each(["none", "badge"] as const)("reads and renders only effective badges for %s", (trail) => {
+  const [messages, schedule, settings] = examples[2]!.tabs;
+  // prettier-ignore
+  const input = { trail, tabs: [messages!, { ...schedule!, count: 12, trail: "badge" }, { ...settings!, count: 2, trail: "none" }] };
+  const html = renderInstance("TabBar", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  const badges = html.match(/r\d+\/badge(?=")/g);
+  expect(badges).toEqual(trail === "none" ? ["r2/badge"] : ["r1/badge", "r2/badge"]);
+  const read = readComponent(components.TabBar, input, "t1").join("\n");
+  expect(read.includes("Messages: 3")).toBe(trail === "badge");
+  expect(read).toContain("Schedule: 12");
+});
 describe("TabBar metadata and probes", () => {
   it("offers exactly one select action on every tab root", () => {
     for (const example of examples) {
@@ -172,7 +178,6 @@ describe("TabBar metadata and probes", () => {
     expect(meta.pick).toContain("Actions");
   });
   it("has only read probes and targets an existing tab action in each example", () => {
-    expect(probes).toHaveLength(2);
     expect(probes.map((probe) => probe.kind)).toEqual(["read", "read"]);
     for (const probe of probes) {
       expect(probe.task.trim()).not.toBe("");
@@ -189,7 +194,6 @@ describe("TabBar metadata and probes", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("TabBar");
     expect(registry.schema("TabBar")).toBe(props);
-    expect(registry.resolve("t-a-b-b-a-r")).toBe("TabBar");
     expect(registry.resolve("t-a-b-b-a-r")).toBe("TabBar");
     expect(registry.resolve("unknown")).toBeUndefined();
   });

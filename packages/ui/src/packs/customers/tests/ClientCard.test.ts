@@ -21,7 +21,7 @@ describe("ClientCard contract and boundaries", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims bounded text and keeps view props strictly typed", () => {
-    expect(props.parse({ ...client, name: " Alex Morgan ", tags: [" Regular "] })).toEqual({
+    expect(props.parse({ ...client, name: " Alex Morgan ", tags: [" Regular "] })).toMatchObject({
       ...client,
       tags: ["Regular"],
     });

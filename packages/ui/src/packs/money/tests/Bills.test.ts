@@ -33,7 +33,11 @@ describe("Bills contract and boundaries", () => {
   });
 
   it("defaults to due, trims text and accepts six 24-character names", () => {
-    expect(props.parse({ bills: [{ ...bill, name: "  Power  " }] })).toEqual({ bills: [bill], style: "due" });
+    expect(props.parse({ bills: [{ ...bill, name: "  Power  " }] })).toEqual({
+      bills: [{ ...bill, tone: "neutral", mark: "none" }],
+      style: "due",
+      detail: "full",
+    });
     expect(props.parse({ bills: Array(6).fill({ ...bill, name: "x".repeat(24) }) }).bills).toHaveLength(6);
     expectTypeOf<Props<typeof props, typeof meta>["bills"][number]["id"]>().toBeString();
   });
@@ -97,7 +101,15 @@ describe("Bills fallback", () => {
     ];
     const [empty, full, malformed] = casts.map((cast) => props.parse(fallback({ cast })));
     expect(empty?.bills).toEqual([
-      { name: "Item one", amount: 0, repeat: "never", paid: false, icon: "dot" },
+      {
+        name: "Item one",
+        amount: 0,
+        repeat: "never",
+        paid: false,
+        icon: "dot",
+        tone: "neutral",
+        mark: "none",
+      },
     ]);
     expect(full?.bills.map(({ name }) => name)).toEqual(["Power", "x".repeat(24), "x".repeat(24)]);
     expect(malformed).toEqual(empty);

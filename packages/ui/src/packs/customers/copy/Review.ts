@@ -17,6 +17,7 @@ export const reviewScaleLabels = reviewScale();
 export function reviewReading(
   input: {
     style: "summary" | "list";
+    detail?: "full" | "brief";
     average?: number | undefined;
     count?: number | undefined;
     bars?: number[] | undefined;
@@ -29,9 +30,11 @@ export function reviewReading(
     ? [
         reviewRatingLine(input.average!, lang),
         reviewCountLine(input.count!, lang),
-        ...input.bars!.map(
-          (amount, index) => `${reviewStarsLine(index + 1, lang)} ${numberLine(amount, lang)}`,
-        ),
+        ...(input.detail === "brief"
+          ? []
+          : input.bars!.map(
+              (amount, index) => `${reviewStarsLine(index + 1, lang)} ${numberLine(amount, lang)}`,
+            )),
       ]
     : input.reviews!.flatMap((review) => [
         reviewRatingLine(review.stars, lang),

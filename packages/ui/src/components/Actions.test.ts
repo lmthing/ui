@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+import { renderInstance } from "../../test/render";
 import {
   affordancesOf,
   components,
@@ -19,8 +20,10 @@ describe("Actions schema", () => {
   it("exercises every grid count in the examples", () => {
     expect(new Set(examples.map((example) => example.items.length))).toEqual(new Set([2, 3, 4]));
   });
-  it("trims labels without adding presentation props", () => {
+  it("defaults to a grid on a card and trims labels", () => {
     expect(props.parse(inputWith({ ...item, label: "  Continue  " }))).toEqual({
+      arrange: "grid",
+      surface: "card",
       items: [item, item],
     });
   });
@@ -47,6 +50,8 @@ describe("Actions schema", () => {
     inputWith({ ...item, pixels: 4 }),
     inputWith({ ...item, id: "r2" }),
     { items: [item, item], style: "grid" },
+    { items: [item, item], arrange: "circles" },
+    { items: [item, item], surface: "tinted" },
     { items: [item, item], color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths, all counts and back navigation", () => {
@@ -115,7 +120,7 @@ describe("Actions fallback", () => {
   });
 });
 
-describe("Actions metadata and probes", () => {
+describe("Actions addresses", () => {
   it("offers exactly one press action on every tile root", () => {
     for (const example of examples) {
       const parsed = stampItemIds(meta, props.parse(example));
@@ -129,6 +134,16 @@ describe("Actions metadata and probes", () => {
       );
     }
   });
+  it("preserves tile addresses when arranged as rows on a plain surface", () => {
+    const input = examples[0]!;
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const base = renderInstance("Actions", input, "filled", theme);
+    const rows = renderInstance("Actions", { ...input, arrange: "rows", surface: "plain" }, "filled", theme);
+    expect(rows.match(/data-testid="home\/[^"]+"/g)).toEqual(base.match(/data-testid="home\/[^"]+"/g));
+    expect(rows.match(/role="link"/g)).toHaveLength(input.items.length);
+  });
+});
+describe("Actions metadata and probes", () => {
   it("has the declared region, parts, state, actions, tier and real path", () => {
     expect(meta).toMatchObject({
       id: "Actions",
@@ -149,7 +164,7 @@ describe("Actions metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Actions")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Button")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Actions" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,

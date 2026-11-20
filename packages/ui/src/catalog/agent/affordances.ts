@@ -1,16 +1,20 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
-import { isNestedTarget, nestedControls, nestedRemaining } from "./selection";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
+import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
+import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
+import type { SendDraft } from "./act";
 
 export type Affordance = {
   address: string;
   part: string;
   action: string;
   detail: string;
+  input?: LiveInput;
+  send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
 };
@@ -46,30 +50,21 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
 
-/** A rule matches when every key equals its value, read from the item first, then the component. */
-function matches(rule: Record<string, string | boolean> | undefined, holder: Props, outer: Props): boolean {
-  return (
-    !rule ||
-    Object.entries(rule).every(([key, value]) => (key in holder ? holder[key] : outer[key]) === value)
-  );
-}
-
-/** A part exists when its `when` matches and, if named like an optional prop, that prop is set. */
-function present(part: string, holder: Props, when: When, outer: Props): boolean {
-  if (!matches(when?.[part], holder, outer)) return false;
-  return !(part in holder) || holder[part] !== undefined;
-}
-
 function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
   base: string,
   when: When,
   outer: Props,
-  noGoto?: readonly string[],
+  meta: Meta,
+  item = false,
 ) {
+  const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    present(part, holder, when, outer)
+    matches(when?.[part], holder, outer) &&
+    (!(part in holder) ||
+      holder[part] !== undefined ||
+      (!item && (meta.selections?.[part]?.runtime || Object.hasOwn(meta.live?.text ?? {}, part))))
       ? actions
           .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
           .map((action) => {
@@ -81,6 +76,7 @@ function partsOf(
               part,
               action,
               detail: detailOf(action, nested, suppressLink),
+              ...withLiveInput(meta, part, action, holder, item),
             };
           })
       : [],
@@ -100,87 +96,59 @@ export function affordancesOf(
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
-  const { parts, items: itemParts, when, noGoto } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, noGoto?.parts).flatMap((a) => {
+  if (meta.errorActions) props = { ...props, state };
+  const { parts, items: itemParts, when } = meta.actions ?? {};
+  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
-  const key = meta.items?.key;
-  const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
+  const items = addressedItems(meta, props);
+  const visible = meta.items?.visibleWhen && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) => {
+    if (visible && !visible.has(item)) return [];
     const base = `${instance}/${String(item.id)}`;
-    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, noGoto?.items);
+    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, meta, true);
   });
   const runtime = values[`${instance}/$runtime`];
-  const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
+  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
+  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
+  const offered = [
+    ...own,
+    ...nested.filter(
+      ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+    ),
+  ];
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return offered.filter(({ address, action, part }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
-    if (!allowedIn(meta, feedback ? "success" : state, `${part}.${action}`, Boolean(role))) return false;
+    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
+    if ((runtime || meta.live?.derive) && !clockActionValid(meta, props, target, action, get, now))
+      return false;
     if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
     if (!runtime)
       return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
-    return (
-      (!adjustment || adjustment.next !== undefined) &&
-      clockActionValid(meta, props, target, action, get, now)
-    );
+    return !adjustment || adjustment.next !== undefined;
   });
 }
 
-function nestedActions(
-  meta: Meta,
-  props: Props,
-  instance: string,
-  items: Affordance[],
-  get: (part: string) => unknown,
-  includeBlocked: boolean,
-) {
-  const controls = nestedControls(meta, props, get);
-  const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
-  const policy = meta.items?.nested;
-  const remaining = nestedRemaining(meta, props, controls);
-  const nested = controls.flatMap(({ enabled, target, part, spec, item, togglePeers }): Affordance[] => {
-    if (!enabled) return [];
-    const value = item[spec.prop];
-    const blocked =
-      remaining !== undefined && togglePeers && remaining < togglePeers.length && value !== true;
-    if (blocked && !includeBlocked) return [];
-    const detail = spec.action === "toggle" ? (value ? ":on" : ":off") : valueDetail(value);
-    return [
-      {
-        address: `${instance}/${target}`,
-        part,
-        action: spec.action,
-        detail,
-        ...(blocked ? { blocked: "max_active" } : {}),
-        ...(includeBlocked && togglePeers && togglePeers.length > 1
-          ? { togglePeers: togglePeers.map((peer) => `${instance}/${peer}`) }
-          : {}),
-      },
-    ];
-  });
-  const reserved = policy?.activeParent || policy?.maxActive !== undefined;
-  const ordinary = items.filter(
-    ({ address }) =>
-      !targets.has(address) && !(reserved && isNestedTarget(meta, address.slice(instance.length + 1))),
-  );
-  return [...ordinary, ...nested];
-}
-
-function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
+function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
+  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
+  if (errorOnly) return state === "error";
   if (state === "filled") return true;
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
-  return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
+  return (
+    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
+  );
 }
-
-const valueDetail = (value: unknown) => (value === undefined ? "" : ` = ${JSON.stringify(value)}`);
 
 /** Resolve a part against live props, without changing the component's tier. */
 export function partTierAt(meta: Meta, props: Props, part: string): Tier {

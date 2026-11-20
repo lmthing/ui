@@ -1,13 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import {
-  affordancesOf,
-  components,
-  createRegistry,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
-} from "@lmthing/ui/catalog";
+// prettier-ignore
+import { affordancesOf, components, createRegistry, readComponent, stampItemIds, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { symptomReading } from "../../copy";
 import { elementAt, renderInstance } from "../../../../../test/render";
@@ -16,10 +9,9 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const symptom = { label: "Headache", severity: 2 };
 const group = { label: "Head", symptoms: [symptom, { label: "Dizziness", severity: 0 }] };
 const input = { groups: [group] };
+// prettier-ignore
 describe("SymptomLog schema and boundaries", () => {
-  it.each(examples)("accepts a real domain example", (example) =>
-    expect(props.safeParse(example).success).toBe(true),
-  );
+  it.each(examples)("accepts a real domain example", (example) => expect(props.safeParse(example).success).toBe(true));
   it("trims labels, defaults severity, and derives only code-owned selection flags", () => {
     const parsed = props.parse({
       groups: [{ label: " Head ", symptoms: [{ label: " Headache " }, symptom] }],
@@ -149,7 +141,7 @@ describe("SymptomLog states, parts, read and actions", () => {
           const slider = elementAt(html, `home/s1/${row.id}/severity_${index + 1}`).attributes;
           expect(slider).toContain('role="slider"');
           expect(slider).toContain(`aria-valuenow="${entry.severity}"`);
-          expect(elementAt(html, `home/s1/${row.id}/reading_${index + 1}`)).toBeDefined();
+          expect(html.includes(`data-testid="home/s1/${row.id}/reading_${index + 1}"`)).toBe(true);
         } else expect(html).not.toContain(`data-testid="home/s1/${row.id}/severity_${index + 1}"`);
       });
     }

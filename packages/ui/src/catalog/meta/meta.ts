@@ -2,7 +2,8 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
-import type { ItemVariants, VariantParts, Variants } from "../types";
+import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
+
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -10,42 +11,13 @@ type Draw =
   | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
-type RoundFields = Readonly<Record<string, unknown>>;
-type Assessment = {
-  inputs: Readonly<Record<string, "select" | "type">>;
-  readHidden?: readonly string[];
-  revise?: (answers: RoundFields, part: string, value: unknown) => RoundFields;
-  /** Undefined means the response is not ready to check. */
-  grade: (item: RoundFields, answers: RoundFields) => boolean | undefined;
-  project: (item: RoundFields, answers: RoundFields) => RoundFields;
-};
-type RoundKind =
-  | { next: string; assessment?: Assessment; ratings?: never }
-  | { next?: never; assessment?: never; ratings: readonly string[]; front: readonly string[] };
-type Session =
-  | {
-      kind: "turns";
-      items: string;
-      first?: string;
-      direction?: string;
-      laps?: string;
-      next: string;
-      back?: string;
-      skip?: string;
-      reverse?: string;
-      restart?: string;
-    }
-  | ({
-      kind: "rounds";
-      items: string;
-      hidden: readonly string[];
-      reveal: string;
-      restart?: string;
-    } & RoundKind);
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
+type NamedSelection = { prop: string; choices: ChoiceSource } & (
+  { runtime?: false; clear?: never } | { runtime: true; clear?: string }
+);
 type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
@@ -86,6 +58,8 @@ export type Meta = {
   emptyActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` that are also available in `success`. */
   successActions?: readonly `${string}.${ActionName}`[];
+  /** Part/action pairs from `actions` available only in `error`. */
+  errorActions?: readonly `${string}.${ActionName}`[];
   /** Read visible content and the read summary in success, not just the header and available actions. */
   readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
@@ -105,6 +79,8 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    /** Match the addressed row first, then its component. Filter only after stamping. */
+    visibleWhen?: Readonly<Record<string, string | boolean>>;
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
@@ -143,7 +119,8 @@ export type Meta = {
   };
   select?: SelectMeta;
   /** Named component parts with independent destinations and explicit offers. */
-  selections?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
+  selections?: Readonly<Record<string, NamedSelection>>;
+  live?: LiveActionInputs;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

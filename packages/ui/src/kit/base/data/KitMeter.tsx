@@ -13,21 +13,24 @@ export function KitMeter({
   ratio,
   tone = "accent",
   slim = false,
+  addressed = true,
 }: {
   label: string;
   amount: string;
   ratio: number;
   tone?: "accent" | "good" | "warn" | "bad";
   slim?: boolean;
+  /** Set false when the containing breakdown has one address and its individual bars are not parts. */
+  addressed?: boolean;
 }) {
   const fill = Math.min(1, Math.max(0, ratio));
   return (
     <YStack gap={space.xs} width="100%">
       <XStack justifyContent="space-between" alignItems="baseline" gap={space.sm}>
-        <KitText role={slim ? "label" : "body"} part="label" lines={1}>
+        <KitText role={slim ? "label" : "body"} part={addressed ? "label" : null} lines={1}>
           {label}
         </KitText>
-        <KitText role="caption" tone="muted" tabular part="amount">
+        <KitText role="caption" tone="muted" tabular part={addressed ? "amount" : null}>
           {amount}
         </KitText>
       </XStack>
