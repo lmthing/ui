@@ -11,10 +11,9 @@ import {
 } from "@lmthing/ui/catalog";
 import { renderers } from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
-import { addressedElements, hasStepTarget, renderInstance } from "./render";
+import { addressedElements, hasStepTarget, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
-import { exampleDeviceData } from "../src/catalog/probes/fixtures";
-import { peekForExample } from "./variants";
+import { decode, peekForExample, visibleTexts } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
@@ -38,38 +37,6 @@ const roles: Record<string, string[]> = {
   set: ["slider", "spinbutton"],
 };
 
-const decode = (text: string) =>
-  text
-    .replace(/&amp;/g, "&")
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-
-const voidTags = /^<(area|base|br|col|embed|hr|img|input|link|meta|source|track|wbr)\b/i;
-
-/** Text a person sees: everything outside <style> and outside decorative (aria-hidden) subtrees. */
-function visibleTexts(html: string): string[] {
-  const body = html.replace(/<style[\s\S]*?<\/style>/g, "");
-  const texts: string[] = [];
-  let hidden = 0; // depth inside an aria-hidden element, 0 when visible
-  for (const token of body.split(/(<[^>]+>)/)) {
-    if (!token.startsWith("<")) {
-      const text = decode(token).trim();
-      if (text && hidden === 0) texts.push(text);
-      continue;
-    }
-    // A text box shows its value: <input value="Fern"> is text on screen.
-    const value = /^<input\b/i.test(token) ? token.match(/\bvalue="([^"]*)"/)?.[1] : undefined;
-    if (value && hidden === 0) texts.push(decode(value).trim());
-    const closing = token.startsWith("</");
-    const selfClosing = token.endsWith("/>") || voidTags.test(token);
-    if (hidden > 0) hidden += closing ? -1 : selfClosing ? 0 : 1;
-    else if (!closing && !selfClosing && /aria-hidden="true"/.test(token)) hidden = 1;
-  }
-  return texts;
-}
-
 function labels(html: string): string[] {
   return [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => decode(m[1]!));
 }
@@ -80,9 +47,7 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
   const known = existsSync(`${import.meta.dirname}/known/${id}.md`);
   const test = known ? it.fails : it;
   test.each(def.examples.map((example, index) => ({ example, index })))("example $index", ({ example }) => {
-    const input = def.props.parse(example) as Record<string, unknown>;
-    const deviceData = exampleDeviceData(def.meta, input, "filled");
-    const html = renderInstance(id, example, "filled", theme, { deviceData });
+    const { html, deviceData, props: parsed } = renderExample(id, example, "filled", theme);
     const read = readComponent(def, example, "c1", "filled", {}, undefined, deviceData).join("\n");
     if (!isDeviceDataVisible(def.meta, deviceData)) {
       expect(read).toBe("");
@@ -97,7 +62,7 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
       const shown = seen.some((s) => s.includes(text)) || named.includes(text);
       expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
     }
-    const props = stampItemIds(def.meta, input);
+    const props = stampItemIds(def.meta, parsed);
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);
