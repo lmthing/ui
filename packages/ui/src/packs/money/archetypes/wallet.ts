@@ -7,17 +7,17 @@ export const wallet = {
   layouts: {
     accounts: {
       writeHints: [
-        "Always write all four required components in order: Header, Amount in large style, AccountCard, Transactions. An empty cast still needs separate account cards and recent entry rows; use neutral fallback content rather than omitting either required component.",
+        'Always write all four required components in order: Header, Amount with emphasis "hero", AccountCard, Transactions. Keep other Amount axes and style null. An empty cast still needs separate account cards and recent entry rows; use neutral fallback content rather than omitting either required component.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Amount"], required: true, variant: "large" },
+        { allow: ["Amount"], required: true },
         { allow: ["AccountCard"], required: true },
         { allow: ["Transactions"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "a1", c: "Amount", style: "large" },
+        { id: "a1", c: "Amount", emphasis: "hero" },
         { id: "a2", c: "AccountCard" },
         { id: "t1", c: "Transactions" },
       ],

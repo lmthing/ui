@@ -19,7 +19,8 @@ describe("Ring schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ ...input, label: " Completed ", sub: " Two to go " })).toEqual({
-      style: "md",
+      emphasis: "normal",
+      detail: "full",
       value: 3,
       of: 5,
       label: "Completed",
@@ -46,17 +47,19 @@ describe("Ring schema", () => {
     { ...input, sub: "" },
     { ...input, sub: " ".repeat(4) },
     { ...input, sub: "a".repeat(49) },
-    { ...input, style: "small" },
+    { ...input, style: "md" },
+    { ...input, emphasis: "quiet" },
+    { ...input, detail: "minimal" },
     { ...input, color: "red" },
     { ...input, pixels: 4 },
     { ...input, goto: "details" },
     { ...input, id: "r1" },
   ])("rejects invalid input", (value) => expect(props.safeParse(value).success).toBe(false));
   it("accepts exact text limits, fractions, zero and amounts above the target", () => {
-    for (const style of ["md", "lg"])
+    for (const emphasis of meta.variants.emphasis)
       for (const value of [0, 0.5, 5, 8]) {
         expect(
-          props.safeParse({ style, value, of: 5, label: "a".repeat(24), sub: "a".repeat(48) }).success,
+          props.safeParse({ emphasis, value, of: 5, label: "a".repeat(24), sub: "a".repeat(48) }).success,
         ).toBe(true);
       }
     expect(props.safeParse({ ...input, value: 0.25, of: 0.5 }).success).toBe(true);
@@ -64,7 +67,7 @@ describe("Ring schema", () => {
   it("types view props without items or visual overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["value"]>().toEqualTypeOf<number>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"md" | "lg">();
+    expectTypeOf<ViewProps["emphasis"]>().toEqualTypeOf<"normal" | "hero">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expectTypeOf<ViewProps>().not.toHaveProperty("rows");
@@ -95,7 +98,6 @@ describe("Ring fallback", () => {
     ];
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
     expect(fallback({ cast: casts[0]! })).toEqual({
-      style: "md",
       value: 0,
       of: 1,
       label: "Item one",
@@ -149,24 +151,33 @@ describe("Ring metadata and probes", () => {
   });
 });
 
-function renderRing(style: "md" | "lg", value: number, state: "filled" | "loading", sub?: string) {
-  return renderInstance("Ring", { ...input, style, value, sub }, state, {
+it("keeps the goal accessible when a secondary caption is hidden", () => {
+  const brief = { ...input, detail: "brief", sub: "Two to go" };
+  const html = renderInstance("Ring", brief, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["sub"]);
+  expect(html).not.toContain('data-testid="home/c1/sub"');
+  expect(html).toContain('data-testid="home/c1/ring"');
+  expect(readComponent(components.Ring, brief, "r1")).toEqual(['r1 Ring 3 of 5 — "Completed"']);
+});
+
+function renderRing(emphasis: "normal" | "hero", value: number, state: "filled" | "loading", sub?: string) {
+  return renderInstance("Ring", { ...input, emphasis, value, sub }, state, {
     preset: "calm",
     mode: "light",
     accent: "moss",
   });
 }
 
-describe.each(["md", "lg"] as const)("Ring rendering in %s", (style) => {
+describe.each(meta.variants.emphasis)("Ring rendering in %s", (emphasis) => {
   it.each([0, 0.5, 5, 8])("renders %s against the goal in each state", (value) => {
     for (const state of ["filled", "loading"] as const)
       for (const sub of [undefined, "Two to go"]) {
-        const html = renderRing(style, value, state, sub);
+        const html = renderRing(emphasis, value, state, sub);
         expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
         expect(html).not.toMatch(/role="(?:link|button)"/);
         if (state === "loading") {
           expect(html).toContain('aria-busy="true"');
-          const box = component.base[style === "lg" ? "ringLg" : "ringMd"];
+          const box = component.base[emphasis === "hero" ? "ringLg" : "ringMd"];
           expect(html.split('aria-busy="true"')[1]).toContain(String(box));
           expect(html).not.toContain('data-testid="home/c1/ring"');
           continue;

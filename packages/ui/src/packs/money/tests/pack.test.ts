@@ -88,6 +88,9 @@ it("validates the pack, archetypes and every exact worked-example line", () => {
   expect(split.expenses.map((expense: { amount: number }) => expense.amount)).toEqual([80, 40]);
   const groceries = lines.find((line) => line.c === "Progress").bars[0];
   expect(groceries.value / groceries.of).toBe(0.8);
+  expect(groceries).toMatchObject({ tone: "bad" });
+  expect(groceries).not.toHaveProperty("over");
+  expect(lines.find((line) => line.c === "Amount")).toMatchObject({ emphasis: "hero" });
 });
 
 it("exports every planned archetype and layout without status", () => {
