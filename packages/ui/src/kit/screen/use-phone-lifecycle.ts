@@ -13,7 +13,6 @@ export function usePhoneLifecycle(
   useEffect(() => {
     lifecycle.mounted = true;
     controller.mount();
-    if (typeof window !== "undefined") window.__lmthingUI = agent;
     return () => {
       if (typeof window !== "undefined" && window.__lmthingUI === agent) delete window.__lmthingUI;
       lifecycle.mounted = false;
@@ -23,6 +22,15 @@ export function usePhoneLifecycle(
     };
   }, [agent, controller, lifecycle]);
   useEffect(() => {
-    onReady?.(agent);
+    // A layout effect can synchronously mount pinned descendants in a second commit.
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      if (typeof window !== "undefined") window.__lmthingUI = agent;
+      onReady?.(agent);
+    });
+    return () => {
+      active = false;
+    };
   }, [agent, onReady]);
 }

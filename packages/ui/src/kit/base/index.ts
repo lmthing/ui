@@ -9,6 +9,7 @@ export { KitOverlay } from "./surface";
 export { KitDay, KitDayMark } from "./time";
 export { KitWeekGrid, KitWeekStrip } from "./time";
 export { KitScaleTrack } from "./input";
+export { KitStepper } from "./input";
 export { KitBars } from "./data";
 export { KitShare } from "./data";
 export { KitRank } from "./data";
