@@ -68,7 +68,7 @@ const doc = z
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
   docs: z.array(doc).min(1).max(6),
-  style: z.enum(["rows", "cards"]).default("rows"),
+  style: z.enum(["cards"]).optional(),
 });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
