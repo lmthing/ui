@@ -13,6 +13,7 @@ import {
   type Definition,
   type DeviceData,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -31,6 +32,7 @@ export type Confirmation = {
   source: string;
   goto?: string;
   step?: ActStep;
+  removal?: ReportRemoval;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -69,10 +71,8 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
 }
 function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
-  const candidates = screen.components.filter(
-    (entry) =>
-      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
-      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
+  const candidates = screen.components.filter(({ id }) =>
+    [drawKey, sessionKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);

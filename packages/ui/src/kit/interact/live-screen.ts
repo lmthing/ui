@@ -82,7 +82,8 @@ function projectEntry(
   if (entry.c === "Composer" && get("field") !== undefined)
     result.value = String(get("field")).length ? String(get("field")) : undefined;
   Object.assign(result, projectControls(meta, result, get));
-  const derivedSelection = (meta.items?.nested?.activeParent || meta.live?.derive) && meta.select?.prop;
+  const derivedSelection =
+    (meta.items?.nested?.activeParent || meta.live?.derive || meta.items?.edits) && meta.select?.prop;
   if (derivedSelection && !Object.hasOwn(def.props.shape, derivedSelection)) delete result[derivedSelection];
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
