@@ -32,7 +32,6 @@ export const en = {
     total: "Total",
     rounds: "Rounds",
     unplayed: "—",
-    notPlayed: "Not played",
     reset: "Reset scores",
     share: "Share scores",
   },
@@ -42,8 +41,7 @@ export const en = {
   scoreWinner: "Winner",
   scoreTie: "Tied winner",
   scoreCell: (player: string, round: string) => `${player}, ${round}`,
-  scoreReadCell: (id: string, player: string, round: string, points: string) =>
-    `${id} ${player}, ${round}: ${points}`,
+  scoreReadCell: (player: string, round: string, points: string) => `${player}, ${round}: ${points}`,
   trivia: {
     emptyThing: "trivia question",
     points: (value: string, plural: Intl.LDMLPluralRule) =>
