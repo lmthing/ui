@@ -7,7 +7,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { createScreenController, renderers } from "@lmthing/ui/kit";
+import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 
 const def = components.Poll;
@@ -82,7 +82,7 @@ describe("Poll fallback and metadata", () => {
       expect(props.safeParse(fallback({ cast })).success).toBe(true);
   });
   it("keeps the people tier, pack gate, and core-first and variant probes", () => {
-    expect(meta).toMatchObject({ tier: "people", weight: 2, states: ["filled", "success"] });
+    expect(meta).toMatchObject({ status: "ready", tier: "people", weight: 2, states: ["filled", "success"] });
     expect(meta.pick).toContain("Choice");
     expect(meta.realPath).toContain("shared app");
     expect(probes).toEqual(
@@ -102,8 +102,7 @@ describe("Poll fallback and metadata", () => {
   });
 });
 
-// The generated renderer map only includes ready components.
-describe.runIf("Poll" in renderers)("Poll states, parts and read", () => {
+describe("Poll states, parts and read", () => {
   it("shows vote buttons with stable item labels and hides results before voting", () => {
     const drawn = parts(example);
     expect(drawn.get("home/p1/question")?.text).toEqual([example.question]);

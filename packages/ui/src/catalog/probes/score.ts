@@ -47,7 +47,7 @@ function hasItemTitles(rows: unknown, titles: readonly string[]): boolean {
     Array.isArray(rows) &&
     rows.length === titles.length &&
     titles.every((title, index) => {
-      const actual: unknown = rows[index]?.title;
+      const actual: unknown = rows[index]?.title ?? rows[index]?.label;
       return typeof actual === "string" && actual.trim().toLowerCase() === title.toLowerCase();
     })
   );

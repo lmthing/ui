@@ -7,13 +7,13 @@ import { socialWordsFor } from "../lang";
 // Core first: Choice/cards stores a personal choice, not a group vote with results.
 export const meta = {
   id: "Poll",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Ask a group to vote and see how everyone voted.",
   pick: "A shared question with voting options and group results. Not a choice for oneself (Choice), a quiz with right answers (Quiz), or coordinating a date via availability (FindDate).",
   writeHints: [
     "voted is a zero-based index, omitted until the person votes. Write each option's vote count; total and shares are derived. closes uses YYYY-MM-DD.",
-    'Use detail "brief" to hide the closing date without removing closes from the data or hiding results. Leave unrequested variants null.',
+    'Hide only the closing date with "detail":"brief","density":null,"surface":null,"emphasis":null. Keep closes in the data and keep the results. For unrequested variants output null, never a named default.',
   ],
   region: "body",
   weight: 2,
@@ -78,8 +78,8 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 // prettier-ignore
 export const examples = [
-  { question: "Which cutting should we swap next?", options: [{ label: "Fern", votes: 4 }, { label: "Basil", votes: 3 }], closes: "2026-11-28" },
-  { density: "compact", surface: "outlined", emphasis: "quiet", question: "Where should we start Saturday’s walk?", options: [{ label: "River gate", votes: 6 }, { label: "Park entrance", votes: 2 }], voted: 0 },
+  { question: "Next cutting?", options: [{ label: "Fern", votes: 4 }, { label: "Basil", votes: 3 }], closes: "2026-11-28" },
+  { question: "Where do we meet?", options: [{ label: "River gate", votes: 6 }, { label: "Park entrance", votes: 2 }], voted: 0 },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Poll");
@@ -96,7 +96,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Ask the group to vote for Fern or Basil. Fern has four votes, Basil has three, and I already voted for Basil. Store the closing date, 2026-11-28, but hide it on screen. Keep the vote total and results visible.",
+      "Ask the group to vote for Fern or Basil. Fern has four votes, Basil has three, and I already voted for Basil. Store the closing date, 2026-11-28, but hide it on screen. Keep the vote total and results visible. No other display preferences.",
     ),
     variant: { axis: "detail", value: "brief", itemTitles: ["Fern", "Basil"] },
   },
@@ -115,11 +115,11 @@ function PollResults({ input, density }: { input: PollProps; density: c.ThemeDen
       <kit.KitRow key={input.options[index]!.id} item={input.options[index]!.id}
         label={selected ? poll.chosen(label) : label} inline density={density}>
         <kit.KitGrid fitLast density={density}>
-          <kit.KitRow part={null} label={label} inline density={density}
-            trailing={selected && <kit.KitIcon name="check" part="selected" tone="accent" scale="sm" />}>
-            <kit.KitText part="label" density={density}>{label}</kit.KitText>
-          </kit.KitRow>
-          <kit.KitText part="share" role="label" tabular density={density}>{share}</kit.KitText>
+          <kit.KitText part="label" density={density}>{label}</kit.KitText>
+          <kit.KitContent leadingAlign="row" density={density}
+            lead={selected && <kit.KitIcon name="check" part="selected" tone="accent" scale="sm" />}>
+            <kit.KitText part="share" role="number" numberScale="compact" tabular density={density}>{share}</kit.KitText>
+          </kit.KitContent>
         </kit.KitGrid>
         <kit.KitMeter label="" amount="" ratio={ratio} slim={density === "compact"} addressed={false} />
       </kit.KitRow>
@@ -141,15 +141,24 @@ export function Poll(input: PollProps) {
   const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const closes = pollDate({ ...input, detail }, lang);
+  const results = live.voted !== undefined || state === "success";
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    <kit.KitText part="question" role="heading" {...{ density, emphasis }}>{input.question}</kit.KitText>
-    {live.voted !== undefined || state === "success" ? <PollResults input={{ ...live, detail }} density={density} /> : <>
-      {input.options.map(({ id, label }) => (
-        <kit.KitRow item={id} key={id} role="button" surface="outlined" label={poll.voteFor(label)} density={density}>
-          <kit.KitText part="label" density={density}>{label}</kit.KitText>
-        </kit.KitRow>
-      ))}
-      {closes && <kit.KitText part="closes" role="caption" tone="muted" density={density}>{closes}</kit.KitText>}
+    <kit.KitText part="question" role="title" {...{ density, emphasis }}>{input.question}</kit.KitText>
+    {results ? <PollResults input={{ ...live, detail }} density={density} /> : <>
+      <kit.KitContent group="response" density={density}>
+        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+          {input.options.map(({ id, label }) => (
+            <kit.KitRow item={id} key={id} role="button" surface="outlined" label={poll.voteFor(label)} inline density={density}>
+              <kit.KitContent inset="md" density={density}>
+                <kit.KitText part="label" density={density}>{label}</kit.KitText>
+              </kit.KitContent>
+            </kit.KitRow>
+          ))}
+        </kit.KitGrid>
+      </kit.KitContent>
+      {closes && <kit.KitContent group="response" density={density}>
+        <kit.KitText part="closes" role="caption" tone="muted" density={density}>{closes}</kit.KitText>
+      </kit.KitContent>}
     </>}
   </kit.KitCard>;
 }
