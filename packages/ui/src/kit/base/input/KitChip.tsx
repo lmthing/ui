@@ -5,7 +5,6 @@ import { component, radius, size, space, type IconName, type Swatch } from "../.
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted } from "../text";
-
 // The 44px touch area carries the role; the visible pill or segment sits inside it.
 const Hit = styled(YStack, { minHeight: size.control.md, justifyContent: "center" });
 const ChoiceTarget = createContext<string | undefined>(undefined);
@@ -22,10 +21,10 @@ type ChipProps = {
   swatch?: Swatch;
   /** Named control under this item; null leaves it unaddressed and inert. */
   part?: string | null;
-  /** Label address; null leaves caller-owned group labels untouched. */
-  labelPart?: string | null;
+  labelPart?: string | null; // Null leaves caller-owned group labels untouched.
+  swatchPart?: string; // Opt-in address for a stamped chip's swatch dot.
+  dimSwatch?: boolean; // Defaults to dimming the dot of a disabled chip.
 };
-
 function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) {
   const { label, on, icon, look, stamped, disabled, swatch, loading, labelPart = "label" } = props;
   const ks = useKitStyle();
@@ -67,7 +66,7 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
       overflow={slashed ? "hidden" : undefined}
     >
       {slashed && <DisabledSlash />}
-      {swatch && <SwatchMark swatch={swatch} loading={loading} dim={disabled ?? false} />}
+      {swatch && <SwatchMark {...props} swatch={swatch} />}
       {icon &&
         !segment &&
         (loading ? (
@@ -86,7 +85,6 @@ function ChipContent(props: ChipProps & { stamped: boolean; loading: boolean }) 
     </XStack>
   );
 }
-
 function DisabledSlash() {
   const theme = useTheme();
   return (
@@ -97,22 +95,24 @@ function DisabledSlash() {
     </YStack>
   );
 }
-
-function SwatchMark({ swatch, loading, dim }: { swatch: Swatch; loading: boolean; dim: boolean }) {
+function SwatchMark(props: ChipProps & { swatch: Swatch; loading: boolean; stamped: boolean }) {
+  const { swatch, loading, disabled, dimSwatch, stamped, swatchPart } = props;
+  const part = stamped ? swatchPart : undefined;
+  const address = usePart(part, Boolean(part));
   return (
     <YStack
+      {...(part ? address : {})}
       width={size.icon.sm}
       height={size.icon.sm}
       borderRadius={radius.pill}
       borderWidth={component.base.borderWidth}
       borderColor={loading ? "$line" : component.swatchBorder}
       backgroundColor={loading ? "$line" : component.swatch[swatch]}
-      opacity={!loading && dim ? component.base.disabledOpacity : undefined}
+      opacity={!loading && disabled && dimSwatch !== false ? component.base.disabledOpacity : undefined}
       aria-hidden
     />
   );
 }
-
 function Chip(input: ChipProps & { stamped: boolean }) {
   const { label, value = label, on, role, look, stamped, part = "root", disabled, ...props } = input;
   const variant = look === "box" || disabled !== undefined || Boolean(props.swatch);
@@ -150,7 +150,6 @@ function Chip(input: ChipProps & { stamped: boolean }) {
     </Hit>
   );
 }
-
 /** One selectable pill, segment or box. Pass `item: null` for a track-owned control. */
 export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: string | null }) {
   const context = usePartContext();
@@ -161,7 +160,6 @@ export function KitChip({ item, look = "pill", ...props }: ChipProps & { item: s
     </PartContext.Provider>
   );
 }
-
 export function KitTrack({
   look = "pills",
   part = "root",
