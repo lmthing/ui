@@ -22,6 +22,7 @@ describe("Calendar schema", () => {
     expect(props.parse({ month: `  ${month}  `, marked: [{ day: 3 }] })).toEqual({
       month,
       style: "week",
+      emphasis: "normal",
       start: 1,
       days: 30,
       marked: Array.from({ length: 7 }, (_, index) => ({
@@ -35,6 +36,7 @@ describe("Calendar schema", () => {
     {},
     { month },
     { month, marked: [], style: "day" },
+    { month, marked: [], emphasis: "hero" },
     { month: "", marked: [] },
     { month: "   ", marked: [] },
     { month: "x".repeat(17), marked: [] },
@@ -129,6 +131,14 @@ describe("Calendar days, reading and rendering", () => {
     expect(read).toContain("r12: 12 (good)");
     expect(read).toContain(`"${month}"`);
   });
+  it("keeps addresses when quieting the month heading or changing a dot's tone", () => {
+    const input = { month, marked: [{ day: 3 }] };
+    const addresses = (raw: unknown) => affordancesOf(meta, stampItemIds(meta, props.parse(raw)), "c1");
+    const quiet = { ...input, emphasis: "quiet", marked: [{ day: 3, tone: "warn" }] };
+    expect(addresses(quiet)).toEqual(addresses(input));
+    expect(props.parse(quiet).marked[2]).toMatchObject({ day: 3, tone: "warn", mark: "warn" });
+    expect(renderInstance("Calendar", quiet, "filled", theme)).toContain('data-testid="home/c1/month"');
+  });
 });
 
 describe("Calendar fallback and metadata", () => {
@@ -149,7 +159,7 @@ describe("Calendar fallback and metadata", () => {
   it("has the required metadata and well-formed choose, write and read probes", () => {
     expect(meta).toMatchObject({ id: "Calendar", group: "data", region: "body", weight: 3, tier: "phone" });
     expect(meta.parts).toEqual(["root", "month"]);
-    expect(meta.items).toEqual({ key: "marked", parts: ["root", "label"] });
+    expect(meta.items).toMatchObject({ key: "marked", parts: ["root", "label"] });
     expect(meta.states).toEqual(["filled"]);
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);

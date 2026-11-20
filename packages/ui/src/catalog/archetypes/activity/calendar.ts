@@ -10,7 +10,7 @@ export const meta = createMeta(
   {
     week: [
       ...timelineHint,
-      "Give the week a recognizable date in the Header and say what is scheduled. Arrange the supplied events in date and time order. Keep each item's supplied purpose or detail beside its date and time so the agenda says what each event is for.",
+      'Name the task in Header.title, e.g. "Weekly agenda". Use Header.sub to state when the named visits happen, e.g. "Nov 2026 · Check-in & Follow-up" (40 characters max). Leave all Header and Timeline axes null. List the supplied events in date and time order; open each meta with the recognizable date, then the supplied purpose. This is an agenda, not a checklist, so done is null.',
     ],
     month: [
       ...timelineHint,

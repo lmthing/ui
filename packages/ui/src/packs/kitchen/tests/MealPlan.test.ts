@@ -9,7 +9,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createAgentAccess, createScreenController } from "@lmthing/ui/kit";
-import { elementAt, renderInstance, styleAt } from "../../../../test/render";
+import { addressedElements, elementAt, renderInstance, styleAt } from "../../../../test/render";
 const { props, meta, examples, fallback, probes } = components.MealPlan;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const cell = { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" };
@@ -127,7 +127,6 @@ describe("MealPlan fallback and contract", () => {
     expect(createRegistry({ packs: ["kitchen"], includeDrafts: true }).resolve("meal-plan")).toBe("MealPlan");
   });
 });
-
 describe("MealPlan states, parts, reading and conditional actions", () => {
   it.each([1, 2, 3, 4])("draws and offers exactly one action for each of %i meal columns", (count) => {
     const meals = ["breakfast", "lunch", "dinner", "snack"].slice(0, count);
@@ -172,9 +171,10 @@ describe("MealPlan read and act", () => {
     const html = renderInstance("MealPlan", { ...input, cells: [] }, "filled", theme);
     expect(html.match(/role="button"/g)).toHaveLength(14);
   });
-  it("renders a shared calm empty state without stale recipes or controls", () => {
-    const html = renderInstance("MealPlan", input, "empty", theme, { thing: "meal" });
-    expect(html).toContain("No meals yet");
+  it("names meals in the empty state by default and keeps caller-supplied thing copy", () => {
+    const html = renderInstance("MealPlan", input, "empty", theme);
+    expect(addressedElements(html).get("home/c1/meals")?.text).toEqual(["No meals yet."]);
+    expect(renderInstance("MealPlan", input, "empty", theme, { thing: "walk" })).toContain("No walks yet");
     expect(html).not.toContain("Nonna");
     expect(html).not.toContain('role="button"');
     expect(meta.read(props.parse(input), "empty")).toEqual([]);

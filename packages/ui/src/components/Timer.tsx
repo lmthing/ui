@@ -1,4 +1,4 @@
-import { useWords, KitAction, KitCard, KitContent, KitText } from "../kit";
+import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitRow, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -7,9 +7,11 @@ import {
   clock,
   isoDate,
   leftLine,
+  localeOf,
   placeholderTitle,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -23,10 +25,15 @@ export const meta = {
   group: "data",
   purpose: "Measure time remaining or elapsed, with controls to start and stop.",
   pick: "Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).",
+  writeHints: [
+    'A shortened running time sets only figures "short"; keep exact seconds and write density as JSON null unless tighter spacing was requested. Do not output default axis values.',
+    'A countdown to a calendar date uses style "until", a date in until, and null for seconds; down and up use seconds instead.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A countdown or stopwatch based on timestamps stored on the phone.",
+  variants: { density: ["comfortable", "compact"], figures: ["exact", "short"] },
   parts: ["root", "time", "label", "start", "stop"],
   states: ["filled"],
   clocks: [
@@ -57,19 +64,20 @@ export const meta = {
     parts: { start: ["start"], stop: ["stop"] },
     when: { start: { controls: true }, stop: { controls: true } },
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { timerLabels } = wordsFor(lang);
 
     // Already parsed by the validator: it carries the derived `controls`, which a strict parse would refuse.
     const value = input as z.output<typeof props>;
     if (state !== "filled") return [];
     if (value.style === "until") return [leftLine(untilMs(value), lang)];
-    return [`${clockLine(value.seconds ?? 0, lang)} ${value.style}`, timerLabels.start, timerLabels.stop];
+    return [`${timerLine(value, lang)} ${value.style}`, timerLabels.start, timerLabels.stop];
   },
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["down", "up", "until"]).default("down"),
     label: text(24),
     seconds: z.number().int().min(0).max(86400).optional(),
@@ -95,6 +103,17 @@ function untilMs({ until, at }: { until?: string | undefined; at?: string | unde
   return new Date(`${until}T${at ?? "00:00"}`).getTime() - Date.now();
 }
 
+function timerLine(
+  { seconds = 0, figures }: Pick<z.output<typeof props>, "seconds" | "figures">,
+  lang?: string,
+) {
+  if (figures !== "short") return clockLine(seconds, lang);
+  const [unit, divisor] = seconds >= 3600 ? ["hour", 3600] : seconds >= 60 ? ["minute", 60] : ["second", 1];
+  return new Intl.NumberFormat(localeOf(lang), { style: "unit", unit, unitDisplay: "short" }).format(
+    Math.floor(seconds / divisor),
+  );
+}
+
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return {
     style: "up",
@@ -107,6 +126,8 @@ export const examples = [
   { style: "down", label: "Soak the orchid", seconds: 600 },
   { style: "up", label: "Walk timer", seconds: 1260 },
   { style: "until", label: "Our wedding day", until: "2030-06-14", at: "14:00" },
+  { style: "up", label: "Walk timer", seconds: 1260, density: "compact" },
+  { style: "up", label: "Walk timer", seconds: 1260, figures: "short" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Timer");
@@ -115,33 +136,61 @@ export const probes = [
   choose("Let me add or subtract one from the number of dogs on a walk", "Counter"),
   write("Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it"),
   write("Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day"),
+  {
+    ...write(
+      "Time the orchid soak with start and stop. Keep 650 seconds as the starting value but show only whole minutes, like 10 min instead of 10:50. Leave the spacing unchanged, with no density override.",
+    ),
+    variant: { axis: "figures", value: "short" },
+  },
   read("Start the timer", { address: "t1/start", action: "start" }),
 ] satisfies Probe[];
 
-export function Timer({ style, label, seconds, ...rest }: Props<typeof props, typeof meta>) {
+export function Timer(input: Props<typeof props, typeof meta>) {
+  const { style, label, figures } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   const { lang, words } = useWords();
   const { timerLabels } = words;
   const controls = style !== "until";
-  const [amount, ...suffix] = controls ? [] : leftLine(untilMs(rest), lang).split(" ");
+  const value = controls ? timerLine(input, lang) : leftLine(untilMs(input), lang);
+  const [amount, ...suffix] = value.split(" ");
+  const start = <KitAction label={timerLabels.start} kind="primary" part="start" full />;
+  const stop = <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />;
+  const readout = (
+    <>
+      <KitText role="number" align="center" tabular part="time" density={density}>
+        {amount}
+        {(!controls || figures === "short") && (
+          <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
+        )}
+      </KitText>
+      <KitText role="body" tone="muted" align="center" part="label" density={density}>
+        {label}
+      </KitText>
+    </>
+  );
   return (
-    <KitCard style="inset" part="root" padded>
-      <KitContent>
-        <KitText role="number" align="center" tabular part="time">
-          {controls ? (
-            clockLine(seconds ?? 0, lang)
-          ) : (
-            <>
-              {amount}
-              <KitText role="caption" tone="muted" part={null}>{` ${suffix.join(" ")}`}</KitText>
-            </>
-          )}
-        </KitText>
-        <KitText role="body" tone="muted" align="center" part="label">
-          {label}
-        </KitText>
-      </KitContent>
-      {controls && <KitAction label={timerLabels.start} kind="primary" part="start" full />}
-      {controls && <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />}
+    <KitCard style="inset" part="root" padded density={density}>
+      {density === "compact" ? (
+        <KitRow label={label} part={null} inline density={density}>
+          {readout}
+        </KitRow>
+      ) : (
+        <KitContent density={density}>{readout}</KitContent>
+      )}
+      {controls &&
+        (density === "compact" ? (
+          <KitContent group="response" density={density}>
+            <KitGrid columns={2} density={density}>
+              {start}
+              {stop}
+            </KitGrid>
+          </KitContent>
+        ) : (
+          <>
+            {start}
+            {stop}
+          </>
+        ))}
     </KitCard>
   );
 }

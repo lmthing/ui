@@ -24,10 +24,11 @@ describe("Route schema", () => {
         distance: " 3.2 km ",
       }),
     ).toEqual({
+      detail: "full",
       stops: [{ label: "First stop", meta: "Collect parcel" }, { label: "Last stop" }],
       distance: "3.2 km",
     });
-    expect(props.parse({ stops: pair })).toEqual({ stops: pair });
+    expect(props.parse({ stops: pair })).toEqual({ stops: pair, detail: "full" });
   });
   it.each([
     {},
@@ -42,6 +43,7 @@ describe("Route schema", () => {
     { stops: [{ ...pair[0], pixels: 4 }, pair[1]] },
     { stops: [{ ...pair[0], color: "red" }, pair[1]] },
     { stops: pair, style: "map" },
+    { stops: pair, detail: "none" },
     { stops: pair, color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum text lengths and item count", () => {
@@ -118,7 +120,7 @@ describe("Route metadata", () => {
       region: "body",
       weight: 2,
       tier: "service",
-      items: { key: "stops", parts: ["root", "label"] },
+      items: { key: "stops", parts: ["root", "label", "meta"] },
       parts: ["root", "distance"],
       states: ["filled"],
     });
@@ -133,7 +135,19 @@ describe("Route metadata", () => {
     for (const text of ["First stop", "Last stop", "Collect parcel", "3.2 km"]) expect(read).toContain(text);
     expect(read.indexOf("First stop")).toBeLessThan(read.indexOf("Last stop"));
   });
-  it("has two choose probes including a named near miss and one write probe", () => {
+  it("hides only the stop note in brief mode while keeping the stored note", () => {
+    const input = {
+      detail: "brief",
+      stops: [{ label: "First stop", meta: "Collect parcel" }, pair[1]],
+      distance: "3.2 km",
+    };
+    const read = readComponent(components.Route, input, "c1").join("\n");
+    expect(read).not.toContain("Collect parcel");
+    expect(read).toContain("3.2 km");
+    expect(input.stops[0]).toHaveProperty("meta", "Collect parcel");
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["meta"] });
+  });
+  it("has two choose probes including a named near miss and write probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Route")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Timeline")).toMatchObject({
@@ -175,7 +189,7 @@ describe("Route rendering", () => {
         for (const part of ["root", "label"]) {
           expect(html.match(new RegExp(`data-testid="home/c1/r${i}/${part}"`, "g"))).toHaveLength(1);
         }
-        expect(html).not.toContain(`data-testid="home/c1/r${i}/meta"`);
+        expect(html.includes(`data-testid="home/c1/r${i}/meta"`)).toBe(i % 2 === 1);
       }
     }
   });

@@ -14,7 +14,7 @@ import {
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
-import type { DeviceData } from "./device-data";
+import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
@@ -125,11 +125,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
 ): ActResult {
-  const screen = migrateScreen(input, { variantOnly: true });
   if (random && steps.length > 1) {
     const preview = planAct(input, defs, values, steps, null, clockOwner, data);
     if (!preview.ok) return preview;
   }
+  const screen = filterDeviceDataScreen(migrateScreen(input, { variantOnly: true }), defs, data);
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: Extract<ActResult, { ok: true }>["links"] = [];
@@ -147,7 +147,7 @@ export function planAct(
     }
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
     const key = `${screen.id}/${address}`;
-    const { result, number, limits } = validateStep(screen, defs, found, step, next, key);
+    const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
     try {
       const progress =
@@ -160,13 +160,13 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
+    const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
     if (clockOwner === "planner")
       stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value }, data);
-    if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
+    if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
-    const validate = limits || number?.adjustment || adjusted || selected.declared;
+    const validate = limits || edit?.adjustment || adjusted || selected.declared;
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     expireProgress(screen, defs, next, data);

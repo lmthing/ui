@@ -1,4 +1,13 @@
 export const en = {
+  soundscape: {
+    sleep: "Sleep timer",
+    off: "Off",
+    minutes: (value: string) => `${value} min`,
+    play: "Play mix",
+    pause: "Pause mix",
+    volume: (label: string) => `${label} volume`,
+    volumeReading: (label: string, value: string) => `${label}: ${value}`,
+  },
   feelings: {
     title: "Name what you feel",
     hint: "Choose a family, then pick words that fit.",
@@ -8,6 +17,17 @@ export const en = {
     placeholder: (item: string, option: string) => `${item} · ${option}`,
   },
   editSleep: "Edit sleep times",
+  breathe: {
+    phase: { inhale: "Breathe in", hold: "Hold", exhale: "Breathe out", rest: "Rest" },
+    complete: "Complete",
+    play: "Play",
+    pause: "Pause",
+    controlLabel: (action: string, phase: string) => `${action} breathing · ${phase}`,
+    roundsLeft: (plural: Intl.LDMLPluralRule) => ({
+      before: "",
+      after: ` ${plural === "one" ? "round" : "rounds"} left`,
+    }),
+  },
   sleep: {
     log: "Log sleep",
     duration: "Time asleep",
