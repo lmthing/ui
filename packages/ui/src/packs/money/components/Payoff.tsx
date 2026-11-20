@@ -107,13 +107,11 @@ function PayoffControls({ strategyChoice, extra, goto }: ControlProps) {
       </kit.KitTrack>
       <kit.KitContent group="response">
         <PayoffText text={labels.extra} />
-        {state === "loading" ? (
-          <kit.KitSkeleton shape="control" kind="secondary" full />
-        ) : (
-          <kit.KitInput {...field} hint={labels.extra} value={String(extra)} />
-        )}
-        {goto && <kit.KitAction {...editor} />}
+        {state === "loading"
+          ? <kit.KitSkeleton shape="control" kind="secondary" full />
+          : <kit.KitInput {...field} hint={labels.extra} value={String(extra)} />}
       </kit.KitContent>
+      {goto && <kit.KitContent group="response" children={<kit.KitAction {...editor} />} />}
     </kit.KitContent>
   );
 }
@@ -156,15 +154,10 @@ export function Payoff(input: PayoffProps) {
   const { lang, words } = kit.useWords(moneyWordsFor);
   const labels = words.payoff;
   if (state === "empty" || state === "success") {
-    const message =
-      state === "empty"
-        ? { part: "empty", sub: labels.emptyHelp }
-        : { part: "finish", title: labels.cleared };
-    return (
-      <kit.KitCard padded>
-        <kit.KitEmpty {...message} decorativeIcon />
-      </kit.KitCard>
-    );
+    const cleared = { part: "finish", title: labels.cleared };
+    const empty = { part: "empty", sub: labels.emptyHelp };
+    const message = state === "empty" ? empty : cleared;
+    return <kit.KitCard padded children={<kit.KitEmpty {...message} decorativeIcon />} />;
   }
   if (state === "error") {
     return (
@@ -177,9 +170,13 @@ export function Payoff(input: PayoffProps) {
     );
   }
   const { total, budget, finish, rows, series, stalled } = payoffCopy(input, lang);
-  const chart = { part: "line", style: "compact", series, loading: state === "loading" } as const;
+  const plot = series[0]!;
+  const loading = state === "loading";
+  const points = loading ? plot.points.map((point) => ({ ...point, value: null })) : plot.points;
+  const debts = <PayoffRows debts={input.debts} rows={rows} />;
   const headline = { role: "title", part: "finish", tone: stalled ? "bad" : "text" } as const;
   const figures = { total: [labels.owed, total], budget: [labels.budget, budget] } as const;
+  // prettier-ignore
   return (
     <kit.KitCard padded>
       <kit.KitContent>
@@ -192,8 +189,11 @@ export function Payoff(input: PayoffProps) {
           </kit.KitGrid>
         ))}
       </kit.KitContent>
-      {input.style === "plan" && <kit.KitLinePlot {...chart} />}
-      <PayoffRows debts={input.debts} rows={rows} />
+      {input.style === "plan" && <kit.KitContent>
+        <PayoffText text={labels.forecast} />
+        <kit.KitLinePlot part="line" style="compact" series={[{ ...plot, label: "", points }]} loading={loading} />
+      </kit.KitContent>}
+      {input.style === "plan" ? <kit.KitContent group="response" children={debts} /> : debts}
       <PayoffControls {...input} />
     </kit.KitCard>
   );
