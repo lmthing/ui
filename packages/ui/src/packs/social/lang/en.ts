@@ -33,6 +33,14 @@ export type SocialWords = {
     empty: string;
     status: (name: string, seen: boolean) => string;
   };
+  event: {
+    going: string;
+    interested: string;
+    attending: (count: string) => string;
+    attendees: string;
+    photo: string;
+    response: Record<"none" | "going" | "interested", string>;
+  };
 };
 
 export const en = {
@@ -71,5 +79,13 @@ export const en = {
     own: "Your story",
     empty: "No stories yet",
     status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
+  },
+  event: {
+    going: "Going",
+    interested: "Interested",
+    attending: (count) => `${count} going`,
+    attendees: "Attendees",
+    photo: "Event cover photo",
+    response: { none: "RSVP", going: "You’re going", interested: "You’re interested" },
   },
 } satisfies SocialWords;
