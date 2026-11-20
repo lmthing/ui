@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { components, createRegistry, packOf, readComponent, type CastLike } from "@lmthing/ui/catalog";
 
 const { Units, RentRoll, Viewings, Inspections, Meters } = components;
@@ -74,16 +74,41 @@ it("reconciles allocations, excludes voids, and only confirms the destructive ac
 });
 
 it("keeps past outcomes separate from invitations and disables cancelled viewing controls", () => {
-  const upcoming = readComponent(Viewings, Viewings.examples[0], "v1").join("\n");
-  expect(upcoming).toContain("[v1/r1/invite send !needs-service]");
-  expect(upcoming).not.toContain("/outcome select");
-  const past = readComponent(Viewings, Viewings.examples[1], "v1").join("\n");
-  expect(past).toContain("[v1/r1/outcome select");
-  expect(past).not.toContain("/outcome select→");
-  expect(past).not.toContain("/invite send");
-  const cancelled = { viewings: [{ ...Viewings.examples[0]!.viewings[0], status: "cancelled" }] };
-  expect(readComponent(Viewings, cancelled, "v1").join("\n")).not.toMatch(/\[v1\/r1\//);
-  expect(Viewings.meta.confirmParts).toEqual(["cancel"]);
+  vi.useFakeTimers({ toFake: ["Date"] });
+  try {
+    vi.setSystemTime(new Date("2026-11-20T12:00:00Z"));
+    const upcoming = readComponent(Viewings, Viewings.examples[0], "v1").join("\n");
+    expect(upcoming).toContain("[v1/r1/invite send !needs-service]");
+    expect(upcoming).not.toContain("/outcome select");
+    const past = readComponent(Viewings, Viewings.examples[1], "v1").join("\n");
+    expect(past).toContain("[v1/r1/outcome select");
+    expect(past).not.toContain("/outcome select→");
+    expect(past).not.toContain("/invite send");
+    const cancelled = { viewings: [{ ...Viewings.examples[0]!.viewings[0], status: "cancelled" }] };
+    expect(readComponent(Viewings, cancelled, "v1").join("\n")).not.toMatch(/\[v1\/r1\//);
+    expect(Viewings.meta.confirmParts).toEqual(["cancel"]);
+    const example = Viewings.examples[0]!.viewings[0]!;
+    for (const status of ["attended", "no_show"])
+      expect(Viewings.props.safeParse({ viewings: [{ ...example, status }] }).success).toBe(false);
+    vi.setSystemTime(new Date(example.start));
+    const started = readComponent(Viewings, Viewings.examples[0], "v1").join("\n");
+    expect(started).toContain("/outcome select");
+    expect(started).not.toContain("/invite send");
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("reads viewings in instant order with computed ends and retains the original addresses", () => {
+  const example = Viewings.examples[1]!.viewings[0]!;
+  const viewings = [
+    { ...example, start: "2026-10-17T12:00:00-02:00" },
+    { ...example, viewingRef: "willow_view", unit: "Willow Flat", start: "2026-10-17T14:00:00+02:00" },
+  ];
+  const reading = readComponent(Viewings, { viewings }, "v1").join("\n");
+  expect(reading.indexOf("r2 · Willow Flat")).toBeLessThan(reading.indexOf("r1 · North Cabin"));
+  expect(reading).toContain("2026-10-17T12:30:00.000Z");
+  expect(reading).toContain("[v1/r2/outcome select]");
 });
 
 it("requires complete inspection conditions and makes finalised evidence non-editable", () => {
@@ -137,7 +162,8 @@ it("reads the selected meter history without renumbering meters", () => {
   };
   expect(readComponent(Meters, input, "m1").join("\n")).toContain("2026-11-18T08:00:00Z");
   const selected = readComponent(Meters, input, "m1", "filled", { "m1/$meterRef": "cabin_water" }).join("\n");
-  expect(selected).toContain("r2 Water");
+  expect(selected).toContain("r2 · Water");
+  expect(selected).not.toContain("/photo press");
   expect(selected).toContain("2026-11-17T10:00:00Z");
   expect(selected).not.toContain("2026-11-18T08:00:00Z");
 });

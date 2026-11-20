@@ -10,7 +10,12 @@ import {
 import { z } from "zod";
 
 export const ref = text(32).regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/);
-export const dateTime = z.iso.datetime({ offset: true });
+const offsetDateTime = z.iso.datetime({ offset: true });
+// Keep Azure's response grammar simple; Zod still checks the full calendar and offset.
+export const dateTime = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/)
+  .refine((value) => offsetDateTime.safeParse(value).success, "Use a real ISO datetime with an offset");
 export const seedDate = "2026-11-18";
 export const seedTime = `${seedDate}T09:00:00Z`;
 

@@ -25,7 +25,10 @@ export const meta = {
   actions: {
     parts: { add: ["press"] },
     items: { root: ["select"], photo: ["press"] },
-    when: { root: { entryKind: "meter" }, photo: { entryKind: "reading", style: "history", visible: true } },
+    when: {
+      root: { entryKind: "meter" },
+      photo: { entryKind: "reading", style: "history", visible: true, hasPhoto: true },
+    },
   },
   select: { prop: "meterRef", value: { field: "meterRef" } },
   emptyActions: ["add.press"],
@@ -118,6 +121,7 @@ export const props = z
         ...reading,
         entryKind: "reading",
         visible: reading.meterRef === value.meters[0]!.meterRef,
+        hasPhoto: Boolean(reading.photo),
       })),
     ],
   }));

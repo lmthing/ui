@@ -10,7 +10,7 @@ export const meta = {
   purpose: "Arrange property viewings and track each prospect’s confirmation and attendance.",
   pick: "Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).",
   writeHints: [
-    "Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Store the actual status; elapsed time alone is not attendance.",
+    "Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.",
     'Default to brief rows. For detailed cards with the stored note, use surface "card" and detail "full".',
   ],
   region: "body",
@@ -53,25 +53,45 @@ export const meta = {
   },
   read: (input, _state, lang): string[] => {
     const { viewings } = input as z.output<typeof props>;
-    return viewings.map(({ unit, prospect, start, minutes, status, note }, index) =>
-      [`r${index + 1}`, unit, prospect, start, c.durationLine(minutes, lang), status, note]
-        .filter(Boolean)
-        .join(" · "),
-    );
+    return viewings
+      .map((record, index) => ({ ...record, id: `r${index + 1}`, at: Date.parse(record.start) }))
+      .sort((a, b) => a.at - b.at)
+      .map(({ id, unit, prospect, start, at, minutes, status, note }) =>
+        [
+          id,
+          unit,
+          prospect,
+          start,
+          new Date(at + minutes * 60_000).toISOString(),
+          c.durationLine(minutes, lang),
+          status,
+          note,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
   },
 } as const satisfies c.Meta;
 
-const viewing = z.strictObject({
-  viewingRef: ref,
-  unitRef: ref,
-  unit: c.text(32),
-  prospect: c.text(24),
-  start: dateTime,
-  minutes: z.int().min(5).max(180),
-  status: z.enum(["proposed", "confirmed", "attended", "no_show", "cancelled"]),
-  note: c.text(36).optional(),
-  goto: c.screenId,
-});
+const viewing = z
+  .strictObject({
+    viewingRef: ref,
+    unitRef: ref,
+    unit: c.text(32),
+    prospect: c.text(24),
+    start: dateTime,
+    minutes: z.int().min(5).max(180),
+    status: z.enum(["proposed", "confirmed", "attended", "no_show", "cancelled"]),
+    note: c.text(36).optional(),
+    goto: c.screenId,
+  })
+  .refine(
+    ({ start, status }) => Date.parse(start) <= Date.now() || (status !== "attended" && status !== "no_show"),
+    {
+      path: ["status"],
+      message: "Record attendance only after the viewing has started",
+    },
+  );
 
 function viewingControls(record: z.output<typeof viewing>, now: number) {
   const upcomingTime = Date.parse(record.start) > now;
