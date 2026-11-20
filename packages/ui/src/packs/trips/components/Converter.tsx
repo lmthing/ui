@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { probesFor, variantProps, type FallbackInput, type Meta, type Probe } from "../../../catalog";
+import { converterMax, converterReading, type ConverterInput } from "../copy";
 
 // Core first: Amount/default cannot edit either side of a conversion or swap the currency pair.
 export const meta = {
@@ -19,11 +20,14 @@ export const meta = {
   parts: ["root", "from", "to", "swap", "rate_date"],
   states: ["filled", "loading"],
   actions: { parts: { from: ["type"], to: ["type"], swap: ["press"] } },
+  deviceData: ["exchange_rates"],
+  read: (input, state, lang, data): string[] =>
+    state === "filled" ? converterReading(input as ConverterInput, lang, data) : [],
 } as const satisfies Meta;
 
 export const props = z.strictObject({
   ...variantProps(meta.variants),
-  value: z.number().min(0).max(999999999).optional(),
+  value: z.number().min(0).max(converterMax).optional(),
 });
 
 export function fallback(_input: FallbackInput): z.input<typeof props> {
