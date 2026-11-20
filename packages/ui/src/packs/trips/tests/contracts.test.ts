@@ -1,5 +1,6 @@
 import { expect, it } from "vitest";
 import {
+  appointmentDate,
   components,
   placeholderTitle,
   readComponent,
@@ -89,6 +90,8 @@ it("rejects invalid nested fields, bounds, dates and service-computed input", ()
       [
         { ...Reservation.examples[0], ref: "R".repeat(13) },
         { ...Reservation.examples[0], start: { date: "2027-02-29", time: "09:00" } },
+        { ...Reservation.examples[0], style: "pass" },
+        { ...Reservation.examples[1], code: false },
       ],
     ],
     [
@@ -166,4 +169,14 @@ it("quotes authored nested text in its reading", () => {
     expect(reading).toContain(JSON.stringify(name));
     expect(reading).not.toContain(name);
   }
+});
+
+it("reads the start and optional end of a reservation", () => {
+  const { Reservation } = components;
+  const { end: _end, ...startOnly } = Reservation.examples[1]!;
+  const date = appointmentDate(startOnly.start.date, "en");
+  const read = readComponent(Reservation, Reservation.examples[1], "r1", "filled", {}, "en").join("\n");
+  expect(read).toContain(`${date} 08:30`);
+  expect(read).toContain(`${date} 10:40`);
+  expect(readComponent(Reservation, startOnly, "r1").join("\n")).not.toContain("10:40");
 });

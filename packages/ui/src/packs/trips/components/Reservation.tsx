@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  appointmentDate,
   clock,
   isoDate,
   itemsOf,
@@ -8,6 +9,7 @@ import {
   probesFor,
   text,
   thingOf,
+  timeOfDayLine,
   titleOf,
   variantProps,
   type FallbackInput,
@@ -34,22 +36,31 @@ export const meta = {
   parts: ["root", "kind", "title", "from", "to", "start", "end", "ref", "seat", "code"],
   states: ["filled", "loading"],
   actions: { parts: { ref: ["press"], root: ["press"] } },
+  read: (input, state, lang) => {
+    if (state !== "filled") return [];
+    const { start, end } = input as { start: z.output<typeof stamp>; end?: z.output<typeof stamp> };
+    return (end ? [start, end] : [start]).map(
+      ({ date, time }) => `${appointmentDate(date, lang)} ${timeOfDayLine(time, lang)}`,
+    );
+  },
 } as const satisfies Meta;
 
 const stamp = z.strictObject({ date: isoDate, time: clock });
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  kind: z.enum(["flight", "train", "bus", "ferry", "stay", "car", "ticket"]),
-  title: text(32),
-  from: text(20).optional(),
-  to: text(20).optional(),
-  start: stamp,
-  end: stamp.optional(),
-  ref: text(12),
-  seat: text(12).optional(),
-  code: z.boolean().default(false),
-  style: z.literal("pass").optional(),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    kind: z.enum(["flight", "train", "bus", "ferry", "stay", "car", "ticket"]),
+    title: text(32),
+    from: text(20).optional(),
+    to: text(20).optional(),
+    start: stamp,
+    end: stamp.optional(),
+    ref: text(12),
+    seat: text(12).optional(),
+    code: z.boolean().default(false),
+    style: z.literal("pass").optional(),
+  })
+  .refine(({ style, code }) => style !== "pass" || code, { path: ["code"] });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const item = itemsOf(cast, 1)[0];
