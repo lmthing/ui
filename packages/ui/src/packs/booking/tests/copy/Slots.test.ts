@@ -16,8 +16,8 @@ it("shares visible slot subtitles and geometry-only loading text with the readin
   expect([
     slotDetailLine("09:00", 30, "grid", false),
     slotDetailLine("09:00", 30, "grid", true),
-    slotDetailLine("09:00", 30, "list", false),
-    slotDetailLine("23:59", 600, "list", true),
+    slotDetailLine("09:00", 30, "rows", false),
+    slotDetailLine("23:59", 600, "rows", true),
   ]).toEqual(["free", "taken", "→ 09:30", "→ 09:59 +1d · taken"]);
   for (const line of ["", "09:00", "free", "→ 09:59 +1d · taken"]) {
     expect(slotLoadingLine(line)).toHaveLength(line.length);

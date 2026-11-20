@@ -8,6 +8,7 @@ import {
   KitStrip,
   KitText,
   useComponentState,
+  useVariant,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
@@ -19,6 +20,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -34,11 +36,14 @@ export const meta = {
   pick: "Select a service provider for a booking, including Anyone. Not participants or people shown without selecting a provider (People).",
   writeHints: [
     "at is 0 for Anyone (only when anyone is true), 1 for the first staff member, 2 for the second. Use compact photo references such as local:1.",
+    'Leave density and detail null unless requested. For avatars and names with no visible roles, use detail "brief" and keep the roles in the data.',
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "Each staff member has working hours and bookings in a shared app.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["role"] } },
   items: { key: "staff", parts: ["root", "name", "photo", "role"] },
   parts: ["root", "anyone", "anyone_photo", "anyone_name"],
   states: ["filled", "loading"],
@@ -51,6 +56,7 @@ export const meta = {
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     staff: z
       .array(z.strictObject({ name: text(20), photo, role: text(20).optional() }))
       .min(1)
@@ -60,7 +66,12 @@ export const props = z
   })
   .refine(({ staff, at, anyone }) => at === undefined || (at === 0 ? anyone : at <= staff.length), {
     path: ["at"],
-  });
+  })
+  .overwrite((value) =>
+    value.detail === "brief"
+      ? { ...value, staff: value.staff.map((person) => ({ ...person, role: undefined })) }
+      : value,
+  );
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const staff = itemsOf(cast, 3).map((item) => ({
@@ -72,6 +83,8 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { staff: [{ name: "Anna", photo: "lib:people", role: "Plant care" }], anyone: true, at: 0 },
   {
+    density: "compact",
+    detail: "brief",
     staff: [
       { name: "Sam", photo: "lib:people", role: "Walker" },
       { name: "Alex", photo: "lib:people" },
@@ -85,6 +98,12 @@ export const probes = [
   choose("Choose which staff member does my booked service, or let anyone available do it"),
   choose("Show the people coming on my walk as overlapping avatars", "People"),
   write("Choose between walkers Sam and Alex, allow anyone, select Sam"),
+  {
+    ...write(
+      "Let me choose between Sam, a walker, and Alex, a trainer. Keep their roles but show just their photos and names, without the role captions.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Choose Anna for this booking", { address: "s1/r1", action: "select" }),
   read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
@@ -105,16 +124,22 @@ function StaffLoading({ name, role }: { name: string; role?: string | undefined 
   );
 }
 
-export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof meta>) {
+export function StaffPicker({
+  staff,
+  anyone,
+  at,
+  density: requestedDensity,
+}: Props<typeof props, typeof meta>) {
   const { anyoneLabel } = useWords(bookingWordsFor).words;
   const loading = useComponentState() === "loading";
+  const density = useVariant("density", meta.variants.density, requestedDensity);
   const choices = [
     ...(anyone ? [{ id: undefined, name: anyoneLabel, photo: undefined, role: undefined, position: 0 }] : []),
     ...staff.map((person, index) => ({ ...person, position: index + 1 })),
   ];
   return (
     <KitCard part="root" padded>
-      <KitStrip>
+      <KitStrip density={density}>
         {choices.map((person) =>
           loading ? (
             <StaffLoading key={person.position} name={person.name} role={person.role} />
@@ -125,6 +150,7 @@ export function StaffPicker({ staff, anyone, at }: Props<typeof props, typeof me
               label={person.name}
               role="button"
               inset="none"
+              density={density}
             >
               <KitPhoto
                 {...(person.photo ? { photo: person.photo } : {})}

@@ -1,32 +1,13 @@
-import {
-  useWords,
-  KitAction,
-  KitCard,
-  KitContent,
-  KitGrid,
-  KitSkeleton,
-  KitText,
-  KitTrail,
-  useComponentState,
-} from "../../../kit";
+// prettier-ignore
+import { KitAction, KitCard, KitContent, KitGrid, KitSkeleton, KitText, KitTrail,
+  useComponentState, useVariant, useWords } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
+// prettier-ignore
 import {
-  appointmentDate,
-  balancedLine,
-  clock,
-  isoDate,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  timeOfDayLine,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  appointmentDate, balancedLine, clock, isoDate, placeholderTitle, probesFor, screenId, text,
+  timeOfDayLine, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput, type Meta,
+  type Probe, type Props,
 } from "../../../catalog";
 import { appointmentDetails, appointmentReading } from "../copy";
 // Core first: Card/plain previews a record, not structured booking terms and reschedule/cancel.
@@ -36,25 +17,20 @@ export const meta = {
   group: "content",
   purpose: "See, change or confirm one booking with its time and terms.",
   pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
-  writeHints: ['policy is only allowed with style: "summary". For style: "card", omit policy.'],
+  writeHints: [
+    'policy is only allowed with style: "summary". For style: "card", omit policy.',
+    'Leave axes null unless requested. For a brief booking that hides who and where, use detail "brief"; retain with and place in the data.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A booking record stored on the provider's device.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["with", "place"] } },
+  // prettier-ignore
   parts: [
-    "root",
-    "service",
-    "with",
-    "date",
-    "time",
-    "minutes",
-    "place",
-    "price",
-    "status",
-    "policy",
-    "reschedule",
-    "cancel",
-    "edit",
+    "root", "service", "with", "date", "time", "minutes", "place", "price", "status",
+    "policy", "reschedule", "cancel", "edit",
   ],
   confirmParts: ["cancel"],
   states: ["filled", "loading", "success"],
@@ -62,10 +38,11 @@ export const meta = {
     parts: { root: ["press"], reschedule: ["press"], cancel: ["press"], edit: ["press"] },
     when: { reschedule: { style: "card" }, cancel: { style: "card" }, edit: { style: "summary" } },
   },
-  read: (input, _state, lang?: string) => appointmentReading(input as z.output<typeof props>, lang),
+  read: (input, _state, lang?: string): string[] => appointmentReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     service: text(28),
     with: text(24).optional(),
     date: isoDate,
@@ -82,6 +59,7 @@ export const props = z
   // Cancel is an action, never a link to the reschedule target. This holder is code-owned.
   .overwrite((value) => ({
     ...value,
+    ...(value.detail === "brief" ? { with: undefined, place: undefined } : {}),
     policy: value.policy ? balancedLine(value.policy) : undefined,
     cancel: {},
   }));
@@ -121,26 +99,40 @@ export const examples = [
     policy: "Move or cancel up to two hours before.",
     goto: "time",
   },
+  // prettier-ignore
+  { service: "Home visit", with: "Sam", place: "Home", date: "2026-11-22", time: "16:00",
+    minutes: 30, price: 15, status: "confirmed", goto: "time", detail: "brief", density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Appointment");
 export const probes = [
   choose("Show my one booked visit with its date, time and duration and actions to move or cancel it"),
   choose("Show a simple tappable preview of my fern with a little detail", "Card"),
   write("Confirmed 30 minute park walk on 2026-11-20 at 09:00 with Sam, price 15, reschedule to time"),
+  {
+    ...write(
+      "Show the confirmed 30-minute park walk at 09:00 on 2026-11-20 for 15, reschedule to time. Save Sam as the walker and Riverside as the place, but hide who and where from the card.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Cancel this appointment", { address: "a1/cancel", action: "press" }),
   {
     ...read("Edit the booking details before confirming", { address: "a1/edit", action: "press" }),
     screen: 1,
   },
 ] satisfies Probe[];
-function AppointmentLine({ value, part, loading }: { value: string; part: string; loading: boolean }) {
+type AppointmentText = { value: string; part: string; loading: boolean; density: ThemeDensity };
+function AppointmentLine({ value, part, loading, density }: AppointmentText) {
   const number = ["time", "price", "minutes"].includes(part);
   const role = number ? "number" : "label";
   const scale = part === "time" ? "display" : "compact";
-  if (loading) return <KitSkeleton shape="figure" inset="none" content={[[role, value, "start", scale]]} />;
+  if (loading)
+    return (
+      <KitSkeleton shape="figure" inset="none" density={density} content={[[role, value, "start", scale]]} />
+    );
   return (
     <KitText
       role={role}
+      density={density}
       numberScale={scale}
       tone={["date", "time", "service", "price", "minutes"].includes(part) ? "text" : "muted"}
       tabular={number}
@@ -160,11 +152,19 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
   const date = appointmentDate(input.date, lang);
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const change = card ? "reschedule" : "edit";
+  const density = useVariant("density", meta.variants.density, input.density);
+  const finish = { loading, density };
   return (
-    <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service}>
-      <AppointmentLine value={date} part="date" loading={loading} />
-      <KitGrid>
-        <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" loading={loading} />
+    <KitCard
+      padded
+      part="root"
+      goto={active ? input.goto : undefined}
+      label={input.service}
+      density={density}
+    >
+      <AppointmentLine value={date} part="date" {...finish} />
+      <KitGrid density={density}>
+        <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" {...finish} />
         {card && (
           <KitContent
             lead={<KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />}
@@ -175,18 +175,18 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
         )}
       </KitGrid>
       <KitContent>
-        <AppointmentLine value={input.service} part="service" loading={loading} />
-        <KitGrid>
+        <AppointmentLine value={input.service} part="service" {...finish} />
+        <KitGrid density={density}>
           {appointmentDetails(input, lang)
             .filter(({ part }) => part !== "policy")
             .flatMap(({ part, text }, index) => [
               ...(part === "price" && index % 2 === 0
                 ? [<KitContent key="price-gap">{null}</KitContent>]
                 : []),
-              <AppointmentLine key={part} value={text} part={part} loading={loading} />,
+              <AppointmentLine key={part} value={text} part={part} {...finish} />,
             ])}
         </KitGrid>
-        {input.policy && <AppointmentLine value={input.policy} part="policy" loading={loading} />}
+        {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
       </KitContent>
       <KitAction label={appointmentLabels[change]} part={change} goto={input.goto} disabled={!active} full />
       {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}

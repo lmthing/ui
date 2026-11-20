@@ -1,38 +1,17 @@
+// prettier-ignore
 import {
-  useWords,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitPhoto,
-  KitRow,
-  KitSkeleton,
-  KitText,
-  type TextRole,
-  type TextTone,
-  useComponentState,
+  KitCard, KitContent, KitEmpty, KitGrid, KitPhoto, KitRow, KitSkeleton, KitText,
+  type TextRole, type TextTone, useComponentState, useVariant, useWords,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { servicePrice, serviceReading } from "../copy";
 import { z } from "zod";
+// prettier-ignore
 import {
-  detailOf,
-  durationLine,
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  detailOf, durationLine, itemsOf, itemVariantProps, photo, placeholderTitle, probesFor,
+  screenId, text, thingOf, titleOf, variantProps, type ThemeDensity, type FallbackInput,
+  type Meta, type Probe, type Props,
 } from "../../../catalog";
-
-// Core first: List/inset cannot group twelve services with numeric duration and price.
 export const meta = {
   id: "ServiceMenu",
   status: "ready",
@@ -44,30 +23,52 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Services stored on the device by the provider.",
-  items: { key: "services", parts: ["root", "name", "minutes", "price", "sub", "group", "photo"] },
+  writeHints: [
+    'Leave axes null unless requested. For names, lengths and prices without descriptive lines, use detail "brief"; keep descriptions in sub.',
+  ],
+  // prettier-ignore
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"],
+    detail: ["full", "brief"], lead: ["thumb", "none"] },
+  items: {
+    key: "services",
+    parts: ["root", "name", "minutes", "price", "sub", "group", "photo"],
+    variants: { tone: ["neutral", "good"], mark: ["none", "highlight"] },
+  },
+  variantParts: { "detail.brief": { hides: ["sub"] }, "lead.none": { hides: ["photo"] } },
   parts: ["root", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state, lang?: string) =>
+  read: (input, state, lang?: string): string[] =>
     state === "filled" ? serviceReading((input as z.output<typeof props>).services, lang) : [],
 } as const satisfies Meta;
-export const props = z.strictObject({
-  services: z
-    .array(
-      z.strictObject({
-        name: text(28),
-        minutes: z.int().min(5).max(600),
-        price: z.number().min(0).optional(),
-        sub: text(60).optional(),
-        group: text(20).optional(),
-        photo: photo.optional(),
-        goto: screenId,
-      }),
-    )
-    .min(1)
-    .max(12),
-  style: z.enum(["rows", "cards"]).default("rows"),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    services: z
+      .array(
+        z.strictObject({
+          ...itemVariantProps(meta.items.variants),
+          name: text(28),
+          minutes: z.int().min(5).max(600),
+          price: z.number().min(0).optional(),
+          sub: text(60).optional(),
+          group: text(20).optional(),
+          photo: photo.optional(),
+          goto: screenId,
+        }),
+      )
+      .min(1)
+      .max(12),
+    style: z.literal("cards").optional(),
+  })
+  .overwrite((value) => ({
+    ...value,
+    services: value.services.map((service) => ({
+      ...service,
+      ...(value.detail === "brief" ? { sub: undefined } : {}),
+      ...(value.lead === "none" ? { photo: undefined } : {}),
+    })),
+  }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const services = itemsOf(cast, 3).map((item) => ({
@@ -82,33 +83,27 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
       : [{ name: placeholderTitle(0, lang), minutes: 30, goto: "details" }],
   };
 }
+// prettier-ignore
 export const examples = [
   {
-    style: "rows",
     services: [
-      {
-        name: "Plant care visit",
-        minutes: 30,
-        price: 20,
-        group: "Care",
-        sub: "Watering and leaf care",
-        goto: "time",
-      },
+      { name: "Plant care visit", minutes: 30, price: 20, group: "Care", sub: "Watering and leaf care", goto: "time" },
       { name: "Repotting visit", minutes: 60, price: 40, group: "Care", goto: "time" },
     ],
   },
   {
     style: "cards",
     services: [
-      {
-        name: "Morning park walk",
-        minutes: 30,
-        price: 15,
-        sub: "Clover and Pip",
-        photo: "lib:dogs",
-        goto: "time",
-      },
+      { name: "Morning park walk", minutes: 30, price: 15, sub: "Clover and Pip", photo: "lib:dogs", goto: "time" },
       { name: "Long walk", minutes: 60, price: 25, photo: "lib:dogs", goto: "time" },
+    ],
+  },
+  {
+    density: "compact", surface: "outlined", detail: "brief", lead: "none",
+    services: [
+      { name: "Park walk", minutes: 30, price: 15, sub: "Clover and Pip", photo: "lib:dogs", goto: "time", tone: "good", mark: "highlight" },
+      { name: "Long walk", minutes: 60, price: 25, goto: "time" },
+      { name: "Home visit", minutes: 30, goto: "time" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -117,20 +112,17 @@ export const probes = [
   choose("Let clients book one of my services, grouped by type, with minutes and a price for each"),
   choose("Show several plants with short details and a link to open each", "List"),
   write("Offer a 30 minute park walk for 15 and a 60 minute walk for 25, both opening time"),
+  {
+    ...write(
+      "Offer a 30-minute park walk for 15, opening time. Save the description 'With Clover and Pip' but show only the service name, duration and price, with no descriptive line.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Book the plant care visit", { address: "s1/r1", action: "press" }),
 ] satisfies Probe[];
 
-function ServiceText({
-  value,
-  part,
-  role = "body",
-  tone = "text",
-}: {
-  value: string;
-  part: string | null;
-  role?: TextRole;
-  tone?: TextTone;
-}) {
+type ServiceLine = { value: string; part: string | null; role?: TextRole; tone?: TextTone };
+function ServiceText({ value, part, role = "body", tone = "text" }: ServiceLine) {
   const loading = useComponentState() === "loading";
   const skeleton = (
     <KitSkeleton shape="figure" inset="none" content={[[role === "number" ? "body" : role, value]]} />
@@ -143,7 +135,8 @@ function ServiceText({
   );
 }
 
-function ServiceRows({ services }: Props<typeof props, typeof meta>) {
+type MenuProps = Props<typeof props, typeof meta>;
+function ServiceRows({ services, density, style, surface }: MenuProps & { density: ThemeDensity }) {
   const { lang, words } = useWords();
   const { bookLabel } = bookingWordsFor(lang);
   const loading = useComponentState() === "loading";
@@ -154,6 +147,10 @@ function ServiceRows({ services }: Props<typeof props, typeof meta>) {
         <KitRow
           key={service.id}
           item={service.id}
+          density={density}
+          tone={service.tone}
+          mark={service.mark}
+          surface={style === "cards" ? surface : undefined}
           label={loading ? words.loadingLabel : service.name}
           goto={loading ? undefined : service.goto}
           leadingAlign="row"
@@ -187,12 +184,17 @@ function ServiceRows({ services }: Props<typeof props, typeof meta>) {
   );
 }
 
-export function ServiceMenu(input: Props<typeof props, typeof meta>) {
+export function ServiceMenu(input: MenuProps) {
   const state = useComponentState();
-  const { style } = input;
+  const { style, surface } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   return (
-    <KitCard style={state === "empty" || style === "rows" ? "inset" : "cards"}>
-      {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} />}
+    <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface={surface} density={density}>
+      {state === "empty" ? (
+        <KitEmpty decorativeIcon part="empty" />
+      ) : (
+        <ServiceRows {...input} density={density} />
+      )}
     </KitCard>
   );
 }

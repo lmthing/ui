@@ -7,6 +7,7 @@ import {
   KitText,
   useComponentState,
   useEmptyThing,
+  useVariant,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
@@ -21,6 +22,7 @@ import {
   probesFor,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -37,41 +39,42 @@ export const meta = {
   pick: "Select free HH:MM start times, keeping taken times disabled. Not deciding which day, date or week to book: use Calendar for that, even in a booking app. Not working hours (Availability).",
   writeHints: [
     "Times are unique HH:MM start times. at, when present, must exactly match a free time; omit it if none is selected.",
-    "minutes is the appointment length, from 5 to 600. End times in list style are computed, not written.",
+    'minutes is the appointment length, from 5 to 600. Only use arrange "rows" when asked for one row per time or for computed end times; otherwise leave arrange null.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Free times computed on the device from working hours minus bookings.",
+  variants: { arrange: ["grid", "rows"] },
   items: { key: "times", parts: ["root", "time"] },
   parts: ["root", "times", "minutes", "sub"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] }, when: { root: { taken: false } } },
   select: { prop: "at", value: { field: "time" } },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { slotLabels } = bookingWordsFor(lang);
 
     if (state !== "filled") return [];
-    const { times, minutes, style } = input as z.output<typeof props>;
+    const { times, minutes, arrange } = input as z.output<typeof props>;
     return [
       durationLine(minutes, lang),
       ...times.flatMap(({ time, taken }) => [
         `${time}${taken ? ` (${slotLabels.taken})` : ""}`,
-        slotDetailLine(time, minutes, style, taken, lang),
+        slotDetailLine(time, minutes, arrange, taken, lang),
       ]),
     ];
   },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     times: z
       .array(z.strictObject({ time: clock.meta({ kind: "text" }), taken: z.boolean() }))
       .min(1)
       .max(24),
     at: clock.optional(),
     minutes: z.int().min(5).max(600),
-    style: z.enum(["grid", "list"]).default("grid"),
   })
   .refine(({ times, at }) => !at || times.some((slot) => slot.time === at && !slot.taken), { path: ["at"] })
   .refine(({ times }) => new Set(times.map(({ time }) => time)).size === times.length, {
@@ -96,7 +99,6 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   // Ledge: half-hour plant-care visits.
   {
-    style: "grid",
     times: [
       { time: "09:00", taken: false },
       { time: "09:30", taken: true },
@@ -110,7 +112,7 @@ export const examples = [
   },
   // Trot: hour-long dog walks.
   {
-    style: "list",
+    arrange: "rows",
     times: [
       { time: "14:00", taken: false },
       { time: "15:00", taken: true },
@@ -119,7 +121,7 @@ export const examples = [
     minutes: 60,
   },
   {
-    style: "list",
+    arrange: "rows",
     times: [
       { time: "23:59", taken: true },
       { time: "00:00", taken: false },
@@ -133,11 +135,19 @@ export const probes = [
   choose("Pick a free start time today, with already taken times disabled"),
   choose("Choose which day next week I want to book", "Calendar"),
   write("Start times 09:00 free and 09:30 taken, thirty minute appointments"),
+  {
+    ...write(
+      "Show a free 14:00 start and a taken 15:00 start for hour-long appointments, one row per start with its end time.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
   read("Choose the free 09:00 time", { address: "s1/r1", action: "select" }),
   { ...read("Choose the free 16:00 time", { address: "s1/r3", action: "select" }), screen: 1 },
 ] satisfies Probe[];
 
-export function Slots({ times, at, minutes, style }: Props<typeof props, typeof meta>) {
+export function Slots(input: Props<typeof props, typeof meta>) {
+  const { times, at, minutes } = input;
+  const arrange = useVariant("arrange", meta.variants.arrange, input.arrange);
   const { lang, words } = useWords(bookingWordsFor);
   const { slotLabels } = words;
   const state = useComponentState();
@@ -157,7 +167,7 @@ export function Slots({ times, at, minutes, style }: Props<typeof props, typeof 
     );
   }
   const slots = times.map(({ id, time, taken }) => {
-    const sub = slotDetailLine(time, minutes, style, taken, lang);
+    const sub = slotDetailLine(time, minutes, arrange, taken, lang);
     return {
       id,
       taken,
@@ -171,7 +181,7 @@ export function Slots({ times, at, minutes, style }: Props<typeof props, typeof 
       <KitSlotGrid
         times={slots}
         {...(selected ? { at: selected.id } : {})}
-        style={style}
+        style={arrange === "rows" ? "list" : "grid"}
         loading={state === "loading"}
         part="times"
       />

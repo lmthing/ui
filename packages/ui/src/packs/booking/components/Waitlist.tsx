@@ -1,7 +1,15 @@
-import { useWords, KitAction, KitCard, KitContent, KitText } from "../../../kit";
+import { useWords, useVariant, KitAction, KitCard, KitContent, KitText } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
-import { probesFor, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
+import {
+  numberLine,
+  probesFor,
+  variantProps,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../../../catalog";
 import { queueAhead, queueCount, queueExact } from "../copy";
 
 // Core first: Progress/compact shows capacity, not membership or position in a waiting queue.
@@ -15,6 +23,11 @@ export const meta = {
   weight: 2,
   tier: "people",
   realPath: "A queue in a shared app; notifications tell the next person when a place opens.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["ahead"] } },
+  writeHints: [
+    'Leave density and detail null unless requested. For a joined queue with a known position, detail "brief" shows the position without the number ahead; retain ahead in the data.',
+  ],
   parts: ["root", "title", "position", "label", "ahead", "join", "leave"],
   confirmParts: ["leave"],
   states: ["filled", "success"],
@@ -22,23 +35,29 @@ export const meta = {
     parts: { join: ["press"], leave: ["press"] },
     when: { join: { joined: false }, leave: { joined: true } },
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { queueLabels } = bookingWordsFor(lang);
 
     if (state !== "filled") return [];
-    const { joined, position, ahead } = props.parse(input);
+    const { joined, position, ahead, detail } = props.parse(input);
+    const brief = detail === "brief" && joined && position !== undefined;
     return [
       joined ? queueLabels.joined : queueLabels.waiting,
       ...(joined && position !== undefined ? [queueCount(position, lang), queueLabels.position] : []),
-      queueAhead(ahead, lang),
-      ...(ahead > 999 || (joined && position !== undefined && position > 999)
-        ? [queueExact(ahead, joined ? position : undefined, lang)]
-        : []),
+      ...(brief ? [] : [queueAhead(ahead, lang)]),
+      ...(brief
+        ? position > 999
+          ? [queueLabelsForPosition(position, lang)]
+          : []
+        : ahead > 999 || (joined && position !== undefined && position > 999)
+          ? [queueExact(ahead, joined ? position : undefined, lang)]
+          : []),
       joined ? queueLabels.leave : queueLabels.join,
     ];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   position: z.int().min(1).optional(),
   ahead: z.int().min(0),
   joined: z.boolean(),
@@ -51,22 +70,39 @@ export const examples = [
   { ahead: 4, joined: false },
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
-  { position: 12, ahead: 11, joined: true },
+  { position: 12, ahead: 11, joined: true, detail: "brief", density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
 export const probes = [
   choose("The class is full; let me join a waiting queue and see how many people are ahead"),
   choose("Show eight of twelve class places filled as a compact capacity bar", "Progress"),
   write("I joined the full walk session's waiting queue, third in line with two people ahead"),
+  {
+    ...write(
+      "I joined the waiting queue for the full dog walk. I'm third with two people ahead. Show my position but hide the people-ahead count.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Leave the waiting queue", { address: "w1/leave", action: "press" }),
   { ...read("Join the waiting queue", { address: "w1/join", action: "press" }), screen: 1 },
 ] satisfies Probe[];
 
-export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof meta>) {
+function queueLabelsForPosition(position: number, lang?: string) {
+  const words = bookingWordsFor(lang);
+  return words.queuePosition(words.queueLabels.position, numberLine(position, lang));
+}
+
+export function Waitlist(input: Props<typeof props, typeof meta>) {
+  const { position, ahead, joined, detail } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   const { lang, words } = useWords(bookingWordsFor);
   const { queueLabels } = words;
+  const brief = detail === "brief" && joined && position !== undefined;
+  const label = brief
+    ? queueLabelsForPosition(position, lang)
+    : queueExact(ahead, joined ? position : undefined, lang);
   return (
-    <KitCard style="inset" padded part="root" label={queueExact(ahead, joined ? position : undefined, lang)}>
+    <KitCard style="inset" padded part="root" label={label} density={density}>
       <KitContent lineRole="heading">
         <KitText role="label" part="title">
           {joined ? queueLabels.joined : queueLabels.waiting}
@@ -81,9 +117,11 @@ export function Waitlist({ position, ahead, joined }: Props<typeof props, typeof
             </KitText>
           </>
         )}
-        <KitText role="body" tone="muted" part="ahead">
-          {queueAhead(ahead, lang)}
-        </KitText>
+        {!brief && (
+          <KitText role="body" tone="muted" part="ahead" density={density}>
+            {queueAhead(ahead, lang)}
+          </KitText>
+        )}
       </KitContent>
       <KitAction
         label={joined ? queueLabels.leave : queueLabels.join}
