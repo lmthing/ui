@@ -1,6 +1,7 @@
 import {
   selectionAt,
   selectionOffer,
+  itemEditSpec,
   isAdjustOnlyItem,
   nestedAt,
   adjustmentAt,
@@ -30,7 +31,7 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
     /\/root$/,
     "",
   );
-  if (selectionOffer(def.meta, local)) return step;
+  if (selectionOffer(def.meta, local) || itemEditSpec(def.meta, local)?.action === "select") return step;
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
   const found = selectionAt(def.meta, input, local);
@@ -70,6 +71,11 @@ export function controlStep(
   const next = { ...values };
   const parts = step.address.replace(`${screen.id}/`, "").split("/");
   const target = parts.slice(1).join("/") || "root";
+  const edit = itemEditSpec(defs[entry.c]!.meta, target);
+  if (edit?.action === "photo" && step.action === "press")
+    return { values: next, requestPhoto: valueKey(screen.id, entry.id, target) };
+  if (edit?.action === step.action)
+    return { values: next, value: next[valueKey(screen.id, entry.id, target)] };
   const ctx: ControlContext = {
     screen,
     entry,

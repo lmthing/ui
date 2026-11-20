@@ -16,7 +16,13 @@ import {
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { createScreenController, PhoneScreen } from "@lmthing/ui/kit";
-import { addressedElements, config, elementAt, renderInstance } from "../../../../../test/render";
+import {
+  addressedElements,
+  config,
+  elementAt,
+  renderExample,
+  renderInstance,
+} from "../../../../../test/render";
 
 const def = components.Collection;
 const { props, meta, examples, fallback, probes } = def;
@@ -105,8 +111,8 @@ describe("Collection fallback and metadata", () => {
 describe("Collection states and parts", () => {
   // prettier-ignore
   it("renders all supplied parts and keeps finish variants addressed", () => {
-    const html = renderInstance("Collection", series, "filled", theme);
-    const alternate = renderInstance("Collection", { ...series, aspect: "wide", density: "compact" }, "filled", theme);
+    const { html } = renderExample("Collection", series, "filled", theme);
+    const { html: alternate } = renderExample("Collection", { ...series, aspect: "wide", density: "compact" }, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
       meta.parts.map((part) => prefix + part).sort(),
     );
@@ -118,14 +124,12 @@ describe("Collection states and parts", () => {
   });
 
   it("hides only the about part in brief and omits missing descriptions or summaries", () => {
-    const full = addressedElements(renderInstance("Collection", series, "filled", theme));
+    const full = addressedElements(renderExample("Collection", series, "filled", theme).html);
     const brief = { ...series, detail: "brief" };
-    const reduced = addressedElements(renderInstance("Collection", brief, "filled", theme));
+    const reduced = addressedElements(renderExample("Collection", brief, "filled", theme).html);
     expect([...reduced.keys()]).toEqual([...full.keys()].filter((part) => part !== prefix + "about"));
     expect(readComponent(def, brief, "c1").join("\n")).not.toContain(series.about);
-    const bare = renderInstance("Collection", { ...series, about: undefined }, "filled", theme, {
-      deviceData: {},
-    });
+    const bare = renderInstance("Collection", { ...series, about: undefined }, "filled", theme);
     expect(addressedElements(bare).has(prefix + "about")).toBe(false);
     expect(addressedElements(bare).has(prefix + "summary")).toBe(false);
   });

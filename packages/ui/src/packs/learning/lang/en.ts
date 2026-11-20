@@ -11,6 +11,16 @@ export const en = {
     handInLabel: (title: string) => `${title}: handed in`,
     reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
   },
+  flashcard: {
+    left: (count: string, category: Intl.LDMLPluralRule) =>
+      `${count} ${category === "one" ? "card" : "cards"} left`,
+    reveal: "Reveal answer",
+    again: "Again",
+    hard: "Hard",
+    good: "Good",
+    easy: "Easy",
+    complete: "Done for today",
+  },
   lesson: { example: "Worked example", next: "Continue" },
   path: {
     status: { done: "Completed", current: "Start unit", locked: "Locked" },
@@ -38,6 +48,18 @@ export const en = {
     keyed: (label: string, key: string) => `${key} · ${label}`,
     paired: (label: string, other: string) => `${label} (${other})`,
     pair: (left: string, right: string) => `${left} → ${right}`,
+  },
+  result: {
+    score: "Practice score",
+    perfect: "Perfect score",
+    total: (of: string) => ` of ${of}`,
+    right: "Right",
+    wrong: "Wrong",
+    seconds: "Time",
+    points: "Points",
+    corrections: "Corrections",
+    review: "Review",
+    again: "Try again",
   },
 };
 
