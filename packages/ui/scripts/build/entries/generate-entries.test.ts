@@ -116,6 +116,22 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(Object.keys(views.renderers)).toEqual(["Core", "Ready"]);
 });
 
+it("keeps catalog declarations tied to the component and registry types instead of expanding them", async () => {
+  const root = await fixture();
+  await generateEntries(root);
+  const entry = join(root, "src/entry");
+  const catalog = await readFile(join(entry, "catalog.ts"), "utf8");
+  const packs = await readFile(join(entry, "packs/index.ts"), "utf8");
+  const group = await readFile(join(entry, "packs/group-1/index.ts"), "utf8");
+  expect(catalog).toContain(
+    "export const components: typeof coreComponents & typeof packComponents & typeof surfaceComponents",
+  );
+  expect(catalog).toContain("export type ComponentName = keyof typeof components;");
+  expect(catalog).toContain("ReturnType<typeof registryOf<typeof components>>");
+  expect(packs).toContain("export const components: typeof group1.components");
+  expect(group).toContain("export const components: typeof booking.components");
+});
+
 it.each(["direct", "named", "re-export", "aliased re-export"])(
   "generates %s layout override exports through the pack door",
   async (kind) => {
