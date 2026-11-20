@@ -16,6 +16,12 @@ const fixtures: readonly {
     expect: { address: "t1/remake", action: "press" },
     setup: { part: "make", action: "press" },
   },
+  {
+    component: "Quiz",
+    screen: 0,
+    expect: { address: "q1/check", action: "press" },
+    setup: { part: "root", action: "select", value: 0 },
+  },
 ];
 
 export function readFixtureFor(component: string, probe: ReadProbe): ReadProbeFixture | undefined {
