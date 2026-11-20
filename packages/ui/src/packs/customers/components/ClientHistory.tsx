@@ -85,9 +85,9 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 type ExampleEntry = z.input<typeof props>["entries"][number];
 // prettier-ignore
 const variantExample = [
-  { date: "2026-11-21", kind: "payment", title: "November walks paid", amount: 90, goto: "payment" },
-  { date: "2026-11-20", kind: "message", title: "Pickup still unconfirmed", goto: "messages" },
-  { date: "2026-11-19", kind: "payment", title: "Earlier payment reversed", amount: -30, goto: "reversal" },
+  { date: "2026-11-21", kind: "payment", title: "Walks paid", amount: 90, goto: "payment" },
+  { date: "2026-11-20", kind: "message", title: "Pickup pending", goto: "messages" },
+  { date: "2026-11-19", kind: "payment", title: "Payment reversed", amount: -30, goto: "reversal" },
 ] satisfies [ExampleEntry, ExampleEntry, ExampleEntry];
 const [payment, message, reversal] = variantExample;
 // prettier-ignore
