@@ -16,7 +16,7 @@ export const meta = {
   writeHints: [
     "Use snake_case refs. Each reading points to a meter in this line; no duplicate instants or decreasing values on the same meter. A replacement or reset requires a different meterRef.",
     'Write cumulative values (not differences or estimated bills), offset datetimes and an addGoto. Use "history" for interval readings, otherwise the meter register.',
-    'Use detail "brief" only when asked to hide the previous cumulative value in the register. Keep all readings and computed usage.',
+    'Write null for all unrequested variant axes, not their defaults. For a register that hides the previous cumulative value, use detail "brief"; keep all readings. If only brief detail is requested, write density null and surface null.',
   ],
   region: "body",
   weight: 3,
@@ -54,7 +54,7 @@ const reading = z.strictObject({
 // prettier-ignore
 const schema = z
   .strictObject({
-    ...c.variantProps(meta.variants), unitRef: ref,
+    ...c.variantProps(meta.variants), unitRef: ref.meta({ kind: "ref" }),
     meters: z.array(meter).min(1).max(6), readings: z.array(reading).min(0).max(24),
     addGoto: c.screenId, style: z.enum(["register", "history"]).default("register"),
   })
@@ -66,23 +66,26 @@ const schema = z
       meters.every(({ meterRef }) => validMeterSeries(meterSeries(readings, meterRef), Date.now())),
     { path: ["readings"], message: "Use known meters, distinct past instants and nondecreasing readings" },
   );
-const withEntries = (value: z.output<typeof schema>) => ({
-  ...value,
-  add: { goto: value.addGoto },
-  entries: meterEntries(value, value.style),
-});
+// prettier-ignore
+const withEntries = (value: z.output<typeof schema>) => ({ ...value, add: { goto: value.addGoto }, entries: meterEntries(value, value.style) });
 export const props = schema.overwrite(withEntries) as typeof schema &
   z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
 
 // prettier-ignore
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   const { ref, title } = seedLabels(input)[0]!;
-  return {
-    unitRef: ref, meters: [{ meterRef: `${ref}_meter`, title, utility: "electricity", unit: "kWh" }],
-    readings: [], addGoto: "details",
-  };
+  return { unitRef: ref, meters: [{ meterRef: `${ref}_meter`, title, utility: "electricity", unit: "kWh" }], readings: [], addGoto: "details" };
 }
-
+// prettier-ignore
+const historyExample = { unitRef: "north_cabin", meters: [
+      { meterRef: "cabin_water", title: "Water", utility: "water", unit: "m3" },
+      { meterRef: "cabin_gas", title: "Gas", utility: "gas", unit: "m3" },
+    ],
+    readings: [
+      { readingRef: "cabin_oct", meterRef: "cabin_water", at: "2026-10-17T10:00:00Z", value: 14 },
+      { readingRef: "cabin_nov", meterRef: "cabin_water", at: "2026-11-17T10:00:00Z", value: 17.5, photo: "local:2" },
+    ],
+    addGoto: "add_reading", style: "history" } satisfies z.input<typeof props>;
 // prettier-ignore
 export const examples = [
   { unitRef: "flat_a", meters: [
@@ -94,15 +97,7 @@ export const examples = [
       { readingRef: "willow_nov", meterRef: "willow_electric", at: "2026-11-18T08:00:00Z", value: 1246 },
       { readingRef: "willow_water_nov", meterRef: "willow_water", at: "2026-11-18T08:00:00Z", value: 17.5 },
     ], addGoto: "add_reading" },
-  { unitRef: "north_cabin", meters: [
-      { meterRef: "cabin_water", title: "Water", utility: "water", unit: "m3" },
-      { meterRef: "cabin_gas", title: "Gas", utility: "gas", unit: "m3" },
-    ],
-    readings: [
-      { readingRef: "cabin_oct", meterRef: "cabin_water", at: "2026-10-17T10:00:00Z", value: 14 },
-      { readingRef: "cabin_nov", meterRef: "cabin_water", at: "2026-11-17T10:00:00Z", value: 17.5, photo: "local:2" },
-    ],
-    addGoto: "add_reading", style: "history", density: "compact", surface: "outlined" },
+  historyExample, { ...historyExample, density: "compact" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Meters");
@@ -122,19 +117,25 @@ type MetersProps = c.Props<typeof props, typeof meta>;
 type Density = c.AxisValue<"density">;
 // prettier-ignore
 function meterDisplay(input: MetersProps, selection: unknown): Pick<MetersProps, "style" | "entries"> {
-  if (selection === undefined) return { style: input.style, entries: input.entries };
   const selected = input.meters.find((meter) => meter.meterRef === selection)?.meterRef;
-  const style = selected ? "history" : input.style;
+  if (!selected) return { style: input.style, entries: input.entries };
   // Reuse the wire order so switching meters never renumbers an evidence address.
-  return c.stampItemIds(meta, { style, entries: meterEntries(input, style, selected) }) as Pick<MetersProps, "style" | "entries">;
+  return c.stampItemIds(meta, { style: "history", entries: meterEntries(input, "history", selected) }) as Pick<MetersProps, "style" | "entries">;
 }
 
 // prettier-ignore
 function MeterRegister({ input, density, detail, lang }: { input: MetersProps; density: Density; detail: string; lang: string }) {
+  const loading = kit.useComponentState() === "loading";
   return input.entries.map((row) => {
     if (row.entryKind !== "meter") return null;
     const { latest, previous, usage } = meterSummary(meterSeries(input.readings, row.meterRef), row.unit, lang);
-    return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} density={density} inset="none">
+    if (loading) return <kit.KitRow key={row.id} label={row.title} inline density={density}>
+      <kit.KitSkeleton shape="figure" density={density} inset="none" content={[
+        ["body", row.title], ["number", latest, "start", "compact"], ["label", detail === "full" ? previous : undefined], ["label", usage],
+      ]} />
+    </kit.KitRow>;
+    return <kit.KitRow key={row.id} item={row.id} role="button" label={row.title} density={density} inline
+      trailing={<kit.KitIcon name="chevron_right" decorative tone="muted" />}>
       <kit.KitContent density={density}>
         <kit.KitText part="title" role="body" density={density}>{row.title}</kit.KitText>
         <kit.KitText part="latest" role="number" numberScale="compact" density={density} tabular>{latest}</kit.KitText>
@@ -161,7 +162,7 @@ function MeterHistory({ input, selection, density, lang, words }: { input: Meter
         {row.usage && <kit.KitText part="usage" role="label" tone="muted" density={density}>{row.usage}</kit.KitText>}
         {row.photo && <kit.KitRow part="photo" role="button" inline label={words.photo} leadingAlign="row"
           leading={<kit.KitPhoto part="evidence" photo={row.photo} label={words.photo} />}>
-          <kit.KitText part={null} role="label" tone="accent">{words.photo}</kit.KitText>
+          <kit.KitRow inline label={words.photo}><kit.KitText part={null} role="label" tone="accent">{words.photo}</kit.KitText></kit.KitRow>
         </kit.KitRow>}
       </kit.KitContent>
     </kit.KitRow>)}
@@ -171,7 +172,7 @@ function MeterHistory({ input, selection, density, lang, words }: { input: Meter
 // prettier-ignore
 export function Meters(input: MetersProps) {
   const { lang, words: { meters: words } } = kit.useWords(propertyWordsFor);
-  const { screen, component } = kit.usePartContext();
+  const { screen, component, thing } = kit.usePartContext();
   const state = kit.useComponentState();
   const selection = kit.useControlValue<unknown>(`${screen}/${component}/$meterRef`, undefined);
   const density = kit.useVariant("density", meta.variants.density, input.density);
@@ -179,9 +180,10 @@ export function Meters(input: MetersProps) {
   const display = { ...input, ...meterDisplay(input, selection) };
   return <kit.KitCard part="root" padded surface={input.surface} density={density}>
     {state === "loading" ? <>
-      <kit.KitSkeleton rows={input.meters.length} items={input.meters} shape="rows" inset="none" lead="none" density={density} />
-      <kit.KitSkeleton shape="control" label={words.add} full />
-    </> : state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> :
+      <kit.KitSkeleton shape="figure" inset="none" content={[["heading", words[display.style]]]} />
+      <MeterRegister input={display} {...{ detail, density, lang }} />
+      <kit.KitSkeleton shape="control" label={words.add} kind="secondary" full />
+    </> : state === "empty" ? <kit.KitEmpty part="empty" {...(!thing ? { title: words.noReadings } : {})} decorativeIcon /> :
       state === "success" ? <kit.KitEmpty part="status" title={words.saved} icon="check" tone="good" decorativeIcon /> :
       state === "error" ? <kit.KitContent>
         <kit.KitText part="status" role="heading" tone="bad">{words.error}</kit.KitText>

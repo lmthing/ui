@@ -5,7 +5,7 @@ export const en = {
     add: "Add reading",
     saved: "Reading saved",
     error: "Reading not saved",
-    errorDetail: "Check the date and reading, then try again.",
+    errorDetail: "Check the date and value.",
     noReadings: "No readings yet",
     photo: "View reading photo",
     units: { kWh: "kWh", m3: "m³", litre: "L" },
