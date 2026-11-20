@@ -12,6 +12,7 @@ export const meta = {
   pick: "Recipe ingredient amounts with a servings stepper and metric or US switch. Not general tasks (Checklist), food to buy (GroceryList), or stored food (Pantry).",
   writeHints: [
     "Amounts are the seed quantities for the written servings. Never write scaled amounts, conversions, item ids or check states.",
+    'If asked to hide preparation notes, set detail to "brief" and keep notes in the data. Otherwise leave detail null.',
   ],
   region: "body",
   weight: 3,
@@ -19,13 +20,20 @@ export const meta = {
   tier: "phone",
   realPath: "Recipe data stored on the device.",
   items: { key: "rows", parts: ["root", "name", "amount", "unit", "note", "have"] },
-  parts: ["root", "servings", "value", "controls", "system", "shop"],
+  parts: ["root", "servings", "servings_less", "value", "controls", "system", "shop"],
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["note"] } },
   states: ["filled"],
   actions: {
-    parts: { servings: ["increment", "decrement"], system: ["select"], shop: ["press"] },
+    parts: { servings: ["increment"], servings_less: ["decrement"], system: ["select"], shop: ["press"] },
     items: { have: ["check"] },
   },
-  read: (input, _state, lang?: string) => copy.ingredientsReading(input as z.output<typeof props>, lang),
+  adjust: {
+    "servings.increment": { prop: "servingsShown", delta: 1, max: 24 },
+    "servings_less.decrement": { prop: "servingsShown", delta: -1, min: 1 },
+  },
+  read: (input, _state, lang?: string): string[] =>
+    copy.ingredientsReading(input as Parameters<typeof copy.ingredientsReading>[0], lang),
 } as const satisfies catalog.Meta;
 const ingredient = z.strictObject({
   name: catalog.text(28),
@@ -36,6 +44,7 @@ const ingredient = z.strictObject({
 // prettier-ignore
 export const props = z
   .strictObject({
+    ...catalog.variantProps(meta.variants),
     servings: z.int().min(1).max(24),
     groups: z.array(z.strictObject({
       label: catalog.text(20).optional(),
@@ -45,6 +54,7 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
+    servingsShown: value.servings,
     rows: value.groups.flatMap((group) => group.items.map((item) => ({ ...item, have: false }))),
   }));
 export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof props> {
@@ -60,15 +70,16 @@ export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof 
   };
 }
 // prettier-ignore
+const supper = { servings: 4, system: "metric", groups: [
+  { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
+  { label: "Layers", items: [
+    { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" },
+    { name: "Mozzarella", amount: 125, unit: "g", note: "Torn" },
+  ] },
+] } satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
-  // Ledge: the plant keeper's household supper.
-  {
-    servings: 4, system: "metric",
-    groups: [
-      { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
-      { label: "Layers", items: [{ name: "Lasagne sheets", amount: 8, unit: "piece" }] },
-    ],
-  },
+  supper, { ...supper, detail: "brief" },
   // Trot: breakfast before the walking round.
   {
     servings: 2, system: "us",
@@ -86,105 +97,88 @@ export const probes = [
   write(
     "A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units",
   ),
+  {
+    ...write(
+      "Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Increase the recipe servings by one", { address: "i1/servings", action: "increment" }),
   read("Tick that I have the tomatoes", { address: "i1/r1/have", action: "check" }),
 ] satisfies catalog.Probe[];
 type ViewProps = catalog.Props<typeof props, typeof meta> & {
   rows: (z.output<typeof ingredient> & { id: string; have: boolean })[];
+  servingsShown?: number;
 };
-type RowProps = Pick<ViewProps, "system"> & {
+type RowProps = Pick<ViewProps, "system" | "detail"> & {
   row: ViewProps["rows"][number];
   scale: number;
 };
-function IngredientRow({ row, scale, system }: RowProps) {
+// prettier-ignore
+function IngredientRow({ row, scale, system, detail }: RowProps) {
   const { lang } = kit.useWords(kitchenWordsFor);
   const quantity = copy.ingredientAmount(row, scale, system, lang);
+  const amount = <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
+    {quantity.amount && <kit.KitText role="number" numberScale="compact" part="amount">{quantity.amount}</kit.KitText>}
+    {quantity.unit && <kit.KitText role="label" tone="muted" part={null}>{quantity.unit}</kit.KitText>}
+  </kit.KitTrack>;
   return (
-    <kit.KitRow
-      item={row.id}
-      label={row.name}
-      inline
-      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}
-    >
+    <kit.KitRow item={row.id} label={row.name} inline
+      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}>
       <kit.KitText part="name">{row.name}</kit.KitText>
-      <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
-        {quantity.amount && (
-          <kit.KitText role="number" numberScale="compact" part="amount">
-            {quantity.amount}
-          </kit.KitText>
-        )}
-        {quantity.unit && (
-          <kit.KitText role="label" tone="muted" part={null}>
-            {quantity.unit}
-          </kit.KitText>
-        )}
-      </kit.KitTrack>
-      {row.note && (
-        <kit.KitText role="label" tone="muted" part="note">
-          {row.note}
-        </kit.KitText>
-      )}
+      {amount}
+      {detail === "full" && row.note && <kit.KitText role="label" tone="muted" part="note">{row.note}</kit.KitText>}
     </kit.KitRow>
   );
 }
-function Servings({ value }: { value: number }) {
+// prettier-ignore
+function Servings({ value, brief }: { value: number; brief: boolean }) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
   const { ingredientsLabels } = words;
+  const count = <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />;
+  const label = <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />;
+  const controls = <kit.KitTrack part="controls">
+    {!brief && count}
+    {copy.servingControls.map(({ label, ...control }) => (
+      <kit.KitAction key={control.action} {...control} a11y={ingredientsLabels[label]}
+        kind="quiet" disabled={value === control.bound} />
+    ))}
+  </kit.KitTrack>;
   return (
-    <kit.KitRow label={ingredientsLabels.servings}>
-      <kit.KitTrack part="controls">
-        <kit.KitText role="number" part="value" children={catalog.numberLine(value, lang)} />
-        {copy.servingControls.map(({ label, ...control }) => (
-          <kit.KitAction
-            key={control.action}
-            {...control}
-            a11y={ingredientsLabels[label]}
-            part="servings"
-            kind="quiet"
-            disabled={value === control.bound}
-          />
-        ))}
-      </kit.KitTrack>
-      <kit.KitText role="label" tone="muted" part={null} children={ingredientsLabels.servings} />
+    <kit.KitRow label={ingredientsLabels.servings} {...(brief ? { density: "compact" as const } : {})}>
+      {brief ? <kit.KitGrid fitLast><kit.KitContent>{count}{label}</kit.KitContent>{controls}</kit.KitGrid> : <>{controls}{label}</>}
     </kit.KitRow>
   );
 }
-export function Ingredients({ servings: seed, system: initial, groups, rows }: ViewProps) {
+// prettier-ignore
+export function Ingredients({ servings: seed, servingsShown = seed, system: initial, groups, rows, detail: choice }: ViewProps) {
   kit.useComponentState();
+  const detail = kit.useVariant("detail", meta.variants.detail, choice);
   const { words } = kit.useWords(kitchenWordsFor);
   const { ingredientsLabels } = words;
   const { screen, component } = kit.usePartContext();
   const address = `${screen}/${component}`;
-  const delta = kit.useControlValue(`${address}/servings`, 0);
+  const servings = kit.useControlValue(`${address}/$adjust/servingsShown`, servingsShown);
   const selected = kit.useControlValue<string>(`${address}/system`, initial);
   const system = selected === "us" || selected === copy.ingredientsLabels.us ? "us" : "metric";
-  const servings = copy.servingCount(seed, delta);
   let index = 0;
   return (
     <kit.KitCard style="inset" part="root">
-      <Servings value={servings} />
+      <Servings value={servings} brief={detail === "brief"} />
       <kit.KitRow label={ingredientsLabels.system}>
         <kit.KitTrack part="system" look="segments" role="radiogroup" label={ingredientsLabels.system}>
-          {(["metric", "us"] as const).map((choice) => (
-            <kit.KitChip
-              key={choice}
-              item={null}
-              label={ingredientsLabels[choice]}
-              value={copy.ingredientsLabels[choice]}
-              on={system === choice}
-              role="radio"
-              look="segment"
-            />
-          ))}
+          {(["metric", "us"] as const).map((choice) => <kit.KitChip key={choice} item={null} label={ingredientsLabels[choice]} value={copy.ingredientsLabels[choice]} on={system === choice} role="radio" look="segment" />)}
         </kit.KitTrack>
       </kit.KitRow>
       {groups.map((group, groupIndex) => (
         <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
           {group.label && <kit.KitText role="label" tone="muted" part={null} children={group.label} />}
-          {group.items.map(() => {
-            const row = rows[index++]!;
-            return <IngredientRow key={row.id} row={row} scale={servings / seed} system={system} />;
-          })}
+          <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
+            {group.items.map(() => {
+              const row = rows[index++]!;
+              return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail }} />;
+            })}
+          </kit.KitGrid>
         </kit.KitContent>
       ))}
       <kit.KitRow label={ingredientsLabels.shop}>
