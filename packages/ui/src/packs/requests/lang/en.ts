@@ -1,5 +1,7 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
+const scope = { one: "one affected", several: "several affected", site: "whole site" };
+
 export const en = {
   queue: {
     views: { active: "Show active", completed: "Show completed" },
@@ -26,6 +28,54 @@ export const en = {
     due: (date: string) => `Due ${date}`,
     overdue: (date: string) => `Overdue · ${date}`,
     separator: " · ",
+  },
+  workOrder: {
+    status: { ready: "Ready", working: "In progress", blocked: "Blocked", done: "Completed" },
+    blockers: { none: "none", information: "information", access: "access", parts: "parts", other: "other" },
+    number: (id: string) => `Work order ${id}`,
+    request: (id: string) => `Request ${id}`,
+    assignee: (name: string) => `Assigned to ${name}`,
+    window: (date: string, from: string, to: string) => `${date} · ${from}–${to}`,
+    checks: "Work checks",
+    required: "Required",
+    checked: "Done",
+    unchecked: "Not done",
+    parts: "Parts used",
+    quantity: "Qty",
+    quantityOf: (part: string) => `Quantity of ${part}`,
+    quantityLine: (value: string) => `×${value}`,
+    total: "Parts total",
+    pricedTotal: "Priced parts total",
+    costUnavailable: "Cost unavailable",
+    blocker: "What’s blocking work?",
+    blockedBy: (reason: string) => `Blocker: ${reason}`,
+    note: "Work note",
+    noteHint: "Add a note about this work",
+    clock: "Work time",
+    start: "Start clock",
+    stop: "Stop clock",
+    finish: "Finish work",
+    error: "Work not saved",
+    errorDetail: "Your work details are still here.",
+  },
+  triage: {
+    reported: (urgency: "low" | "normal" | "urgent") => `Reported urgency: ${urgency}`,
+    impact: (value: keyof typeof scope) => `Impact: ${scope[value]}`,
+    urgency: { low: "low", normal: "normal", urgent: "urgent" },
+    priority: "Effective priority",
+    decision: "Triage decision · Effective priority",
+    queue: "Route to queue",
+    duplicates: "Match to an existing request",
+    reason: "Decision reason",
+    reasonHint: "Add context for this decision",
+    linkHint: "Required to link a duplicate",
+    link: "Link",
+    chosen: "Link selected",
+    apply: "Apply triage",
+    saved: "Triage saved",
+    error: "Triage not saved",
+    stale: "The queue or duplicate may have changed.",
+    selected: (target: string) => `Selected: ${target}; apply to save`,
   },
 };
 
