@@ -179,12 +179,8 @@ describe("MapPins rendering", () => {
         );
         expect(html.match(/data-testid="home\/m1\/root"/g)).toHaveLength(1);
         expect(html).toContain('data-testid="home/m1/map"');
-        if (state === "filled") expect(html).toContain("Repeated place");
-        else {
-          expect(html).toContain('aria-busy="true"');
-          // Skeleton text reserves the rendered width but must not expose a row label.
-          expect(html).not.toContain('aria-label="Repeated place"');
-        }
+        expect(html.includes('aria-busy="true"')).toBe(state === "loading");
+        expect(html.includes('aria-label="Repeated place"')).toBe(state === "filled");
         expect(html.match(/<svg\b/g) ?? []).toHaveLength(state === "filled" ? Math.ceil(count / 2) : 0);
         for (let index = 1; index <= count; index++) {
           for (const part of ["root", "label"]) {
