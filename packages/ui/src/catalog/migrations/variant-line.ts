@@ -89,6 +89,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
     { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
   ],
   Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
+  Player: [{ from: "style", values: { compact: { density: "compact", detail: "brief" } } }],
   Progress: [
     { from: "style", values: { stack: { density: "comfortable" }, compact: { density: "compact" } } },
   ],
