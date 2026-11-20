@@ -19,6 +19,15 @@ export const en = {
   addressDirections: "Directions",
   addressCopy: "Copy address",
   addressCall: (phone: string) => `Call ${phone}`,
+  departureDue: "Due",
+  departureMinutes: (minutes: string) => `${minutes} min`,
+  departureDelay: (minutes: string) => `${minutes} min late`,
+  departureLate: (hasTime: boolean) => (hasTime ? " · Late" : "Late"),
+  departuresEmpty: "No departures to show",
+  departureLabel: (line: string, to: string, time: string, delay?: string) =>
+    `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
+  departureReading: (line: string, to: string, time: string, delay?: string) =>
+    `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${time}${delay ? `, ${delay}` : ""}`,
   deliveryStep: {
     preparing: "Preparing",
     picked_up: "Picked up",

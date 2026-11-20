@@ -1,23 +1,52 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { departuresCopy, departuresReading } from "../copy";
+import { placesWordsFor } from "../lang";
 
 // Core first: Timeline/hours cannot show live countdowns and delays for transit lines leaving one stop.
 export const meta = {
   id: "Departures",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See what leaves a transit stop next and whether it is delayed.",
   pick: "Next live buses, trains or ferries from one stop, with line badges, destinations, minutes and delays. Not a day's events (Timeline) or a journey's ordered stops (Route).",
-  writeHints: ["Write stop, line and destination only. The transit service supplies minutes and delays."],
+  writeHints: [
+    "Write the stop and rows of line and destination. Never write minutes, delay, or total; the transit service supplies them.",
+    'Use detail "brief" only when asked to keep the late indicator but hide how many minutes late. Otherwise leave detail null. Leave density and surface null unless requested.',
+  ],
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "Live departure times come from a transit data service.",
-  variants: { density: ["comfortable", "compact"] },
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["card", "outlined"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["delay"] } },
   items: { key: "rows", parts: ["root", "line", "to", "minutes", "delay"] },
-  parts: ["root", "stop", "more"],
+  parts: ["root", "stop", "more", "empty"],
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
+  live: {}, // Keep row press unavailable outside the filled state in the action planner.
+  deviceData: ["departures"],
+  previewDeviceData: ({ input, state }): c.DeviceData => {
+    if (state === "empty") return {};
+    const { stop, rows } = input as z.output<typeof props>;
+    const minutes = [2, 8, 14];
+    return {
+      departures: [
+        {
+          stop,
+          rows: rows.map((row, index) => ({ ...row, minutes: minutes[index], delay: index === 1 ? 4 : 0 })),
+          total: rows.length + 2,
+        },
+      ],
+    };
+  },
+  read: (input, _state, lang, data): string[] =>
+    departuresReading(input as z.output<typeof props>, data, lang),
 } as const satisfies c.Meta;
 
 const rowProps = z.strictObject({ line: c.text(6), to: c.text(28) });
@@ -45,6 +74,7 @@ export const examples = [
     rows: [
       { line: "24", to: "City Centre" },
       { line: "24A", to: "Botanic Gardens" },
+      { line: "31", to: "Plant Market" },
     ],
   },
   {
@@ -53,7 +83,6 @@ export const examples = [
       { line: "8", to: "Clifton" },
       { line: "9", to: "Riverside" },
     ],
-    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -64,5 +93,75 @@ export const probes = [
   ),
   choose("Show today's itinerary by time: meet at 09:00, nursery tour at 10:00, lunch at noon", "Timeline"),
   write("At Nursery Gate show upcoming buses: line 24 to City Centre and line 24A to Botanic Gardens."),
+  {
+    ...write(
+      "Show the next buses from Alder Park: line 8 to Clifton and line 9 to Riverside. Show the live countdown and flag late buses, but hide how many minutes late they are.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open bus 24A to Botanic Gardens", { address: "d1/r2", action: "press" }),
 ] satisfies c.Probe[];
+
+type DeparturesProps = c.Props<typeof props, typeof meta>;
+type DepartureCopy = ReturnType<typeof departuresCopy<DeparturesProps["rows"][number]>>;
+type Density = c.ThemeDensity;
+
+// prettier-ignore
+function DepartureRows({ rows, density }: { rows: DepartureCopy["rows"]; density: Density }) {
+  return rows.map(({ id, line, to, label, minutes, late, delay, tone }) => (
+    <kit.KitRow key={id} item={id} role="button" label={label} density={density}
+      leading={<kit.KitTrail kind="badge" part="line" value={line} tone="text" density={density} />}
+      trailing={<kit.KitText role="number" numberScale="compact" tabular part="minutes" tone={tone}
+        density={density}>{minutes}{late && <kit.KitText part={null} role="label" tone="warn" density={density}>{late}</kit.KitText>}</kit.KitText>}>
+      <kit.KitText part="to" role="body" density={density}>{to}</kit.KitText>
+      {delay && <kit.KitText part="delay" role="label" tone="warn" density={density}>{delay}</kit.KitText>}
+    </kit.KitRow>
+  ));
+}
+
+// prettier-ignore
+function DeparturesLoading({ stop, rows, more, density }: { stop: string; rows: DepartureCopy["rows"]; more: DepartureCopy["more"]; density: Density }) {
+  return (
+    <>
+      <kit.KitRow part={null} label={stop} lineRole="title" density={density}>
+        <kit.KitSkeleton shape="figure" content={[["title", stop]]} inset="none" density={density} />
+      </kit.KitRow>
+      <kit.KitSkeleton lead="box" inset="md" density={density} rows={rows.length}
+        items={rows.map(({ to, delay }) => ({
+          lines: [{ role: "body", text: to }, ...(delay ? [{ role: "label" as const, text: delay }] : [])],
+          trail: "value",
+        }))}
+      />
+      {more && <kit.KitRow part={null} label={more} density={density}>
+        <kit.KitSkeleton shape="figure" content={[["label", more]]} inset="none" density={density} />
+      </kit.KitRow>}
+    </>
+  );
+}
+
+// prettier-ignore
+export function Departures(input: DeparturesProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang, words } = kit.useWords(placesWordsFor);
+  const thing = kit.useEmptyThing();
+  const { rows, more } = departuresCopy({ ...input, detail }, kit.useDeviceData(), lang);
+  return (
+    <kit.KitCard part="root" style="inset" {...{ density, surface }}>
+      {state === "loading" ? <DeparturesLoading stop={input.stop} {...{ rows, more, density }} /> : <>
+        <kit.KitRow part={null} label={input.stop} lineRole="title" density={density}>
+          <kit.KitText part="stop" role="title" density={density}>{input.stop}</kit.KitText>
+        </kit.KitRow>
+        {state === "empty" ? <kit.KitEmpty icon="clock" part="empty" decorativeIcon
+          title={thing ? c.emptyLine(thing, lang) : words.departuresEmpty} /> : <>
+          <DepartureRows {...{ rows, density }} />
+          {more && <kit.KitRow part={null} label={more} density={density}>
+            <kit.KitText part="more" role="label" tone="muted" density={density}>{more}</kit.KitText>
+          </kit.KitRow>}
+        </>}
+      </>}
+    </kit.KitCard>
+  );
+}
