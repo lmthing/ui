@@ -1,6 +1,6 @@
 import { customersWordsFor } from "../lang";
 // prettier-ignore
-import { useWords, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitCard, KitContent, KitEmpty, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
 // prettier-ignore
 import { wordsFor, balancedLine, detailOf, numberLine, isoDate, itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
@@ -163,11 +163,11 @@ function ReviewList(input: ReviewView) {
         <KitRow key={review.id} item={review.id} label={review.name} lineRole="heading" {...{ density }}>
           <KitContent {...{ density }}>
             <KitText role="heading" part="name" lines={1} {...{ density }} children={review.name} />
-            <KitText role="caption" tone="muted" part="date" lines={1} {...{ density }} children={review.date} />
-            <KitGrid fitLast {...{ density }}>
+            <KitContent {...{ density }} lineRole="body"
+              lead={<KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly compact />}>
               <KitText role="caption" tone="muted" part="stars" {...{ density }} children={reviewRatingLine(review.stars, lang)} />
-              <KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly compact />
-            </KitGrid>
+            </KitContent>
+            <KitText role="caption" tone="muted" part="date" lines={1} {...{ density }} children={review.date} />
             <KitText role="label" part="text" {...{ density }} children={review.text} />
             {review.reply && (
               <KitContent {...{ density }}>
