@@ -1,3 +1,4 @@
-# Trips component tests
+# trips/tests/components
 
-- `Converter.test.ts`: writer bounds, fallback, parts, states and read/action contract.
+`Itinerary.test.ts` covers schema bounds, fallback, addressed states, variants and read/act.
+`Converter.test.ts` covers Writer bounds, fallback, parts, states and read/act.
