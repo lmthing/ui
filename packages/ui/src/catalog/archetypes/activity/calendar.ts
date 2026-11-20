@@ -14,7 +14,8 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      "Make a focused appointments view: Header title names the supplied month and appointments, not Things; its sub explicitly names the selected date. Calendar marks all supplied appointment dates. The Timeline below it contains only that selected date's appointments, using their actual title, time, date and detail; it must not mix appointments from other dates into that selected-day detail.",
+      "Connect the month picker to the agenda: Header.title names the month and appointments. Header.sub names the selected date in friendly words and tells the person to pick a date to see appointments (for example, “18 Nov · Pick a date to see visits”). Keep the subtitle within 40 characters and do not expose the raw ISO date.",
+      "Calendar marks every supplied appointment date. Timeline lists only the selected date’s appointments, preserving the actual titles, times and details. Include the human-readable date and purpose in each item’s meta, e.g. “18 Nov · Routine review”. Leave Timeline density and detail null so the purpose remains visible. Do not add an unrelated navigation action.",
     ],
   },
 ) satisfies ArchetypeMeta;
