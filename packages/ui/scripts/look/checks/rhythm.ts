@@ -1,21 +1,58 @@
 import type { FrameCheck } from "./shared";
+
+function rhythmBox(el: Element, frameEl: Element) {
+  // The addressed root may be a control inside its card. Measure the whole card.
+  const item = el.closest('[role="listitem"]');
+  if (!item || !frameEl.contains(item)) return el;
+  // In a grid the tallest card determines the row's bottom, not the last card.
+  const row = item.parentElement;
+  if (row?.getAttribute("role") === "presentation" && row.parentElement?.getAttribute("role") === "list")
+    return row;
+  return item;
+}
+
+function unevenGap(siblings: Set<Element>): string | undefined {
+  const boxes = Array.from(siblings, (el) => ({
+    kind: el.getAttribute("role") ?? el.localName,
+    rect: el.getBoundingClientRect(),
+  })).sort((a, b) => a.rect.top - b.rect.top);
+  const gapsByKind = new Map<string, number[]>();
+  for (let index = 1; index < boxes.length; index++) {
+    const previous = boxes[index - 1]!;
+    const next = boxes[index]!;
+    if (next.kind !== previous.kind) continue;
+    const gap = next.rect.top - previous.rect.bottom;
+    if (gap < 0) continue;
+    const gaps = gapsByKind.get(next.kind) ?? [];
+    gaps.push(gap);
+    gapsByKind.set(next.kind, gaps);
+  }
+  for (const gaps of gapsByKind.values()) {
+    const min = Math.min(...gaps);
+    const max = Math.max(...gaps);
+    if (gaps.length >= 2 && max - min > 6)
+      return `gaps between items vary from ${Math.round(min)} to ${Math.round(max)}px`;
+  }
+}
+
 export function checkRhythm({ frameEl, frame, add }: FrameCheck) {
-  // Items placed by time (a day by the hour) have gaps that mean something: no rhythm check.
-  const roots = Array.from(frameEl.querySelectorAll("[data-testid]"))
-    .filter((el) => /\/r\d+\/root$/.test(el.getAttribute("data-testid")!))
-    .filter((el) => !el.closest("[data-look-timed]"))
-    .map((el) => el.getBoundingClientRect())
-    .sort((a, b) => a.top - b.top);
-  const gaps = roots
-    .slice(1)
-    .map((r, i) => r.top - roots[i]!.bottom)
-    .filter((g) => g >= 0);
-  if (gaps.length >= 2 && Math.max(...gaps) - Math.min(...gaps) > 6) {
-    add(
-      "rhythm",
-      frame,
-      frameEl,
-      `gaps between items vary from ${Math.round(Math.min(...gaps))} to ${Math.round(Math.max(...gaps))}px`,
-    );
+  const groups = new Map<Element, Set<Element>>();
+  for (const el of Array.from(frameEl.querySelectorAll("[data-testid]"))) {
+    if (!/\/r\d+\/root$/.test(el.getAttribute("data-testid")!)) continue;
+    // Timed layouts have intentional gaps.
+    if (el.closest("[data-look-timed]")) continue;
+    const box = rhythmBox(el, frameEl);
+    const parent = box.parentElement;
+    if (!parent) continue;
+    const siblings = groups.get(parent) ?? new Set<Element>();
+    siblings.add(box);
+    groups.set(parent, siblings);
+  }
+  for (const siblings of groups.values()) {
+    const detail = unevenGap(siblings);
+    if (detail) {
+      add("rhythm", frame, frameEl, detail);
+      return;
+    }
   }
 }

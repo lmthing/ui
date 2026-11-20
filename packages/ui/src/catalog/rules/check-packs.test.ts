@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
 import * as catalog from "@lmthing/ui/catalog";
-import type { Definition, PackId, PackMeta } from "..";
+import type { ArchetypeOverrides, Definition, PackId, PackMeta } from "..";
 import { checkPacks } from "./index";
 
 const pack: PackMeta = {
@@ -116,4 +116,56 @@ it.each<[string, (f: Fixture) => unknown]>([
   const input = fixture();
   mutate(input);
   expect(checkPacks(input).join("\n")).toContain(issue);
+});
+
+const layout = {
+  recipe: [{ allow: ["Header", "Slots"], required: true }],
+  defaults: [{ id: "slots", c: "Slots" }],
+};
+const overridesFixture = () => {
+  const input = fixture();
+  return { ...input, components: { ...input.components, Header: catalog.components.Header } };
+};
+
+it("checks an override of a core layout and a new layout under the same core archetype", () => {
+  expect(
+    checkPacks({
+      ...overridesFixture(),
+      packArchetypeOverrides: { booking: { journal: { entries: layout, month: layout } } },
+    }),
+  ).toEqual([]);
+});
+
+it("checks recipe alternatives and defaults against the owning pack", () => {
+  const input = overridesFixture();
+  const issues = checkPacks({
+    ...input,
+    components: { ...input.components, Cart: { ...component, meta: { ...component.meta, id: "Cart" } } },
+    packOf: { ...input.packOf, Cart: "commerce" },
+    packArchetypeOverrides: {
+      booking: {
+        journal: {
+          month: {
+            recipe: [...layout.recipe, { allow: ["Missing"], required: false }],
+            defaults: [{ id: "cart", c: "Cart" }],
+          },
+        },
+      },
+    },
+  });
+  expect(issues).toContain("booking: journal/month: recipe names unknown component Missing");
+  expect(issues).toContain("booking: journal/month: recipe names commerce component Cart");
+});
+
+it.each<[NonNullable<Parameters<typeof checkPacks>[0]["packArchetypeOverrides"]>, string]>([
+  [{ booking: { fixture0: { entries: layout } } as ArchetypeOverrides }, "unknown core archetype"],
+  [{ booking: { journal: {} } }, "no layout overrides"],
+  [{ booking: { journal: { "bad/id": layout } } }, "invalid layout id"],
+  [{ home: { journal: { entries: layout } } }, "layout overrides belong to an undeclared pack"],
+  [
+    { booking: { journal: { entries: layout } }, home: { journal: { entries: layout } } },
+    "duplicate layout override (already in booking)",
+  ],
+])("rejects invalid overrides %j", (packArchetypeOverrides, issue) => {
+  expect(checkPacks({ ...overridesFixture(), packArchetypeOverrides }).join("\n")).toContain(issue);
 });

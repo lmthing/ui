@@ -19,7 +19,7 @@ const pressActions = [
   "send",
   "dismiss",
 ];
-function actionsAt(ctx: ControllerContext, address: string): string[] {
+function actionsAt(ctx: ControllerContext, address: string, includeBlocked = false): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || ctx.disabledParts.has(local)) return [];
@@ -59,6 +59,7 @@ function actionsAt(ctx: ControllerContext, address: string): string[] {
       id,
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
+      includeBlocked,
     )
       .filter((item) => item.address === local)
       .map((item) => item.action);
@@ -76,7 +77,7 @@ function press(ctx: ControllerContext, act: Act, address: string) {
       action: local === "confirm/confirm" ? "press" : "dismiss",
     });
   }
-  const offered = actionsAt(ctx, address);
+  const offered = actionsAt(ctx, address, true);
   const action =
     local.endsWith("/play") && offered.includes("play")
       ? ctx.store.get(ctx.key(local.split("/")[0]!, "play"))

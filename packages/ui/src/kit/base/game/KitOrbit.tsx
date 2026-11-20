@@ -1,11 +1,10 @@
-import { useWords } from "../../provider";
 import type { ReactNode } from "react";
 import { ScrollView, YStack, useTheme } from "tamagui";
 import { Svg, Circle } from "react-native-svg";
 import { RotateCw, RotateCcw } from "@tamagui/lucide-icons";
 import { component, emptyLine, radius, size, space, type as typography } from "../../../catalog";
 import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
-import { useKitStyle } from "../../provider";
+import { useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 type Node = { id: string; label: string; content: ReactNode };
 type NodeProps = { node: Node; current: boolean; loading: boolean; queue?: boolean; namePart?: boolean };
@@ -54,6 +53,11 @@ function NodeLabel({ node, current, loading, queue = false, namePart }: NodeProp
 function OrbitNode({ node, current, loading, queue = false, namePart = false }: NodeProps) {
   const ks = useKitStyle();
   const address = usePart("root", !loading);
+  const surface = surfaceOf(ks.surface);
+  const active = !loading && current;
+  const borderWidth = active ? component.base.strongBorder : surface.borderWidth;
+  // Keep the queue contents aligned when the current border replaces the preset border.
+  const queuePad = space[ks.density.rowPad] + component.base.strongBorder - borderWidth;
   return (
     <YStack
       {...(loading ? { "aria-hidden": true } : address)}
@@ -63,16 +67,15 @@ function OrbitNode({ node, current, loading, queue = false, namePart = false }: 
       height={
         queue ? size.avatar.md + space[ks.density.rowPad] * 2 + component.base.strongBorder * 2 : nodeHeight
       }
-      padding={queue ? space[ks.density.rowPad] : space.md}
+      padding={queue ? queuePad : space.md}
       gap={space.sm}
       flexDirection={queue ? "row" : "column"}
       alignItems="center"
       justifyContent={queue ? "flex-start" : "center"}
       borderRadius={shifted("lg", ks.radiusShift)}
-      {...surfaceOf(ks.surface)}
-      {...(!loading && current
-        ? { borderWidth: component.base.strongBorder, borderColor: "$accent", backgroundColor: "$accentSoft" }
-        : {})}
+      {...surface}
+      borderWidth={borderWidth}
+      {...(active ? { borderColor: "$accent", backgroundColor: "$accentSoft" } : {})}
     >
       <YStack width={size.avatar.md} height={size.avatar.md} alignItems="center" justifyContent="center">
         {loading ? (
@@ -95,15 +98,29 @@ function Ring({ nodes, at, loading, reverse, namePart = false }: LayoutProps) {
   const context = usePartContext();
   const r = Math.max(nodeHeight / Math.sqrt(2), (nodes.length * nodeHeight) / (Math.PI * 2));
   const box = r * 2 + nodeHeight + space.md * 2;
+  const centre = box / 2;
+  const positions = nodes.map((node, i) => {
+    const angle = (i / nodes.length) * Math.PI * 2;
+    return {
+      node,
+      left: centre + Math.sin(angle) * r - nodeWidth / 2,
+      top: centre - Math.cos(angle) * r - nodeHeight / 2,
+    };
+  });
+  const height =
+    Math.max(centre + r + component.base.strongBorder, ...positions.map(({ top }) => top + nodeHeight)) +
+    space.lg;
   const Direction = reverse ? RotateCcw : RotateCw;
+  const iconStart = centre - size.icon.lg / 2;
+  const ringLayout = { "data-look-twoedge": true };
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={{ minWidth: "100%" }}>
-      <YStack width={box} height={box} marginHorizontal="auto">
+      <YStack width={box} height={height} marginHorizontal="auto" {...ringLayout}>
         <YStack position="absolute" aria-hidden>
-          <Svg width={box} height={box}>
+          <Svg width={box} height={height}>
             <Circle
-              cx={box / 2}
-              cy={box / 2}
+              cx={centre}
+              cy={centre}
               r={r}
               fill="none"
               stroke={theme.line?.val}
@@ -111,29 +128,18 @@ function Ring({ nodes, at, loading, reverse, namePart = false }: LayoutProps) {
             />
           </Svg>
         </YStack>
-        <YStack
-          position="absolute"
-          left={box / 2 - size.icon.lg / 2}
-          top={box / 2 - size.icon.lg / 2}
-          aria-hidden
-        >
-          <Direction size={size.icon.lg} color="$muted" />
-        </YStack>
-        {nodes.map((node, i) => {
-          const angle = (i / nodes.length) * Math.PI * 2;
-          return (
-            <YStack
-              key={node.id}
-              position="absolute"
-              left={box / 2 + Math.sin(angle) * r - nodeWidth / 2}
-              top={box / 2 - Math.cos(angle) * r - nodeHeight / 2}
-            >
-              <PartContext.Provider value={{ ...context, item: node.id }}>
-                <OrbitNode node={node} current={node.id === at} loading={!!loading} namePart={namePart} />
-              </PartContext.Provider>
-            </YStack>
-          );
-        })}
+        {!loading && (
+          <YStack position="absolute" left={iconStart} top={iconStart} aria-hidden>
+            <Direction size={size.icon.lg} color="$muted" />
+          </YStack>
+        )}
+        {positions.map(({ node, left, top }) => (
+          <YStack key={node.id} position="absolute" left={left} top={top}>
+            <PartContext.Provider value={{ ...context, item: node.id }}>
+              <OrbitNode node={node} current={node.id === at} loading={!!loading} namePart={namePart} />
+            </PartContext.Provider>
+          </YStack>
+        ))}
       </YStack>
     </ScrollView>
   );

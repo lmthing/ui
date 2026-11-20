@@ -1,8 +1,9 @@
 import { legacyTarget } from "../migrations";
-import { archetypes, defaultLines, type CoreArchetypeMeta } from "../archetypes";
+import { defaultLines, type ArchetypeOverrides } from "../archetypes";
 import type { CastLike } from "../types";
 import type { PackId, ArchetypeMeta } from "../meta";
-import { packComposition, type Definition } from "../probes";
+import type { Definition } from "../probes";
+import { scopedArchetypes } from "./scoped-archetypes";
 
 export type RegistryOptions = { packs?: readonly PackId[]; includeDrafts?: boolean };
 
@@ -18,25 +19,24 @@ export function registryOf<D extends Record<string, Definition>>(
   packOf: Partial<Record<keyof D & string, PackId>> = {},
   isPackReady: (id: PackId) => boolean = () => false,
   packArchetypes: Partial<Record<PackId, readonly ArchetypeMeta[]>> = {},
+  packArchetypeOverrides: Partial<Record<PackId, ArchetypeOverrides>> = {},
 ) {
   const selected = new Set(options.packs?.filter((pack) => options.includeDrafts || isPackReady(pack)));
   const ids = (Object.keys(components) as (keyof D & string)[]).filter((id) =>
     packOf[id] ? selected.has(packOf[id]!) : options.includeDrafts || components[id]!.meta.status !== "draft",
   );
   const scoped = Object.fromEntries(ids.map((id) => [id, components[id]!])) as Partial<D>;
-  const patterns: Record<string, { meta: CoreArchetypeMeta }> = {
-    ...archetypes,
-    ...Object.fromEntries(
-      [...selected].flatMap((pack) =>
-        (packArchetypes[pack] ?? []).map((meta) => [meta.id, { meta: packComposition(meta) }]),
-      ),
-    ),
-  };
+  const { archetypes, packComposeArchetypes } = scopedArchetypes(
+    selected,
+    packArchetypes,
+    packArchetypeOverrides,
+  );
   return {
-    archetypes: patterns,
+    archetypes,
+    packComposeArchetypes,
     defaultLines: (id: string, layout: string, cast: CastLike) => {
-      if (!patterns[id]) throw new Error(`Unknown archetype: ${id}`);
-      return defaultLines(patterns[id].meta, layout, cast, { defs: ids.map((name) => components[name]!) });
+      if (!Object.hasOwn(archetypes, id)) throw new Error(`Unknown archetype: ${id}`);
+      return defaultLines(archetypes[id]!.meta, layout, cast, { defs: ids.map((name) => components[name]!) });
     },
     ids,
     packOf,

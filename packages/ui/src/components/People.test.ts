@@ -1,8 +1,16 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { components, createRegistry, placeholderTitle, type CastLike, type Props } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  components,
+  createRegistry,
+  migrateLine,
+  placeholderTitle,
+  stampItemIds,
+  type CastLike,
+  type Props,
+} from "@lmthing/ui/catalog";
 
 const { props, meta, examples, fallback, probes } = components.People;
-const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 describe("People schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -10,11 +18,13 @@ describe("People schema", () => {
   );
   it("trims text and derives root presence without adding optional inputs", () => {
     expect(props.parse({ members: [{ name: " Anna " }] })).toEqual({
-      style: "rows",
+      detail: "full",
+      surface: "card",
       members: [{ name: "Anna", root: undefined }],
     });
     expect(props.parse({ members: [{ name: " Anna ", role: " Owner ", goto: "anna" }] })).toEqual({
-      style: "rows",
+      detail: "full",
+      surface: "card",
       members: [{ name: "Anna", role: "Owner", goto: "anna", root: "anna" }],
     });
   });
@@ -41,7 +51,6 @@ describe("People schema", () => {
     { members: [{ name: "Anna", root: "anna" }] },
     { members: [{ name: "Anna", pixels: 4 }] },
     { members: [{ name: "Anna", color: "#ffffff" }] },
-    { members: [{ name: "Anna" }], style: "grid" },
     { members: [{ name: "Anna" }], color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths, count and both photo reference forms", () => {
@@ -122,7 +131,7 @@ describe("People fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "People")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "People" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 1,
@@ -137,4 +146,17 @@ describe("People fallback and metadata", () => {
     expect(registry.resolve("p-e-o-p-l-e")).toBe("People");
     expect(registry.resolve("p-e-o-p-l-e")).toBe("People");
   });
+});
+
+it("loads old named rows and hides only role text in brief rows", () => {
+  const members = [{ name: "Anna", role: "Owner", goto: "anna" }];
+  const { c, id, ...raw } = migrateLine({ c: "People", id: "p1", style: "rows", members, detail: "brief" });
+  expect({ c, id }).toEqual({ c: "People", id: "p1" });
+  expect(raw).toEqual({ members, detail: "brief" });
+  expect(props.safeParse({ members, style: "rows" }).success).toBe(false);
+  const full = stampItemIds(meta, props.parse({ members }));
+  const brief = stampItemIds(meta, props.parse(raw));
+  expect(brief.members[0]).toMatchObject({ id: "r1", role: undefined });
+  expect(affordancesOf(meta, brief, "p1")).toEqual(affordancesOf(meta, full, "p1"));
+  expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["role"] });
 });

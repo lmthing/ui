@@ -190,7 +190,7 @@ export function Devices({ entries, focus, style, rooms }: DevicePanel) {
                 <DeviceText role="heading" part="room" children={label} />
               </kit.PartContext.Provider>
             )}
-            <kit.KitGrid {...{ arrange }} children={tiles.map(tile)} />
+            <kit.KitGrid list listRowGap="cards" {...{ arrange }} children={tiles.map(tile)} />
           </kit.KitContent>
         );
       })}

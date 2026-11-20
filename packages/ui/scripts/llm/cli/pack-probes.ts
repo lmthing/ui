@@ -1,16 +1,8 @@
 import type * as Catalog from "@lmthing/ui/catalog";
 import type { CallModel, PackId } from "@lmthing/ui/catalog";
 
-const {
-  createRegistry,
-  packs,
-  packOf,
-  packArchetypes,
-  packComposition,
-  runProbes,
-  runPackProbes,
-  runComposeProbes,
-} = (await import(new URL("../../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
+const { createRegistry, packs, packOf, packComposeProbes, runProbes, runPackProbes, runComposeProbes } =
+  (await import(new URL("../../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
 
 /** Every layout and every component uses core plus its own pack, including drafts. */
 export async function packProbes(id: PackId, callModel: CallModel, samples: number) {
@@ -33,9 +25,8 @@ export async function packProbes(id: PackId, callModel: CallModel, samples: numb
     ...(await runProbes({ defs: registry.defs, only: chosen, callModel, samples })),
   ];
   const compose = await runComposeProbes({
-    archetypes: (packArchetypes as Partial<Record<PackId, readonly Catalog.ArchetypeMeta[]>>)[id]!.map(
-      packComposition,
-    ),
+    archetypes: registry.packComposeArchetypes,
+    probes: (packComposeProbes as Partial<Record<PackId, readonly Catalog.ComposeProbe[]>>)[id] ?? [],
     defs: Object.fromEntries(registry.defs.map((def) => [def.meta.id, def])),
     cast: { things: [], items: [] },
     callModel,

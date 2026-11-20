@@ -1,5 +1,9 @@
 import { z } from "zod";
 import {
+  drawKey,
+  drawState,
+  drawStatus,
+  emptyLine,
   itemsOf,
   photo,
   placeholderTitle,
@@ -7,15 +11,21 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
+  type DrawState,
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import * as kit from "../../../kit";
+import { teamPickerCopy, teamPickerReading } from "../copy";
+import { playWordsFor } from "../lang";
 
 // Core first: Choice/multi cannot randomly divide everyone into balanced teams with locked placements.
 export const meta = {
   id: "TeamPicker",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Split players into balanced random teams while preserving optional locked placements.",
   pick: "Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).",
@@ -29,13 +39,27 @@ export const meta = {
   confirmParts: ["remake"],
   realPath: "The device saves the roster, locked placements and a random balanced allocation.",
   items: { key: "players", parts: ["root", "name", "photo", "team"] },
-  parts: ["root", "teams", "make", "remake"],
+  variants: { density: ["comfortable", "compact"] },
+  parts: ["root", "teams", "make", "make_label", "remake", "remake_label", "empty", "error", "sub"],
   states: ["empty", "filled", "loading", "success", "error"],
   actions: { parts: { make: ["press"], remake: ["press"] } },
-  read: (input) => (input as z.output<typeof props>).teams.map((team) => team.label),
+  emptyActions: ["make.press"],
+  draw: {
+    kind: "partition",
+    press: "make",
+    redraw: "remake",
+    players: "players",
+    teams: "teams",
+    locked: "team",
+  },
+  read: (input, _state, lang): string[] => {
+    const setup = input as z.output<typeof props> & { [drawKey]?: DrawState };
+    return teamPickerReading(setup, setup[drawKey], lang);
+  },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     players: z
       .array(
         z.strictObject({
@@ -100,3 +124,70 @@ export const probes = [
   read("Make the random teams", { address: "t1/make", action: "press" }),
   read("Redraw the team grouping", { address: "t1/remake", action: "press" }),
 ] satisfies Probe[];
+
+type Setup = Props<typeof props, typeof meta>;
+type Panels = ReturnType<typeof teamPickerCopy<Setup["players"][number]>>["panels"];
+
+// prettier-ignore
+function TeamColumns({ panels, style, density, loading, words }: {
+  panels: Panels; style: Setup["style"]; density: Setup["density"]; loading: boolean;
+  words: ReturnType<typeof playWordsFor>["teamPicker"];
+}) {
+  const columns = panels.map(({ players, ...panel }) => ({
+    ...panel,
+    children: players.map(({ id, name, photo, team }) => (
+      <kit.KitRow key={id} item={id} inset="none" inline={style === "groups" || density === "compact"} density={density}
+        label={team === undefined ? name : words.lockedName(name)} leadingAlign="row"
+        leading={<kit.KitPhoto {...(photo ? { photo } : { initials: Array.from(name)[0]! })}
+          shape="round" part="photo" label={name} />}
+      >
+        <kit.KitRow inline label={name}
+          trailing={team === undefined ? undefined : <kit.KitIcon part="team" name="lock" tone="muted" scale="sm" />}
+        >
+          <kit.KitText part="name" lines={1} density={density}>{name}</kit.KitText>
+        </kit.KitRow>
+      </kit.KitRow>
+    )),
+    ...(!players.length ? { summary: <kit.KitText role="label" tone="muted" part={null}>{words.noPlayers}</kit.KitText> } : {}),
+  }));
+  return <kit.KitColumns part="teams" style={style === "groups" ? "stack" : "columns"} {...{ columns, loading }} />;
+}
+
+// prettier-ignore
+export function TeamPicker(setup: Setup) {
+  const { screen, component } = kit.usePartContext();
+  const source = kit.useComponentState();
+  const thing = kit.useEmptyThing();
+  const {
+    lang,
+    words: { teamPicker: words },
+  } = kit.useWords(playWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, setup.density);
+  const stored = kit.useControlValue<unknown>(`${screen}/${component}/${drawKey}`, undefined);
+  const get = (part: string) => (part === drawKey ? stored : undefined);
+  const state = drawStatus(meta, setup, source, get);
+  const draw = drawState(meta, setup, get);
+  const { status, action, panels } = teamPickerCopy(setup, draw, lang);
+  const loading = state === "loading";
+  const kind = action === "make" ? "primary" : "secondary";
+  const button = loading ? <kit.KitSkeleton shape="control" label={words[action]} {...{ kind }} full />
+    : <kit.KitAction part={action} action="press" label={words[action]} {...{ kind }} full />;
+  return (
+    <kit.KitCard part="root" padded {...{ density }}>
+      {state === "error" ?
+        <kit.KitEmpty part="error" icon="users" title={words.error} sub={words.errorDetail} decorativeIcon /> :
+        state === "empty" ? <>
+          <kit.KitEmpty part="empty" icon="users" title={thing ? emptyLine(thing, lang) : words.empty} decorativeIcon />
+          {button}
+        </> : <>
+          <kit.KitContent inset={setup.style === "groups" ? "md" : "none"}>
+            {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} /> :
+              <kit.KitText role="heading" tone={action === "remake" ? "accent" : "text"} part={null}>{status}</kit.KitText>}
+          </kit.KitContent>
+          {action === "make" && button}
+          <TeamColumns style={setup.style} {...{ panels, density, loading, words }} />
+          {action === "remake" && button}
+        </>}
+    </kit.KitCard>
+  );
+}

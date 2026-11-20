@@ -1,4 +1,18 @@
 export const en = {
+  teamPicker: {
+    ready: "Ready to split",
+    empty: "No teams drawn yet",
+    grouped: "Teams are set",
+    unassigned: "Unassigned",
+    noPlayers: "No players yet",
+    error: "Teams can’t be balanced",
+    errorDetail: "Change the locked placements before drawing teams.",
+    make: "Make teams",
+    remake: "Redraw teams",
+    lockedName: (name: string) => `${name} (locked)`,
+    teamLine: (label: string, count: string, names: readonly string[]) =>
+      names.length ? `${label} (${count}): ${names.join(", ")}` : `${label} (${count})`,
+  },
   turnOrder: {
     current: "Current turn",
     complete: "Game complete",
@@ -49,6 +63,18 @@ export const en = {
     blankFace: (position: string) => `Die ${position}, not rolled`,
     face: (position: string, value: string) => `Die ${position}, showing ${value}`,
     heldFace: (position: string, value: string) => `Die ${position}, showing ${value}, held`,
+  },
+  spinner: {
+    pool: "Draw pool",
+    empty: "Nothing drawn yet",
+    ready: "Ready to spin",
+    result: "Selected at random",
+    exhausted: "No options left",
+    remaining: (count: string, plural: Intl.LDMLPluralRule) =>
+      `${count} ${plural === "one" ? "option" : "options"} left`,
+    spin: "Spin",
+    again: "Spin again",
+    reset: "Reset options",
   },
 };
 
