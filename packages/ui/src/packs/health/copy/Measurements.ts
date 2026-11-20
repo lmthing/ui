@@ -19,12 +19,12 @@ const measured = (value: number, lang?: string) => numberLine(Number(value.toFix
 
 /** No health judgement: signed change always compares with the first supplied reading. */
 export function measurementCopy(points: readonly number[], unit: string, goal?: number, lang?: string) {
-  const { measurementLabels, measurementChange, measurementGoal, measurementLatest } = healthWordsFor(lang);
+  const { measurementLabels, measurementChange, measurementGoal } = healthWordsFor(lang);
   const latest = points.at(-1)!;
   const change = latest - points[0]!;
   return {
     latest: measured(latest, lang),
-    latestLabel: measurementLatest(measurementLabels.latest, unit),
+    latestLabel: measurementLabels.latest,
     change: measurementChange(`${change > 0 ? "+" : ""}${measured(change, lang)}`, unit),
     goal: goal === undefined ? undefined : measurementGoal(measured(goal, lang), unit),
   };
@@ -48,13 +48,13 @@ export function measurementReading(
   unit: string,
   goal?: number,
   lang?: string,
+  showChange = true,
 ): string[] {
   const { measurementLabels, measurementValue } = healthWordsFor(lang);
   const copy = measurementCopy(points, unit, goal, lang);
   return [
     measurementValue(copy.latest, unit),
-    copy.latestLabel,
-    copy.change,
+    ...(showChange ? [copy.change] : []),
     ...(copy.goal ? [copy.goal] : []),
     ...measurementRanges.map((range) => measurementLabels[range]),
     measurementLabels.start,

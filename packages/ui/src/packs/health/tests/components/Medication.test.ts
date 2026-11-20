@@ -19,7 +19,8 @@ describe("Medication contract and boundaries", () => {
   it.each(examples)("accepts domain examples", (input) => expect(props.safeParse(input).success).toBe(true));
   it("trims text and applies due status", () => {
     expect(props.parse({ doses: [{ ...dose, name: "  Vitamin D  " }] })).toEqual({
-      doses: [{ ...dose, status: "due" }],
+      detail: "full",
+      doses: [{ ...dose, status: "due", mark: "none" }],
     });
   });
   it.each([

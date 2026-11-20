@@ -142,7 +142,9 @@ describe("ActivityRings states, parts and reading", () => {
     expect(html.match(/data-testid="home\/c1\/rings"/g)).toHaveLength(1);
     example.rings.forEach((row, index) => {
       for (const part of meta.items.parts)
-        expect(html.match(new RegExp(`data-testid="home/c1/r${index + 1}/${part}"`, "g"))).toHaveLength(1);
+        expect(html.match(new RegExp(`data-testid="home/c1/r${index + 1}/${part}"`, "g")) ?? []).toHaveLength(
+          1,
+        );
       expect(readComponent(components.ActivityRings, example, "a1").join("\n")).toContain(
         `${row.label}: ${row.value} of ${row.of} ${row.unit}`,
       );

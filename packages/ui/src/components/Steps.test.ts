@@ -18,6 +18,7 @@ describe("Steps schema", () => {
   it("applies defaults, trims text and preserves the optional custom label", () => {
     expect(props.parse({ count: 3, at: 1 })).toEqual({
       style: "dots",
+      detail: "full",
       count: 3,
       at: 1,
     });
@@ -44,6 +45,8 @@ describe("Steps schema", () => {
     { count: 3, at: 1, label: "a".repeat(33) },
     { count: 3, at: 1, label: 4 },
     { count: 3, at: 1, style: "ring" },
+    { count: 3, at: 1, detail: "short" },
+    { count: 3, at: 1, density: "tiny" },
     { count: 3, at: 1, color: "red" },
     { count: 3, at: 1, pixels: 4 },
     { count: 3, at: 1, id: "s1" },
@@ -128,6 +131,16 @@ describe("Steps metadata and probes", () => {
 });
 
 describe("Steps view and reading", () => {
+  it("keeps the position and its address while hiding only the task name", () => {
+    const input = { count: 3, at: 2, label: "Add your first plant", detail: "brief", density: "compact" };
+    const html = renderInstance("Steps", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    const read = readComponent(components.Steps, input, "c1").join("\n");
+    expect(html).toContain('data-testid="home/c1/label"');
+    for (const output of [html, read]) {
+      expect(output).toContain("Step 2 of 3");
+      expect(output).not.toContain(input.label);
+    }
+  });
   it.each(["dots", "bar", "numbered"] as const)(
     "draws an addressed decorative %s track and reads the current place without actions",
     (style) => {

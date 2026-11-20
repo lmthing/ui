@@ -90,7 +90,7 @@ describe("Cycle wording", () => {
     expect(cycleDayLine(40)).toBe("Day 40");
     expect(cycleNextLine("2027-01-10")).toBe("Next period · 10\u00a0Jan\u00a02027 (est.)");
     expect(cycleWindowLine("2026-12-31", "2027-01-05")).toBe(
-      "Fertile window (est.) · 31\u00a0Dec\u00a02026\u00a0–\u00a05\u00a0Jan\u00a02027",
+      "Fertile window (est.) · 31\u00a0Dec\u00a02026\u00a0\u2060–\u2060\u00a05\u00a0Jan\u00a02027",
     );
   });
   it("reads every computed line, the action and contraception caveat", () => {
@@ -100,7 +100,7 @@ describe("Cycle wording", () => {
       "Day 19",
       cycleLabels.luteal,
       "Next period · 29\u00a0Nov\u00a02026 (est.)",
-      "Fertile window (est.) · 10\u00a0–\u00a015\u00a0Nov\u00a02026",
+      "Fertile window (est.) · 10\u00a0\u2060–\u2060\u00a015\u00a0Nov\u00a02026",
       cycleLabels.log,
       cycleLabels.disclaimer,
     ]);

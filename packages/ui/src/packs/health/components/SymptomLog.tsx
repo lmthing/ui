@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { probesFor, text, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { probesFor, text, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import {
   KitCard,
   KitChip,
@@ -11,6 +12,7 @@ import {
   KitTrack,
   useControlValue,
   usePart,
+  useVariant,
   useWords,
 } from "../../../kit";
 import { indexedActions, indexedParts, indexedValues, indexedWhen, seedTitles } from "..";
@@ -29,6 +31,11 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
+  writeHints: [
+    "Write density null unless explicitly asked to change spacing. Hiding readouts changes only detail. Use detail brief to hide the separate numeric severity readouts while keeping the sliders and severity values.",
+  ],
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: indexedParts(8, ["reading"]) } },
   items: {
     key: "groups",
     parts: ["root", "label", "chips", ...indexedParts(8, ["symptom", "severity", "reading"])],
@@ -46,13 +53,14 @@ export const meta = {
     items: indexedActions(8, { symptom: ["toggle"], severity: ["set"] }),
     when: indexedWhen(8, ["symptom", "severity"]),
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
-    const { groups } = input as z.output<typeof props>;
-    return [...symptomReading(groups, lang), ...symptomTargets(groups)];
+    const { groups, detail } = input as z.output<typeof props>;
+    return [...(detail === "brief" ? [] : symptomReading(groups, lang)), ...symptomTargets(groups)];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   groups: z
     .array(
       z
@@ -97,36 +105,15 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     ],
   };
 }
+// prettier-ignore
 export const examples = [
-  {
-    groups: [
-      {
-        label: "Head",
-        symptoms: [
-          { label: "Headache", severity: 2, on: true },
-          { label: "Dizziness", severity: 0 },
-        ],
-      },
-      {
-        label: "Stomach",
-        symptoms: [
-          { label: "Nausea", severity: 1 },
-          { label: "Cramping", severity: 0 },
-        ],
-      },
-    ],
-  },
-  {
-    groups: [
-      {
-        label: "Energy",
-        symptoms: [
-          { label: "Fatigue", severity: 4 },
-          { label: "Weakness", severity: 1 },
-        ],
-      },
-    ],
-  },
+  { groups: [
+    { label: "Head", symptoms: [{ label: "Headache", severity: 2, on: true }, { label: "Dizziness", severity: 0 }] },
+    { label: "Stomach", symptoms: [{ label: "Nausea", severity: 1 }, { label: "Cramping", severity: 0 }] },
+  ] },
+  { groups: [
+    { label: "Energy", symptoms: [{ label: "Fatigue", severity: 4 }, { label: "Weakness", severity: 1 }] },
+  ] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("SymptomLog");
 export const probes = [
@@ -137,6 +124,12 @@ export const probes = [
   write(
     "Head symptoms: headache severity two and dizziness zero; stomach symptoms: nausea one and cramping zero",
   ),
+  {
+    ...write(
+      "Log Head symptoms: headache severity two, dizziness zero. Keep the chip and severity slider for headache, but hide the separate numeric severity caption next to the slider label.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Change the severity of headache", { address: "s1/r1/severity_1", action: "set" }),
   read("Select dizziness in the Head group; leave the already-selected headache unchanged.", {
     address: "s1/r1/symptom_2",
@@ -154,7 +147,10 @@ function SymptomChip({ group, index }: { group: Group; index: number }) {
     <KitChip item={group.id} part={part} labelPart={null} label={symptom.label} on={on} role="checkbox" />
   );
 }
-function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number]; index: number }) {
+// prettier-ignore
+function SymptomSeverity({ symptom, index, full }: {
+  symptom: Group["symptoms"][number]; index: number; full: boolean;
+}) {
   const { lang } = useWords(healthWordsFor);
   const part = `severity_${index + 1}`;
   const address = usePart(part).testID;
@@ -165,33 +161,29 @@ function SymptomSeverity({ symptom, index }: { symptom: Group["symptoms"][number
   return (
     <KitContent group="response">
       <KitGrid columns={2} fitLast>
-        <KitText role="label" tone="muted" part={null}>
-          {symptom.label}
-        </KitText>
-        <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
+        <KitText role="label" tone="muted" part={null}>{symptom.label}</KitText>
+        {full && <KitText role="number" numberScale="compact" tabular part={`reading_${index + 1}`}>
           {symptomLevelLine(current, lang)}
-        </KitText>
+        </KitText>}
       </KitGrid>
       <KitSlider part={part} label={symptom.label} value={symptomSeverity(current)} min={1} max={5} />
     </KitContent>
   );
 }
-export function SymptomLog({ groups }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function SymptomLog({ groups, detail, density: preferred }: Props<typeof props, typeof meta>) {
+  const full = useVariant("detail", meta.variants.detail, detail) === "full";
+  const density = useVariant("density", meta.variants.density, preferred);
+  const compact = density === "compact";
   return (
-    <KitCard style="inset" part="root">
+    <KitCard style="inset" part="root" density={density} padded={compact}>
       {groups.map((group) => (
-        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading">
-          <KitText role="heading" part="label">
-            {group.label}
-          </KitText>
+        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading" density={density} inline={compact}>
+          <KitText role="heading" part="label">{group.label}</KitText>
           <KitTrack part="chips" label={group.label}>
-            {group.symptoms.map((_, index) => (
-              <SymptomChip key={index} group={group} index={index} />
-            ))}
+            {group.symptoms.map((_, index) => <SymptomChip key={index} {...{ group, index }} />)}
           </KitTrack>
-          {group.symptoms.map((symptom, index) => (
-            <SymptomSeverity key={index} symptom={symptom} index={index} />
-          ))}
+          {group.symptoms.map((symptom, index) => <SymptomSeverity key={index} {...{ symptom, index, full }} />)}
         </KitRow>
       ))}
     </KitCard>

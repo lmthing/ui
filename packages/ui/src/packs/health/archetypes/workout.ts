@@ -6,6 +6,7 @@ export const workout = {
   defaultLayout: "log",
   layouts: {
     log: {
+      writeHints: ['The session Timer counts up: write style "up" and seconds 0, with until and at null.'],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Timer"], required: true, variant: "up" },

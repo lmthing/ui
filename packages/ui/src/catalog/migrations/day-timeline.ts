@@ -14,6 +14,7 @@ const adoptedVariants: readonly string[] = [
   "People",
   "Gallery",
   "Stats",
+  "KeyValue",
   "Slots",
   "ServiceMenu",
 ];

@@ -3,12 +3,14 @@ import {
   KitAction,
   KitCard,
   KitContent,
+  KitGrid,
   KitPhoto,
   KitRow,
   KitSkeleton,
   KitText,
   KitTrack,
   useComponentState,
+  useVariant,
   type TextRole,
 } from "../../../kit";
 import {
@@ -16,6 +18,7 @@ import {
   photo,
   probesFor,
   text,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -26,13 +29,17 @@ import { z } from "zod";
 import { seedTitles } from "..";
 import { exerciseReading } from "../copy";
 
-// Core first: Player/video cannot pair an exercise's muscles and form cues with best and last results.
 export const meta = {
   id: "Exercise",
   status: "ready",
   group: "content",
   purpose: "Learn one exercise's form, muscles and equipment, and recall previous results.",
-  pick: "One exercise explained with media, muscles, short form cues and best and last results. Not playing just an exercise video (Player), a lesson in a course (Lesson), or a whole session (Workout).",
+  pick: "A reference for one movement with written form cues, muscles, equipment or past results. Never pick for video playback alone: if the person only asks to play or control an exercise video, choose Player. Not a course lesson (Lesson) or a whole session (Workout).",
+  writeHints: [
+    "Write surface null unless asked for an outline. Do not write the default surface card; a supplied photo normally shows as a wide frame. Only when asked to hide it, use media none and keep the photo reference in the data.",
+  ],
+  variants: { surface: ["card", "outlined"], media: ["cover", "none"] },
+  variantParts: { "media.none": { hides: ["photo"] } },
   region: "body",
   weight: 2,
   tier: "phone",
@@ -40,18 +47,22 @@ export const meta = {
   parts: ["root", "name", "photo", "muscles", "cues", "equipment", "best", "last", "start"],
   states: ["filled", "loading"],
   actions: { parts: { start: ["press"] } },
-  read: (input, state, lang?: string) =>
+  read: (input, state, lang?: string): string[] =>
     state === "filled" ? exerciseReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
-export const props = z.strictObject({
-  name: text(28),
-  photo,
-  muscles: z.array(text(16)).min(1).max(3),
-  cues: z.array(text(60)).min(1).max(3),
-  equipment: text(20).optional(),
-  best: text(16).optional(),
-  last: text(16).optional(),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    name: text(28),
+    photo: photo.optional(),
+    muscles: z.array(text(16)).min(1).max(3),
+    cues: z.array(text(60)).min(1).max(3),
+    equipment: text(20).optional(),
+    best: text(16).optional(),
+    last: text(16).optional(),
+  })
+  .refine(({ photo, media }) => media === "none" || photo !== undefined, { path: ["photo"] })
+  .overwrite((value) => ({ ...value, ...(value.media === "none" ? { photo: undefined } : {}) }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
 
@@ -62,6 +73,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     cues: [placeholderDetail],
   };
 }
+// prettier-ignore
 export const examples = [
   {
     name: "Bench press",
@@ -93,16 +105,17 @@ export const probes = [
   write(
     "Explain bench press with lib:exercise photo, chest and triceps, feet planted and lower slowly, barbell, best 50 kg by 8, last 40 kg by 8",
   ),
+  {
+    ...write(
+      "Explain bench press with lib:exercise saved as its photo, chest and triceps, and the cue Keep feet planted. Keep the photo reference but do not show any image on the exercise screen.",
+    ),
+    variant: { axis: "media", value: "none" },
+  },
   read("Add bench press to my workout", { address: "e1/start", action: "press" }),
 ] satisfies Probe[];
 
-function ExerciseText({
-  value,
-  part,
-  role = "body",
-  loading,
-  muted = false,
-}: {
+// prettier-ignore
+function ExerciseText({ value, part, role = "body", loading, muted = false }: {
   value: string;
   part: string | null;
   role?: TextRole;
@@ -118,6 +131,7 @@ function ExerciseText({
   );
 }
 
+// prettier-ignore
 function ExerciseResults({
   best,
   last,
@@ -137,53 +151,37 @@ function ExerciseResults({
       {results.map(
         ([part, value]) =>
           value && (
-            <KitRow
-              key={part}
-              part={part}
-              label={exerciseLabels[part]}
-              inline
-              trailing={<ExerciseText value={value} part={null} role="number" loading={loading} />}
-            >
+            <KitGrid key={part} fitLast>
               <ExerciseText value={exerciseLabels[part]} part={null} role="label" muted loading={loading} />
-            </KitRow>
+              <ExerciseText value={value} part={part} role="number" loading={loading} />
+            </KitGrid>
           ),
       )}
     </KitContent>
   );
 }
 
+// prettier-ignore
 export function Exercise({
-  name,
-  photo: image,
-  muscles,
-  cues,
-  equipment,
-  best,
-  last,
+  name, surface, media, photo: image, muscles, cues, equipment, best, last,
 }: Props<typeof props, typeof meta>) {
   const { exerciseLabels } = useWords(healthWordsFor).words;
   const loading = useComponentState() === "loading";
+  const showPhoto = useVariant("media", meta.variants.media, media) === "cover";
   return (
-    <KitCard part="root" style="inset" padded>
+    <KitCard part="root" style="inset" padded surface={surface}>
       <KitContent>
         <ExerciseText value={name} part="name" role="heading" loading={loading} />
         <KitTrack part="muscles" label={exerciseLabels.muscles}>
-          {muscles.map((muscle, index) => (
-            <ExerciseText key={index} value={muscle} part={null} role="label" muted loading={loading} />
-          ))}
+          {muscles.map((value, index) => <ExerciseText key={index} {...{ value, loading }} part={null} role="label" muted />)}
         </KitTrack>
       </KitContent>
-      {loading ? (
-        <KitSkeleton shape="media" aspect="wide" lines={[]} inset="none" />
-      ) : (
-        <KitPhoto photo={image} shape="wide" part="photo" label={name} />
-      )}
+      {showPhoto && (loading ? <KitSkeleton shape="media" aspect="wide" lines={[]} inset="none" />
+        : image && <KitPhoto photo={image} shape="wide" part="photo" label={name} />)}
       <KitRow part="cues" label={exerciseLabels.cues} inline>
         <KitContent>
           <ExerciseText value={exerciseLabels.cues} part={null} role="label" muted loading={loading} />
-          {cues.map((cue, index) => (
-            <ExerciseText key={index} value={cue} part={null} loading={loading} />
-          ))}
+          {cues.map((value, index) => <ExerciseText key={index} {...{ value, loading }} part={null} />)}
         </KitContent>
       </KitRow>
       {equipment && (

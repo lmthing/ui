@@ -12,7 +12,7 @@ describe("measurement copy", () => {
   it("formats falling, rising, flat and precise readings neutrally", () => {
     expect(measurementCopy([78, 77.5, 77.2, 76.8], "kg", 75)).toEqual({
       latest: "76.8",
-      latestLabel: "Latest · kg",
+      latestLabel: "Latest",
       change: "-1.2 kg since first reading",
       goal: "Goal 75 kg",
     });
@@ -47,7 +47,6 @@ describe("measurement copy", () => {
   it("includes every computed and fixed visible line in the data-only reading", () => {
     expect(measurementReading([0, 1, 2, 3], "kg", 0)).toEqual([
       "3 kg",
-      "Latest · kg",
       "+3 kg since first reading",
       "Goal 0 kg",
       "Month",
