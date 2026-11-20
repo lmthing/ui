@@ -11,7 +11,7 @@ import {
 import { moneyWordsFor } from "../lang";
 import { loanToday, projectLoan, type LoanTerms } from "./repayment";
 
-type LoanInput = LoanTerms & { style: "summary" | "schedule"; goto?: string | undefined };
+type LoanInput = LoanTerms & { detail: "brief" | "full"; goto?: string | undefined };
 const rowLimit = 6;
 const compactAt = 1_000_000;
 
@@ -83,7 +83,7 @@ export function loanCopy(
       : undefined,
     finish: finish ? words.loanField(labels.finish, date(finish)) : labels.unavailable,
     schedule:
-      input.style === "schedule"
+      input.detail === "full"
         ? rows.slice(0, rowLimit).map((row) => ({
             due: row.due,
             date: date(row.due),
@@ -92,7 +92,7 @@ export function loanCopy(
           }))
         : [],
     more:
-      input.style === "schedule" && more > 0
+      input.detail === "full" && more > 0
         ? words.loanMore(numberLine(more, lang), pluralForm(more, lang))
         : undefined,
   };

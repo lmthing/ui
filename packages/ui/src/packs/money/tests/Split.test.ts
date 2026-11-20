@@ -22,7 +22,10 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const w = moneyWordsFor().split;
 const render = (input: unknown, state: "filled" | "empty" | "success" = "filled") =>
   renderInstance("Split", input, state, theme, "expense");
-const controller = (input = first, state: "filled" | "empty" | "success" = "filled") => {
+const controller = (
+  input: Record<string, unknown> = first,
+  state: "filled" | "empty" | "success" = "filled",
+) => {
   const onAction = vi.fn(),
     onLink = vi.fn();
   const runtime = createScreenController({

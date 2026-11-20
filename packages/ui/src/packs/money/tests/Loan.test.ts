@@ -36,7 +36,7 @@ describe("Loan contract and boundaries", () => {
     expectTypeOf<View>().not.toHaveProperty("currency");
     expect(props.parse({ ...simple, name: "  Friend loan  " })).toEqual({
       ...simple,
-      style: "summary",
+      detail: "brief",
       linked: false,
     });
     expect(props.parse({ ...simple, goto: "terms" })).toHaveProperty("linked", true);
@@ -94,13 +94,13 @@ describe("Loan fallback", () => {
 });
 
 describe("Loan states and parts", () => {
-  it("renders the terms and forecast parts and only adds schedule in schedule style", () => {
+  it("renders the terms and forecast parts and only adds schedule in full detail", () => {
     const summary = renderInstance("Loan", simple, "filled", theme);
     for (const part of ["root", "name", "balance", "principal", "rate", "payment", "next", "finish"]) {
       expect(elementAt(summary, addr(part))).toBeDefined();
     }
     expect(summary).not.toContain(addr("schedule"));
-    const schedule = renderInstance("Loan", { ...simple, style: "schedule" }, "filled", theme);
+    const schedule = renderInstance("Loan", { ...simple, detail: "full" }, "filled", theme);
     expect(elementAt(schedule, addr("schedule"))).toBeDefined();
     expect(schedule).toContain("$40.00 left");
     expect(schedule).toContain("$0.00 left");
@@ -111,7 +111,7 @@ describe("Loan states and parts", () => {
     { state: "success", text: labels.cleared },
     { state: "error", text: labels.forecastError },
   ] as const)("shows $state without an active forecast or edit", ({ state, text }) => {
-    const html = renderInstance("Loan", { ...simple, style: "schedule", goto: "terms" }, state, theme);
+    const html = renderInstance("Loan", { ...simple, detail: "full", goto: "terms" }, state, theme);
     expect(elementAt(html, addr("root"))).toBeDefined();
     expect(html).toContain(text);
     for (const part of ["next", "schedule", "finish", "edit"]) expect(html).not.toContain(addr(part));

@@ -6,6 +6,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -23,6 +24,7 @@ import {
   useControlValue,
   usePartContext,
   useWords,
+  useVariant,
 } from "../../../kit";
 import {
   priceChartCopy,
@@ -42,19 +44,25 @@ export const meta = {
   pick: "A holding's price history with selectable day, week, month, year and all ranges. Not a compact recent value trend (Sparkline), one sum (Amount), personal measurements (Measurements), or a business metric (LineChart).",
   writeHints: [
     "points are 8–60 numeric prices in time order. Code derives current price and change; never write them or currency.",
+    "To omit the change summary only: detail brief, emphasis null, surface null. Never write default normal or card for unrequested finish.",
   ],
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "Prices fetched from a market data service.",
+  variants: { detail: ["full", "brief"], emphasis: ["normal", "quiet"], surface: ["card", "outlined"] },
+  variantParts: { "detail.brief": { hides: ["change"] } },
   parts: ["root", "name", "price", "change", "line", "range"],
   states: ["filled", "loading"],
   actions: { parts: { range: ["select"] } },
-  read: (input, state, lang) =>
-    state === "filled" ? priceChartReading((input as z.output<typeof props>).points, lang) : [],
+  read: (input, state, lang): string[] => {
+    const { points, detail } = input as z.output<typeof props>;
+    return state === "filled" ? priceChartReading(points, lang, detail) : [];
+  },
 } as const satisfies Meta;
 
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   name: text(24),
   points: z.array(z.number().nonnegative()).min(8).max(60),
   range: z.enum(priceChartRanges),
@@ -70,9 +78,17 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+const ledgeHolding = {
+  name: "Ledge savings holding",
+  points: [98, 99, 98.5, 100, 101, 100.5, 102, 103],
+  range: "month",
+} satisfies z.input<typeof props>;
 export const examples = [
-  { name: "Ledge savings holding", points: [98, 99, 98.5, 100, 101, 100.5, 102, 103], range: "month" },
+  ledgeHolding,
   { name: "Trot rainy-day holding", points: [24, 23, 24.5, 25, 24, 26, 25.5, 27], range: "year" },
+  { ...ledgeHolding, detail: "brief" },
+  { ...ledgeHolding, emphasis: "quiet" },
+  { ...ledgeHolding, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("PriceChart");
@@ -87,21 +103,31 @@ export const probes = [
   write(
     "My Green Fund holding has monthly price samples 98, 99, 98.5, 100, 101, 100.5, 102, 103. Select the month range; derive current price and change from the samples",
   ),
+  {
+    ...write(
+      "Chart Green Fund over the week with prices 98, 99, 100, 102, 101, 104, 105 and 106. Show the latest price but omit the change since the start.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Select the week price range", { address: "p1/range", action: "select" }),
 ] satisfies Probe[];
 
-function PriceSummary({ name, points }: Pick<Props<typeof props, typeof meta>, "name" | "points">) {
+type ChartProps = Props<typeof props, typeof meta>;
+function PriceSummary({ name, points, detail, emphasis }: ChartProps) {
   const { lang } = useWords(moneyWordsFor);
   const state = useComponentState();
-  const { price, change } = priceChartCopy(points, lang);
+  const copy = priceChartCopy(points, lang);
+  const numberScale = emphasis === "quiet" ? "compact" : "display";
+  const change = detail === "full" ? copy.change : undefined;
   return state === "loading" ? (
     <KitSkeleton
       rows={1}
       shape="figure"
       inset="none"
+      emphasis={emphasis}
       content={[
         ["label", name],
-        ["number", price],
+        ["number", copy.price, "start", numberScale],
         ["label", change],
       ]}
     />
@@ -110,17 +136,21 @@ function PriceSummary({ name, points }: Pick<Props<typeof props, typeof meta>, "
       <KitText role="label" part="name" tone="muted" lines={1}>
         {name}
       </KitText>
-      <KitText role="number" part="price" lines={1} tabular>
-        {price}
+      <KitText emphasis={emphasis} numberScale={numberScale} role="number" part="price" lines={1} tabular>
+        {copy.price}
       </KitText>
-      <KitText role="label" part="change" tone="muted" lines={1} tabular>
-        {change}
-      </KitText>
+      {change && (
+        <KitText role="label" part="change" tone="muted" lines={1} tabular>
+          {change}
+        </KitText>
+      )}
     </KitContent>
   );
 }
 
-export function PriceChart({ name, points, range }: Props<typeof props, typeof meta>) {
+export function PriceChart(input: ChartProps) {
+  const { points, range, surface } = input;
+  const emphasis = useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const { lang, words } = useWords(moneyWordsFor);
   const { priceChart: labels } = words;
   const loading = useComponentState() === "loading";
@@ -131,8 +161,8 @@ export function PriceChart({ name, points, range }: Props<typeof props, typeof m
   const plotPoints = loading ? samples.map((point) => ({ ...point, value: null })) : samples;
 
   return (
-    <KitCard padded part="root">
-      <PriceSummary name={name} points={points} />
+    <KitCard padded part="root" surface={surface}>
+      <PriceSummary {...input} emphasis={emphasis} />
       <KitLinePlot
         part="line"
         style="compact"

@@ -35,11 +35,11 @@ export function amountPadKeys(words: KeypadWords, hasDraft: boolean): Key[] {
 }
 
 export function amountPadReading(
-  { value, note }: { value?: Amount; note: boolean },
+  { value, note, detail }: { value?: Amount; note: boolean; detail?: "full" | "brief" },
   lang?: string,
 ): string[] {
   const words = moneyWordsFor(lang).amountPad;
   const draft = amountPadText(value);
   const keys = amountPadKeys(words, Boolean(draft)).map(({ label }) => label);
-  return [amountPadDisplay(draft, lang), keys.join(" "), ...(note ? [words.note] : [])];
+  return [amountPadDisplay(draft, lang), keys.join(" "), ...(note && detail !== "brief" ? [words.note] : [])];
 }
