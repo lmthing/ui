@@ -104,7 +104,12 @@ it("keeps partial active seconds on resume and projects success without a contro
   }
 });
 
-it("applies a declared reset after success for detached controls", () => {
+it.each([
+  { mounted: true, state: undefined },
+  { mounted: false, state: undefined },
+  { mounted: true, state: "filled" as const },
+  { mounted: false, state: "filled" as const },
+])("reopens play after success and reset (mounted: $mounted, state: $state)", ({ mounted, state }) => {
   vi.useFakeTimers();
   const restart = { address: "b1/restart", action: "press" };
   const resettable: Definition = {
@@ -114,14 +119,15 @@ it("applies a declared reset after success for detached controls", () => {
       parts: [...meta.parts!, "restart"],
       actions: { parts: { ...meta.actions!.parts, restart: ["press"] } },
       successActions: ["restart.press"],
-      clocks: [{ ...meta.clocks![0]!, reset: { part: "restart", action: "press", state: "filled" } }],
+      clocks: [
+        { ...meta.clocks![0]!, reset: { part: "restart", action: "press", ...(state ? { state } : {}) } },
+      ],
     },
   };
-  const agent = createAgentAccess({
-    defs: { [meta.id]: resettable },
-    store: createInteractionStore(),
-    current: () => screen,
-  });
+  const defs = { [meta.id]: resettable };
+  const controller = mounted ? createScreenController({ defs, screen }) : undefined;
+  const agent =
+    controller ?? createAgentAccess({ defs, store: createInteractionStore(), current: () => screen });
   try {
     expect(agent.act(restart).ok).toBe(false);
     for (let run = 0; run < 2; run++) {
@@ -132,6 +138,7 @@ it("applies a declared reset after success for detached controls", () => {
       expect(agent.read()).toContain("0s paused [b1/circle play]");
     }
   } finally {
+    controller?.dispose();
     vi.useRealTimers();
   }
 });
