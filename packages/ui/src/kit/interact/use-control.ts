@@ -28,7 +28,7 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller: host } = useKit();
   const { screen, component } = usePartContext();
-  const controller = meta.linkedEdits ? host : undefined;
+  const controller = meta.linkedEdits || meta.selectionBinding ? host : undefined;
   const data = useContext(DeviceDataContext);
   const subscribe = controller?.store.subscribe ?? subscribeNone;
   useSyncExternalStore(
@@ -42,6 +42,12 @@ export function useLiveControls(meta: Meta, props: Values): Values {
     () => controller?.deviceData,
     () => controller?.deviceData,
   );
+  // Compare the resolved selection by value; its row array is rebuilt on each projection.
+  const selectionSnapshot = () =>
+    meta.selectionBinding
+      ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
+      : undefined;
+  useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
     projectLiveInputs(meta, props, component, () => undefined, data)
