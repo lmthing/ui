@@ -12,8 +12,8 @@ export const meta = {
   purpose: "Keep a travel confirmation, reference and gate pass together.",
   pick: "One travel or lodging confirmation, with a copyable reference, optional seat and optional scannable pass. Not simple label/value facts (KeyValue), booking a provider (Appointment), running an event (Ticket), or buying goods (OrderSummary).",
   writeHints: [
-    'start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Omit style for the standard ticket card. Use style "pass" and code true for a full-width scannable gate pass.',
-    'For a brief ticket, use detail "brief" and keep the authored seat or room in seat. Set density and align to JSON null unless specifically asked for different spacing or alignment; never write "comfortable" or "start" as defaults.',
+    'start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Use null for an unknown end; do not guess arrival times. Use style "pass" and code true for a full-width scannable gate pass, otherwise omit style.',
+    'A pass still shows the seat. Set detail to JSON null unless the person explicitly asks to hide the seat or room; only then set detail to "brief" and keep the assignment in seat. Set density and align to JSON null unless specifically asked for different spacing or alignment.',
   ],
   region: "body",
   weight: 2,
@@ -22,20 +22,8 @@ export const meta = {
     "Confirmation details are typed or pasted onto the device; live flight status would need a service.",
   variants: { density: ["comfortable", "compact"], align: ["start", "center"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["seat"] } },
-  parts: [
-    "root",
-    "kind",
-    "title",
-    "from",
-    "to",
-    "start",
-    "end",
-    "ref",
-    "ref_value",
-    "ref_icon",
-    "seat",
-    "code",
-  ],
+  // prettier-ignore
+  parts: ["root", "kind", "title", "from", "to", "start", "end", "ref", "ref_value", "ref_icon", "seat", "code"],
   states: ["filled", "loading"],
   actions: { parts: { ref: ["press"], root: ["press"] } },
   read: (input, state, lang): string[] =>
@@ -91,7 +79,6 @@ export const examples = [
     seat: "8A",
     code: true,
     style: "pass",
-    align: "center",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -105,7 +92,7 @@ export const probes = [
     "KeyValue",
   ),
   write(
-    "Make a full-width train pass with a scannable code for Tokyo to Kyoto on 2027-03-07 at 08:30, ref JP8K2 and seat 8A.",
+    "Make a full-width train pass with a scannable code for Tokyo to Kyoto on 2027-03-07 at 08:30, ref JP8K2. Show seat 8A on the pass.",
   ),
   {
     ...write(
@@ -147,19 +134,22 @@ function ReservationStop({ part, kind, place, stamp, finish, loading }: {
 function ReservationBody({ input, finish, loading }: { input: ReservationProps; finish: Finish; loading: boolean }) {
   const { words } = kit.useWords(tripsWordsFor), { kind, title, from, to, start, end, seat } = input;
   const kindLabel = words.reservationKinds[kind];
+  const location = kind === "stay" ? to : undefined;
+  const destination = kind === "stay" ? undefined : to;
   const seatLabel = seat && words.reservationSeat(kind, seat);
   const depart = <ReservationStop part="start" place={from} stamp={start} {...{ kind, finish, loading }} />;
-  const arrive = <ReservationStop part="end" place={to} stamp={end} {...{ kind, finish, loading }} />;
+  const arrive = <ReservationStop part="end" place={destination} stamp={end} {...{ kind, finish, loading }} />;
   return <>
     <kit.KitContent {...finish}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={finish.density}
-        content={[["caption", kindLabel, finish.align], ["heading", title, finish.align]]} />
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable"
+        content={[["caption", kindLabel, finish.align], ["heading", title, finish.align], ["body", location, finish.align]]} />
         : <>
           <kit.KitText part="kind" role="caption" tone="muted" {...finish}>{kindLabel}</kit.KitText>
-          <kit.KitText part="title" role="heading" {...finish}>{title}</kit.KitText>
+          <kit.KitText part="title" role="heading" {...finish} density="comfortable">{title}</kit.KitText>
+          {location && <kit.KitText part="to" role="body" {...finish}>{location}</kit.KitText>}
         </>}
     </kit.KitContent>
-    {to || end ? <kit.KitGrid density={finish.density}>{depart}{arrive}</kit.KitGrid> : depart}
+    {destination || end ? <kit.KitGrid density={finish.density}>{depart}{arrive}</kit.KitGrid> : depart}
     {seatLabel && (loading
       ? <kit.KitSkeleton shape="figure" inset="none" density={finish.density} content={[["caption", seatLabel, finish.align]]} />
       : <kit.KitText part="seat" role="caption" tone="muted" {...finish}>{seatLabel}</kit.KitText>)}
@@ -174,21 +164,24 @@ export function Reservation(input: ReservationProps) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const align = kit.useVariant("align", meta.variants.align, input.align);
   const finish = { density, align };
-  const stub = <kit.KitGrid fitLast density={density}>
-    <kit.KitContent {...finish}>
+  const refAlign = style === "pass" ? "center" : align;
+  const reference = <kit.KitContent {...finish} align={refAlign}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["caption", words.reservationRef, align], ["heading", ref, align]]} />
+        content={[["caption", words.reservationRef, refAlign], ["body", ref, refAlign]]} />
         : <>
-          <kit.KitText part={null} role="caption" tone="muted" {...finish}>{words.reservationRef}</kit.KitText>
-          <kit.KitText part="ref_value" role="heading" {...finish}>{ref}</kit.KitText>
+          <kit.KitText part={null} role="caption" tone="muted" {...finish} align={refAlign}>{words.reservationRef}</kit.KitText>
+          <kit.KitText part="ref_value" role="body" tabular {...finish} align={refAlign}>{ref}</kit.KitText>
         </>}
-    </kit.KitContent>
-    {loading ? <kit.KitSkeleton shape="control" inset="none" kind="quiet" />
-      : <kit.KitAction action="press" part="ref" kind="quiet" icon="clipboard" a11y={words.copyReservationRef} />}
-  </kit.KitGrid>;
+  </kit.KitContent>;
+  const copy = loading ? <kit.KitSkeleton shape="control" inset="none" kind="quiet" />
+    : <kit.KitAction action="press" part="ref" kind="quiet" icon="clipboard" a11y={words.copyReservationRef} />;
+  const stub = refAlign === "center"
+    ? <kit.KitRow part={null} inline lineRole="display" label={words.reservationRef} leadingWidth="avatar"
+      leading={<kit.KitContent>{null}</kit.KitContent>} trailing={copy}>{reference}</kit.KitRow>
+    : <kit.KitGrid fitLast density={density}>{reference}{copy}</kit.KitGrid>;
   return <kit.KitTicket part="root" style={style ?? "card"} label={words.openReservation(title)}
     {...(!loading && { target: { part: "root" } })}
-    code={code ? <kit.KitContent {...finish}>
+    code={code ? <kit.KitContent density={density}>
       {stub}
       <kit.KitCode part={loading ? null : "code"} value={ref} label={words.reservationCode} loading={loading} />
     </kit.KitContent> : stub}>

@@ -22,15 +22,21 @@ export function reservationReading(input: Reading, lang?: string): string[] {
   const { kind, start, end, from, to, ref, seat, detail, code } = input;
   const words = tripsWordsFor(lang);
   const labels = words.reservationStops(kind);
+  const destination = kind === "stay" ? undefined : to;
   const stamp = (value: Stamp) => {
     const { date, time } = reservationStampParts(value, lang);
     return words.reservationStamp(date, time);
   };
   return [
     words.reservationKinds[kind],
+    ...(kind === "stay" && to ? [JSON.stringify(to)] : []),
     [labels.start, from && JSON.stringify(from), stamp(start)].filter(Boolean).join(" "),
-    ...(to || end
-      ? [[labels.end, to && JSON.stringify(to), end && stamp(end)].filter(Boolean).join(" ")]
+    ...(destination || end
+      ? [
+          [labels.end, destination && JSON.stringify(destination), end && stamp(end)]
+            .filter(Boolean)
+            .join(" "),
+        ]
       : []),
     ...(seat && detail !== "brief" ? [JSON.stringify(words.reservationSeat(kind, seat))] : []),
     words.reservationRef,

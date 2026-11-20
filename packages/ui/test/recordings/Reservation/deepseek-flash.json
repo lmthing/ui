@@ -17,6 +17,215 @@
       "{\"address\": \"r1/ref\", \"action\": \"press\"}"
     ]
   },
+  "4a3e9c2d0ee6f05d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nReservation: Keep a travel confirmation, reference and gate pass together.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", kind: flight|train|bus|ferry|stay|car|ticket, title: text≤32, from?: text≤20, to?: text≤20, start: { date: date YYYY-MM-DD, time: time HH:MM }, end?: { date: date YYYY-MM-DD, time: time HH:MM }, ref: text≤12, seat?: text≤12, code?: boolean=false, style?: text≤? }\nRule: start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Use null for an unknown end; do not guess arrival times. Use style \"pass\" and code true for a full-width scannable gate pass, otherwise omit style.\nRule: A pass still shows the seat. Set detail to JSON null unless the person explicitly asks to hide the seat or room; only then set detail to \"brief\" and keep the assignment in seat. Set density and align to JSON null unless specifically asked for different spacing or alignment.\nexample: {\"c\":\"Reservation\",\"kind\":\"stay\",\"title\":\"Kyoto Garden Inn\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"15:00\"},\"end\":{\"date\":\"2027-03-10\",\"time\":\"10:00\"},\"ref\":\"KY7M4\",\"seat\":\"Room 204\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a full-width train pass with a scannable code for Tokyo to Kyoto on 2027-03-07 at 08:30, ref JP8K2. Show seat 8A on the pass.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Reservation",
+              "enum": [
+                "Reservation"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "flight",
+                "train",
+                "bus",
+                "ferry",
+                "stay",
+                "car",
+                "ticket"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "from": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "start": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "time": {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              },
+              "required": [
+                "date",
+                "time"
+              ],
+              "additionalProperties": false
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "time": {
+                      "type": "string",
+                      "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "time"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "code": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "pass"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "kind",
+            "title",
+            "from",
+            "to",
+            "start",
+            "end",
+            "ref",
+            "seat",
+            "code",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":null,\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
+    "replies": [
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":null,\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":null,\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}"
+    ]
+  },
   "67d9e846e8f140e8": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nReservation: Keep a travel confirmation, reference and gate pass together.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", kind: flight|train|bus|ferry|stay|car|ticket, title: text≤32, from?: text≤20, to?: text≤20, start: { date: date YYYY-MM-DD, time: time HH:MM }, end?: { date: date YYYY-MM-DD, time: time HH:MM }, ref: text≤12, seat?: text≤12, code?: boolean=false, style?: text≤? }\nRule: start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Omit style for the standard ticket card. Use style \"pass\" and code true for a full-width scannable gate pass.\nRule: Use detail \"brief\" when asked to hide the seat or room assignment. Keep the assignment in the input. Leave shared axes unset unless requested.\nexample: {\"c\":\"Reservation\",\"kind\":\"stay\",\"title\":\"Kyoto Garden Inn\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"15:00\"},\"end\":{\"date\":\"2027-03-10\",\"time\":\"10:00\"},\"ref\":\"KY7M4\",\"seat\":\"Room 204\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a full-width train pass with a scannable code for Tokyo to Kyoto on 2027-03-07 at 08:30, ref JP8K2 and seat 8A.",
     "format": {
@@ -435,6 +644,215 @@
       "{\"c\":\"Reservation\",\"density\":\"comfortable\",\"align\":\"start\",\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}"
     ]
   },
+  "c50fb07315eee396": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nReservation: Keep a travel confirmation, reference and gate pass together.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", kind: flight|train|bus|ferry|stay|car|ticket, title: text≤32, from?: text≤20, to?: text≤20, start: { date: date YYYY-MM-DD, time: time HH:MM }, end?: { date: date YYYY-MM-DD, time: time HH:MM }, ref: text≤12, seat?: text≤12, code?: boolean=false, style?: text≤? }\nRule: start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Use null for an unknown end; do not guess arrival times. Use style \"pass\" and code true for a full-width scannable gate pass, otherwise omit style.\nRule: A pass still shows the seat. Set detail to JSON null unless the person explicitly asks to hide the seat or room; only then set detail to \"brief\" and keep the assignment in seat. Set density and align to JSON null unless specifically asked for different spacing or alignment.\nexample: {\"c\":\"Reservation\",\"kind\":\"stay\",\"title\":\"Kyoto Garden Inn\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"15:00\"},\"end\":{\"date\":\"2027-03-10\",\"time\":\"10:00\"},\"ref\":\"KY7M4\",\"seat\":\"Room 204\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show my confirmed Tokyo to Kyoto train for 2027-03-07 at 08:30, reference JP8K2. Keep seat 8A in the booking data, but use the brief display that hides the seat assignment. Leave spacing and alignment unchanged.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Reservation",
+              "enum": [
+                "Reservation"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "align": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "start",
+                    "center"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "flight",
+                "train",
+                "bus",
+                "ferry",
+                "stay",
+                "car",
+                "ticket"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "from": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "to": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "start": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "time": {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                }
+              },
+              "required": [
+                "date",
+                "time"
+              ],
+              "additionalProperties": false
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                    },
+                    "time": {
+                      "type": "string",
+                      "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                    }
+                  },
+                  "required": [
+                    "date",
+                    "time"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "ref": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "seat": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 12
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "code": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "pass"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "align",
+            "detail",
+            "kind",
+            "title",
+            "from",
+            "to",
+            "start",
+            "end",
+            "ref",
+            "seat",
+            "code",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":null,\"style\":null}",
+    "replies": [
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":null,\"style\":null}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":null,\"style\":null}"
+    ]
+  },
   "cd4577be22bf849e": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nReservation: Keep a travel confirmation, reference and gate pass together.\nprops: { density?: comfortable|compact, align?: start|center=\"start\", detail?: full|brief=\"full\", kind: flight|train|bus|ferry|stay|car|ticket, title: text≤32, from?: text≤20, to?: text≤20, start: { date: date YYYY-MM-DD, time: time HH:MM }, end?: { date: date YYYY-MM-DD, time: time HH:MM }, ref: text≤12, seat?: text≤12, code?: boolean=false, style?: text≤? }\nRule: start and end are objects with date (YYYY-MM-DD) and time (HH:MM). Omit style for the standard ticket card. Use style \"pass\" and code true for a full-width scannable gate pass.\nRule: For a brief ticket, use detail \"brief\" and keep the authored seat or room in seat. Set density and align to JSON null unless specifically asked for different spacing or alignment; never write \"comfortable\" or \"start\" as defaults.\nexample: {\"c\":\"Reservation\",\"kind\":\"stay\",\"title\":\"Kyoto Garden Inn\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"15:00\"},\"end\":{\"date\":\"2027-03-10\",\"time\":\"10:00\"},\"ref\":\"KY7M4\",\"seat\":\"Room 204\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show my confirmed Tokyo to Kyoto train for 2027-03-07 at 08:30, reference JP8K2. Keep seat 8A in the booking data, but use the brief display that hides the seat assignment. Leave spacing and alignment unchanged.",
     "format": {
@@ -637,11 +1055,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto train\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":null,\"style\":null}",
+    "reply": "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}",
     "replies": [
-      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto train\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":null,\"style\":null}",
       "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}",
-      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}"
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto Train\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":false,\"style\":null}"
     ]
   },
   "d678dff43e9a0e1e": {
@@ -849,8 +1267,17 @@
     "reply": "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
     "replies": [
       "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
-      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":null,\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
-      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}"
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":\"brief\",\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}",
+      "{\"c\":\"Reservation\",\"density\":null,\"align\":null,\"detail\":null,\"kind\":\"train\",\"title\":\"Tokyo to Kyoto\",\"from\":\"Tokyo\",\"to\":\"Kyoto\",\"start\":{\"date\":\"2027-03-07\",\"time\":\"08:30\"},\"end\":null,\"ref\":\"JP8K2\",\"seat\":\"8A\",\"code\":true,\"style\":\"pass\"}"
+    ]
+  },
+  "eb3b33f7e1e96816": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nr1 Reservation[stay] Stay — \"Kyoto\" — Check-in 7 Mar 2027 15:00 — Check-out 10 Mar 2027 10:00 — \"Room 204\" — Reference — ref \"KY7M4\" — Copy reference — \"Kyoto Garden Inn\" — \"Kyoto\" — \"KY7M4\" — \"Room 204\" [r1/ref press] [r1 press]\n\nTask: Copy the Kyoto Garden Inn confirmation reference\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"r1/ref\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"r1/ref\", \"action\": \"press\"}",
+      "{\"address\": \"r1/ref press\", \"action\": \"press\"}",
+      "{\"address\": \"r1/ref\", \"action\": \"press\"}"
     ]
   },
   "f4a1a9885c2b4f7e": {
