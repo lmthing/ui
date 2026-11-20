@@ -132,41 +132,29 @@ type Pair = Props<typeof props, typeof meta>["pairs"][number];
 const valueRole = (value: string) =>
   /^\d+(?:\s+\p{L}+)?$/u.test(value) && value.length <= 6 ? "number" : "body";
 
-function PairRow({ pair, horizontal, density }: { pair: Pair; horizontal: boolean; density: ThemeDensity }) {
-  const label = (
-    <kit.KitText role="caption" tone="muted" part="label" density={density}>
-      {pair.label}
-    </kit.KitText>
-  );
-  const value = (
-    <kit.KitText role={valueRole(pair.value)} part="value" density="comfortable">
-      {pair.value}
-    </kit.KitText>
-  );
+// prettier-ignore
+function PairRow({ pair, horizontal, density, loading }: {
+  pair: Pair; horizontal: boolean; density: ThemeDensity; loading: boolean;
+}) {
+  const lead = pair.icon && <kit.KitIcon name={pair.icon} tone="muted" part="icon" decorative={loading} />;
+  const role = valueRole(pair.value);
   return (
     <kit.KitRow
-      item={pair.id}
+      {...(loading ? { part: null } : { item: pair.id })}
       label={pair.label}
-      tone={pair.tone}
-      mark={pair.mark}
+      {...(!loading && { tone: pair.tone, mark: pair.mark })}
+      inline={!horizontal}
       density={density}
-      leading={pair.icon ? <kit.KitIcon name={pair.icon} tone="muted" part="icon" /> : undefined}
+      leading={lead}
     >
       <kit.KitGrid arrange={horizontal ? "grid" : "rows"} density={density}>
-        {label}
-        {value}
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", pair.label]]} />
+          : <kit.KitText role="caption" tone="muted" part="label" density={density}>{pair.label}</kit.KitText>}
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[[role, pair.value]]} />
+          : <kit.KitText role={role} part="value" density="comfortable">{pair.value}</kit.KitText>}
       </kit.KitGrid>
     </kit.KitRow>
   );
-}
-
-// prettier-ignore
-function LoadingPair({ pair, grid, density }: { pair: Pair; grid: boolean; density: ThemeDensity }) {
-  if (grid) return <kit.KitSkeleton shape="pairs" density={density} lead={pair.icon ? "dot" : "none"} />;
-  return <kit.KitRow label={pair.label} part={null} density={density}>
-    <kit.KitSkeleton shape="figure" inset="none" density="comfortable" split
-      content={[["caption", pair.label], [valueRole(pair.value), pair.value]]} />
-  </kit.KitRow>;
 }
 
 // prettier-ignore
@@ -175,11 +163,11 @@ export function KeyValue({ arrange, pairs, surface, density: requestedDensity }:
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const grid = arrange === "grid";
   const spacing = grid ? "compact" : density;
-  const drawPairs = () => pairs.map((pair) => state === "loading"
-    ? <LoadingPair key={pair.id} {...{ pair, grid }} density={spacing} />
-    : <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} />);
+  const drawPairs = () => pairs.map((pair) => (
+    <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} loading={state === "loading"} />
+  ));
   return (
-    <kit.KitCard surface={surface} density={density} part="root">
+    <kit.KitCard surface={surface} density={density} part="root" padded={grid && state !== "empty"}>
       {state === "empty" ? <kit.KitEmpty part="label" />
         : <kit.KitGrid arrange={arrange} density={spacing}>{drawPairs()}</kit.KitGrid>}
     </kit.KitCard>

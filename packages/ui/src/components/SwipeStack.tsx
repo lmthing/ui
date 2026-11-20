@@ -124,7 +124,42 @@ export const probes = [
   read("Skip this one", { address: "s1/r1", action: "swipe" }),
 ] satisfies Probe[];
 
-export function SwipeStack({ cards, density: requestedDensity }: Props<typeof props, typeof meta>) {
+type StackProps = Props<typeof props, typeof meta>;
+
+function SwipeCard({ card, compact }: { card: StackProps["cards"][number]; compact: boolean }) {
+  const photo = card.photo && <KitPhoto photo={card.photo} shape="wide" part="photo" label={card.title} />;
+  const title = (
+    <KitText role="heading" part={null} density="comfortable">
+      {card.title}
+    </KitText>
+  );
+  const detail = card.meta && (
+    <KitText role="caption" tone="muted" part="meta">
+      {card.meta}
+    </KitText>
+  );
+  if (compact)
+    return (
+      <KitCard style="plain" part="title" density="compact" padded>
+        <KitContent density="compact" inset={photo ? "md" : "none"}>
+          {photo}
+          {title}
+          {detail}
+        </KitContent>
+      </KitCard>
+    );
+  return (
+    <KitCard style="plain" part="title" density="comfortable" padded>
+      {photo}
+      <KitContent density="comfortable">
+        {title}
+        {detail}
+      </KitContent>
+    </KitCard>
+  );
+}
+
+export function SwipeStack({ cards, density: requestedDensity }: StackProps) {
   const state = useComponentState();
   const density = useVariant("density", meta.variants.density, requestedDensity);
   if (state === "empty") {
@@ -140,21 +175,7 @@ export function SwipeStack({ cards, density: requestedDensity }: Props<typeof pr
         cards={cards.map((card) => ({
           id: card.id,
           label: card.title,
-          children: (
-            <KitCard style="plain" part="title" density={density} padded>
-              {card.photo && <KitPhoto photo={card.photo} shape="wide" part="photo" label={card.title} />}
-              <KitContent density={density}>
-                <KitText role="heading" part={null} density="comfortable">
-                  {card.title}
-                </KitText>
-                {card.meta && (
-                  <KitText role="caption" tone="muted" part="meta" density={density}>
-                    {card.meta}
-                  </KitText>
-                )}
-              </KitContent>
-            </KitCard>
-          ),
+          children: <SwipeCard card={card} compact={density === "compact"} />,
         }))}
       />
     </KitCard>
