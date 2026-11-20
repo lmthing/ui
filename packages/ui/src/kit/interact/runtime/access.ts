@@ -117,7 +117,14 @@ function read(ctx: ControllerContext) {
   if (ctx.status.confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
-  const reading = readControls(visible, ctx.defs, ctx.valuesOf(), ctx.options.lang, ctx.disabledParts);
+  const reading = readControls(
+    visible,
+    ctx.defs,
+    ctx.valuesOf(),
+    ctx.options.lang,
+    ctx.disabledParts,
+    ctx.options.deviceData,
+  );
   if (ctx.standalone) return reading;
   return [
     reading,

@@ -3,6 +3,7 @@ import {
   readComponent,
   readScreen,
   type Definition,
+  type DeviceData,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -27,12 +28,12 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
     ...def,
     meta: {
       ...def.meta,
-      read: (input, state, lang) => {
+      read: (input, state, lang, deviceData) => {
         const own = Object.keys(def.meta.actions?.parts ?? {}).filter((part) => parts.includes(part));
         const projected = projectValue(input as Values, address, own, values);
         const items = def.meta.items?.key;
         const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang);
+        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData);
         const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter((part) => parts.includes(part));
         return read(
           {
@@ -43,6 +44,7 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
           },
           state,
           lang,
+          deviceData,
         );
       },
     },
@@ -55,18 +57,25 @@ export function readControls(
   values: Values,
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
+  deviceData?: DeviceData,
 ): string {
   const migrated = migrateScreen(screen, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang)
-    : readScreen(screen, defs, values, lang);
+    ? readKeypads(migrated, defs, values, lang, deviceData)
+    : readScreen(screen, defs, values, lang, deviceData);
   return disabled?.size
     ? read.replace(typeTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
 }
 
-function readKeypads(screen: ScreenLike, defs: Record<string, Definition>, values: Values, lang?: string) {
+function readKeypads(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+  lang?: string,
+  deviceData?: DeviceData,
+) {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -76,7 +85,7 @@ function readKeypads(screen: ScreenLike, defs: Record<string, Definition>, value
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang)
+        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
         : [`${id} ${c} (unknown)`];
     }),
   ].join("\n");

@@ -3,6 +3,7 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
+import type { DeviceData } from "../agent";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
@@ -121,10 +122,14 @@ export type Meta = {
   /** Named component parts with independent destinations and explicit offers. */
   selections?: Readonly<Record<string, NamedSelection>>;
   live?: LiveActionInputs;
+  /** Record kinds this component may read from the host, never from Writer props. */
+  deviceData?: readonly string[];
+  /** Deterministic synthetic records for gallery and look cells only. */
+  previewDeviceData?: (cell: { input: Readonly<Record<string, unknown>>; state: StateName }) => DeviceData;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string) => string[];
+  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /**
