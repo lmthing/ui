@@ -3,7 +3,7 @@ import { XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitText, shifted, surfaceOf } from "../text";
+import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import { KitRow } from "../surface";
 import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import type { Drawing } from "./matrix-layout";
@@ -13,7 +13,6 @@ type ColumnsProps = Drawing & {
   style?: "columns" | "stack";
   move?: ColumnMove;
 };
-
 type CardProps = {
   column: ColumnsProps["columns"][number];
   loading: boolean;
@@ -58,14 +57,12 @@ type ColumnItem = {
   goto?: string | undefined;
   children: ReactNode;
 };
-
 type ColumnMove = {
   cards: readonly ColumnItem[];
   caption: string;
   /** Accessible name for the button that moves this card to the given column. */
   label: (destination: string, card: string) => string;
 };
-
 type DestinationProps = { destination: string; name: string; press?: (() => void) | undefined };
 function Destination({ destination, name, press }: DestinationProps) {
   const ks = useKitStyle();
@@ -110,7 +107,12 @@ function ItemRoot({ card, destinations, caption, label, loading }: ItemProps) {
   const { controller, interactive } = useKit();
   const offered = !loading && interactive && controller?.actionsAt(address.testID).includes("move");
   const row = (
-    <KitRow label={card.label} goto={card.goto} inset="none">
+    <KitRow
+      label={card.label}
+      goto={card.goto}
+      inset="none"
+      trailing={card.goto && <KitIcon name="chevron_right" decorative />}
+    >
       {card.children}
     </KitRow>
   );
@@ -146,7 +148,6 @@ function ItemRoot({ card, destinations, caption, label, loading }: ItemProps) {
     </YStack>
   );
 }
-
 function MovableColumnItem(props: ItemProps) {
   const context = usePartContext();
   return (
