@@ -57,6 +57,12 @@ export type SocialWords = {
     join: string;
     log: string;
   };
+  invite: {
+    copy: string;
+    share: string;
+    qr: string;
+    joined: (count: string, form: LDMLPluralRule) => string;
+  };
 };
 
 export const en = {
@@ -119,5 +125,11 @@ export const en = {
     leader: (name, amount) => `${name}, ${amount}`,
     join: "Join challenge",
     log: "Log contribution",
+  },
+  invite: {
+    copy: "Copy code",
+    share: "Share invite",
+    qr: "Invite QR code",
+    joined: (count, form) => `${count} ${form === "one" ? "person" : "people"} joined`,
   },
 } satisfies SocialWords;
