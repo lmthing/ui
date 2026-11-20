@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { weatherCopy, weatherReading } from "../copy";
+import { weatherCopy } from "../copy";
 import { tripsWordsFor } from "../lang";
 
 // Core first: Stats/default cannot request a place's service-backed forecast with daily conditions.
@@ -31,8 +31,19 @@ export const meta = {
     const sample = state === "error" ? { kind: "offline" } : input.from ? typicalExample : forecastExample;
     return { weather: [{ ...sample, ...query }] };
   },
-  read: (input, state, lang, data): string[] =>
-    state === "filled" ? weatherReading(input as z.output<typeof props>, data, lang) : [],
+  read: (projected, state, lang, data): string[] => {
+    if (state !== "filled") return [];
+    const input = projected as z.output<typeof props>;
+    const copy = weatherDisplay(input, data, lang);
+    if (copy.notice) return [copy.notice.title, copy.notice.sub];
+    const { reading } = tripsWordsFor(lang).weather;
+    const { range, condition } = copy.summary;
+    return [
+      copy.heading,
+      reading(input.detail === "brief" ? [range] : [range, condition]),
+      ...copy.next.map((day) => reading([day.label, day.condition, day.range, day.rain])),
+    ];
+  },
 } as const satisfies c.Meta;
 
 export const props = z
@@ -93,11 +104,19 @@ export const probes = [
 
 type WeatherProps = c.Props<typeof props, typeof meta>;
 type Density = NonNullable<WeatherProps["density"]>;
-type WeatherCopy = ReturnType<typeof weatherCopy>;
+type WeatherDisplay = ReturnType<typeof weatherDisplay>;
 const stripColumns = 3;
 
+function weatherDisplay(...[input, data, lang, failed]: Parameters<typeof weatherCopy>) {
+  const copy = weatherCopy(input, data, lang, failed);
+  if (copy.notice) return copy;
+  const { todayHeading, celsiusRange } = tripsWordsFor(lang).weather;
+  const heading = copy.today ? todayHeading(copy.today, copy.heading) : copy.heading;
+  return { ...copy, heading, summary: { ...copy.summary, range: celsiusRange(copy.summary.range) } };
+}
+
 // prettier-ignore
-function ForecastStrip({ next, density }: { next: NonNullable<WeatherCopy["next"]>; density: Density }) {
+function ForecastStrip({ next, density }: { next: NonNullable<WeatherDisplay["next"]>; density: Density }) {
   const { words } = kit.useWords(tripsWordsFor);
   const cells = next.map((day) => (
     <kit.KitRow key={day.date} label={words.weather.dayLabel(day.label, day.condition)} role="group" inline density={density}>
@@ -121,20 +140,11 @@ function ForecastStrip({ next, density }: { next: NonNullable<WeatherCopy["next"
 }
 
 // prettier-ignore
-function WeatherSummary({ summary, density, detail }: {
-  summary: NonNullable<WeatherCopy["summary"]>;
-  density: Density;
-  detail: WeatherProps["detail"];
-}) {
-  const { words } = kit.useWords(tripsWordsFor);
+function WeatherSummary({ summary, density, detail }: { summary: NonNullable<WeatherDisplay["summary"]>; density: Density; detail: WeatherProps["detail"] }) {
   return (
     <kit.KitRow label={summary.reading} role="group" inline density={density} lineRole="number" leading={<kit.KitIcon name={summary.icon} scale="lg" decorative />}>
-      <kit.KitText part="today" role="number" density={density} tabular lines={1}>{words.weather.celsiusRange(summary.range)}</kit.KitText>
-      {detail === "full" && (
-        <kit.KitText part="condition" role="body" tone="muted" density={density}>
-          {summary.condition}
-        </kit.KitText>
-      )}
+      <kit.KitText part="today" role="number" density={density} tabular lines={1}>{summary.range}</kit.KitText>
+      {detail === "full" && <kit.KitText part="condition" role="body" tone="muted" density={density}>{summary.condition}</kit.KitText>}
     </kit.KitRow>
   );
 }
@@ -143,15 +153,12 @@ function WeatherSummary({ summary, density, detail }: {
 function WeatherLoading({ place, density, detail }: { place: string; density: Density; detail: WeatherProps["detail"] }) {
   const { words: { weather }, lang } = kit.useWords(tripsWordsFor);
   // Use sample strings only to measure the shapes of the hidden loading bars.
-  const sample = weatherCopy({ place }, { weather: [{ ...forecastExample, place }] }, lang);
+  const sample = weatherDisplay({ place }, { weather: [{ ...forecastExample, place }] }, lang);
   if (sample.notice) return null;
-  const temperatures = weather.celsiusRange(sample.summary.range);
   const condition = detail === "full" ? sample.summary.condition : undefined;
   return <>
-    <kit.KitSkeleton shape="figure" inset="none" density={density}
-      content={[["heading", place], ["body", weather.todayHeading(weather.today, sample.heading)]]} />
-    <kit.KitSkeleton shape="figure" lead="dot" inset="none" density={density}
-      content={[["number", temperatures], ["body", condition]]} />
+    <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["heading", place], ["body", sample.heading]]} />
+    <kit.KitSkeleton shape="figure" lead="dot" inset="none" density={density} content={[["number", sample.summary.range], ["body", condition]]} />
     <kit.KitContent group="response" density={density}>
       <kit.KitGrid columns={stripColumns} density={density}>
         {sample.next.map((day) => (
@@ -169,9 +176,8 @@ export function Weather(input: WeatherProps) {
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const { words, lang } = kit.useWords(tripsWordsFor);
-  const data = kit.useDeviceData();
-  const copy = weatherCopy(input, data, lang, state === "error");
+  const { lang } = kit.useWords();
+  const copy = weatherDisplay(input, kit.useDeviceData(), lang, state === "error");
   return (
     <kit.KitCard part="root" padded density={density} surface={surface}>
       {state === "loading" ? <WeatherLoading place={input.place} {...{ density, detail }} /> : copy.notice ? (
@@ -183,9 +189,7 @@ export function Weather(input: WeatherProps) {
         <>
           <kit.KitContent density={density}>
             <kit.KitText part="place" role="heading" density={density}>{input.place}</kit.KitText>
-            <kit.KitText part={null} role="body" tone="muted" density={density}>
-              {copy.today ? words.weather.todayHeading(copy.today, copy.heading) : copy.heading}
-            </kit.KitText>
+            <kit.KitText part={null} role="body" tone="muted" density={density}>{copy.heading}</kit.KitText>
           </kit.KitContent>
           <WeatherSummary summary={copy.summary} {...{ density, detail }} />
           {copy.next.length > 0 && <ForecastStrip next={copy.next} density={density} />}

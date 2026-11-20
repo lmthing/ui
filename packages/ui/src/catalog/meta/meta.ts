@@ -4,6 +4,7 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData } from "../agent";
+
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -159,24 +160,7 @@ export type Meta = {
    */
   codeOwned?: boolean;
 };
-export type BaseRoles = Record<
-  "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
-  string
->;
-export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
-export type PresetMeta = {
-  id: string;
-  mood: string;
-  font: "humanist" | "grotesk" | "rounded" | "serif";
-  numbers: "regular" | "condensed";
-  /** `strong` sets every text role one step heavier (bold preset). */
-  weight: "regular" | "strong";
-  shape: "sharp" | "soft" | "round";
-  density: "compact" | "regular" | "airy";
-  surface: "soft" | "solid" | "hairline";
-  roles: { light: BaseRoles; dark: BaseRoles };
-};
-export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
+
 export type PackMeta = {
   id: PackId;
   example: string;
