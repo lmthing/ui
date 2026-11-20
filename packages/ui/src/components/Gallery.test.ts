@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  migrateLine,
   placeholderTitle,
   stampItemIds,
   type CastLike,
@@ -23,7 +24,9 @@ describe("Gallery schema", () => {
     expect(
       props.parse({ photos: [{ photo: "lib:entry", caption: "  First  ", goto: "first" }, pair[1]] }),
     ).toEqual({
-      style: "grid",
+      arrange: "grid",
+      aspect: "auto",
+      detail: "full",
       photos: [
         { photo: "lib:entry", caption: "First", goto: "first", linked: true },
         { photo: "local:1", linked: false },
@@ -35,32 +38,22 @@ describe("Gallery schema", () => {
     { photos: [] },
     { photos: [pair[0]] },
     { photos: Array.from({ length: 7 }, () => pair[0]) },
-    ...[
-      { photo: "" },
-      { photo: 4 },
-      { photo: "https://example.org/image.png" },
-      { photo: "lib:Bad ID" },
-      { photo: `lib:${"a".repeat(61)}` },
-      { photo: "local:0" },
-      { photo: "lib:entry", caption: "" },
-      { photo: "lib:entry", caption: "   " },
-      { photo: "lib:entry", caption: "a".repeat(25) },
-      { photo: "lib:entry", caption: 4 },
-      { photo: "lib:entry", goto: "Bad ID" },
-      { photo: "lib:entry", goto: "a".repeat(65) },
-      { photo: "lib:entry", id: "r1" },
-      { photo: "lib:entry", linked: true },
-      { photo: "lib:entry", root: "first" },
-      { photo: "lib:entry", pixels: 4 },
-    ].map((entry) => ({ photos: [entry, pair[1]] })),
+    ...["", 4, "https://example.org/image.png", "lib:Bad ID", `lib:${"a".repeat(61)}`, "local:0"].map(
+      (photo) => ({ photos: [{ photo }, pair[1]] }),
+    ),
+    ...["", "   ", "a".repeat(25), 4].map((caption) => ({ photos: [{ ...pair[0], caption }, pair[1]] })),
+    ...["Bad ID", "a".repeat(65)].map((goto) => ({ photos: [{ ...pair[0], goto }, pair[1]] })),
+    ...Object.entries({ id: "r1", linked: true, root: "first", pixels: 4 }).map(([key, value]) => ({
+      photos: [{ ...pair[0], [key]: value }, pair[1]],
+    })),
     { photos: pair, style: "wide" },
     { photos: pair, color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths and every supported count/style", () => {
     const entry = { photo: `lib:${"a".repeat(60)}`, caption: "a".repeat(24), goto: "a".repeat(64) };
-    for (const style of ["grid", "strip"])
+    for (const arrange of ["grid", "strip"])
       for (const count of [2, 3, 4, 5, 6])
-        expect(props.safeParse({ style, photos: Array.from({ length: count }, () => entry) }).success).toBe(
+        expect(props.safeParse({ arrange, photos: Array.from({ length: count }, () => entry) }).success).toBe(
           true,
         );
   });
@@ -68,7 +61,7 @@ describe("Gallery schema", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["photos"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["photos"][number]["caption"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"grid" | "strip" | "carousel">();
+    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"carousel" | undefined>();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
@@ -142,29 +135,23 @@ describe("Gallery metadata and probes", () => {
     expect(meta.pick).toContain("Photo");
     expect(meta.pick).toContain("List");
   });
-  it("has two choose, one write and one read probe", () => {
-    expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
-    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Photo")).toBeDefined();
-    expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Gallery")).toBeDefined();
-    expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Gallery" });
-    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
-      screen: 0,
-      expect: { address: "g1/r1", action: "press" },
-    });
+  // prettier-ignore
+  it("registers Gallery and its choose, write and read probes", () => {
     const registry = createRegistry();
-    expect(registry.schema("Gallery")).toBe(props);
-    expect(registry.resolve("g-a-l-l-e-r-y")).toBe("Gallery");
+    expect([registry.schema("Gallery"), registry.resolve("g-a-l-l-e-r-y")]).toEqual([props, "Gallery"]);
+    expect(probes.filter((probe) => probe.kind === "choose").map(({ expect }) => expect)).toEqual([
+      "Gallery",
+      "Photo",
+    ]);
+    expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Gallery" });
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({ screen: 0, expect: { address: "g1/r1", action: "press" } });
   });
 });
 
+// prettier-ignore
 describe("Gallery view", () => {
   it.each([2, 3, 4, 5, 6])("renders %i photos in the required grid columns", (count) => {
-    const html = renderInstance(
-      "Gallery",
-      { photos: Array.from({ length: count }, () => pair[0]) },
-      "filled",
-      theme,
-    );
+    const html = renderInstance("Gallery", { photos: Array.from({ length: count }, () => pair[0]) }, "filled", theme);
     const grid = elementAt(html, "home/c1/root").children[0]!;
     const columns = count === 3 || count === 6 ? 3 : 2;
     expect(grid.children).toHaveLength(Math.ceil(count / columns));
@@ -174,12 +161,11 @@ describe("Gallery view", () => {
   });
   it.each(examples)("draws themed photos and captions in the requested layout", (example) => {
     const html = renderInstance("Gallery", example, "filled", theme);
-    for (const [index, entry] of example.photos.entries()) {
+    const parsed = props.parse(example);
+    for (const [index, entry] of parsed.photos.entries()) {
       const base = `home/c1/r${index + 1}`;
       expect(elementAt(html, `${base}/photo`).attributes).toContain('role="img"');
-      expect(styleAt(html, `${base}/photo`)).toContain(
-        `aspect-ratio:${example.style === "carousel" ? 16 / 9 : 1}`,
-      );
+      expect(styleAt(html, `${base}/photo`)).toContain(`aspect-ratio:${parsed.style === "carousel" || parsed.aspect === "wide" ? 16 / 9 : 1}`);
       expect(html.includes(`data-testid="${base}/caption"`)).toBe(Boolean(entry.caption));
       if (entry.caption) expect(html).toContain(entry.caption);
     }
@@ -196,4 +182,17 @@ describe("Gallery view", () => {
     expect(empty).toContain("Nothing here yet");
     expect(empty).not.toContain('data-testid="home/c1/r1/root"');
   });
+});
+
+// prettier-ignore
+it.each(["strip", "grid"] as const)("migrates the legacy %s layout and keeps link addresses", (style) => {
+  const legacy = { c: "Gallery", id: "g1", style, photos: [{ ...pair[0], caption: "First", goto: "first" }, pair[1]] };
+  const { c, id, ...input } = migrateLine(legacy);
+  expect({ c, id }).toEqual({ c: "Gallery", id: "g1" });
+  expect(props.safeParse({ style, photos: legacy.photos }).success).toBe(false);
+  expect(viewProps(input)).toMatchObject({ arrange: style, photos: [{ id: "r1" }, { id: "r2" }] });
+  expect(migrateLine({ ...legacy, arrange: "grid" })).toMatchObject({ arrange: "grid" });
+  const brief = viewProps({ ...input, detail: "brief" });
+  expect(affordancesOf(meta, brief, "g1")).toEqual(affordancesOf(meta, viewProps(input), "g1"));
+  expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["caption"] });
 });

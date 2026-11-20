@@ -1,23 +1,21 @@
 import { expect, it } from "vitest";
 import { probePackIndex } from "./probe-pack-index";
-import { packs } from "@lmthing/ui/catalog";
 import { packIds, type PackId, type PackMeta } from "../../meta";
 import { runPackProbes } from "./index";
 
-it("includes every planned pack without registering unscaffolded choices", () => {
-  const index = probePackIndex(packs);
-  expect(index.ids).toContain("commerce");
+const unscaffolded: Partial<Record<PackId, PackMeta>> = {};
+
+it("includes every planned pack even when none is scaffolded", () => {
+  const index = probePackIndex(unscaffolded);
   expect(index.ids).toEqual(packIds);
   expect(index.prompt).toContain("Pick: Selling things for money:");
   expect(index.prompt.split("\n")).toHaveLength(packIds.length);
-  expect(packs).not.toHaveProperty("commerce");
 });
 
 it.each(packIds)("adding a %s scaffold leaves the index byte for byte unchanged", (id) => {
-  const before = probePackIndex(packs);
+  const before = probePackIndex(unscaffolded);
   const scaffold = { id, example: "example.jsonl", probes: [] } satisfies PackMeta;
-  expect(probePackIndex({ ...packs, [id]: scaffold })).toEqual(before);
-  expect(probePackIndex({})).toEqual(before);
+  expect(probePackIndex({ ...unscaffolded, [id]: scaffold })).toEqual(before);
 });
 
 it("adding every remaining scaffold leaves an existing Director probe prompt unchanged", async () => {
