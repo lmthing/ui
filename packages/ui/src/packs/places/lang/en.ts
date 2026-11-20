@@ -7,6 +7,9 @@ export const en = {
   openNow: "Open now",
   closesAt: (time: string) => `Closes ${time}`,
   distanceAway: (value: string) => `${value} km away`,
+  addressDirections: "Directions",
+  addressCopy: "Copy address",
+  addressCall: (phone: string) => `Call ${phone}`,
   deliveryStep: {
     preparing: "Preparing",
     picked_up: "Picked up",

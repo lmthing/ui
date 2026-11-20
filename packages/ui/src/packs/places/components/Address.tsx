@@ -1,10 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { addressReading } from "../copy";
+import { placesWordsFor } from "../lang";
 
-// Core first: KeyValue/grid cannot pair an address with a map tile and copy, directions and call actions.
+// Core first: KeyValue with arrange="grid" cannot pair an address with a map tile and copy, directions and call actions.
 export const meta = {
   id: "Address",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Find a venue, copy its address, or call it.",
   pick: "One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).",
@@ -24,7 +27,7 @@ export const meta = {
     parts: { copy: ["press"], directions: ["press"], call: ["press"] },
     when: { call: { callable: true } },
   },
-  read: (input): string[] => (input as z.output<typeof props>).lines.map((line) => JSON.stringify(line)),
+  read: (input, _state, lang): string[] => addressReading(input as z.output<typeof props>, lang),
 } as const satisfies c.Meta;
 
 export const props = z
@@ -49,11 +52,11 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 const nurseryAddress = {
   lines: ["14 Greenhouse Lane", "Bristol BS1 4DJ"],
   phone: "0117 496 0124",
-  note: "Use the side gate for the potting shed.",
+  note: "Use the side gate by the shed.",
 };
 export const examples = [
   nurseryAddress,
-  { lines: ["8 Linden Road", "Clifton", "Bristol BS8 2BE"], density: "compact" },
+  { lines: ["Juniper Dog Park", "8 Linden Road", "Bristol BS8 2BE"] },
   { ...nurseryAddress, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
@@ -77,6 +80,55 @@ export const probes = [
     address: "a1/copy",
     action: "press",
   }),
-  read("Get directions to the nursery", { address: "a1/directions", action: "press" }),
+  read("Get directions to the nursery. Use the button's address exactly as shown on the screen read.", {
+    address: "a1/directions",
+    action: "press",
+  }),
   read("Call the nursery", { address: "a1/call", action: "press" }),
 ] satisfies c.Probe[];
+
+export function Address(input: c.Props<typeof props, typeof meta>) {
+  const { lines, phone, note } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { words } = kit.useWords(placesWordsFor);
+  const [street, ...rest] = lines;
+  const callLabel = phone && words.addressCall(phone);
+  return (
+    <kit.KitCard part="root" padded density={density}>
+      <kit.KitContent density={density}>
+        <kit.KitText part="lines" role="title" density={density}>
+          {street}
+        </kit.KitText>
+        {rest.map((line, index) => (
+          <kit.KitText key={index} part={null} density={density}>
+            {line}
+          </kit.KitText>
+        ))}
+        {detail === "full" && note && (
+          <kit.KitContent density={density} group="response">
+            <kit.KitText part="note" tone="muted" density={density}>
+              {note}
+            </kit.KitText>
+          </kit.KitContent>
+        )}
+      </kit.KitContent>
+      <kit.KitContent density={density} group="response">
+        <kit.KitGrid density={density}>
+          <kit.KitMapTile count={1} part="map" />
+          <kit.KitContent density={density}>
+            <kit.KitAction full part="directions" action="press" label={words.addressDirections} />
+            <kit.KitAction full part="copy" action="press" kind="secondary" label={words.addressCopy} />
+          </kit.KitContent>
+        </kit.KitGrid>
+        {callLabel && (
+          <kit.KitRow inline part="call" role="button" label={callLabel} density={density}>
+            <kit.KitText role="label" tone="accent" part={null} density={density}>
+              {callLabel}
+            </kit.KitText>
+          </kit.KitRow>
+        )}
+      </kit.KitContent>
+    </kit.KitCard>
+  );
+}
