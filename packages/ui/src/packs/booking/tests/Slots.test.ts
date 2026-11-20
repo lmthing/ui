@@ -180,13 +180,13 @@ describe("Slots selectable item parts", () => {
     expect(html).not.toContain('role="button"');
     expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\//);
     expect(html).toContain(state === "empty" ? slotLabels.empty : loadingLabel);
-    if (state === "empty") expect(html).toContain(emptyLine("appointment"));
+    if (state === "empty") expect(html).not.toContain(emptyLine("appointment"));
     expect(readComponent(components.Slots, examples[0], "s1", state)).toEqual([
       `s1 Slots ${state === "empty" ? "(empty)" : "(loading)"}`,
     ]);
   });
   it("computes list end times through midnight and preserves exact duration in the reading", () => {
-    const input = examples[2]!;
+    const input = examples[3]!;
     const html = renderInstance("Slots", input, "filled", theme);
     const reading = readComponent(components.Slots, input, "s1").join("\n");
     for (const line of [durationLine(600), slotEndLine("23:59", 600), slotLabels.taken]) {

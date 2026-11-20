@@ -6,7 +6,6 @@ import {
   KitSlotGrid,
   KitText,
   useComponentState,
-  useEmptyThing,
   useVariant,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
@@ -16,7 +15,6 @@ import {
   clockLine,
   detailOf,
   durationLine,
-  emptyLine,
   itemsOf,
   placeholderValue,
   probesFor,
@@ -96,20 +94,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     minutes: 30,
   };
 }
+const plantCareStarts = {
+  times: [
+    { time: "09:00", taken: false },
+    { time: "09:30", taken: true },
+    { time: "10:00", taken: false },
+    { time: "10:30", taken: false },
+    { time: "11:00", taken: true },
+    { time: "11:30", taken: false },
+  ],
+  at: "09:00",
+  minutes: 30,
+};
 export const examples = [
-  // Ledge: half-hour plant-care visits.
-  {
-    times: [
-      { time: "09:00", taken: false },
-      { time: "09:30", taken: true },
-      { time: "10:00", taken: false },
-      { time: "10:30", taken: false },
-      { time: "11:00", taken: true },
-      { time: "11:30", taken: false },
-    ],
-    at: "09:00",
-    minutes: 30,
-  },
+  // Ledge: the same half-hour starts in both layouts for comparison.
+  plantCareStarts,
+  { ...plantCareStarts, arrange: "rows" },
   // Trot: hour-long dog walks.
   {
     arrange: "rows",
@@ -142,7 +142,7 @@ export const probes = [
     variant: { axis: "arrange", value: "rows" },
   },
   read("Choose the free 09:00 time", { address: "s1/r1", action: "select" }),
-  { ...read("Choose the free 16:00 time", { address: "s1/r3", action: "select" }), screen: 1 },
+  { ...read("Choose the free 16:00 time", { address: "s1/r3", action: "select" }), screen: 2 },
 ] satisfies Probe[];
 
 export function Slots(input: Props<typeof props, typeof meta>) {
@@ -151,18 +151,11 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(bookingWordsFor);
   const { slotLabels } = words;
   const state = useComponentState();
-  const thing = useEmptyThing();
   const duration = durationLine(minutes, lang);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitEmpty
-          icon="clock"
-          title={slotLabels.empty}
-          sub={emptyLine(thing, lang)}
-          part="minutes"
-          decorativeIcon
-        />
+        <KitEmpty icon="clock" title={slotLabels.empty} part="minutes" decorativeIcon />
       </KitCard>
     );
   }

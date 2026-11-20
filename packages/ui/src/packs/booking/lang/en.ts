@@ -6,7 +6,7 @@ export const en = {
   queueCompact: (count: string) => `${count} ahead`,
   queuePosition: (label: string, position: string) => `${label}: ${position}`,
   quadrillion: (count: string) => `${count}Q`,
-  slotTomorrow: " +1d",
+  slotTomorrow: " next day",
   anyoneLabel: "Anyone",
   appointmentLabels: {
     reschedule: "Reschedule",
