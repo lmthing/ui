@@ -132,3 +132,21 @@ it("does not offer linked actions while loading", () => {
   });
   expect(readScreen(loading, defs)).not.toContain("[pair/flip press]");
 });
+
+it.each(["mounted", "standalone"])("keeps a confirmed swap pending until acceptance (%s)", (mode) => {
+  const guarded = { ...def, meta: { ...def.meta, confirmParts: ["flip"] } };
+  const store = createInteractionStore();
+  const options = { screen, defs: { [def.meta.id]: guarded }, store, deviceData };
+  const runtime =
+    mode === "mounted"
+      ? createScreenController(options)
+      : createAgentAccess({ ...options, current: () => screen });
+  const before = runtime.read();
+  expect(runtime.act(swap).ok).toBe(true);
+  expect(runtime.read()).toContain("[confirm/confirm press]");
+  expect(runtime.act({ address: "confirm/cancel", action: "dismiss" }).ok).toBe(true);
+  expect(runtime.read().trim()).toBe(before.trim());
+  expect(runtime.act(swap).ok).toBe(true);
+  expect(runtime.act({ address: "confirm/confirm", action: "press" }).ok).toBe(true);
+  expectReading(runtime.read(), "6", "3");
+});

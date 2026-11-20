@@ -35,7 +35,11 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
       const meta = options.defs[c]?.meta;
       return (
         meta?.confirmParts?.length &&
-        (meta.session || meta.successActions?.length || meta.errorActions?.length || meta.live?.derive)
+        (meta.session ||
+          meta.successActions?.length ||
+          meta.errorActions?.length ||
+          meta.live?.derive ||
+          meta.linkedEdits)
       );
     })
   )

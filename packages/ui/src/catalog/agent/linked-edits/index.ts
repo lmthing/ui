@@ -3,13 +3,13 @@ import type { Definition } from "../../probes";
 import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, ScreenLike, Values } from "../index";
 
-const slot = "$linked";
+export const linkedEditKey = "$linked";
 type Get = (part: string) => unknown;
 type Spec = NonNullable<Meta["linkedEdits"]>;
 type State = Parameters<Spec["project"]>[1];
 
 function linkedState(get: Get): State {
-  return (get(slot) as State | undefined) ?? { swapped: false };
+  return (get(linkedEditKey) as State | undefined) ?? { swapped: false };
 }
 
 export function linkedInput(meta: Meta, part: string) {
@@ -44,7 +44,7 @@ export function stageLinkedEdit(
   if (!meta?.linkedEdits) return;
   const part = parts.join("/") || "root";
   const base = `${screen.id}/${id}`;
-  const key = `${base}/${slot}`;
+  const key = `${base}/${linkedEditKey}`;
   const state = linkedState((part) => next[`${base}/${part}`]);
   if (found.action === "type" && typeof value === "string" && linkedInput(meta, part))
     next[key] = { ...state, edit: { part, text: value } } satisfies State;
