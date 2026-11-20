@@ -63,6 +63,8 @@ export function resolveKeypadValue(
 }
 
 const none = (value: unknown) => value === undefined;
+const isChoiceValue = (value: unknown): value is string | number =>
+  (typeof value === "number" && Number.isFinite(value)) || (typeof value === "string" && value.length > 0);
 
 const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> = {
   flip: [none, "flip takes no value"],
@@ -80,10 +82,7 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
   decrement: [none, "decrement takes no value"],
   toggle: [(v) => none(v) || typeof v === "boolean", "toggle takes nothing or true/false"],
   check: [(v) => none(v) || typeof v === "boolean", "check takes nothing or true/false"],
-  select: [
-    (v) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && v.length > 0),
-    "select takes an index or a label",
-  ],
+  select: [isChoiceValue, "select takes an index or a label"],
   type: [(v) => typeof v === "string", "type takes text"],
   set: [
     (v) => (typeof v === "number" && Number.isFinite(v)) || (typeof v === "string" && v.length > 0),
@@ -134,14 +133,48 @@ export function selectionOffer(meta: Meta, target: string) {
     return { prop: meta.select!.prop, choices: choices[target]!, runtime: false as const, clear: undefined };
 }
 
+type ChoiceOption = { value: string | number; label?: string };
+
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
-export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
+export function choiceOptions(meta: Meta, props: Values, target: string): ChoiceOption[] | undefined {
   const offer = selectionOffer(meta, target);
   if (!offer) return undefined;
   const source = offer.choices;
   const allowed = "prop" in source ? props[source.prop] : source;
-  const choices = Array.isArray(allowed)
-    ? allowed.filter((value) => !validateActionValue("select", value))
-    : [];
-  return offer.clear && !choices.includes(offer.clear) ? [...choices, offer.clear] : choices;
+  const choices: ChoiceOption[] = [];
+  if (Array.isArray(allowed)) {
+    for (const option of allowed as unknown[]) {
+      if (isChoiceValue(option)) choices.push({ value: option });
+      else if (
+        option &&
+        typeof option === "object" &&
+        "value" in option &&
+        isChoiceValue(option.value) &&
+        "label" in option &&
+        typeof option.label === "string" &&
+        option.label.length > 0
+      )
+        choices.push({ value: option.value, label: option.label });
+    }
+  }
+  if (offer.clear && !choices.some(({ value }) => value === offer.clear))
+    choices.push({ value: offer.clear });
+  return choices;
+}
+
+export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
+  return choiceOptions(meta, props, target)?.map(({ value }) => value);
+}
+
+export function resolveChoice(choices: ChoiceOption[], explicit: unknown) {
+  if (isChoiceValue(explicit) && choices.some(({ value }) => value === explicit)) return { value: explicit };
+  if (typeof explicit !== "string") return undefined;
+  let matched: string | number | undefined;
+  for (const { label, value } of choices) {
+    if (label !== explicit) continue;
+    // Never silently pick a different option when two values share a visible label.
+    if (matched !== undefined && matched !== value) return undefined;
+    matched = value;
+  }
+  return matched === undefined ? undefined : { value: matched };
 }

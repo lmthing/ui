@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
+import type { Meta } from "../meta";
 import { validateActionValue } from "./index";
-import { resolveKeypadValue } from "./validate-value";
+import { choiceOptions, choiceValues, resolveChoice, resolveKeypadValue } from "./validate-value";
 
 it.each(["dismiss", "play", "pause", "flip", "send", "scan"])("%s takes no value", (action) => {
   expect(validateActionValue(action, undefined)).toBeNull();
@@ -95,4 +96,44 @@ it.each([
   [3, "", {}],
 ])("rejects invalid keypad value %j from %j", (value, before, limits) => {
   expect(resolveKeypadValue(value, before, limits)).toMatchObject({ code: "invalid_value" });
+});
+
+it("normalizes mixed choices, ignores malformed options and keeps the runtime clear value", () => {
+  const meta: Meta = {
+    id: "Fixture",
+    group: "input",
+    purpose: "Choose an option",
+    pick: "Choose an option",
+    region: "body",
+    weight: 1,
+    tier: "phone",
+    realPath: "Local selection",
+    selections: { option: { prop: "current", choices: { prop: "options" }, runtime: true, clear: "none" } },
+  };
+  const props = {
+    options: [0, { value: 2, label: "Second" }, { value: 3, label: "" }, { label: "Bad" }, Infinity, null],
+  };
+  expect(choiceOptions(meta, props, "option")).toEqual([
+    { value: 0 },
+    { value: 2, label: "Second" },
+    { value: "none" },
+  ]);
+  expect(choiceValues(meta, props, "option")).toEqual([0, 2, "none"]);
+  expect(choiceValues(meta, props, "missing")).toBeUndefined();
+});
+
+it("resolves labels exactly, preserving stored values when labels collide", () => {
+  const choices = [
+    { value: 0, label: "First" },
+    { value: 1, label: "Same" },
+    { value: 2, label: "Same" },
+    { value: "First" },
+    { value: 3, label: "Third" },
+  ];
+  expect(resolveChoice(choices, "Third")).toEqual({ value: 3 });
+  expect(resolveChoice(choices, "First")).toEqual({ value: "First" });
+  expect(resolveChoice(choices, 0)).toEqual({ value: 0 });
+  expect(resolveChoice(choices, "Same")).toBeUndefined();
+  expect(resolveChoice(choices, undefined)).toBeUndefined();
+  expect(resolveChoice(choices, "third")).toBeUndefined();
 });

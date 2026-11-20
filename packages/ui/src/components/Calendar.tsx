@@ -1,15 +1,17 @@
 import { z } from "zod";
 import {
+  itemVariantProps,
   numberLine,
   wordsFor,
   probesFor,
   text,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { useWords, KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
+import { useVariant, useWords, KitCard, KitContent, KitDay, KitText, KitWeekGrid } from "../kit";
 
 export const meta = {
   id: "Calendar",
@@ -17,11 +19,15 @@ export const meta = {
   group: "data",
   purpose: "See which dates have something planned and open a day.",
   pick: "Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).",
+  writeHints: [
+    'Write JSON null for an unrequested emphasis or day tone. Never write emphasis "normal" just to apply the default. Use "quiet" only for an explicitly subdued month heading. A dot without a requested status needs only the day.',
+  ],
   region: "body",
   weight: 3,
   tier: "phone",
   realPath: "Dates with activity queried from the on-device database, with a locally selected day.",
-  items: { key: "marked", parts: ["root", "label"] },
+  variants: { emphasis: ["normal", "quiet"] },
+  items: { key: "marked", parts: ["root", "label"], variants: { tone: ["neutral", "good", "warn", "bad"] } },
   select: { prop: "selected", value: { field: "day" } },
   parts: ["root", "month"],
   states: ["filled"],
@@ -34,6 +40,7 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["week", "month"]).default("week"),
     month: text(16),
     marked: z
@@ -41,7 +48,7 @@ export const props = z
         z
           .strictObject({
             day: z.int().min(1).max(31),
-            tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
+            ...itemVariantProps(meta.items.variants),
           })
           .transform((day) => ({ ...day, mark: day.tone as typeof day.tone | undefined })),
       )
@@ -89,19 +96,18 @@ export const examples = [
     start: 1,
     days: 30,
     selected: 12,
-    marked: [
-      { day: 5, tone: "good" },
-      { day: 12, tone: "good" },
-      { day: 19, tone: "good" },
-      { day: 26, tone: "good" },
-    ],
+    marked: [{ day: 5 }, { day: 12 }, { day: 19 }, { day: 26 }],
   },
   {
     style: "week",
     month: "June 2026",
-    marked: [{ day: 8 }, { day: 9, tone: "good" }, { day: 10, tone: "warn" }, { day: 12, tone: "bad" }],
+    marked: [{ day: 12 }],
     selected: 10,
   },
+  { month: "June 2026", marked: [{ day: 12 }], selected: 10, emphasis: "quiet" },
+  { month: "June 2026", marked: [{ day: 12, tone: "good" }], selected: 10 },
+  { month: "June 2026", marked: [{ day: 12, tone: "warn" }], selected: 10 },
+  { month: "June 2026", marked: [{ day: 12, tone: "bad" }], selected: 10 },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Calendar");
@@ -111,10 +117,18 @@ export const probes = [
   write(
     "June 2026, a full month of dates, with watering planned on the 5th, 12th, 19th and 26th marked good. Open the 12th initially.",
   ),
+  {
+    ...write(
+      "Show June 2026. Give only the 12th a warning-status dot. Leave the month heading at its default, with no emphasis override.",
+    ),
+    variant: { axis: "tone", value: "warn", item: 0 },
+  },
   read("Open the 12th", { address: "c1/r12", action: "select" }),
 ] satisfies Probe[];
 
-export function Calendar({ month, marked, selected, start }: Props<typeof props, typeof meta>) {
+export function Calendar(input: Props<typeof props, typeof meta>) {
+  const { month, marked, selected, start } = input;
+  const emphasis = useVariant("emphasis", meta.variants.emphasis, input.emphasis);
   const { lang } = useWords();
   const blanks = (start - 1 + (marked[0]?.day ?? 1) - 1) % 7;
   const cells = [
@@ -132,8 +146,8 @@ export function Calendar({ month, marked, selected, start }: Props<typeof props,
   ];
   return (
     <KitCard style="plain" part="root">
-      <KitContent lineRole="heading">
-        <KitText role="heading" part="month" lines={1}>
+      <KitContent lineRole="heading" emphasis={emphasis}>
+        <KitText role="heading" part="month" lines={1} emphasis={emphasis}>
           {month}
         </KitText>
         <KitWeekGrid cells={cells} />

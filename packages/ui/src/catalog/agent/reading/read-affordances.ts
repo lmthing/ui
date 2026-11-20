@@ -2,9 +2,10 @@ import type { Definition } from "../../probes";
 import { liveInputKey } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
 import {
-  choiceValues,
+  choiceOptions,
   controlValueKey,
   partTierAt,
+  resolveChoice,
   selectionOffer,
   sessionActionProps,
   type Affordance,
@@ -34,13 +35,21 @@ export function readAffordances(
   return affordances.map((a) => {
     const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
-    const choices = a.action === "select" && choiceValues(meta, props, target);
+    const options = a.action === "select" && choiceOptions(meta, props, target);
+    const selected = options ? props[selectionOffer(meta, target)!.prop] : undefined;
+    // Advertise a label only when copying it back selects this option.
+    const choices =
+      options &&
+      options.map(({ label, value }) => ({
+        value,
+        offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
+      }));
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
     const value = linked
       ? props[linked.prop]
       : choices
-        ? props[selectionOffer(meta, target)!.prop]
+        ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
         : set
           ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
             ? undefined
@@ -54,7 +63,9 @@ export function readAffordances(
       detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
-    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
+    if (choices) {
+      detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
+    }
     return { ...a, detail: `${detail}${risk}` };
   });
 }

@@ -21,6 +21,7 @@ describe("Sparkline schema", () => {
       ...input,
       value: "€180",
       tone: "neutral",
+      detail: "full",
     });
   });
   it.each([
@@ -40,6 +41,8 @@ describe("Sparkline schema", () => {
     { ...input, points: [1, Infinity, 3] },
     { ...input, points: [1, -Infinity, 3] },
     { ...input, tone: "accent" },
+    { ...input, detail: "compact" },
+    { ...input, density: "brief" },
     { ...input, color: "red" },
     { ...input, pixels: 44 },
     { ...input, id: "s1" },
@@ -74,6 +77,20 @@ function renderSparkline(state: "filled" | "loading") {
 }
 
 describe("Sparkline rendering", () => {
+  it("keeps the measurement and latest value but does not draw or read a hidden trend", () => {
+    const brief = { ...input, detail: "brief" };
+    const html = renderInstance("Sparkline", brief, "filled", {
+      preset: "calm",
+      mode: "light",
+      accent: "moss",
+    });
+    expect(meta.variantParts["detail.brief"].hides).toEqual(["line"]);
+    expect(html).not.toContain('data-testid="home/c1/line"');
+    expect(html).toContain('data-testid="home/c1/label"');
+    expect(html).toContain('data-testid="home/c1/value"');
+    expect(readComponent(components.Sparkline, brief, "s1")).toEqual(['s1 Sparkline "Measurement" — "18%"']);
+    expect(props.parse(brief).points).toEqual(input.points);
+  });
   it.each(["filled", "loading"] as const)("renders the %s state without duplicate parts", (state) => {
     const html = renderSparkline(state);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
