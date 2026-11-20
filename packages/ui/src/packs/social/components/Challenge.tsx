@@ -21,7 +21,7 @@ export const meta = {
   tier: "people",
   realPath: "Members’ entries summed in a shared app.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
-  variantParts: { "detail.brief": { hides: ["top", "rank", "name", "value"] } },
+  variantParts: { "detail.brief": { hides: ["top", "root", "rank", "name", "value"] } },
   // prettier-ignore
   parts: ["root", "title", "goal", "total", "track", "mine", "ends", "days_left", "top", "join", "join_label", "log", "log_label"],
   items: { key: "top", parts: ["root", "rank", "name", "value"], visibleWhen: { detail: "full" } },
@@ -114,10 +114,8 @@ function ChallengeProgress({ input, words, density }: {
       <kit.KitText part={null} role="caption" tone={words.reached ? "good" : "muted"}>{words.group}</kit.KitText>
     </kit.KitGrid>
     <kit.KitStepsTrack part="track" style="bar" count={1} at={Math.min(1, input.total / input.goal)} />
-    <kit.KitGrid fitLast density={density}>
-      <kit.KitText part="mine" role="caption" tone="muted">{words.mine}</kit.KitText>
-      <kit.KitText part="goal" role="caption" tone="muted">{words.goal}</kit.KitText>
-    </kit.KitGrid>
+    <kit.KitText part="goal" role="caption" tone="muted">{words.goal}</kit.KitText>
+    <kit.KitText part="mine" role="caption" tone="muted">{words.mine}</kit.KitText>
   </kit.KitContent>;
 }
 
