@@ -87,6 +87,13 @@ it("validates pack metadata, all worked example lines and the swap signature", (
   expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining([...ids]));
   const defs: Record<string, Definition> = components;
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["card_swipe"]);
+  expect(lines.filter(({ c }) => c === "Sheet")).toMatchObject([{ style: "menu" }]);
+  expect(
+    planAct({ id: "fernpost", components: lines }, defs, {}, [{ address: "p2/more", action: "press" }]),
+  ).toMatchObject({
+    ok: true,
+    links: [{ goto: "sheet", address: "fernpost/p2/more" }],
+  });
 });
 
 it("completes the exact recipes from neutral defaults and covers every compose layout", () => {

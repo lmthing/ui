@@ -152,7 +152,7 @@ it("offers the camera at OK tier and points only the intended press actions at t
   const event = readComponent(EventCard, EventCard.examples[0], "e1").join("\n");
   expect(event).toMatch(/(?:28 Nov|Nov 28)/);
   expect(event).toContain("14:00");
-  expect(event).toContain("14");
+  expect(event).toContain(" — 14 — ");
   expect(event).toContain("[e1 press→swap_meet !needs-people]");
   expect(event).toContain("[e1/going press !needs-people]");
   const challenge = readComponent(Challenge, Challenge.examples[0], "c1").join("\n");
