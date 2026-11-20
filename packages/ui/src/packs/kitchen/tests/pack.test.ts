@@ -102,6 +102,14 @@ it("keeps food search in one card and recipe browsing in separate cards", () => 
   expect(food).not.toHaveProperty("style");
   expect(recipes).toMatchObject({ style: "cards" });
 });
+it("keeps recipe facts in the shared two-column grid", () => {
+  const registry = createRegistry({ packs: ["kitchen"] });
+  const facts = registry
+    .defaultLines("recipe", "overview", cast)
+    .components.find(({ c }) => c === "KeyValue");
+  expect(facts).toMatchObject({ arrange: "grid" });
+  expect(facts).not.toHaveProperty("style");
+});
 it("validates every worked-example line and the root example door", async () => {
   const source = await readFile(new URL("../example.jsonl", import.meta.url), "utf8");
   const lines = exampleLines(source);

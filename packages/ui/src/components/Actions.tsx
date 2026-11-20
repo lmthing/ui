@@ -7,28 +7,34 @@ import {
   screenId,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitGrid, KitTile } from "../kit";
+import { KitCard, KitGrid, KitIcon, KitRow, KitText, KitTile } from "../kit";
 
 export const meta = {
   id: "Actions",
   group: "action",
   purpose: "Two to four shortcuts to different things the person can do next.",
   pick: "Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).",
+  writeHints: [
+    'Vertically stacked shortcuts set arrange to "rows" only. The surface field must be null unless a specific surface treatment was requested; never write "card" as a default. If no arrangement is requested, use null for arrange.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Each shortcut opens a linked screen on the phone.",
+  variants: { arrange: ["grid", "rows"], surface: ["card", "plain", "outlined"] },
   items: { key: "items", parts: ["root", "icon", "label"] },
   states: ["filled"],
   actions: { items: { root: ["press"] } },
 } as const satisfies Meta;
 
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   items: z
     .array(z.strictObject({ icon, label: text(16), goto: screenId }))
     .min(2)
@@ -76,6 +82,29 @@ export const examples = [
       { icon: "calendar", label: "Water history", goto: "watering_history" },
     ],
   },
+  {
+    arrange: "rows",
+    items: [
+      { icon: "dog", label: "Book walk", goto: "book_walk" },
+      { icon: "users", label: "Clients", goto: "clients" },
+      { icon: "wallet", label: "Earnings", goto: "earnings" },
+      { icon: "message", label: "Messages", goto: "messages" },
+    ],
+  },
+  {
+    surface: "plain",
+    items: [
+      { icon: "leaf", label: "My plants", goto: "plants" },
+      { icon: "drop", label: "Water", goto: "water" },
+    ],
+  },
+  {
+    surface: "outlined",
+    items: [
+      { icon: "leaf", label: "My plants", goto: "plants" },
+      { icon: "drop", label: "Water", goto: "water" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Actions");
@@ -83,16 +112,37 @@ export const probes = [
   choose("Give me three ways to log watering, add a plant and see the schedule"),
   choose("Let me log watering with one main tap", "Button"),
   write("Let me book a dog walk, open my clients, see earnings and read messages"),
+  {
+    ...write(
+      "Stack the Book walk, Clients, Earnings and Messages shortcuts vertically, one per row, each opening its own screen.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
   read("Add a plant", { address: "a1/r2", action: "press" }),
 ] satisfies Probe[];
 
-export function Actions({ items }: Props<typeof props, typeof meta>) {
+export function Actions({ items, arrange, surface }: Props<typeof props, typeof meta>) {
   return (
-    <KitCard part="root">
-      <KitGrid columns={items.length === 3 ? 3 : 2}>
-        {items.map((item) => (
-          <KitTile key={item.id} item={item.id} icon={item.icon} label={item.label} goto={item.goto} />
-        ))}
+    <KitCard part="root" surface={surface}>
+      <KitGrid arrange={arrange} columns={items.length === 3 ? 3 : 2}>
+        {items.map(({ id, icon, label, goto }) =>
+          arrange === "rows" ? (
+            <KitRow
+              key={id}
+              item={id}
+              label={label}
+              goto={goto}
+              leading={<KitIcon name={icon} tone="accent" part="icon" />}
+              trailing={<KitIcon name="chevron_right" decorative />}
+            >
+              <KitText role="label" part="label">
+                {label}
+              </KitText>
+            </KitRow>
+          ) : (
+            <KitTile key={id} item={id} icon={icon} label={label} goto={goto} />
+          ),
+        )}
       </KitGrid>
     </KitCard>
   );

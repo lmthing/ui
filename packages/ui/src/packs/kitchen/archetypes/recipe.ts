@@ -6,17 +6,18 @@ export const recipe = {
   defaultLayout: "overview",
   layouts: {
     overview: {
+      writeHints: ['Use arrange "grid" for the KeyValue recipe facts.'],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Hero"], required: true, variant: "photo" },
-        { allow: ["KeyValue"], required: true, variant: "grid" },
+        { allow: ["KeyValue"], required: true },
         { allow: ["Ingredients"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "h2", c: "Hero", style: "photo" },
-        { id: "k1", c: "KeyValue", style: "grid" },
+        { id: "k1", c: "KeyValue", arrange: "grid" },
         { id: "i1", c: "Ingredients" },
         { id: "b1", c: "Button" },
       ],
