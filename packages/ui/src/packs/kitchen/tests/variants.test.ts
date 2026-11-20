@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
 import { renderInstance } from "../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -70,4 +71,23 @@ it("Pantry accepts row highlights but safeguards computed expiry tones", () => {
   const item = examples[0]!.items[0];
   for (const extra of [{ mark: "new" }, { tone: "warn" }])
     expect(props.safeParse({ items: [{ ...item, ...extra }] }).success).toBe(false);
+});
+
+it("dispatches the cooking timer's start and stop at distinct addresses", () => {
+  const onAction = vi.fn();
+  const controller = createScreenController({
+    screen: { id: "home", components: [{ c: "CookSteps", id: "c1", ...components.CookSteps.examples[0] }] },
+    defs: components,
+    onAction,
+  });
+  try {
+    expect(controller.press("c1/timer").ok).toBe(true);
+    expect(controller.press("c1/timer_stop").ok).toBe(true);
+    expect(onAction.mock.calls).toEqual([
+      [{ address: "home/c1/timer", action: "start" }],
+      [{ address: "home/c1/timer_stop", action: "stop" }],
+    ]);
+  } finally {
+    controller.dispose();
+  }
 });
