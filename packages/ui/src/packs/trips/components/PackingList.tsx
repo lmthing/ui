@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   detailOf,
   itemsOf,
+  percentLine,
   placeholderTitle,
   probesFor,
   text,
@@ -37,13 +38,21 @@ export const meta = {
   actions: { parts: { add: ["type"] }, items: packedActions },
   emptyActions: ["add.type"],
   successActions: ["add.type"],
-  read: (input, state) =>
-    state === "filled"
-      ? (input as { groups: z.output<typeof group>[] }).groups.map(
-          ({ label, items }) =>
-            `${JSON.stringify(label)}: ${items.map(({ name, qty }) => `${JSON.stringify(name)}${qty === undefined ? "" : ` ×${qty}`}`).join(", ")}`,
-        )
-      : [],
+  read: (input, state, lang) => {
+    if (state !== "filled") return [];
+    const { groups } = input as { groups: z.output<typeof group>[] };
+    const all = groups.flatMap(({ items }) => items);
+    return [
+      percentLine(all.filter(({ packed }) => packed).length, all.length, lang),
+      ...groups.map(({ label, items }, index) => {
+        const rows = items.map(
+          ({ name, qty }, row) =>
+            `${packedParts[row]} ${JSON.stringify(name)}${qty === undefined ? "" : ` ×${qty}`}`,
+        );
+        return `r${index + 1} ${JSON.stringify(label)}: ${rows.join(", ")}`;
+      }),
+    ];
+  },
 } as const satisfies Meta;
 
 const item = z.strictObject({ name: text(28), qty: z.int().min(1).max(999).optional(), packed: z.boolean() });

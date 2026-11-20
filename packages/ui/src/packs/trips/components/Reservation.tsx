@@ -38,10 +38,15 @@ export const meta = {
   actions: { parts: { ref: ["press"], root: ["press"] } },
   read: (input, state, lang) => {
     if (state !== "filled") return [];
-    const { start, end } = input as { start: z.output<typeof stamp>; end?: z.output<typeof stamp> };
-    return (end ? [start, end] : [start]).map(
+    const { start, end, ref } = input as {
+      start: z.output<typeof stamp>;
+      end?: z.output<typeof stamp>;
+      ref: string;
+    };
+    const times = (end ? [start, end] : [start]).map(
       ({ date, time }) => `${appointmentDate(date, lang)} ${timeOfDayLine(time, lang)}`,
     );
+    return [...times, `ref ${JSON.stringify(ref)}`];
   },
 } as const satisfies Meta;
 

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   clock,
+  dateLocaleOf,
   detailOf,
   durationLine,
   isoDate,
@@ -10,6 +11,7 @@ import {
   screenId,
   text,
   thingOf,
+  timeOfDayLine,
   titleOf,
   variantProps,
   type FallbackInput,
@@ -41,19 +43,28 @@ export const meta = {
   items: { key: "days", parts: ["root", "date", "place", ...stopParts] },
   states: ["filled", "empty"],
   actions: { items: { root: ["toggle"], ...stopActions } },
-  read: (input, state, lang) =>
-    state === "filled"
-      ? (input as { days: z.output<typeof day>[] }).days.map(
-          ({ date, place, stops }) =>
-            `${date} ${JSON.stringify(place)}: ${stops
-              .map(({ time, title, minutes }) =>
-                [time, JSON.stringify(title), minutes === undefined ? undefined : durationLine(minutes, lang)]
-                  .filter(Boolean)
-                  .join(" "),
-              )
-              .join(", ")}`,
-        )
-      : [],
+  read: (input, state, lang) => {
+    if (state !== "filled") return [];
+    const formatter = new Intl.DateTimeFormat(dateLocaleOf(lang), {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    });
+    return (input as { days: z.output<typeof day>[] }).days.map(({ date, place, stops }) => {
+      const when = formatter.format(new Date(`${date}T00:00:00Z`));
+      const list = stops.map(({ time, title, minutes }) =>
+        [
+          time && timeOfDayLine(time, lang),
+          JSON.stringify(title),
+          minutes === undefined ? undefined : durationLine(minutes, lang),
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
+      return `${when} ${JSON.stringify(place)}: ${list.join(", ")}`;
+    });
+  },
 } as const satisfies Meta;
 
 const stop = z

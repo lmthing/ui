@@ -128,10 +128,13 @@ it("rejects invalid nested fields, bounds, dates and service-computed input", ()
 
 it("reads nested available parts and masks travel document numbers", () => {
   const itinerary = readComponent(components.Itinerary, components.Itinerary.examples[0], "i1").join("\n");
+  expect(itinerary).toContain('Thu, 4 Mar "Tokyo": 09:00 "Shinjuku Gyoen"');
   expect(itinerary).toContain("[i1/r1 toggle]");
   expect(itinerary).toContain("[i1/r1/stop_1 press→garden]");
   expect(itinerary).not.toContain("stop_3");
   const packing = readComponent(components.PackingList, components.PackingList.examples[0], "p1").join("\n");
+  expect(packing).toContain("33%");
+  expect(packing).toContain('packed_2 "Rain jacket"');
   expect(packing).toContain("[p1/r1/packed_1 check:done]");
   expect(packing).toContain("[p1/r1/packed_2 check:todo]");
   expect(packing).not.toContain("packed_3");
@@ -178,5 +181,6 @@ it("reads the start and optional end of a reservation", () => {
   const read = readComponent(Reservation, Reservation.examples[1], "r1", "filled", {}, "en").join("\n");
   expect(read).toContain(`${date} 08:30`);
   expect(read).toContain(`${date} 10:40`);
+  expect(read).toContain('ref "JP8K2"');
   expect(readComponent(Reservation, startOnly, "r1").join("\n")).not.toContain("10:40");
 });
