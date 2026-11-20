@@ -8,6 +8,13 @@ export const en = {
     more: (name: string) => `Increase quantity, ${name}`,
     reading: (fields: string[]) => fields.join(" · "),
   },
+  storage: {
+    path: "Storage path",
+    spots: "Storage spots",
+    here: "Stored here",
+    emptyHere: "Nothing stored here",
+    countUnit: (form: Intl.LDMLPluralRule) => (form === "one" ? " item" : " items"),
+  },
 };
 
 export type InventoryWords = typeof en;
