@@ -10,6 +10,7 @@ export const meta = {
   pick: "A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).",
   writeHints: [
     "Write wins, draws, losses and goals for and against; never write played, points, goal difference or rank. Mine is a zero-based index in the input rows; lines are one-based cut positions in the ordered table.",
+    'To hide recent form, write detail "brief" and still supply the form data. Write density: null unless the person asks to change spacing. Omit scoring unless the league awards nonstandard points per win or draw.',
   ],
   region: "body",
   weight: 3,
@@ -27,10 +28,9 @@ export const meta = {
   states: ["filled", "loading"],
   actions: { items: { root: ["press"] } },
   read: (input, _state, lang): string[] => {
-    const { rows } = input as z.output<typeof props>;
-    return rows.map(
-      ({ team, won, drawn, lost, for: goals, against }) =>
-        `${team}: ${[won + drawn + lost, won, drawn, lost, goals - against, 3 * won + drawn].map((value) => c.numberLine(value, lang)).join(" · ")}`,
+    return rankedRows(input as c.Props<typeof props, typeof meta>).map(
+      ({ id, team, played, won, drawn, lost, difference, points }, rank) =>
+        `${id}: ${team} · ${[rank + 1, played, won, drawn, lost, difference, points].map((value) => c.numberLine(value, lang)).join(" · ")}`,
     );
   },
 } as const satisfies c.Meta;
@@ -54,6 +54,9 @@ export const props = z
     rows: z.array(record).min(2).max(20),
     mine: z.int().min(0).max(19).optional(),
     lines: z.array(z.int().min(1).max(19)).min(0).max(2).default([]),
+    scoring: z
+      .strictObject({ win: z.int().min(0).max(99), draw: z.int().min(0).max(99) })
+      .default({ win: 3, draw: 1 }),
   })
   .refine(({ rows, mine }) => mine === undefined || mine < rows.length, { path: ["mine"] })
   .refine(
@@ -63,6 +66,17 @@ export const props = z
   .overwrite((input) =>
     input.detail === "brief" ? { ...input, rows: input.rows.map((row) => ({ ...row, form: [] })) } : input,
   );
+
+function rankedRows({ rows, scoring }: c.Props<typeof props, typeof meta>) {
+  return rows
+    .map((row) => ({
+      ...row,
+      played: row.won + row.drawn + row.lost,
+      difference: row.for - row.against,
+      points: row.won * scoring.win + row.drawn * scoring.draw,
+    }))
+    .sort((a, b) => b.points - a.points || b.difference - a.difference || b.for - a.for);
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

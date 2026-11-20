@@ -21,6 +21,10 @@ export const meta = {
   items: { key: "players", parts: ["root", "number", "name"] },
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
+  read: (input, _state, lang): string[] =>
+    (input as c.Props<typeof props, typeof meta>).players.map(
+      ({ id, name, number }) => `${id}: ${name} #${c.numberLine(number, lang)}`,
+    ),
 } as const satisfies c.Meta;
 
 const player = z.strictObject({ number: z.int().min(0).max(99), name: c.text(16) });
@@ -40,7 +44,7 @@ function withPlayers(input: z.output<typeof schema>) {
     ...input,
     players: [
       ...input.lines.flatMap(({ players }, line) => players.map((row) => ({ ...row, line }))),
-      ...input.subs,
+      ...input.subs.map((row) => ({ ...row, line: undefined })),
     ],
   };
 }

@@ -7,7 +7,7 @@ export const meta = {
   status: "draft",
   group: "data",
   purpose: "Follow knockout ties and see who advances to the next round.",
-  pick: "A knockout cup showing paired opponents and scores round by round, with winners carried forward. Not one ranked list (List), a league table (Standings), or a sequence of fixtures (Fixtures).",
+  pick: "A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).",
   writeHints: [
     "Write rounds earliest to latest, and ties in bracket order. Do not write winners or connectors. Later rounds use the team names already known to advance; omit scores for ties not played.",
   ],
@@ -23,10 +23,10 @@ export const meta = {
   states: ["filled", "loading"],
   actions: { items: { root: ["press"] } },
   read: (input, _state, lang): string[] => {
-    const { ties } = input as z.output<typeof props>;
+    const { ties } = input as c.Props<typeof props, typeof meta>;
     const score = (value: number | undefined) => (value === undefined ? "" : ` ${c.numberLine(value, lang)}`);
     return ties.map(
-      ({ round, a, b, aScore, bScore }) => `${round}: ${a}${score(aScore)} · ${b}${score(bScore)}`,
+      ({ id, round, a, b, aScore, bScore }) => `${id}: ${round}, ${a}${score(aScore)} · ${b}${score(bScore)}`,
     );
   },
 } as const satisfies c.Meta;

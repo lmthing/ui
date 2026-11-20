@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
+import { checkMatchScore } from "..";
 import {
   archetypes,
   checkArchetypes,
@@ -60,12 +61,7 @@ it("validates the generated contracts and every line of Sunday Kickers", () => {
     expect(defs[c]?.props.safeParse(input).success, `${id}/${c}`).toBe(true);
   }
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["count_up"]);
-  const lineFor = (id: string) => wireProps(lines.find(({ c }) => c === id)!);
-  const score = components.Scoreboard.props.parse(lineFor("Scoreboard"));
-  const { events } = components.MatchFeed.props.parse(lineFor("MatchFeed"));
-  const goals = (side: string) =>
-    events.filter((event) => event.kind === "goal" && event.side === side).length;
-  expect([score.homeScore, score.awayScore]).toEqual([goals("home"), goals("away")]);
+  expect(checkMatchScore({ id: "sunday_match", components: lines })).toEqual([]);
 });
 
 it("completes each documented layout from neutral cast defaults and has one compose probe each", () => {
@@ -91,6 +87,7 @@ it("completes each documented layout from neutral cast defaults and has one comp
       scoreComposition(JSON.stringify(screen), scoped.archetypes[archetype]!.meta, layout, defs).issues,
       path,
     ).toEqual([]);
+    expect(checkMatchScore(screen), path).toEqual([]);
   }
   expect(scoped.defaultLines("club", "next", cast).components[1]).toMatchObject({ style: "next" });
   expect(scoped.defaultLines("league", "results", cast).components.at(-1)).toMatchObject({
@@ -161,6 +158,3 @@ it("only offers actions on visible fixtures, keeper controls and eligible squad 
   expect(player).toContain("[s1/r1/answer select");
   expect(player).not.toMatch(/\[s1\/r2\/answer |\/picked check/);
 });
-function wireProps({ id: _id, c: _c, ...input }: Record<string, unknown>) {
-  return input;
-}

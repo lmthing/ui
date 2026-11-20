@@ -1,4 +1,5 @@
 export { pack } from "./pack";
+export { checkMatchScore } from "./check-match-score";
 export * from "./components";
 export * from "./archetypes";
 

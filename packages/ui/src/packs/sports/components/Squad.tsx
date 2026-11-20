@@ -10,6 +10,7 @@ export const meta = {
   pick: "Players' availability for one upcoming match: yes, maybe or no, an optional reason, and coach selection. Not an ordinary player directory (People), who plays where (Lineup), guest RSVPs (GuestList), or staff shifts (Roster).",
   writeHints: [
     "Put the current player's own row first; only that row offers a reply. Picked is the coach's selection, separate from the answer. Do not write totals.",
+    'To show replies without reasons, write detail "brief" and still supply any known reasons. Write density: null unless the person asks to change spacing.',
   ],
   region: "body",
   weight: 3,
@@ -25,6 +26,8 @@ export const meta = {
     items: { answer: ["select"], picked: ["check"] },
     when: { answer: { $first: true }, picked: { coach: true } },
   },
+  selections: { "r1/answer": { prop: "own_answer", choices: ["yes", "maybe", "no"], runtime: true } },
+  live: { checks: { picked: "picked" }, derive: applyOwnAnswer },
   read: (input, _state, lang): string[] => {
     const { players, needed } = input as z.output<typeof props>;
     const count = players.filter(({ answer }) => answer === "yes").length;
@@ -53,11 +56,22 @@ export const props = z
       .max(20),
     coach: z.boolean().default(false),
   })
-  .overwrite((input) =>
-    input.detail === "brief"
-      ? { ...input, players: input.players.map((row) => ({ ...row, reason: undefined })) }
-      : input,
-  );
+  .overwrite((input) => ({
+    ...input,
+    ...(input.detail === "brief"
+      ? { players: input.players.map((row) => ({ ...row, reason: undefined })) }
+      : {}),
+    own_answer: input.players[0]!.answer,
+  }));
+
+function applyOwnAnswer(input: Readonly<Record<string, unknown>>): Record<string, unknown> {
+  const { players, own_answer } = input as z.output<typeof props> & {
+    own_answer: "yes" | "maybe" | "no" | "none";
+  };
+  const [first, ...others] = players;
+  if (first && first.answer !== own_answer) return { players: [{ ...first, answer: own_answer }, ...others] };
+  return {};
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

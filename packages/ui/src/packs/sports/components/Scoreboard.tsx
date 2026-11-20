@@ -109,5 +109,5 @@ export const probes = [
   ),
   read("Add a goal for Ledge Rovers, the home side", { address: "s1/home", action: "increment" }),
   read("Undo one goal for the away side", { address: "s1/away", action: "decrement" }),
-  read("Start the match clock", { address: "s1/clock", action: "start" }),
+  read("Start, not stop, the match clock", { address: "s1/clock", action: "start" }),
 ] satisfies c.Probe[];

@@ -7,9 +7,10 @@ export const meta = {
   status: "draft",
   group: "data",
   purpose: "See who we play next and how recent matches ended.",
-  pick: "Upcoming or played matches for a team, with opponents, home or away and results or meet details. Not dates alone (Calendar), one live score (Scoreboard), an appointment (Appointment) or a community event (EventCard).",
+  pick: "A team’s fixture schedule and results: opponents, venues and home or away, or one next-match card with meet time and kit. Not dates alone (Calendar), live scoring (Scoreboard), an appointment (Appointment) or a community event (EventCard).",
   writeHints: [
     "Order matches by date and kickoff time. In next style put the next match first. Supply both scores for a result, or neither for an unplayed match.",
+    'To hide venue, meet time and kit, use detail "brief"; keep the values in the data. Write density: null unless the person asks to change spacing.',
   ],
   region: "body",
   weight: 2,
