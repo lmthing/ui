@@ -17,6 +17,16 @@ export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export {
+  hasReportConfirmation,
+  itemEditSpec,
+  reportConfirmation,
+  reportRemovalAt,
+  stageReportEdit,
+  type ItemEditPath,
+  type ItemEdits,
+  type ReportRemoval,
+} from "./report-edits";
+export {
   choiceOptions,
   choiceValues,
   resolveChoice,
