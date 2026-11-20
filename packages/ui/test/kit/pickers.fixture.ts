@@ -29,7 +29,7 @@ export const meta = {
   },
   actions: {
     parts: { field: ["type"], clear: ["press"], sort: ["select"] },
-    items: { root: ["press", "select"] },
+    items: { root: ["select", "press"] },
   },
   clear: { clear: { text: ["field"], pickers: ["root"] } },
 } as const satisfies Meta;

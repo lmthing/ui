@@ -6,7 +6,6 @@ import { useControlValue } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
-
 type OptionProps = {
   title: string;
   sub?: string | undefined;
@@ -135,7 +134,9 @@ const PickerRow = styled(XStack, {
   borderWidth: component.base.none,
   backgroundColor: "transparent",
 });
-const button = isWeb ? ({ tag: "button", type: "button" } as const) : {};
+const button = isWeb
+  ? ({ tag: "button", type: "button", outlineOffset: -component.base.strongBorder } as const)
+  : {};
 function Picker({ title, choices, selected }: PickerProps) {
   const { screen, component: instance, item } = usePartContext();
   const kit = useKit();
@@ -149,35 +150,37 @@ function Picker({ title, choices, selected }: PickerProps) {
   const canChoose = !!actions?.includes("select");
   const expanded = Boolean(actions && open === item);
   const Chevron = expanded ? ChevronUp : ChevronDown;
-  const label = selected ? `${title}: ${selected}` : title;
+  const press = () => kit.controller!.act({ address: address.testID, action: "press" });
   const choose = (value: string) => {
     if (kit.controller!.act({ address: address.testID, action: "select", value }).ok)
       (address.ref.current as { focus?: () => void } | null)?.focus?.();
   };
   return (
-    <YStack gap={space.xs}>
+    <YStack borderRadius={corners} backgroundColor="$raised" overflow="hidden">
       <PickerRow
         {...button}
         {...address}
-        borderRadius={corners}
-        backgroundColor={selected ? "$accentSoft" : "$raised"}
+        backgroundColor={selected ? "$accentSoft" : "transparent"}
         accessibilityRole="button"
         aria-expanded={expanded}
+        {...(!isWeb ? { accessibilityState: { disabled: !enabled, expanded } } : {})}
         disabled={!enabled}
-        accessibilityLabel={label}
-        {...(enabled ? { onPress: () => kit.controller!.press(address.testID) } : {})}
+        onPress={enabled ? press : undefined}
       >
-        <KitText role="label" part={null} children={label} />
+        <KitText role="label" part={null} children={selected ? `${title}: ${selected}` : title} />
         <Chevron color="$muted" size={size.icon.sm} aria-hidden />
       </PickerRow>
       {expanded && (
-        <YStack role="group" aria-label={title} borderRadius={corners} backgroundColor="$raised">
+        <YStack role="group" aria-label={title}>
           {choices.map((label) => (
             <PickerRow
               key={label}
               {...button}
               accessibilityRole="button"
               aria-pressed={label === selected}
+              {...(!isWeb
+                ? { accessibilityState: { disabled: !canChoose, selected: label === selected } }
+                : {})}
               disabled={!canChoose}
               onPress={canChoose ? () => choose(label) : undefined}
             >
@@ -192,9 +195,6 @@ function Picker({ title, choices, selected }: PickerProps) {
 }
 export function KitOption({ item, ...props }: { item: string } & (OptionProps | PickerProps)) {
   const context = usePartContext();
-  return (
-    <PartContext.Provider value={{ ...context, item }}>
-      {"choices" in props ? <Picker {...props} /> : <Option {...props} />}
-    </PartContext.Provider>
-  );
+  const child = "choices" in props ? <Picker {...props} /> : <Option {...props} />;
+  return <PartContext.Provider value={{ ...context, item }}>{child}</PartContext.Provider>;
 }

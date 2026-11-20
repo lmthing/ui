@@ -1,18 +1,51 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { TamaguiProvider, YStack } from "tamagui";
-import { choiceOptions, presets, space, themeName, type ThemeChoice, type Values } from "@lmthing/ui/catalog";
+import { TamaguiProvider, XStack, YStack } from "tamagui";
+import {
+  choiceOptions,
+  presets,
+  size,
+  space,
+  themeName,
+  type ThemeChoice,
+  type Values,
+} from "@lmthing/ui/catalog";
 import {
   createInteractionStore,
-  KitAction,
   KitInput,
   KitOption,
+  KitRow,
   KitText,
+  useKit,
   useLiveControls,
+  usePart,
 } from "@lmthing/ui/kit";
 import { config } from "../render";
 import { PhoneScreen } from "../../src/kit/screen";
 import { defs, meta, part, screen, type PickerFixtureProps } from "./pickers.fixture";
+
+function Sort({ order }: { order: PickerFixtureProps["order"] }) {
+  const current = order === "new" ? "Newest first" : "Oldest first";
+  const next = order === "new" ? "Oldest first" : "Newest first";
+  const address = usePart("sort");
+  const { controller } = useKit();
+  return (
+    <XStack
+      {...address}
+      role="button"
+      alignItems="center"
+      paddingHorizontal={space.md}
+      minHeight={size.control.md}
+      backgroundColor="$raised"
+      borderRadius="$3"
+      onPress={() => controller?.act({ address: address.testID, action: "select", value: next })}
+    >
+      <KitText role="label" part="sort_label">
+        {current}
+      </KitText>
+    </XStack>
+  );
+}
 
 function Filters(props: PickerFixtureProps) {
   const live = useLiveControls(meta, props) as PickerFixtureProps;
@@ -29,15 +62,12 @@ function Filters(props: PickerFixtureProps) {
         const selected = choices[options.findIndex(({ value }) => value === row.selected)];
         return <KitOption key={id} item={id} title={row.title} choices={choices} selected={selected} />;
       })}
-      <KitAction
-        part="sort"
-        kind="quiet"
-        label={live.order === "new" ? "Newest first" : "Oldest first"}
-        action="select"
-        value={live.order === "new" ? "Oldest first" : "Newest first"}
-        full
-      />
-      <KitAction part="clear" kind="quiet" label="Clear filters" action="press" full />
+      <Sort order={live.order} />
+      <KitRow part="clear" role="button" label="Clear filters" lineRole="label">
+        <KitText role="label" tone="muted" part="clear_label">
+          Clear filters
+        </KitText>
+      </KitRow>
     </YStack>
   );
 }
