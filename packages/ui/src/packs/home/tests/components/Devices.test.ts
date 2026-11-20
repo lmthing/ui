@@ -57,6 +57,7 @@ describe("Devices states and parts", () => {
     const html = renderInstance("Devices", tiles, "filled", theme, { component: "d1" });
     expect(html.match(/>Hall</g)).toHaveLength(1);
     expect(elementAt(html, "home/d1/r1/room")).toBeDefined();
+    expect(html).toMatch(/>Hall<[\s\S]*?role="list"[\s\S]*?role="listitem"[\s\S]*?>Hall light</);
   });
 
   renderTest("keeps focused room devices together before scenes and puts scenes first in tiles", () => {

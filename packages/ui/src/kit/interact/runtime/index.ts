@@ -1,6 +1,5 @@
 export {
   createControllerContext,
-  introducedPart,
   type ControllerContext,
   type ControllerOptions,
   type Confirmation,

@@ -19,7 +19,14 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
-export { nestedControls, nestedAt, projectNested } from "./selection";
+export {
+  activeParentId,
+  isNestedTarget,
+  nestedControls,
+  nestedAt,
+  nestedRemaining,
+  projectNested,
+} from "./selection";
 export {
   sessionAvailable,
   sessionEvent,

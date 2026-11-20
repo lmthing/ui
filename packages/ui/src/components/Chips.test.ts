@@ -20,6 +20,7 @@ describe("Chips schema", () => {
   it("applies defaults and trims labels", () => {
     expect(props.parse({ items: [{ label: " One " }, { label: " Two " }] })).toEqual({
       style: "filter",
+      lead: "icon",
       items: [
         { label: "One", on: false },
         { label: "Two", on: false },
@@ -35,6 +36,7 @@ describe("Chips schema", () => {
     ...["unknown", null].map((icon) => ({ items: [{ label: "One", icon }, { label: "Two" }] })),
     ...["true", 1, null].map((on) => ({ items: [{ label: "One", on }, { label: "Two" }] })),
     { style: "tabs", items: [{ label: "One" }, { label: "Two" }] },
+    { lead: "avatar", items: [{ label: "One" }, { label: "Two" }] },
     { color: "red", items: [{ label: "One" }, { label: "Two" }] },
     ...["id", "pixels", "root", "style"].map((key) => ({
       items: [{ label: "One", [key]: "one" }, { label: "Two" }],
@@ -105,7 +107,8 @@ describe("Chips fallback", () => {
 describe("Chips metadata and probes", () => {
   it("has the required contract and well-formed probes", () => {
     expect(meta).toMatchObject({ id: "Chips", group: "input", region: "body", weight: 1, tier: "phone" });
-    expect(meta.items).toEqual({ key: "items", parts: ["root", "label"] });
+    expect(meta.items).toEqual({ key: "items", parts: ["root", "label", "icon"] });
+    expect(meta.variantParts["lead.none"]).toEqual({ hides: ["icon"] });
     expect(meta.parts).toEqual(["root"]);
     expect(meta.states).toEqual(["filled"]);
     expect(meta.realPath).not.toBe("");
@@ -142,9 +145,10 @@ describe("Chips view and supported action declaration", () => {
       expect(chip.type).toBe(KitChip);
       expect(chip.props).toMatchObject({
         ...parsed.items[index],
+        ...(parsed.lead === "none" ? { icon: undefined } : {}),
         item: `r${index + 1}`,
         look: "pill",
-        role: example.style === "filter" ? "checkbox" : "radio",
+        role: parsed.style === "filter" ? "checkbox" : "radio",
       });
     }
     const read = readComponent(components.Chips, example, "c1").join("\n");

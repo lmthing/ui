@@ -1,0 +1,39 @@
+export { pack } from "./pack";
+export * from "./components";
+export * from "./archetypes";
+
+export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
+{"id":"shop_search","c":"Search","hint":"Find a loaf or pastry"}
+{"id":"shop_categories","c":"Chips","items":[{"label":"All","on":true},{"label":"Loaves"},{"label":"Pastries"}]}
+{"id":"shop_offer","c":"Promo","title":"20% off loaves today","code":"CRUMB20","ends":"2026-11-20","goto":"loaf"}
+{"id":"shop_menu","c":"ProductGrid","arrange":"rows","items":[{"name":"Country sourdough","sub":"Slow-fermented wheat loaf","price":6,"was":7.5,"photo":"local:1","badge":"Sale","goto":"loaf"},{"name":"Almond croissant","sub":"Flaky pastry with almond cream","price":4,"photo":"local:2","goto":"pastry"}]}
+{"id":"shop_basket","c":"CartBar","goto":"basket"}
+{"id":"loaf_header","c":"Header","title":"Country sourdough","style":"back"}
+{"id":"loaf_photos","c":"Gallery","style":"carousel","photos":[{"photo":"local:1","caption":"Whole loaf"},{"photo":"local:3","caption":"Cut loaf"}]}
+{"id":"loaf_product","c":"Product","name":"Country sourdough","price":6,"was":7.5,"description":"A slow-fermented loaf with a crisp crust. Made for tomorrow's pickup.","stock":3,"badge":"Sale","saved":false}
+{"id":"loaf_sizes","c":"VariantPicker","label":"Loaf size","style":"size","options":[{"label":"Small","available":true},{"label":"Large","available":true,"extra":3}],"at":0}
+{"id":"loaf_rating","c":"Scale","style":"stars","label":"Customer rating","value":4.5,"readonly":true}
+{"id":"pastry_header","c":"Header","title":"Almond croissant","style":"back"}
+{"id":"pastry_photos","c":"Gallery","style":"carousel","photos":[{"photo":"local:2","caption":"Whole croissant"},{"photo":"local:4","caption":"Almond filling"}]}
+{"id":"pastry_product","c":"Product","name":"Almond croissant","price":4,"description":"Flaky pastry with roasted almond cream.","stock":8,"saved":false}
+{"id":"pastry_rating","c":"Scale","style":"stars","label":"Customer rating","value":4,"readonly":true}
+{"id":"basket_header","c":"Header","title":"Your basket"}
+{"id":"basket_items","c":"Cart","lines":[{"name":"Country sourdough","variant":"Small","photo":"local:1","qty":2,"price":6},{"name":"Almond croissant","photo":"local:2","qty":1,"price":4}]}
+{"id":"basket_checkout","c":"Button","label":"Go to checkout","goto":"checkout"}
+{"id":"checkout_header","c":"Header","title":"Checkout"}
+{"id":"checkout_options","c":"Checkout","modes":["pickup"],"mode":"pickup","time":"Tomorrow 10:30","methods":["cash","card"],"method":"cash"}
+{"id":"checkout_note","c":"Note","text":"Collect at the Crumb counter tomorrow."}
+{"id":"status_header","c":"Header","title":"Your order"}
+{"id":"status_track","c":"OrderStatus","steps":[{"label":"Received","time":"07:00"},{"label":"Preparing","time":"08:15"},{"label":"Ready","time":"10:30"},{"label":"Collected"}],"at":2,"line":"Ready at 10:30","seller":false}
+{"id":"status_receipt","c":"OrderSummary","number":"CR-023","date":"2026-11-20","lines":[{"name":"Country sourdough","qty":2,"price":6},{"name":"Almond croissant","qty":1,"price":4}],"mode":"pickup","place":"Crumb counter"}
+{"id":"orders_header","c":"Header","title":"Bakery orders"}
+{"id":"orders_views","c":"Segmented","options":[{"label":"Today"},{"label":"Tomorrow"}],"at":0}
+{"id":"orders_counts","c":"Stats","tiles":[{"label":"Orders today","value":"23"},{"label":"Ready","value":"8"}]}
+{"id":"orders_list","c":"List","trail":"badge","rows":[{"title":"CR-023","meta":"10:30","value":"Ready","goto":"ready_order"},{"title":"CR-024","meta":"11:00","value":"Preparing","goto":"order"}]}
+{"id":"ready_order_header","c":"Header","style":"back","title":"Order CR-023"}
+{"id":"ready_order_track","c":"OrderStatus","seller":true,"steps":[{"label":"Received","time":"07:00"},{"label":"Preparing","time":"08:15"},{"label":"Ready","time":"10:30"},{"label":"Collected"}],"at":2}
+{"id":"ready_order_receipt","c":"OrderSummary","number":"CR-023","date":"2026-11-20","lines":[{"name":"Country sourdough","qty":2,"price":6},{"name":"Almond croissant","qty":1,"price":4}],"mode":"pickup","place":"Crumb counter"}
+{"id":"order_header","c":"Header","style":"back","title":"Order CR-024"}
+{"id":"order_track","c":"OrderStatus","seller":true,"steps":[{"label":"Received","time":"07:10"},{"label":"Preparing","time":"08:30"},{"label":"Ready"},{"label":"Collected"}],"at":1}
+{"id":"order_receipt","c":"OrderSummary","number":"CR-024","date":"2026-11-20","lines":[{"name":"Almond croissant","qty":2,"price":4}],"mode":"pickup","place":"Crumb counter"}
+`;
