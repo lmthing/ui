@@ -18,6 +18,7 @@ export const on_the_day = {
       ],
     },
     ticket: {
+      writeHints: ["For the single MapPins venue, leave mark and tone null; a pin needs only its label."],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Ticket"], required: true },

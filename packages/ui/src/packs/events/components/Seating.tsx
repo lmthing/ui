@@ -27,13 +27,16 @@ export const meta = {
   },
   read: (input, state): string[] => {
     if (state !== "filled") return [];
-    const { tables, unseated } = input as z.output<typeof props>;
+    const { tables, entries } = input as z.output<typeof props>;
     const labels = tables.map(
-      ({ label, seats, guests }, index) =>
-        `r${index + 1}: ${label} (${guests.length}/${seats})${guests.length ? `: ${guests.join(", ")}` : ""}`,
+      ({ label, seats, guests }, index) => `r${index + 1}: ${label} (${guests.length}/${seats})`,
     );
-    const guests = [...tables.flatMap((table) => table.guests), ...unseated];
-    return [...labels, ...guests.map((name, index) => `r${tables.length + index + 1}: ${name}`)];
+    const guests = entries.flatMap((entry, index) =>
+      entry.kind === "guest"
+        ? [`r${index + 1}: ${entry.name} (${entry.at === null ? "unseated" : tables[entry.at]?.label})`]
+        : [],
+    );
+    return [...labels, ...guests];
   },
 } as const satisfies c.Meta;
 

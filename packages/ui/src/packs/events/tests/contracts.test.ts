@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { components, readComponent, readPrompt, type CastLike, type Definition } from "@lmthing/ui/catalog";
+import {
+  components,
+  planAct,
+  readComponent,
+  readPrompt,
+  readScreen,
+  type CastLike,
+  type Definition,
+} from "@lmthing/ui/catalog";
 
 const contracts = [
   [components.GuestList, "People", "people", 3],
@@ -77,13 +85,36 @@ describe("events component contracts", () => {
       for (const input of inputs)
         expect(components[id as keyof typeof invalid].props.safeParse(input).success, id).toBe(false);
   });
+});
 
-  it("hides claimant names from the guest read and offers only the viewer's date cells", () => {
-    const gift = { gifts: [{ title: "Bowl", claimed: true, by: "Private guest" }], host: false };
-    expect(readComponent(components.Registry, gift, "g1").join("\n")).not.toContain("Private guest");
-    const dates = readComponent(components.FindDate, components.FindDate.examples[0], "f1").join("\n");
-    expect(dates).toContain("[f1/r1 select");
-    expect(dates).toContain("[f1/r2 select");
-    expect(dates).not.toContain("[f1/r3 select");
+describe("events read and action contracts", () => {
+  it("retains the gift photo in the contract but does not read it or the claimant in a guest no-photo list", () => {
+    const def = components.Registry;
+    const gift = {
+      gifts: [{ title: "Bowl", photo: "lib:bowl", claimed: true, by: "Private guest" }],
+      host: false,
+      lead: "none",
+    };
+    expect(def.props.parse(gift).gifts[0]?.photo).toBe("lib:bowl");
+    const reading = readComponent(def, gift, "g1").join("\n");
+    expect(reading).not.toContain("Private guest");
+    expect(reading).not.toContain("photo:bowl");
+  });
+
+  it("offers closed choices only for the viewer's cells and reflects the accepted answers", () => {
+    const defs = { FindDate: components.FindDate };
+    const screen = {
+      id: "home",
+      components: [{ ...components.FindDate.examples[0], c: "FindDate", id: "f1" }],
+    };
+    const change = (address: string, value: string) =>
+      planAct(screen, defs, {}, [{ address, action: "select", value }], null);
+    const before = readScreen(screen, defs);
+    expect(before).toContain('[f1/r2 select choices ["yes","maybe","no"]');
+    expect(change("f1/r2", "sometimes")).toMatchObject({ ok: false, code: "invalid_value" });
+    expect(change("f1/r3", "yes")).toMatchObject({ ok: false, code: "not_actionable" });
+    const result = change("f1/r2", "maybe");
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(readScreen(screen, defs, result.values)).toContain("Imani Cole: yes · maybe");
   });
 });

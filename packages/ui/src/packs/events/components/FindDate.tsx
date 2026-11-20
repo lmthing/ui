@@ -3,7 +3,10 @@ import * as c from "../../../catalog";
 import { seedDate, seedTitles } from "../seeds";
 
 // Core first: Calendar/week cannot compare each participant's availability across candidate dates.
-const answers = ["yes", "maybe", "no", "none"] as const;
+const offered = ["yes", "maybe", "no"] as const;
+const answers = [...offered, "none"] as const;
+const maxDates = 6;
+const choiceProp = (column: number) => `answer_${column + 1}`;
 export const meta = {
   id: "FindDate",
   status: "draft",
@@ -24,16 +27,23 @@ export const meta = {
   items: { key: "cells", parts: ["root"] },
   states: ["filled", "empty"],
   actions: { items: { root: ["select"] }, when: { root: { editable: true } } },
+  selections: Object.fromEntries(
+    Array.from({ length: maxDates }, (_, column) => [
+      `r${column + 1}`,
+      { prop: choiceProp(column), choices: offered, runtime: true as const },
+    ]),
+  ),
+  live: { derive: projectAnswers },
   read: (input, state, lang): string[] =>
     state === "filled" ? matrixReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta;
 
 const candidate = z.strictObject({ date: c.isoDate, time: c.clock.optional() });
-const person = z.strictObject({ name: c.text(16), answers: z.array(z.enum(answers)).min(2).max(6) });
+const person = z.strictObject({ name: c.text(16), answers: z.array(z.enum(answers)).min(2).max(maxDates) });
 const schema = z
   .strictObject({
     ...c.variantProps(meta.variants),
-    dates: z.array(candidate).min(2).max(6),
+    dates: z.array(candidate).min(2).max(maxDates),
     people: z.array(person).min(1).max(12),
   })
   .refine(({ dates, people }) => people.every(({ answers }) => answers.length === dates.length), {
@@ -51,6 +61,12 @@ const schema = z
 function withCells(input: z.output<typeof schema>) {
   return {
     ...input,
+    ...Object.fromEntries(
+      input.people[0]!.answers.map((answer, column) => [
+        choiceProp(column),
+        answer === "none" ? undefined : answer,
+      ]),
+    ),
     cells: input.people.flatMap(({ name, answers }, row) =>
       answers.map((answer, column) => ({ name, answer, column, row, editable: row === 0 })),
     ),
@@ -58,6 +74,19 @@ function withCells(input: z.output<typeof schema>) {
 }
 export const props = schema.overwrite(withCells) as typeof schema &
   z.ZodType<ReturnType<typeof withCells>, z.input<typeof schema>>;
+
+function projectAnswers(input: Readonly<c.Values>): c.Values {
+  const { people, cells } = input as z.output<typeof props>;
+  const current = people[0]!;
+  const answers = current.answers.map((answer, column) => {
+    const picked = input[choiceProp(column)];
+    return offered.find((choice) => choice === picked) ?? answer;
+  });
+  return {
+    people: [{ ...current, answers }, ...people.slice(1)],
+    cells: cells.map((cell) => (cell.editable ? { ...cell, answer: answers[cell.column]! } : cell)),
+  };
+}
 
 function matrixReading({ dates, people }: z.output<typeof props>, lang?: string): string[] {
   const slots = dates.map(({ date, time }) => (time ? `${date} ${time}` : date));

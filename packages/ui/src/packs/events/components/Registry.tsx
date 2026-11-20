@@ -11,7 +11,7 @@ export const meta = {
   pick: "A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).",
   writeHints: [
     "Only give by for an already claimed gift in the host view; omit it for guests. Prices are numbers.",
-    'If explicitly asked for rows without photos, set lead to "none" and retain any supplied photo references.',
+    'If explicitly asked for rows without photos, set lead to "none" and retain any supplied photo references. Set density and surface to JSON null unless explicitly requested; do not fill in their defaults.',
   ],
   region: "body",
   weight: 3,
@@ -31,6 +31,7 @@ export const meta = {
     items: { claim: ["press"], unclaim: ["press"] },
     when: { claim: { claimed: false, host: false }, unclaim: { claimed: true, host: true } },
   },
+  live: { derive: hideThumbnails },
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { gifts } = input as z.output<typeof props>;
@@ -65,9 +66,14 @@ export const props = z
     gifts: input.gifts.map((gift) => ({
       ...gift,
       by: input.host && gift.claimed ? gift.by : undefined,
-      photo: input.lead === "none" ? undefined : gift.photo,
     })),
   }));
+
+function hideThumbnails(input: Readonly<c.Values>): c.Values {
+  if (input.lead !== "none") return {};
+  const { gifts } = input as z.output<typeof props>;
+  return { gifts: gifts.map((gift) => ({ ...gift, photo: undefined })) };
+}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return { gifts: seedTitles(input, 28, 3).map((title) => ({ title, claimed: false })), host: false };

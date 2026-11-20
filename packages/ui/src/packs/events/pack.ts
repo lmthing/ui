@@ -21,7 +21,7 @@ export const pack = {
     },
     {
       kind: "choose",
-      need: "Show how many days remain until the wedding date, as a countdown. No invitations, tickets or guest information.",
+      need: "Count down automatically to the wedding date and time. Show the remaining time as it elapses, with no manual plus or minus controls.",
       expect: "Timer",
     },
   ],
