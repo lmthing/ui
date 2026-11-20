@@ -8,6 +8,7 @@ import {
   type CastLike,
   type StateName,
 } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
 import { describe, expect, it } from "vitest";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 
@@ -118,7 +119,8 @@ describe("LineChart states and parts", () => {
     for (const point of ["r2", "r6"])
       expect(parts.get(`home/c1/${point}/root`)?.attributes).toContain('aria-label="Nov 9"');
     expect(parts.get("home/c1/latest")?.text).toEqual(["Latest values"]);
-    for (const value of ["6", "1", "visits"]) expect(html).toContain(`>${value}<`);
+    expect(parts.get("home/c1/unit")?.text).toEqual(["Unit: visits"]);
+    for (const value of ["6", "1"]) expect(html).toContain(`>${value}<`);
     const brief = addressedElements(
       renderInstance("LineChart", { ...ledge, detail: "brief" }, "filled", theme),
     );
@@ -139,6 +141,20 @@ describe("LineChart states and parts", () => {
 });
 
 describe("LineChart read and act", () => {
+  it("handles taps through the mounted-part controller even in brief mode", () => {
+    const chart = createScreenController({ screen: screen({ ...ledge, detail: "brief" }), defs });
+    try {
+      for (const point of ["r2", "r6"]) chart.registerPart(`home/s1/${point}/root`);
+      expect(chart.press("home/s1/r2/root").ok).toBe(true);
+      expect(chart.read()).toContain("[s1/r2 select = 1]");
+      expect(chart.press("home/s1/r6/root").ok).toBe(true);
+      expect(chart.read()).toContain("[s1/r6 select = 5]");
+      expect(chart.read()).not.toContain("[s1/r2 select =");
+    } finally {
+      chart.dispose();
+    }
+  });
+
   it("selects and replaces one point, keeping the chart data and date addresses intact", () => {
     const chart = screen();
     expect(readScreen(chart, defs)).toContain("r2 Ferns · Nov 9 · 3 visits");

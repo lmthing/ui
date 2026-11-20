@@ -26,7 +26,7 @@ export const meta = {
     surface: ["card", "outlined"],
   },
   variantParts: { "detail.brief": { hides: ["latest"] } },
-  parts: ["root", "title", "axes", "latest", "reading", "points", "series_1", "series_2", "series_3"],
+  parts: ["root", "title", "axes", "unit", "latest", "reading", "points", "series_1", "series_2", "series_3"],
   items: { key: "points", parts: ["root"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] } },
@@ -38,6 +38,7 @@ export const meta = {
     const points = chartPoints(chart);
     return [
       ...(chart.detail === "full" ? [dataWordsFor(lang).chartLatest] : []),
+      ...(chart.unit ? [dataWordsFor(lang).chartUnit(chart.unit)] : []),
       ...chartTicks(points, lang),
       ...points.map((point) => pointReading(point, chart.unit, lang)),
     ];
@@ -89,7 +90,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
     title: "Walks this week",
     unit: "walks",
     labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
@@ -131,10 +131,10 @@ function ChartLatest({ series, density, loading }: Pick<ChartProps, "series" | "
       const value = pointValue(values.at(-1)!, undefined, lang);
       return loading
       ? <kit.KitSkeleton key={index} shape="figure" inset="none" density={density}
-          content={[["caption", label], ["number", value, "start", "compact"]]} />
+          content={[["caption", label], ["number", value]]} />
       : <kit.KitContent key={index} density={density}>
           <kit.KitText role="caption" tone={seriesTones[index]!} part={null} lines={1}>{label}</kit.KitText>
-          <kit.KitText role="number" part={null} numberScale="compact" density={density} tabular>{value}</kit.KitText>
+          <kit.KitText role="number" part={null} density={density} tabular lines={1}>{value}</kit.KitText>
         </kit.KitContent>; })}
   </kit.KitGrid>;
   const caption = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
@@ -143,21 +143,21 @@ function ChartLatest({ series, density, loading }: Pick<ChartProps, "series" | "
 }
 
 // prettier-ignore
-function ChartControls({ points, selected, title, labels, loading }: { points: Point[]; selected?: Point | undefined; title: string; labels: string[]; loading: boolean }) {
+function ChartControls({ points, selected, title, loading }: { points: Point[]; selected?: Point | undefined; title: string; loading: boolean }) {
   const { words } = kit.useWords(dataWordsFor);
-  const segmented = labels.length <= 4 || (labels.length === 5 && labels.every((label) => label.length <= 4));
-  const tracks = points.filter(({ x }) => x === 0).map(({ series, line }) => (
+  const tracks = points.filter(({ x }) => x === 0).map(({ series, line }) => {
+    const dates = points.filter((point) => point.line === line);
+    const buttons = <kit.KitGrid columns={dates.length === 4 ? 2 : 3}>
+      {dates.map(({ id, label }) => <kit.KitChip key={id} item={id} role="radio" look="box" labelPart={null}
+        label={label} on={selected?.id === id} />)}
+    </kit.KitGrid>;
+    return (
     <kit.KitContent key={seriesId(line)} group={line ? "response" : "content"}>
-      {loading ? <kit.KitSkeleton shape="control" inset="none" label={series} full /> : <>
-      <kit.KitText role="caption" tone={seriesTones[line]!} part={null}>{series}</kit.KitText>
-      <kit.KitTrack part={`series_${line + 1}`} look={segmented ? "segments" : "pills"} role="radiogroup" label={words.chartSeriesPoints(series)}>
-        {points.filter((point) => point.line === line).map(({ id, label }) =>
-          <kit.KitChip key={id} item={id} role="radio" look={segmented ? "segment" : "pill"} labelPart={null}
-            label={label} on={selected?.id === id} />)}
-      </kit.KitTrack>
-      </>}
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", series]]} /> :
+        <kit.KitText role="caption" tone={seriesTones[line]!} part={null}>{series}</kit.KitText>}
+      {loading ? buttons : <kit.KitTrack part={`series_${line + 1}`} role="radiogroup" label={words.chartSeriesPoints(series)}>{buttons}</kit.KitTrack>}
     </kit.KitContent>
-  ));
+  ); });
   return loading ? <kit.KitContent>{tracks}</kit.KitContent> : points.length > 12
     ? <kit.KitScroll part="points" label={words.chartPoints(title)}>{tracks}</kit.KitScroll>
     : <kit.KitRow part="points" inline role="group" label={words.chartPoints(title)}>{tracks}</kit.KitRow>;
@@ -170,6 +170,7 @@ export function LineChart(input: ChartProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
   const { words, lang } = kit.useWords(dataWordsFor);
+  const unitLabel = unit ? words.chartUnit(unit) : undefined;
   const state = kit.useComponentState(), loading = state === "loading";
   const { screen, component } = kit.usePartContext();
   const at = kit.useControlValue<number | undefined>(`${screen}/${component}/$point`, undefined);
@@ -186,11 +187,13 @@ export function LineChart(input: ChartProps) {
     {loading ? <kit.KitSkeleton rows={1} shape="figure" inset="none" density={density} content={[["heading", title]]} /> :
       <kit.KitText part="title" role="heading" density={density}>{title}</kit.KitText>}
     {full && <ChartLatest {...{ ...input, density, loading }} />}
+    {unitLabel && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", unitLabel]]} /> :
+      <kit.KitText part="unit" role="caption" tone="muted">{unitLabel}</kit.KitText>)}
     <kit.KitLinePlot part="axes" loading={loading} series={series}
-      {...(unit ? { unit } : {})} {...(selected && !loading ? { selected: selected.id } : {})} />
+      {...(selected && !loading ? { selected: selected.id } : {})} />
     {!loading && selected && <kit.KitText part="reading" role="label" tabular>
       {words.chartSelected(selected.series, selected.label, pointValue(selected.value, unit, lang))}
     </kit.KitText>}
-    <ChartControls {...{ points, selected, title, loading }} labels={input.labels} />
+    <ChartControls {...{ points, selected, title, loading }} />
   </kit.KitCard>;
 }

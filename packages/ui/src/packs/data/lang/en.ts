@@ -7,6 +7,7 @@ export type DataWords = {
   chartReading: (id: string, series: string, label: string, value: string) => string;
   chartSelected: (series: string, label: string, value: string) => string;
   chartSeriesPoints: (series: string) => string;
+  chartUnit: (unit: string) => string;
   chartValue: (value: string, unit: string) => string;
   tableColumn: (label: string, position: string) => string;
   tableCount: (count: string, form: LDMLPluralRule) => string;
@@ -21,6 +22,7 @@ export const en = {
   chartReading: (id, series, label, value) => `${id} ${series} · ${label} · ${value}`,
   chartSelected: (series, label, value) => `${series} · ${label}: ${value}`,
   chartSeriesPoints: (series) => `${series} data points`,
+  chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
   tableColumn: (label, position) => `${position}. ${label}`,
   tableCount: (count, form) => (form === "one" ? `${count} row` : `${count} rows`),
