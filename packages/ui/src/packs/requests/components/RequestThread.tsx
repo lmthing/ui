@@ -54,9 +54,9 @@ export const meta = {
   },
   emptyActions: ["field.type", "audience.select", "send.send"],
   selections: { audience: { prop: "audience", choices: { prop: "audience_choices" } } },
+  // prettier-ignore
   live: {
-    text: { field: { prop: "draft", max: draftLimit } },
-    send: { send: { field: "field", audience: "audience" } },
+    text: { field: { prop: "draft", max: draftLimit } }, send: { send: { field: "field", audience: "audience" } },
     derive: (input) => threadGates(input, previewAccess),
   },
   successActions: ["root.press"],
@@ -65,34 +65,26 @@ export const meta = {
 } as const satisfies c.Meta;
 // prettier-ignore
 const entry = z.strictObject({
-    by: c.text(24), date: c.isoDate, time: c.clock, audience: z.enum(audiences),
-    kind: z.enum(["message", "status", "assignment", "work"]),
-    text: c.text(draftLimit).optional(), photo: c.photo.optional(),
-    from: requestStatus.optional(), to: requestStatus.optional(), goto: c.screenId.optional(),
-    // Only the full-detail reader emits these event details.
-    who: c.text(24).meta({ kind: undefined }).optional(), order: c.text(12).meta({ kind: undefined }).optional(),
-  })
+  by: c.text(24), date: c.isoDate, time: c.clock, audience: z.enum(audiences),
+  kind: z.enum(["message", "status", "assignment", "work"]),
+  text: c.text(draftLimit).optional(), photo: c.photo.optional(), goto: c.screenId.optional(),
+  from: requestStatus.optional(), to: requestStatus.optional(),
+  who: c.text(24).meta({ kind: undefined }).optional(), order: c.text(12).meta({ kind: undefined }).optional(),
+})
   .refine(
     ({ kind, text, photo, from, to, who, order, goto }) =>
-      (kind === "message") === Boolean(text) &&
-      (kind === "message" || !photo) &&
-      (kind === "status") === Boolean(from) &&
-      (kind === "status") === Boolean(to) &&
+      (kind === "message") === Boolean(text) && (kind === "message" || !photo) &&
+      (kind === "status") === Boolean(from) && (kind === "status") === Boolean(to) &&
       (kind === "assignment") === Boolean(who) &&
-      (kind === "work") === Boolean(order) &&
-      (kind === "work") === Boolean(goto),
+      (kind === "work") === Boolean(order) && (kind === "work") === Boolean(goto),
     "Only fields for the entry kind are allowed",
   );
 
-export const props = z
-  .strictObject({
-    ...c.variantProps(meta.variants),
-    number: c.text(12).meta({ kind: undefined }),
-    entries: z.array(entry).min(0).max(6),
-    draft: c.text(draftLimit).meta({ kind: undefined }).optional(),
-    audience: z.enum(audiences).default("requester"),
-  })
-  .overwrite((value) => ({ ...value, ...threadGates(value, previewAccess) }));
+// prettier-ignore
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants), number: c.text(12).meta({ kind: undefined }), entries: z.array(entry).min(0).max(6),
+  draft: c.text(draftLimit).meta({ kind: undefined }).optional(), audience: z.enum(audiences).default("requester"),
+}).overwrite((value) => ({ ...value, ...threadGates(value, previewAccess) }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const item = c.itemsOf(cast, 1)[0];
@@ -121,6 +113,7 @@ export const examples = [
     { by: "Ella", date: "2026-11-19", time: "10:00", audience: "requester", kind: "status", from: "working", to: "waiting" },
     { by: "Ella", date: "2026-11-19", time: "10:15", audience: "internal", kind: "message", text: "The grow light cable is loose.", photo: "local:1" },
   ] },
+  { ...trot, entries: [...trot.entries] },
   { ...trot, entries: [...trot.entries], density: "compact" },
   { ...trot, entries: [...trot.entries], detail: "brief" },
 ] satisfies z.input<typeof props>[];
@@ -144,21 +137,23 @@ type ThreadLive = ThreadProps & { audience_choices: readonly ThreadProps["audien
 // prettier-ignore
 function ThreadEntry({ row, detail, density, lang }: Finish & { row: ThreadProps["entries"][number]; lang: string }) {
   const { event, fact, date, time, audience } = threadEntryCopy(row, detail, lang);
+  const photoLabel = requestsWordsFor(lang).thread.photo;
   return <kit.KitRow item={row.id} label={fact ?? event ?? row.by} goto={row.goto}
     density={row.kind === "message" ? "comfortable" : density}
     tone={row.kind === "message" ? "muted" : undefined}
     trailing={row.goto && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative />}>
     <kit.KitContent lineRole="body" density={density}>
       {event && <kit.KitText part={null} role="label">{event}</kit.KitText>}
+      {fact && <kit.KitText part="event_detail" role="body">{fact}</kit.KitText>}
       <kit.KitText part="by" role={event ? "caption" : "label"} tone={event ? "muted" : "text"}>{row.by}</kit.KitText>
+      {row.text && <kit.KitText part="text" role="body">{row.text}</kit.KitText>}
       <kit.KitText part={null} role="caption" tone="muted">
         <kit.KitText part="time" role="caption" tone="muted" tabular>{time}</kit.KitText>{" "}
         <kit.KitText part="date" role="caption" tone="muted">{date}</kit.KitText>
       </kit.KitText>
       <kit.KitText part="audience" role="caption" tone="muted">{audience}</kit.KitText>
-      {fact && <kit.KitText part="event_detail" role="body">{fact}</kit.KitText>}
-      {row.text && <kit.KitText part="text" role="body">{row.text}</kit.KitText>}
-      {row.photo && <kit.KitPhoto part="photo" photo={row.photo} label={requestsWordsFor(lang).thread.photo} />}
+      {row.photo && <><kit.KitPhoto part="photo" photo={row.photo} label={photoLabel} />
+        <kit.KitText part={null} role="caption" tone="muted">{photoLabel}</kit.KitText></>}
     </kit.KitContent>
   </kit.KitRow>;
 }
@@ -171,12 +166,16 @@ export function RequestThread(input: ThreadProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const { entries, draft, audience, audience_choices: choices, sendable } = kit.useLiveControls(meta, input) as ThreadLive;
   const loading = state === "loading" ? threadLoading({ number: input.number, detail, entries }, lang) : undefined;
-  return <kit.KitCard part="root" padded inset="none" density={density}>
+  return <kit.KitCard part="root" padded density={density}>
     {loading ? <>
       <kit.KitSkeleton lead="none" rows={loading.length} items={loading} density={density} />
       {choices.length > 0 && <kit.KitContent inset="md" group="response">
         <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.audience]]} />
-        {[words.audience, words.field, words.send].map((label) => <kit.KitSkeleton key={label} shape="control" full label={label} />)}
+        <kit.KitSkeleton shape="control" full label={words.audience} />
+        <kit.KitRow label={words.field} tone="muted" density="comfortable">
+          <kit.KitSkeleton shape="figure" inset="none" content={[["body", draft || words.field], ["body", words.field]]} />
+        </kit.KitRow>
+        <kit.KitSkeleton shape="control" full label={words.send} />
       </kit.KitContent>}
     </> : <>
       <kit.KitContent inset="md" density={density}><kit.KitText part="number" role="heading">{words.heading(input.number)}</kit.KitText></kit.KitContent>

@@ -17,10 +17,10 @@ describe("thread display copy", () => {
     expect(threadEntryCopy(event, "full", "en-US")).toMatchObject({ date: "Nov 20, 2026", time: "09:15" });
     expect(threadEntryCopy(event, "full", "en-GB")).toMatchObject({ date: "20 Nov 2026", time: "09:15" });
   });
-  it("keeps the event and audience in brief mode but omits its detail", () => {
+  it("keeps the status transition as one line in brief mode", () => {
     expect(threadEntryCopy(event, "full").fact).toBe("In progress → Resolved");
     expect(threadEntryCopy(event, "brief")).toMatchObject({
-      event: "Status changed",
+      event: "In progress → Resolved",
       audience: "To requester",
       fact: undefined,
     });

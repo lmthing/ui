@@ -2,7 +2,7 @@ export const en = {
   thread: {
     heading: (number: string) => `Request ${number}`,
     audience: "Who can see this?",
-    audiences: { requester: "To requester", internal: "For internal staff" },
+    audiences: { requester: "To requester", internal: "Keep internal" },
     field: "Write a reply",
     send: "Send reply",
     sent: "Reply sent",

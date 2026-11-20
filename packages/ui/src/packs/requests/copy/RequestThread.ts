@@ -25,15 +25,12 @@ export function threadOrder<T extends Entry>(entries: readonly T[]): T[] {
 export function threadEntryCopy(entry: Entry, detail: "full" | "brief", lang?: string) {
   const { kind, from, to, who, order } = entry;
   const { thread: words } = requestsWordsFor(lang);
-  const event = kind === "message" ? undefined : words.events[kind];
-  const fact =
-    detail === "brief"
-      ? undefined
-      : kind === "status" && from && to
-        ? words.statusChange(words.statuses[from], words.statuses[to])
-        : kind === "assignment" && who
-          ? words.assignee(who)
-          : order;
+  const transition =
+    kind === "status" && from && to
+      ? words.statusChange(words.statuses[from], words.statuses[to])
+      : undefined;
+  const event = kind === "message" ? undefined : (detail === "brief" && transition) || words.events[kind];
+  const fact = detail === "brief" ? undefined : (transition ?? (who ? words.assignee(who) : order));
   return {
     event,
     fact,
@@ -69,7 +66,7 @@ export function threadRead(input: unknown, state: StateName, lang?: string): str
     words.heading(number),
     ...threadOrder(entries).map((entry) => {
       const { event, fact, date, time, audience } = threadEntryCopy(entry, detail, lang);
-      return [entry.id, entry.by, date, time, audience, event, fact, entry.photo && words.photo]
+      return [entry.id, event, fact, entry.by, time, date, audience, entry.photo && words.photo]
         .filter(Boolean)
         .join(" · ");
     }),

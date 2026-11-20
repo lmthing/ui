@@ -13,8 +13,9 @@ import { RequestThread } from "../../components";
 
 const { meta, props, examples, fallback, probes, bindRequestThread } = RequestThread;
 const full = examples[0]!;
-const brief = examples[2]!;
-const [assignment, work, status, message] = full.entries;
+const brief = examples[3]!;
+const [assignment, work, status] = full.entries;
+const message = props.parse(full).entries.find(({ kind }) => kind === "message")!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const typed = (value: string) => ({ address: "t/field", action: "type", value });
 const select = (value: string) => ({ address: "t/audience", action: "select", value });
@@ -111,7 +112,7 @@ describe("RequestThread states and parts", () => {
     expect([...complete.keys()].filter((part) => !part.endsWith("/event_detail"))).toEqual([
       ...compact.keys(),
     ]);
-    expect(compact.get("home/c1/r4/text")?.text).toEqual([message?.text]);
+    expect(compact.get("home/c1/r4/text")?.text).toEqual([message.text]);
     expect(render(brief).get("home/c1/send")?.attributes).toContain('aria-disabled="true"');
   });
   it.each(["empty", "loading", "success", "error"] as const)("draws %s without extra actions", (state) => {
