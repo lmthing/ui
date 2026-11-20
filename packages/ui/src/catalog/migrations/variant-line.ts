@@ -70,6 +70,10 @@ export function migrateSheetItems(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Amount: [
+    { from: "style", values: { large: { emphasis: "hero" } } },
+    { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
+  ],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
   Note: [

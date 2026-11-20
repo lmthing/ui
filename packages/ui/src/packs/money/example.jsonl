@@ -1,5 +1,5 @@
 {"id":"h1","c":"Header","title":"Kitty"}
-{"id":"a1","c":"Amount","style":"large","label":"Shared pot","value":120}
+{"id":"a1","c":"Amount","emphasis":"hero","label":"Shared pot","value":120}
 {"id":"s1","c":"Split","people":[{"name":"Ana","photo":"lib:people"},{"name":"Sam","photo":"lib:people"},{"name":"Maya","photo":"lib:people"},{"name":"Ben","photo":"lib:people"}],"expenses":[{"title":"Groceries","amount":80,"by":0,"split":"equal"},{"title":"Internet","amount":40,"by":1,"split":"equal"}],"goto":"entry"}
 {"id":"b1","c":"Bills","bills":[{"name":"Rent","amount":800,"due":"2026-12-01","repeat":"monthly","paid":false,"icon":"home"},{"name":"Power","amount":60,"due":"2026-11-28","repeat":"monthly","paid":false,"icon":"zap"},{"name":"Internet","amount":40,"repeat":"monthly","paid":true,"icon":"wifi"}]}
 {"id":"s2","c":"SectionTitle","text":"Groceries budget"}
