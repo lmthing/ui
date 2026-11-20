@@ -1,15 +1,14 @@
 import type { FrameCheck } from "./shared";
 
-function siblingParent(el: Element) {
-  const parent = el.parentElement;
-  // A presentational row in a list grid only lays out its cells.
-  if (
-    el.getAttribute("role") === "listitem" &&
-    parent?.getAttribute("role") === "presentation" &&
-    parent.parentElement?.getAttribute("role") === "list"
-  )
-    return parent.parentElement;
-  return parent;
+function rhythmBox(el: Element, frameEl: Element) {
+  // The addressed root may be a control inside its card. Measure the whole card.
+  const item = el.closest('[role="listitem"]');
+  if (!item || !frameEl.contains(item)) return el;
+  // In a grid the tallest card determines the row's bottom, not the last card.
+  const row = item.parentElement;
+  if (row?.getAttribute("role") === "presentation" && row.parentElement?.getAttribute("role") === "list")
+    return row;
+  return item;
 }
 
 function unevenGap(siblings: Set<Element>): string | undefined {
@@ -40,11 +39,10 @@ export function checkRhythm({ frameEl, frame, add }: FrameCheck) {
   const groups = new Map<Element, Set<Element>>();
   for (const el of Array.from(frameEl.querySelectorAll("[data-testid]"))) {
     if (!/\/r\d+\/root$/.test(el.getAttribute("data-testid")!)) continue;
-    // Timed layouts have intentional gaps. For lists, a root can be a control inside its card.
+    // Timed layouts have intentional gaps.
     if (el.closest("[data-look-timed]")) continue;
-    const item = el.closest('[role="listitem"]');
-    const box = item && frameEl.contains(item) ? item : el;
-    const parent = siblingParent(box);
+    const box = rhythmBox(el, frameEl);
+    const parent = box.parentElement;
     if (!parent) continue;
     const siblings = groups.get(parent) ?? new Set<Element>();
     siblings.add(box);

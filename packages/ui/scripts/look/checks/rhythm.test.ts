@@ -97,21 +97,26 @@ it("does not compare different root kinds or separate sibling groups", () => {
   expect(add).not.toHaveBeenCalled();
 });
 
-it("checks list cells across presentational grid rows", () => {
+it.each([
+  { lastTop: 168, detail: undefined },
+  { lastTop: 175, detail: "gaps between items vary from 12 to 19px" },
+])("uses the whole grid row for a last row starting at $lastTop", ({ lastTop, detail }) => {
   const { frameEl, root, run, add } = frame();
-  const list = node(frameEl, 0, 164, { role: "list" });
-  for (const top of [0, 48, 120]) {
-    const row = node(list, top, top + 44, { role: "presentation" });
-    const cell = node(row, top, top + 44, { role: "listitem" });
-    root(cell, top, top + 44, "group");
+  const list = node(frameEl, 0, lastTop + 44, { role: "list" });
+  for (const [top, leftHeight, rightHeight] of [
+    [0, 84, 44],
+    [96, 60, 60],
+    [lastTop, 44, 44],
+  ] as const) {
+    const row = node(list, top, top + Math.max(leftHeight, rightHeight), { role: "presentation" });
+    for (const height of [leftHeight, rightHeight]) {
+      const cell = node(row, top, top + height, { role: "listitem" });
+      root(cell, top, top + height, "group");
+    }
   }
   run();
-  expect(add).toHaveBeenCalledExactlyOnceWith(
-    "rhythm",
-    "screen",
-    frameEl,
-    "gaps between items vary from 4 to 28px",
-  );
+  if (detail) expect(add).toHaveBeenCalledExactlyOnceWith("rhythm", "screen", frameEl, detail);
+  else expect(add).not.toHaveBeenCalled();
 });
 
 it("still ignores intentional gaps in timed layouts", () => {
