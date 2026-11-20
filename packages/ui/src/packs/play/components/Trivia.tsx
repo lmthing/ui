@@ -1,21 +1,8 @@
+// prettier-ignore
 import {
-  detailOf,
-  itemsOf,
-  photo,
-  planAct,
-  placeholderTitle,
-  probesFor,
-  sessionAvailable,
-  sessionKey,
-  sessionState,
-  text,
-  thingOf,
-  titleOf,
-  wordsFor,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  detailOf, itemsOf, photo, planAct, placeholderTitle, probesFor, sessionAvailable,
+  sessionKey, sessionState, text, thingOf, titleOf, wordsFor,
+  type FallbackInput, type Meta, type Probe, type Props, type SessionState,
 } from "../../../catalog";
 import { z } from "zod";
 // prettier-ignore
@@ -54,8 +41,17 @@ export const meta = {
   actions: { parts: { reveal: ["press"], next: ["press"], restart: ["press"] } },
   successActions: ["next.press", "restart.press"],
   read: (input, _state, lang) => {
-    const question = (input as z.output<typeof props>).questions[0];
-    return question ? [triviaPointsCopy(question.points, lang).line] : [];
+    const value = input as z.output<typeof props> & { [sessionKey]?: SessionState };
+    const current = value[sessionKey];
+    const question = value.questions[0];
+    if (current?.kind !== "rounds" || !question) return [];
+    const words = playWordsFor(lang).trivia;
+    const primary = primaryAction(current);
+    return [
+      triviaPointsCopy(question.points, lang).line,
+      ...(primary ? [words[primary]] : []),
+      words.restart,
+    ];
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
@@ -124,6 +120,11 @@ export const probes = [
 type TriviaProps = Props<typeof props, typeof meta>;
 type VisibleQuestion = Omit<TriviaProps["questions"][number], "answer"> & { answer?: string };
 
+function primaryAction(current: Extract<SessionState, { kind: "rounds" }>) {
+  if (sessionAvailable(current, "reveal")) return "reveal";
+  if (sessionAvailable(current, "next")) return "next";
+}
+
 // The standalone gallery has no controller to perform the reveal for its success preview.
 function previewReveal(input: TriviaProps, screen: string, id: string) {
   const result = planAct(
@@ -171,7 +172,7 @@ export function Trivia(input: TriviaProps) {
       content={[[input.style === "large" ? "title" : "heading", item.question], ["number", points.line, "start", "compact"]]} />
     <TriviaActions primary="reveal" loading />
   </KitCard>;
-  const primary = !current.revealed ? "reveal" : sessionAvailable(current, "next") ? "next" : undefined;
+  const primary = primaryAction(current);
   return (
     <KitCard part="root" padded>
       <KitContent leadingAlign="row"

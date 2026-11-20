@@ -1,14 +1,8 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
+// prettier-ignore
 import {
-  components,
-  createRegistry,
-  emptyLine,
-  loadingLabel,
-  packReady,
-  type CastLike,
-  type Props,
-  type ScreenLike,
-  type StateName,
+  components, createRegistry, emptyLine, loadingLabel, packReady,
+  type CastLike, type Props, type ScreenLike, type StateName,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, elementAt, renderInstance } from "../../../../test/render";
@@ -156,23 +150,29 @@ describe("Trivia read and act", () => {
   it("reads only the current visible facts, offers Next after reveal, and stops on the last answer", () => {
     const game = controller();
     const initial = game.read();
-    expect(initial).toContain(`2 points — "${first.question}" — photo:plants`);
+    expect(initial).toContain(`2 points — Reveal answer — Restart — "${first.question}" — photo:plants`);
+    expect(initial).toContain("[t1/reveal press] [t1/restart press]");
+    expect(initial).not.toContain("Next question");
     expect(initial.split(`"${first.question}"`)).toHaveLength(2);
     for (const hidden of [first.answer, explanation, second.question, second.answer])
       expect(initial).not.toContain(hidden);
     expect(game.act(press("next")).ok).toBe(false);
     expect(game.act(press("reveal")).ok).toBe(true);
-    expect(game.read()).toContain(`Trivia (success) 2 points — "${first.question}" — "${first.answer}"`);
-    expect(game.read()).toContain(`"${explanation}"`);
-    expect(game.read()).toContain("[t1/next press]");
-    expect(game.read()).not.toContain("[t1/reveal");
+    const revealed = game.read();
+    expect(revealed).toContain(
+      `Trivia (success) 2 points — Next question — Restart — "${first.question}" — "${first.answer}"`,
+    );
+    expect(revealed).toContain(`"${explanation}"`);
+    expect(revealed).toContain("[t1/next press]");
+    expect(revealed).not.toMatch(/Reveal answer|\[t1\/reveal/);
     expect(game.act(press("reveal")).ok).toBe(false);
     expect(game.act(press("next")).ok).toBe(true);
-    expect(game.read()).toContain(`1 point — "${second.question}"`);
+    expect(game.read()).toContain(`1 point — Reveal answer — Restart — "${second.question}"`);
     expect(game.read()).not.toMatch(/Chlorophyll|photo:plants|Trivia \(success\)/);
     expect(game.act(press("reveal")).ok).toBe(true);
-    expect(game.read()).toContain(`Trivia (success) 1 point — "${second.question}" — "${second.answer}"`);
-    expect(game.read()).not.toContain("[t1/next");
+    const final = game.read();
+    expect(final).toContain(`Trivia (success) 1 point — Restart — "${second.question}" — "${second.answer}"`);
+    expect(final).not.toMatch(/Reveal answer|Next question|\[t1\/next/);
     expect(game.act(press("next")).ok).toBe(false);
   });
 

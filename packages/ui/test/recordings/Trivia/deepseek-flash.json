@@ -1,22 +1,4 @@
 {
-  "012f7661c594484f": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Trivia 2 points — \"What absorbs water?\" — photo:plants [t1/reveal press] [t1/restart press]\n\nTask: Restart the question deck\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"t1/restart\", \"action\": \"press\"}",
-    "replies": [
-      "{\"address\": \"t1/restart\", \"action\": \"press\"}",
-      "{\"address\": \"t1/restart\", \"action\": \"press\"}",
-      "{\"address\": \"t1/restart\", \"action\": \"press\"}"
-    ]
-  },
-  "080188dd20aab3f8": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Trivia 2 points — \"What absorbs water?\" — photo:plants [t1/reveal press] [t1/restart press]\n\nTask: Reveal the answer to the current question\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
-    "replies": [
-      "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
-      "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
-      "{\"address\": \"t1/reveal\", \"action\": \"press\"}"
-    ]
-  },
   "4c1d8daed9cf58dd": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nTrivia: Host questions aloud, reveal answers and advance without grading submitted responses.\nprops: { questions: [1..6 { question: text≤120, answer: text≤120, explain?: text≤160, photo?: photo lib:<tag>|local:<n>, points?: int 1..20=1 }], style?: card|large=\"card\" }\nRule: Write seed question, answer, optional explanation/photo and points. Never write submissions, grades, awarded scores, current index or reveal state.\nexample: {\"c\":\"Trivia\",\"questions\":[{\"question\":\"What absorbs water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water from the soil.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What gives leaves their green colour?\",\"answer\":\"Chlorophyll\"}],\"style\":\"card\"}\n\nBrief: Host two questions aloud: Which part takes up water? Roots, worth two points. What makes leaves green? Chlorophyll, worth one. Large question style.",
     "format": {
@@ -121,11 +103,20 @@
         }
       }
     },
-    "reply": "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part of a plant takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water and minerals from the soil.\",\"photo\":\"lib:botany\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that absorbs light for photosynthesis.\",\"photo\":\"local:1\",\"points\":1}],\"style\":\"large\"}",
+    "reply": "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water from the soil through root hairs.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that captures sunlight for photosynthesis.\" ,\"photo\":null,\"points\":1}],\"style\":\"large\"}",
     "replies": [
-      "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part of a plant takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water and minerals from the soil.\",\"photo\":\"lib:botany\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that absorbs light for photosynthesis.\",\"photo\":\"local:1\",\"points\":1}],\"style\":\"large\"}",
+      "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water from the soil through root hairs.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that captures sunlight for photosynthesis.\" ,\"photo\":null,\"points\":1}],\"style\":\"large\"}",
       "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water from the soil through root hairs.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that captures sunlight for photosynthesis.\",\"photo\":null,\"points\":1}],\"style\":\"large\"}",
-      "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots draw water from the soil into the plant.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What makes leaves green?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that gives leaves their green color.\",\"photo\":null,\"points\":1}],\"style\":\"large\"}"
+      "{\"c\":\"Trivia\",\"questions\":[{\"question\":\"Which part of a plant takes up water?\",\"answer\":\"Roots\",\"explain\":\"Roots absorb water from the soil through root hairs.\",\"photo\":\"lib:plants\",\"points\":2},{\"question\":\"What gives leaves their green colour?\",\"answer\":\"Chlorophyll\",\"explain\":\"Chlorophyll is the pigment that absorbs sunlight for photosynthesis.\" ,\"photo\":null,\"points\":1}],\"style\":\"large\"}"
+    ]
+  },
+  "6d501d19d82d9a92": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Trivia 2 points — Reveal answer — Restart — \"What absorbs water?\" — photo:plants [t1/reveal press] [t1/restart press]\n\nTask: Restart the question deck\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/restart\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"t1/restart\", \"action\": \"press\"}",
+      "{\"address\": \"t1/restart\", \"action\": \"press\"}",
+      "{\"address\": \"t1/restart\", \"action\": \"press\"}"
     ]
   },
   "b8c3f2525e539c42": {
@@ -144,6 +135,15 @@
       "Choice",
       "Choice",
       "Choice"
+    ]
+  },
+  "fc8b93960bb831cb": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nt1 Trivia 2 points — Reveal answer — Restart — \"What absorbs water?\" — photo:plants [t1/reveal press] [t1/restart press]\n\nTask: Reveal the answer to the current question\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"t1/reveal\", \"action\": \"press\"}",
+      "{\"address\": \"t1/reveal\", \"action\": \"press\"}"
     ]
   }
 }
