@@ -82,6 +82,7 @@ describe("books register contracts", () => {
     expect(edit).toContain("[e1/post press]");
     expect(edit).toContain("[e1/r2/net set");
     expect(edit).toContain("[e1/r2/business_use set");
+    expect(edit).toContain("r3: Delivery · 7 · business_use=0.5");
     expect(edit).not.toContain("[e1/r2/category select]");
     expect(edit).not.toContain("[e1/r2/vat select]");
     expect(edit).not.toContain("/void press");

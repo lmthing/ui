@@ -64,7 +64,7 @@ export const meta = {
     return rows.map((row, index) =>
       "supplier" in row
         ? `r${index + 1}: ${row.supplier} · ${row.date}`
-        : `r${index + 1}: ${row.title} · ${c.numberLine(row.net, lang)} · ${row.categoryRef} · ${row.vatCode}`,
+        : `r${index + 1}: ${row.title} · ${c.numberLine(row.net, lang)} · business_use=${row.businessUse} · ${row.categoryRef} · ${row.vatCode}`,
     );
   },
 } as const satisfies c.Meta;
