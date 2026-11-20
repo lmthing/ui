@@ -1,0 +1,39 @@
+export { pack } from "./pack";
+export * from "./components";
+export * from "./archetypes";
+
+// Keep the exported text identical to the worked JSONL without a runtime file import.
+export const example = [
+  '{"id":"h1","c":"Header","title":"Three Flats"}',
+  '{"id":"s1","c":"Search","hint":"Search units"}',
+  '{"id":"c1","c":"Chips","items":[{"label":"All","on":true},{"label":"Vacant"}]}',
+  '{"id":"u1","c":"Units","on":"2026-11-18","units":[{"unitRef":"flat_a","title":"Willow Flat","address":"14 Mill Lane","goto":"property_unit_detail"},{"unitRef":"flat_b","title":"Cedar Flat","address":"16 Mill Lane"},{"unitRef":"flat_c","title":"Elm Flat","address":"18 Mill Lane","askingRent":925,"askingPer":"month"}],"lets":[{"letRef":"asha_let","unitRef":"flat_a","occupant":"Asha","kind":"tenancy","start":"2026-10-01","rent":900,"per":"month"},{"letRef":"lee_let","unitRef":"flat_b","occupant":"Lee","kind":"tenancy","start":"2026-09-01","rent":1100,"per":"month"}]}',
+  '{"id":"s2","c":"Stats","tiles":[{"label":"Occupied","value":"2"},{"label":"Vacant","value":"1"},{"label":"Rent collected","value":"1500"}]}',
+  '{"id":"h2","c":"Header","title":"November rent"}',
+  '{"id":"r1","c":"RentRoll","month":"2026-11","charges":[{"chargeRef":"nov_willow","letRef":"asha_let","unitRef":"flat_a","unit":"Willow Flat","occupant":"Asha","due":"2026-11-01","amount":900},{"chargeRef":"nov_cedar","letRef":"lee_let","unitRef":"flat_b","unit":"Cedar Flat","occupant":"Lee","due":"2026-11-01","amount":1100},{"chargeRef":"oct_cedar","letRef":"lee_let","unitRef":"flat_b","unit":"Cedar Flat","occupant":"Lee","due":"2026-10-01","amount":200}],"receipts":[{"receiptRef":"willow_transfer","chargeRef":"nov_willow","date":"2026-11-05","amount":900,"method":"transfer"},{"receiptRef":"cedar_part","chargeRef":"nov_cedar","date":"2026-11-06","amount":600,"method":"transfer"}]}',
+  '{"id":"n1","c":"Note","text":"Recording a receipt does not move money."}',
+  '{"id":"h3","c":"Header","title":"Viewings"}',
+  '{"id":"v1","c":"Viewings","viewings":[{"viewingRef":"elm_view","unitRef":"flat_c","unit":"Elm Flat","prospect":"Noor","start":"2026-11-21T10:30:00+00:00","minutes":20,"status":"confirmed","goto":"edit_viewing"}]}',
+  '{"id":"b1","c":"Button","label":"Add viewing","goto":"edit_viewing"}',
+  '{"id":"h4","c":"Header","style":"back","title":"Willow Flat"}',
+  '{"id":"g1","c":"Gallery","style":"carousel","photos":[{"photo":"local:2","caption":"Front entrance"},{"photo":"local:3","caption":"Kitchen"}]}',
+  '{"id":"k1","c":"KeyValue","pairs":[{"label":"Address","value":"14 Mill Lane"},{"label":"Bedrooms","value":"2"}]}',
+  '{"id":"u2","c":"Units","on":"2026-11-18","units":[{"unitRef":"flat_a","title":"Willow Flat","address":"14 Mill Lane","goto":"property_unit_detail"}],"lets":[{"letRef":"asha_let","unitRef":"flat_a","occupant":"Asha","kind":"tenancy","start":"2026-10-01","rent":900,"per":"month"}]}',
+  '{"id":"h5","c":"Header","style":"back","title":"Move-in inspection"}',
+  '{"id":"i1","c":"Inspections","inspectionRef":"willow_move_in","unitRef":"flat_a","unit":"Willow Flat","date":"2026-11-18","kind":"move_in","rooms":[{"roomRef":"kitchen","title":"Kitchen","checks":[{"checkRef":"worktop","title":"Worktop","condition":"worn","note":"Scuffs by the sink.","photos":["local:1"]}]}]}',
+  '{"id":"n2","c":"Note","text":"Check every feature before finalising."}',
+  '{"id":"h6","c":"Header","style":"back","title":"Willow utilities"}',
+  '{"id":"m1","c":"Meters","unitRef":"flat_a","meters":[{"meterRef":"willow_electric","title":"Electricity","utility":"electricity","unit":"kWh"}],"readings":[{"readingRef":"willow_oct","meterRef":"willow_electric","at":"2026-10-18T08:00:00Z","value":1200},{"readingRef":"willow_nov","meterRef":"willow_electric","at":"2026-11-18T08:00:00Z","value":1246}],"addGoto":"add_reading"}',
+  '{"id":"n3","c":"Note","text":"Enter the total shown on the meter."}',
+  '{"id":"b2","c":"Button","label":"Add reading","goto":"add_reading"}',
+  '{"id":"h7","c":"Header","style":"back","title":"Add reading"}',
+  '{"id":"f1","c":"Field","kind":"number","label":"Meter reading in kWh"}',
+  '{"id":"f2","c":"Field","kind":"date","label":"Reading date"}',
+  '{"id":"b3","c":"Button","label":"Save reading","goto":"property_unit_meters"}',
+  '{"id":"h8","c":"Header","style":"back","title":"Viewing details"}',
+  '{"id":"f3","c":"Field","label":"Prospect"}',
+  '{"id":"f4","c":"Field","kind":"date","label":"Viewing date"}',
+  '{"id":"f5","c":"Field","kind":"time","label":"Start time"}',
+  '{"id":"b4","c":"Button","label":"Save viewing","goto":"property_viewings"}',
+  "",
+].join("\n");
