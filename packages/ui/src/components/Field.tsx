@@ -126,16 +126,31 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 
   return { kind: "text", label: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 24) };
 }
+const interval = {
+  kind: "number",
+  label: "Water interval (days)",
+  value: "7",
+  hint: "Use whole days.",
+} as const;
+const emergency = {
+  kind: "text",
+  label: "Backup contact",
+  value: "Sam",
+  hint: "Use their first name.",
+} as const;
 export const examples = [
-  { kind: "text", label: "Plant name", value: "Fern", density: "compact" },
+  { kind: "text", label: "Plant name", value: "Fern" },
   { kind: "date", label: "Walk date", value: "2026-11-19" },
-  { kind: "number", label: "Water every", value: "7", hint: "Enter days between visits.", detail: "brief" },
+  interval,
   { kind: "time", label: "Walk time", value: "09:00" },
   { kind: "choice", label: "Walk length", options: ["30 min", "45 min", "60 min"], value: "30 min" },
   { kind: "toggle", label: "Remind me", value: "on" },
   { kind: "slider", label: "Walk intensity", value: "5" },
   { kind: "photo", label: "Dog photo" },
   { kind: "repeat", label: "Water it", repeat: "weekly" },
+  { ...interval, detail: "brief" },
+  emergency,
+  { ...emergency, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Field");
 export const probes = [
