@@ -65,15 +65,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { text: "All plants watered", tone: "good" },
   {
-    text: "Today's 4pm walk is cancelled",
+    text: "4pm walk cancelled",
     icon: "alert",
     goto: "walk_details",
   },
-  { text: "Booking closes at noon", tone: "neutral", surface: "outlined" },
-  { text: "Booking closes at noon", tone: "neutral" },
+  { text: "Booking closes at noon", surface: "outlined" },
+  { text: "Booking closes at noon" },
+  { text: "Walk status updated", tone: "neutral" },
+  { text: "Walk status updated" },
   { text: "Payment failed", tone: "bad" },
+  { text: "Payment failed" },
   { text: "Walks may start late", media: "none" },
   { text: "Walks may start late" },
+  { text: "All plants watered" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Banner");

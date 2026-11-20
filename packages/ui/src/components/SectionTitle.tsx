@@ -20,15 +20,15 @@ export const meta = {
   purpose: "Label a group of content and offer one optional link to more.",
   pick: "A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).",
   writeHints: [
-    'To hide an existing more link, set detail to "brief" and keep the link label and target in link. Set density to null unless asked to change spacing; hiding the link does not change density.',
+    'A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail "brief", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.',
   ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "A label above a group and an optional navigation link in the on-device app.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
-  variantParts: { "detail.brief": { hides: ["link"] } },
-  parts: ["root", "text", "link"],
+  variantParts: { "detail.brief": { hides: ["link", "link_label"] } },
+  parts: ["root", "text", "link", "link_label"],
   states: ["filled"],
   actions: { parts: { link: ["press"] } },
 } as const satisfies Meta;

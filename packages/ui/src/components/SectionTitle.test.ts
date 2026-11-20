@@ -107,7 +107,7 @@ describe("SectionTitle fallback and metadata", () => {
       weight: 1,
       tier: "phone",
     });
-    expect(meta.parts).toEqual(["root", "text", "link"]);
+    expect(meta.parts).toEqual(["root", "text", "link", "link_label"]);
     expect(meta.states).toEqual(["filled"]);
     expect(meta.actions).toEqual({ parts: { link: ["press"] } });
     expect(meta.realPath).not.toBe("");
@@ -140,9 +140,10 @@ describe("SectionTitle view", () => {
       mode: "light",
       accent: "moss",
     });
-    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["link"] });
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["link", "link_label"] });
     expect(html).toContain('data-testid="home/c1/text"');
     expect(html).not.toContain('data-testid="home/c1/link"');
+    expect(html).not.toContain('data-testid="home/c1/link_label"');
     expect(affordancesOf(meta, props.parse(input), "c1")).toEqual([]);
     expect(readComponent(components.SectionTitle, input, "c1").join(" ")).not.toContain("See all");
   });

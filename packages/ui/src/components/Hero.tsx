@@ -15,7 +15,16 @@ import {
   type Props,
 } from "../catalog";
 import { z } from "zod";
-import { KitCard, KitPhoto, KitSkeleton, KitText, useComponentState, useKit, useVariant } from "../kit";
+import {
+  KitCard,
+  KitContent,
+  KitPhoto,
+  KitSkeleton,
+  KitText,
+  useComponentState,
+  useKit,
+  useVariant,
+} from "../kit";
 
 export const meta = {
   id: "Hero",
@@ -23,8 +32,8 @@ export const meta = {
   purpose: "The screen's main statement or headline number, including what needs attention today.",
   pick: "The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).",
   writeHints: [
-    'Use style "number" when the main title is a headline number. Use media "cover" only when asked for a wide photo above the headline, and include its photo reference.',
-    'Use detail "brief" only when asked to hide the subtitle; keep supplied subtitle text in sub. Leave other axes null unless requested.',
+    'Use style "number" when the title is a headline number. For a requested wide photo, set media to "cover" and give its photo reference; density, emphasis, align and tone stay null unless explicitly requested.',
+    'Put visible subtitles in sub and keep detail null. Only an explicit request to hide the subtitle sets detail to "brief"; keep the subtitle in sub.',
   ],
   region: "body",
   weight: 3,
@@ -81,8 +90,9 @@ export const examples = [
   },
   { title: "Morning walk", sub: "Clover and Pip are ready for their morning park walk" },
   { style: "number", title: "2", sub: "plants need water", tone: "warn" },
-  { title: "Watered", tone: "good", align: "center", sub: "Next check on Friday" },
+  { title: "Watered", align: "center", sub: "Next check on Friday" },
   { title: "Watered", tone: "good", sub: "Next check on Friday" },
+  { title: "Watered", sub: "Next check on Friday" },
   { title: "Cancelled", tone: "bad" },
   { title: "Plant care", sub: "Check the ferns before watering", emphasis: "quiet" },
   { title: "Plant care", sub: "Check the ferns before watering", detail: "brief" },
@@ -122,9 +132,8 @@ export function Hero(input: Props<typeof props, typeof meta>) {
       </KitCard>
     );
   }
-  return (
-    <KitCard style="cards" density={density} align={align} part="root">
-      {hasPhoto && photo && <KitPhoto photo={photo} shape="wide" part="photo" />}
+  const copy = (
+    <>
       <KitText
         role={number ? "number" : media === "cover" ? "title" : "display"}
         tone={tone === "neutral" ? (number ? "accent" : "text") : tone}
@@ -137,6 +146,18 @@ export function Hero(input: Props<typeof props, typeof meta>) {
         <KitText role={number ? "label" : "body"} tone="muted" part="sub" {...{ density, align }}>
           {sub}
         </KitText>
+      )}
+    </>
+  );
+  return (
+    <KitCard style="cards" density={density} align={align} part="root">
+      {hasPhoto && photo ? (
+        <>
+          <KitPhoto photo={photo} shape="wide" part="photo" />
+          <KitContent {...{ density, align }}>{copy}</KitContent>
+        </>
+      ) : (
+        copy
       )}
     </KitCard>
   );

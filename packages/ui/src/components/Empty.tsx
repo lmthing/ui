@@ -21,7 +21,8 @@ export const meta = {
   purpose: "A calm message on a screen that has no content yet.",
   pick: "Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).",
   writeHints: [
-    'Use detail "brief" only when asked to hide the explanation; keep supplied explanation in sub. Use kind "error" or "offline" only for a failed result or disconnected state; those provide a retry action.',
+    'An instruction to show just the title or hide the explanation sets detail to "brief"; retain the exact explanation in sub. If the explanation should be visible, write it in sub and set detail to null.',
+    'Use kind "error" or "offline" only for a failed result or disconnected state; those provide a retry action.',
   ],
   region: "body",
   weight: 2,
