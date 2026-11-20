@@ -1,14 +1,16 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  affordancesOf,
   components,
   createRegistry,
   emptyLine,
   placeholderDetail,
+  readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
 
-import { Empty } from "./Empty";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Empty;
 
@@ -17,7 +19,7 @@ describe("Empty schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims text and leaves optional fields absent", () => {
-    const derived = { kind: "none", retryable: false };
+    const derived = { detail: "full", kind: "none", retryable: false };
     expect(props.parse({ title: "  Nothing here yet  " })).toEqual({ ...derived, title: "Nothing here yet" });
     expect(props.parse({ title: "  Nothing here yet  ", sub: "  Details  ", icon: "info" })).toEqual({
       ...derived,
@@ -38,6 +40,7 @@ describe("Empty schema", () => {
     { title: "Nothing here yet", sub: 4 },
     { title: "Nothing here yet", icon: "unknown" },
     { title: "Nothing here yet", style: "plain" },
+    { title: "Nothing here yet", detail: "minimal" },
     { title: "Nothing here yet", color: "red" },
     { title: "Nothing here yet", pixels: 4 },
     { title: "Nothing here yet", id: "e1" },
@@ -54,6 +57,22 @@ describe("Empty schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
+});
+
+it("brief hides only the explanation and preserves the retry action and its address", () => {
+  const input = {
+    title: "Couldn't load",
+    sub: "Check your connection.",
+    kind: "offline",
+    detail: "brief",
+  } as const;
+  const html = renderInstance("Empty", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+  expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["sub"] });
+  expect(html).toContain('data-testid="home/c1/title"');
+  expect(html).toContain('data-testid="home/c1/retry"');
+  expect(html).not.toContain('data-testid="home/c1/sub"');
+  expect(readComponent(components.Empty, input, "c1").join(" ")).not.toContain(input.sub);
+  expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual(["c1/retry"]);
 });
 
 describe("Empty fallback", () => {

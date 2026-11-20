@@ -7,6 +7,7 @@ import {
   icon,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -19,10 +20,15 @@ export const meta = {
   group: "content",
   purpose: "A calm message on a screen that has no content yet.",
   pick: "Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).",
+  writeHints: [
+    'Use detail "brief" only when asked to hide the explanation; keep supplied explanation in sub. Use kind "error" or "offline" only for a failed result or disconnected state; those provide a retry action.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "The absence of results from a query over one thing in the on-device database.",
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["sub"] } },
   parts: ["root", "icon", "title", "sub", "retry"],
   states: ["filled"],
   // Only a message about something that failed offers another try.
@@ -35,13 +41,18 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     title: text(40),
     sub: text(100).optional(),
     icon: icon.optional(),
     kind: z.enum(["none", "error", "offline"]).default("none"),
   })
   // Derived, never written: a failed or offline message offers a retry.
-  .overwrite((value) => ({ ...value, retryable: value.kind !== "none" }));
+  .overwrite((value) => ({
+    ...value,
+    ...(value.detail === "brief" ? { sub: undefined } : {}),
+    retryable: value.kind !== "none",
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -53,10 +64,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 }
 
 export const examples = [
-  { title: "No plants yet", icon: "leaf" },
+  { title: "No plants yet", icon: "leaf", sub: "Added plants will appear here." },
   { title: "No walks today", sub: "Booked walks will appear here." },
-  { title: "Couldn't load your walks", sub: "Check your connection and try again.", kind: "error" },
+  { title: "Couldn't load your walks", sub: "Check your connection.", kind: "error" },
   { title: "You're offline", kind: "offline" },
+  { title: "No walks today", sub: "Booked walks will appear here.", detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Empty");
@@ -70,6 +82,12 @@ export const probes = [
   write(
     "My plant collection has no plants yet. Say so with a leaf symbol and explain that added plants will appear here.",
   ),
+  {
+    ...write(
+      "Say No walks booked. Save the explanation New bookings will appear here, but show only the main line for now.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
 const kindIcon = { none: undefined, error: "alert", offline: "wifi" } as const;
