@@ -6,6 +6,7 @@ import {
   liveProps,
   parseControlProps,
   drawStatus,
+  hasPlaybackClock,
   sessionStatus,
   type ClockState,
   type Definition,
@@ -86,8 +87,13 @@ function projectEntry(
   if (["Counter", "Scale"].includes(entry.c) && get("$value") !== undefined) result.value = get("$value");
   projectItems(entry, parsed, get, result);
   Object.assign(result, projectAdjustments(meta, result, get));
-  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now));
+  if (clocks || meta.draw) Object.assign(result, projectClocks(meta, result, get, now, "legacy"));
   else if (get("$state") !== undefined) result.state = get("$state") as NonNullable<Entry["state"]>;
+  // Playback seconds and running state reach views through liveControls, not through wire props.
+  if (clocks && hasPlaybackClock(meta)) {
+    const state = projectClocks(meta, parseControlProps(def, input, get), get, now, "playback").state;
+    if (state !== undefined) result.state = state as NonNullable<Entry["state"]>;
+  }
   if (meta.draw) {
     const local = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [key.replace(`${screen.id}/`, ""), value]),
