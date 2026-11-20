@@ -24,14 +24,15 @@ export const meta = {
   read: (input, _state, lang): string[] => {
     const { week, people, shifts } = input as z.output<typeof props>;
     const { weekdayShort } = c.wordsFor(lang);
+    const oneLine = (value: string) => value.replace(/[\r\n\u2028\u2029]+/g, " ");
     const rows = people.map(({ name }, person) => {
       const schedule = shifts.flatMap((slot, index) => (slot.person === person ? [{ slot, index }] : []));
       schedule.sort((a, b) => a.slot.day - b.slot.day || a.slot.from.localeCompare(b.slot.from));
       const details = schedule.map(({ slot: { day, from, to, role }, index }) => {
         const time = `${c.timeOfDayLine(from, lang)}–${c.timeOfDayLine(to, lang)}`;
-        return `${weekdayShort[day]} ${time}${role ? ` ${role}` : ""} (r${index + 1})`;
+        return `${weekdayShort[day]} ${time}${role ? ` ${oneLine(role)}` : ""} (r${index + 1})`;
       });
-      return details.length ? `${name}: ${details.join(", ")}` : name;
+      return details.length ? `${oneLine(name)}: ${details.join(", ")}` : oneLine(name);
     });
     // Keep staff summaries on separate lines; the shared reader appends the addressed cell actions.
     return [[c.appointmentDate(week, lang), ...rows].join("\n")];
