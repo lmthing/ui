@@ -30,7 +30,6 @@ describe("AmountPad contract and boundaries", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-
   it("trims labels and accepts the exact label length and maximum", () => {
     const label = "a".repeat(24);
     const parsed = props.parse({ label: ` ${label} `, value: 50, max: 50, note: true });
@@ -48,7 +47,6 @@ describe("AmountPad contract and boundaries", () => {
     expect(props.safeParse({ ...sample, keys: [] }).success).toBe(false);
     expect(props.safeParse({ ...sample, value: 0, max: 0 }).success).toBe(true);
   });
-
   it.each([
     {},
     { label: "Supplies" },

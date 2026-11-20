@@ -67,29 +67,24 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 // prettier-ignore
+const ledgeAccounts = {
+  accounts: [
+    { name: "Ledge supplies", kind: "jar", balance: 84, swatch: "green", goto: "supplies" },
+    { name: "Everyday", kind: "current", last4: "4821", balance: 1240.5, swatch: "navy", goto: "current" },
+  ],
+} satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
-  {
-    accounts: [
-      { name: "Ledge supplies", kind: "jar", balance: 84, swatch: "green", goto: "supplies" },
-      {
-        name: "Everyday",
-        kind: "current",
-        last4: "4821",
-        balance: 1240.5,
-        swatch: "navy",
-        goto: "current",
-      },
-    ],
-  },
+  ledgeAccounts,
   {
     accounts: [
       { name: "Walk kit card", kind: "card", last4: "9034", balance: -120, swatch: "purple", goto: "card" },
       { name: "Trot reserve", kind: "savings", balance: 640, swatch: "blue", goto: "savings" },
     ],
   },
-  { detail: "brief", surface: "outlined", density: "compact", accounts: [
-    { name: "Cash reserve", kind: "savings", last4: "1739", balance: 840, swatch: "blue", goto: "reserve" },
-  ] },
+  { ...ledgeAccounts, detail: "brief" },
+  { ...ledgeAccounts, density: "compact" },
+  { ...ledgeAccounts, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("AccountCard");
 export const probes = [
@@ -110,6 +105,7 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type CardProps = c.Props<typeof props, typeof meta>;
+// prettier-ignore
 function AccountTile({
   account,
   copy,
@@ -135,6 +131,7 @@ function AccountTile({
         <kit.KitCard padded {...finish}>
           <kit.KitSkeleton
             shape="figure"
+            density={finish.density}
             inset="none"
             content={[
               [nameRole, name],
@@ -150,13 +147,13 @@ function AccountTile({
             <kit.KitText density={finish.density} role={nameRole} part="name">
               {name}
             </kit.KitText>
-            <kit.KitText role="number" part="balance" numberScale={numberScale} tabular lines={1}>
+            <kit.KitText density={finish.density} role="number" part="balance" numberScale={numberScale} tabular lines={1}>
               {balance}
             </kit.KitText>
-            <kit.KitText role="caption" part="kind" tone="muted">
+            <kit.KitText density={finish.density} role="caption" part="kind" tone="muted">
               {kind}
               {suffix && (
-                <kit.KitText role="caption" part="last4" tone="muted" tabular>
+                <kit.KitText density={finish.density} role="caption" part="last4" tone="muted" tabular>
                   {suffix}
                 </kit.KitText>
               )}

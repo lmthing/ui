@@ -68,18 +68,17 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   return { people, expenses: [], goto: "entry" };
 }
 // prettier-ignore
+const ledgeLedger = {
+  people: [{ name: "Ana", photo: "lib:people" }, { name: "Sam", photo: "lib:people" }],
+  expenses: [
+    { title: "Ledge potting mix", amount: 48, by: 0, split: "equal" },
+    { title: "Terracotta pots", amount: 12, by: 1, split: "equal" },
+  ],
+  goto: "entry",
+} satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
-  {
-    people: [
-      { name: "Ana", photo: "lib:people" },
-      { name: "Sam", photo: "lib:people" },
-    ],
-    expenses: [
-      { title: "Ledge potting mix", amount: 48, by: 0, split: "equal" },
-      { title: "Terracotta pots", amount: 12, by: 1, split: "equal" },
-    ],
-    goto: "entry",
-  },
+  ledgeLedger,
   {
     people: [
       { name: "Ben", photo: "lib:people" },
@@ -92,9 +91,8 @@ export const examples = [
     ],
     goto: "expense",
   },
-  { lead: "none", density: "compact",
-    people: [{ name: "Ana", photo: "lib:people" }, { name: "Sam", photo: "lib:people" }],
-    expenses: [{ title: "Plant pots", amount: 42, by: 0, split: "equal" }], goto: "entry" },
+  { ...ledgeLedger, lead: "none" },
+  { ...ledgeLedger, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Split");
 export const probes = [
@@ -151,7 +149,7 @@ function LedgerRows({
       <kit.KitText part="balances" role="label" tone="muted">{w.balances}</kit.KitText>
       {people.map(({ id, name, photo }, index) => {
         const balance = ledger.balances[index]!;
-        return <kit.KitRow key={id} item={id} label={name} inset="none" leadingAlign="row" density={density}
+        return <kit.KitRow key={id} item={id} label={name} inset="none" leadingAlign="row" density={density} inline={lead === "none"}
           leading={lead === "avatar" && <kit.KitPhoto part="photo" shape="round" label={name}
             {...(photo === "lib:people" ? { initials: Array.from(name)[0]! } : { photo })} />}
           trailing={<kit.KitText part="balance" role="number" numberScale="compact" tabular tone="muted">{balance.value}</kit.KitText>}>

@@ -3,7 +3,6 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { loanCopy, loanReading } from "../copy";
 import { moneyWordsFor } from "../lang";
-
 export const meta = {
   id: "Loan",
   status: "ready",
@@ -29,7 +28,6 @@ export const meta = {
     return parsed.detail ? loanReading(parsed, state, lang) : [];
   },
 } as const satisfies c.Meta;
-
 const paymentRecord = z.strictObject({ due: c.isoDate, amount: z.number().positive() });
 export const loanSource = z.strictObject({
   name: c.text(24),
@@ -39,14 +37,12 @@ export const loanSource = z.strictObject({
   firstDue: c.isoDate,
   payments: z.array(paymentRecord).min(0).max(6),
 });
-
 export const props = loanSource
   .extend({
     goto: c.screenId.optional(),
     ...c.variantProps(meta.variants),
   })
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
-
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
   const item = c.itemsOf(cast, 1)[0];
@@ -59,23 +55,24 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
     payments: [],
   };
 }
-
+// prettier-ignore
+const carLoan = { name: "Trot car loan", principal: 6000, rate: 6, payment: 250,
+  firstDue: "2026-12-01", payments: [], goto: "terms" };
 // prettier-ignore
 export const examples = [
   {
     name: "Ledge supplies card", principal: 1200, rate: 18.9, payment: 100, firstDue: "2026-11-01",
     payments: [{ due: "2026-11-01", amount: 100 }], goto: "terms",
   },
-  { name: "Trot car loan", principal: 6000, rate: 6, payment: 250,
-    firstDue: "2026-12-01", payments: [], detail: "full" },
+  { ...carLoan, detail: "full" },
   { name: "Home mortgage", principal: 180000, rate: 4.5, payment: 1100,
-    firstDue: "2026-12-01", payments: [], density: "compact" },
+    firstDue: "2026-12-01", payments: [] },
   {
     name: "Ana's friend loan", principal: 480, rate: 0, payment: 40, firstDue: "2026-11-01",
     payments: [{ due: "2026-11-01", amount: 40 }], goto: "friend_terms", detail: "full",
   },
+  { ...carLoan, detail: "full", density: "compact" },
 ] satisfies z.input<typeof props>[];
-
 const { choose, write, read } = c.probesFor("Loan");
 // prettier-ignore
 export const probes = [
@@ -92,7 +89,6 @@ export const probes = [
   },
   read("Edit the Ledge supplies card terms", { address: "l1/edit", action: "press" }),
 ] satisfies c.Probe[];
-
 type LoanCopy = ReturnType<typeof loanCopy>;
 type LoanWords = ReturnType<typeof moneyWordsFor>;
 
@@ -103,49 +99,51 @@ type LineProps = {
   part?: string | null;
   tone?: "muted" | "good" | "bad";
   tabular?: boolean;
+  density: c.ThemeDensity;
 };
-function LoanLine({ role, part = null, children, ...props }: LineProps) {
+function LoanLine({ role, part = null, children, density, ...props }: LineProps) {
   return kit.useComponentState() === "loading" ? (
-    <kit.KitSkeleton shape="figure" inset="none" content={[[role, children]]} />
+    <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[role, children]]} />
   ) : (
-    <kit.KitText {...{ role, part, children, ...props }} />
+    <kit.KitText {...{ role, part, children, density, ...props }} />
   );
 }
-
-function Forecast({ copy, words, loading }: { copy: LoanCopy; words: LoanWords; loading: boolean }) {
+type ForecastProps = { copy: LoanCopy; words: LoanWords; loading: boolean; density: c.ThemeDensity };
+function Forecast({ copy, words, loading, density }: ForecastProps) {
   const { loanLabels } = words;
   // prettier-ignore
   return (
     <>
-      <kit.KitContent group="response">
+      <kit.KitContent density={density} group="response">
         {copy.next && (
-          <kit.KitRow inline part={loading ? null : "next"} label={loading ? "" : copy.next.headline} lineRole="label">
-            <LoanLine role="label" children={copy.next.headline} />
-            <LoanLine role="caption" tone="muted" children={copy.next.split} />
+          <kit.KitRow density={density} inline part={loading ? null : "next"} label={loading ? "" : copy.next.headline} lineRole="label">
+            <LoanLine density={density} role="label" children={copy.next.headline} />
+            <LoanLine density={density} role="caption" tone="muted" children={copy.next.split} />
           </kit.KitRow>
         )}
-        <LoanLine role="label" part="finish" children={copy.finish} />
+        <LoanLine density={density} role="label" part="finish" children={copy.finish} />
       </kit.KitContent>
       {copy.schedule.length > 0 && (
-        <kit.KitContent group="response">
-          <LoanLine role="label" part="schedule" children={loanLabels.schedule} />
+        <kit.KitContent density={density} group="response">
+          <LoanLine density={density} role="label" part="schedule" children={loanLabels.schedule} />
           {copy.schedule.map(({ due, date, remaining, split }) => (
-            <kit.KitRow key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split)}>
-              <kit.KitGrid fitLast>
-                <LoanLine role="caption" children={date} />
-                <LoanLine role="label" tabular children={remaining} />
+            <kit.KitRow density={density} key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split)}>
+              <kit.KitGrid density={density} fitLast>
+                <LoanLine density={density} role="caption" children={date} />
+                <LoanLine density={density} role="label" tabular children={remaining} />
               </kit.KitGrid>
-              <LoanLine role="caption" tone="muted" children={split} />
+              <LoanLine density={density} role="caption" tone="muted" children={split} />
             </kit.KitRow>
           ))}
-          {copy.more && <LoanLine role="caption" tone="muted" children={copy.more} />}
+          {copy.more && <LoanLine density={density} role="caption" tone="muted" children={copy.more} />}
         </kit.KitContent>
       )}
-      <LoanLine role="caption" tone="muted" children={loanLabels.estimate} />
+      <kit.KitContent density={density} group={copy.schedule.length ? "response" : "content"}>
+        <LoanLine density={density} role="caption" tone="muted" children={loanLabels.estimate} />
+      </kit.KitContent>
     </>
   );
 }
-
 export function Loan(input: c.Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const { lang, words } = kit.useWords(moneyWordsFor);
@@ -157,23 +155,23 @@ export function Loan(input: c.Props<typeof props, typeof meta>) {
   // prettier-ignore
   return (
     <kit.KitCard part="root" padded density={density}>
-      <kit.KitContent>
-        <LoanLine role="label" part="name" children={input.name} />
-        {copy.headline && <LoanLine role="title" tone={copy.headline === loanLabels.cleared ? "good" : "bad"} children={copy.headline} />}
-        {copy.notice && <LoanLine role="caption" tone="muted" children={copy.notice} />}
+      <kit.KitContent density={density}>
+        <LoanLine density={density} role="label" part="name" children={input.name} />
+        {copy.headline && <LoanLine density={density} role="title" tone={copy.headline === loanLabels.cleared ? "good" : "bad"} children={copy.headline} />}
+        {copy.notice && <LoanLine density={density} role="caption" tone="muted" children={copy.notice} />}
         {copy.balance !== undefined && (
           <>
-            <LoanLine role="number" part="balance" tabular children={copy.balance} />
-            <LoanLine role="caption" tone="muted" children={loanLabels.balance} />
+            <LoanLine density={density} role="number" part="balance" tabular children={copy.balance} />
+            <LoanLine density={density} role="caption" tone="muted" children={loanLabels.balance} />
           </>
         )}
       </kit.KitContent>
-      <kit.KitContent group="response">
+      <kit.KitContent density={density} group="response">
         {copy.terms.map(({ part, text }) => (
-          <LoanLine key={part} part={part} role="caption" tone="muted" children={text} />
+          <LoanLine density={density} key={part} part={part} role="caption" tone="muted" children={text} />
         ))}
       </kit.KitContent>
-      {!copy.headline && <Forecast {...{ copy, words, loading }} />}
+      {!copy.headline && <Forecast {...{ copy, words, loading, density }} />}
       {goto && loading && <kit.KitSkeleton shape="control" kind="secondary" label={loanLabels.edit} full />}
       {goto && state === "filled" && <kit.KitAction kind="secondary" part="edit" label={loanLabels.edit} goto={goto} full />}
     </kit.KitCard>

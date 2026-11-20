@@ -78,17 +78,17 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+const ledgeHolding = {
+  name: "Ledge savings holding",
+  points: [98, 99, 98.5, 100, 101, 100.5, 102, 103],
+  range: "month",
+} satisfies z.input<typeof props>;
 export const examples = [
-  { name: "Ledge savings holding", points: [98, 99, 98.5, 100, 101, 100.5, 102, 103], range: "month" },
+  ledgeHolding,
   { name: "Trot rainy-day holding", points: [24, 23, 24.5, 25, 24, 26, 25.5, 27], range: "year" },
-  {
-    name: "Green Fund",
-    points: [98, 99, 100, 102, 101, 104, 105, 106],
-    range: "week",
-    detail: "brief",
-    emphasis: "quiet",
-    surface: "outlined",
-  },
+  { ...ledgeHolding, detail: "brief" },
+  { ...ledgeHolding, emphasis: "quiet" },
+  { ...ledgeHolding, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("PriceChart");
@@ -117,6 +117,7 @@ function PriceSummary({ name, points, detail, emphasis }: ChartProps) {
   const { lang } = useWords(moneyWordsFor);
   const state = useComponentState();
   const copy = priceChartCopy(points, lang);
+  const numberScale = emphasis === "quiet" ? "compact" : "display";
   const change = detail === "full" ? copy.change : undefined;
   return state === "loading" ? (
     <KitSkeleton
@@ -126,7 +127,7 @@ function PriceSummary({ name, points, detail, emphasis }: ChartProps) {
       emphasis={emphasis}
       content={[
         ["label", name],
-        ["number", copy.price],
+        ["number", copy.price, "start", numberScale],
         ["label", change],
       ]}
     />
@@ -135,7 +136,7 @@ function PriceSummary({ name, points, detail, emphasis }: ChartProps) {
       <KitText role="label" part="name" tone="muted" lines={1}>
         {name}
       </KitText>
-      <KitText emphasis={emphasis} role="number" part="price" lines={1} tabular>
+      <KitText emphasis={emphasis} numberScale={numberScale} role="number" part="price" lines={1} tabular>
         {copy.price}
       </KitText>
       {change && (

@@ -76,10 +76,14 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { label: (item && titleOf(item, 24, thing)) || placeholderTitle(0, lang), note: false };
 }
 
+const ledgePad = { label: "Ledge supplies", value: 24.5, max: 500, note: true } satisfies z.input<
+  typeof props
+>;
 export const examples = [
-  { label: "Ledge supplies", value: 24.5, max: 500, note: true },
+  ledgePad,
   { label: "Trot walking income", note: false },
-  { label: "Plant market", value: 42, note: true, detail: "brief", surface: "outlined" },
+  { ...ledgePad, detail: "brief" },
+  { ...ledgePad, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("AmountPad");

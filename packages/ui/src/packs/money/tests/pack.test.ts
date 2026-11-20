@@ -73,6 +73,12 @@ it("validates the pack, archetypes and every exact worked-example line", () => {
   }
   for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
   expect(lines.find((line) => line.c === "Loan")).toMatchObject({ detail: "full" });
+  expect(lines.find((line) => line.c === "Loan")).not.toHaveProperty("style");
+  const debt = (packArchetypes.money as readonly ArchetypeMeta[]).find(({ id }) => id === "debt");
+  expect(debt?.layouts.money_loan?.recipe.find(({ allow }) => allow.includes("Loan"))).toEqual({
+    allow: ["Loan"],
+    required: true,
+  });
   expect(
     registry.defaultLines("debt", "money_loan", neutral).components.find(({ c }) => c === "Loan"),
   ).toMatchObject({ detail: "full" });
@@ -128,7 +134,7 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const cases = [
   ["AccountCard", "detail", "full", "brief", "r2/last4", "4821"],
   ["AmountPad", "detail", "full", "brief", "note", "Add a note"],
-  ["Bills", "detail", "full", "brief", "r1/repeat", "Monthly"],
+  ["Bills", "detail", "full", "brief", "r1/repeat", "Monthly\u00a0·"],
   ["Loan", "detail", "brief", "full", "schedule", "Upcoming payments"],
   ["Payoff", "detail", "full", "brief", "line", "Projected balance"],
   ["PriceChart", "detail", "full", "brief", "change", "this period"],
