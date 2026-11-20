@@ -22,6 +22,8 @@ type TileProps = {
   label: string;
   /** Label address; null leaves the visible label unaddressed. */
   labelPart?: string | null;
+  /** Badge treatment independent of selection and availability. */
+  badgeTone?: "accent" | "muted";
   goto?: string | undefined;
   on?: boolean;
   disabled?: boolean;
@@ -61,24 +63,29 @@ function TileContent({
   icon,
   label,
   labelPart = "label",
+  badgeTone,
   detail,
   disabled,
   loading,
   on,
   distinctSelection,
-}: Pick<TileProps, "icon" | "label" | "labelPart" | "detail" | "disabled" | "on" | "distinctSelection"> & {
+}: Pick<
+  TileProps,
+  "icon" | "label" | "labelPart" | "badgeTone" | "detail" | "disabled" | "on" | "distinctSelection"
+> & {
   loading: boolean;
 }) {
   const ks = useKitStyle();
-  const neutral = disabled || (distinctSelection && !on);
+  const neutral = disabled || (badgeTone ? badgeTone === "muted" : distinctSelection && !on);
+  const stretch = distinctSelection || detail != null;
   return (
     <>
       <Badge backgroundColor={loading ? "$line" : neutral ? "$raised" : "$accentSoft"}>
         {!loading && <KitIcon name={icon} tone={neutral ? "muted" : "accent"} scale="lg" />}
       </Badge>
       <YStack
-        alignSelf={distinctSelection ? "stretch" : undefined}
-        alignItems={distinctSelection ? "stretch" : "center"}
+        alignSelf={stretch ? "stretch" : undefined}
+        alignItems={stretch ? "stretch" : "center"}
         gap={space.xs}
         aria-hidden={loading || undefined}
         borderRadius={shifted("sm", ks.radiusShift)}
@@ -100,11 +107,13 @@ function TileContent({
   );
 }
 
-function useTileFinish({ density, distinctSelection, on }: Omit<TileProps, "item">) {
+function useTileFinish({ density, detail, distinctSelection, on }: Omit<TileProps, "item">) {
   const { rowPad, contentGap } = useVariantDensity(density);
+  const compact = density === "compact";
+  const vertical = detail != null ? (compact ? "xs" : "sm") : compact ? rowPad : "md";
   return {
-    gap: density === "compact" ? space[contentGap] : space.sm,
-    paddingVertical: density === "compact" ? space[rowPad] : space.md,
+    gap: compact ? space[contentGap] : space.sm,
+    paddingVertical: space[vertical],
     ...(on || distinctSelection
       ? { borderWidth: component.base.strongBorder, borderColor: on ? "$accent" : "transparent" }
       : {}),
