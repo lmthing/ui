@@ -4,6 +4,7 @@ import {
   components,
   createRegistry,
   emptyLine,
+  packReady,
   planAct,
   readComponent,
   stampItemIds,
@@ -74,12 +75,14 @@ describe("BabyLog fallback and contract", () => {
     expect(fallback({ cast: empty })).toEqual({ log: [], running: "none" });
     expect(fallback({ cast: malformed })).toEqual(fallback({ cast: empty }));
   });
-  it("has the dense phone contract and core-first probes, without opening the incomplete home pack", () => {
+  it("includes BabyLog in a live registry exactly when home is ready", () => {
+    expect(createRegistry({ packs: ["home"] }).ids.includes("BabyLog")).toBe(packReady("home"));
+    expect(createRegistry({ packs: ["home"], includeDrafts: true }).schema("BabyLog")).toBe(props);
+  });
+  it("has the dense phone contract and core-first probes", () => {
     expect(meta).toMatchObject({ states: ["filled", "empty"], dense: true, tier: "phone" });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(createRegistry({ packs: ["home"], includeDrafts: true }).schema("BabyLog")).toBe(props);
-    expect(createRegistry({ packs: ["home"] }).ids).not.toContain("BabyLog");
     expect(probes.filter((p) => p.kind === "choose").map((p) => p.expect)).toEqual(["BabyLog", "Timer"]);
     expect(probes.find((p) => p.kind === "write")?.expect).toBe("BabyLog");
     expect(probes.filter((p) => p.kind === "read").map((p) => p.expect.action)).toEqual([
