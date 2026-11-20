@@ -17,6 +17,7 @@ it("formats exact and abbreviated figures from the same totals", () => {
 it("uses locale-aware dates and currency and the registered pack words in the read", () => {
   const en = propertyWordsFor();
   const unregister = registerPropertyWords("fr", {
+    ...en,
     rentRoll: {
       ...en.rentRoll,
       assessed: "Facturé",

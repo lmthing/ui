@@ -9,6 +9,7 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
+  useVariant,
 } from "../kit";
 import { z } from "zod";
 import {
@@ -22,6 +23,8 @@ import {
   titleOf,
   totalLine,
   numberLine,
+  variantProps,
+  type ThemeDensity,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -34,6 +37,7 @@ export const meta = {
   purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
   pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).",
   writeHints: [
+    'A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail "brief"; keep all points and leave density null unless tighter spacing was also requested.',
     "Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).",
     'Shares of a whole use style: "share", with labels up to sixteen characters. Long category names do not make a columns input valid.',
   ],
@@ -41,15 +45,17 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "Amounts grouped by day or category from records in the on-device database.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["total"] } },
   items: { key: "points", parts: ["root", "label"] },
   parts: ["root", "title", "total"],
   states: ["filled", "empty", "loading"],
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
-    const { points, unit, style } = input as z.output<typeof props>;
+    const { points, unit, style, detail } = input as z.output<typeof props>;
     const total = points.reduce((sum, point) => sum + point.value, 0);
     return [
-      totalLine(total, unit, lang),
+      ...(detail === "brief" ? [] : [totalLine(total, unit, lang)]),
       points
         .map(
           (point) =>
@@ -62,6 +68,7 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["columns", "share"]).default("columns"),
     title: text(32),
     unit: text(8).optional(),
@@ -77,7 +84,8 @@ export const props = z
   .refine(({ style, points }) => style === "columns" || points.length <= 6, {
     path: ["points"],
     message: "A share holds at most six parts",
-  });
+  })
+  .overwrite((value) => (value.detail === "brief" ? { ...value, unit: undefined } : value));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -99,40 +107,33 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-export const examples = [
+// prettier-ignore
+const fullExamples = [
   {
     title: "Water used",
     unit: "L",
-    points: [
-      { label: "W1", value: 2 },
-      { label: "W2", value: 4 },
-      { label: "W3", value: 3 },
-      { label: "W4", value: 5 },
-    ],
+    points: [{ label: "W1", value: 2 }, { label: "W2", value: 4 }, { label: "W3", value: 3 }, { label: "W4", value: 5 }],
   },
   {
-    title: "This week",
+    title: "Weekly walks",
     unit: "walks",
     points: [
-      { label: "Mon", value: 3 },
-      { label: "Tue", value: 5 },
-      { label: "Wed", value: 4 },
-      { label: "Thu", value: 2 },
-      { label: "Fri", value: 6 },
-      { label: "Sat", value: 2 },
-      { label: "Sun", value: 1 },
+      { label: "Mon", value: 3 }, { label: "Tue", value: 5 }, { label: "Wed", value: 4 }, { label: "Thu", value: 2 },
+      { label: "Fri", value: 6 }, { label: "Sat", value: 2 }, { label: "Sun", value: 1 },
     ],
   },
   {
     style: "share",
     title: "Where it went",
     unit: "€",
-    points: [
-      { label: "Groceries", value: 240 },
-      { label: "Rent", value: 800 },
-      { label: "Fun", value: 120 },
-    ],
+    points: [{ label: "Groceries", value: 240 }, { label: "Rent", value: 800 }, { label: "Fun", value: 120 }],
   },
+] satisfies z.input<typeof props>[];
+
+export const examples = [
+  ...fullExamples,
+  { ...fullExamples[1]!, detail: "brief" },
+  { ...fullExamples[2]!, density: "compact" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Bars");
@@ -143,57 +144,47 @@ export const probes = [
   write(
     "Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
   ),
+  {
+    ...write("Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total."),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
-type TotalProps = { value: number; unit?: string | undefined; compact?: boolean };
-function Total({ value, unit, compact = false }: TotalProps) {
+type TotalProps = { value: number; unit?: string | undefined; compact?: boolean; density: ThemeDensity };
+// prettier-ignore
+function Total({ value, unit, compact = false, density }: TotalProps) {
   const { lang, words } = useWords();
+  const role = compact ? "body" : "caption";
   return (
-    <KitContent>
-      <KitText role={compact ? "body" : "caption"} tone="muted" align="end" part={null}>
-        {words.moneyLabels.total}
-      </KitText>
-      <KitText
-        role="number"
-        numberScale={compact ? "compact" : "display"}
-        tone="muted"
-        align="end"
-        part="total"
-      >
+    <KitContent density={density}>
+      <KitText {...{ role, density }} tone="muted" align="end" part={null}>{words.moneyLabels.total}</KitText>
+      <KitText role="number" numberScale={compact ? "compact" : "display"} tone="muted" align="end" part="total" density={density}>
         {numberLine(value, lang)}
-        {unit && (
-          <KitText role={compact ? "body" : "caption"} tone="muted" part={null}>
-            {` ${unit}`}
-          </KitText>
-        )}
+        {unit && <KitText {...{ role, density }} tone="muted" part={null}>{` ${unit}`}</KitText>}
       </KitText>
     </KitContent>
   );
 }
 
-export function Bars({ style, title, unit, points }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function Bars(input: Props<typeof props, typeof meta>) {
+  const { style, title, unit, points, detail } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   const { lang } = useWords();
   const state = useComponentState();
   if (state === "loading" || state === "empty") {
-    return (
-      <KitCard style="inset" part="root" padded>
-        {state === "loading" ? (
-          <KitSkeleton shape="bars" points={points} title={title} share={style === "share"} />
-        ) : (
-          <KitEmpty part="title" />
-        )}
-      </KitCard>
-    );
+    return <KitCard part="root" padded density={density}>
+      {state === "loading"
+        ? <KitSkeleton shape="bars" points={points} title={title} share={style === "share"} density={density} />
+        : <KitEmpty part="title" />}
+    </KitCard>;
   }
   const total = points.reduce((sum, point) => sum + point.value, 0);
   const shareOf = (value: number, total: number) => percentLine(value, total, lang);
+  const heading = <KitText role="heading" part="title" density={density}>{title}</KitText>;
   return (
-    <KitCard style="inset" part="root" padded>
-      <KitGrid columns={2}>
-        <KitText role="heading" part="title">
-          {title}
-        </KitText>
-        <Total value={total} unit={unit} compact={style === "share"} />
-      </KitGrid>
+    <KitCard part="root" padded density={density}>
+      {detail === "brief" ? heading : <KitGrid density={density}>
+        {heading}<Total value={total} unit={unit} compact={style === "share"} density={density} /></KitGrid>}
       {style === "share" ? <KitShare points={points} percentOf={shareOf} /> : <KitBars points={points} />}
     </KitCard>
   );

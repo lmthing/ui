@@ -20,6 +20,7 @@ describe("Timer schema", () => {
   it("applies defaults and trims text", () => {
     expect(props.parse({ ...input, label: " Activity " })).toEqual({
       style: "down",
+      figures: "exact",
       label: "Activity",
       seconds: 600,
       controls: true,
@@ -39,6 +40,7 @@ describe("Timer schema", () => {
     { ...input, label: " ".repeat(4) },
     { ...input, label: "a".repeat(25) },
     { ...input, style: "clock" },
+    { ...input, figures: "rounded" },
     { ...input, color: "red" },
     { ...input, pixels: 4 },
     { ...input, goto: "activity" },
@@ -145,7 +147,7 @@ describe("Timer metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     for (const id of ["Timer", "Counter"])
       expect(probes.find((probe) => probe.kind === "choose" && probe.expect === id)).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Timer" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -156,6 +158,13 @@ describe("Timer metadata and probes", () => {
 });
 
 describe("Timer metadata and probes", () => {
+  it("shortens the visible duration without rounding the clock or changing its actions", () => {
+    const exact = props.parse({ ...input, seconds: 3723 });
+    const short = props.parse({ ...input, seconds: 3723, figures: "short", density: "compact" });
+    expect(exact.seconds).toBe(short.seconds);
+    expect(meta.read(short, "filled")).toEqual(["1 hr down", "Start", "Stop"]);
+    expect(affordancesOf(meta, short, "t1")).toEqual(affordancesOf(meta, exact, "t1"));
+  });
   it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timer");

@@ -8,6 +8,17 @@ export const en = {
     placeholder: (item: string, option: string) => `${item} · ${option}`,
   },
   editSleep: "Edit sleep times",
+  breathe: {
+    phase: { inhale: "Breathe in", hold: "Hold", exhale: "Breathe out", rest: "Rest" },
+    complete: "Complete",
+    play: "Play",
+    pause: "Pause",
+    controlLabel: (action: string, phase: string) => `${action} breathing · ${phase}`,
+    roundsLeft: (plural: Intl.LDMLPluralRule) => ({
+      before: "",
+      after: ` ${plural === "one" ? "round" : "rounds"} left`,
+    }),
+  },
   sleep: {
     log: "Log sleep",
     duration: "Time asleep",

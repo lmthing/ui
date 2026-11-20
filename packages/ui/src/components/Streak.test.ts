@@ -18,7 +18,7 @@ describe("Streak schema", () => {
   );
   it("trims text and preserves the count and Monday-first booleans", () => {
     const value = { ...input, label: "  days walking  ", days: examples[1]!.days };
-    expect(props.parse(value)).toEqual({ ...value, label: "days walking" });
+    expect(props.parse(value)).toEqual({ ...value, label: "days walking", detail: "full" });
     expect(props.parse(props.parse(value))).toEqual(props.parse(value));
   });
   it.each([
@@ -36,6 +36,8 @@ describe("Streak schema", () => {
       days,
     })),
     { ...input, style: "tiles" },
+    { ...input, detail: "days" },
+    { ...input, density: "normal" },
     { ...input, color: "red" },
     { ...input, pixels: 4 },
     { ...input, id: "s1" },
@@ -145,6 +147,15 @@ describe("Streak metadata and probes", () => {
 });
 
 describe("Streak view and reading", () => {
+  it("hides only the strip and does not read the hidden weekdays", () => {
+    const brief = { ...examples[0]!, detail: "brief" };
+    const html = renderInstance("Streak", brief, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(meta.variantParts["detail.brief"].hides).toEqual(["days"]);
+    expect(html).not.toContain('data-testid="home/c1/days"');
+    expect(html).toContain('data-testid="home/c1/count"');
+    expect(readComponent(components.Streak, brief, "s1")[0]).not.toContain("done Mon");
+    expect(props.parse(brief).days).toEqual(examples[0]!.days);
+  });
   it("draws every part once with a decorative seven-day strip and no controls", () => {
     for (const count of [0, 1, 12]) {
       for (const days of [input.days, Array<boolean>(7).fill(true), examples[1]!.days]) {
