@@ -14,12 +14,13 @@ export {
   isPlaybackAction,
 } from "./clock";
 export { clockChanges } from "./transitions";
+export { isRuntimeSet, projectComponentSets } from "./component-sets";
 export {
   adjustmentAt,
   clearItemSets,
   numericSetAt,
   projectAdjustments,
-  projectComponentSets,
   projectMatrix,
+  setAt,
 } from "./adjustment";
 export { hasRuntimeSets, projectRuntimeSets } from "./numeric-limits";

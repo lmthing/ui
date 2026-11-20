@@ -1,12 +1,11 @@
 import type { Meta } from "../../meta";
 import type { Values } from "../index";
+import { isRuntimeSet, keyFor, type NumericSet } from "./component-sets";
 
-type SetSpec = NonNullable<Meta["set"]>[string];
-export const adjustmentKey = (base: string, prop: string) => `${base}$adjust/${prop}`;
 export const finite = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value);
 
-export function effectiveLimits(set: SetSpec, adjustments: Meta["adjust"], props: Values) {
+export function effectiveLimits(set: NumericSet, adjustments: Meta["adjust"], props: Values) {
   const related = Object.values(adjustments ?? {}).filter((adjust) => adjust?.prop === set.prop);
   const cap = set.runtime ? props[set.maxProp] : undefined;
   const min = Math.max(set.min ?? -Infinity, ...related.map((adjust) => adjust?.min ?? -Infinity));
@@ -30,7 +29,7 @@ export function runtimeNumber(spec: ReturnType<typeof effectiveLimits>, saved: u
   if (valid(spec.initial)) return spec.initial;
 }
 
-export const hasRuntimeSets = (meta: Meta) => Object.values(meta.set ?? {}).some((set) => set.runtime);
+export const hasRuntimeSets = (meta: Meta) => Object.values(meta.set ?? {}).some(isRuntimeSet);
 
 /** Keep runtime destinations and their parsed cap authoritative across live projections. */
 export function projectRuntimeSets(
@@ -41,11 +40,11 @@ export function projectRuntimeSets(
 ): Values {
   let projected = props;
   for (const set of Object.values(meta.set ?? {})) {
-    if (!set.runtime) continue;
+    if (!isRuntimeSet(set)) continue;
     const limits = effectiveLimits(set, meta.adjust, validated);
     const cap = validated[set.maxProp];
     if (cap !== projected[set.maxProp]) projected = { ...projected, [set.maxProp]: cap };
-    const value = runtimeNumber(limits, get(adjustmentKey("", set.prop)));
+    const value = runtimeNumber(limits, get(keyFor("", set.prop)));
     if (value !== projected[set.prop]) projected = { ...projected, [set.prop]: value };
   }
   return projected;

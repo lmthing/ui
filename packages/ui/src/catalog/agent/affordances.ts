@@ -1,7 +1,7 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared, numericSetAt } from "./clocks";
+import { adjustmentAt, clockActionValid, clockControlDeclared, isRuntimeSet, numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
@@ -52,7 +52,7 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 type When = Record<string, Record<string, string | boolean>> | undefined;
 
 function hasNumericRoom(meta: Meta, props: Props, part: string, action: string) {
-  if (action !== "set" || !meta.set?.[part]?.runtime) return true;
+  if (action !== "set" || !isRuntimeSet(meta.set?.[part])) return true;
   const { min, max } = numericSetAt(meta, props, part)!.spec;
   return min <= max && max !== -Infinity;
 }

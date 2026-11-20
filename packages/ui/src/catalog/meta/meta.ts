@@ -14,9 +14,12 @@ type Draw =
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
-type NumericSets = Readonly<
-  Record<string, NumericSet & ({ runtime?: false } | { runtime: true; maxProp: string; initial: number })>
->;
+type ComponentSet =
+  | (NumericSet & { type?: "number" } & (
+        { runtime?: false } | { runtime: true; maxProp: string; initial: number }
+      ))
+  | { prop: string; type: "date"; min?: string; max?: string }
+  | { prop: string; type: "choice"; choices: readonly string[] };
 type RowSelection = "index" | "position" | { field: string };
 type Choice = string | number | { value: string | number; label: string };
 /** A static list or a parsed prop containing the same option shape. */
@@ -72,8 +75,11 @@ export type Meta = {
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
-  /** Numeric `set` destinations. Runtime destinations never enter Writer props; `maxProp` is parsed. */
-  set?: NumericSets;
+  /**
+   * Component `set` parts. Omitted type means number; date bounds are inclusive ISO dates.
+   * Runtime numeric destinations never enter Writer props; `maxProp` is parsed.
+   */
+  set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
   /**
@@ -150,25 +156,6 @@ export type Meta = {
    */
   codeOwned?: boolean;
 };
-
-export type BaseRoles = Record<
-  "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
-  string
->;
-export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
-export type PresetMeta = {
-  id: string;
-  mood: string;
-  font: "humanist" | "grotesk" | "rounded" | "serif";
-  numbers: "regular" | "condensed";
-  /** `strong` sets every text role one step heavier (bold preset). */
-  weight: "regular" | "strong";
-  shape: "sharp" | "soft" | "round";
-  density: "compact" | "regular" | "airy";
-  surface: "soft" | "solid" | "hairline";
-  roles: { light: BaseRoles; dark: BaseRoles };
-};
-export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
 
 export type PackMeta = {
   id: PackId;

@@ -2,7 +2,8 @@ import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
-import { adjustmentKey as keyFor, effectiveLimits, finite, runtimeNumber } from "./numeric-limits";
+import { componentSetAt, isNumericSet, keyFor } from "./component-sets";
+import { effectiveLimits, finite, runtimeNumber } from "./numeric-limits";
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
@@ -31,19 +32,12 @@ export function itemSetAt(meta: Meta, props: Values, target: string) {
 export function numericSetAt(meta: Meta, props: Values, target: string) {
   const item = itemSetAt(meta, props, target);
   if (item) return item;
-  const sets = meta.set;
-  if (!sets || !Object.hasOwn(sets, target)) return;
-  const spec = effectiveLimits(sets[target]!, meta.adjust, props);
-  return { key: keyFor("", spec.prop), spec, value: props[spec.prop] };
+  const set = componentSetAt(meta, props, target);
+  if (set && isNumericSet(set.spec)) return { ...set, spec: effectiveLimits(set.spec, meta.adjust, props) };
 }
 
-export function projectComponentSets(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  for (const { prop, runtime } of Object.values(meta.set ?? {})) {
-    if (runtime) continue;
-    const value = get(keyFor("", prop));
-    if (finite(value) && value !== props[prop]) props = { ...props, [prop]: value };
-  }
-  return props;
+export function setAt(meta: Meta, props: Values, target: string) {
+  return numericSetAt(meta, props, target) ?? componentSetAt(meta, props, target);
 }
 
 /** Used only after the controller has resumed a confirmed component press. */
@@ -91,8 +85,10 @@ export function adjustmentAt(
     (clock) => clock.base === base && clock.child === undefined && clock.spec.prop === prop,
   );
   const sets = row < 0 ? meta.set : meta.items?.set;
-  const setter = !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop);
-  const bounds = setter ? effectiveLimits(setter[1], adjustments, props) : undefined;
+  const setter =
+    !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop && isNumericSet(set));
+  const bounds =
+    setter && isNumericSet(setter[1]) ? effectiveLimits(setter[1], adjustments, props) : undefined;
   const state = clock ? (get(clockKey(clock)) as ClockState | undefined) : undefined;
   const saved = get(key);
   const current = clock
