@@ -35,6 +35,15 @@
       "{\"address\": \"s1/r1/score\", \"action\": \"set\"}"
     ]
   },
+  "43b01f5a4275700d": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round 1 — Round 2 — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — Anna, Round 1: 4 — Ben, Round 1: 2 — Sam, Round 1: 4 — Anna, Round 2: 3 — Ben, Round 2: -1 — Sam, Round 2: 3 [s1 select = \"Round 1\"; choices [\"Round 1\",\"Round 2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Change Anna's score in round one\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+    "replies": [
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
+      "{\"address\": \"s1/r1/score\", \"action\": \"set\"}"
+    ]
+  },
   "4894064751e21c0e": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round 1 — Round 2 — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — r1 Anna, Round 1: 4 — r2 Ben, Round 1: 2 — r3 Sam, Round 1: 4 — r4 Anna, Round 2: 3 — r5 Ben, Round 2: -1 — r6 Sam, Round 2: 3 [s1 select = \"1\"; choices [\"1\",\"2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Change Anna's score in round one\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"s1/r1/score\", \"action\": \"set\"}",
@@ -727,11 +736,20 @@
         }
       }
     },
-    "reply": "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":null,\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
+    "reply": "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
     "replies": [
-      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":null,\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
       "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
-      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"First\",\"points\":[4,-2]},{\"label\":\"Second\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}"
+      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
+      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}"
+    ]
+  },
+  "ce6400d2ecaf75ee": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 ScoreSheet Score sheet — 2 of 2 rounds complete — Player — Total — Round 1 — Round 2 — Anna · Total: 7 · Tied winner — Ben · Total: 1 · Rank 3 — Sam · Total: 7 · Tied winner — Reset scores — Share scores — Anna, Round 1: 4 — Ben, Round 1: 2 — Sam, Round 1: 4 — Anna, Round 2: 3 — Ben, Round 2: -1 — Sam, Round 2: 3 [s1 select = \"Round 1\"; choices [\"Round 1\",\"Round 2\"]] [s1/reset press] [s1/share press !needs-people]\n  r1 [s1/r1/score set]\n  r2 [s1/r2/score set]\n  r3 [s1/r3/score set]\n  r4 [s1/r4/score set]\n  r5 [s1/r5/score set]\n  r6 [s1/r6/score set]\n\nTask: Reset the round scores\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}",
+      "{\"address\": \"s1/reset\", \"action\": \"press\"}"
     ]
   },
   "d31e9d6b21791da7": {
@@ -907,11 +925,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
+    "reply": "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":null,\"share\":null,\"selectedRound\":null}",
     "replies": [
-      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
-      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":null}",
-      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":null,\"share\":null,\"selectedRound\":null}"
+      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":null,\"share\":null,\"selectedRound\":null}",
+      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"Round 1\",\"points\":[4,-2]},{\"label\":\"Round 2\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":null,\"selectedRound\":null}",
+      "{\"c\":\"ScoreSheet\",\"density\":null,\"overflow\":\"page\",\"players\":[{\"name\":\"Anna\"},{\"name\":\"Ben\"}],\"rounds\":[{\"label\":\"First\",\"points\":[4,-2]},{\"label\":\"Second\",\"points\":[null,null]}],\"wins\":\"high\",\"share\":false,\"selectedRound\":\"2\"}"
     ]
   },
   "fbbc0d453d384a30": {
