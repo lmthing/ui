@@ -13,7 +13,7 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
-import { driveAffordances, driveTarget } from "./drives";
+import { driveAffordances, driveTarget, type CanDrive } from "./drives";
 
 type Props = Record<string, unknown>;
 
@@ -155,6 +155,7 @@ export function readScreen(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ): string {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -163,7 +164,7 @@ export function readScreen(
   const migrated = migrateScreen(screen, { variantOnly: true });
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
-    const target = def && driveTarget(def.meta, migrated, defs, local, deviceData);
+    const target = def && driveTarget(def.meta, migrated, defs, local, deviceData, canDrive);
     return def
       ? readComponent(def, props, id, state, local, lang, deviceData, target)
       : [`${id} ${c} (unknown)`];

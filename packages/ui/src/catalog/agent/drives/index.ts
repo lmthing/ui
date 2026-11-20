@@ -16,6 +16,7 @@ import {
 import { addressedItems } from "../visibility";
 
 type DriveTarget = { address: string; seconds: unknown };
+export type CanDrive = (address: string) => boolean;
 
 /** The first same-screen instance offering its declared seek, in screen order. */
 export function driveTarget(
@@ -24,6 +25,7 @@ export function driveTarget(
   defs: Record<string, Definition>,
   values: Values,
   data?: DeviceData,
+  canDrive?: CanDrive,
 ): DriveTarget | undefined {
   if (meta.drives === undefined || meta.drives === meta.id || !Object.hasOwn(defs, meta.drives)) return;
   const def = defs[meta.drives];
@@ -43,7 +45,7 @@ export function driveTarget(
     );
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state);
     if (offered.some((a) => a.address === address && a.action === "seek"))
-      return { address, seconds: props.seconds };
+      return !canDrive || canDrive(address) ? { address, seconds: props.seconds } : undefined;
   }
 }
 

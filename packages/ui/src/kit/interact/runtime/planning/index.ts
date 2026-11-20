@@ -1,12 +1,4 @@
-import {
-  drawRole,
-  projectAdjustments,
-  sessionEvent,
-  parseControlProps,
-  type ActStep,
-  type RandomSource,
-  type Values,
-} from "../../../../catalog";
+import { drawRole, sessionEvent, type ActStep, type RandomSource, type Values } from "../../../../catalog";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import {
   actionFailure,
@@ -17,30 +9,17 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
-function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
-  const def = ctx.defs[entry.c]!;
-  const get = (part: string) => values[ctx.key(entry.id, part)];
-  if (ctx.standalone) {
-    const { meta } = def;
-    const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const { session, successActions, errorActions, live } = meta;
-    const useParsed =
-      meta.confirmParts?.length &&
-      (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits);
-    return useParsed ? parseControlProps(def, raw, get) : raw;
-  }
-  const input = ctx.inputOf(entry);
-  return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
-}
+import type { ControllerContext, MediaRuntime } from "../index";
+import {
+  dispatchPlan,
+  drivenPartBlock,
+  inactive,
+  introducedPart,
+  standaloneEffects,
+} from "./introduced-part";
+import { actionInput, disabledHint } from "./action-input";
+export { drivenPartBlock } from "./introduced-part";
 
-function disabledHint(component: string, action: string, input: Values) {
-  if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
-    return "Write a reply before sending";
-  if (component === "Counter" && action === "decrement" && Number(input.value) < Number(input.step))
-    return "The counter cannot go below zero";
-}
 type PreparedStep =
   | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
   | { error: Extract<ActReply, { ok: false }> };
@@ -133,8 +112,12 @@ function stepRunner(
       needsConfirmation(ctx, prepared.context) &&
       confirmationFor(before, selected, prepared.context);
     if (pending) return pending;
-    if (!ctx.standalone && prepared.drive) return run(before, prepared.drive);
-    execution.performed.push(selected);
+    if (!ctx.standalone && prepared.drive) {
+      const block = drivenPartBlock(ctx, prepared.drive.address);
+      if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+      return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
+    }
+    execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {

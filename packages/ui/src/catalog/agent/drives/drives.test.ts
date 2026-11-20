@@ -49,13 +49,13 @@ const playhead = "home/p1/scrubber";
 const press = { address, action: "press" };
 const screen: ScreenLike = { id: "home", components: [chapters, player] };
 
-function setup(current: ScreenLike = screen) {
+function setup(current: ScreenLike = screen, mountTarget = true) {
   const session = { play: vi.fn(), pause: vi.fn(), seek: vi.fn(), dispose: vi.fn() };
   const open = vi.fn<MediaAdapter["open"]>(() => session);
   const runtime = createScreenController({ screen: current, defs, media: { open }, requireMounted: true });
-  runtime.registerPart(address);
-  runtime.registerPart("home/c1/r1/root");
-  runtime.registerPart(playhead);
+  runtime.registerPart(`${current.id}/c1/r2/root`);
+  runtime.registerPart(`${current.id}/c1/r1/root`);
+  if (mountTarget) runtime.registerPart(`${current.id}/p1/scrubber`);
   const agent = createAgentAccess({ defs, store: runtime.store, current: () => current, runtime });
   return { runtime, agent, session, open };
 }
@@ -129,3 +129,32 @@ it("does not open or seek media during dry runs or a rejected batch", () => {
     runtime.dispose();
   }
 });
+
+it("disambiguates an internally routed seek when the Player id matches the screen id", () => {
+  const { runtime, session, open } = setup({ ...screen, id: "p1" });
+  try {
+    expect(runtime.press("p1/c1/r2/root")).toMatchObject({ ok: true });
+    expect(runtime.store.get("p1/p1/scrubber")).toBe(12);
+    expect(open).toHaveBeenCalledOnce();
+    expect(session.seek).toHaveBeenCalledExactlyOnceWith(12);
+  } finally {
+    runtime.dispose();
+  }
+});
+
+it.each([{ code: "not_mounted" }, { code: "disabled" }])(
+  "does not advertise a press whose target is $code",
+  ({ code }) => {
+    const { runtime, agent, open } = setup(screen, code === "disabled");
+    try {
+      if (code === "disabled") runtime.registerDisabledPart(playhead);
+      expect(runtime.canPress(address)).toBe(false);
+      expect(agent.read()).not.toContain("[c1/r2 press]");
+      expect(runtime.press(address).ok).toBe(false);
+      expect(agent.act(press)).toMatchObject({ ok: false, code });
+      expect(open).not.toHaveBeenCalled();
+    } finally {
+      runtime.dispose();
+    }
+  },
+);

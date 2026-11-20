@@ -16,6 +16,7 @@ import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = [
@@ -77,7 +78,8 @@ function actionsAt(
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
     );
-    const target = driveTarget(def.meta, screen, ctx.defs, localValues, ctx.options.deviceData);
+    const canDrive = (part: string) => !drivenPartBlock(ctx, part);
+    const target = driveTarget(def.meta, screen, ctx.defs, localValues, ctx.options.deviceData, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
       .filter((item) => item.address === local)
       .map((item) => item.action);
@@ -134,6 +136,7 @@ function read(ctx: ControllerContext) {
     ctx.options.lang,
     ctx.disabledParts,
     ctx.options.deviceData,
+    ctx.standalone ? undefined : (part) => !drivenPartBlock(ctx, part),
   );
   if (ctx.standalone) return reading;
   return [

@@ -3,6 +3,7 @@ import {
   migrateScreen,
   readComponent,
   readScreen,
+  type CanDrive,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -60,12 +61,13 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ): string {
   const migrated = migrateScreen(screen, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(screen, defs, values, lang, deviceData);
+    ? readKeypads(migrated, defs, values, lang, deviceData, canDrive)
+    : readScreen(screen, defs, values, lang, deviceData, canDrive);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
@@ -77,6 +79,7 @@ function readKeypads(
   values: Values,
   lang?: string,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ) {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -86,7 +89,7 @@ function readKeypads(
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
-      const target = def && driveTarget(def.meta, screen, defs, local, deviceData);
+      const target = def && driveTarget(def.meta, screen, defs, local, deviceData, canDrive);
       return def
         ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData, target)
         : [`${id} ${c} (unknown)`];
