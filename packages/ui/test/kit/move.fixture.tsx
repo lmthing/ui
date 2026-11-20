@@ -5,16 +5,21 @@ import { KitColumns, KitText, useComponentState, useWords } from "@lmthing/ui/ki
 export const moveCaption = "Move to";
 export const moveLabel = (destination: string, card: string) => `Move ${card} to ${destination}`;
 
-const props = z.strictObject({
-  style: z.enum(["columns", "stack"]),
-  columns: z
-    .array(z.strictObject({ label: text(14) }))
-    .min(2)
-    .max(5),
-  cards: z.array(
-    z.strictObject({ title: text(32), column: z.number().int().min(0).max(4), goto: z.string() }),
-  ),
-});
+const props = z
+  .strictObject({
+    style: z.enum(["columns", "stack"]),
+    columns: z
+      .array(z.strictObject({ label: text(14) }))
+      .min(2)
+      .max(5),
+    cards: z.array(
+      z.strictObject({ title: text(32), column: z.number().int().min(0).max(4), goto: z.string() }),
+    ),
+  })
+  .refine(({ cards, columns }) => cards.every(({ column }) => column < columns.length), {
+    path: ["cards"],
+    message: "Every card must have a declared source column",
+  });
 const meta = {
   id: "MoveFixture",
   purpose: "Move a card between its declared columns.",

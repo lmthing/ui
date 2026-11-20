@@ -77,7 +77,7 @@ function partsOf(
       ? actions
           .filter((action) => {
             if (!matches(when?.[`${part}.${action}`], holder, outer)) return false;
-            if (!item) return !locked || !reportConfirmation(meta, part, action);
+            if (!item) return action !== "move" && (!locked || !reportConfirmation(meta, part, action));
             const edit = itemEditOffer(meta, holder, part, action);
             return edit === undefined || (edit && !locked);
           })
@@ -149,7 +149,6 @@ export function affordancesOf(
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return offered.filter(({ address, action, part }) => {
-    if (action === "move" && address === instance) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);

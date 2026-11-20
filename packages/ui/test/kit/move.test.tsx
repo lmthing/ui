@@ -6,7 +6,7 @@ import { TamaguiProvider } from "tamagui";
 import { PhoneScreen } from "../../src/kit/screen";
 import { config, elementAt } from "../render";
 import { hasColumnTarget } from "./column-target";
-import { moveDefs, moveScreen, MoveFixture } from "./move.fixture";
+import { moveDef, moveDefs, moveScreen, MoveFixture } from "./move.fixture";
 
 const address = "home/c1/r1/root";
 const move = (value: unknown) => ({ address, action: "move", value });
@@ -33,6 +33,34 @@ it.each(["Unknown stage", "finished", "Waiting", 2, undefined])("rejects destina
     ok: false,
     code: "invalid_value",
   });
+});
+
+it("matches a normalized label in planning, drawing and reading", () => {
+  const source = moveScreen.components[0]!;
+  const screen = {
+    ...moveScreen,
+    components: [{ ...source, columns: [{ label: "Waiting" }, { label: "  Finished  " }] }],
+  };
+  const controller = createScreenController({ screen, defs: moveDefs });
+  expect(controller.act(move("Finished"))).toMatchObject({ ok: true });
+  expect(controller.snapshotScreen().components[0]?.cards).toMatchObject([{ column: 1 }, { column: 1 }]);
+  expect(controller.read()).toContain(offer("Finished", ["Waiting"]));
+});
+
+it("does not accept moves declared on named component parts", () => {
+  const def = {
+    ...moveDef,
+    meta: { ...moveDef.meta, parts: ["header"], actions: { parts: { header: ["move"] } } } as const,
+  };
+  expect(
+    planAct(moveScreen, { MoveFixture: def }, {}, [{ ...move("Finished"), address: "c1/header" }]),
+  ).toMatchObject({ ok: false, code: "not_actionable" });
+});
+
+it("rejects cards whose source column does not exist", () => {
+  const { id: _id, c: _c, state: _state, ...input } = moveScreen.components[0]!;
+  const cards = [{ title: "Snake plant", column: 4, goto: "snake_plant" }];
+  expect(moveDef.props.safeParse({ ...input, cards }).success).toBe(false);
 });
 
 it("does not target ambiguous labels or offer a move during loading", () => {

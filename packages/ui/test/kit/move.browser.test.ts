@@ -33,7 +33,9 @@ it("moves via keyboard, click and agent while keeping the original press link", 
     await item.getByRole("button", { name: "Move Snake plant to Waiting" }).waitFor();
     expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain('c1/r1 move = "Finished"');
     expect(await item.count()).toBe(1);
-    await item.getByRole("link", { name: "Snake plant" }).click();
+    const link = item.getByRole("link", { name: "Snake plant" });
+    expect(await link.evaluate((element) => element === document.activeElement)).toBe(true);
+    await link.click();
     expect(await page.locator("html").getAttribute("data-link")).toBe("snake_plant");
     await item.getByRole("button", { name: "Move Snake plant to In care" }).click();
     await page.waitForFunction(() => window.__lmthingUI!.read().includes('c1/r1 move = "In care"'));

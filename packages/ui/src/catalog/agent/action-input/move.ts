@@ -1,4 +1,5 @@
 import type { Meta } from "../../meta";
+import type { Definition } from "../../probes";
 import { choiceValues, type Affordance, type Values } from "../index";
 
 export const moveKey = (item: string) => `${item}/$move`;
@@ -40,15 +41,17 @@ export function itemActionOffer(meta: Meta, props: Values, row: Values, offer: A
 }
 
 /** Overlay the column index on the original wire row without reordering or restamping it. */
-export function projectMoves(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  const items = meta.items;
+export function projectMoves(def: Definition, props: Values, get: (part: string) => unknown): Values {
+  const items = def.meta.items;
   if (!items?.move || !Array.isArray(props[items.key])) return props;
   const { columns, column } = items.move;
-  const labels = columnLabels(props, columns);
   const rows = props[items.key] as Values[];
+  let labels: ReturnType<typeof columnLabels> | undefined;
   const projected = rows.map((row, index) => {
     const value = get(moveKey(`${items.prefix ?? "r"}${index + 1}`));
     if (typeof value !== "string") return row;
+    // Use the same labels as the offer, including the label schema's text normalization.
+    labels ??= columnLabels({ [columns]: def.props.shape[columns]?.safeParse(props[columns]).data }, columns);
     const at = labels.indexOf(value);
     return at >= 0 && at === labels.lastIndexOf(value) && at !== row[column] ? { ...row, [column]: at } : row;
   });

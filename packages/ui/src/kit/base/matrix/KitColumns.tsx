@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from "react";
+import { Children, useRef, type ReactNode, type RefObject } from "react";
 import { XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
@@ -6,6 +6,7 @@ import { PartContext, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 import { KitRow } from "../surface";
 import { MatrixContent, MatrixScroll } from "./matrix-drawing";
+import { useMoveFocus } from "../../interact";
 import type { Drawing } from "./matrix-layout";
 
 type ColumnsProps = Drawing & {
@@ -97,15 +98,21 @@ function Destination({ destination, name, press }: DestinationProps) {
   );
 }
 
-type ItemProps = Pick<ColumnMove, "caption" | "label"> & {
+type ItemProps = {
   card: ColumnItem;
   destinations: readonly string[];
   loading: boolean;
+  move: ColumnMove;
+  focus: RefObject<string | null>;
 };
-function ItemRoot({ card, destinations, caption, label, loading }: ItemProps) {
+function ItemRoot({ card, destinations, move: { caption, label }, loading, focus }: ItemProps) {
   const address = usePart("root", !loading);
   const { controller, interactive } = useKit();
-  const offered = !loading && interactive && controller?.actionsAt(address.testID).includes("move");
+  const runMove = useMoveFocus(focus, address.testID, address.ref);
+  const active = interactive && controller;
+  const offered = !loading && active && active.actionsAt(address.testID).includes("move");
+  const press = (value: string) =>
+    runMove(() => controller!.act({ address: address.testID, action: "move", value }));
   const row = (
     <KitRow
       label={card.label}
@@ -135,25 +142,13 @@ function ItemRoot({ card, destinations, caption, label, loading }: ItemProps) {
                 key={destination}
                 destination={destination}
                 name={label(destination, card.label)}
-                press={
-                  offered
-                    ? () => controller!.act({ address: address.testID, action: "move", value: destination })
-                    : undefined
-                }
+                press={offered ? () => press(destination) : undefined}
               />
             ))}
           </XStack>
         </YStack>
       )}
     </YStack>
-  );
-}
-function MovableColumnItem(props: ItemProps) {
-  const context = usePartContext();
-  return (
-    <PartContext.Provider value={{ ...context, item: props.card.id }}>
-      <ItemRoot {...props} />
-    </PartContext.Provider>
   );
 }
 
@@ -166,6 +161,8 @@ export function KitColumns({
   move,
 }: ColumnsProps) {
   const address = usePart(part);
+  const context = usePartContext();
+  const focus = useRef<string | null>(null);
   const stack = style === "stack";
   const labels = columns.map((column) => column.label);
   const cards = columns.map((column, index) => {
@@ -175,12 +172,9 @@ export function KitColumns({
     const items = move?.cards
       .filter((card) => card.column === index)
       .map((card) => (
-        <MovableColumnItem
-          key={card.id}
-          {...{ card, destinations, loading }}
-          caption={move.caption}
-          label={move.label}
-        />
+        <PartContext.Provider key={card.id} value={{ ...context, item: card.id }}>
+          <ItemRoot {...{ card, destinations, loading, move, focus }} />
+        </PartContext.Provider>
       ));
     return <ColumnCard key={column.id} {...{ column, loading, stack, items }} />;
   });

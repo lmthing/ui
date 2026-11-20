@@ -74,7 +74,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
-  source = projectMoves(meta, source, get);
+  source = projectMoves(def, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
