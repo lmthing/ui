@@ -3,8 +3,16 @@ import type { Meta } from "../../meta";
 import { itemActionOffer, moveKey, projectMoves } from "./move";
 
 const meta = {
+  id: "MoveFixture",
+  purpose: "Move a card.",
+  pick: "Test fixture.",
+  group: "data",
+  region: "body",
+  weight: 1,
+  tier: "phone",
+  realPath: "Local",
   items: { key: "cards", parts: ["root"], prefix: "card", move: { columns: "stages", column: "at" } },
-} as Meta;
+} satisfies Meta;
 const row = { at: 0, title: "One", goto: "detail" };
 const props = { cards: [row], stages: [{ label: "Waiting" }, { label: "Ready" }] };
 const offer = { address: "b1/card1", part: "root", action: "move", detail: "" };
