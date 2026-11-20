@@ -91,7 +91,7 @@ it("does not infer a named l1 pick or navigate from an opted-out press", () => {
   ]);
 });
 
-function withQuantity(qtyProp: z.ZodType, row: object, delta: number, pipe?: "array" | "item") {
+function withQuantity(qtyProp: z.ZodType, row: object, delta: number, pipe?: "item") {
   const item = z.strictObject({ qty: qtyProp, goto: z.string() });
   const rows = z.array(pipe === "item" ? item.transform((value) => value) : item);
   const def = {
@@ -100,19 +100,33 @@ function withQuantity(qtyProp: z.ZodType, row: object, delta: number, pipe?: "ar
       ...fixture.meta,
       items: { ...fixture.meta.items, adjust: { "qty.increment": { prop: "qty", delta } } },
     },
-    props: fixture.props.extend({ rows: pipe === "array" ? rows.transform((value) => value) : rows }),
+    props: fixture.props.extend({ rows }),
   } satisfies Definition;
   const current = { ...screen, components: [{ ...screen.components[0]!, rows: [{ goto: "item", ...row }] }] };
   const definitions = { [def.meta.id]: def };
   return { current, definitions, runtime: createScreenController({ screen: current, defs: definitions }) };
 }
 
-it.each([undefined, "array", "item"] as const)("rejects out-of-schema adjustments (pipe: %s)", (pipe) => {
+it.each([undefined, "item"] as const)("rejects out-of-schema adjustments (pipe: %s)", (pipe) => {
   const { current, definitions, runtime } = withQuantity(z.number().max(3).default(3), {}, 1, pipe);
   const step = qty("increment");
   expect(planAct(current, definitions, {}, [step])).toMatchObject({ ok: false, code: "invalid_value" });
   expect(runtime.act(step)).toMatchObject({ ok: false, code: "invalid_value" });
   expect(runtime.read()).toContain("3");
+});
+
+it("refuses to write to a row when an array transform can change its wire index", () => {
+  const def = {
+    ...fixture,
+    props: fixture.props.extend({ rows: fixture.props.shape.rows.transform((rows) => rows.reverse()) }),
+  };
+  const definitions = { [def.meta.id]: def };
+  const runtime = createScreenController({ screen, defs: definitions });
+  const step = qty("increment", 2);
+  expect(runtime.read()).toContain("[c1/r2 press→item]");
+  expect(planAct(screen, definitions, {}, [step])).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(runtime.act(step)).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(runtime.snapshotScreen().components[0]?.rows).toEqual(seed.rows);
 });
 
 it("uses the parsed row quantity as the next step's seed after schema normalization", () => {

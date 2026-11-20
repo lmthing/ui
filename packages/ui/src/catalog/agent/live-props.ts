@@ -35,7 +35,8 @@ const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
 
 function wireAdjustmentKey(def: Definition, key: string) {
-  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key), true);
+  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
+  if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
   const prop = key.slice(key.lastIndexOf("/") + 1);
   return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
 }
@@ -191,8 +192,9 @@ export function stageItemAdjustment(
   const now = Number(get("$now") ?? Date.now());
   const adjustment = adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
   if (!isAdjustOnlyItem(adjustment, action)) return;
-  if (adjustment.next === undefined) return false;
-  values[`${base}/${wireAdjustmentKey(def, adjustment.key)}`] = adjustment.next;
+  const slot = wireAdjustmentKey(def, adjustment.key);
+  if (adjustment.next === undefined || !slot) return false;
+  values[`${base}/${slot}`] = adjustment.next;
   values[`${screen.id}/${address}`] = adjustment.next;
   return true;
 }
