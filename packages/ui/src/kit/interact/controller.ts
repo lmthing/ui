@@ -4,6 +4,7 @@ import {
   createMediaRuntime,
   createAct,
   createAccess,
+  discardHiddenConfirmation,
   type ControllerContext,
   type ControllerOptions,
 } from "./runtime";
@@ -53,8 +54,10 @@ export function createScreenController(options: ControllerOptions) {
       return ctx.status.openSheet;
     },
     get confirmation() {
-      return ctx.status.confirmation;
+      return ctx.confirmationFor();
     },
+    confirmationFor: ctx.confirmationFor,
+    discardHiddenConfirmation: () => discardHiddenConfirmation(ctx),
     snapshotScreen: () => {
       const values = ctx.valuesOf();
       return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
