@@ -1,4 +1,16 @@
 export const en = {
+  result: {
+    score: "Practice score",
+    perfect: "Perfect score",
+    total: (of: string) => ` of ${of}`,
+    right: "Right",
+    wrong: "Wrong",
+    seconds: "Time",
+    points: "Points",
+    corrections: "Corrections",
+    review: "Review",
+    again: "Try again",
+  },
   quiz: {
     check: "Check answer",
     next: "Next question",
