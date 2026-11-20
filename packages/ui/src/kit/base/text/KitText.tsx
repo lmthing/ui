@@ -91,7 +91,11 @@ function fontOf(role: TextRole, fonts: ReturnType<typeof useKitStyle>["fonts"]) 
 const LoadingRuns = createContext(false);
 const bar = isWeb
   ? {
-      backgroundImage: `linear-gradient(transparent calc(50% - ${space.xs}px), var(--line) calc(50% - ${space.xs}px) calc(50% + ${space.xs}px), transparent calc(50% + ${space.xs}px))`,
+      backgroundImage:
+        "radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), linear-gradient(var(--line), var(--line))",
+      backgroundSize: `${space.sm}px ${space.sm}px, ${space.sm}px ${space.sm}px, calc(100% - ${space.sm}px) ${space.sm}px`,
+      backgroundPosition: "left center, right center, center",
+      backgroundRepeat: "no-repeat",
     }
   : { backgroundColor: "$line" as const };
 const options = ({ emphasis, item, goto }: TextProps) =>
@@ -117,8 +121,8 @@ function maskRuns(children: ReactNode) {
         isValidElement(run) ? (
           run
         ) : (
-          <Frame color="transparent" {...bar}>
-            {run}
+          <Frame {...bar}>
+            <Text opacity={0}>{run}</Text>
           </Frame>
         ),
       )}
@@ -179,7 +183,7 @@ function TextRun(props: TextProps) {
           }
         : {})}
     >
-      {nested ? maskRuns(children) : content}
+      {nested ? maskRuns(children) : loading && isWeb ? <Text opacity={0}>{content}</Text> : content}
     </Frame>
   );
 }

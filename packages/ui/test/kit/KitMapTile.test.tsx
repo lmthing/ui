@@ -88,8 +88,9 @@ describe("KitMapTile", () => {
       expect([...addressedElements(html).keys()]).toEqual(["home/c1/map"]);
       expect(html).not.toContain('role="button"');
       expect(html).not.toContain("North gate");
-      expect(styleAt(html, "home/c1/map")).toContain(`aspect-ratio:${component.base.wideRatio}`);
     }
+    expect(styleAt(empty, "home/c1/map")).toContain(`height:${size.control.md}px`);
+    expect(styleAt(loading, "home/c1/map")).toContain(`aspect-ratio:${component.base.wideRatio}`);
     expect(styleAt(loading, "home/c1/map")).toEqual(styleAt(full, "home/c1/map"));
     expect(elementAt(loading, "home/c1/map").attributes).toContain('aria-busy="true"');
   });
@@ -112,13 +113,23 @@ describe("KitMapTile interaction", () => {
       screen: { id: "home", components: [{ id: "c1", c: "MapPins", ...components.MapPins.examples[0] }] },
     });
     try {
-      await draw({ pins: [{ ...pins[0], target: { part: "root" } }] }, "filled", controller);
+      const close = { ...pins[0], id: "r2", x: 0.02, target: { part: "root" } };
+      await draw({ pins: [{ ...pins[0], target: { part: "root" } }, close] }, "filled", controller);
       expect(press).toBeDefined();
       expect(press?.({})).toMatchObject({ ok: false, code: "not_mounted" });
       const unregister = controller.registerPart("home/c1/r1/root");
       expect(press?.({})).toMatchObject({ ok: true });
       expect(onLink).toHaveBeenCalledWith("greenhouse", "home/c1/r1");
       unregister();
+      const unregisterClose = controller.registerPart("home/c1/r2/root");
+      const half = size.avatar.sm / 2;
+      expect(
+        press?.({
+          nativeEvent: { offsetX: half + 0.02 * (width - size.avatar.sm), offsetY: half, detail: 1 },
+        }),
+      ).toMatchObject({ ok: true });
+      expect(onLink).toHaveBeenCalledWith("riverside", "home/c1/r2");
+      unregisterClose();
     } finally {
       spy.mockRestore();
       controller.dispose();

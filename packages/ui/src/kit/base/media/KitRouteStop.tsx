@@ -1,11 +1,11 @@
 import { useSignatureProgress } from "../../motion";
-import { useState, type ReactNode } from "react";
+import { Children, isValidElement, useState, type ComponentProps, type ReactNode } from "react";
 import { Check, ChevronRight, MapPin } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitText } from "../text";
+import { KitIcon, KitText } from "../text";
 
 type Position = "start" | "middle" | "end";
 type RouteProps = {
@@ -81,25 +81,23 @@ function Rail({
   position,
   mark,
   loading,
-  empty,
+  linked,
   pad,
   line,
-}: Pick<RouteProps, "position" | "mark"> & { loading: boolean; empty: boolean; pad: number; line: number }) {
+}: Pick<RouteProps, "position" | "mark"> & { loading: boolean; linked: boolean; pad: number; line: number }) {
   const progress = useSignatureProgress("route_draw");
   return (
     <YStack width={size.icon.md} alignItems="center" aria-hidden accessibilityElementsHidden>
       {/* The connector runs from the stop above to the stop below, behind the mark. */}
-      {!empty && (
-        <YStack
-          position="absolute"
-          top={position === "start" ? pad + line / 2 : 0}
-          bottom={position === "end" ? undefined : 0}
-          height={position === "end" ? pad + line / 2 : undefined}
-          width={component.base.strongBorder}
-          backgroundColor={loading || mark !== "route" ? "$line" : "$accent"}
-          {...(loading ? {} : { opacity: progress, scaleY: progress })}
-        />
-      )}
+      <YStack
+        position="absolute"
+        top={position === "start" ? pad + line / 2 : 0}
+        bottom={position === "end" ? undefined : 0}
+        height={position === "end" ? pad + line / 2 : undefined}
+        width={component.base.strongBorder}
+        backgroundColor={loading || linked || mark !== "route" ? "$line" : "$accent"}
+        {...(loading ? {} : { opacity: progress, scaleY: progress })}
+      />
       <YStack height={line} marginTop={pad} justifyContent="center" alignItems="center">
         <Mark {...{ position, mark, loading }} />
       </YStack>
@@ -107,17 +105,16 @@ function Rail({
   );
 }
 
-function StopContent({
-  pad,
-  children,
-  loading,
-  label,
-}: {
-  pad: number;
-  children: ReactNode;
-  loading: boolean;
-  label: string;
-}) {
+function loadingLines(children: ReactNode): ComponentProps<typeof KitText>[] {
+  return Children.toArray(children).flatMap((node) => {
+    if (!isValidElement<ComponentProps<typeof KitText>>(node)) return [];
+    if (node.type === KitText && typeof node.props.children === "string") return [node.props];
+    return loadingLines(node.props.children);
+  });
+}
+
+type StopContentProps = { pad: number; children: ReactNode; loading: boolean; label: string };
+function StopContent({ pad, children, loading, label }: StopContentProps) {
   const [height, setHeight] = useState(0);
   if (!loading)
     return (
@@ -125,20 +122,23 @@ function StopContent({
         {children}
       </YStack>
     );
+  const lines = loadingLines(children);
   return (
     <YStack flex={1} minHeight={height} paddingVertical={pad} position="relative" aria-hidden>
-      <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
-        <KitText part={null}>{label}</KitText>
-      </YStack>
-      <YStack
-        position="absolute"
-        top={pad + (typography.body.lineHeight - space.sm) / 2}
-        width="72%"
-        height={space.sm}
-        borderRadius={radius.sm}
-        backgroundColor="$line"
-        aria-hidden
-      />
+      {(lines.length ? lines : [{ children: label }]).map((props, i) => (
+        <YStack key={i} justifyContent="center">
+          <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
+            <KitText {...props} part={null} goto={undefined} item={undefined} />
+          </YStack>
+          <YStack
+            position="absolute"
+            width="72%"
+            height={space.sm}
+            borderRadius={radius.sm}
+            backgroundColor="$line"
+          />
+        </YStack>
+      ))}
     </YStack>
   );
 }
@@ -151,6 +151,13 @@ function Stop({ label, position, children, goto, mark = "route" }: Omit<RoutePro
   const target = useStopLink(goto, loading, empty);
   const line = typography.body.lineHeight;
   const pad = space[ks.density.rowPad];
+  if (empty)
+    return (
+      <YStack {...target} padding={space.md} alignItems="center" gap={space.sm} accessibilityLabel={label}>
+        <KitIcon name="sparkles" tone="muted" decorative />
+        {children}
+      </YStack>
+    );
   return (
     <XStack
       {...target}
@@ -160,11 +167,11 @@ function Stop({ label, position, children, goto, mark = "route" }: Omit<RoutePro
       accessibilityLabel={loading ? undefined : label}
       aria-busy={loading || undefined}
     >
-      <Rail {...{ position, mark: empty ? "dot" : mark, loading, empty, pad, line }} />
+      <Rail {...{ position, mark, loading, linked: Boolean(goto), pad, line }} />
       <StopContent {...{ pad, loading, label }}>{children}</StopContent>
       {goto && (
         <YStack width={size.icon.sm} height={line} marginTop={pad} justifyContent="center" aria-hidden>
-          {!loading && !empty && <ChevronRight size={size.icon.sm} color="$accent" />}
+          {!loading && <ChevronRight size={size.icon.sm} color="$muted" />}
         </YStack>
       )}
     </XStack>

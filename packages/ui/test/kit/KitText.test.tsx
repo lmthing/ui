@@ -64,7 +64,8 @@ describe("KitText runs", () => {
     );
     expect(addressedElements(loading).size).toBe(0);
     expect(loading).not.toContain('role="link"');
-    expect(loading).toMatch(/<span[^>]+aria-hidden="true"[^>]*><span[^>]*>Before<\/span>/);
+    expect(loading).toContain(">Before</span>");
+    expect(loading).toContain("opacity:0");
   });
 });
 

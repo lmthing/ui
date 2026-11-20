@@ -23,7 +23,7 @@ function draw(
       <KitProvider theme={theme} interactive controller={controller} onLink={onLink}>
         <PartScope screen="home" component="c1" rev={1} state={state}>
           <KitRouteStop item={item} label="Handoff" position="end" {...props}>
-            <KitText part="label">Handoff</KitText>
+            {props.children ?? <KitText part="label">Handoff</KitText>}
           </KitRouteStop>
         </PartScope>
       </KitProvider>
@@ -79,4 +79,30 @@ describe("KitRouteStop", () => {
     expect(loading).toContain('aria-busy="true"');
     expect(loading).toContain('aria-hidden="true"');
   });
+});
+
+it("reserves cold loading lines from the caller's text without rendering its links", () => {
+  const html = draw(
+    {
+      children: (
+        <>
+          <KitText part="label">Handoff</KitText>
+          <KitText part="detail" role="caption" goto="details">
+            Additional context
+          </KitText>
+        </>
+      ),
+    },
+    "loading",
+  );
+  expect(addressedElements(html).size).toBe(0);
+  expect(html).not.toContain('role="link"');
+  expect(html).toContain(">Handoff</span>");
+  expect(html).toContain(">Additional context</span>");
+  const bars = (markup: string) =>
+    markup
+      .split("</style>")
+      .at(-1)!
+      .match(/_backgroundColor-line/g)?.length ?? 0;
+  expect(bars(html)).toBe(bars(draw({}, "loading")) + 1);
 });
