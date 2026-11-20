@@ -32,7 +32,7 @@ export const meta = {
   pick: "Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.",
   writeHints: [
     'sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.',
-    'Use detail "brief" only when asked to hide the dice setup caption. Leave unrequested axes null.',
+    'For hiding the setup caption alone use {"detail":"brief","density":null}. Always write density null, not comfortable, unless spacing is separately requested.',
   ],
   region: "body",
   weight: 2,

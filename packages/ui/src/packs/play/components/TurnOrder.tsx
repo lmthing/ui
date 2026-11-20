@@ -15,7 +15,7 @@ export const meta = {
   pick: "Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).",
   writeHints: [
     "first is a zero-based index into players. Optional laps bounds the game; omit it for open-ended rotation. Never write current player, lap, completed turns or skips.",
-    'Use detail "brief" only when asked to hide the lap and direction line. Leave unrequested axes null.',
+    'To hide only the lap and direction line write {"detail":"brief","density":null}; keep any lap limit. Never write comfortable as the default.',
   ],
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],

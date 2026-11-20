@@ -21,7 +21,7 @@ export const meta = {
   pick: "Host-controlled question and answer reveals for players answering aloud or on paper. Not private option selection (Choice), graded submissions (Quiz), or spaced recall (Flashcard).",
   writeHints: [
     "Write seed question, answer, optional explanation/photo and points. Never write submissions, grades, awarded scores, current index or reveal state.",
-    'Use emphasis "hero" only for a requested large question, and media "none" only to hide question photos. Leave other axes null.',
+    'To hide photos alone use {"media":"none","emphasis":null,"density":null}. Keep the supplied photo in the question data. Use hero only when the user separately asks for large question text.',
   ],
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
@@ -136,7 +136,7 @@ function previewReveal(input: TriviaProps, screen: string, id: string) {
 }
 
 // prettier-ignore
-function TriviaActions({ primary, loading }: { primary?: "reveal" | "next" | undefined; loading?: boolean }) {
+function TriviaActions({ primary, loading, grouped }: { primary?: "reveal" | "next" | undefined; loading?: boolean; grouped?: boolean }) {
   const { words: { trivia } } = useWords(playWordsFor);
   const restart = <KitRow inline role="button" part="restart" label={trivia.restart} lineRole="label">
     <KitContent inset="md"><KitText role="label" tone="muted" part={null}>{trivia.restart}</KitText></KitContent>
@@ -144,7 +144,7 @@ function TriviaActions({ primary, loading }: { primary?: "reveal" | "next" | und
   const kind = primary === "next" ? "primary" : "secondary";
   const lead = primary && (loading ? <KitSkeleton shape="control" label={trivia[primary]} kind={kind} />
     : <KitAction label={trivia[primary]} part={primary} action="press" kind={kind} />);
-  return <KitContent group="response" leadingAlign="row" lead={lead}>
+  return <KitContent group={grouped ? "content" : "response"} leadingAlign="row" lead={lead}>
     {loading ? <KitSkeleton shape="control" kind="quiet" label={trivia.restart} /> : restart}
   </KitContent>;
 }
@@ -167,9 +167,11 @@ export function Trivia(input: TriviaProps) {
   const points = triviaPointsCopy(item.points, lang);
   const { emphasis } = input;
   if (state === "loading") return <KitCard part="root" padded density={density}>
-    <KitSkeleton shape="figure" inset={item.photo ? "md" : "none"} lead={item.photo ? "box" : "none"} {...{ density, emphasis }}
-      content={[["heading", item.question], ["number", points.line, "start", "compact"]]} />
-    <TriviaActions primary="reveal" loading />
+    <KitContent group={item.photo ? "response" : "content"} density={density}>
+      <KitSkeleton shape="figure" inset="none" lead={item.photo ? "box" : "none"} {...{ density, emphasis }}
+        content={[["heading", item.question], ["number", points.line, "start", "compact"]]} />
+    </KitContent>
+    <TriviaActions primary="reveal" loading grouped={Boolean(item.photo)} />
   </KitCard>;
   const primary = primaryAction(current);
   return (

@@ -23,7 +23,7 @@ export const meta = {
   pick: "An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).",
   writeHints: [
     "Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.",
-    'Use overflow "page" only when asked to show one round at a time. Keep every round in the data. Leave unrequested axes null.',
+    'When asked only for one round at a time write {"overflow":"page","density":null}. Keep every round in the data. Never write comfortable as a default.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   partTiers: { share: "people" }, confirmParts: ["reset"], clearItems: { reset: "score" },

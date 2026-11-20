@@ -12,7 +12,7 @@ export const meta = {
   pick: "Pick one labelled option randomly. Not deliberate choices (Choice, Chips), numbered dice (Dice), balanced teams (TeamPicker), or votes (Poll).",
   writeHints: [
     "Write 2–6 distinct option labels. Never write selected index, used options, remaining count or stored draws.",
-    'Use detail "brief" only when asked to hide the separate draw-pool legend; keep every label in options. Leave unrequested axes null.',
+    'To hide only the draw-pool legend write {"detail":"brief","density":null,"surface":null}; keep every option label. Never spell out comfortable or card as defaults.',
   ],
   region: "body", weight: 2, tier: "phone",
   confirmParts: ["reset"],

@@ -18,7 +18,7 @@ export const meta = {
   pick: "Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).",
   writeHints: [
     "Write 2–12 players and 2–4 distinct team labels, no more teams than players. Optional player.team is a zero-based locked index. Never write unlocked assignments, sizes or feasibility; impossible locks are runtime errors, not uneven teams.",
-    'Use arrange "rows" for stacked teams with group headings. Leave unrequested axes null; locked placement is not a mark.',
+    'When only vertical stacking is requested write {"arrange":"rows","density":null}. Leave mark and team null unless a player is explicitly highlighted or locked, respectively. Never spell out default axes.',
   ],
   region: "body",
   weight: 3,
