@@ -22,7 +22,7 @@ import {
   KitRow,
   KitText,
   KitWeekMatrix,
-  useComponentState,
+  usePartContext,
   useVariant,
   useWords,
 } from "../../../kit";
@@ -175,7 +175,9 @@ export function MealPlan(input: Props<typeof props, typeof meta>) {
   const { week, meals, rows } = input as typeof input & { rows: Cell[] };
   const { lang, words } = useWords(kitchenWordsFor);
   const showPhoto = useVariant("media", meta.variants.media, input.media) !== "none";
-  if (useComponentState() === "empty") return <KitCard part="root"><KitEmpty part="meals" decorativeIcon /></KitCard>;
+  const { state, thing } = usePartContext();
+  if (state === "empty") return <KitCard part="root"><KitEmpty part="meals" icon="calendar_days"
+    {...(!thing ? { title: words.mealPlanEmpty } : {})} decorativeIcon /></KitCard>;
   const days = mealPlanDaysFor(lang).map((day) => ({ ...day, header: <MatrixLabel label={day.short} /> }));
   const stackPhoto = meals.length > 2;
   const columns = meals.map((meal) => ({
@@ -189,11 +191,10 @@ export function MealPlan(input: Props<typeof props, typeof meta>) {
     }),
   }));
   const heading = mealPlanWeek(week, lang);
-  const matrix = { days, rows: columns, today: mealPlanToday(week) };
   return (
     <KitCard part="root">
       <KitRow part="week" label={heading}><KitText role="heading" part={null} children={heading} /></KitRow>
-      <KitWeekMatrix part="meals" orientation="daysDown" corner={null} fitColumns {...matrix} />
+      <KitWeekMatrix part="meals" orientation="daysDown" corner={null} fitColumns days={days} rows={columns} today={mealPlanToday(week)} />
     </KitCard>
   );
 }

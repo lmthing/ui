@@ -19,7 +19,8 @@ describe("Note schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ text: "  Supporting information  " })).toEqual({
-      style: "body",
+      emphasis: "normal",
+      media: "icon",
       text: "Supporting information",
       tone: "neutral",
     });
@@ -31,6 +32,8 @@ describe("Note schema", () => {
     { text: "a".repeat(121) },
     { text: 4 },
     { text: "Details", style: "plain" },
+    { text: "Details", style: "hint" },
+    { text: "Details", media: "cover" },
     { text: "Details", tone: "accent" },
     { text: "Details", icon: "unknown" },
     { text: "Details", color: "red" },
@@ -38,15 +41,17 @@ describe("Note schema", () => {
     { text: "Details", id: "n1" },
     { text: "Details", goto: "next" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts the exact maximum length and every style and tone", () => {
-    for (const style of ["body", "quote", "hint"])
+  it("accepts the exact maximum length and every emphasis and tone", () => {
+    for (const emphasis of meta.variants.emphasis)
       for (const tone of ["neutral", "good", "warn", "bad"])
-        expect(props.safeParse({ text: "a".repeat(120), style, tone, icon: "lightbulb" }).success).toBe(true);
+        expect(props.safeParse({ text: "a".repeat(120), emphasis, tone, icon: "lightbulb" }).success).toBe(
+          true,
+        );
   });
   it("types view props without validator item ids", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["text"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"body" | "quote" | "hint">();
+    expectTypeOf<ViewProps["emphasis"]>().toEqualTypeOf<"normal" | "hero" | "quiet">();
     expectTypeOf<ViewProps["tone"]>().toEqualTypeOf<"neutral" | "good" | "warn" | "bad">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
@@ -84,8 +89,8 @@ describe("Note fallback", () => {
       },
     ];
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
-    expect(fallback({ cast: casts[0]! })).toEqual({ style: "body", text: placeholderDetail });
-    expect(fallback({ cast: casts[1]! })).toEqual({ style: "body", text: "More details" });
+    expect(fallback({ cast: casts[0]! })).toEqual({ text: placeholderDetail });
+    expect(fallback({ cast: casts[1]! })).toEqual({ text: "More details" });
     expect(fallback({ cast: casts[2]! }).text).toBe("First");
     expect(fallback({ cast: casts[3]! }).text).toBe("y".repeat(120));
     expect(fallback({ cast: casts[4]! }).text).toBe(placeholderDetail);
@@ -137,7 +142,7 @@ describe("Note metadata and probes", () => {
       for (const name of [meta.id, "Banner", "Hero"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
-    expect(new Set(examples.map((example) => example.style))).toEqual(new Set(["body", "quote", "hint"]));
+    expect(probes).toContainEqual(expect.objectContaining({ variant: { axis: "media", value: "none" } }));
   });
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
@@ -150,36 +155,33 @@ describe("Note metadata and probes", () => {
 });
 
 describe("Note view", () => {
-  it.each(["body", "quote", "hint"] as const)(
-    "draws %s with the required bases, parts and tones",
-    (style) => {
-      for (const tone of ["neutral", "good", "warn", "bad"] as const) {
-        const view = Note(props.parse({ style, tone, text: "Supporting information" }));
-        expect(view.type).toBe(KitBlock);
-        expect(view.props).toMatchObject({ label: "Supporting information" });
-        const line = view.props.children;
-        expect(line.type).toBe(KitText);
-        expect(line.props).toMatchObject({
-          role: style === "quote" ? "heading" : style === "hint" ? "label" : "body",
-          tone: tone === "neutral" ? (style === "hint" ? "muted" : "text") : tone,
-          part: "text",
-          children: "Supporting information",
-        });
-        if (style === "body") expect(view.props.leading).toBeUndefined();
-        else {
-          expect(view.props.leading.type).toBe(KitIcon);
-          expect(view.props.leading.props).toMatchObject({
-            name: style === "quote" ? "quote" : "lightbulb",
-            tone: tone === "neutral" ? "muted" : tone,
-            part: "icon",
-          });
-        }
-      }
-    },
-  );
-  it.each(["body", "quote", "hint"] as const)("uses the given icon in %s", (style) => {
-    const view = Note(props.parse({ style, text: "Details", icon: "info" }));
-    expect(view.props.leading.props.name).toBe("info");
+  it.each(meta.variants.emphasis)("draws %s with the required bases, parts and tones", (emphasis) => {
+    for (const tone of ["neutral", "good", "warn", "bad"] as const) {
+      const view = Note(props.parse({ emphasis, tone, icon: "info", text: "Supporting information" }));
+      expect(view.type).toBe(KitBlock);
+      expect(view.props).toMatchObject({ label: "Supporting information" });
+      const line = view.props.children;
+      expect(line.type).toBe(KitText);
+      expect(line.props).toMatchObject({
+        role: "body",
+        emphasis,
+        tone: tone === "neutral" ? (emphasis === "quiet" ? "muted" : "text") : tone,
+        part: "text",
+        children: "Supporting information",
+      });
+      expect(view.props.leading.type).toBe(KitIcon);
+      expect(view.props.leading.props).toMatchObject({
+        name: "info",
+        tone: tone === "neutral" ? "muted" : tone,
+        part: "icon",
+      });
+    }
+  });
+  it("keeps icons optional by default and hides a supplied icon for media none", () => {
+    const text = "Details";
+    expect(meta.variantParts["media.none"]).toEqual({ hides: ["icon"] });
+    expect(Note(props.parse({ text })).props.leading).toBeUndefined();
+    expect(Note(props.parse({ text, icon: "info", media: "none" })).props.leading).toBeUndefined();
   });
   it.each(examples)("reads the shown sentence without offering actions", (example) => {
     const parsed = props.parse(example);

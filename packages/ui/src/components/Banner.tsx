@@ -7,6 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -20,10 +21,19 @@ export const meta = {
   group: "content",
   purpose: "Something important to notice now, with an optional link to act.",
   pick: "An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).",
+  writeHints: [
+    'Warnings use the default surface and tone: set both fields to null unless a different finish is explicitly requested. To hide the icon, set only media to "none"; otherwise use null for media and put a custom icon in icon.',
+  ],
   region: "top",
   weight: 2,
   tier: "phone",
   realPath: "A current status message and optional navigation link in the on-device app.",
+  variants: {
+    surface: ["tinted", "outlined"],
+    media: ["icon", "none"],
+    tone: ["warn", "neutral", "good", "bad"],
+  },
+  variantParts: { "media.none": { hides: ["icon"] } },
   parts: ["root", "icon", "text"],
   states: ["filled"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
@@ -31,13 +41,17 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     text: text(80),
     icon: icon.optional(),
-    tone: z.enum(["neutral", "good", "warn", "bad"]).default("warn"),
     goto: screenId.optional(),
   })
   // actions.when compares values; derive link presence without adding a model-written prop.
-  .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
+  .overwrite((value) => ({
+    ...value,
+    ...(value.media === "none" ? { icon: undefined } : {}),
+    linked: value.goto !== undefined,
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -51,11 +65,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { text: "All plants watered", tone: "good" },
   {
-    text: "Today's 4pm walk is cancelled",
+    text: "4pm walk cancelled",
     icon: "alert",
-    tone: "warn",
     goto: "walk_details",
   },
+  { text: "Booking closes at noon", surface: "outlined" },
+  { text: "Booking closes at noon" },
+  { text: "Walk status updated", tone: "neutral" },
+  { text: "Walk status updated" },
+  { text: "Payment failed", tone: "bad" },
+  { text: "Payment failed" },
+  { text: "Walks may start late", media: "none" },
+  { text: "Walks may start late" },
+  { text: "All plants watered" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Banner");
@@ -63,10 +85,14 @@ export const probes = [
   choose("Make an urgent warning stand out now that today's dog walk has been cancelled"),
   choose("Add a little supporting line explaining that ferns prefer indirect light", "Note"),
   write("Warn me that today's 4pm dog walk is cancelled and let me open walk_details"),
+  {
+    ...write("Warn me that the park gate is closed. Show the warning text without any icon."),
+    variant: { axis: "media", value: "none" },
+  },
   read("Open the banner", { address: "b1", action: "press" }, 1),
 ] satisfies Probe[];
 
-export function Banner({ text, icon, tone, goto }: Props<typeof props, typeof meta>) {
+export function Banner({ text, icon, tone, goto, surface, media }: Props<typeof props, typeof meta>) {
   const names = { neutral: "info", good: "circle_check", warn: "alert", bad: "close" } as const;
   const name = icon ?? names[tone];
   return (
@@ -74,7 +100,10 @@ export function Banner({ text, icon, tone, goto }: Props<typeof props, typeof me
       label={text}
       tone={tone}
       goto={goto}
-      leading={<KitIcon name={name} tone={tone === "neutral" ? "accent" : tone} part="icon" />}
+      surface={surface}
+      leading={
+        media === "icon" && <KitIcon name={name} tone={tone === "neutral" ? "accent" : tone} part="icon" />
+      }
       trailing={goto ? <KitIcon name="chevron_right" decorative /> : undefined}
     >
       <KitText role="body" part="text">

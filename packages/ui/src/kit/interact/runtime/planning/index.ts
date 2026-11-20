@@ -28,7 +28,7 @@ function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Val
     const { session, successActions, errorActions, live } = meta;
     const useParsed =
       meta.confirmParts?.length &&
-      (session || successActions?.length || errorActions?.length || live?.derive);
+      (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits);
     return useParsed ? parseControlProps(def, raw, get) : raw;
   }
   const input = ctx.inputOf(entry);
@@ -104,7 +104,7 @@ function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionCo
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
-  if (successActions?.length || errorActions?.length || live?.derive) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));
 }
 function isDraw({ entry, defs, selected }: ActionContext) {

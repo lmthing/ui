@@ -9,7 +9,7 @@ export const meta = createMeta(
   },
   {
     short: [
-      "When records are supplied, edit one of them. Name that record in the Header and prefill Fields from the same record; use the supplied field names as readable labels. Leave Header action null. End with one Save button for that record and no competing action.",
+      "When records are supplied, edit one of them. Name that record in Header.title, e.g. Edit Fern; set Header.action, density, detail and emphasis to literal null. Prefill fields from that same record in a natural order, using sentence-case labels the person would recognize, such as Plant name, Room and Watering interval. End with one primary Save button for the named record; no competing action.",
     ],
   },
 ) satisfies ArchetypeMeta;

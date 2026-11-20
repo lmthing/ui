@@ -1,5 +1,6 @@
 import type { Definition } from "../../probes";
 import { liveInputKey } from "../live-inputs";
+import { linkedInput } from "../linked-edits";
 import {
   choiceOptions,
   controlValueKey,
@@ -44,15 +45,18 @@ export function readAffordances(
         offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
       }));
     const set = a.action === "set" && numericSetAt(meta, props, target);
-    const value = choices
-      ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
-      : set
-        ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-          ? undefined
-          : set.value
-        : a.input?.kind === "text"
-          ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
-          : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
+    const linked = a.action === "type" && linkedInput(meta, target);
+    const value = linked
+      ? props[linked.prop]
+      : choices
+        ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
+        : set
+          ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
+            ? undefined
+            : set.value
+          : a.input?.kind === "text"
+            ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
+            : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (!a.input && typeof value === "boolean" && a.action === "check")
