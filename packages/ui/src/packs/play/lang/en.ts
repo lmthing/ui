@@ -64,6 +64,18 @@ export const en = {
     face: (position: string, value: string) => `Die ${position}, showing ${value}`,
     heldFace: (position: string, value: string) => `Die ${position}, showing ${value}, held`,
   },
+  spinner: {
+    pool: "Draw pool",
+    empty: "Nothing drawn yet",
+    ready: "Ready to spin",
+    result: "Selected at random",
+    exhausted: "No options left",
+    remaining: (count: string, plural: Intl.LDMLPluralRule) =>
+      `${count} ${plural === "one" ? "option" : "options"} left`,
+    spin: "Spin",
+    again: "Spin again",
+    reset: "Reset options",
+  },
 };
 
 export type PlayWords = typeof en;
