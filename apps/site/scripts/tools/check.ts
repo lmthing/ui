@@ -1,7 +1,10 @@
 // tsx scripts/tools/check.ts <baseUrl> <shotsDir> [--webgpu] [--webgpu-run]: drives the built site in headless
-// Chromium and asserts the live parts work (create stream, playground, packs, try-it replay and a mocked tier 1).
+// Chromium and asserts the live parts work (create stream, playground, packs, try-it replay, a mocked tier 1
+// and a mocked OpenRouter).
 import { launchChrome } from "../../../../packages/ui/scripts/look/launch-chrome";
 import { checkLocalModel, checkLocalRun } from "./check-local";
+import { checkOpenRouter } from "./check-openrouter";
+import { checkTexts } from "./check-texts";
 import {
   base,
   data as siteData,
@@ -176,11 +179,13 @@ for (const width of [1280, 390]) await checkCreate(browser, width);
 await checkTry(browser, 1280, undefined, "Recorded replay");
 await checkTry(browser, 390, undefined, "Recorded replay");
 await checkTry(browser, 1280, mock, "Chrome built-in AI");
+await checkOpenRouter(browser);
 await checkPlayground(browser);
 await checkViewAct(browser);
 await checkStaleChunk(browser);
 await checkIndex(browser);
 await checkAnchors(browser);
+await checkTexts();
 await checkEdges(browser);
 await checkTheme(browser);
 for (const width of [1280, 390]) await checkPack(browser, width);

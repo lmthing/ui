@@ -164,3 +164,30 @@
   white-space: normal;
   overflow-x: hidden;
 }
+
+.orbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.orbar p {
+  margin: 0;
+  font-size: 0.82rem;
+  max-width: 68ch;
+}
+.orrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.orrow input {
+  flex: 1 1 220px;
+}
+.orrow select {
+  flex: 1 1 240px;
+}
+.orkey code {
+  font: 400 0.8rem var(--mono);
+}

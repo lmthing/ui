@@ -5,6 +5,7 @@ import type { Lit } from "../../shared/JsonLine";
 import { ActPane } from "./ActPane";
 import { CodePane } from "./CodePane";
 import { RequestBar } from "./RequestBar";
+import { OpenRouterBar } from "./OpenRouterBar";
 import { TierBar } from "./TierBar";
 import { suggestions } from "../suggestions";
 import { useFirstRun } from "../useFirstRun";
@@ -16,13 +17,16 @@ function TryPanelLoaded() {
   const [request, setRequest] = useState(suggestions[0]!);
   const [hover, setHover] = useState<string | null>(null);
   const [lit, setLit] = useState<Lit>(null);
-  useFirstRun(t.chrome, t.run, suggestions[0]!);
+  useFirstRun(t.chrome, !!t.openrouter.apiKey, t.run, suggestions[0]!);
   const lighted = lit ? (lit.key ? `${lit.id}/${lit.key}` : lit.id) : undefined;
   const highlight = lighted ?? (t.answer?.ok ? t.answer.address : undefined);
   return (
     <div className="card try">
       <TierBar
         chrome={t.chrome}
+        openrouter={
+          t.openrouter.apiKey ? (t.openrouter.model ? "free, your key" : "listing models") : "connect"
+        }
         gpu={t.gpu}
         local={t.local}
         choice={t.choice}
@@ -30,6 +34,7 @@ function TryPanelLoaded() {
         onChoice={t.setChoice}
         onDownload={t.download}
       />
+      {(t.choice === "openrouter" || t.openrouter.apiKey) && <OpenRouterBar {...t.openrouter} />}
       <RequestBar
         request={request}
         setRequest={setRequest}
@@ -45,7 +50,7 @@ function TryPanelLoaded() {
         <div className="try-code">
           <CodePane written={t.written} partial={t.running} lit={lit} onLit={setLit} />
           <ActPane
-            enabled={!t.running && t.engine !== null && t.engine.tier !== 3}
+            enabled={!t.running && t.engine !== null && t.engine.tier !== 4}
             tier={t.engine?.tier ?? null}
             view={t.view}
             answer={t.answer}

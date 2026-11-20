@@ -14,7 +14,7 @@ export function Footer() {
           </p>
           <p>
             <a href={`https://github.com/${site.repo}`}>Source</a> · <a href="gallery/">Static gallery</a> ·{" "}
-            <a href="#/components">All components</a>
+            <a href="#/components">All components</a> · <a href="llms.txt">Text for LLMs</a>
           </p>
         </div>
       </div>

@@ -36,14 +36,14 @@ export function planReplay(request: string): ReplayPlan {
 const delay = (ms: number, signal: AbortSignal) =>
   new Promise<void>((done) => (signal.aborted ? done() : setTimeout(done, ms)));
 
-/** Streams a recorded reply back as text, as if a model were writing it. Tier 3: nothing runs locally. */
+/** Streams a recorded reply back as text, as if a model were writing it. Tier 4: no model runs. */
 export function replayEngine(request: string): Engine {
   const plan = planReplay(request);
   const note = isSuggestion(request)
     ? undefined
     : `Nothing was recorded for "${request.trim()}". Replaying the closest recording: ${plan.title} (${plan.origin}).`;
   return {
-    tier: 3,
+    tier: 4,
     label: "Recorded replay",
     ...(note ? { note } : {}),
     model: plan.origin,
