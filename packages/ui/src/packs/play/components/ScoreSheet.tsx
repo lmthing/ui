@@ -83,20 +83,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
   return { players, rounds: [{ label: placeholderTitle(0, lang), points: players.map(() => null) }] };
 }
+// Ledge's friends play a high-score game after tending the plants.
+// prettier-ignore
+const game = {
+  players: [{ name: "Anna" }, { name: "Ben" }, { name: "Sam" }],
+  rounds: [{ label: "Round 1", points: [4, 2, 4] }, { label: "Round 2", points: [3, -1, 3] }], share: true,
+};
 // prettier-ignore
 export const examples = [
-  // Ledge's friends play a high-score game after tending the plants.
-  {
-    players: [{ name: "Anna" }, { name: "Ben" }, { name: "Sam" }],
-    rounds: [{ label: "Round 1", points: [4, 2, 4] }, { label: "Round 2", points: [3, -1, 3] }],
-    share: true,
-  },
+  game,
   // Trot's walkers keep a low-score card-game round.
   {
     players: [{ name: "Jo" }, { name: "Lee" }],
-    rounds: [{ label: "First hand", points: [-2, 5] }, { label: "Second hand", points: [0, -1] }],
-    wins: "low", overflow: "page", density: "compact",
+    rounds: [{ label: "First hand", points: [-2, 5] }], wins: "low",
   },
+  { ...game, overflow: "page" }, { ...game, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ScoreSheet");
 // prettier-ignore
@@ -111,7 +112,6 @@ export const probes = [
   read("Change Anna's score in round one", { address: "s1/r1/score", action: "set" }),
   read("Reset the round scores", { address: "s1/reset", action: "press" }),
 ] satisfies Probe[];
-
 type SheetProps = Props<typeof props, typeof meta> & { cells: { id: string }[] };
 type Labels = ReturnType<typeof playWordsFor>["scoreLabels"];
 // The presentation can pin another round without ever reordering the underlying score addresses.
@@ -187,7 +187,7 @@ export function ScoreSheet(input: SheetProps) {
   return <KitCard part={state === "success" ? "root" : "sheet"} padded density={density}>
     <KitContent density={density}>
       {loading ? <KitSkeleton shape="figure" inset="none" content={[["heading", labels.title], ["caption", progress]]} /> :
-        <><KitText role="heading" part="title">{labels.title}</KitText>
+        <><KitText role="heading" part="title" density={density}>{labels.title}</KitText>
           <KitText role="caption" tone="muted" part="progress">{progress}</KitText></>}
     </KitContent>
     {state !== "success" && <KitTrack part="root" {...(active ? { role: "radiogroup" } : {})} label={labels.rounds}>

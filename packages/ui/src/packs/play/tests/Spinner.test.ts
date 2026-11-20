@@ -108,7 +108,8 @@ describe("Spinner states and parts", () => {
     const parts = addressedElements(html);
     setup.options.forEach(({ label }, i) => {
       expect(elementAt(html, address(`r${i + 1}/root`)).attributes).toContain(label);
-      expect(parts.get(address(`r${i + 1}/label`))?.text).toEqual("detail" in setup ? undefined : [label]);
+      const brief = "detail" in setup && setup.detail === "brief";
+      expect(parts.get(address(`r${i + 1}/label`))?.text).toEqual(brief ? undefined : [label]);
     });
     expect(elementAt(html, address("spin")).attributes).toContain('role="button"');
     expect(html.includes(address("reset"))).toBe("repeat" in setup && setup.repeat === false);

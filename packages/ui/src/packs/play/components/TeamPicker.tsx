@@ -85,6 +85,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
   return { players, teams: [{ label: placeholderTitle(0, lang) }, { label: placeholderTitle(1, lang) }] };
 }
+// Trot's four walkers split into pairs.
+const walkers = {
+  players: [{ name: "Jo" }, { name: "Lee" }, { name: "Kim" }, { name: "Sam" }],
+  teams: [{ label: "North" }, { label: "South" }],
+};
 export const examples = [
   // Ledge's friends keep two players together.
   {
@@ -98,16 +103,11 @@ export const examples = [
     ],
     teams: [{ label: "Leaves" }, { label: "Roots" }, { label: "Seeds" }],
   },
-  // Trot's four walkers split into pairs.
+  { ...walkers, arrange: "rows" },
+  { ...walkers, density: "compact" },
   {
-    players: [{ name: "Jo" }, { name: "Lee" }, { name: "Kim" }, { name: "Sam" }],
-    teams: [{ label: "North" }, { label: "South" }],
-    arrange: "rows",
-  },
-  {
-    players: [{ name: "Lee", mark: "highlight" }, { name: "Jo" }, { name: "Kim" }, { name: "Sam" }],
-    teams: [{ label: "North" }, { label: "South" }],
-    density: "compact",
+    ...walkers,
+    players: [{ name: "Jo", mark: "highlight" }, ...walkers.players.slice(1)],
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TeamPicker");

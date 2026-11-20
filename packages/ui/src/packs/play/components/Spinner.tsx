@@ -67,18 +67,16 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   }
   return { options };
 }
+const plantOptions = [{ label: "Leaves" }, { label: "Flowers" }, { label: "Seeds" }];
 export const examples = [
   // Ledge's plant-themed random challenge.
-  { options: [{ label: "Leaves" }, { label: "Flowers" }, { label: "Seeds" }], style: "wheel" },
+  { options: plantOptions, style: "wheel" },
   // Trot's game-night challenges are drawn once each.
   { options: [{ label: "Mime" }, { label: "Sketch" }, { label: "Riddle" }], repeat: false, style: "strip" },
-  {
-    options: [{ label: "North" }, { label: "South" }],
-    detail: "brief",
-    density: "compact",
-    surface: "plain",
-  },
-  { options: [{ label: "Heads" }, { label: "Tails" }], surface: "outlined" },
+  { options: plantOptions, detail: "brief" },
+  { options: plantOptions, density: "compact" },
+  { options: plantOptions, surface: "plain" },
+  { options: plantOptions, surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Spinner");
 export const probes = [

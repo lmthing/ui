@@ -75,16 +75,18 @@ export const props = z
     path: ["style"],
     message: "Non-six-sided dice need numbers",
   })
-  .overwrite((value) => ({ ...value, dice: Array.from({ length: value.count }, () => ({})) }));
-export function fallback(_input: FallbackInput): z.input<typeof props> {
-  return {};
-}
+  // Give the validator one item per die without serializing derived rows into draw-controller input.
+  .overwrite((value) =>
+    Object.defineProperty(value, "dice", { value: Array.from({ length: value.count }, () => ({})) }),
+  );
+export const fallback = (_input: FallbackInput): z.input<typeof props> => ({});
 export const examples = [
   // Ledge's game-night pair.
   { count: 2, sides: 6, style: "pips" },
   // Trot's walkers play a tabletop adventure.
   { count: 1, sides: 20, style: "numbers" },
-  { count: 4, detail: "brief", density: "compact" },
+  { count: 2, detail: "brief" },
+  { count: 2, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Dice");
 export const probes = [
@@ -97,9 +99,7 @@ export const probes = [
   },
   read("Roll the dice", { address: "d1/roll", action: "press" }),
 ] satisfies Probe[];
-
 type DiceSetup = Props<typeof props, typeof meta> & { dice: { id: string }[] };
-
 function DiceFaces({
   setup,
   result,
@@ -170,6 +170,7 @@ export function Dice(setup: DiceSetup) {
             shape="figure"
             centered
             inset="none"
+            density={density}
             content={[[sum ? "number" : "body", sum ?? words.dice.unrolled]]}
           />
           <KitSkeleton shape="control" label={roll} full />
@@ -179,6 +180,7 @@ export function Dice(setup: DiceSetup) {
           <KitText
             align="center"
             role={sum ? "number" : "body"}
+            density={density}
             tone={sum ? "text" : "muted"}
             part={sum ? "sum" : null}
           >

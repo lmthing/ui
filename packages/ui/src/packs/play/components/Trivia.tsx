@@ -81,24 +81,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
       : [{ question: placeholderTitle(0, lang), answer: placeholderDetail }],
   };
 }
+// Ledge's host reads a plant question.
 // prettier-ignore
+const gardenDeck = { questions: [
+  { question: "What draws water?", answer: "Roots", explain: "Roots absorb water from the soil.", photo: "lib:plants", points: 2 },
+  { question: "What gives leaves their green colour?", answer: "Chlorophyll" },
+] };
 export const examples = [
-  // Ledge's host reads a plant question.
-  {
-    questions: [
-      {
-        question: "What absorbs water?", answer: "Roots", explain: "Roots absorb water from the soil.",
-        photo: "lib:plants", points: 2,
-      },
-      { question: "What gives leaves their green colour?", answer: "Chlorophyll" },
-    ],
-  },
+  gardenDeck,
   // Trot's walkers host a question aloud after their round.
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }], emphasis: "hero" },
-  {
-    questions: [{ question: "What is frozen water?", answer: "Ice", photo: "lib:ice" }],
-    media: "none", density: "compact",
-  },
+  { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }] },
+  { ...gardenDeck, media: "none" },
+  { ...gardenDeck, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Trivia");
 export const probes = [
@@ -121,7 +116,6 @@ export const probes = [
   read("Reveal the answer to the current question", { address: "t1/reveal", action: "press" }),
   read("Restart the question deck", { address: "t1/restart", action: "press" }),
 ] satisfies Probe[];
-
 type TriviaProps = Props<typeof props, typeof meta>;
 type VisibleQuestion = Omit<TriviaProps["questions"][number], "answer"> & { answer?: string };
 function primaryAction(current: Extract<SessionState, { kind: "rounds" }>) {
@@ -173,8 +167,8 @@ export function Trivia(input: TriviaProps) {
   const points = triviaPointsCopy(item.points, lang);
   const { emphasis } = input;
   if (state === "loading") return <KitCard part="root" padded density={density}>
-    <KitSkeleton shape="figure" inset="none" lead={item.photo ? "box" : "none"} density={density}
-      content={[[emphasis === "hero" ? "title" : "heading", item.question], ["number", points.line, "start", "compact"]]} />
+    <KitSkeleton shape="figure" inset={item.photo ? "md" : "none"} lead={item.photo ? "box" : "none"} {...{ density, emphasis }}
+      content={[["heading", item.question], ["number", points.line, "start", "compact"]]} />
     <TriviaActions primary="reveal" loading />
   </KitCard>;
   const primary = primaryAction(current);
@@ -182,7 +176,7 @@ export function Trivia(input: TriviaProps) {
     <KitCard part="root" padded density={density}>
       <KitContent leadingAlign="row" density={density}
         lead={item.photo && <KitPhoto part="photo" photo={item.photo} label={trivia.photo} />}>
-        <KitText role="heading" part="question" emphasis={current.revealed ? "quiet" : emphasis}
+        <KitText role="heading" part="question" density={density} emphasis={current.revealed ? "quiet" : emphasis}
           tone={current.revealed ? "muted" : "text"}>{item.question}</KitText>
         <KitText role="label" tone="muted" part="points">
           {points.before}<KitText role="number" numberScale="compact" tabular part={null}>{points.value}</KitText>{points.after}

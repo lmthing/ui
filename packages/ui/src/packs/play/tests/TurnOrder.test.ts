@@ -115,7 +115,7 @@ describe("TurnOrder states and parts", () => {
       const parts = render(setup, "filled");
       expect(parts.has(address("root"))).toBe(true);
       expect(parts.get(address("current"))?.text).toEqual([setup.players[setup.first ?? 0]!.name]);
-      if ("detail" in setup) expect(parts.has(address("lap"))).toBe(false);
+      if ("detail" in setup && setup.detail === "brief") expect(parts.has(address("lap"))).toBe(false);
       else expect(parts.get(address("lap"))?.text.join("")).toMatch(/^Lap 1/);
       setup.players.forEach((player, index) => {
         const item = `r${index + 1}`;

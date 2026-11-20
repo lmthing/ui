@@ -69,14 +69,12 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   while (players.length < 2) players.push({ name: placeholderTitle(players.length, lang) });
   return { players };
 }
+const roster = [{ name: "Anna", photo: "lib:people" }, { name: "Ben" }, { name: "Sam" }];
 export const examples = [
-  {
-    players: [{ name: "Anna", photo: "lib:people" }, { name: "Ben" }, { name: "Sam" }],
-    laps: 2,
-    style: "ring",
-  },
+  { players: roster, laps: 2, style: "ring" },
   { players: [{ name: "Jo" }, { name: "Lee" }], first: 1, direction: "reverse", style: "queue" },
-  { players: [{ name: "Kim" }, { name: "Jo" }], first: 0, detail: "brief", density: "compact" },
+  { players: roster, laps: 2, detail: "brief" },
+  { players: roster, laps: 2, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TurnOrder");
 export const probes = [
@@ -173,7 +171,7 @@ export function TurnOrder(setup: Setup) {
         ) : (
           <>
             <KitText {...(success ? hero : detail)} align="center" part={null} children={status} />
-            <KitText {...(success ? detail : hero)} align="center" part="current" children={player} />
+            <KitText {...(success ? detail : hero)} {...{ density }} align="center" part="current" children={player} />
             {shown !== "brief" && <KitText {...count} align="center" part="lap" children={lap} />}
           </>
         )}
