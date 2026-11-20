@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { ledgerRows } from "../ledger";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
 
 // Core first: Amount/total cannot reconcile rent charges and allocated receipts across units or periods.
@@ -40,7 +41,7 @@ export const meta = {
     },
   },
   read: (input, _state, lang): string[] => {
-    const { lines, totals, figures } = input as Ledger & ReturnType<typeof ledgerRows>;
+    const { lines, totals, figures } = input as Ledger & ReturnType<typeof ledgerRows<Line, Receipt>>;
     const money = (amount: number) =>
       figures === "short"
         ? c.compactMoneyLine(amount, undefined, lang)
@@ -88,45 +89,8 @@ const schema = z.strictObject({
 });
 
 type Ledger = z.output<typeof schema>;
-function ledgerRows(value: Ledger, today: string) {
-  const charges = value.charges.map((charge) => {
-    const paid = value.receipts.reduce(
-      (total, receipt) =>
-        receipt.chargeRef === charge.chargeRef && !receipt.voided ? total + receipt.amount : total,
-      0,
-    );
-    return {
-      ...charge,
-      kind: "charge" as const,
-      paid,
-      outstanding: Math.max(0, charge.amount - paid),
-      credit: Math.max(0, paid - charge.amount),
-      unpaid: charge.amount > paid,
-    };
-  });
-  const visibleUnits = new Set(charges.filter((charge) => charge.unpaid).map((charge) => charge.unitRef));
-  const visible = (unitRef: string) => value.style === "ledger" || visibleUnits.has(unitRef);
-  const lines = [
-    ...charges.map((charge) => ({ ...charge, visible: visible(charge.unitRef) })),
-    ...value.receipts.flatMap((receipt) => {
-      const charge = charges.find(({ chargeRef }) => receipt.chargeRef === chargeRef);
-      return charge
-        ? [{ ...receipt, unit: charge.unit, kind: "receipt" as const, visible: visible(charge.unitRef) }]
-        : [];
-    }),
-  ];
-  const totals = { month: value.month, assessed: 0, received: 0, outstanding: 0, arrears: 0 };
-  for (const charge of charges) {
-    const month = charge.due.slice(0, 7);
-    if (month === value.month) {
-      totals.assessed += charge.amount;
-      totals.received += charge.paid;
-      totals.outstanding += charge.outstanding;
-    }
-    if (month <= value.month && charge.due < today) totals.arrears += charge.outstanding;
-  }
-  return { lines, totals };
-}
+type Line = Ledger["charges"][number];
+type Receipt = Ledger["receipts"][number];
 
 function localToday(now: Date) {
   return [now.getFullYear(), now.getMonth() + 1, now.getDate()]

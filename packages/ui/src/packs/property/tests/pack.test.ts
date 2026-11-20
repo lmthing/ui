@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
   archetypes,
@@ -57,11 +58,13 @@ it("validates all metadata and every Three Flats line, with only one signature",
   const lines = example
     .trimEnd()
     .split("\n")
-    .map((line) => JSON.parse(line));
+    .map((line) => JSON.parse(line) as { id: string; c: string } & Record<string, unknown>);
   const defs: Record<string, Definition> = components;
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
   for (const { id, c, ...props } of lines)
-    expect(scoped.schema(c)?.safeParse(props).success, `${id}/${c}`).toBe(true);
+    expect(scoped.defs.find(({ meta }) => meta.id === c)?.props.safeParse(props).success, `${id}/${c}`).toBe(
+      true,
+    );
   expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining(ids));
   expect(lines.flatMap(({ c }) => defs[c]?.meta.signature ?? [])).toEqual(["count_up"]);
 });

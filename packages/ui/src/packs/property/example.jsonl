@@ -29,3 +29,8 @@
 {"id":"f4","c":"Field","kind":"date","label":"Viewing date"}
 {"id":"f5","c":"Field","kind":"time","label":"Start time"}
 {"id":"b4","c":"Button","label":"Save viewing","goto":"property_viewings"}
+{"id":"h9","c":"Header","style":"back","title":"Record receipt"}
+{"id":"f6","c":"Field","kind":"number","label":"Amount","value":"600"}
+{"id":"f7","c":"Field","kind":"date","label":"Receipt date","value":"2026-11-06"}
+{"id":"f8","c":"Field","kind":"choice","label":"Payment method","options":["Cash","Transfer","Card"],"value":"Transfer"}
+{"id":"b5","c":"Button","label":"Save receipt","goto":"property_rent_ledger"}

@@ -95,6 +95,7 @@ export const props = z
       ...value,
       viewings: value.viewings.map((record) => ({
         ...record,
+        outcome: {},
         ...viewingControls(record, now),
         note: value.detail === "full" ? record.note : undefined,
       })),
@@ -144,5 +145,9 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "full" },
   },
-  read("Send Noor the invitation to view Cedar Flat", { address: "v1/r1/invite", action: "send" }),
+  read(
+    "Record the attendance outcome of Lee’s past viewing",
+    { address: "v1/r1/outcome", action: "select" },
+    1,
+  ),
 ] satisfies c.Probe[];

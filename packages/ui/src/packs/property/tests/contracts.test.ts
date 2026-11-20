@@ -34,7 +34,7 @@ it.each(defs)("validates example and fallback inputs for $meta.id and has all pr
       (probe) =>
         probe.kind === "choose" &&
         probe.expect !== def.meta.id &&
-        createRegistry().ids.includes(probe.expect),
+        createRegistry().ids.some((id) => id === probe.expect),
     ),
   ).toBe(true);
   expect(packOf[def.meta.id]).toBe("property");
@@ -46,8 +46,8 @@ it.each(defs)("validates example and fallback inputs for $meta.id and has all pr
 });
 
 it("uses half-open let dates, ignores cancelled lets and only opens linked unit rows", () => {
-  const [unit] = Units.examples[1].units;
-  const [first, next] = Units.examples[1].lets;
+  const [unit] = Units.examples[1]!.units;
+  const [first, next] = Units.examples[1]!.lets;
   const input = { units: [unit!], lets: [first!, { ...next!, cancelled: false }], on: "2026-11-21" };
   expect(readComponent(Units, input, "u1").join("\n")).toContain("occupied · Ivy");
   expect(readComponent(Units, { ...input, lets: [first!, next!] }, "u1").join("\n")).toContain("vacant");
@@ -79,8 +79,9 @@ it("keeps past outcomes separate from invitations and disables cancelled viewing
   expect(upcoming).not.toContain("/outcome select");
   const past = readComponent(Viewings, Viewings.examples[1], "v1").join("\n");
   expect(past).toContain("[v1/r1/outcome select");
+  expect(past).not.toContain("/outcome select→");
   expect(past).not.toContain("/invite send");
-  const cancelled = { viewings: [{ ...Viewings.examples[0].viewings[0], status: "cancelled" }] };
+  const cancelled = { viewings: [{ ...Viewings.examples[0]!.viewings[0], status: "cancelled" }] };
   expect(readComponent(Viewings, cancelled, "v1").join("\n")).not.toMatch(/\[v1\/r1\//);
   expect(Viewings.meta.confirmParts).toEqual(["cancel"]);
 });
@@ -101,8 +102,48 @@ it("requires complete inspection conditions and makes finalised evidence non-edi
   expect(Inspections.meta.confirmParts).toEqual(["remove_photo", "finalise"]);
 });
 
+it("keeps precisely paid charges settled and isolates future charges", () => {
+  const sample = RentRoll.examples[0]!;
+  const settled = { ...sample.charges[0]!, amount: 0.8 };
+  const receipt = sample.receipts[0]!;
+  const input = {
+    ...sample,
+    charges: [settled, { ...settled, chargeRef: "future", due: "2026-12-01" }],
+    receipts: [
+      { ...receipt, amount: 0.7 },
+      { ...receipt, receiptRef: "second", amount: 0.1 },
+    ],
+  };
+  const ledger = readComponent(RentRoll, input, "r1").join("\n");
+  expect(ledger).toContain("received $0.80 · outstanding $0");
+  expect(ledger).toContain("[r1/r1/record press→property_rent_receipt]");
+  expect(ledger).not.toContain("[r1/r2/");
+  expect(ledger).not.toContain("/remind press");
+  const outstanding = readComponent(RentRoll, { ...input, style: "outstanding" }, "r1").join("\n");
+  expect(outstanding).not.toContain("/record press");
+  expect(
+    RentRoll.props.safeParse({ ...input, receipts: [{ ...receipt, chargeRef: "missing" }] }).success,
+  ).toBe(false);
+});
+
+it("reads the selected meter history without renumbering meters", () => {
+  const current = Meters.examples[0]!;
+  const second = Meters.examples[1]!;
+  const input = {
+    ...current,
+    style: "history",
+    meters: [...current.meters, ...second.meters],
+    readings: [...current.readings, ...second.readings],
+  };
+  expect(readComponent(Meters, input, "m1").join("\n")).toContain("2026-11-18T08:00:00Z");
+  const selected = readComponent(Meters, input, "m1", "filled", { "m1/$meterRef": "cabin_water" }).join("\n");
+  expect(selected).toContain("r2 Water");
+  expect(selected).toContain("2026-11-17T10:00:00Z");
+  expect(selected).not.toContain("2026-11-18T08:00:00Z");
+});
+
 it("validates meter chronology, handles unsorted input and never invents use for one reading", () => {
-  const [first, latest] = Meters.examples[0].readings;
+  const [first, latest] = Meters.examples[0]!.readings;
   const input = { ...Meters.examples[0], readings: [latest!, first!] };
   expect(readComponent(Meters, input, "m1").join("\n")).toContain("(+46 kWh)");
   expect(readComponent(Meters, Meters.examples[1], "m1").join("\n")).not.toContain("(+");

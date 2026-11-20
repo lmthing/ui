@@ -30,7 +30,8 @@ export const meta = {
   select: { prop: "meterRef", value: { field: "meterRef" } },
   emptyActions: ["add.press"],
   read: (input, _state, lang): string[] => {
-    const { meters, readings, style } = input as z.output<typeof props>;
+    const { meters, readings, style, meterRef } = input as z.output<typeof props> & { meterRef?: string };
+    const selected = meterRef ?? meters[0]!.meterRef;
     return meters.flatMap((meter, index) => {
       const series = meterSeries(readings, meter.meterRef);
       const latest = series.at(-1),
@@ -46,7 +47,7 @@ export const meta = {
         ]
           .filter(Boolean)
           .join(" · "),
-        ...(style === "history" && index === 0
+        ...(style === "history" && meter.meterRef === selected
           ? series.map(
               ({ at, value }, i) =>
                 `${at} · ${number(value)}${i ? ` (+${number(value - series[i - 1]!.value)})` : ""}`,
