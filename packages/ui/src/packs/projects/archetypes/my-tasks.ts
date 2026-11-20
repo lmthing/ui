@@ -1,4 +1,4 @@
-import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
+import { placeholderTitle, type ArchetypeMeta, type ComposeProbe } from "../../../catalog";
 
 export const my_tasks = {
   id: "my_tasks",
@@ -33,7 +33,7 @@ export const my_tasks = {
         { id: "h1", c: "Header", style: "back" },
         { id: "f1", c: "Field", kind: "text" },
         { id: "f2", c: "Field", kind: "date" },
-        { id: "f3", c: "Field", kind: "choice" },
+        { id: "f3", c: "Field", kind: "choice", options: [placeholderTitle(0), placeholderTitle(1)] },
         { id: "c1", c: "Composer", style: "entry" },
         { id: "b1", c: "Button" },
       ],

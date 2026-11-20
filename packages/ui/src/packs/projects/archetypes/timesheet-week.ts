@@ -1,4 +1,4 @@
-import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
+import { placeholderTitle, type ArchetypeMeta, type ComposeProbe } from "../../../catalog";
 
 export const timesheet_week = {
   id: "timesheet_week",
@@ -20,13 +20,15 @@ export const timesheet_week = {
       ],
     },
     projects_time_entry: {
+      writeHints: ['The last Field is the Billable switch: kind "toggle" with value "on" or "off".'],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Field"], required: true, variant: "date" },
         { allow: ["Field"], required: true, variant: "time" },
         { allow: ["Field"], required: true, variant: "time" },
         { allow: ["Field"], required: true, variant: "choice" },
-        { allow: ["Field"], required: true, variant: "toggle" },
+        // The composer reserves slot variant "toggle" for List trails; request this kind in the hints.
+        { allow: ["Field"], required: true },
         { allow: ["Composer"], required: true, variant: "entry" },
         { allow: ["Button"], required: true },
       ],
@@ -35,7 +37,7 @@ export const timesheet_week = {
         { id: "f1", c: "Field", kind: "date" },
         { id: "f2", c: "Field", kind: "time" },
         { id: "f3", c: "Field", kind: "time" },
-        { id: "f4", c: "Field", kind: "choice" },
+        { id: "f4", c: "Field", kind: "choice", options: [placeholderTitle(0), placeholderTitle(1)] },
         { id: "f5", c: "Field", kind: "toggle" },
         { id: "c1", c: "Composer", style: "entry" },
         { id: "b1", c: "Button" },

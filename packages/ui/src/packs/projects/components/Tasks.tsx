@@ -26,7 +26,18 @@ export const meta = {
     parts: ["root", "title", "project", "assignee", "due", "priority", "state", "blockers", "done", "assign"],
   },
   states: ["filled", "empty", "loading", "success"],
-  actions: { items: { root: ["press"], done: ["check"], assign: ["select"] } },
+  actions: {
+    items: { root: ["press"], done: ["check"], assign: ["select"] },
+    // The host projects this gate from the addressed task's available assignees.
+    when: { assign: { canAssign: true } },
+  },
+  read(input, state): string[] {
+    if (state !== "filled" && state !== "success") return [];
+    const { items } = input as { items: ReturnType<typeof projectedTasks> };
+    return items.flatMap(({ title, due, blockers }) =>
+      due || blockers.length ? [[title, due, ...blockers].filter(Boolean).join(" · ")] : [],
+    );
+  },
   successActions: ["root.press", "done.check", "assign.select"],
   readSuccess: true,
 } as const satisfies c.Meta;

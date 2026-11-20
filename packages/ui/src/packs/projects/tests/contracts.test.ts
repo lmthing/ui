@@ -1,8 +1,10 @@
 import { expect, it } from "vitest";
 import {
+  affordancesOf,
   components,
   placeholderTitle,
   readComponent,
+  stampItemIds,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
@@ -63,6 +65,17 @@ it("rejects task cycles, multi-level subtasks and completion written onto parent
   const read = readComponent(def, def.examples[0], "t1").join("\n");
   expect(read).toContain("[t1/r1/done check");
   expect(read).not.toContain("[t1/r2/done check");
+  expect(read).not.toContain("/assign select");
+  const addressed = stampItemIds(def.meta, def.props.parse(def.examples[0]));
+  const withAssignees = {
+    ...addressed,
+    items: addressed.items.map((row, index) => ({ ...row, canAssign: index === 0 })),
+  };
+  expect(
+    affordancesOf(def.meta, withAssignees, "t1")
+      .filter(({ part }) => part === "assign")
+      .map(({ address }) => address),
+  ).toEqual(["t1/r1/assign"]);
 });
 
 it("requires gate acceptance refs and keeps planned dates distinct from derived state", () => {
@@ -119,6 +132,9 @@ it("checks time entries by actual instants and requires valid week, timer target
   ).toBe(true);
   expect(def.meta.partTiers.export).toBe("service");
   expect(def.meta.confirmParts).toContain("remove");
+  const brief = def.examples[1]!;
+  expect(def.props.parse(brief).entries[0]?.note).toBe(brief.entries[0]?.note);
+  expect(readComponent(def, brief, "t1").join("\n")).not.toContain(brief.entries[0]!.note!);
 });
 
 it("requires testable, distinct deliverables with bounded revisions, and confirms both changes", () => {

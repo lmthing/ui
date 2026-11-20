@@ -92,6 +92,14 @@ it("completes all eight layouts with neutral defaults and defines a probe per la
       screen.components.map(({ c }) => c),
       path,
     ).toEqual(order);
+    if (layout === "projects_time_entry")
+      expect(screen.components.filter(({ c }) => c === "Field").map(({ kind }) => kind)).toEqual([
+        "date",
+        "time",
+        "time",
+        "choice",
+        "toggle",
+      ]);
     expect(
       scoreComposition(JSON.stringify(screen), scoped.archetypes[archetype]!.meta, layout, defs).issues,
       path,

@@ -10,7 +10,7 @@ export const meta = {
   purpose: "Save timed work entries and review billable and non-billable time by day.",
   pick: "A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).",
   writeHints: [
-    "Week is a Monday. Use actual ISO date-times with UTC offsets (use Z for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
+    "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
     'Use style "single_day" for one selected day in the week and give that day as day; supply at most six entries and leave day null for style "days". To hide notes without changing the day layout, use detail "brief" and retain notes in the data.',
   ],
   region: "body",
@@ -46,6 +46,12 @@ export const meta = {
   emptyActions: ["timer.start", "timer.stop", "add.press"],
   successActions: ["timer.start", "timer.stop", "add.press", "export.press", "root.press", "remove.press"],
   readSuccess: true,
+  live: {
+    derive(input): Record<string, unknown> {
+      if (input.detail !== "brief" || !Array.isArray(input.entries)) return {};
+      return { entries: input.entries.map((row: object) => ({ ...row, note: undefined })) };
+    },
+  },
 } as const satisfies c.Meta;
 
 const ref = c.text(32);
@@ -78,6 +84,7 @@ const schema = z.strictObject({
 
 const endsAtMidnight = (end: string) => /^00:00:00(?:\.0+)?(?:Z|[+-])/.test(end.slice(11));
 
+// The wire seed carries local wall time and its offset, not the host's time-zone identifier.
 function fitsWeek(week: string, start: string, end: string) {
   const first = dayOf(week);
   const startDay = dayOf(start.slice(0, 10));
@@ -128,7 +135,6 @@ export const props = schema
     entries: value.entries.map((entry) => ({
       ...entry,
       root: entry.goto,
-      note: value.detail === "brief" ? undefined : entry.note,
       visible:
         !value.day ||
         (value.day >= entry.start.slice(0, 10) &&
