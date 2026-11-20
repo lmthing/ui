@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { amountPadKeys, amountPadReading, amountPadText } from "../../copy";
+import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../../copy";
 import { moneyWordsFor, registerMoneyWords } from "../../lang";
 
 describe("AmountPad copy", () => {
@@ -21,18 +21,25 @@ describe("AmountPad copy", () => {
     const words = { ...en.amountPad, decimal: ",", backspace: "Effacer", note: "Ajouter une note" };
     const unregister = registerMoneyWords("fr", { ...en, amountPad: words });
     try {
-      const keys = amountPadKeys(words);
+      const keys = amountPadKeys(words, true);
       expect(new Set(keys.map(({ id }) => id)).size).toBe(12);
+      expect(keys.at(-1)?.disabled).toBe(false);
+      expect(
+        amountPadKeys(words, false)
+          .filter(({ disabled }) => disabled)
+          .map(({ id }) => id),
+      ).toEqual(["r12"]);
       expect(keys.map(({ value }) => value)).toEqual([
         ..."123456789.0".split("").map((append) => ({ append })),
         { backspace: true },
       ]);
       expect(amountPadReading({ value: "25.00", note: true }, "fr")).toEqual([
-        "25.00",
+        "25,00",
         "1 2 3 4 5 6 7 8 9 , 0 Effacer",
         "Ajouter une note",
       ]);
-      expect(amountPadReading({ value: "", note: false })).toEqual(["1 2 3 4 5 6 7 8 9 . 0 Delete"]);
+      expect(amountPadDisplay("25.", "fr")).toBe("25,");
+      expect(amountPadReading({ value: "", note: false })).toEqual(["0", "1 2 3 4 5 6 7 8 9 . 0 Delete"]);
     } finally {
       unregister();
     }

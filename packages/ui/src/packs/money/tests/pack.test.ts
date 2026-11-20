@@ -4,6 +4,7 @@ import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
   archetypes,
+  buildPackIndex,
   checkArchetypes,
   checkPacks,
   checkScreen,
@@ -25,27 +26,27 @@ const ids = ["AccountCard", "Transactions", "Bills", "Split", "AmountPad", "Pric
 const definitions = components as Record<string, Definition>;
 const neutral = { things: [], items: [] };
 
-it("exports generated definitions through the root door and keeps incomplete packs out of live registries", () => {
+it("publishes all ready Money components only when Money is selected", () => {
   expect(packs.money).toEqual(pack);
+  expect(packReady("money")).toBe(true);
+  expect(
+    buildPackIndex()
+      .split("\n")
+      .some((line) => line.startsWith("- money: ")),
+  ).toBe(true);
   const core = createRegistry();
   const live = createRegistry({ packs: ["money"] });
-  const draft = createRegistry({ packs: ["money"], includeDrafts: true });
-  const ready = packReady("money");
-  if (!ready) expect(live.ids).toEqual(core.ids);
-  expect(draft.ids.filter((id) => packOf[id as keyof typeof packOf] === "money").sort()).toEqual(
-    [...ids].sort(),
-  );
-  const draftFormat = JSON.stringify(writerFormat(draft));
+  expect(live.ids.filter((id) => !core.resolve(id)).sort()).toEqual([...ids].sort());
+  const coreFormat = JSON.stringify(writerFormat(core));
   const liveFormat = JSON.stringify(writerFormat(live));
-  for (const id of selectedIds(ids)) {
-    expect(core.ids).not.toContain(id);
-    expect(core.resolve(id)).toBeUndefined();
-    expect(draftFormat).toContain(`"const":"${id}"`);
-    expect(liveFormat.includes(`"const":"${id}"`)).toBe(ready);
-    const def = definitions[id]!;
-    if (def.meta.status === "draft") expect(def).not.toHaveProperty(id);
+  for (const id of ids) {
+    expect(packOf[id as keyof typeof packOf]).toBe("money");
+    expect(coreFormat).not.toContain(`"const":"${id}"`);
+    expect(liveFormat).toContain(`"const":"${id}"`);
+    expect(definitions[id]?.meta.status).toBe("ready");
   }
-  expect(Object.hasOwn(live.archetypes, "wallet")).toBe(ready);
+  expect(liveFormat).not.toContain('"const":"Appointment"');
+  expect(Object.hasOwn(live.archetypes, "wallet")).toBe(true);
   expect(pack.probes.filter((probe) => probe.kind === "pack")).toHaveLength(3);
   expect(pack.probes.some((probe) => probe.kind === "choose" && core.ids.includes(probe.expect))).toBe(true);
 });
