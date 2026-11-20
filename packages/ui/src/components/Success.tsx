@@ -20,7 +20,8 @@ export const meta = {
   purpose: "Know an action worked, with its result and the saved item's details.",
   pick: "A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).",
   writeHints: [
-    'Keep detail null unless explicitly asked to keep a supplied subtitle without showing it: use detail "brief" but still write sub. Bottom messages use style "toast"; undo is optional for a toast.',
+    'For a regular confirmation, write style:null and undo:null. Use style "toast" only for an explicitly requested small bottom message or undo. Never offer undo unless requested.',
+    'When asked to keep a subtitle but show the title without it, write detail:"brief" and put the exact subtitle in sub. Leaving detail null would show sub. Otherwise use detail:null; if the person asks for details underneath the title, put that visible text in sub.',
   ],
   region: "body",
   weight: 2,
@@ -75,7 +76,7 @@ export const examples = [
   { ...booked, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write } = probesFor("Success");
+const { choose, write, read } = probesFor("Success");
 export const probes = [
   choose("After I book a dog walk, show a dedicated screen saying it worked and when the walk is"),
   choose("Make an urgent warning stand out at the top because today's dog walk has been cancelled", "Banner"),
@@ -89,6 +90,7 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  read("Undo the cancellation", { address: "s1/undo", action: "press" }, 2),
 ] satisfies Probe[];
 
 type SuccessProps = Props<typeof props, typeof meta>;

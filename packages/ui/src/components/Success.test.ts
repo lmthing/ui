@@ -136,9 +136,12 @@ describe("Success metadata and probes", () => {
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Banner")).toBeDefined();
     expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Success" });
-    expect(probes.map((probe) => probe.kind)).not.toContain("read");
+    expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
+      expect: { address: "s1/undo", action: "press" },
+    });
     for (const probe of probes) {
-      const wording = probe.kind === "choose" ? probe.need : probe.brief;
+      const wording =
+        probe.kind === "choose" ? probe.need : probe.kind === "write" ? probe.brief : probe.task;
       for (const name of [meta.id, "Banner", "Empty"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
