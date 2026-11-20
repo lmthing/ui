@@ -1,4 +1,4 @@
-import { useWords, KitCard, KitFieldControl, KitText } from "../kit";
+import { useVariant, useWords, KitCard, KitFieldControl, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -9,6 +9,7 @@ import {
   repeatOptions,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -25,11 +26,14 @@ export const meta = {
     'For a recurring schedule use kind: "repeat" and repeat: "weekly" (or another repeat enum). Omit value; never use kind: "text" with repeat.',
     "Date values use YYYY-MM-DD, time values HH:MM and photo values lib:<tag> or local:<n>. Fields are one line.",
     'Example recurring input: {"kind":"repeat","label":"Water it","repeat":"weekly"}.',
+    'To hide an authored helper hint, keep its text in hint and set detail to "brief". Leave density null unless the person asks for tighter spacing or smaller type.',
   ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "A field value stored on one record in the on-device database.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["hint"] } },
   parts: ["root", "label", "field", "hint", "photo"],
   states: ["filled"],
   actions: {
@@ -42,7 +46,7 @@ export const meta = {
       "field.press": { kind: "photo" },
     },
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { repeatLabels, photoLabels, chosen } = wordsFor(lang);
 
     const { kind, options } = input as z.output<typeof props>;
@@ -71,6 +75,7 @@ const fits = (kind: string, value: string) =>
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     kind: z
       .enum(["text", "number", "date", "time", "choice", "repeat", "toggle", "slider", "photo"])
       .default("text"),
@@ -109,6 +114,7 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
+    ...(value.detail === "brief" ? { hint: undefined } : {}),
     mode: ["text", "number", "date", "time"].includes(value.kind)
       ? "input"
       : value.kind === "choice" || value.kind === "repeat"
@@ -121,9 +127,9 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { kind: "text", label: clip(thingOf(cast)?.fields[0]?.trim() || placeholderDetail, 24) };
 }
 export const examples = [
-  { kind: "text", label: "Plant name", value: "Fern" },
+  { kind: "text", label: "Plant name", value: "Fern", density: "compact" },
   { kind: "date", label: "Walk date", value: "2026-11-19" },
-  { kind: "number", label: "Water every", value: "7", hint: "days" },
+  { kind: "number", label: "Water every", value: "7", hint: "Enter days between visits.", detail: "brief" },
   { kind: "time", label: "Walk time", value: "09:00" },
   { kind: "choice", label: "Walk length", options: ["30 min", "45 min", "60 min"], value: "30 min" },
   { kind: "toggle", label: "Remind me", value: "on" },
@@ -137,14 +143,21 @@ export const probes = [
   choose("Find a plant in my collection by typing part of its name", "Search"),
   write("A form input labelled Plant name, with Fern already entered"),
   write("A form input labelled Water it, set to repeat every week"),
+  {
+    ...write(
+      'A usual-size input called Plant name. Save the hint "Use a short name", but hide it on screen.',
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Name the plant Basil", { address: "f1/field", action: "type" }),
 ] satisfies Probe[];
 
 export function Field(input: Props<typeof props, typeof meta>) {
   const { repeatLabels } = useWords().words;
+  const density = useVariant("density", meta.variants.density, input.density);
   return (
-    <KitCard style="plain" part="root" padded inset="none">
-      <KitText role="label" part="label">
+    <KitCard style="plain" part="root" padded inset="none" density={density}>
+      <KitText role="label" part="label" density={density}>
         {input.label}
       </KitText>
       <KitFieldControl
@@ -156,8 +169,8 @@ export function Field(input: Props<typeof props, typeof meta>) {
         }
         chosen={input.kind === "repeat" && input.repeat ? repeatLabels[input.repeat] : input.value}
       />
-      {input.hint && (
-        <KitText role="caption" tone="muted" part="hint">
+      {input.detail === "full" && input.hint && (
+        <KitText role="caption" tone="muted" part="hint" density={density}>
           {input.hint}
         </KitText>
       )}
