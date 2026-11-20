@@ -13,7 +13,7 @@ export const meta = {
   writeHints: [
     "Provide date/from/to together with from before to. A blocked order needs blockedBy and note. Summary is read-only and requires done.",
     "Write previously recorded minutes and individual numeric quantities and unit costs only, not costs summed across parts or elapsed clock time.",
-    'To keep the worksheet but omit assignee and planned window, use detail "brief". Leave unrequested density and surface null.',
+    'Use null for unrequested axes. Only when asked to hide the assignee and planned window, write {"detail":"brief","density":null,"surface":null} unless those other axes are requested too. Always keep any supplied assignee and window in the data.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
