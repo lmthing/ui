@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
   components,
+  isDeviceDataVisible,
   readComponent,
   stampItemIds,
   type ComponentName,
@@ -12,6 +13,7 @@ import { renderers } from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
 import { addressedElements, hasStepTarget, renderInstance } from "./render";
 import { selectedIds } from "../scripts/build";
+import { exampleDeviceData } from "../src/catalog/probes/fixtures";
 import { peekForExample } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
@@ -78,8 +80,15 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
   const known = existsSync(`${import.meta.dirname}/known/${id}.md`);
   const test = known ? it.fails : it;
   test.each(def.examples.map((example, index) => ({ example, index })))("example $index", ({ example }) => {
-    const html = renderInstance(id, example, "filled", theme);
-    const read = readComponent(def, example, "c1").join("\n");
+    const input = def.props.parse(example) as Record<string, unknown>;
+    const deviceData = exampleDeviceData(def.meta, input, "filled");
+    const html = renderInstance(id, example, "filled", theme, { deviceData });
+    const read = readComponent(def, example, "c1", "filled", {}, undefined, deviceData).join("\n");
+    if (!isDeviceDataVisible(def.meta, deviceData)) {
+      expect(read).toBe("");
+      expect(addressedElements(html).size).toBe(0);
+      return;
+    }
     const seen = visibleTexts(html);
     const named = labels(html);
     const quoted = [...read.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"'));
@@ -88,7 +97,7 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
       const shown = seen.some((s) => s.includes(text)) || named.includes(text);
       expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
     }
-    const props = stampItemIds(def.meta, def.props.parse(example) as Record<string, unknown>);
+    const props = stampItemIds(def.meta, input);
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);

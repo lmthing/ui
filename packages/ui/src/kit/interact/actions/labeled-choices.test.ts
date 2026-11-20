@@ -3,34 +3,25 @@ import { components, planAct, readScreen, type Definition } from "@lmthing/ui/ca
 import { createScreenController } from "@lmthing/ui/kit";
 import { moneyWordsFor } from "../../../packs/money/lang";
 
-const scoreSheet = components.ScoreSheet;
+const { ScoreSheet } = components;
 const scoreScreen = {
   id: "game",
   components: [
     {
       id: "s1",
       c: "ScoreSheet",
-      ...scoreSheet.examples[1]!,
+      players: [{ name: "Jo" }, { name: "Lee" }],
       rounds: [
         { label: "First hand", points: [-2, 5] },
         { label: "Second hand", points: [null, null] },
       ],
+      overflow: "page",
+      wins: "low",
     },
   ],
 };
 const chooseRound = (value: string) => ({ address: "game/s1/root", action: "select", value });
-const labelledScoreSheet = {
-  ...scoreSheet,
-  meta: {
-    ...scoreSheet.meta,
-    select: { prop: "selectedRound", choices: { root: { prop: "roundOptions" } } },
-  },
-  props: scoreSheet.props.overwrite((input) => ({
-    ...input,
-    roundOptions: input.rounds.map(({ label }, index) => ({ value: String(index + 1), label })),
-  })),
-} satisfies Definition;
-const scoreDefs = { ScoreSheet: labelledScoreSheet };
+const scoreDefs = { ScoreSheet };
 
 it("offers ScoreSheet round names and keeps stored round keys and score addresses", () => {
   const runtime = createScreenController({ screen: scoreScreen, defs: scoreDefs });
@@ -114,7 +105,18 @@ it("offers Payoff's visible strategy names while acting on the strategy enum", (
 });
 
 it("leaves unlabelled select offers and validation unchanged", () => {
-  const defs = { ScoreSheet: scoreSheet };
+  const unlabelledScoreSheet = {
+    ...ScoreSheet,
+    meta: {
+      ...ScoreSheet.meta,
+      select: { prop: "selectedRound", choices: { root: { prop: "roundKeys" } } },
+    },
+    props: ScoreSheet.props.overwrite((input) => ({
+      ...input,
+      roundKeys: input.rounds.map((_, index) => String(index + 1)),
+    })),
+  } satisfies Definition;
+  const defs = { ScoreSheet: unlabelledScoreSheet };
   expect(readScreen(scoreScreen, defs)).toContain('[s1 select = "1"; choices ["1","2"]]');
   const result = planAct(scoreScreen, defs, {}, [chooseRound("2")]);
   expect(result).toMatchObject({ ok: true, values: { "game/s1/$selectedRound": "2" } });

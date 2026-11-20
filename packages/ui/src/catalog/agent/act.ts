@@ -14,8 +14,9 @@ import {
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
-import type { DeviceData } from "./device-data";
+import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
+import { stageReportEdit } from "./report-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -88,6 +89,8 @@ function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      def.meta.items?.edits ||
+      def.meta.signOff ||
       hasPlaybackClock(def.meta)
         ? state
         : undefined);
@@ -111,6 +114,12 @@ function expireProgress(
   }
 }
 
+function notOffered(offered: Affordance[], address: string, at: number): ActResult {
+  const here = offered.filter((a) => a.address === address).map((a) => a.action);
+  const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
+  return { ok: false, code: "not_actionable", at, hint };
+}
+
 /**
  * Plans a list of steps against a screen without changing anything: every step must name an offered
  * action with a valid value. All or nothing: the first bad step returns its index and no values, so
@@ -125,11 +134,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
 ): ActResult {
-  const screen = migrateScreen(input, { variantOnly: true });
   if (random && steps.length > 1) {
     const preview = planAct(input, defs, values, steps, null, clockOwner, data);
     if (!preview.ok) return preview;
   }
+  const screen = filterDeviceDataScreen(migrateScreen(input, { variantOnly: true }), defs, data);
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: Extract<ActResult, { ok: true }>["links"] = [];
@@ -140,19 +149,16 @@ export function planAct(
     const selected = selectStep(screen, defs, original, address, next, data);
     const step = selected.step;
     const found = offered.find((a) => a.address === address && a.action === step.action);
-    if (!found) {
-      const here = offered.filter((a) => a.address === address).map((a) => a.action);
-      const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
-      return { ok: false, code: "not_actionable", at, hint };
-    }
+    if (!found) return notOffered(offered, address, at);
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
     const key = `${screen.id}/${address}`;
-    const { result, number, limits } = validateStep(screen, defs, found, step, next, key);
+    const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
+    const resolved = { ...step, address, value: result.value };
     try {
       const progress =
         stageLinkedEdit(screen, defs, next, found, result.value) ??
-        stageProgress(screen, defs, address, { ...step, value: result.value }, next, random, data);
+        stageProgress(screen, defs, address, resolved, next, random, data);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;
@@ -160,13 +166,14 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
-    if (clockOwner === "planner")
-      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value }, data);
-    if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
+    const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
+    if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
+    if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
-    const validate = limits || number?.adjustment || adjusted || selected.declared;
+    if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
+      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
+    const validate = limits || edit?.adjustment || adjusted || selected.declared;
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     expireProgress(screen, defs, next, data);
