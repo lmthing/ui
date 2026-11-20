@@ -6,6 +6,7 @@ import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
+import { linkedInput } from "./linked-edits";
 import type { SendDraft } from "./act";
 
 export type Affordance = {
@@ -64,13 +65,19 @@ function partsOf(
     matches(when?.[part], holder, outer) &&
     (!(part in holder) ||
       holder[part] !== undefined ||
-      (!item && (meta.selections?.[part]?.runtime || Object.hasOwn(meta.live?.text ?? {}, part))))
+      (!item &&
+        (meta.selections?.[part]?.runtime ||
+          Object.hasOwn(meta.live?.text ?? {}, part) ||
+          linkedInput(meta, part))))
       ? actions
           .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
           .map((action) => {
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
-            const suppressLink = action === "press" && nested === holder && !!noGoto?.includes(part);
+            const suppressLink =
+              action === "press" &&
+              ((!item && meta.linkedEdits?.swap.part === part) ||
+                (nested === holder && !!noGoto?.includes(part)));
             return {
               address: part === "root" ? base : `${base}/${part}`,
               part,

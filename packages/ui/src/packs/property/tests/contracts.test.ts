@@ -151,28 +151,38 @@ it("keeps precisely paid charges settled and isolates future charges", () => {
   ).toBe(false);
 });
 
-it("reads the selected meter history without renumbering meters", () => {
+it("reads localized history and offers evidence only on the selected meter without renumbering", () => {
   const current = Meters.examples[0]!;
   const second = Meters.examples[1]!;
   const input = {
     ...current,
     style: "history",
     meters: [...current.meters, ...second.meters],
-    readings: [...current.readings, ...second.readings],
+    readings: [
+      ...current.readings.map((reading, index) => (index === 1 ? { ...reading, photo: "local:1" } : reading)),
+      ...second.readings,
+    ],
   };
-  expect(readComponent(Meters, input, "m1").join("\n")).toContain("2026-11-18T08:00:00Z");
+  const initial = readComponent(Meters, input, "m1").join("\n");
+  expect(initial).toContain("r6 · 18 Nov 2026 · 08:00");
+  expect(initial.match(/\[[^\]]+\/photo press\]/g)).toEqual(["[m1/r6/photo press]"]);
   const selected = readComponent(Meters, input, "m1", "filled", { "m1/$meterRef": "cabin_water" }).join("\n");
-  expect(selected).toContain("r2 · Water");
-  expect(selected).not.toContain("/photo press");
-  expect(selected).toContain("2026-11-17T10:00:00Z");
-  expect(selected).not.toContain("2026-11-18T08:00:00Z");
+  for (const part of ["r1 [m1/r1 select]", "r3 [m1/r3 select]"]) {
+    expect(initial).toContain(part);
+    expect(selected).toContain(part);
+  }
+  expect(selected).toContain("r9 · 17 Nov 2026 · 10:00");
+  expect(selected).not.toContain("18 Nov 2026 · 08:00");
+  expect(selected.match(/\[[^\]]+\/photo press\]/g)).toEqual(["[m1/r9/photo press]"]);
 });
 
 it("validates meter chronology, handles unsorted input and never invents use for one reading", () => {
   const [first, latest] = Meters.examples[0]!.readings;
   const input = { ...Meters.examples[0], readings: [latest!, first!] };
-  expect(readComponent(Meters, input, "m1").join("\n")).toContain("(+46 kWh)");
-  expect(readComponent(Meters, Meters.examples[1], "m1").join("\n")).not.toContain("(+");
+  expect(readComponent(Meters, input, "m1").join("\n")).toContain("46\u00a0kWh used · 31 days");
+  const single = readComponent(Meters, { ...input, readings: [latest!] }, "m1").join("\n");
+  expect(single).toContain("Latest · 1246\u00a0kWh");
+  expect(single).not.toContain("used");
   expect(Meters.props.safeParse({ ...input, readings: [first!, { ...latest!, value: 1199 }] }).success).toBe(
     false,
   );

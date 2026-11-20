@@ -1,14 +1,8 @@
 import { z } from "zod";
+// prettier-ignore
 import {
-  drawKey,
-  drawState,
-  emptyLine,
-  probesFor,
-  type DrawState,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  drawKey, drawState, emptyLine, probesFor, variantProps,
+  type DrawState, type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
 import {
   KitAction,
@@ -23,6 +17,7 @@ import {
   useControlValue,
   useEmptyThing,
   usePartContext,
+  useVariant,
   useWords,
 } from "../../../kit";
 import { diceFaceLabel, diceSetupLine, diceSumLine } from "../copy";
@@ -37,26 +32,39 @@ export const meta = {
   pick: "Random numbered dice with optional holds and a computed sum. Not manual counting (Counter), named random options (Spinner), or a loading indicator.",
   writeHints: [
     'sides is the number 4, 6, 8, 10, 12 or 20. Use style: "numbers" unless sides is 6; pips is six-sided only. Never write faces, held flags or sum.',
+    'For hiding the setup caption alone use {"detail":"brief","density":null}. Always write density null, not comfortable, unless spacing is separately requested.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Unbiased random faces are generated and saved on the device before the reveal animation.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["setup"] } },
   items: { key: "dice", parts: ["root", "face", "hold"] },
-  parts: ["root", "dice_1", "dice_2", "dice_3", "sum", "roll", "roll_label"],
+  parts: ["root", "setup", "dice_1", "dice_2", "dice_3", "sum", "roll", "roll_label"],
   states: ["empty", "filled", "loading", "success"],
   actions: { parts: { roll: ["press"] }, items: { hold: ["toggle"] } },
   emptyActions: ["roll.press"],
   draw: { kind: "faces", press: "roll", count: "count", sides: "sides", hold: "hold" },
-  read: (input, _state, lang) => {
-    const { count, sides, [drawKey]: result } = input as z.output<typeof props> & { [drawKey]?: DrawState };
+  read: (input, _state, lang): string[] => {
+    const {
+      count,
+      sides,
+      detail,
+      [drawKey]: result,
+    } = input as z.output<typeof props> & { [drawKey]?: DrawState };
     const sum = diceSumLine(result?.kind === "faces" ? result.faces : [], lang);
     const words = playWordsFor(lang).dice;
-    return [diceSetupLine(count, sides, lang), sum ?? words.unrolled, sum ? words.reroll : words.roll];
+    return [
+      ...(detail === "brief" ? [] : [diceSetupLine(count, sides, lang)]),
+      sum ?? words.unrolled,
+      sum ? words.reroll : words.roll,
+    ];
   },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     count: z.int().min(1).max(6).default(2),
     sides: z
       .union([z.literal(4), z.literal(6), z.literal(8), z.literal(10), z.literal(12), z.literal(20)])
@@ -66,26 +74,32 @@ export const props = z
   .refine(({ sides, style }) => sides === 6 || style === "numbers", {
     path: ["style"],
     message: "Non-six-sided dice need numbers",
-  });
-export function fallback(_input: FallbackInput): z.input<typeof props> {
-  return props.parse({});
-}
+  })
+  // Give the validator one item per die without serializing derived rows into draw-controller input.
+  .overwrite((value) =>
+    Object.defineProperty(value, "dice", { value: Array.from({ length: value.count }, () => ({})) }),
+  );
+export const fallback = (_input: FallbackInput): z.input<typeof props> => ({});
 export const examples = [
   // Ledge's game-night pair.
   { count: 2, sides: 6, style: "pips" },
   // Trot's walkers play a tabletop adventure.
   { count: 1, sides: 20, style: "numbers" },
+  { count: 2, detail: "brief" },
+  { count: 2, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Dice");
 export const probes = [
   choose("Roll two six-sided dice and hold one face while rerolling the other"),
   choose("Manually increase or decrease one number, with no random draw", "Counter"),
   write("Roll three eight-sided dice, showing numbered faces rather than pips"),
+  {
+    ...write("Give me two six-sided dice. Hide the caption showing the number of dice and sides."),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Roll the dice", { address: "d1/roll", action: "press" }),
 ] satisfies Probe[];
-
-type DiceSetup = Props<typeof props, typeof meta>;
-
+type DiceSetup = Props<typeof props, typeof meta> & { dice: { id: string }[] };
 function DiceFaces({
   setup,
   result,
@@ -99,8 +113,7 @@ function DiceFaces({
   const { lang } = useWords(playWordsFor);
   const { count, sides, style } = setup;
   const faceStyle = sides === 6 ? { sides, style } : { sides, style: "numbers" as const };
-  const dice = Array.from({ length: count }, (_, index) => {
-    const item = `r${index + 1}`;
+  const dice = setup.dice.map(({ id: item }, index) => {
     const value = loading ? undefined : result?.faces[index];
     const held = !loading && (result?.held[index] ?? false);
     const label = diceFaceLabel(index + 1, value, held, lang);
@@ -121,7 +134,7 @@ function DiceFaces({
     );
   });
   return (
-    <KitContent align="center" group="response">
+    <KitContent align="center" group="response" density={setup.density}>
       {Array.from({ length: Math.ceil(count / 2) }, (_, index) => (
         <KitTrack key={index} part={`dice_${index + 1}`}>
           {dice.slice(index * 2, index * 2 + 2)}
@@ -136,6 +149,7 @@ export function Dice(setup: DiceSetup) {
   const state = useComponentState();
   const thing = useEmptyThing();
   const { lang, words } = useWords(playWordsFor);
+  const density = useVariant("density", meta.variants.density, setup.density);
   const saved = useControlValue<unknown>(`${scope.screen}/${scope.component}/${drawKey}`, undefined);
   const result = drawState(meta, setup, () => saved);
   const faces = result?.kind === "faces" ? result : undefined;
@@ -143,17 +157,20 @@ export function Dice(setup: DiceSetup) {
   const loading = state === "loading";
   const roll = sum ? words.dice.reroll : words.dice.roll;
   return (
-    <KitCard part="root" padded>
-      <KitText align="center" tone="muted" role="caption" part={null}>
-        {diceSetupLine(setup.count, setup.sides, lang)}
-      </KitText>
-      <DiceFaces setup={setup} result={faces} loading={loading} />
+    <KitCard part="root" padded density={density}>
+      {setup.detail !== "brief" && (
+        <KitText align="center" tone="muted" role="caption" part="setup" density={density}>
+          {diceSetupLine(setup.count, setup.sides, lang)}
+        </KitText>
+      )}
+      <DiceFaces setup={{ ...setup, density }} result={faces} loading={loading} />
       {loading ? (
         <>
           <KitSkeleton
             shape="figure"
             centered
             inset="none"
+            density={density}
             content={[[sum ? "number" : "body", sum ?? words.dice.unrolled]]}
           />
           <KitSkeleton shape="control" label={roll} full />
@@ -163,6 +180,7 @@ export function Dice(setup: DiceSetup) {
           <KitText
             align="center"
             role={sum ? "number" : "body"}
+            density={density}
             tone={sum ? "text" : "muted"}
             part={sum ? "sum" : null}
           >

@@ -74,6 +74,14 @@ export function clockTime(clock: ClockTarget, state: ClockState | undefined, hel
 export function clockEnded(clock: ClockTarget, seconds: number) {
   return clock.spec.kind === "up" ? seconds >= clockMax(clock) : seconds === 0;
 }
+export function canReplay(clock: ClockTarget) {
+  return (
+    clock.spec.kind === "up" &&
+    clock.spec.restartOnPlay === true &&
+    clock.spec.start?.action === "play" &&
+    clockMax(clock) > 0
+  );
+}
 export function clockTriggerTarget(clock: ClockTarget, trigger: ClockTrigger) {
   if (trigger.scope === "component") return trigger.part;
   return (
@@ -172,7 +180,8 @@ export function clockActionValid(
       if (!trigger || trigger.action !== action || clockTriggerTarget(clock, trigger) !== target) return [];
       const playback = isPlaybackAction(action);
       if (!playback && !["start", "stop"].includes(action) && operation !== "reset") return [true];
-      if (playback && operation !== "reset" && clockEnded(clock, seconds())) return [false];
+      if (playback && operation !== "reset" && (state?.expired || clockEnded(clock, seconds())))
+        return [operation === "start" && canReplay(clock)];
       const running = Boolean(state?.running);
       return [
         operation === "start"

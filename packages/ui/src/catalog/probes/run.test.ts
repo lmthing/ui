@@ -1,10 +1,11 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import {
   components,
   runProbes,
   writerFormatFor,
   choosePrompt,
   readPrompt,
+  type Definition,
   type WriterFormat,
 } from "@lmthing/ui/catalog";
 
@@ -70,4 +71,48 @@ it("fails clearly when an opt-in fixture action is not available on the example"
   expect(() =>
     readPrompt(components.TeamPicker, 0, "t1", "Redraw", undefined, { part: "remake", action: "press" }),
   ).toThrow("Could not set up TeamPicker read fixture: not_actionable");
+});
+
+it("uses the same example host snapshot for setup and the read probe", async () => {
+  const teamPicker = components.TeamPicker;
+  const records = [{ label: "Host fixture" }];
+  const previewDeviceData = vi.fn<NonNullable<Definition["meta"]["previewDeviceData"]>>(() => ({ records }));
+  const deviceDataVisible = vi.fn<NonNullable<Definition["meta"]["deviceDataVisible"]>>((data) =>
+    Boolean(data.records?.length),
+  );
+  const def: Definition = {
+    ...teamPicker,
+    probes: teamPicker.probes.filter((probe) => probe.kind === "read"),
+    meta: {
+      ...teamPicker.meta,
+      deviceData: ["records"],
+      previewDeviceData,
+      deviceDataVisible,
+      read: (_props, _state, _lang, data) => (data?.records === records ? ["Host fixture"] : []),
+    },
+  };
+  const results = await runProbes({
+    defs: [def],
+    callModel: async (prompt) =>
+      JSON.stringify({
+        address: prompt.includes("[t1/remake press]") ? "t1/remake" : "t1/make",
+        action: "press",
+      }),
+  });
+  expect(results.map(({ status }) => status)).toEqual(["pass", "pass"]);
+  expect(results[0]?.prompt).toContain("Host fixture [t1/make press]");
+  expect(results[1]?.prompt).toContain("[t1/remake press]");
+  expect(results[1]?.prompt).toContain("Host fixture");
+  expect(previewDeviceData.mock.calls).toEqual(
+    Array(2).fill([{ input: teamPicker.props.parse(teamPicker.examples[0]), state: "filled" }]),
+  );
+  // Direct read, followed by planning and reading the same setup case.
+  expect(deviceDataVisible.mock.calls).toHaveLength(3);
+  expect(deviceDataVisible.mock.calls.every(([data]) => data.records === records)).toBe(true);
+
+  previewDeviceData.mockReturnValue({ records: [] });
+  expect(readPrompt(def, 0, "t1", "Make teams")).not.toContain("[t1/make press]");
+  expect(() => readPrompt(def, 0, "t1", "Redraw", undefined, { part: "make", action: "press" })).toThrow(
+    "Could not set up TeamPicker read fixture: not_actionable",
+  );
 });

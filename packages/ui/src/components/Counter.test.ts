@@ -16,12 +16,18 @@ describe("Counter schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("applies defaults and trims text", () => {
-    expect(props.parse({ label: "  Water  " })).toEqual({ label: "Water", value: 0, step: 1 });
+    expect(props.parse({ label: "  Water  " })).toEqual({
+      label: "Water",
+      value: 0,
+      step: 1,
+      figures: "exact",
+    });
     expect(props.parse({ label: "Walks", unit: " dogs ", value: 3, step: 2 })).toEqual({
       label: "Walks",
       unit: "dogs",
       value: 3,
       step: 2,
+      figures: "exact",
     });
   });
   it.each([
@@ -45,6 +51,7 @@ describe("Counter schema", () => {
     { label: "Water", step: "1" },
     { label: "Water", step: Infinity },
     { label: "Water", style: "tiles" },
+    { label: "Water", figures: "rounded" },
     { label: "Water", color: "red" },
     { label: "Water", pixels: 4 },
     { label: "Water", id: "c1" },
@@ -58,14 +65,15 @@ describe("Counter schema", () => {
       }
     }
   });
-  it("infers only schema fields for the view", () => {
-    type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["value"]>().toEqualTypeOf<number>();
-    expectTypeOf<ViewProps["step"]>().toEqualTypeOf<number>();
-    expectTypeOf<ViewProps["unit"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps>().not.toBeAny();
-    expectTypeOf<ViewProps>().not.toHaveProperty("color");
-  });
+});
+
+it("infers only schema fields for the Counter view", () => {
+  type ViewProps = Props<typeof props, typeof meta>;
+  expectTypeOf<ViewProps["value"]>().toEqualTypeOf<number>();
+  expectTypeOf<ViewProps["step"]>().toEqualTypeOf<number>();
+  expectTypeOf<ViewProps["unit"]>().toEqualTypeOf<string | undefined>();
+  expectTypeOf<ViewProps>().not.toBeAny();
+  expectTypeOf<ViewProps>().not.toHaveProperty("color");
 });
 
 describe("Counter fallback and metadata", () => {
@@ -145,6 +153,14 @@ describe("Counter fallback and metadata", () => {
 });
 
 describe("Counter rendering", () => {
+  it("abbreviates only the display, not the count, step, or controls", () => {
+    const input = { label: "Walks", value: 1200, step: 2 };
+    const short = props.parse({ ...input, figures: "short" });
+    expect(short).toMatchObject(input);
+    expect(meta.read(short, "filled")[0]).toBe("1.2K");
+    expect(meta.read(input, "filled")[0]).toBe("1200");
+    expect(affordancesOf(meta, short, "c1")).toEqual(affordancesOf(meta, props.parse(input), "c1"));
+  });
   it.each(examples)("draws one root, the value and both named button actions", (example) => {
     const html = renderInstance("Counter", example, "filled", {
       preset: "calm",

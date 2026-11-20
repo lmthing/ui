@@ -1,5 +1,7 @@
 import type { Meta } from "../../meta";
+import type { DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
+import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
 
 export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
@@ -70,18 +72,26 @@ function applyChecks(meta: Meta, props: Values, get: Get) {
 }
 
 /** Overlay local inputs and derive gates on addressed, parsed props. Keep the wire seed intact. */
-export function projectLiveInputs(meta: Meta, props: Values, instance: string, get: Get): Values {
+export function projectLiveInputs(
+  meta: Meta,
+  props: Values,
+  instance: string,
+  get: Get,
+  data?: DeviceData,
+): Values {
   const selected = projectNamedSelections(meta, props, get, "runtime");
-  const projected = applyChecks(meta, applyText(meta, selected, get), get);
+  const edited = applyChecks(meta, applyText(meta, selected, get), get);
+  const projected = projectLinkedEdits(meta, edited, get, data);
   const derived = meta.live?.derive?.(projected, instance);
   return derived ? { ...projected, ...derived } : projected;
 }
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */
 export function withLiveInput(meta: Meta, part: string, action: string, holder: Values, row: boolean) {
-  if (!row && action === "type" && Object.hasOwn(meta.live?.text ?? {}, part)) {
-    const { max } = meta.live!.text![part]!;
-    return { input: { kind: "text", max } as const };
+  if (!row && action === "type") {
+    const text = meta.live?.text;
+    const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
+    if (spec) return { input: { kind: "text", max: spec.max } as const };
   }
   if (row && action === "check" && Object.hasOwn(meta.live?.checks ?? {}, part)) {
     const done = holder[meta.live!.checks![part]!];

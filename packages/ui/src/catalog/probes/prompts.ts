@@ -1,7 +1,7 @@
 import type { Definition } from "./types";
-import { planAct, readComponent, readScreen, type ScreenLike } from "../agent";
+import { planAct, readComponent, readScreen, type DeviceData, type ScreenLike } from "../agent";
 import { buildBlock, buildEntry, variantVocabulary } from "../prompt";
-import type { ReadProbeFixture } from "./fixtures";
+import { exampleDeviceData, type ReadProbeFixture } from "./fixtures";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
   return [
@@ -42,6 +42,7 @@ function readAfterAction(
   instance: string,
   lang: string | undefined,
   fixture: ReadProbeFixture,
+  deviceData?: DeviceData,
 ): string {
   const id = "home",
     c = def.meta.id;
@@ -51,9 +52,17 @@ function readAfterAction(
   const defs = { [c]: def };
   const { part, ...step } = fixture;
   // Plan with deterministic fixture entropy so live sampling and replay use the same screen.
-  const result = planAct(screen, defs, {}, [{ ...step, address: `${instance}/${part}` }], null);
+  const result = planAct(
+    screen,
+    defs,
+    {},
+    [{ ...step, address: `${instance}/${part}` }],
+    null,
+    "planner",
+    deviceData,
+  );
   if (!result.ok) throw new Error(`Could not set up ${c} read fixture: ${result.code}`);
-  return readScreen(screen, defs, result.values, lang);
+  return readScreen(screen, defs, result.values, lang, deviceData);
 }
 
 /** The screen as the model reads it, then a task: reply with where to act and how. */
@@ -66,9 +75,16 @@ export function readPrompt(
   fixture?: ReadProbeFixture,
 ): string {
   const input = def.examples[screen];
+  const { meta } = def;
+  const deviceData =
+    meta.deviceData?.length && meta.previewDeviceData
+      ? exampleDeviceData(meta, def.props.parse(input) as Record<string, unknown>, "filled")
+      : undefined;
   const reading = fixture
-    ? readAfterAction(def, input, instance, lang, fixture)
-    : ["screen home", ...readComponent(def, input, instance, undefined, undefined, lang)].join("\n");
+    ? readAfterAction(def, input, instance, lang, fixture, deviceData)
+    : ["screen home", ...readComponent(def, input, instance, undefined, undefined, lang, deviceData)].join(
+        "\n",
+      );
   return [
     "You operate a phone app for a person. You see the screen as text: one line per component,",
     "items indented. Text in quotes is content. Each action is in square brackets and starts with its",

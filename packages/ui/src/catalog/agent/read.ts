@@ -12,7 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
-import { selectDeviceData, type DeviceData } from "./device-data";
+import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -40,7 +40,10 @@ function readingProps(
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
-    meta.live || meta.items?.visibleWhen || Object.values(meta.selections ?? {}).some((s) => s.runtime);
+    meta.live ||
+    meta.linkedEdits ||
+    meta.items?.visibleWhen ||
+    Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
     visibleNestedProps(meta, useLive ? live : projectDraw(meta, timed, get), get),
@@ -88,9 +91,10 @@ export function readComponent(
   deviceData?: DeviceData,
 ): string[] {
   const { meta } = def;
+  if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(meta.id, input), get);
-  const props = liveProps(meta, validated, instance, values, true);
+  const props = liveProps(meta, validated, instance, values, true, deviceData);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;

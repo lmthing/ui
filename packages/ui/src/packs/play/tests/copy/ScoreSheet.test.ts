@@ -8,7 +8,7 @@ const input = {
     { label: "Second", points: [-2, -2, 0] },
   ],
   wins: "high",
-  style: "grid",
+  overflow: "all",
   share: false,
 } as const;
 
@@ -39,10 +39,11 @@ describe("ScoreSheet copy", () => {
       { total: "-2", winner: false },
     ]);
   });
-  it("localizes visible numbers but retains the wire addresses", () => {
-    const read = scoreReading({ ...input, selectedRound: "2", style: "round" }, "ar-EG").join("\n");
+  it("localizes visible numbers and reads only cells on the selected page", () => {
+    const read = scoreReading({ ...input, selectedRound: "2", overflow: "page" }, "ar-EG").join("\n");
     expect(read).toContain("٢ of ٢ rounds complete");
-    expect(read).toContain("r4 A, Second: ");
-    expect(read).not.toContain("r1 A, First");
+    expect(read).toContain("A, Second: ");
+    expect(read).not.toContain("A, First:");
+    expect(read).not.toMatch(/\br\d+\b/);
   });
 });

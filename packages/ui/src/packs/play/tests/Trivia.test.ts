@@ -6,7 +6,6 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, elementAt, renderInstance } from "../../../../test/render";
-
 const { props, meta, fallback, examples, probes } = components.Trivia;
 const setup = examples[0]!;
 const single = examples[1]!;
@@ -19,23 +18,21 @@ const key = (part: string) => `home/t1/${part}`;
 const press = (part: string) => ({ address: `t1/${part}`, action: "press" });
 const render = (state: StateName, deck: unknown = setup, lang?: string) =>
   renderInstance("Trivia", deck, state, theme, { component: "t1", ...(lang ? { lang } : {}) });
-
 function controller(state: StateName = "filled") {
   const screen: ScreenLike = { id: "home", components: [{ id: "t1", c: "Trivia", state, ...setup }] };
   return createScreenController({ screen, defs: components });
 }
-
 describe("Trivia contract and boundaries", () => {
   it.each(examples)("parses a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-
   it("trims text and applies the card and point defaults without adding item ids", () => {
     type View = Props<typeof props, typeof meta>;
     expectTypeOf<View["questions"][number]>().not.toHaveProperty("id");
     expect(props.parse({ questions: [{ question: " Prompt ", answer: " Reply " }] })).toEqual({
       questions: [{ question: "Prompt", answer: "Reply", points: 1 }],
-      style: "card",
+      emphasis: "normal",
+      media: "thumb",
     });
   });
 
@@ -69,7 +66,9 @@ describe("Trivia contract and boundaries", () => {
     { ...setup, color: "red" },
     { ...setup, index: 1, revealed: true, $session: {} },
   ])("rejects invalid or runtime-only input", (input) => expect(props.safeParse(input).success).toBe(false));
+});
 
+describe("Trivia probes", () => {
   it("preserves the core-first probes and the pack readiness gate", () => {
     expect(meta.tier).toBe("phone");
     expect(meta.realPath).not.toBe("");
@@ -79,6 +78,7 @@ describe("Trivia contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "Trivia" }),
       expect.objectContaining({ kind: "choose", expect: "Choice" }),
       expect.objectContaining({ kind: "write", expect: "Trivia" }),
+      expect.objectContaining({ kind: "write", variant: { axis: "media", value: "none" } }),
       expect.objectContaining({ kind: "read", expect: press("reveal") }),
       expect.objectContaining({ kind: "read", expect: press("restart") }),
     ]);
