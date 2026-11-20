@@ -17,6 +17,15 @@
       "Card"
     ]
   },
+  "5189f8fe23ef8edc": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ne1 EventCard 28 Nov 2026 — 14:00 — 14 — 14 going — Maya — Sam — Jo — Going — Interested — \"Cutting swap\" — \"Community greenhouse\" — photo:plants [e1 press→swap_meet !needs-people] [e1/going press !needs-people] [e1/interested press !needs-people]\n  r1\n  r2\n  r3\n\nTask: Say I’m going to the cutting swap.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"e1/going\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"e1/going\", \"action\": \"press\"}",
+      "{\"address\": \"e1/going\", \"action\": \"press\"}",
+      "{\"address\": \"e1/going\", \"action\": \"press\"}"
+    ]
+  },
   "5d8e75d796a44f27": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nEventCard: See a community event and say whether you’re going or interested.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: cover|none=\"cover\", title: text≤40, date: date YYYY-MM-DD, time: time HH:MM, place: text≤40, photo?: photo lib:<tag>|local:<n>, going: int 0..999999, status?: none|going|interested=\"none\", goto: id snake_case, attendees?: [0..5 text≤24] }\nRule: Use YYYY-MM-DD and 24-hour HH:MM. Set going to the full attendance count and list up to five names from that total in attendees.\nRule: Leave density, surface and media null unless requested. When asked to hide a supplied cover, set media to \"none\" and keep the photo reference in photo.\nexample: {\"c\":\"EventCard\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\",\"Jo\"]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show Cutting swap on 2026-11-28 at 14:00 at the greenhouse, with 14 going and a link to swap_meet. Store lib:plants as its photo but hide the photo on this card. Keep the date and RSVP buttons. Leave the spacing and card finish unchanged.",
     "format": {
@@ -166,11 +175,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":null,\"goto\":\"swap_meet\",\"attendees\":null}",
+    "reply": "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":null,\"goto\":\"swap_meet\",\"attendees\":null}",
     "replies": [
-      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":null,\"goto\":\"swap_meet\",\"attendees\":null}",
       "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":null,\"goto\":\"swap_meet\",\"attendees\":null}",
-      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\",\"Jo\"]}"
+      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":null}",
+      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":null}"
     ]
   },
   "81eb9ea65ea54350": {
@@ -322,20 +331,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\"]}",
+    "reply": "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\",\"Jo\"]}",
     "replies": [
+      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\",\"Jo\"]}",
       "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\"]}",
-      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\"]}",
-      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":null,\"going\":14,\"status\":\"none\",\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\"]}"
-    ]
-  },
-  "b1e423fb491a8230": {
-    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ne1 EventCard 28 — Nov — 14:00 — 14 going — Maya — Sam — Jo — Going — Interested — \"Cutting swap\" — \"Community greenhouse\" — photo:plants [e1 press→swap_meet !needs-people] [e1/going press !needs-people] [e1/interested press !needs-people]\n  r1\n  r2\n  r3\n\nTask: Say I’m going to the cutting swap.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"e1/going\", \"action\": \"press\"}",
-    "replies": [
-      "{\"address\": \"e1/going\", \"action\": \"press\"}",
-      "{\"address\": \"e1/going\", \"action\": \"press\"}",
-      "{\"address\": \"e1/going\", \"action\": \"press\"}"
+      "{\"c\":\"EventCard\",\"density\":null,\"surface\":null,\"media\":null,\"title\":\"Cutting swap\",\"date\":\"2026-11-28\",\"time\":\"14:00\",\"place\":\"Community greenhouse\",\"photo\":\"lib:plants\",\"going\":14,\"status\":null,\"goto\":\"swap_meet\",\"attendees\":[\"Maya\",\"Sam\"]}"
     ]
   }
 }

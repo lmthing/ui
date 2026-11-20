@@ -1,4 +1,4 @@
-import { dateLocaleOf, numberLine, timeOfDayLine, type StateName } from "../../../catalog";
+import { appointmentDate, dateLocaleOf, numberLine, timeOfDayLine, type StateName } from "../../../catalog";
 import { socialWordsFor } from "../lang";
 
 type EventCopy = {
@@ -27,12 +27,12 @@ export function eventCopy({ date, time, going }: EventCopy, lang?: string) {
 export function eventReading(input: unknown, state: StateName, lang?: string): string[] {
   if (state !== "filled") return [];
   const value = input as EventCopy;
-  const { day, month, time, count } = eventCopy(value, lang);
+  const { time, count } = eventCopy(value, lang);
   const { event } = socialWordsFor(lang);
   return [
-    day,
-    month,
+    appointmentDate(value.date, lang),
     time,
+    numberLine(value.going, lang),
     count,
     ...(value.attendees ?? []),
     ...(value.status === "none" ? [] : [event.response[value.status]]),

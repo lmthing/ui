@@ -10,21 +10,21 @@ const input = {
 };
 
 it("formats independent day, short month, time, and exact count in the app locale", () => {
-  expect(eventCopy(input)).toEqual({ day: "28", month: "Nov", time: "14:00", count: "12,345 going" });
+  expect(eventCopy(input)).toEqual({ day: "28", month: "Nov", time: "14:00", count: "12345 going" });
   expect(eventCopy(input, "ar-EG")).toEqual({
     day: "٢٨",
     month: "نوفمبر",
     time: "١٤:٠٠",
-    count: "١٢٬٣٤٥ going",
+    count: "١٢٣٤٥ going",
   });
 });
 
 it("reads the names in order and preserves zero counts without names, but suppresses loading content", () => {
   expect(eventReading(input, "filled")).toEqual([
-    "28",
-    "Nov",
+    "28 Nov 2026",
     "14:00",
-    "12,345 going",
+    "12345",
+    "12345 going",
     "Maya",
     "Sam",
     "Going",

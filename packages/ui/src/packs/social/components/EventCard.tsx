@@ -81,10 +81,12 @@ export const examples = [
     attendees: ["Maya", "Sam", "Jo"],
   },
   {
+    media: "none",
     title: "Riverside dog walk",
     date: "2026-11-29",
     time: "09:00",
     place: "South gate",
+    photo: "lib:dog",
     going: 6,
     status: "interested",
     goto: "river_walk",
