@@ -11,7 +11,7 @@ export const meta = {
   pick: "A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).",
   writeHints: [
     "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
-    'Use style "single_day" for one selected day in the week and give that day as day; supply at most six entries and leave day null for style "days". To hide notes without changing the day layout, use detail "brief" and retain notes in the data.',
+    'Use style "single_day" for one selected day in the week and give that day as day; supply at most six entries and leave day null for style "days". To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested, even when detail or style is set.',
   ],
   region: "body",
   weight: 3,

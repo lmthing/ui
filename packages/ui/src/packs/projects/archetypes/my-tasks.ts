@@ -6,7 +6,9 @@ export const my_tasks = {
   defaultLayout: "projects_assigned",
   layouts: {
     projects_assigned: {
-      writeHints: ['Set Tasks.group to "sections" for the required grouping by project.'],
+      writeHints: [
+        'Set Tasks.group to "sections" for the required grouping by project. Dependencies go only in after; leave parentRef null unless the brief explicitly names a subtask and its parent.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Chips"], required: true },
