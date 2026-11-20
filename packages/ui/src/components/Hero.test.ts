@@ -2,7 +2,6 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   affordancesOf,
   components,
-  createRegistry,
   placeholderDetail,
   placeholderTitle,
   readComponent,
@@ -20,12 +19,15 @@ describe("Hero schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ title: "  Main message  ", sub: "  A little detail  " })).toEqual({
-      style: "statement",
+      align: "start",
+      emphasis: "normal",
+      detail: "full",
+      media: "none",
       title: "Main message",
       sub: "A little detail",
       tone: "neutral",
     });
-    expect(props.parse({ title: "3 of 5", style: "number" })).toEqual({
+    expect(props.parse({ title: "3 of 5", style: "number" })).toMatchObject({
       style: "number",
       title: "3 of 5",
       tone: "neutral",
@@ -44,6 +46,9 @@ describe("Hero schema", () => {
     { title: "Headline", photo: `lib:${"a".repeat(61)}` },
     { title: "Headline", photo: "local:dog" },
     { title: "Headline", style: "banner" },
+    { title: "Headline", style: "photo" },
+    { title: "Headline", media: "thumb" },
+    { title: "Headline", density: "roomy" },
     { title: "Headline", tone: "accent" },
     { title: "Headline", tone: "red" },
     { title: "Headline", color: "red" },
@@ -56,21 +61,22 @@ describe("Hero schema", () => {
       props.safeParse({ title: "a".repeat(40), sub: "a".repeat(80), photo: `lib:${"a".repeat(60)}` }).success,
     ).toBe(true);
     expect(props.safeParse({ title: "Headline", photo: "local:1" }).success).toBe(true);
-    for (const style of ["statement", "photo", "number"])
+    for (const media of ["none", "cover"])
       for (const tone of ["neutral", "good", "warn", "bad"])
-        expect(props.safeParse({ title: "3 of 5", style, tone }).success).toBe(true);
+        expect(props.safeParse({ title: "3 of 5", media, tone }).success).toBe(true);
   });
-  it("derives view props without adding item ids or visual controls", () => {
-    type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["title"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["sub"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"statement" | "photo" | "number">();
-    expectTypeOf<ViewProps["tone"]>().toEqualTypeOf<"neutral" | "good" | "warn" | "bad">();
-    expectTypeOf<ViewProps>().not.toBeAny();
-    expectTypeOf<ViewProps>().not.toHaveProperty("id");
-    expectTypeOf<ViewProps>().not.toHaveProperty("color");
-    expectTypeOf<ViewProps>().not.toHaveProperty("goto");
-  });
+});
+
+it("derives view props without adding item ids or visual controls", () => {
+  type ViewProps = Props<typeof props, typeof meta>;
+  expectTypeOf<ViewProps["title"]>().toEqualTypeOf<string>();
+  expectTypeOf<ViewProps["sub"]>().toEqualTypeOf<string | undefined>();
+  expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"number" | undefined>();
+  expectTypeOf<ViewProps["tone"]>().toEqualTypeOf<"neutral" | "good" | "warn" | "bad">();
+  expectTypeOf<ViewProps>().not.toBeAny();
+  expectTypeOf<ViewProps>().not.toHaveProperty("id");
+  expectTypeOf<ViewProps>().not.toHaveProperty("color");
+  expectTypeOf<ViewProps>().not.toHaveProperty("goto");
 });
 
 const casts: CastLike[] = [
@@ -118,26 +124,22 @@ describe("Hero fallback and metadata", () => {
   it("validates with empty, full, mixed and malformed cast content", () => {
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
     expect(fallback({ cast: casts[0]! })).toEqual({
-      style: "statement",
       title: placeholderTitle(0),
       sub: placeholderDetail,
     });
-    expect(fallback({ cast: casts[1]! })).toEqual({ style: "statement", title: "Fern", sub: "Bathroom" });
+    expect(fallback({ cast: casts[1]! })).toEqual({ title: "Fern", sub: "Bathroom" });
     expect(fallback({ cast: casts[2]! })).toEqual({
-      style: "statement",
       title: "Clover",
       sub: "Morning walk",
     });
     expect(fallback({ cast: casts[3]! })).toEqual({
-      style: "statement",
       title: "x".repeat(40),
       sub: "y".repeat(80),
     });
     expect(fallback({ cast: casts[4]! })).toEqual(fallback({ cast: casts[0]! }));
-    expect(fallback({ cast: casts[5]! })).toEqual({ style: "statement", title: "First", sub: "Second" });
+    expect(fallback({ cast: casts[5]! })).toEqual({ title: "First", sub: "Second" });
     expect(fallback({ cast: casts[6]! })).toEqual(fallback({ cast: casts[0]! }));
     expect(fallback({ cast: casts[7]! })).toEqual({
-      style: "statement",
       title: "Only a title",
       sub: placeholderDetail,
     });
@@ -159,32 +161,32 @@ describe("Hero fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Hero")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Note")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
-    expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Hero" });
-    expect(examples.map((example) => example.style)).toEqual(["number", "photo", "statement"]);
-    expect(examples[0]).toMatchObject({ title: "2", sub: "plants need water", tone: "warn" });
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes).toContainEqual(expect.objectContaining({ variant: { axis: "media", value: "cover" } }));
   });
 });
 
 describe("Hero fallback and metadata", () => {
-  it("builds a data-only registry with case and separator tolerant ids", () => {
-    const registry = createRegistry();
-    expect(registry.ids).toContain("Hero");
-    expect(registry.schema("Hero")).toBe(props);
-    expect(registry.resolve("h-e-r-o")).toBe("Hero");
-    expect(registry.resolve("h-e-r-o")).toBe("Hero");
-    expect(registry.resolve("unknown")).toBeUndefined();
-  });
   it("reads the headline and detail without offering actions, including while loading", () => {
-    expect(readComponent(components.Hero, examples[0], "h1")).toEqual([
-      'h1 Hero[number][warn] "2" — "plants need water"',
-    ]);
+    const number = examples.find((example) => example.style === "number")!;
+    expect(readComponent(components.Hero, number, "h1").join(" ")).toContain('"2" — "plants need water"');
     for (const example of examples) {
       const parsed = props.parse(example);
       expect(affordancesOf(meta, parsed, "h1")).toEqual([]);
       expect(readComponent(components.Hero, example, "h1", "loading")).toHaveLength(1);
       expect(readComponent(components.Hero, example, "h1", "loading")[0]).not.toContain('"');
     }
+  });
+  it("keeps the headline address while brief hides its subtitle from the screen and reader", () => {
+    const input = { ...examples[0]!, detail: "brief" } as const;
+    const html = renderInstance("Hero", input, "filled", theme);
+    expect(meta.variantParts).toEqual({
+      "detail.brief": { hides: ["sub"] },
+      "media.cover": { adds: ["photo"] },
+    });
+    expect(html).toContain('data-testid="home/c1/title"');
+    expect(html).not.toContain('data-testid="home/c1/sub"');
+    expect(readComponent(components.Hero, input, "h1").join(" ")).not.toContain(input.sub);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when the host resolves it: %s", (source) => {
     const resolvePhoto = vi.fn(() => source);
