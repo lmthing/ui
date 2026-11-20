@@ -1,13 +1,18 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
 
 // Core first: Chips/filter cannot show a dense grid of icon tiles for what shaped the day.
 export const meta = {
   id: "Factors",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Mark several things that affected how the day felt.",
   pick: "A grid of four to sixteen independently toggled icon tiles for things that happened or shaped a day. Not a few text filters (Chips), physical symptoms with severity (SymptomLog), or shortcuts (Actions).",
+  writeHints: [
+    "Give every factor an icon and an explicit on flag. Several factors may be on together.",
+    'Use density "compact" only when asked for closer tile spacing. If asked only for tighter spacing, set surface to null, not "card"; otherwise use null for both unless a finish is requested.',
+  ],
   region: "body",
   weight: 3,
   dense: true,
@@ -16,6 +21,7 @@ export const meta = {
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
   parts: ["root"],
   items: { key: "items", parts: ["root", "icon", "label"] },
+  select: { prop: "on", value: "index", mode: "flags" },
   states: ["filled"],
   actions: { items: { root: ["toggle"] } },
 } as const satisfies c.Meta;
@@ -50,10 +56,10 @@ export const examples = [
       { label: "Fresh air", icon: "wind", on: false },
       { label: "Quiet time", icon: "sun", on: true },
       { label: "Late night", icon: "clock", on: false },
+      { label: "Music", icon: "music", on: false },
     ],
   },
   {
-    density: "compact",
     surface: "outlined",
     items: [
       { label: "Early start", icon: "sun", on: true },
@@ -76,5 +82,25 @@ export const probes = [
   write(
     "Show four toggles for what shaped today: Slept well and Outdoors are on, Music and Quiet time are off. Give each an icon.",
   ),
+  {
+    ...write(
+      "Keep my journal's factor tile grid compact, with less space between tiles. Give Sleep, Work, Music and Friends an icon each, and mark only Sleep and Friends.",
+    ),
+    variant: { axis: "density", value: "compact" },
+  },
   read("Mark Outdoors as one of the things that shaped the day.", { address: "f1/r2", action: "toggle" }),
 ] satisfies c.Probe[];
+
+export function Factors(input: c.Props<typeof props, typeof meta>) {
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitGrid density={density}>
+        {input.items.map(({ id, label, icon, on }) => (
+          <kit.KitTile key={id} item={id} {...{ label, icon, on }} action="toggle" />
+        ))}
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
+}
