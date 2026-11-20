@@ -21,6 +21,24 @@ export const en = {
     quantity: (count: string) => `×${count}`,
     itemLabel: (name: string, quantity: string) => `${name}, ${quantity}`,
   },
+  travelDocs: {
+    kinds: {
+      passport: "Passport",
+      visa: "Visa",
+      insurance: "Travel insurance",
+      licence: "Driving licence",
+      health: "Vaccination",
+      other: "Document",
+    },
+    tripEnds: (date: string) => `Trip ends ${date}`,
+    expires: (date: string) => `Expires ${date}`,
+    numberMasked: "No. ••••",
+    numberMissing: "No number added",
+    beforeTripEnd: "Expires before trip ends",
+    onTripEnd: "Expires on trip end date",
+    soonAfterTrip: "Expires soon after trip",
+    open: (kind: string, owner: string) => `${kind}, ${owner}`,
+  },
 };
 
 export type TripsWords = typeof en;
