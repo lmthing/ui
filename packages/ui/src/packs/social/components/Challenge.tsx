@@ -1,15 +1,20 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { challengeCopy, challengeReading } from "../copy";
+import { socialWordsFor } from "../lang";
 
 // Core first: Ring/default cannot show a group total, a personal contribution and top contributors together.
 export const meta = {
   id: "Challenge",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Join a shared goal and track the group’s and your own progress.",
   pick: "A group challenge with a shared goal, deadline, group total, personal contribution and up to three leaders. Not a personal goal (Ring) or a full leaderboard (List).",
   writeHints: [
-    "goal must be positive. total, mine and top values are measured in the same unit. top is ordered highest first. Write the ending date; do not write days remaining.",
+    "goal must be positive. total, mine and top values are measured in the same unit. top is ordered highest first; use [] when no leaders are given. Write the ending date, not days remaining.",
+    'Use JSON null for density and surface unless explicitly asked to change spacing or finish. Do not write "comfortable" or "card" just because they are defaults.',
+    'To hide only top contributors, set detail to "brief" with density: null and surface: null. Keep any supplied leaders in top. Otherwise use detail: null.',
   ],
   region: "body",
   weight: 2,
@@ -17,7 +22,8 @@ export const meta = {
   realPath: "Members’ entries summed in a shared app.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["top", "rank", "name", "value"] } },
-  parts: ["root", "title", "goal", "total", "mine", "ends", "days_left", "top", "join", "log"],
+  // prettier-ignore
+  parts: ["root", "title", "goal", "total", "track", "mine", "ends", "days_left", "top", "join", "join_label", "log", "log_label"],
   items: { key: "top", parts: ["root", "rank", "name", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "success"],
   readSuccess: true,
@@ -27,15 +33,7 @@ export const meta = {
     when: { join: { joined: false }, log: { joined: true } },
     noGoto: { parts: ["join"] },
   },
-  read: (input, _state, lang): string[] => {
-    const { total, goal, mine, unit, ends } = input as z.output<typeof props>;
-    const withUnit = (n: number) => `${c.numberLine(n, lang)} ${unit}`;
-    return [
-      `${c.numberLine(total, lang)} ${c.goalLine(goal, lang)} ${unit}`,
-      withUnit(mine),
-      c.appointmentDate(ends, lang),
-    ];
-  },
+  read: challengeReading,
 } as const satisfies c.Meta;
 
 const amount = z.number().min(0).max(999999);
@@ -74,10 +72,10 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 // prettier-ignore
 export const examples = [
-  { title: "Root 30 cuttings in November", goal: 30, unit: "plants", total: 18, mine: 4, ends: "2026-11-30", top: [
+  { title: "Root 30 cuttings in November", goal: 30, unit: "plants", total: 30, mine: 4, ends: "2025-11-30", top: [
     { name: "Maya", value: 8 }, { name: "Sam", value: 6 }, { name: "Jo", value: 4 },
   ], joined: true, goto: "log_cuttings" },
-  { density: "compact", surface: "outlined", detail: "brief", title: "Walk 100 km together", goal: 100, unit: "km", total: 102.5, mine: 0, ends: "2026-11-30", top: [
+  { title: "Walk 100 km together", goal: 100, unit: "km", total: 72.5, mine: 0, ends: "2026-11-30", top: [
     { name: "Anna", value: 23.5 }, { name: "Ben", value: 20 },
   ], joined: false, goto: "log_walk" },
 ] satisfies z.input<typeof props>[];
@@ -96,9 +94,79 @@ export const probes = [
   ),
   {
     ...write(
-      "Show the club's 100 km walking goal ending 2026-11-30, with 70 km so far and 12 of those mine. Hide the top contributors; keep the group total and my own progress.",
+      "Show the club's 100 km walking goal ending 2026-11-30, with 70 km so far and 12 of those mine. I joined; open log_walk to log more. Hide the top contributors; keep the group total and my own progress.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
   read("Open the screen to log more rooted cuttings.", { address: "c1/log", action: "press" }),
 ] satisfies c.Probe[];
+
+type ChallengeProps = c.Props<typeof props, typeof meta>;
+type ChallengeText = ReturnType<typeof challengeCopy>;
+
+// prettier-ignore
+function ChallengeProgress({ input, words, density }: {
+  input: ChallengeProps; words: ChallengeText; density: c.ThemeDensity;
+}) {
+  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitText part="total" role="number" numberScale="compact" density="comfortable">{words.total}</kit.KitText>
+      <kit.KitText part={null} role="caption" tone={words.reached ? "good" : "muted"}>{words.group}</kit.KitText>
+    </kit.KitGrid>
+    <kit.KitStepsTrack part="track" style="bar" count={1} at={Math.min(1, input.total / input.goal)} />
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitText part="mine" role="caption" tone="muted">{words.mine}</kit.KitText>
+      <kit.KitText part="goal" role="caption" tone="muted">{words.goal}</kit.KitText>
+    </kit.KitGrid>
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function ChallengeRankings({ top, words, density, lang }: {
+  top: ChallengeProps["top"]; words: ChallengeText; density: c.ThemeDensity; lang: string;
+}) {
+  const scope = kit.usePartContext();
+  if (!words.top) return null;
+  return <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>
+    <kit.KitText part="top" role="caption" tone="muted" density={density}>{words.top}</kit.KitText>
+    <kit.KitGrid arrange="rows" list listRowGap={density === "compact" ? "group" : "cards"} density={density}>
+      {top.map(({ id, name }, index) => {
+        const { score, label } = words.leaders[index]!;
+        const rank = <kit.KitText part="rank" role="caption" tone="muted" tabular>{c.numberLine(index + 1, lang)}</kit.KitText>;
+        return <kit.PartContext.Provider key={id} value={{ ...scope, item: id }}>
+          <kit.KitCard part="root" style="plain" label={label}>
+            <kit.KitGrid fitLast density={density}>
+              <kit.KitContent lead={rank} leadingAlign="row" density={density}>
+                <kit.KitText part="name" role="caption" lines={1}>{name}</kit.KitText>
+              </kit.KitContent>
+              <kit.KitText part="value" role="number" numberScale="compact" emphasis="quiet" density={density} tabular>{score}</kit.KitText>
+            </kit.KitGrid>
+          </kit.KitCard>
+        </kit.PartContext.Provider>;
+      })}
+    </kit.KitGrid>
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+export function Challenge(input: ChallengeProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang } = kit.useWords(socialWordsFor);
+  const words = challengeCopy({ ...input, detail }, state, lang);
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitContent density={density}>
+      <kit.KitText part="title" role="heading" density="comfortable">{input.title}</kit.KitText>
+      <kit.KitText part="days_left" role="label" density={density}>{words.daysLeft}</kit.KitText>
+      <kit.KitText part="ends" role="caption" tone="muted" density={density}>{words.ends}</kit.KitText>
+    </kit.KitContent>
+    <ChallengeProgress {...{ input, words, density }} />
+    <ChallengeRankings top={input.top} {...{ words, density, lang }} />
+    <kit.KitContent group="response" density={density}>
+      <kit.KitAction part={input.joined ? "log" : "join"} label={words.action}
+        goto={input.joined ? input.goto : undefined} full />
+    </kit.KitContent>
+  </kit.KitCard>;
+}
