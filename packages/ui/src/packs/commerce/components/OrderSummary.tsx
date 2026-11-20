@@ -1,46 +1,32 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { receiptCopy, receiptLine, receiptReading } from "../copy";
+import { commerceWordsFor } from "../lang";
 
 // Core first: KeyValue/rows shows fixed facts, not receipt quantities, computed totals and reorder.
 export const meta = {
   id: "OrderSummary",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "See what was ordered, what it cost and how it will arrive.",
   pick: "A receipt for one placed goods order with quantities and fulfillment details. Not simple facts (KeyValue), the editable basket (Cart), fulfillment progress (OrderStatus), or a client bill (Invoice).",
   writeHints: [
     "Write unit prices and quantities only; the total is computed. Use a real placed date in YYYY-MM-DD.",
+    'Keep unit prices in the data. If asked to hide them with no change to the card or spacing, write exactly {"density":null,"surface":null,"detail":"brief"} for the three axes. In particular, surface must be null unless a container treatment is explicitly requested; do not fill in the default "card".',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
-  realPath: "A placed order is an order record on the device.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"] },
-  parts: ["root", "number", "date", "mode", "place", "total", "reorder"],
-  items: { key: "lines", parts: ["root", "name", "qty", "price"] },
+  realPath: "A placed order is a record on the device; reordering adds its items to the local basket.",
+  variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["price"] } },
+  parts: ["root", "number", "date", "mode", "place", "total", "reorder", "reorder_label"],
+  items: { key: "lines", parts: ["root", "name", "qty", "price", "line_total"] },
   states: ["filled", "loading"],
-  actions: { parts: { reorder: ["press"] } },
-  read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
-    const { lines, mode, date } = input as {
-      lines: z.output<typeof lineProps>[];
-      mode: string;
-      date: string;
-    };
-    return [
-      mode,
-      c.appointmentDate(date, lang),
-      c.totalLine(c.documentTotals({ lines }).total, undefined, lang),
-      ...lines.map(({ name, qty, price }) =>
-        c.documentFieldLine(
-          name,
-          `${c.quantityLine(qty, lang)} · ${c.moneyLine(price, undefined, "each", lang)}`,
-          lang,
-        ),
-      ),
-    ];
-  },
+  actions: { parts: { reorder: ["press"] }, noGoto: { parts: ["reorder"] } },
+  read: (input, state, lang): string[] => receiptReading(input as z.output<typeof props>, state, lang),
 } as const satisfies c.Meta;
 
 const lineProps = z.strictObject({
@@ -64,7 +50,7 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
     .map((item) => c.titleOf(item, 28, thing))
     .filter((name) => name !== undefined);
   return {
-    number: c.placeholderValue,
+    number: c.wordsFor(lang).placeholderValue,
     date: "1970-01-01",
     lines: (names.length ? names : [c.placeholderTitle(0, lang)]).map((name) => ({
       name,
@@ -75,22 +61,32 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
+const pickup = {
+  number: "PL-104",
+  date: "2026-11-20",
+  lines: [
+    { name: "Fern pot", qty: 2, price: 12 },
+    { name: "Basil planter", qty: 1, price: 10.5 },
+    { name: "Seed packet", qty: 3, price: 2.25 },
+  ],
+  mode: "pickup",
+  place: "Glasshouse counter",
+} satisfies z.input<typeof props>;
+
 export const examples = [
-  {
-    number: "PL-104",
-    date: "2026-11-20",
-    lines: [{ name: "Fern pot", qty: 2, price: 12 }],
-    mode: "pickup",
-    place: "Glasshouse counter",
-  },
+  pickup,
   {
     number: "TR-125",
     date: "2026-11-21",
-    lines: [{ name: "Reflective lead", qty: 1, price: 18 }],
+    lines: [
+      { name: "Reflective lead", qty: 1, price: 18 },
+      { name: "Training bites", qty: 2, price: 4.75 },
+    ],
     mode: "delivery",
-    density: "compact",
-    surface: "plain",
   },
+  { ...pickup, density: "compact" },
+  { ...pickup, surface: "plain" },
+  { ...pickup, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("OrderSummary");
@@ -105,5 +101,73 @@ export const probes = [
   write(
     "Write the receipt for placed order PL-104 on 2026-11-20: two fern pots at 12 each, pickup at the Glasshouse counter.",
   ),
+  {
+    ...write(
+      "Show my receipt for order PL-104 placed November 20, 2026: two fern pots at 12 each and one basil planter at 10.50, pickup at the Glasshouse counter. Show quantities and the total for each line, but do not display per-item prices.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Reorder the same two fern pots from my receipt PL-104.", { address: "o1/reorder", action: "press" }),
 ] satisfies c.Probe[];
+
+type OrderSummaryProps = c.Props<typeof props, typeof meta>;
+type LineProps = Pick<OrderSummaryProps, "density" | "detail"> & {
+  line: OrderSummaryProps["lines"][number];
+  loading: boolean;
+};
+
+// prettier-ignore
+function ReceiptRow({ line, density, detail, loading }: LineProps) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const { name, qty, price, extended } = receiptLine(line, detail, lang);
+  const summary = price ? `${qty}${words.receiptSeparator}${price}` : qty;
+  const amount = loading
+    ? <kit.KitSkeleton shape="figure" inset="none" emphasis="quiet" {...{ density }} content={[["number", extended, "end", "compact"]]} />
+    : <kit.KitText role="number" numberScale="compact" emphasis="quiet" tone="muted" part="line_total" tabular {...{ density }}>{extended}</kit.KitText>;
+  return <kit.KitRow label={name} inline {...{ density }} {...(loading ? {} : { item: line.id })} trailing={amount}>
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", name], ["caption", summary]]} /> : <>
+      <kit.KitText part="name" {...{ density }}>{name}</kit.KitText>
+      <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
+        <kit.KitText role="caption" tone="muted" part="qty" tabular {...{ density }}>{qty}</kit.KitText>
+        {price && <>{words.receiptSeparator}<kit.KitText role="caption" tone="muted" part="price" tabular {...{ density }}>{price}</kit.KitText></>}
+      </kit.KitText>
+    </>}
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function OrderSummary(input: OrderSummaryProps) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const loading = kit.useComponentState() === "loading";
+  const { number, date, mode, place, total } = receiptCopy(input, lang);
+  const fulfillment = place ? `${mode}${words.receiptSeparator}${place}` : mode;
+  return <kit.KitCard padded part="root" {...{ density, surface }}>
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["heading", number], ["caption", date], ["caption", fulfillment]]} /> :
+      <kit.KitContent {...{ density }}>
+        <kit.KitText role="heading" part="number" {...{ density }}>{number}</kit.KitText>
+        <kit.KitText role="caption" tone="muted" part="date" {...{ density }}>{date}</kit.KitText>
+        <kit.KitText role="caption" tone="muted" part={null} {...{ density }}>
+          <kit.KitText role="caption" tone="muted" part="mode" {...{ density }}>{mode}</kit.KitText>
+          {place && <>{words.receiptSeparator}<kit.KitText role="caption" tone="muted" part="place" {...{ density }}>{place}</kit.KitText></>}
+        </kit.KitText>
+      </kit.KitContent>}
+    <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
+      <kit.KitGrid arrange="rows" list={!loading}>
+        {input.lines.map((line) => <ReceiptRow key={line.id} {...{ line, density, detail, loading }} />)}
+      </kit.KitGrid>
+    </kit.KitContent>
+    <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
+      <kit.KitGrid fitLast {...{ density }}>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", words.orderTotal]]} /> :
+          <kit.KitText part={null} {...{ density }}>{words.orderTotal}</kit.KitText>}
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" emphasis="hero" {...{ density }} content={[["number", total, "end", "compact"]]} /> :
+          <kit.KitText role="number" numberScale="compact" emphasis="hero" tabular part="total" {...{ density }}>{total}</kit.KitText>}
+      </kit.KitGrid>
+    </kit.KitContent>
+    {loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.reorder} inset="none" full /> :
+      <kit.KitAction label={words.reorder} kind="secondary" part="reorder" action="press" full />}
+  </kit.KitCard>;
+}
