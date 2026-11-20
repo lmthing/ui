@@ -129,6 +129,16 @@ it.each(ids)("%s accepts its examples and cast fallbacks and declares core-first
   ).toBe(true);
 });
 
+it("rejects a non-text item-name field in the add layout", () => {
+  const screen = scoped.defaultLines("things", "add", neutral);
+  const fields = screen.components.filter(({ c }) => c === "Field");
+  expect(fields.map(({ kind }) => kind)).toEqual(["photo", "text", "number"]);
+  fields[1]!.kind = "date";
+  expect(
+    scoreComposition(JSON.stringify(screen), scoped.archetypes.things!.meta, "add", defs).issues,
+  ).not.toEqual([]);
+});
+
 it("preserves stock and storage addresses and tiered or confirmed actions", () => {
   const screen = (id: string, index = 0) =>
     readComponent(defs[id]!, defs[id]!.examples[index], "a").join("\n");

@@ -82,5 +82,8 @@ export const probes = [
   write(
     "Browse Greenhouse, then Potting bench. Inside is a Seed drawer with square icon opening seeds. Clay pots and Plant labels are kept here.",
   ),
-  read("Open the Seed drawer inside the potting bench", { address: "s1/r3", action: "press" }),
+  read("Open the child storage spot named Seed drawer. Do not go back up the breadcrumb.", {
+    address: "s1/r3",
+    action: "press",
+  }),
 ] satisfies c.Probe[];

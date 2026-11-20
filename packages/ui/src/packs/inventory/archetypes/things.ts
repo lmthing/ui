@@ -40,14 +40,14 @@ export const things = {
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Field"], required: true, variant: "photo" },
-        { allow: ["Field"], required: true },
+        { allow: ["Field"], required: true, variant: "text" },
         { allow: ["Field"], required: true, variant: "number" },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "f1", c: "Field", kind: "photo" },
-        { id: "f2", c: "Field" },
+        { id: "f2", c: "Field", kind: "text" },
         { id: "f3", c: "Field", kind: "number" },
         { id: "b1", c: "Button" },
       ],
