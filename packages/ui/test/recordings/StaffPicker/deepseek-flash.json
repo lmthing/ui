@@ -146,5 +146,253 @@
       "{\"address\": \"s1/r1\", \"action\": \"select\"}",
       "{\"address\": \"s1/r1\", \"action\": \"select\"}"
     ]
+  },
+  "e97a4a02b5f41c84": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStaffPicker: Choose who provides the booked service, or leave it to anyone.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", staff: [1..6 { name: text≤20, photo: photo lib:<tag>|local:<n>, role?: text≤20 }], anyone?: boolean=true, at?: int 0..6 }\nRule: at is 0 for Anyone (only when anyone is true), 1 for the first staff member, 2 for the second. Use compact photo references such as local:1.\nRule: Leave density and detail null unless requested. For avatars and names with no visible roles, use detail \"brief\" and keep the roles in the data.\nexample: {\"c\":\"StaffPicker\",\"staff\":[{\"name\":\"Anna\",\"photo\":\"lib:people\",\"role\":\"Plant care\"}],\"anyone\":true,\"at\":0}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let me choose between Sam, a walker, and Alex, a trainer. Keep their roles but show just their photos and names, without the role captions.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StaffPicker",
+              "enum": [
+                "StaffPicker"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "staff": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "role"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "anyone": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "staff",
+            "anyone",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":\"brief\",\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":\"Walker\"},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":\"Trainer\"}],\"anyone\":null,\"at\":null}",
+    "replies": [
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":\"brief\",\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":\"Walker\"},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":\"Trainer\"}],\"anyone\":null,\"at\":null}",
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":\"brief\",\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":\"Walker\"},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":\"Trainer\"}],\"anyone\":null,\"at\":null}",
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":\"brief\",\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":\"Walker\"},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":\"Trainer\"}],\"anyone\":null,\"at\":null}"
+    ]
+  },
+  "ed4a389811350d38": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStaffPicker: Choose who provides the booked service, or leave it to anyone.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", staff: [1..6 { name: text≤20, photo: photo lib:<tag>|local:<n>, role?: text≤20 }], anyone?: boolean=true, at?: int 0..6 }\nRule: at is 0 for Anyone (only when anyone is true), 1 for the first staff member, 2 for the second. Use compact photo references such as local:1.\nRule: Leave density and detail null unless requested. For avatars and names with no visible roles, use detail \"brief\" and keep the roles in the data.\nexample: {\"c\":\"StaffPicker\",\"staff\":[{\"name\":\"Anna\",\"photo\":\"lib:people\",\"role\":\"Plant care\"}],\"anyone\":true,\"at\":0}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Choose between walkers Sam and Alex, allow anyone, select Sam",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "StaffPicker",
+              "enum": [
+                "StaffPicker"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "staff": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "role"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "anyone": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "staff",
+            "anyone",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":null,\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":null},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":null}],\"anyone\":true,\"at\":1}",
+    "replies": [
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":null,\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":null},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":null}],\"anyone\":true,\"at\":1}",
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":null,\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":null},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":null}],\"anyone\":true,\"at\":1}",
+      "{\"c\":\"StaffPicker\",\"density\":null,\"detail\":\"brief\",\"staff\":[{\"name\":\"Sam\",\"photo\":\"local:1\",\"role\":null},{\"name\":\"Alex\",\"photo\":\"local:2\",\"role\":null}],\"anyone\":true,\"at\":1}"
+    ]
   }
 }

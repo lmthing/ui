@@ -37,6 +37,7 @@ type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean 
 type NumericSets = Readonly<Record<string, NumericSet>>;
 
 type RowSelection = "index" | "position" | { field: string };
+type ChoiceSource = readonly (string | number)[] | { prop: string };
 type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
@@ -46,7 +47,7 @@ type SelectMeta = {
       value?: RowSelection;
       mode?: "one";
       /** Named parts that require an explicit value from a closed list or an array prop. */
-      choices?: Readonly<Record<string, readonly (string | number)[] | { prop: string }>>;
+      choices?: Readonly<Record<string, ChoiceSource>>;
     }
 );
 
@@ -65,6 +66,8 @@ export type Meta = {
   tier: Tier;
   /** A part that needs more than the component does (a reply that reaches other people) carries its own tier. */
   partTiers?: Readonly<Record<string, Tier>>;
+  /** Resolve a declared part's tier from a live component prop before falling back to static tiers. */
+  partTiersBy?: Readonly<Record<string, { prop: string; tiers: Readonly<Partial<Record<string, Tier>>> }>>;
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
@@ -130,6 +133,8 @@ export type Meta = {
     };
   };
   select?: SelectMeta;
+  /** Named component parts with independent destinations and explicit offers. */
+  selections?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

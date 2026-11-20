@@ -1,6 +1,6 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
-import { validateActionValue } from "./validate-value";
+import { choiceValues, selectionOffer } from "./validate-value";
 
 type GetValue = (part: string) => unknown;
 const parentSlot = "$nested/parent";
@@ -11,21 +11,12 @@ const idOf = (meta: Meta, row: Values, index: number) =>
 const rowValue = (value: NonNullable<NonNullable<Meta["select"]>["value"]>, row: Values, index: number) =>
   value === "index" ? index : value === "position" ? index + 1 : row[value.field];
 
-/** Undefined means a legacy selection; an empty list means there are no offered choices. */
-export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
-  const choices = meta.select?.choices;
-  if (!choices || !Object.hasOwn(choices, target)) return undefined;
-  const source = choices[target]!;
-  const allowed = "prop" in source ? props[source.prop] : source;
-  return Array.isArray(allowed) ? allowed.filter((value) => !validateActionValue("select", value)) : [];
-}
-
 /** Resolve a row or a named part without knowing which component owns it. */
 export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
-  const select = meta.select;
-  if (!select) return undefined;
   const choices = choiceValues(meta, props, target);
   if (choices) return choices.includes(explicit) ? { value: explicit } : undefined;
+  const select = meta.select;
+  if (!select) return undefined;
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };
   if (!select.value) return undefined;
   const rows = rowsOf(meta, props);
@@ -37,8 +28,7 @@ export function selectionAt(meta: Meta, props: Values, target: string, explicit?
 
 export function selectionError(meta: Meta, props: Values, target: string, value: unknown) {
   const found = selectionAt(meta, props, target, value);
-  if (Object.hasOwn(meta.select?.choices ?? {}, target))
-    return found ? undefined : "Select an allowed value at this address";
+  if (selectionOffer(meta, target)) return found ? undefined : "Select an allowed value at this address";
   if (!found || found.value === undefined) return "No option at this address";
   if (value === undefined || value === found.value) return undefined;
   if (found.row) {
@@ -52,7 +42,10 @@ export function selectionError(meta: Meta, props: Values, target: string, value:
 export function selectionChanges(meta: Meta, props: Values, target: string, explicit?: unknown): Values {
   const select = meta.select;
   const found = selectionAt(meta, props, target, explicit);
-  if (!select || !found) return {};
+  if (!found) return {};
+  if (Object.hasOwn(meta.selections ?? {}, target))
+    return { [target]: found.value, [`$${meta.selections![target]!.prop}`]: found.value };
+  if (!select) return {};
   const values: Values = {};
   rowsOf(meta, props).forEach((row, index) => {
     const id = idOf(meta, row, index);
@@ -63,7 +56,7 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
       });
   });
   [...Object.keys(select.parts ?? {}), ...Object.keys(select.choices ?? {})].forEach((part) => {
-    values[part] = undefined;
+    if (!Object.hasOwn(meta.selections ?? {}, part)) values[part] = undefined;
   });
   if (select.mode !== "flags") {
     if (meta.items?.nested?.activeParent)
@@ -76,19 +69,30 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
 }
 
 /** Flags belong to rows; single selections belong to the declared component prop. */
-export function projectSelection(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+export function projectLegacySelection(meta: Meta, props: Values, get: GetValue): Values {
   const select = meta.select;
   if (!select) return props;
-  if (select.mode === "flags" && meta.items?.key)
-    return {
-      ...props,
-      [meta.items.key]: rowsOf(meta, props).map((row, index) => ({
-        ...row,
-        [select.prop]: get(idOf(meta, row, index)) ?? row[select.prop] ?? false,
-      })),
-    };
+  if (select.mode === "flags" && meta.items?.key) {
+    const rows = rowsOf(meta, props).map((row, index) => ({
+      ...row,
+      [select.prop]: get(idOf(meta, row, index)) ?? row[select.prop] ?? false,
+    }));
+    return { ...props, [meta.items.key]: rows };
+  }
   const value = get(`$${select.prop}`);
   return value === undefined ? props : { ...props, [select.prop]: value };
+}
+
+export function projectNamedSelections(meta: Meta, props: Values, get: GetValue): Values {
+  for (const { prop } of Object.values(meta.selections ?? {})) {
+    const value = get(`$${prop}`);
+    if (value !== undefined && value !== props[prop]) props = { ...props, [prop]: value };
+  }
+  return props;
+}
+
+export function projectSelection(meta: Meta, props: Values, get: GetValue): Values {
+  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get);
 }
 
 /** Resolve the visible parent from projected props, without removing or renumbering any rows. */
@@ -98,10 +102,12 @@ export function activeParentId(meta: Meta, props: Values, get?: GetValue): strin
   const select = meta.select;
   const value = select?.value;
   let index = 0;
-  if (select?.mode === "flags") {
-    const flagged = rows.findIndex((row) => row[select.prop] === true);
-    index = Math.max(0, flagged);
-  } else if (select && value && props[select.prop] !== undefined) {
+  if (select?.mode === "flags")
+    index = Math.max(
+      0,
+      rows.findIndex((row) => row[select.prop] === true),
+    );
+  else if (select && value && props[select.prop] !== undefined) {
     const matches = (row: Values, at: number) => rowValue(value, row, at) === props[select.prop];
     const saved = get?.(parentSlot);
     const selected = rows.findIndex((row, at) => idOf(meta, row, at) === saved && matches(row, at));
@@ -117,6 +123,7 @@ export function isNestedTarget(meta: Meta, target: string): boolean {
   return Boolean(row && name && extra === undefined && Object.hasOwn(meta.items?.nested?.parts ?? {}, name));
 }
 
+/** Enumerate controls from real sub-items, never from a fixed maximum count. */
 export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
   const nested = meta.items?.nested;
   if (!nested) return [];
@@ -127,23 +134,21 @@ export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
     const children = row[nested.key];
     if (!Array.isArray(children)) return [];
     return (children as Values[]).flatMap((item, at) =>
-      parts.map(([name, spec]) => ({
-        target: `${id}/${name}_${at + 1}`,
-        part: `${name}_${at + 1}`,
-        spec,
-        item,
-        togglePeers:
+      parts.map(([name, spec]) => {
+        const part = `${name}_${at + 1}`;
+        const when = spec.when;
+        const matches =
+          typeof when === "object"
+            ? item[when.prop] === when.equals
+            : !when || item[nested.parts[when]?.prop ?? ""] === true;
+        const peers =
           nested.maxActive !== undefined && spec.action === "toggle"
-            ? parts
-                .filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
-                .map(([peer]) => `${id}/${peer}_${at + 1}`)
-            : undefined,
-        enabled:
-          (!nested.activeParent || id === activeParent) &&
-          (typeof spec.when === "object"
-            ? item[spec.when.prop] === spec.when.equals
-            : !spec.when || item[nested.parts[spec.when]?.prop ?? ""] === true),
-      })),
+            ? parts.filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
+            : undefined;
+        const togglePeers = peers?.map(([peer]) => `${id}/${peer}_${at + 1}`);
+        const enabled = (!nested.activeParent || id === activeParent) && matches;
+        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled };
+      }),
     );
   });
 }
@@ -161,12 +166,10 @@ export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Va
   if (!items?.nested?.activeParent) return props;
   const { key } = items.nested;
   const active = activeParentId(meta, props, get);
-  return {
-    ...props,
-    [items.key]: rowsOf(meta, props).map((row, index) =>
-      idOf(meta, row, index) === active || !Array.isArray(row[key]) ? row : { ...row, [key]: [] },
-    ),
-  };
+  const rows = rowsOf(meta, props).map((row, index) =>
+    idOf(meta, row, index) === active || !Array.isArray(row[key]) ? row : { ...row, [key]: [] },
+  );
+  return { ...props, [items.key]: rows };
 }
 
 export function nestedAt(meta: Meta, props: Values, target: string) {
@@ -174,27 +177,22 @@ export function nestedAt(meta: Meta, props: Values, target: string) {
 }
 
 /** Keep wire data immutable while replacing only declared sub-item props. */
-export function projectNested(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+export function projectNested(meta: Meta, props: Values, get: GetValue): Values {
   const items = meta.items;
   const nested = items?.nested;
   if (!items || !nested || !Array.isArray(props[items.key])) return props;
-  return {
-    ...props,
-    [items.key]: rowsOf(meta, props).map((row, index) => {
-      if (!Array.isArray(row[nested.key])) return row;
-      const id = idOf(meta, row, index);
-      const children = row[nested.key] as Values[];
-      const projected = children.map((item, at) => {
-        let next = item;
-        for (const [part, spec] of Object.entries(nested.parts)) {
-          const value = get(`${id}/${part}_${at + 1}`);
-          if (value !== undefined && value !== next[spec.prop]) next = { ...next, [spec.prop]: value };
-        }
-        return next;
-      });
-      return projected.some((child, at) => child !== children[at])
-        ? { ...row, [nested.key]: projected }
-        : row;
-    }),
-  };
+  const rows = rowsOf(meta, props).map((row, index) => {
+    const children = row[nested.key];
+    if (!Array.isArray(children)) return row;
+    const id = idOf(meta, row, index);
+    const projected = (children as Values[]).map((item, at) => {
+      for (const [part, spec] of Object.entries(nested.parts)) {
+        const value = get(`${id}/${part}_${at + 1}`);
+        if (value !== undefined && value !== item[spec.prop]) item = { ...item, [spec.prop]: value };
+      }
+      return item;
+    });
+    return projected.some((child, at) => child !== children[at]) ? { ...row, [nested.key]: projected } : row;
+  });
+  return { ...props, [items.key]: rows };
 }
