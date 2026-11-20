@@ -25,4 +25,5 @@ export type ArchetypeName = keyof typeof archetypes;
 export type ArchetypeOverrides = Partial<Record<ArchetypeName, Readonly<ArchetypeMeta["layouts"]>>>;
 export { defaultLines } from "./defaults";
 export { packListDefaults } from "./pack-list-defaults";
+export { packKeyValueDefaults } from "./pack-key-value-defaults";
 export type { ArchetypeMeta as CoreArchetypeMeta, Slot as CoreSlot, ComposeProbe } from "./recipe";

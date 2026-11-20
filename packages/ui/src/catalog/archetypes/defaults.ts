@@ -6,6 +6,7 @@ import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } 
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
 import { applyPackListDefaults } from "./pack-list-defaults";
+import { packKeyValueDefaults } from "./pack-key-value-defaults";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
 function fitArrays(def: Definition, input: Record<string, unknown>): void {
@@ -47,6 +48,9 @@ function inputOf(
   const variant = line.variant;
   if (!variant) {
     if (line.c === "List") applyPackListDefaults(input, layout);
+    // Pack composition forwards style and kind, not shared axes from its seeds.
+    if (line.c === "KeyValue" && layout === "recipe/overview")
+      Object.assign(input, packKeyValueDefaults[layout]);
     return input;
   }
   if (line.c === "List" && ["shelf", "toggle"].includes(variant)) {

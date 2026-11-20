@@ -181,6 +181,8 @@ it.each([
   ["Gallery", "strip", { arrange: "strip" }],
   ["Stats", "tiles", { arrange: "grid" }],
   ["Stats", "inline", { arrange: "rows" }],
+  ["KeyValue", "rows", { arrange: "rows" }],
+  ["KeyValue", "grid", { arrange: "grid" }],
 ])("migrates legacy %s style %s by default", (c, style, patch) => {
   const expected = { c, id: "entry", ...patch };
   const original = { c, style, id: "entry" };

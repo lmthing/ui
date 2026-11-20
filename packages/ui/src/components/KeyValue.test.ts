@@ -10,8 +10,10 @@ describe("KeyValue schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ pairs: [{ label: "  Room  ", value: "  Bathroom  " }] })).toEqual({
-      style: "rows",
-      pairs: [{ label: "Room", value: "Bathroom" }],
+      arrange: "rows",
+      surface: "card",
+      lead: "icon",
+      pairs: [{ label: "Room", value: "Bathroom", tone: "neutral", mark: "none" }],
     });
   });
   it.each([
@@ -31,12 +33,14 @@ describe("KeyValue schema", () => {
     { pairs: [{ label: "Room", value: "Bathroom", goto: "bathroom" }] },
     { pairs: [{ label: "Room", value: "Bathroom", pixels: 4 }] },
     { style: "cards", pairs: [{ label: "Room", value: "Bathroom" }] },
+    { arrange: "strip", pairs: [{ label: "Room", value: "Bathroom" }] },
+    { pairs: [{ label: "Room", value: "Bathroom", tone: "info", mark: "new" }] },
     { color: "red", pairs: [{ label: "Room", value: "Bathroom" }] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts the exact maximum lengths and count in both styles", () => {
+  it("accepts the exact maximum lengths and count in both arrangements", () => {
     const pair = { label: "a".repeat(20), value: "a".repeat(28), icon: "leaf" };
-    for (const style of ["rows", "grid"])
-      expect(props.safeParse({ style, pairs: Array.from({ length: 6 }, () => pair) }).success).toBe(true);
+    for (const arrange of meta.variants.arrange)
+      expect(props.safeParse({ arrange, pairs: Array.from({ length: 6 }, () => pair) }).success).toBe(true);
   });
   it("adds validator item ids only to view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
@@ -140,11 +144,12 @@ describe("KeyValue field labels and metadata", () => {
   });
 });
 
-function renderPairs(style: "rows" | "grid", count: number, loading = false) {
+function renderPairs(arrange: "rows" | "grid", count: number, loading = false, hideIcons = false) {
   return renderInstance(
     "KeyValue",
     {
-      style,
+      arrange,
+      ...(hideIcons ? { lead: "none" } : {}),
       pairs: Array.from({ length: count }, (_, index) => ({
         label: `Fact ${index}`,
         value: "a".repeat(28),
@@ -157,6 +162,12 @@ function renderPairs(style: "rows" | "grid", count: number, loading = false) {
 }
 
 describe("KeyValue rendering", () => {
+  it("hides only the declared icon parts and keeps pair addresses", () => {
+    const html = renderPairs("grid", 3, false, true);
+    expect(meta.variantParts["lead.none"]).toEqual({ hides: ["icon"] });
+    expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\/icon"/);
+    for (const id of ["r1", "r2", "r3"]) expect(html).toContain(`data-testid="home/c1/${id}/value"`);
+  });
   it.each(["rows", "grid"] as const)("draws each static pair once in %s at every allowed count", (style) => {
     for (let count = 1; count <= 6; count++) {
       const html = renderPairs(style, count);
