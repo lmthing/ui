@@ -53,17 +53,33 @@ it("uses the effective prop when a schema supplies its default", () => {
   ).toEqual([]);
 });
 
-it("rejects order rows that override the required badge trail", () => {
+it("rejects order rows with hidden or empty status badges", () => {
   const registry = createRegistry({ packs: ["commerce"], includeDrafts: true });
   const screen = registry.defaultLines("orders", "today", empty);
   const list = screen.components.find(({ c }) => c === "List")!;
-  list.rows = [{ title: "Item one", value: "Ready", trail: "none" }];
   const meta = registry.archetypes.orders!.meta;
-  expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([
-    `Layout requires List.trail = "badge" (${list.id})`,
-  ]);
+  for (const row of [{ title: "Item one", value: "Ready", trail: "none" }, { title: "Item one" }]) {
+    list.rows = [row];
+    expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([
+      `Layout requires List.trail = "badge" (${list.id})`,
+    ]);
+  }
   list.rows = [{ title: "Item one", value: "Ready" }];
   expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([]);
+});
+
+it("requires value trails on scored rows while allowing unscored rows to omit their trails", () => {
+  const registry = createRegistry({ packs: ["play"], includeDrafts: true });
+  const screen = registry.defaultLines("score_round", "play_results", empty);
+  const list = screen.components.find(({ c }) => c === "List")!;
+  const meta = registry.archetypes.score_round!.meta;
+  const unscored = { title: "Item two", trail: "none" };
+  list.rows = [{ title: "Item one", value: "12", trail: "badge" }, unscored];
+  expect(scoreComposition(JSON.stringify(screen), meta, "play_results", components).issues).toEqual([
+    `Layout requires List.trail = "value" (${list.id})`,
+  ]);
+  list.rows = [{ title: "Item one", value: "12" }, unscored];
+  expect(scoreComposition(JSON.stringify(screen), meta, "play_results", components).issues).toEqual([]);
 });
 
 it("returns an independent copy of nested seed props", () => {

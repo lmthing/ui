@@ -92,11 +92,15 @@ function copySeed(value: unknown): unknown {
 
 function finishInput(def: Definition, line: DefaultLine, input: Record<string, unknown>): void {
   if (line.seed) for (const [key, value] of Object.entries(line.seed)) input[key] = copySeed(value);
-  // Fallback rows without a value must not draw a value trail. Authored rows are not rewritten.
-  if (line.c === "List" && line.seed?.trail === "value" && !Object.hasOwn(line.seed, "rows"))
-    input.rows = (input.rows as Record<string, unknown>[]).map((row) =>
-      row.value ? row : { ...row, trail: "none" },
-    );
+  const trail = line.seed?.trail;
+  // Authored rows are not rewritten. Fallback rows should not show an empty trail.
+  if (line.c === "List" && line.seed && !Object.hasOwn(line.seed, "rows"))
+    if (trail === "value" || trail === "badge")
+      input.rows = (input.rows as Record<string, unknown>[]).map((row) =>
+        row.value
+          ? row
+          : { ...row, ...(trail === "value" ? { trail: "none" } : { value: clip(placeholderDetail, 10) }) },
+      );
   fitArrays(def, input, line.seed);
   def.props.parse(input);
 }

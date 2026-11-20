@@ -2,11 +2,22 @@ import type { CoreArchetypeMeta } from "../../archetypes";
 import type { ScreenLike } from "../../agent";
 import type { Definition } from "..";
 
-function conflictingBadgeRows(def: Definition, props: Record<string, unknown>): boolean {
+function conflictingTrailRows(
+  def: Definition,
+  props: Record<string, unknown>,
+  trail: "badge" | "value",
+): boolean {
   const items = def.meta.items;
-  if (!items?.variants?.trail?.includes("badge")) return false;
+  if (!items?.variants?.trail?.includes(trail)) return false;
   const rows = props[items.key];
-  return Array.isArray(rows) && rows.some((row) => (row.trail ?? props.trail) !== "badge");
+  return (
+    Array.isArray(rows) &&
+    rows.some((row) => {
+      const hasValue = typeof row.value === "string" && row.value.trim().length > 0;
+      const effective = row.trail ?? props.trail;
+      return trail === "badge" ? !hasValue || effective !== trail : hasValue && effective !== trail;
+    })
+  );
 }
 
 /** Scalar pack seed props specify the layout; arrays and objects may supply example content. */
@@ -34,7 +45,9 @@ export function packPropIssues(
       .filter(
         ([key, value]) =>
           parsed.data[key] !== value ||
-          (key === "trail" && value === "badge" && conflictingBadgeRows(defs[c]!, parsed.data)),
+          (key === "trail" &&
+            (value === "badge" || value === "value") &&
+            conflictingTrailRows(defs[c]!, parsed.data, value)),
       )
       .map(([key, value]) => `Layout requires ${c}.${key} = ${JSON.stringify(value)} (${id})`);
   });
