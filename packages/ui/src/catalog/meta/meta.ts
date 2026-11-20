@@ -2,40 +2,17 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
-import type { ItemVariants, LiveActionInputs, VariantParts, Variants } from "../types";
+import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
-
 type Draw =
   | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
-type Session =
-  | {
-      kind: "turns";
-      items: string;
-      first?: string;
-      direction?: string;
-      laps?: string;
-      next: string;
-      back?: string;
-      skip?: string;
-      reverse?: string;
-      restart?: string;
-    }
-  | {
-      kind: "rounds";
-      items: string;
-      hidden: readonly string[];
-      reveal: string;
-      next: string;
-      restart?: string;
-    };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
-
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
@@ -53,7 +30,6 @@ type SelectMeta = {
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
 );
-
 export type Meta = {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
@@ -84,6 +60,8 @@ export type Meta = {
   successActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` available only in `error`. */
   errorActions?: readonly `${string}.${ActionName}`[];
+  /** Read visible content and the read summary in success, not just the header and available actions. */
+  readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */

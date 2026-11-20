@@ -8,7 +8,13 @@ export {
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
-export { resolveKeypadValue, selectionOffer, validateActionValue, type ValueError } from "./validate-value";
+export {
+  choiceValues,
+  resolveKeypadValue,
+  selectionOffer,
+  validateActionValue,
+  type ValueError,
+} from "./validate-value";
 export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
   controlValueKey,
@@ -36,6 +42,7 @@ export {
   projectNested,
 } from "./selection";
 export {
+  sessionActionProps,
   sessionAvailable,
   sessionEvent,
   sessionKey,
@@ -52,6 +59,7 @@ export {
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  numericSetAt,
   adjustmentAt,
   clearItemSets,
   projectAdjustments,

@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { type Definition } from "../../../../catalog";
+import { readScreen, text, type Definition } from "../../../../catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "../../index";
 
 const def: Definition = {
@@ -103,4 +103,33 @@ it("offers an error-only retry through mounted action lookup, read and press", (
   expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "s/game/retry", action: "press" });
   controller.store.set("s/game/$state", "filled");
   expect(controller.press("game/retry").ok).toBe(false);
+});
+
+it("reads opted-in success details and exposes only the declared actions", () => {
+  const result: Definition = {
+    ...def,
+    props: z.strictObject({ title: text(30), total: z.number() }),
+    meta: {
+      ...def.meta,
+      readSuccess: true,
+      read: (input, state) => [`${(input as { total: number }).total} achieved in ${state}`],
+    },
+  };
+  const screen = {
+    id: "s",
+    components: [
+      { id: "result", c: def.meta.id, state: "success" as const, title: "Practice complete", total: 3 },
+    ],
+  };
+  const defs = { [def.meta.id]: result };
+  const controller = createScreenController({ screen, defs });
+  const expected =
+    'screen s\nresult SuccessFixture (success) 3 achieved in success — "Practice complete" [result/reset press]';
+  expect(readScreen(screen, defs)).toBe(expected);
+  expect(controller.read()).toBe(expected);
+  expect(controller.press("result/other").ok).toBe(false);
+  expect(controller.press("result/reset").ok).toBe(true);
+  const { readSuccess: _readSuccess, ...meta } = result.meta;
+  const legacy = createScreenController({ screen, defs: { ...defs, [def.meta.id]: { ...result, meta } } });
+  expect(legacy.read()).toBe("screen s\nresult SuccessFixture (success) [result/reset press]");
 });

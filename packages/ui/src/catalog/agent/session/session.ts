@@ -1,6 +1,16 @@
 import type { Meta } from "../../meta";
 import type { StateName } from "../../types";
 import type { Values } from "../index";
+import {
+  advanceRound,
+  roundActionProps,
+  roundAvailable,
+  roundEvent,
+  roundState,
+  type RoundEvent,
+  type RoundProgress,
+  type RoundState,
+} from "./rounds";
 
 export const sessionKey = "$session";
 type Session = NonNullable<Meta["session"]>;
@@ -8,10 +18,10 @@ type Direction = "forward" | "reverse";
 type Turn = { index: number; skipped: boolean };
 type Progress =
   | { kind: "turns"; index: number; direction: Direction; history: readonly Turn[]; skips: number }
-  | { kind: "rounds"; index: number; revealed: boolean };
+  | RoundProgress;
 type Stored = { inputs: string; progress: Progress };
 type Get = (part: string) => unknown;
-type Event = "next" | "back" | "skip" | "reverse" | "restart" | "reveal";
+type Event = RoundEvent | "back" | "skip" | "reverse" | "restart";
 export type SessionState =
   | {
       kind: "turns";
@@ -22,7 +32,7 @@ export type SessionState =
       skips: number;
       complete: boolean;
     }
-  | { kind: "rounds"; index: number; revealed: boolean; complete: boolean; item: Values };
+  | RoundState;
 
 function itemsOf(session: Session, props: Values): readonly Values[] {
   const rows = props[session.items];
@@ -37,7 +47,11 @@ function inputsFor(session: Session, props: Values) {
   const inputs =
     session.kind === "turns"
       ? [seed(props, session.first) ?? 0, seed(props, session.direction) ?? "forward", lapsOf(session, props)]
-      : [session.hidden];
+      : session.assessment
+        ? [session.hidden, session.reveal, session.next, session.assessment.inputs]
+        : session.ratings
+          ? [session.hidden, session.reveal, session.ratings, session.front]
+          : [session.hidden];
   return JSON.stringify([session.items, rows, ...inputs]);
 }
 
@@ -84,38 +98,41 @@ export function sessionState(meta: Meta, props: Values, get: Get): SessionState 
     };
   }
   if (session.kind === "rounds" && progress.kind === "rounds") {
-    const { index, revealed } = progress;
-    const row = items[index]!;
-    const item = revealed
-      ? row
-      : Object.fromEntries(Object.entries(row).filter(([key]) => !session.hidden.includes(key)));
-    return { kind: "rounds", index, revealed, item, complete: revealed && index === count - 1 };
+    return roundState(session, progress, items);
   }
+}
+
+export function sessionActionProps(meta: Meta, props: Values, current: SessionState | undefined): Values {
+  return meta.session?.kind === "rounds" && current?.kind === "rounds"
+    ? roundActionProps(meta.session, props, current)
+    : props;
 }
 
 export function sessionStatus(meta: Meta, props: Values, state: StateName, get: Get): StateName {
   if (!meta.session || (state !== "filled" && state !== "success")) return state;
   const current = sessionState(meta, props, get);
   if (!current) return "empty";
+  if (current.kind === "rounds") {
+    if (current.assessment?.correct === false) return "error";
+    if (current.recall) return current.complete ? "success" : "filled";
+  }
   return (current.kind === "turns" ? current.complete : current.revealed) ? "success" : "filled";
 }
 
 export function sessionEvent(meta: Meta, part: string, action: string): Event | undefined {
   const session = meta.session;
-  if (!session || action !== "press") return;
-  const events: readonly Event[] =
-    session.kind === "turns" ? ["next", "back", "skip", "reverse", "restart"] : ["reveal", "next", "restart"];
-  const controls: Partial<Record<Event, string>> = session;
-  return events.find((event) => controls[event] === part);
+  if (!session) return;
+  if (session.kind === "rounds")
+    return action === "press" && session.restart === part ? "restart" : roundEvent(session, part, action);
+  if (action !== "press") return;
+  const events = ["next", "back", "skip", "reverse", "restart"] as const;
+  return events.find((event) => session[event] === part);
 }
 
 export function sessionAvailable(current: SessionState | undefined, event: Event): boolean {
   if (!current) return false;
   if (event === "restart") return true;
-  if (current.kind === "rounds") {
-    if (event === "reveal") return !current.revealed;
-    return event === "next" && current.revealed && !current.complete;
-  }
+  if (current.kind === "rounds") return roundAvailable(current, event);
   return event === "back" ? current.turns > 0 : !current.complete;
 }
 
@@ -143,18 +160,23 @@ function turnEvent(
 }
 
 /** Stage an already validated event; restarting clears only this component's progress. */
-export function advanceSession(meta: Meta, props: Values, get: Get, event: Event): Stored | undefined {
+export function advanceSession(
+  meta: Meta,
+  props: Values,
+  get: Get,
+  event: Event,
+  part?: string,
+  value?: unknown,
+): Stored | undefined {
   if (event === "restart") return;
   const session = meta.session!;
   const inputs = inputsFor(session, props);
   const before = matching(session, props, get(sessionKey)) ?? initial(session, props);
-  const progress =
-    session.kind === "turns" && before.kind === "turns"
-      ? turnEvent(before, event, itemsOf(session, props).length, lapsOf(session, props))
-      : ({
-          kind: "rounds",
-          index: before.index + (event === "next" ? 1 : 0),
-          revealed: event === "reveal",
-        } as const);
-  return { inputs, progress };
+  const items = itemsOf(session, props);
+  if (session.kind === "rounds" && before.kind === "rounds") {
+    if (event === "answer" || event === "reveal" || event === "next" || event === "rate")
+      return { inputs, progress: advanceRound(session, before, items, event, part, value) };
+  } else if (session.kind === "turns" && before.kind === "turns") {
+    return { inputs, progress: turnEvent(before, event, items.length, lapsOf(session, props)) };
+  }
 }

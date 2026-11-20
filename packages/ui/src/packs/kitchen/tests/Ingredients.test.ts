@@ -10,7 +10,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../test/render";
-import { ingredientsLabels, servingCount } from "../copy";
+import { ingredientsLabels } from "../copy";
 const { props, meta, examples, fallback, probes } = components.Ingredients;
 const minimal = { servings: 1, groups: [{ items: [{ name: "Seed" }] }] };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -134,7 +134,8 @@ describe("Ingredients filled parts and readings", () => {
     const stamped = stampItemIds(meta, props.parse(input));
     for (const offered of affordancesOf(meta, stamped, "i1"))
       expect(reading).toContain(`[${offered.address} ${offered.action}`);
-    expect(elementAt(html, "home/c1/servings").attributes).toContain('role="button"');
+    for (const part of ["servings", "servings_less"])
+      expect(elementAt(html, `home/c1/${part}`).attributes).toContain('role="button"');
     expect(elementAt(html, "home/c1/system").attributes).toContain('role="radiogroup"');
     expect(elementAt(html, "home/c1/shop").attributes).toContain('role="button"');
     let index = 0;
@@ -146,16 +147,12 @@ describe("Ingredients filled parts and readings", () => {
         expect(elementAt(html, `${base}/have`).attributes).toContain('role="checkbox"');
         expect(reading).toContain(`r${index}: ${item.name}`);
         expect(html.includes(`data-testid="${base}/amount"`)).toBe("amount" in item);
-        expect(html.includes(`data-testid="${base}/note"`)).toBe("note" in item);
+        const hasNote = "note" in item && stamped.detail !== "brief";
+        expect(html.includes(`data-testid="${base}/note"`)).toBe(hasNote);
       }
     }
-    for (const label of [
-      ingredientsLabels.servings,
-      ingredientsLabels.metric,
-      ingredientsLabels.us,
-      ingredientsLabels.shop,
-    ])
-      expect(reading).toContain(label);
+    const { servings, metric, us, shop } = ingredientsLabels;
+    for (const label of [servings, metric, us, shop]) expect(reading).toContain(label);
   });
   it("omits missing quantity parts and disables the serving endpoints", () => {
     for (const servings of [1, 24]) {
@@ -175,9 +172,10 @@ describe("Ingredients read/act", () => {
       defs: components,
       onAction,
     });
-    for (const action of ["increment", "increment", "decrement"])
-      expect(controller.act({ address: "i1/servings", action })).toMatchObject({ ok: true });
-    expect(servingCount(4, Number(controller.store.get("home/i1/servings")))).toBe(5);
+    for (const part of ["servings", "servings", "servings_less"])
+      expect(controller.press(`i1/${part}`).ok).toBe(true);
+    expect(controller.read()).toContain("Tomatoes 750 g");
+    expect(controller.snapshotScreen().components[0]?.servings).toBe(4);
     expect(controller.act({ address: "i1/system", action: "select", value: "US" })).toMatchObject({
       ok: true,
     });

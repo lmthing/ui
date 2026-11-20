@@ -3,7 +3,7 @@ import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
-import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
+import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
@@ -83,10 +83,7 @@ function partsOf(
   );
 }
 
-/**
- * Every action a model may take on one component instance, with its address relative to the screen
- * (`l1/r1/trail`). The reader prints these and act checks verify each one exists on screen.
- */
+/** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
   props: Props,
@@ -97,6 +94,8 @@ export function affordancesOf(
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  const session = sessionState(meta, props, get);
+  props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
   const { parts, items: itemParts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
@@ -122,13 +121,13 @@ export function affordancesOf(
       ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
     ),
   ];
-  const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
+  const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return offered.filter(({ address, action, part }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
-    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role))) return false;
     const event = sessionEvent(meta, target, action);
+    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if ((runtime || meta.live?.derive) && !clockActionValid(meta, props, target, action, get, now))
@@ -141,12 +140,14 @@ export function affordancesOf(
   });
 }
 
-function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
+function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
   const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
-  if (state === "error" || errorOnly) return state === "error" && errorOnly;
+  if (errorOnly) return state === "error";
   if (state === "filled") return true;
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
-  return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
+  return (
+    (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
+  );
 }
 
 /** Resolve a part against live props, without changing the component's tier. */

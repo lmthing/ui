@@ -153,13 +153,13 @@ describe("FoodLog states, parts, reading and actions", () => {
       const parts =
         row.entry === "meal"
           ? ["root", "meal", "add"]
-          : ["root", "name", "kcal", ...(row.amount ? ["amount"] : [])];
+          : ["root", "name", "kcal", ...(row.amount && parsed.detail === "full" ? ["amount"] : [])];
       for (const part of meta.items.parts) {
         const found = html.match(new RegExp(`data-testid="home/c1/r${index + 1}/${part}"`, "g")) ?? [];
         expect(found).toHaveLength(parts.includes(part) ? 1 : 0);
       }
     });
-    expect(html.includes('data-testid="home/c1/target"')).toBe(example.target !== undefined);
+    expect(html.includes('data-testid="home/c1/target"')).toBe(parsed.target !== undefined);
     expect(readComponent(components.FoodLog, example, "f1").join("\n")).not.toContain("undefined");
   });
   it("draws the shared empty state without stale totals, food rows or actions", () => {

@@ -66,12 +66,19 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
-    const { draw, emptyActions, errorActions, session, successActions, items, live } = def.meta;
+    const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
     const liveState =
       (props.state as typeof state) ??
-      (draw || emptyActions || errorActions?.length || session || successActions?.length || policy || live
+      (draw ||
+      emptyActions ||
+      errorActions?.length ||
+      session ||
+      successActions?.length ||
+      readSuccess ||
+      policy ||
+      live
         ? state
         : undefined);
     return affordancesOf(def.meta, props, id, local, liveState, true);
@@ -109,8 +116,15 @@ function stageProgress(
   const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const props = liveInput(def, raw, entry.id, localValues(screen.id, next));
   if (event) {
-    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(def.meta, props, get, event);
-    return "";
+    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(
+      def.meta,
+      props,
+      get,
+      event,
+      target,
+      step.value,
+    );
+    return event === "answer" ? ` = ${JSON.stringify(step.value)}` : "";
   }
   if (!role) return;
   const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
@@ -159,7 +173,7 @@ export function planAct(
     const { result, number, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
     try {
-      const progress = stageProgress(screen, defs, address, step, next, random);
+      const progress = stageProgress(screen, defs, address, { ...step, value: result.value }, next, random);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;

@@ -14,11 +14,10 @@ const { props, meta, examples, fallback, probes } = components.GroceryList;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const item = { name: "Tomatoes", qty: "600 g", got: false, by: "Sam" };
 const input = { aisles: [{ label: "Produce", items: [item, { name: "Basil", got: true }] }] };
+type Parsed = ReturnType<typeof props.parse>;
+type Item = Parsed["aisles"][number]["items"][number];
 const valueOf = (value: unknown) =>
-  stampItemIds(meta, props.parse(value)) as {
-    aisles: { label: string; items: (typeof item)[] }[];
-    rows: (typeof item & { id: string; aisleIndex: number })[];
-  };
+  stampItemIds(meta, props.parse(value)) as Parsed & { rows: (Item & { id: string; aisleIndex: number })[] };
 const render = (value: unknown = input, state: "filled" | "empty" | "success" = "filled") =>
   renderInstance("GroceryList", value, state, theme, { component: "g1", thing: "grocery item" });
 

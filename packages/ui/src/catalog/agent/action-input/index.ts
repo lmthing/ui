@@ -1,16 +1,21 @@
 import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
-import {
-  liveProps,
-  selectionAt,
-  selectionChanges,
-  selectionError,
-  selectionOffer,
-  type ActStep,
-} from "../index";
+export { localValues, selectStep } from "./select-step";
 import { storeLiveInput } from "../live-inputs";
-import { resolveKeypadValue, validateActionValue } from "../index";
+import {
+  controlValueKey,
+  nestedAt,
+  parseControlProps,
+  projectControlInput,
+  resolveKeypadValue,
+  validateActionValue,
+  type ActResult,
+  type ActStep,
+  type Affordance,
+  type ScreenLike,
+  type Values,
+} from "../index";
 
 export function validateStep(
   screen: ScreenLike,
@@ -37,56 +42,6 @@ export function validateStep(
   }
   return { result, number, limits };
 }
-
-export function localValues(screen: string, values: Values): Values {
-  return Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
-  );
-}
-
-export function selectStep(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  step: ActStep,
-  address: string,
-  values: Values,
-) {
-  if (step.action !== "select") return { step };
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  const target = parts.join("/") || "root";
-  const offer = def && selectionOffer(def.meta, target);
-  if (!def || (!def.meta.select && !offer)) return { step };
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
-  let props = parseControlProps(def, raw, get);
-  if (Object.hasOwn(def.meta.selections ?? {}, target))
-    props = liveProps(def.meta, props, id!, localValues(screen.id, values), true);
-  else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
-  const error = selectionError(def.meta, props, target, step.value);
-  return {
-    step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
-    error,
-    declared: Boolean(offer && !offer.runtime),
-    changes: Object.fromEntries(
-      Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
-        `${screen.id}/${id}/${part}`,
-        value,
-      ]),
-    ),
-  };
-}
-import {
-  controlValueKey,
-  nestedAt,
-  parseControlProps,
-  projectControlInput,
-  type ActResult,
-  type Affordance,
-  type ScreenLike,
-  type Values,
-} from "../index";
 
 export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");

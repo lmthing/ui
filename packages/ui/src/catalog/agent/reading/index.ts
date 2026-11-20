@@ -2,6 +2,7 @@ import type { Meta } from "../../meta";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
+export { readAffordances } from "./read-affordances";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {

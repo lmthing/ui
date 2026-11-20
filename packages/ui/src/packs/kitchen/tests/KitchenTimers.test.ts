@@ -78,6 +78,7 @@ describe("KitchenTimers fallback and metadata", () => {
       ["choose", "KitchenTimers"],
       ["choose", "Timer"],
       ["write", "KitchenTimers"],
+      ["write", "KitchenTimers"],
       ["read", { address: "k1/r1", action: "start" }],
       ["read", { address: "k1/r2/more", action: "press" }],
     ]);
