@@ -74,6 +74,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
     { from: "style", values: { large: { emphasis: "hero" } } },
     { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
   ],
+  Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
   Note: [
