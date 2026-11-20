@@ -1,5 +1,9 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+// prettier-ignore
+import { KitCard, KitContent, KitEmpty, KitGrid, KitInput, KitPhoto, KitRow, KitSkeleton, KitText, KitTrail, useComponentState, useControlValue, usePartContext, useVariant, useWords } from "../../../kit";
+import { exclusiveLets, unitDate, unitReading, unitSnapshot } from "../copy";
+import { propertyWordsFor } from "../lang";
 import { distinct, ref, seedDate, seedLabels } from "../seeds";
 
 // Core first: List/rows cannot derive occupancy and agreed rent from dated, mutually exclusive lets.
@@ -22,39 +26,13 @@ export const meta = {
     "Units and agreed tenancy or stay records live on the device, without a booking engine or lease editor.",
   variants: { density: ["comfortable", "compact"], surface: ["plain", "card"], media: ["none", "thumb"] },
   variantParts: { "media.thumb": { adds: ["photo"] } },
-  parts: ["root", "date"],
+  parts: ["root", "date", "message"],
   items: { key: "units", parts: ["root", "title", "address", "photo", "occupant", "occupancy", "rent"] },
   states: ["filled", "empty", "loading", "error"],
   actions: { parts: { date: ["set"] }, items: { root: ["press"] }, when: { root: { linked: true } } },
-  read: (input, _state, lang): string[] => {
-    const { on, units, lets } = input as z.output<typeof props>;
-    return [
-      on,
-      ...units.map((unit, index) => {
-        const current = lets.find(
-          (record) =>
-            record.unitRef === unit.unitRef &&
-            !record.cancelled &&
-            record.start <= on &&
-            (!record.end || on < record.end),
-        );
-        const reserved = lets.some(
-          (record) => record.unitRef === unit.unitRef && !record.cancelled && record.start > on,
-        );
-        const rent = current?.rent ?? unit.askingRent;
-        const per = current?.per ?? unit.askingPer;
-        return [
-          `r${index + 1}`,
-          unit.title,
-          current ? "occupied" : reserved ? "reserved" : "vacant",
-          current?.occupant,
-          rent === undefined ? undefined : c.moneyLine(rent, undefined, per, lang),
-        ]
-          .filter(Boolean)
-          .join(" · ");
-      }),
-    ];
-  },
+  emptyActions: [],
+  read: (input, state, lang): string[] =>
+    state === "filled" ? unitReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta;
 
 const per = z.enum(["night", "week", "month"]);
@@ -90,21 +68,6 @@ const letRecord = z
     { path: ["end"], message: "Use a later end; stays also need nightly rent and a required end" },
   );
 
-type Let = z.output<typeof letRecord>;
-function exclusiveLets(lets: readonly Let[]) {
-  const active = lets.filter(({ cancelled }) => !cancelled);
-  return active.every((a, index) =>
-    active
-      .slice(index + 1)
-      .every(
-        (b) =>
-          a.unitRef !== b.unitRef ||
-          (a.end !== undefined && a.end <= b.start) ||
-          (b.end !== undefined && b.end <= a.start),
-      ),
-  );
-}
-
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
@@ -139,7 +102,7 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
 // prettier-ignore
 export const examples = [
   {
-    units: [{ unitRef: "flat_a", title: "Willow Flat", address: "14 Mill Lane", goto: "property_unit_detail" },
+    units: [{ unitRef: "flat_a", title: "Willow Flat", address: "14 Mill Lane", photo: "lib:home", goto: "property_unit_detail" },
       { unitRef: "flat_b", title: "Cedar Flat", askingRent: 1050, askingPer: "month" }],
     lets: [{ letRef: "asha_let", unitRef: "flat_a", occupant: "Asha", kind: "tenancy", start: "2026-10-01", rent: 900, per: "month" }],
     on: "2026-11-18",
@@ -174,3 +137,64 @@ export const probes = [
   },
   read("Open Willow Flat’s details", { address: "u1/r1", action: "press" }),
 ] satisfies c.Probe[];
+
+type UnitsProps = c.Props<typeof props, typeof meta>;
+type Unit = UnitsProps["units"][number];
+const statusTone = { occupied: "good", reserved: "warn", vacant: "muted" } as const;
+
+// prettier-ignore
+function UnitRow({ unit, snapshot, media, density }: {
+  unit: Unit;
+  snapshot: ReturnType<typeof unitSnapshot>;
+  media: UnitsProps["media"];
+  density: NonNullable<UnitsProps["density"]>;
+}) {
+  const { words } = useWords(propertyWordsFor);
+  const { status, occupant, rent } = snapshot;
+  return (
+    <KitRow item={unit.id} label={unit.title} goto={unit.goto} density={density}
+      inset="none" leadingAlign="row" lineRole="heading"
+      leading={media === "thumb" && unit.photo ? <KitPhoto photo={unit.photo} label={unit.title} part="photo" /> : undefined}
+      trailing={<KitTrail kind="badge" part="occupancy" value={words.units.status[status].label} tone={statusTone[status]} density={density} />}
+    >
+      <KitText role="heading" part="title" density={density}>{unit.title}</KitText>
+      {unit.address && <KitText role="caption" tone="muted" part="address">{unit.address}</KitText>}
+      {occupant && <KitText role="body" part="occupant">{occupant}</KitText>}
+      {rent && <KitText role="number" numberScale="compact" tabular part="rent">{rent}</KitText>}
+    </KitRow>
+  );
+}
+
+// prettier-ignore
+export function Units({ units, lets, on, ...input }: UnitsProps) {
+  const state = useComponentState();
+  const { screen, component } = usePartContext();
+  const { words, lang } = useWords(propertyWordsFor);
+  const date = unitDate(useControlValue<unknown>(`${screen}/${component}/date`, on), on);
+  const density = useVariant("density", meta.variants.density, input.density);
+  const surface = useVariant("surface", meta.variants.surface, input.surface);
+  const media = useVariant("media", meta.variants.media, input.media);
+  const items = units.map((unit) => ({ unit, snapshot: unitSnapshot(unit, lets, date, lang) }));
+  return (
+    <KitCard part="root" padded surface={surface} density={density}>
+      {state === "empty" || state === "error" ? (
+        <KitEmpty part="message" decorativeIcon icon={state === "error" ? "alert" : "home"}
+          title={state === "error" ? words.units.error : words.units.empty} />
+      ) : <>
+        <KitContent density={density}>
+          {state !== "loading" && <KitText part={null} role="label" tone="muted">{words.units.date}</KitText>}
+          {state === "loading" ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full />
+            : <KitInput part="date" kind="date" action="set" label={words.units.date} hint={words.units.date} value={date} projected />}
+        </KitContent>
+        {state === "loading" ? <KitSkeleton inset="none" rows={items.length} lead="none" density={density}
+          items={items.map(({ unit, snapshot }) => ({
+            title: unit.title, sub: unit.address, meta: snapshot.occupant, value: snapshot.rent,
+            trail: "badge", ...(media === "thumb" && unit.photo ? { photo: unit.photo, lead: "box" } : {}),
+          }))} />
+          : <KitGrid arrange="rows" list density={density}>
+            {items.map(({ unit, snapshot }) => <UnitRow key={unit.id} {...{ unit, snapshot, media, density }} />)}
+          </KitGrid>}
+      </>}
+    </KitCard>
+  );
+}
