@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
 import { createScreenController, renderers } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
-
 const { props, meta, examples, fallback, probes } = components.Devices;
 const focused = examples[0]!;
 const tiles = examples[1]!;
@@ -59,7 +58,25 @@ describe("Devices states and parts", () => {
     expect(elementAt(html, "home/d1/r1/room")).toBeDefined();
     expect(html).toMatch(/>Hall<[\s\S]*?role="list"[\s\S]*?role="listitem"[\s\S]*?>Hall light</);
   });
+});
 
+it.skipIf(!Object.hasOwn(renderers, "Devices"))(
+  "can drop room headings without changing device and scene addresses",
+  () => {
+    expect(props.parse(tiles)).toMatchObject({ group: "sections", surface: "card" });
+    expect(props.safeParse({ ...tiles, group: "dates" }).success).toBe(false);
+    const flat = { ...tiles, group: "none" };
+    const html = renderInstance("Devices", flat, "filled", theme, { component: "d1" });
+    expect(html).not.toMatch(/home\/d1\/r\d+\/room/);
+    const read = readComponent(components.Devices, flat, "d1").join("\n");
+    expect(read).not.toContain("· Hall ·");
+    expect(read).toContain("[d1/r2/lock toggle");
+    expect(read).toContain("[d1/r8/secure press");
+  },
+);
+
+describe("Devices layout and states", () => {
+  const renderTest = it.skipIf(!Object.hasOwn(renderers, "Devices"));
   renderTest("keeps focused room devices together before scenes and puts scenes first in tiles", () => {
     const input = { ...focused, rooms: [...tiles.rooms, ...focused.rooms] };
     const focusedHtml = renderInstance("Devices", input, "filled", theme);
@@ -75,7 +92,7 @@ describe("Devices states and parts", () => {
     expect(renderInstance("Devices", focused, "loading", theme)).not.toContain('role="slider"');
     expect(renderInstance("Devices", focused, "success", theme)).toContain("Command acknowledged");
     const error = renderInstance("Devices", focused, "error", theme);
-    expect(error).toContain("Devices unavailable or command failed");
+    expect(error).toContain("Device offline or command failed");
     expect(error).toContain("Reading · °C");
     expect(error).toContain("20.5");
     expect(elementAt(error, "home/c1/r1/temp").attributes).toContain('aria-disabled="true"');

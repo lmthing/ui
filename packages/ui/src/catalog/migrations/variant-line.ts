@@ -94,6 +94,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Gallery: [{ from: "style", values: { grid: { arrange: "grid" }, strip: { arrange: "strip" } } }],
   Stats: [{ from: "style", values: { tiles: { arrange: "grid" }, inline: { arrange: "rows" } } }],
   KeyValue: [{ from: "style", values: { rows: { arrange: "rows" }, grid: { arrange: "grid" } } }],
+  Devices: [{ from: "style", values: { tiles: { group: "sections" } } }],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */

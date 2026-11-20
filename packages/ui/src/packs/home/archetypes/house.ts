@@ -12,13 +12,13 @@ export const house = {
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Segmented"], required: true },
-        { allow: ["Devices"], required: true, variant: "tiles" },
+        { allow: ["Devices"], required: true },
         { allow: ["Note"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
         { id: "s1", c: "Segmented" },
-        { id: "d1", c: "Devices", style: "tiles" },
+        { id: "d1", c: "Devices", group: "sections" },
         { id: "n1", c: "Note" },
       ],
     },
@@ -39,16 +39,16 @@ export const house = {
     },
     home_scenes: {
       writeHints: [
-        "Keep saved scenes on Devices in tiles style, above the rooms. With an empty cast an empty scenes seed is valid; do not invent device references or claim commands succeeded.",
+        "Keep saved scenes on Devices above the rooms; leave style unset. With an empty cast an empty scenes seed is valid; do not invent device references or claim commands succeeded.",
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Devices"], required: true, variant: "tiles" },
+        { allow: ["Devices"], required: true },
         { allow: ["Note"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "d1", c: "Devices", style: "tiles" },
+        { id: "d1", c: "Devices", group: "sections" },
         { id: "n1", c: "Note" },
       ],
     },

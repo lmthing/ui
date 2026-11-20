@@ -7,7 +7,7 @@ import { homeWordsFor } from "./lang";
 type Input = z.output<typeof deviceProps>;
 type Entry = Input["entries"][number] & { id?: string };
 
-function readEntry(row: Entry, enlarged: boolean, lang?: string) {
+function readEntry(row: Entry, enlarged: boolean, grouped: boolean, lang?: string) {
   const { deviceLabels, devicePanel, deviceUnits } = homeWordsFor(lang);
   if (row.entryKind === "scene")
     return [
@@ -19,7 +19,7 @@ function readEntry(row: Entry, enlarged: boolean, lang?: string) {
   const unit = row.unit ?? "celsius";
   return [
     row.id,
-    row.room,
+    grouped ? row.room : undefined,
     row.name,
     row.kind === "lock" ? (row.on ? deviceLabels.locked : deviceLabels.unlocked) : undefined,
     row.temp === undefined ? undefined : `${deviceLabels.setPoint} ${deviceValue(row.temp, "celsius", lang)}`,
@@ -39,7 +39,7 @@ function readEntry(row: Entry, enlarged: boolean, lang?: string) {
 /** Keep each projected device or scene beside its validator-owned addressed row. */
 export function readDevices(input: unknown, state: StateName, lang?: string): string[] {
   if (state !== "filled") return [];
-  const { entries, focus, style } = input as Input & { entries: Entry[] };
+  const { entries, focus, style, group } = input as Input & { entries: Entry[] };
   const words = homeWordsFor(lang);
   const focused =
     style === "focused" &&
@@ -52,7 +52,7 @@ export function readDevices(input: unknown, state: StateName, lang?: string): st
     words.devicePanel.preview,
     ...(entries.some((row) => row.entryKind === "scene") ? [words.devicePanel.scenes] : []),
     ...entries.map((row) =>
-      readEntry(row, row === focused, lang)
+      readEntry(row, row === focused, group !== "none", lang)
         .filter(Boolean)
         .join(" · "),
     ),
