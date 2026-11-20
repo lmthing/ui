@@ -3,6 +3,8 @@ import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageProgress } from "./progress";
+export { affordancesOfScreen, liveInput } from "./screen-offers";
+export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,

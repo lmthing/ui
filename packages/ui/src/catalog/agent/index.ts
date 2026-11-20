@@ -6,6 +6,7 @@ export {
   type Affordance,
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export {
   emptyDeviceData,
   filterDeviceDataScreen,
@@ -25,7 +26,7 @@ export {
   validateActionValue,
   type ValueError,
 } from "./validate-value";
-export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
+export { planAct, planHostAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
   controlValueKey,
   liveProps,

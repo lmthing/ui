@@ -16,13 +16,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import {
-  createInteractionStore,
-  projectScreen,
-  valueKey,
-  type InteractionStore,
-  type MediaAdapter,
-} from "../index";
+import { createInteractionStore, projectScreen, valueKey } from "../index";
+import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import type { PrivateMarks } from "./private-mark";

@@ -13,6 +13,7 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { hostOnlyAddresses, redactPrivateMarks } from "./action-input";
 
 type Props = Record<string, unknown>;
 
@@ -86,12 +87,13 @@ export function readComponent(
   input: unknown,
   instance: string,
   state: StateName = "filled",
-  values: Record<string, unknown> = {},
+  runtimeValues: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
 ): string[] {
   const { meta } = def;
   if (!isDeviceDataVisible(meta, deviceData)) return [];
+  const { values, addresses } = redactPrivateMarks(runtimeValues);
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(meta.id, input), get);
   const props = liveProps(meta, validated, instance, values, true, deviceData);
@@ -102,7 +104,9 @@ export function readComponent(
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
   const offered = affordancesOf(meta, props, instance, values, state);
-  const affordances = readAffordances(offered, values, def, props, instance, session);
+  const hostOnly = hostOnlyAddresses(def, instance, offered);
+  const readableOffers = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));
+  const affordances = readAffordances(readableOffers, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [

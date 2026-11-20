@@ -3,9 +3,11 @@ import {
   affordancesOf,
   clockControlDeclared,
   isPlaybackAction,
+  hostOnlyAddresses,
   liveProps,
   parseAddress,
   parseControlProps,
+  privateMarkKey,
   sessionEvent,
   type StateName,
 } from "../../../catalog";
@@ -13,7 +15,7 @@ import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
-import { privateMarkKey, registerPrivateMark } from "./private-mark";
+import { registerPrivateMark } from "./private-mark";
 import { readControls } from "./read-controls";
 const pressActions = [
   "press",
@@ -35,13 +37,8 @@ function actionsAt(
 ): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
-  if (
-    ctx.status.disposed ||
-    ctx.privateMarks.has(local) ||
-    ctx.store.get(privateMarkKey(ctx.screen.id, local)) ||
-    (!ignoreDisabledPart && ctx.disabledParts.has(local))
-  )
-    return [];
+  if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
+  if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
   if (ctx.confirmationFor())
     return local === "confirm/confirm"
       ? ["press"]
@@ -73,16 +70,17 @@ function actionsAt(
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
     const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
-    return affordancesOf(
+    const offered = affordancesOf(
       def.meta,
       props,
       id,
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
-    )
-      .filter((item) => item.address === local)
-      .map((item) => item.action);
+    );
+    return hostOnlyAddresses(def, id, offered)?.has(local)
+      ? []
+      : offered.filter((item) => item.address === local).map((item) => item.action);
   } catch {
     return [];
   }

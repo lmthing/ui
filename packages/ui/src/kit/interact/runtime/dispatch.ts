@@ -1,10 +1,9 @@
-import { hasPlaybackClock, wordsFor, type ActStep, type Values } from "../../../catalog";
+import { hasPlaybackClock, privateMarkKey, wordsFor, type ActStep, type Values } from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
 import { snapshotPlanning, type ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
-import { privateMarkKey } from "./private-mark";
 
 export function discardHiddenConfirmation(ctx: ControllerContext) {
   if (ctx.status.confirmation && !ctx.confirmationFor()) {

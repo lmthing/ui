@@ -17,7 +17,7 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import { acceptsPrivateMark, privateMarkKey } from "../index";
+import { acceptsPrivateMark } from "../index";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
 import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
@@ -48,7 +48,8 @@ function prepareStep(
   ctx: ControllerContext,
   media: MediaRuntime,
   at: number,
-  confirmed = false,
+  confirmed: boolean,
+  markToken?: symbol,
 ): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
@@ -69,7 +70,7 @@ function prepareStep(
   const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
   if (hint) return fail("disabled", hint);
   const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = dispatchPlan(ctx, active, state.values, selected, null);
+  const plan = dispatchPlan(ctx, active, state.values, selected, null, markToken);
   if (!plan.ok) return { error: { ...plan, at } };
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
@@ -123,13 +124,9 @@ function stepRunner(
 ) {
   const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
-    const tagged = before.values[privateMarkKey(ctx.screen.id, selected.address)] === true;
-    if (
-      (!markToken && tagged) ||
-      !acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, markToken)
-    )
+    if (!markToken && !acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, undefined))
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
-    const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
+    const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     const pending =
       !confirmed &&
@@ -141,7 +138,7 @@ function stepRunner(
       execution.drew = true;
       if (random !== null) {
         const { active, selected: planned } = prepared.context;
-        const plan = dispatchPlan(ctx, active, before.values, planned, random);
+        const plan = dispatchPlan(ctx, active, before.values, planned, random, markToken);
         if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
         prepared.state.values = plan.values;
         prepared.state.changes = [...before.changes, ...plan.changed];

@@ -2,12 +2,12 @@ import {
   migrateScreen,
   readComponent,
   readScreen,
+  redactPrivateMarks,
   type Definition,
   type DeviceData,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import { redactPrivateMarks } from "./private-mark";
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
@@ -64,15 +64,12 @@ export function readControls(
 ): string {
   const migrated = migrateScreen(screen, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
-  const safe = redactPrivateMarks(screen.id, values);
   const read = hasKeypads
-    ? readKeypads(migrated, defs, safe.values, lang, deviceData)
-    : readScreen(screen, defs, safe.values, lang, deviceData);
-  return disabled?.size || privateMarks?.size || safe.addresses.size
+    ? readKeypads(migrated, defs, values, lang, deviceData)
+    : readScreen(screen, defs, values, lang, deviceData);
+  return disabled?.size || privateMarks?.size
     ? read.replace(controlTokens, (token, address, action) =>
-        safe.addresses.has(address) || (action?.startsWith("set") ? privateMarks : disabled)?.has(address)
-          ? ""
-          : token,
+        (action?.startsWith("set") ? privateMarks : disabled)?.has(address) ? "" : token,
       )
     : read;
 }
@@ -88,12 +85,13 @@ function readKeypads(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const keypadValues = redactPrivateMarks(local).values;
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
+        ? readComponent(withKeypadDrafts(def, id, keypadValues), props, id, state, local, lang, deviceData)
         : [`${id} ${c} (unknown)`];
     }),
   ].join("\n");

@@ -1,6 +1,7 @@
 import {
   isNestedTarget,
   planAct,
+  planHostAct,
   sessionEvent,
   sessionKey,
   type ActStep,
@@ -8,7 +9,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
-import type { ControllerContext, ScreenComponent } from "../index";
+import { acceptsPrivateMark, type ControllerContext, type ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
 
 export function dispatchPlan(
@@ -17,7 +18,18 @@ export function dispatchPlan(
   values: Values,
   step: ActStep,
   random: RandomSource | null | undefined,
+  markToken?: symbol,
 ) {
+  if (markToken && !ctx.standalone)
+    return planHostAct(
+      screen,
+      ctx.defs,
+      values,
+      step,
+      ({ action, address, value }) =>
+        action === "set" && acceptsPrivateMark(ctx.privateMarks, address, value, markToken),
+      ctx.options.deviceData,
+    );
   return planAct(
     screen,
     ctx.defs,
