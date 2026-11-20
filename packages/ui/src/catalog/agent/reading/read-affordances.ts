@@ -51,9 +51,9 @@ export function readAffordances(
       : choices
         ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
         : set
-          ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-            ? undefined
-            : set.value
+          ? set.spec.runtime || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+            ? set.value
+            : undefined
           : a.input?.kind === "text"
             ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
             : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);

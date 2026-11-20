@@ -1,5 +1,6 @@
 import type { Meta } from "../../meta";
-import type { DeviceData } from "../device-data";
+import { projectRuntimeSets } from "../clocks";
+import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
@@ -79,10 +80,10 @@ export function projectLiveInputs(
   get: Get,
   data?: DeviceData,
 ): Values {
-  const selected = projectNamedSelections(meta, props, get, "runtime");
+  const selected = projectNamedSelections(meta, projectRuntimeSets(meta, props, get), get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
   const projected = projectLinkedEdits(meta, edited, get, data);
-  const derived = meta.live?.derive?.(projected, instance);
+  const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
   return derived ? { ...projected, ...derived } : projected;
 }
 

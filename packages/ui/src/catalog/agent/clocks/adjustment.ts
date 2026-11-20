@@ -2,20 +2,10 @@ import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
+import { adjustmentKey as keyFor, effectiveLimits, finite, runtimeNumber } from "./numeric-limits";
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
-const keyFor = (base: string, prop: string) => `${base}$adjust/${prop}`;
-const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
-type SetSpec = NonNullable<Meta["set"]>[string];
-function effectiveLimits(set: SetSpec, adjustments: Meta["adjust"]) {
-  const related = Object.values(adjustments ?? {}).filter((adjust) => adjust?.prop === set.prop);
-  return {
-    ...set,
-    min: Math.max(set.min ?? -Infinity, ...related.map((adjust) => adjust?.min ?? -Infinity)),
-    max: Math.min(set.max ?? Infinity, ...related.map((adjust) => adjust?.max ?? Infinity)),
-  };
-}
 function nextNumber(current: number, delta: number, min: number, max: number) {
   if (!finite(delta) || min > max) return;
   const next = Math.min(max, Math.max(min, current + delta));
@@ -33,7 +23,7 @@ export function itemSetAt(meta: Meta, props: Values, target: string) {
   if (holder)
     return {
       key: keyFor(`${id}/`, spec.prop),
-      spec: effectiveLimits(spec, meta.items?.adjust),
+      spec: effectiveLimits(spec, meta.items?.adjust, props),
       value: holder[spec.prop],
     };
 }
@@ -43,12 +33,13 @@ export function numericSetAt(meta: Meta, props: Values, target: string) {
   if (item) return item;
   const sets = meta.set;
   if (!sets || !Object.hasOwn(sets, target)) return;
-  const spec = effectiveLimits(sets[target]!, meta.adjust);
+  const spec = effectiveLimits(sets[target]!, meta.adjust, props);
   return { key: keyFor("", spec.prop), spec, value: props[spec.prop] };
 }
 
 export function projectComponentSets(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  for (const { prop } of Object.values(meta.set ?? {})) {
+  for (const { prop, runtime } of Object.values(meta.set ?? {})) {
+    if (runtime) continue;
     const value = get(keyFor("", prop));
     if (finite(value) && value !== props[prop]) props = { ...props, [prop]: value };
   }
@@ -101,14 +92,16 @@ export function adjustmentAt(
   );
   const sets = row < 0 ? meta.set : meta.items?.set;
   const setter = !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop);
-  const bounds = setter ? effectiveLimits(setter[1], adjustments) : undefined;
+  const bounds = setter ? effectiveLimits(setter[1], adjustments, props) : undefined;
   const state = clock ? (get(clockKey(clock)) as ClockState | undefined) : undefined;
   const saved = get(key);
   const current = clock
     ? clockTime(clock, state, get(clockPropKey(clock)), now)
-    : saved === undefined || (setter && row < 0)
-      ? (row < 0 ? props : rows[row])?.[prop]
-      : saved;
+    : bounds?.runtime
+      ? runtimeNumber(bounds, saved)
+      : saved === undefined || (setter && row < 0)
+        ? (row < 0 ? props : rows[row])?.[prop]
+        : saved;
   const min = Math.max(spec.min ?? -Infinity, bounds?.min ?? -Infinity, clock ? 0 : -Infinity);
   const max = Math.min(spec.max ?? Infinity, bounds?.max ?? Infinity, clock ? clockMax(clock) : Infinity);
   const next = finite(current) ? nextNumber(current, delta, min, max) : undefined;

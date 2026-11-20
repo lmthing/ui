@@ -2,8 +2,9 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
-import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
+import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData } from "../agent";
+import type { LinkedEdits, LiveInputs } from "./live";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
@@ -13,18 +14,9 @@ type Draw =
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
-type NumericSets = Readonly<Record<string, NumericSet>>;
-type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
-type LinkedEdits = {
-  inputs: Readonly<Record<string, { prop: string; max: number }>>;
-  swap: { part: string; sides: readonly [string, string] };
-  /** Project display text and related props from the exact source edit and current order. */
-  project: (
-    props: Readonly<Record<string, unknown>>,
-    state: LinkedEditState,
-    data: DeviceData,
-  ) => Record<string, unknown>;
-};
+type NumericSets = Readonly<
+  Record<string, NumericSet & ({ runtime?: false } | { runtime: true; maxProp: string; initial: number })>
+>;
 type RowSelection = "index" | "position" | { field: string };
 type Choice = string | number | { value: string | number; label: string };
 /** A static list or a parsed prop containing the same option shape. */
@@ -80,7 +72,7 @@ export type Meta = {
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
-  /** Component parts with a declared `set` action and a finite numeric destination prop. */
+  /** Numeric `set` destinations. Runtime destinations never enter Writer props; `maxProp` is parsed. */
   set?: NumericSets;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
@@ -93,6 +85,8 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    /** Read all visible rows with the same nonblank string field on one addressed line. */
+    readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
     variants?: ItemVariants;
@@ -136,7 +130,7 @@ export type Meta = {
   selections?: Readonly<Record<string, NamedSelection>>;
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
   linkedEdits?: LinkedEdits;
-  live?: LiveActionInputs;
+  live?: LiveInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */

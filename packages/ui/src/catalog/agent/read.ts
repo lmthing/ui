@@ -43,6 +43,7 @@ function readingProps(
     meta.live ||
     meta.linkedEdits ||
     meta.items?.visibleWhen ||
+    Object.values(meta.set ?? {}).some((set) => set.runtime) ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
