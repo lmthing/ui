@@ -21,7 +21,8 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
     writeHints: _hints,
     ...plainHeader
   } = components.Header.meta;
-  const withoutHeaderAxes = {
+  const { variants: _chatVariants, variantParts: _chatParts, ...plainBubbles } = components.Bubbles.meta;
+  const withoutAxes = {
     ...components,
     Header: {
       ...components.Header,
@@ -29,9 +30,20 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
       props: z.strictObject({ title: text(28) }),
       examples: [{ title: "Chat" }],
     },
+    Bubbles: {
+      ...components.Bubbles,
+      meta: plainBubbles,
+      props: z.strictObject({
+        messages: z
+          .array(z.strictObject({ from: z.enum(["me", "them"]), text: text(120) }))
+          .min(1)
+          .max(6),
+      }),
+      examples: [{ messages: [{ from: "them", text: "Hello" }] }],
+    },
   };
   const caps = "one hero emphasis and one cover collection per screen";
-  const plain = composePrompt(meta, "thread", cast, withoutHeaderAxes);
+  const plain = composePrompt(meta, "thread", cast, withoutAxes);
   expect(plain).not.toContain(variantVocabulary);
   expect(plain).not.toContain(caps);
 
