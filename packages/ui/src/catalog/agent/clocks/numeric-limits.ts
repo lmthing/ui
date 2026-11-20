@@ -30,11 +30,21 @@ export function runtimeNumber(spec: ReturnType<typeof effectiveLimits>, saved: u
   if (valid(spec.initial)) return spec.initial;
 }
 
-export function projectRuntimeSets(meta: Meta, props: Values, get: (part: string) => unknown): Values {
+export const hasRuntimeSets = (meta: Meta) => Object.values(meta.set ?? {}).some((set) => set.runtime);
+
+/** Keep runtime destinations and their parsed cap authoritative across live projections. */
+export function projectRuntimeSets(
+  meta: Meta,
+  props: Values,
+  get: (part: string) => unknown,
+  validated: Values,
+): Values {
   let projected = props;
   for (const set of Object.values(meta.set ?? {})) {
     if (!set.runtime) continue;
-    const limits = effectiveLimits(set, meta.adjust, props);
+    const limits = effectiveLimits(set, meta.adjust, validated);
+    const cap = validated[set.maxProp];
+    if (cap !== projected[set.maxProp]) projected = { ...projected, [set.maxProp]: cap };
     const value = runtimeNumber(limits, get(adjustmentKey("", set.prop)));
     if (value !== projected[set.prop]) projected = { ...projected, [set.prop]: value };
   }

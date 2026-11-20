@@ -85,7 +85,7 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
-    /** Read all visible rows with the same nonblank string field on one addressed line. */
+    /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;

@@ -12,7 +12,16 @@ export type ReadSchema = {
   kind?: string;
   default?: unknown;
   type?: string;
+  anyOf?: ReadSchema[];
 };
+
+function isGroupText(field: ReadSchema | undefined): boolean {
+  if (field?.anyOf) {
+    const nonnull = field.anyOf.filter((option) => option.type !== "null");
+    return nonnull.length > 0 && nonnull.every(isGroupText);
+  }
+  return field?.kind === "text";
+}
 
 export function itemTexts(
   schema: ReadSchema | undefined,
@@ -72,13 +81,13 @@ export function readItems(
   const all = key ? visibleItems(meta, props) : [];
   const itemSchema = key ? schema.properties?.[key]?.items : undefined;
   const group = meta.items?.readGroupBy;
-  const groupBy = group && itemSchema?.properties?.[group]?.kind !== "secret" ? group : undefined;
-  const exactIds = groupBy || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
+  const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
+  const exactIds = group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
   const ids = exactIds && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;
     const target = address.slice(instance.length);
-    return ids ? !ids.has(target.split("/")[1]) : !/^\/r\d+(?:\/|$)/.test(target);
+    return ids ? !ids.has(target.split("/")[1] ?? "") : !/^\/r\d+(?:\/|$)/.test(target);
   });
   const line = [head, own.join(" — "), ...ownAff.map(formatAffordance)].filter(Boolean);
   const firstOnly = meta.items?.visible === "first",

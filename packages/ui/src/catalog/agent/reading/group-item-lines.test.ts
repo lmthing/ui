@@ -16,7 +16,9 @@ const def = {
     actions: { parts: { root: ["press"] }, items: { root: ["press"] } },
   },
   props: z.strictObject({
-    rows: z.array(z.strictObject({ name: text(30), group: text(30).optional(), goto: z.string() })),
+    rows: z.array(
+      z.strictObject({ name: text(30), group: text(30).nullable().optional(), goto: z.string() }),
+    ),
   }),
   fallback: () => ({ rows: [] }),
   examples: [],
@@ -58,4 +60,19 @@ it("does not group on secrets or print their values", () => {
   expect(reading).toHaveLength(6);
   expect(reading.join("\n")).not.toContain("team");
   expect(reading[1]).toContain("(secret)");
+});
+
+it("does not expose secrets wrapped in nullable fields as group names", () => {
+  const props = z.strictObject({
+    rows: z.array(
+      z.strictObject({
+        name: text(30),
+        group: z.string().meta({ kind: "secret" }).nullable().optional(),
+        goto: z.string(),
+      }),
+    ),
+  });
+  const reading = readComponent({ ...def, props }, seed, "c");
+  expect(reading).toHaveLength(6);
+  expect(reading.join("\n")).not.toContain("team");
 });

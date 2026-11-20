@@ -22,4 +22,4 @@ export {
   projectComponentSets,
   projectMatrix,
 } from "./adjustment";
-export { projectRuntimeSets } from "./numeric-limits";
+export { hasRuntimeSets, projectRuntimeSets } from "./numeric-limits";

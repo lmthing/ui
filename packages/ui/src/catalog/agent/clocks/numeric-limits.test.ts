@@ -62,3 +62,26 @@ it("shares the stored value with the reader and nudges without injecting it into
   });
   expect(readScreen(screen(1), defs, result.values)).toContain("amount 0 [entry/quantity set = 0]");
 });
+
+it("uses the same validated maximum even if a live derivation writes that prop", () => {
+  const withDerived: Definition = {
+    ...def,
+    meta: {
+      ...def.meta,
+      set: { quantity: { ...def.meta.set.quantity, initial: 1, min: 1 } },
+      live: { derive: () => ({ cap: 0 }) },
+    },
+  };
+  const defs = { QuantityFixture: withDerived };
+  expect(readScreen(screen(3), defs)).toContain("[entry/quantity set = 1]");
+  const result = planAct(screen(3), defs, {}, [set(2), increment]);
+  expect(result).toMatchObject({ ok: true, values: { "home/entry/$adjust/amount": 3 } });
+  expect(planAct(screen(3), defs, {}, [set(4)])).toMatchObject({ ok: false, code: "invalid_value" });
+});
+
+it("does not offer or admit runtime-only numeric actions in loading state", () => {
+  const loading = screen(3);
+  loading.components[0]!.state = "loading";
+  expect(readScreen(loading, defs)).toBe("screen home\nentry QuantityFixture (loading)");
+  expect(planAct(loading, defs, {}, [set(2)])).toMatchObject({ ok: false, code: "not_actionable" });
+});

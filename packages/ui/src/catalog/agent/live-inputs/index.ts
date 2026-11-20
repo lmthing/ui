@@ -79,12 +79,15 @@ export function projectLiveInputs(
   instance: string,
   get: Get,
   data?: DeviceData,
+  validated = props,
 ): Values {
-  const selected = projectNamedSelections(meta, projectRuntimeSets(meta, props, get), get, "runtime");
+  const seeded = projectRuntimeSets(meta, props, get, validated);
+  const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
   const projected = projectLinkedEdits(meta, edited, get, data);
   const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
-  return derived ? { ...projected, ...derived } : projected;
+  const live = derived ? { ...projected, ...derived } : projected;
+  return live === seeded ? live : projectRuntimeSets(meta, live, get, validated);
 }
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */

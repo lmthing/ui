@@ -13,7 +13,7 @@ import {
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
-import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
+import { clockChanges, clockControlDeclared, hasPlaybackClock, hasRuntimeSets } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 
@@ -88,6 +88,7 @@ function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      hasRuntimeSets(def.meta) ||
       hasPlaybackClock(def.meta)
         ? state
         : undefined);
