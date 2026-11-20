@@ -1,3 +1,5 @@
-# Learning copy helpers
+# Learning copy
 
-Pure, language-aware formatters for the learning pack, exported through `index.ts`.
+- `Assignments.ts`: language-aware deadline and subject-mark helpers. Import through `index.ts`.
+- `Lesson.ts`: data-only reading helpers. Built-in words live in `../lang`.
+- `Quiz.ts` and `quiz-answers.ts`: localized Quiz copy and pure answer helpers. Import through `index.ts`.
