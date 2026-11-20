@@ -1,12 +1,12 @@
 export const en = {
-  activityRing: (label: string, value: string, goal: string, unit: string) =>
-    `${label}: ${value} ${goal} ${unit}`,
+  activityRing: (label: string, value: string, goal: string | undefined, unit: string) =>
+    `${label}: ${value}${goal === undefined ? "" : ` ${goal}`} ${unit}`,
   symptomLevel: (value: string, max: string) => `${value}/${max}`,
   symptomSeverity: (label: string, level: string) => `${label} · ${level}`,
   vitalPair: (value: string) => ` / ${value}`,
   vitalUnit: (unit: string, value?: string) => (value === undefined ? unit : `/ ${value} ${unit}`),
-  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at: string) =>
-    `${label}: ${value} ${unit} · ${range} · ${status} · ${at}`,
+  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at?: string) =>
+    `${label}: ${value} ${unit} · ${range} · ${status}${at === undefined ? "" : ` · ${at}`}`,
   vitalLabels: {
     add: "Add reading",
     outside: "Outside range",

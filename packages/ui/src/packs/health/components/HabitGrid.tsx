@@ -10,6 +10,7 @@ import {
   useComponentState,
   useControlValue,
   usePart,
+  useVariant,
 } from "../../../kit";
 import {
   wordsFor,
@@ -17,6 +18,7 @@ import {
   probesFor,
   streakLine,
   text,
+  variantProps,
   type CastLike,
   type Meta,
   type Probe,
@@ -24,7 +26,6 @@ import {
 } from "../../../catalog";
 import { z } from "zod";
 import { indexedActions, indexedParts, seedTitles } from "..";
-// Core first: Streak/default cannot tick several habits independently across seven weekday columns.
 export const meta = {
   id: "HabitGrid",
   status: "ready",
@@ -36,6 +37,11 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Habit records stored on the device.",
+  writeHints: [
+    "Leave axes null unless asked; use lead none to hide the habit icons without changing the habit names or checks.",
+  ],
+  variants: { surface: ["card", "outlined"], lead: ["icon", "none"] },
+  variantParts: { "lead.none": { hides: ["icon"] } },
   items: { key: "habits", parts: ["root", "name", "icon", "streak", ...indexedParts(7, ["day"])] },
   parts: ["root", "grid"],
   states: ["filled", "empty"],
@@ -45,7 +51,7 @@ export const meta = {
       indexedParts(7, ["day"]).map((part, index) => [part, { [`past_${index + 1}`]: true }]),
     ),
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { weekdayNames } = wordsFor(lang);
 
     if (state !== "filled") return [];
@@ -58,6 +64,7 @@ export const meta = {
   },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   habits: z
     .array(
       z
@@ -91,6 +98,7 @@ export function fallback({ cast }: { cast: CastLike }): z.input<typeof props> {
     })),
   };
 }
+// prettier-ignore
 export const examples = [
   {
     habits: [
@@ -98,7 +106,7 @@ export const examples = [
       { name: "Mist Ivy", icon: "drop", days: [true, true, true, false, false, false, false] },
     ],
   },
-  { habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
+  { lead: "none", surface: "outlined", habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("HabitGrid");
 export const probes = [
@@ -112,6 +120,12 @@ export const probes = [
   write(
     "This week's stretch and water habits, check and drop icons, both only Monday checked, seven Monday-first days",
   ),
+  {
+    ...write(
+      "Show this week's habits in a seven-day grid: stretch and water, both only Monday checked. Keep a check icon for stretch and a drop for water in the data, but show only the names without icons in the habit headings.",
+    ),
+    variant: { axis: "lead", value: "none" },
+  },
   read("Mark Monday's ivy check as done", { address: "h1/r1/day_1", action: "check" }),
 ] satisfies Probe[];
 type Habit = Props<typeof props, typeof meta>["habits"][number];
@@ -133,36 +147,30 @@ function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
     </KitText>
   );
 }
+// prettier-ignore
 function WeekDays() {
   const { weekdayNames } = useWords().words;
   return weekdayNames.map((label, index) => ({
     id: `day_${index + 1}`,
     label,
-    header: (
-      <KitText role="caption" tone="muted" part={null}>
-        {label}
-      </KitText>
-    ),
+    header: <KitText role="caption" tone="muted" part={null}>{label}</KitText>,
   }));
 }
-export function HabitGrid({ habits }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function HabitGrid({ habits, lead, surface }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const showIcon = useVariant("lead", meta.variants.lead, lead) === "icon";
   const today = (new Date().getDay() + 6) % 7;
   const days = WeekDays();
   if (state === "empty")
-    return (
-      <KitCard part="root">
-        <KitEmpty part="grid" decorativeIcon />
-      </KitCard>
-    );
+    return <KitCard part="root" surface={surface}><KitEmpty part="grid" decorativeIcon /></KitCard>;
   const rows = habits.map((habit) => ({
     id: habit.id,
     label: habit.name,
     heading: (
-      <KitRow item={habit.id} label={habit.name} inline leading={<KitIcon name={habit.icon} part="icon" />}>
-        <KitText role="body" part="name" lines={2}>
-          {habit.name}
-        </KitText>
+      <KitRow item={habit.id} label={habit.name} inline
+        leading={showIcon && <KitIcon name={habit.icon} part="icon" />}>
+        <KitText role="body" part="name" lines={2}>{habit.name}</KitText>
       </KitRow>
     ),
     cells: days.map((day, index) => ({
@@ -173,13 +181,9 @@ export function HabitGrid({ habits }: Props<typeof props, typeof meta>) {
     })),
   }));
   return (
-    <KitCard part="root">
+    <KitCard part="root" surface={surface}>
       <KitWeekMatrix
-        part="grid"
-        days={days}
-        rows={rows}
-        corner={null}
-        today={days[today]!.id}
+        part="grid" {...{ days, rows }} corner={null} today={days[today]!.id}
         trailing={habits.map((habit) => ({
           row: habit.id,
           content: (

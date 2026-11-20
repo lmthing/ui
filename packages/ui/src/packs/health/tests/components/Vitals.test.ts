@@ -18,7 +18,6 @@ const castOf = (title: unknown): CastLike => ({
   things: [{ type: "record", fields: ["title"] }],
   items: [{ id: "one", type: "record", sample: true, title }],
 });
-
 describe("Vitals schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -29,7 +28,7 @@ describe("Vitals schema", () => {
         ...input,
         readings: [{ ...reading, label: " Blood pressure ", unit: " mmHg ", at: " 08:10 " }],
       }),
-    ).toEqual(input);
+    ).toEqual({ ...input, surface: "card", detail: "full" });
   });
   it.each([
     {},
@@ -139,7 +138,8 @@ describe("Vitals states, parts and read/act", () => {
     example.readings.forEach((row, index) => {
       for (const part of meta.items.parts) {
         const address = `home/c1/r${index + 1}/${part}`;
-        if (part === "value2" && !("value2" in row)) expect(html).not.toContain(`data-testid="${address}"`);
+        if ((part === "value2" && !("value2" in row)) || (part === "at" && example.detail === "brief"))
+          expect(html).not.toContain(`data-testid="${address}"`);
         else expect(html.match(new RegExp(`data-testid="${address}"`, "g"))).toHaveLength(1);
       }
       expect(read).toContain(`${row.label}: ${row.value}`);

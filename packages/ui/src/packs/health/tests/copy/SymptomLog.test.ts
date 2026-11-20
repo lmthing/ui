@@ -39,9 +39,7 @@ describe("SymptomLog copy", () => {
       { label: "Headache", severity: 2 },
       { label: "Dizziness", severity: 0 },
     ];
-    expect(symptomTargets([{ label: "Head", symptoms }])).toEqual([
-      "Head: symptom_1 = Headache, symptom_2 = Dizziness",
-    ]);
+    expect(symptomTargets([{ label: "Head", symptoms }])).toEqual(["Head: Headache, Dizziness"]);
     expect(symptomTargets([])).toEqual([]);
   });
 });

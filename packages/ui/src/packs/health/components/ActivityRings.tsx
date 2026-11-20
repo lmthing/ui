@@ -1,10 +1,12 @@
 import { z } from "zod";
 import {
   goalLine,
+  itemVariantProps,
   numberLine,
   placeholderValue,
   probesFor,
   text,
+  variantProps,
   type CastLike,
   type Meta,
   type Probe,
@@ -19,6 +21,7 @@ import {
   KitSkeleton,
   KitText,
   useComponentState,
+  useVariant,
 } from "../../../kit";
 import { activityRingLine } from "../copy";
 import { seedTitles } from "..";
@@ -35,18 +38,29 @@ export const meta = {
   tier: "phone",
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
-  items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
+  writeHints: [
+    "Use axes only when requested. To hide target captions, use detail brief and still write each target in of. Leave ring tone null for the usual distinct colors.",
+  ],
+  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["of"] } },
+  items: {
+    key: "rings",
+    parts: ["root", "label", "value", "of", "unit"],
+    variants: { tone: ["neutral", "good", "warn"] },
+  },
   parts: ["root", "rings"],
   states: ["filled", "loading"],
-  read: (input, state, lang?: string) =>
-    state !== "filled"
-      ? []
-      : (input as z.output<typeof props>).rings.map((ring) => activityRingLine(ring, lang)),
+  read: (input, state, lang?: string): string[] => {
+    const { rings, detail } = input as z.output<typeof props>;
+    return state === "filled" ? rings.map((ring) => activityRingLine(ring, lang, detail !== "brief")) : [];
+  },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   rings: z
     .array(
       z.strictObject({
+        ...itemVariantProps(meta.items.variants),
         label: text(16),
         value: z.number().min(0).max(1000000),
         of: z.number().positive().max(1000000),
@@ -89,9 +103,11 @@ export const examples = [
     ],
   },
   {
+    detail: "brief",
+    surface: "outlined",
     rings: [
-      { label: "Steps", value: 8500, of: 8000, unit: "steps" },
-      { label: "Water", value: 5, of: 8, unit: "glasses" },
+      { tone: "good", label: "Steps", value: 8500, of: 8000, unit: "steps" },
+      { tone: "warn", label: "Water", value: 5, of: 8, unit: "glasses" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -102,6 +118,12 @@ export const probes = [
   ),
   choose("Show just one circular daily step goal, 3000 of 8000, no other goals", "Ring"),
   write("Three daily goals: Move 280 of 400 kcal, Exercise 20 of 30 min, Stand 7 of 12 hours"),
+  {
+    ...write(
+      "Show two daily goals as rings: Move 280 of 400 kcal and Exercise 20 of 30 min. Keep the target numbers in the data for the rings, but hide the target captions.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
 const ringTones = ["accent", "good", "warn"] as const;
@@ -111,11 +133,14 @@ const numberScaleOf = (value: number, count: number) =>
 const ringNumber = (value: number, count: number) =>
   ({ role: "number", align: "center", tabular: true, numberScale: numberScaleOf(value, count) }) as const;
 
-export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function ActivityRings({ rings, detail, surface }: Props<typeof props, typeof meta>) {
+  const full = useVariant("detail", meta.variants.detail, detail) === "full";
+  const tones = rings.map((ring, index) => ring.tone === "neutral" ? ringTones[index]! : ring.tone);
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
   return (
-    <KitCard style="inset" part="root" padded>
+    <KitCard style="inset" part="root" padded surface={surface}>
       <KitRadialTrack
         part="rings"
         style="rings"
@@ -123,7 +148,7 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
         rings={rings.map((ring, index) => ({
           id: ring.id,
           ratio: ring.value / ring.of,
-          tone: ringTones[index]!,
+          tone: tones[index]!,
         }))}
       />
       <KitGrid columns={rings.length === 2 ? 2 : 3}>
@@ -141,21 +166,19 @@ export function ActivityRings({ rings }: Props<typeof props, typeof meta>) {
                   align: "center",
                   numberScale: numberScaleOf(ring.value, rings.length),
                 },
-                { text: goalLine(ring.of, lang), role: "caption", align: "center" },
+                ...(full ? [{ text: goalLine(ring.of, lang), role: "caption", align: "center" } as const] : []),
                 { text: ring.unit, role: "caption", align: "center" },
               ]}
             />
           ) : (
             <KitRow key={ring.id} item={ring.id} label={ring.label} inline inset="none">
-              <KitText role="caption" tone={ringTones[index]!} align="center" part="label">
+              <KitText role="caption" tone={tones[index]!} align="center" part="label">
                 {ring.label}
               </KitText>
               <KitText {...ringNumber(ring.value, rings.length)} part="value">
                 {numberLine(ring.value, lang)}
               </KitText>
-              <KitText role="caption" tone="muted" align="center" part="of">
-                {goalLine(ring.of, lang)}
-              </KitText>
+              {full && <KitText role="caption" tone="muted" align="center" part="of">{goalLine(ring.of, lang)}</KitText>}
               <KitText role="caption" tone="muted" align="center" part="unit">
                 {ring.unit}
               </KitText>

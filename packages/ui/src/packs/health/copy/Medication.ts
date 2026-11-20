@@ -23,9 +23,11 @@ export function medicationReading(
   {
     doses,
     refillAt,
+    detail = "full",
   }: {
     doses: Dose[];
     refillAt?: number | undefined;
+    detail?: "full" | "brief";
   },
   lang?: string,
 ): string[] {
@@ -36,7 +38,7 @@ export function medicationReading(
     ...orderedDoses(doses).flatMap((dose) => [
       doseLine(dose.name, timeOfDayLine(dose.time, lang), medicationLabels[dose.status]),
       ...(dose.status === "due" ? [medicationLabels.taken, medicationLabels.skip] : []),
-      ...(dose.left !== undefined ? [stockLine(dose.left, lang)] : []),
+      ...(detail === "full" && dose.left !== undefined ? [stockLine(dose.left, lang)] : []),
     ]),
     ...(refill ? [refill] : []),
   ];

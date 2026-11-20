@@ -56,14 +56,15 @@ export const cycleWindowLine = (start: string, end: string, lang?: string): stri
     keepTogether(dateFormatter(lang).formatRange(atMidnight(start), atMidnight(end))),
   );
 
-export function cycleReading(input: CycleSeed, lang?: string): string[] {
+export function cycleReading(input: CycleSeed & { detail?: "full" | "brief" }, lang?: string): string[] {
   const { cycleLabels } = healthWordsFor(lang);
   const cycle = cycleEstimate(input, undefined, lang);
   return [
     cycleDayLine(cycle.day, lang),
     cycle.phase,
-    cycleNextLine(cycle.next, lang),
-    cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang),
+    ...(input.detail === "brief"
+      ? []
+      : [cycleNextLine(cycle.next, lang), cycleWindowLine(cycle.windowStart, cycle.windowEnd, lang)]),
     cycleLabels.log,
     cycleLabels.disclaimer,
   ];

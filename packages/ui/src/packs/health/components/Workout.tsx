@@ -1,12 +1,11 @@
 import { z } from "zod";
-import { clockLine, probesFor, text } from "../../../catalog";
+import { clockLine, probesFor, text, variantProps } from "../../../catalog";
 import type { ClockState, FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
 import { activeWorkoutRest, hasWorkoutSetFields, workoutReading, workoutSetLabel } from "../copy";
 import { healthWordsFor } from "../lang";
 
-// Core first: Checklist/plain cannot edit weights and reps per set or attach a rest countdown.
 const setFields = { prop: "hasFields", equals: true } as const;
 export const meta = {
   id: "Workout",
@@ -19,6 +18,11 @@ export const meta = {
   dense: true,
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
+  writeHints: [
+    "Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
+  ],
+  variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["time"] } },
   // prettier-ignore
   clocks: [{
     id: "session", kind: "up", prop: "elapsed", max: 86400,
@@ -53,7 +57,7 @@ export const meta = {
     parts: { rest: ["stop"], finish: ["press"] },
     when: { rest: { hasRest: true } },
   },
-  read: (input, state, lang) =>
+  read: (input, state, lang): string[] =>
     state === "filled" ? workoutReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 
@@ -65,12 +69,10 @@ const setProps = z.strictObject({
   done: z.boolean(),
   remaining: z.int().min(0).max(600).optional(),
 }).overwrite((set) => ({ ...set, hasFields: hasWorkoutSetFields(set) }));
-export const props = z
-  .strictObject({
-    exercises: z
-      .array(z.strictObject({ name: text(28), sets: z.array(setProps).min(1).max(6) }))
-      .min(1)
-      .max(8),
+// prettier-ignore
+export const props = z.strictObject({
+    ...variantProps(meta.variants),
+    exercises: z.array(z.strictObject({ name: text(28), sets: z.array(setProps).min(1).max(6) })).min(1).max(8),
     rest: z.int().min(0).max(600).default(90),
     unit: z.enum(["kg", "lb"]).default("kg"),
     elapsed: z.int().min(0).max(86400).optional(),
@@ -100,7 +102,7 @@ export const examples = [
     exercises: [{ name: "Goblet squat", sets: [
       { weight: 25, reps: 12, done: true, remaining: 36 }, { weight: 25, reps: 10, done: false },
     ] }],
-    rest: 60, unit: "lb", elapsed: 125,
+    rest: 60, unit: "lb", elapsed: 125, surface: "outlined", detail: "brief",
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Workout");
@@ -111,6 +113,12 @@ export const probes = [
     "Checklist",
   ),
   write("Log bench press, two sets of 40 kg for 8 reps, neither done, with 90 seconds rest"),
+  {
+    ...write(
+      "Log bench press, two sets of 40 kg for 8 reps, neither done, with 90 seconds rest and 185 seconds elapsed. Keep the elapsed value in the data, but hide the elapsed-time header; keep the sets and Finish workout.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Mark the first bench press set as done", { address: "w1/r1/done_1", action: "toggle" }),
   read("Change the second bench press set's weight to 45 kg", { address: "w1/r1/weight_2", action: "set" }),
 ] satisfies Probe[];
@@ -150,7 +158,8 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
       </kit.KitRow>{detail}</>;
 }
 
-export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {
+export function Workout({ exercises, unit, rest, elapsed, surface, detail }: WorkoutProps) {
+  const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
   const state = kit.useComponentState();
   const { controller } = kit.useKit();
   const { screen, component } = kit.usePartContext();
@@ -165,17 +174,17 @@ export function Workout({ exercises, unit, rest, elapsed }: WorkoutProps) {
   const restAt = rest > 0 && activeWorkoutRest(exercises, running);
   // prettier-ignore
   return (
-    <kit.KitCard style="inset" part="root" padded>
+    <kit.KitCard style="inset" part="root" padded surface={surface}>
       {state === "empty" ? (
         <kit.KitEmpty decorativeIcon />
       ) : state === "success" ? (
         <kit.KitEmpty icon="check" tone="good" title={w.success} sub={w.timeLine(time)} decorativeIcon />
       ) : (
         <>
-          <kit.KitContent>
+          {full && <kit.KitContent>
             <kit.KitText part={null} role="caption" tone="muted">{w.elapsed}</kit.KitText>
             <kit.KitText part="time" role="number" numberScale="compact" tabular>{time}</kit.KitText>
-          </kit.KitContent>
+          </kit.KitContent>}
           {exercises.map(({ id, name, sets }) => (
             <kit.KitRow key={id} item={id} label={name} inset="none">
               <kit.KitText part="name" role="number" numberScale="compact">{name}</kit.KitText>

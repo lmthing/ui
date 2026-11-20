@@ -48,13 +48,14 @@ export function measurementReading(
   unit: string,
   goal?: number,
   lang?: string,
+  showChange = true,
 ): string[] {
   const { measurementLabels, measurementValue } = healthWordsFor(lang);
   const copy = measurementCopy(points, unit, goal, lang);
   return [
     measurementValue(copy.latest, unit),
     copy.latestLabel,
-    copy.change,
+    ...(showChange ? [copy.change] : []),
     ...(copy.goal ? [copy.goal] : []),
     ...measurementRanges.map((range) => measurementLabels[range]),
     measurementLabels.start,

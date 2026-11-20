@@ -13,6 +13,7 @@ type Workout = {
   unit: "kg" | "lb";
   rest: number;
   elapsed?: number | undefined;
+  detail?: "full" | "brief";
 };
 
 export function hasWorkoutSetFields({ seconds, weight, reps }: Pick<Set, "seconds" | "weight" | "reps">) {
@@ -51,7 +52,7 @@ export function workoutReading(input: Workout, lang?: string): string[] {
   const words = healthWordsFor(lang).workout;
   const weightLabel = words.weight(words.units[input.unit]);
   return [
-    words.timeLine(clockLine(input.elapsed ?? 0, lang)),
+    ...(input.detail === "brief" ? [] : [words.timeLine(clockLine(input.elapsed ?? 0, lang))]),
     ...input.exercises.flatMap(({ name, sets }) =>
       sets.map((set, at) =>
         words.reading([
