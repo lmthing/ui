@@ -6,6 +6,7 @@ import { sessionKey, staleSession } from "../session";
 import { clockChanges, clockControlDeclared } from "../clocks";
 import { filterDeviceDataScreen, type DeviceData } from "../device-data";
 import { stageLinkedEdit } from "../linked-edits";
+import { stageReportEdit } from "../report-edits";
 import type { ActResult, ActStep, Affordance, ScreenLike, SendDraft, Values } from "../index";
 import {
   affordancesOfScreen,
@@ -135,10 +136,11 @@ function plan(
     const key = `${screen.id}/${address}`;
     const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
+    const resolved = { ...step, address, value: result.value };
     try {
       const progress =
         stageLinkedEdit(screen, defs, next, found, result.value) ??
-        stageProgress(screen, defs, address, { ...step, value: result.value }, next, random, data);
+        stageProgress(screen, defs, address, resolved, next, random, data);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;
@@ -147,11 +149,12 @@ function plan(
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
     const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
-    if (clockOwner === "planner")
-      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value }, data);
+    if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
     if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
+    if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
+      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
     const validate = limits || edit?.adjustment || adjusted || selected.declared;
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };

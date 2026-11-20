@@ -43,6 +43,8 @@ export function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      items?.edits ||
+      def.meta.signOff ||
       hasPlaybackClock(def.meta)
         ? state
         : undefined);

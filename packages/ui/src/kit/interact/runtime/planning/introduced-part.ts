@@ -1,16 +1,53 @@
 import {
+  drawRole,
   isNestedTarget,
   planAct,
+  reportConfirmation,
   sessionEvent,
   sessionKey,
+  stageReportEdit,
   type ActStep,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
 import { planHostAct } from "../../../../catalog/agent/action-input";
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
+
+export function confirmReport(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  removal: ReportRemoval | undefined,
+) {
+  return stageReportEdit(
+    screen,
+    ctx.defs,
+    values,
+    step,
+    { kind: "confirm", now: ctx.now(), removal },
+    ctx.options.deviceData,
+  );
+}
+
+export function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
+  if (!ctx.standalone) return true;
+  const meta = ctx.defs[entry.c]!.meta;
+  const { successActions, errorActions, live } = meta;
+  const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (reportConfirmation(meta, part, selected.action)) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
+  return Boolean(sessionEvent(meta, part, selected.action));
+}
+
+export function isDraw({ entry, defs, selected }: ActionContext) {
+  const target = selected.address.split("/").slice(1).join("/") || "root";
+  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
+  return role === "draw" || role === "redraw";
+}
 
 export function dispatchPlan(
   ctx: ControllerContext,
@@ -75,7 +112,7 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen) &&
+    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen || meta.items?.edits || meta.signOff) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;
