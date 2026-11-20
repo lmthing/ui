@@ -164,9 +164,10 @@ function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
       {stacked ? (
         <KitContent align="center">
+          {label}
           <KitContent density="compact" leadingAlign="row"
             lead={<KitContent>{actions}</KitContent>}>
-            {label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow>
+            <KitRow part="seconds" label={clock} inline>{ring}</KitRow>
           </KitContent>
         </KitContent>
       ) : (
