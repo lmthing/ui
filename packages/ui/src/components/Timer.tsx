@@ -170,10 +170,12 @@ export function Timer(input: Props<typeof props, typeof meta>) {
       </KitContent>
       {controls &&
         (density === "compact" ? (
-          <KitGrid columns={2} density={density}>
-            {start}
-            {stop}
-          </KitGrid>
+          <KitContent group="response" density={density}>
+            <KitGrid columns={2} density={density}>
+              {start}
+              {stop}
+            </KitGrid>
+          </KitContent>
         ) : (
           <>
             {start}
