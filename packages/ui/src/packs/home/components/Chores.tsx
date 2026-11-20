@@ -1,36 +1,9 @@
-import {
-  isoDate,
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  repeatOptions,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  detailOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
-  KitCard,
-  KitCheck,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitPhoto,
-  KitRow,
-  KitText,
-  KitTrail,
-  PartContext,
-  useComponentState,
-  usePartContext,
-  useWords,
-} from "../../../kit";
+// prettier-ignore
+import { isoDate, itemsOf, itemVariantProps, photo, placeholderTitle, probesFor, repeatOptions, screenId, text,
+  thingOf, titleOf, detailOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { KitCard, KitCheck, KitContent, KitEmpty, KitGrid, KitIcon, KitPhoto, KitRow,
+  KitText, KitTrail, PartContext, useComponentState, usePartContext, useWords, useVariant } from "../../../kit";
 import { choreIsDone, choreLines, choreReading } from "../copy";
 import { homeWordsFor } from "../lang";
 import { z } from "zod";
@@ -43,26 +16,36 @@ export const meta = {
   pick: "Shared household jobs with an owner, a repeat and optional points. Not one person's jobs today (Checklist), staff shifts (Shift), or recurring care for a pet or plant (CareSchedule).",
   writeHints: [
     "Write last completion, repeat and every, never next due, overdue or done-for-now. Completion awards points and advances the due date in code.",
+    "Use brief only when asked to hide the repeat and last completion. Keep recurrence data, owner, points and next due.",
+    "If only details should be hidden, write density:null and surface:null. Use compact only for a spacing request, and outlined only for an outline request.",
+    "Set a chore's mark only if specifically asked to highlight it, at most one in three.",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { done: "people" },
   realPath: "Chores stay on the device; each person ticking their own on another phone needs a shared app.",
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["repeat", "last"] } },
   items: {
     key: "chores",
     parts: ["root", "title", "who", "photo", "repeat", "last", "next", "points", "done"],
+    variants: { mark: ["none", "highlight"] },
   },
   parts: ["root", "message"],
   states: ["filled", "empty", "success"],
   actions: { items: { done: ["check"], root: ["press"] }, when: { "done.check": { done: false } } },
-  read: (input, state, lang) =>
-    state === "filled" ? choreReading((input as z.output<typeof props>).chores, lang) : [],
+  read: (input, state, lang): string[] => {
+    const { chores, detail } = input as { chores: Parameters<typeof choreReading>[0]; detail: string };
+    return state === "filled" ? choreReading(chores, lang, detail === "brief") : [];
+  },
 } as const satisfies Meta;
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   chores: z
     .array(
       z.strictObject({
+        ...itemVariantProps(meta.items.variants),
         title: text(28),
         who: text(16),
         photo: photo.optional(),
@@ -91,35 +74,44 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // prettier-ignore
-export const examples = [
-  {
+const plantChores = {
     chores: [
-      { title: "Mist the fern", who: "Sam", photo: "lib:people", repeat: "daily", every: 1, last: "2026-11-16", points: 5, goto: "fern" },
+      { title: "Mist the fern", who: "Sam", repeat: "daily", every: 1, last: "2026-11-16", points: 5, goto: "fern" },
       { title: "Dust shelves", who: "Alex", repeat: "weekly", every: 1, points: 10, goto: "shelves" },
     ],
-  },
+} satisfies z.input<typeof props>;
+// prettier-ignore
+export const examples = [
+  plantChores,
   {
     chores: [
-      { title: "Wash dog bowl", who: "Alex", photo: "lib:people", repeat: "weekly", every: 2, last: "2026-11-15", points: 10, goto: "clover" },
-      { title: "Hang lead rack", who: "Sam", repeat: "never", every: 1, last: "2026-11-17", goto: "lead_rack" },
+      { title: "Wash bowl", who: "Alex", repeat: "weekly", every: 2, points: 10, goto: "clover" },
+      { title: "Hang leads", who: "Sam", repeat: "never", every: 1, goto: "lead_rack", mark: "highlight" },
+      { title: "Wash blanket", who: "Mia", repeat: "weekly", every: 1, points: 5, goto: "blanket" },
     ],
   },
+  { ...plantChores, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Chores");
 export const probes = [
   choose("Shared household jobs with who does each, how often, last done and points for ticking them"),
   choose("Tick off my own three jobs today, without repeats, owners or points", "Checklist"),
   write("Sam mists the fern every day, last done 18 November 2026, earns five points, opens fern details"),
+  {
+    ...write(
+      "Sam mists the fern daily, last done November 18, 2026, for five points. Show the due date but hide the recurrence and last completion.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Mark Sam's misting job done", { address: "c1/r1/done", action: "check" }),
 ] satisfies Probe[];
 type Chore = Props<typeof props, typeof meta>["chores"][number];
-function ChoreDetails({ copy }: { copy: ReturnType<typeof choreLines> }) {
+// prettier-ignore
+function ChoreDetails({ copy, brief }: { copy: ReturnType<typeof choreLines>; brief: boolean }) {
   return (
     <KitGrid>
       <>
-        <KitText part="repeat" role="caption" tone="muted">
-          {copy.repeat}
-        </KitText>
+        {!brief && <KitText part="repeat" role="caption" tone="muted">{copy.repeat}</KitText>}
         {copy.points && (
           <KitText part="points" role="caption" tone="muted">
             <KitText part={null} role="number" numberScale="compact" tone="muted" tabular>
@@ -133,7 +125,7 @@ function ChoreDetails({ copy }: { copy: ReturnType<typeof choreLines> }) {
         <KitText part="next" role="caption" tone={copy.tone}>
           {copy.next}
         </KitText>
-        {copy.last && (
+        {!brief && copy.last && (
           <KitText part="last" role="caption" tone="muted">
             {copy.last}
           </KitText>
@@ -142,7 +134,9 @@ function ChoreDetails({ copy }: { copy: ReturnType<typeof choreLines> }) {
     </KitGrid>
   );
 }
-function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
+type ChoresProps = Props<typeof props, typeof meta>;
+// prettier-ignore
+function ChoreRow({ chore, first, brief, density, marked }: { chore: Chore; first: boolean; brief: boolean; density: ChoresProps["density"]; marked: boolean }) {
   const context = usePartContext();
   const { lang } = useWords(homeWordsFor);
   const copy = choreLines(chore, undefined, lang);
@@ -156,8 +150,8 @@ function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
   );
   return (
     <PartContext.Provider value={{ ...context, item: chore.id }}>
-      <KitContent group={first ? "content" : "response"}>
-        <KitRow label={copy.label} inline leadingAlign="row" leading={leading}>
+      <KitContent group={first || density === "compact" || marked ? "content" : "response"} {...{ density }}>
+        <KitRow label={copy.label} inline={!marked} leadingAlign="row" leading={leading} mark={chore.mark} {...{ density }}>
           <KitRow label={copy.label} inline lineRole="heading" trailing={done}>
             <KitRow
               part="root"
@@ -175,22 +169,26 @@ function ChoreRow({ chore, first }: { chore: Chore; first: boolean }) {
               </KitText>
             </KitRow>
           </KitRow>
-          <ChoreDetails copy={copy} />
+          <ChoreDetails {...{ copy, brief }} />
         </KitRow>
       </KitContent>
     </PartContext.Provider>
   );
 }
 
-export function Chores({ chores }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function Chores(input: ChoresProps) {
+  const { chores, surface, detail } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
+  const marked = chores.some((chore) => chore.mark === "highlight");
   const state = useComponentState();
   const { words } = useWords(homeWordsFor);
   const title = words.choreLabels.complete;
   const success = state === "success" ? ({ icon: "check", tone: "good", title } as const) : {};
   return (
-    <KitCard part="root" padded={state === "filled"}>
+    <KitCard part="root" padded={state === "filled"} {...{ density, surface }}>
       {state === "filled" ? (
-        chores.map((chore, index) => <ChoreRow key={chore.id} chore={chore} first={index === 0} />)
+        chores.map((chore, index) => <ChoreRow key={chore.id} {...{ chore, density, marked }} first={index === 0} brief={detail === "brief"} />)
       ) : (
         <KitEmpty part="message" decorativeIcon {...success} />
       )}

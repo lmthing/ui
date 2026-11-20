@@ -1,12 +1,6 @@
 import { afterEach, describe, expect, expectTypeOf, it, vi } from "vitest";
-import {
-  components,
-  emptyLine,
-  readComponent,
-  type CastLike,
-  type Props,
-  type ThemeChoice,
-} from "@lmthing/ui/catalog";
+// prettier-ignore
+import { components, emptyLine, readComponent, type CastLike, type Props, type ThemeChoice } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
@@ -26,6 +20,18 @@ const done = "home/c1/r1/done";
 
 afterEach(() => vi.useRealTimers());
 
+it("keeps default details and hides only repeat and last in the brief view and read", () => {
+  const input = examples[0]!;
+  expect(props.parse(input)).toMatchObject({ surface: "card", detail: "full" });
+  expect(props.safeParse({ ...input, detail: "other" }).success).toBe(false);
+  const brief = { ...input, detail: "brief" };
+  const html = renderInstance("Chores", brief, "filled", theme);
+  expect(html).not.toMatch(/home\/c1\/r1\/(?:repeat|last)/);
+  for (const part of ["points", "next"]) expect(elementAt(html, `home/c1/r1/${part}`)).toBeDefined();
+  const read = readComponent(components.Chores, brief, "c1").join("\n");
+  expect(read).not.toMatch(/Every day|Last 16/);
+  expect(read).toContain("[c1/r1 press→fern]");
+});
 describe("Chores contract and boundaries", () => {
   it.each(examples)("accepts the domain example", (example) => {
     expect(props.safeParse(example).success).toBe(true);
@@ -83,7 +89,6 @@ describe("Chores contract and boundaries", () => {
     expect(props.safeParse(input).success).toBe(false);
   });
 });
-
 describe("Chores fallback", () => {
   it("uses cast content and bounded safe links", () => {
     const cast: CastLike = {
@@ -117,7 +122,6 @@ describe("Chores fallback", () => {
     },
   );
 });
-
 describe("Chores states and parts", () => {
   it("draws every item part, with the completion checkbox outside the details link", () => {
     vi.setSystemTime(new Date(2026, 10, 17, 12));
@@ -162,7 +166,6 @@ describe("Chores states and parts", () => {
     });
   });
 });
-
 describe("Chores read and act", () => {
   it("reads the same dates, cadence and points and keeps navigation separate from completion", () => {
     vi.setSystemTime(new Date(2026, 10, 17, 12));

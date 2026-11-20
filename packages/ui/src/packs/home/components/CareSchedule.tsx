@@ -84,20 +84,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // prettier-ignore
-export const examples = [
-  {
+const plantCare = {
     tasks: [
       { title: "Water", for: "Fern", icon: "leaf", repeat: "weekly", every: 1, last: "2026-11-11", goto: "fern" },
       { title: "Feed", for: "Monstera", icon: "leaf", repeat: "weekly", every: 2, last: "2026-11-04", goto: "monstera" },
     ],
-  },
+} satisfies z.input<typeof props>;
+// prettier-ignore
+export const examples = [
+  plantCare,
   {
-    arrange: "rows",
     tasks: [
       { title: "Flea treatment", for: "Clover", icon: "heart", repeat: "monthly", every: 1, last: "2026-10-19", goto: "clover" },
-      { title: "Brush coat", for: "Clover", icon: "heart", repeat: "weekly", every: 1, last: "2026-11-13", goto: "clover" },
     ],
   },
+  { ...plantCare, arrange: "rows" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("CareSchedule");
 export const probes = [
@@ -182,10 +183,12 @@ export function CareSchedule({ tasks, arrange, surface }: CareProps) {
   const tiles = tasks.map((task, index) => (
     <CareTile key={task.id} {...{ task, today, surface }} wide={index >= pairs} />
   ));
+  if (arrange === "rows")
+    return <KitCard style="cards" part="root"><KitGrid arrange={arrange} list listRowGap="cards">{tiles}</KitGrid></KitCard>;
   return (
     <KitTrack>
       {pairs > 0 && <KitGrid columns={2}>{tiles.slice(0, pairs)}</KitGrid>}
-      {arrange === "rows" ? <KitGrid arrange={arrange}>{tiles}</KitGrid> : tiles.slice(pairs)}
+      {tiles.slice(pairs)}
     </KitTrack>
   );
 }

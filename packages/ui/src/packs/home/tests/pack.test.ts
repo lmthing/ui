@@ -44,6 +44,8 @@ it("exports every contract, metadata and the exact worked example through its ro
   expect(new Set(lines.map((line) => line.id)).size).toBe(lines.length);
   expect(ids.every((id) => lines.some((line) => line.c === id))).toBe(true);
   expect(lines.find((line) => line.id === "c1").tasks).toHaveLength(12);
+  expect(lines.find((line) => line.id === "d2")).toMatchObject({ group: "sections" });
+  expect(lines.find((line) => line.id === "d2")).not.toHaveProperty("style");
 });
 
 it("keeps an incomplete pack out of live registries and core prompts", () => {
@@ -101,4 +103,11 @@ it("numbers the family leaderboard without inventing scores", () => {
   expect(list).toMatchObject({ lead: "number", trail: "value", style: undefined });
   expect(list.rows).toHaveLength(3);
   expect(list.rows.every(({ value, trail }) => value === undefined && trail === "none")).toBe(true);
+});
+
+it.each(["rooms", "home_scenes"])("uses shared room grouping in the house/%s defaults", (layout) => {
+  const registry = createRegistry({ packs: ["home"], includeDrafts: true });
+  const device = registry.defaultLines("house", layout, cast).components.find(({ c }) => c === "Devices");
+  expect(device).toMatchObject({ group: "sections" });
+  expect(device).not.toHaveProperty("style");
 });
