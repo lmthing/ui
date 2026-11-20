@@ -1,6 +1,12 @@
 import type { ScreenLike } from "../agent";
 import { legacyTarget, normalizeComponentId } from "./aliases";
-import { effectiveLegacyList, migrateSheetItems, migrateVariantProps, variantMoves } from "./variant-line";
+import {
+  effectiveLegacyList,
+  migrateProgressItems,
+  migrateSheetItems,
+  migrateVariantProps,
+  variantMoves,
+} from "./variant-line";
 
 export type MigrationOptions = {
   variantComponents?: readonly string[];
@@ -28,6 +34,7 @@ const adoptedVariants: readonly string[] = [
   "Sheet",
   "Amount",
   "Ring",
+  "Progress",
 ];
 const isBlock = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
@@ -43,8 +50,8 @@ export function migrateLine<T extends Record<string, unknown>>(
       ? variantComponents.find((id) => normalizeComponentId(id) === normalizeComponentId(name))
       : undefined;
   if (c && Object.hasOwn(variantMoves, c)) {
-    const source =
-      c === "List" ? effectiveLegacyList(props) : c === "Sheet" ? migrateSheetItems(props) : props;
+    const prepare = { List: effectiveLegacyList, Sheet: migrateSheetItems, Progress: migrateProgressItems };
+    const source = prepare[c as keyof typeof prepare]?.(props) ?? props;
     const migrated = migrateVariantProps(source, variantMoves[c] ?? []);
     if (migrated !== props || c !== name) return { ...migrated, c };
   }

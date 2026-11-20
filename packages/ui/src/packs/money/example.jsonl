@@ -3,7 +3,7 @@
 {"id":"s1","c":"Split","people":[{"name":"Ana","photo":"lib:people"},{"name":"Sam","photo":"lib:people"},{"name":"Maya","photo":"lib:people"},{"name":"Ben","photo":"lib:people"}],"expenses":[{"title":"Groceries","amount":80,"by":0,"split":"equal"},{"title":"Internet","amount":40,"by":1,"split":"equal"}],"goto":"entry"}
 {"id":"b1","c":"Bills","bills":[{"name":"Rent","amount":800,"due":"2026-12-01","repeat":"monthly","paid":false,"icon":"home"},{"name":"Power","amount":60,"due":"2026-11-28","repeat":"monthly","paid":false,"icon":"zap"},{"name":"Internet","amount":40,"repeat":"monthly","paid":true,"icon":"wifi"}]}
 {"id":"s2","c":"SectionTitle","text":"Groceries budget"}
-{"id":"p1","c":"Progress","bars":[{"label":"Groceries","value":80,"of":100,"over":"bad"}]}
+{"id":"p1","c":"Progress","bars":[{"label":"Groceries","value":80,"of":100,"tone":"bad"}]}
 {"id":"a2","c":"AmountPad","label":"Add an expense","note":true}
 {"id":"l1","c":"Loan","name":"Friend loan","principal":480,"rate":0,"payment":40,"firstDue":"2026-12-01","payments":[],"goto":"terms","detail":"full"}
 {"id":"p2","c":"Payoff","debts":[{"name":"Friend loan","principal":480,"rate":0,"payment":40,"firstDue":"2026-12-01","payments":[]},{"name":"Credit card","principal":1200,"rate":18.9,"payment":100,"firstDue":"2026-12-01","payments":[]}],"extra":50,"strategy":"high_rate"}
