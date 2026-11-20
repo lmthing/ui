@@ -1,6 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 import { components, packOf, presets, type Meta } from "@lmthing/ui/catalog";
-import { cellKey, cellsOf, componentIds, groupedIds, groups, modes, variantCount } from "./gallery-data";
+import {
+  cellKey,
+  cellsOf,
+  componentIds,
+  groupAnchor,
+  groupedIds,
+  groups,
+  modes,
+  variantCount,
+} from "./gallery-data";
 
 describe("gallery overview data", () => {
   it("shows all 45 core components once, in stable group and id order", () => {
@@ -19,6 +28,7 @@ describe("gallery overview data", () => {
     const query = new URLSearchParams("?pack=booking");
     const sections = groupedIds("", query);
     expect(sections.map(({ group }) => group)).toEqual(["booking"]);
+    expect(sections.map(groupAnchor)).toEqual(["booking"]);
     expect(sections.flatMap(({ ids }) => ids)).toEqual(
       Object.entries(packOf)
         .filter(([, pack]) => pack === "booking")

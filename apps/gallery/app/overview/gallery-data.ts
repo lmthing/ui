@@ -36,7 +36,9 @@ export function variantCount(id: ComponentName): number {
   return cellsOf(id).length * presets.length * modes.length;
 }
 
-export const groupAnchor = ({ kind, group }: GalleryGroup) => (kind === "pack" ? `pack-${group}` : group);
+export function groupAnchor({ kind, group }: GalleryGroup): string {
+  return kind === "pack" && groups.some((core) => core === group) ? `pack-${group}` : group;
+}
 
 export function groupedIds(
   filter: string,
