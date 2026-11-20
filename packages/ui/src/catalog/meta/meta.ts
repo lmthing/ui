@@ -3,7 +3,8 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
+import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { Issue } from "../rules";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -158,10 +159,14 @@ export type Meta = {
   codeOwned?: boolean;
 };
 
+/** Pure check over canonical, schema-valid screen input. Report stable `S.*` codes. */
+export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
+
 export type PackMeta = {
   id: PackId;
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
+  screenValidators?: readonly PackScreenValidator[];
 };
 export type Slot = {
   allow: readonly ComponentId[];
