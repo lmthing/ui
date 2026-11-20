@@ -7,6 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -20,22 +21,34 @@ export const meta = {
   group: "data",
   purpose: "Follow a path between places, from the first stop to the last.",
   pick: "Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).",
+  writeHints: [
+    'Leave unrequested axes null. For stop names without their notes, use detail "brief" and keep the notes in each stop’s meta. Keep any total distance visible.',
+  ],
   region: "body",
   weight: 2,
   tier: "service",
   realPath: "A directions service calculates the path and distance between the chosen stops.",
-  items: { key: "stops", parts: ["root", "label"] },
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["meta"] } },
+  items: { key: "stops", parts: ["root", "label", "meta"] },
   parts: ["root", "distance"],
   states: ["filled"],
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  stops: z
-    .array(z.strictObject({ label: text(24), meta: text(16).optional() }))
-    .min(2)
-    .max(6),
-  distance: text(12).optional(),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    stops: z
+      .array(z.strictObject({ label: text(24), meta: text(16).optional() }))
+      .min(2)
+      .max(6),
+    distance: text(12).optional(),
+  })
+  .overwrite((value) =>
+    value.detail === "brief"
+      ? { ...value, stops: value.stops.map(({ meta: _note, ...stop }) => stop) }
+      : value,
+  );
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -64,6 +77,16 @@ export const examples = [
     ],
     distance: "3.2 km",
   },
+  {
+    detail: "brief",
+    stops: [
+      { label: "Home", meta: "Meet Clover" },
+      { label: "Park gate" },
+      { label: "Pond", meta: "Water break" },
+      { label: "Home" },
+    ],
+    distance: "3.2 km",
+  },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Route");
@@ -78,9 +101,15 @@ export const probes = [
   write(
     "Our dog walk visits Home, Park gate, Pond, then Home again, covering 3.2 km; pause for water at Pond",
   ),
+  {
+    ...write(
+      "Show the dog walk from Home to Pond, 2 km total. Save the note Water break for Pond but hide stop notes on screen.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
-export function Route({ stops, distance }: Props<typeof props, typeof meta>) {
+export function Route({ stops, distance, detail }: Props<typeof props, typeof meta>) {
   const measure = distance?.match(/^(\d+(?:[.,]\d+)?)(\s+.*)?$/);
   return (
     <KitCard style="inset" part="root">
@@ -92,7 +121,7 @@ export function Route({ stops, distance }: Props<typeof props, typeof meta>) {
               {stop.label}
             </KitText>
             {stop.meta && (
-              <KitText role="caption" tone="muted" part={null}>
+              <KitText role="caption" tone="muted" part="meta">
                 {stop.meta}
               </KitText>
             )}
@@ -108,7 +137,13 @@ export function Route({ stops, distance }: Props<typeof props, typeof meta>) {
             {header ? (
               <KitGrid columns={2}>
                 {content}
-                <KitText role={measure ? "number" : "body"} align="end" tabular part={null}>
+                <KitText
+                  role={measure ? "number" : "body"}
+                  numberScale={detail === "brief" ? "compact" : "display"}
+                  align="end"
+                  tabular
+                  part={null}
+                >
                   {measure ? measure[1] : distance}
                   {measure?.[2] && (
                     <KitText role="caption" tone="muted" part={null}>
