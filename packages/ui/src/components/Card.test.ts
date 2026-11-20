@@ -132,7 +132,7 @@ describe("Card view and actions", () => {
   it.each(examples)("draws one themed card with its heading and optional content", (example) => {
     const html = renderInstance("Card", example, "filled", theme, { resolvePhoto: () => "local-photo-uri" });
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${example.goto ? "link" : "list"}"`);
+    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${example.goto ? "link" : "group"}"`);
     for (const part of ["title", "body", "meta", "badge", "icon", "photo"] as const) {
       expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(
         Boolean(example[part as keyof typeof example]),
@@ -156,7 +156,7 @@ describe("Card actions and loading", () => {
   it.each([undefined, "fern", "back", "plant_details"])("links only with goto %s", (goto) => {
     const input = { title: "Fern", body: "Bathroom", meta: "Today", goto };
     const html = renderInstance("Card", input, "filled", theme);
-    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${goto ? "link" : "list"}"`);
+    expect(elementAt(html, "home/c1/root").attributes).toContain(`role="${goto ? "link" : "group"}"`);
     expect(affordancesOf(meta, props.parse(input), "c1")).toEqual(
       goto ? [{ address: "c1", part: "root", action: "press", detail: `→${goto}` }] : [],
     );
@@ -171,7 +171,7 @@ describe("Card actions and loading", () => {
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
       const html = renderInstance("Card", input, "loading", theme, { resolvePhoto: () => source });
-      expect(elementAt(html, "home/c1/root").attributes).toContain('role="list"');
+      expect(elementAt(html, "home/c1/root").attributes).toContain('role="group"');
       expect(html).not.toContain('data-testid="home/c1/title"');
       const checkHidden = (node: ReturnType<typeof elementAt>, hidden = false) => {
         const concealed = hidden || node.attributes.includes('aria-hidden="true"');

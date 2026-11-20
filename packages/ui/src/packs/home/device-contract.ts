@@ -3,14 +3,16 @@ import { screenId, text } from "../../catalog";
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
+const deviceKey = z.string().trim().min(1).max(24);
+export const thermostatBounds = { min: 5, max: 30 } as const;
 const settings = {
   on: z.boolean().optional(),
   level: z.number().min(0).max(100).optional(),
-  temp: z.number().min(5).max(30).optional(),
+  temp: z.number().min(thermostatBounds.min).max(thermostatBounds.max).optional(),
 };
 const device = z
   .strictObject({
-    key: text(24),
+    key: deviceKey,
     name: text(16),
     kind: z.enum(["light", "heat", "plug", "lock", "fan", "blind", "sensor"]),
     ...settings,
@@ -30,14 +32,14 @@ const device = z
     "Settings and readings must match the device kind; sensor readings/units and heat set points are required",
   );
 const target = z
-  .strictObject({ key: text(24), ...settings })
+  .strictObject({ key: deviceKey, ...settings })
   .refine(
     (row) => row.on !== undefined || row.level !== undefined || row.temp !== undefined,
     "A scene target must set at least one value",
   );
 
 /** Bounded model-written device data; addressed rows and capabilities are code-owned. */
-export const deviceProps = z
+const schema = z
   .strictObject({
     rooms: z
       .array(
@@ -58,7 +60,7 @@ export const deviceProps = z
       .min(0)
       .max(6)
       .default([]),
-    focus: text(24).optional(),
+    focus: deviceKey.optional(),
     style: z.enum(["tiles", "focused"]).default("tiles"),
   })
   .refine(({ rooms, scenes, focus }) => {
@@ -82,27 +84,101 @@ export const deviceProps = z
           }),
       )
     );
-  }, "Device keys must be unique; focus and distinct scene targets must reference supported devices")
-  .overwrite((value) => {
-    const devices = value.rooms.flatMap((room) =>
-      room.devices.map((row) => ({
-        ...row,
-        room: room.label,
-        entryKind: "device",
-        switchable: ["light", "heat", "plug", "fan"].includes(row.kind),
-        adjustable: levelKinds.includes(row.kind),
-        linked: row.goto !== undefined,
+  }, "Device keys must be unique; focus and distinct scene targets must reference supported devices");
+
+function withEntries(value: z.output<typeof schema>) {
+  const devices = value.rooms.flatMap((room, roomIndex) =>
+    room.devices.map((row) => ({
+      ...row,
+      level: row.level,
+      room: room.label,
+      roomIndex,
+      entryKind: "device" as const,
+      switchable: row.kind !== "lock" && switchKinds.includes(row.kind),
+      adjustable: levelKinds.includes(row.kind),
+      linked: row.goto !== undefined,
+    })),
+  );
+  const lockedKeys = new Set(devices.filter((row) => row.kind === "lock").map((row) => row.key));
+  return {
+    ...value,
+    entries: [
+      ...devices,
+      ...value.scenes.map((scene) => ({
+        ...scene,
+        entryKind: "scene" as const,
+        secure: scene.targets.some(({ key }) => lockedKeys.has(key)),
       })),
-    );
-    return {
-      ...value,
-      entries: [
-        ...devices,
-        ...value.scenes.map((scene) => ({
-          ...scene,
-          entryKind: "scene",
-          secure: scene.targets.some((row) => devices.find((item) => item.key === row.key)?.kind === "lock"),
-        })),
-      ],
-    };
-  });
+    ],
+  };
+}
+
+export const deviceProps = schema.overwrite(withEntries) as typeof schema &
+  z.ZodType<ReturnType<typeof withEntries>, z.input<typeof schema>>;
+
+export type DeviceEntry = Extract<ReturnType<typeof withEntries>["entries"][number], { entryKind: "device" }>;
+
+const deviceParts = [
+  "root",
+  "name",
+  "room",
+  "reading",
+  "level",
+  "temp",
+  "minus",
+  "plus",
+  "lock",
+  "controls",
+  "apply",
+  "secure",
+] as const;
+
+const deviceActions = {
+  items: {
+    root: ["toggle"],
+    lock: ["toggle"],
+    controls: ["press"],
+    level: ["set"],
+    temp: ["set"],
+    minus: ["decrement"],
+    plus: ["increment"],
+    apply: ["press"],
+    secure: ["press"],
+  },
+  when: {
+    root: { entryKind: "device", switchable: true },
+    lock: { kind: "lock" },
+    controls: { entryKind: "device", linked: true },
+    level: { entryKind: "device", adjustable: true },
+    temp: { kind: "heat" },
+    minus: { kind: "heat" },
+    plus: { kind: "heat" },
+    apply: { entryKind: "scene", secure: false },
+    secure: { entryKind: "scene", secure: true },
+  },
+} as const;
+
+export const deviceControls = {
+  group: "input",
+  purpose: "Read and control connected household devices and apply saved settings together.",
+  pick: "Connected household devices: switches, thermostat reading and set point, sensor ranges and multi-device scenes. Not local preference rows with trailing switches (List), one labelled form value (Field), navigation (Actions), independent manual summary measurements (Stats), recent manual history (Sparkline), or a person's body readings (Vitals).",
+  region: "body",
+  weight: 3,
+  dense: true,
+  tier: "service",
+  realPath:
+    "A host adapter maps device keys to a smart-home service, supplies readings and command acknowledgements; without it this is a labelled mock.",
+  items: {
+    key: "entries",
+    set: { temp: { prop: "temp", min: 5, max: 30 } },
+    adjust: {
+      "plus.increment": { prop: "temp", delta: 0.5 },
+      "minus.decrement": { prop: "temp", delta: -0.5 },
+    },
+    parts: deviceParts,
+  },
+  parts: ["root"],
+  confirmParts: ["lock", "secure"],
+  states: ["filled", "empty", "loading", "success", "error"],
+  actions: deviceActions,
+} as const;

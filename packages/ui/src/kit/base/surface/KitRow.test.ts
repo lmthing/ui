@@ -75,7 +75,7 @@ describe("KitRow named non-item controls", () => {
       const input = { label: "Choice", children: label };
       const staticHtml = renderRow(input);
       expect(staticHtml).not.toContain('data-testid="home/s1/root"');
-      expect(staticHtml).toContain('role="text"');
+      expect(staticHtml).not.toContain('role="text"');
       expect(spy).toHaveBeenCalledWith("root", false);
       const itemHtml = renderRow({ ...input, item: "r1", role: "button" });
       expect(spy).toHaveBeenCalledWith("root", true);
@@ -182,7 +182,7 @@ describe("KitRow inline static composition", () => {
       const row = root.children[0]!;
       const content = row.children[0]!;
       const trailing = content.children.at(-1)!.children[0]!;
-      expect(row.attributes).toContain('role="text"');
+      expect(row.attributes).not.toContain('role="text"');
       expect(styleAt(html, row)).toContain("padding-top:0px");
       expect(styleAt(html, trailing)).toContain("flex-direction:row");
       expect(trailing.children).toHaveLength(undo ? 2 : 1);

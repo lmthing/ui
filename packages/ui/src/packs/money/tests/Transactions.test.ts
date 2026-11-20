@@ -128,7 +128,7 @@ describe("Transactions states, parts and read/act", () => {
   it("draws one heading at each day boundary and addresses every interactive row and its content", () => {
     const entries = [...examples[0]!.entries, examples[1]!.entries[1]!];
     const html = renderInstance("Transactions", { entries }, "filled", theme);
-    expect(elementAt(html, "home/c1/root").attributes).toContain('role="list"');
+    expect(elementAt(html, "home/c1/root").attributes).not.toMatch(/\srole=/);
     for (const [index] of entries.entries()) {
       const item = `home/c1/r${index + 1}`;
       for (const part of ["payee", "category", "icon", "amount"])

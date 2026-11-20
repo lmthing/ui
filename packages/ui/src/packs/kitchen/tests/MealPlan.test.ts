@@ -140,7 +140,7 @@ describe("MealPlan states, parts, reading and conditional actions", () => {
     for (const row of parsedRows(parsed)) {
       const root = `home/m1/${row.id}/root`;
       expect(html.split(`data-testid="${root}"`)).toHaveLength(2);
-      expect(elementAt(html, root).attributes).toContain(row.filled ? 'role="link"' : 'role="listitem"');
+      expect(elementAt(html, root).attributes).toContain(row.filled ? 'role="link"' : 'role="group"');
       const action = row.filled
         ? { address: `m1/${row.id}`, part: "root", action: "press", detail: "→recipe_overview" }
         : { address: `m1/${row.id}/add`, part: "add", action: "press", detail: "" };

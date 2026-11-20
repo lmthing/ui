@@ -1,4 +1,6 @@
+import { useContext } from "react";
 import { useKit } from "../../provider";
+import { RowLabelContext } from "../../a11y";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
@@ -50,6 +52,7 @@ const Knob = styled(YStack, {
 export type TrailKind = AxisValue<"trail">;
 type TrailProps = {
   kind: TrailKind;
+  label?: string;
   value?: string | undefined;
   on?: boolean;
   part?: string;
@@ -139,17 +142,11 @@ function ValueTrail({
 }
 
 /** The end of a row: chevron (goes somewhere), check (done), switch (on/off), value or badge. */
-export function KitTrail({
-  kind,
-  value,
-  on = false,
-  part = "trail",
-  disabled = false,
-  tone,
-  density,
-}: TrailProps) {
+export function KitTrail(props: TrailProps) {
+  const { kind, label, value, on = false, part = "trail", disabled = false, tone, density } = props;
   const address = usePart(part, kind !== "none");
   const kit = useKit();
+  const rowLabel = useContext(RowLabelContext);
   const loading = useComponentState() === "loading";
   const initial = value === "on" ? true : value === "off" ? false : on;
   const stored = useControlValue<unknown>(address.testID, initial);
@@ -161,6 +158,7 @@ export function KitTrail({
       <Frame
         {...address}
         accessibilityRole={loading ? undefined : "switch"}
+        accessibilityLabel={loading ? undefined : (label ?? rowLabel)}
         aria-checked={loading ? undefined : active}
         aria-disabled={disabled || undefined}
         aria-hidden={loading || undefined}

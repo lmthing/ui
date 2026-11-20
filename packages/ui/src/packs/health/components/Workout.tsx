@@ -145,7 +145,7 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   // prettier-ignore
   return hasWorkoutSetFields(set)
     ? <kit.KitSetRow {...row} labelPart={labelPart} fields={fields} done={done} detail={detail} />
-    : <><kit.KitRow {...row} inline role="text" lineRole="label" trailing={done}>
+    : <><kit.KitRow {...row} inline lineRole="label" trailing={done}>
         <kit.KitText part={labelPart} role="label">{label}</kit.KitText>
       </kit.KitRow>{detail}</>;
 }

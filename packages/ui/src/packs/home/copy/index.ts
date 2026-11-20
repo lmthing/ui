@@ -24,4 +24,4 @@ export {
   babyRunningLine,
   babyTileAction,
 } from "./BabyLog";
-export { deviceLabels, deviceUnits } from "./Devices";
+export { deviceLabels, deviceUnits, deviceRange, deviceValue, focusedDevice } from "./Devices";

@@ -1,21 +1,28 @@
 import {
   affordancesOf,
   components,
+  liveProps,
+  migrateScreen,
+  parseControlProps,
   planAct,
-  stampItemIds,
   type Affordance,
+  type Definition,
   type ScreenLike,
 } from "@lmthing/ui/catalog";
 
-type Def = { meta: unknown };
+const defs = components as unknown as Record<string, Definition>;
 
 /** Every address and action the screen offers: the only answers the model may give. */
 export function offered(screen: ScreenLike): Affordance[] {
-  const defs = components as unknown as Record<string, Def>;
-  return screen.components.flatMap(({ id, c, state: _state, ...props }) => {
-    const def = defs[c];
-    return def ? affordancesOf(def.meta as never, stampItemIds(def.meta as never, props), id, {}) : [];
-  });
+  return migrateScreen(screen, { variantOnly: true }).components.flatMap(
+    ({ id, c, state: _state, ...input }) => {
+      const def = defs[c];
+      if (!def) return [];
+      // List derives disclosure and row actions during parsing; raw wire props do not carry them.
+      const props = liveProps(def.meta, parseControlProps(def, input), id, {}, true);
+      return affordancesOf(def.meta, props, id);
+    },
+  );
 }
 
 /** `{address, action}` limited to real pairs, so a model cannot name a part or action the screen lacks. */
@@ -43,7 +50,7 @@ export function resolveAnswer(screen: ScreenLike, text: string): ActOutcome {
     return { ok: false, address: "", action: "", message: "the answer was not valid JSON" };
   }
   const { address, action } = answer;
-  const result = planAct(screen, components as never, {}, [{ address, action }]);
+  const result = planAct(screen, defs, {}, [{ address, action }]);
   if (!result.ok)
     return {
       ok: false,
