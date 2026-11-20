@@ -67,11 +67,12 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { title: saved, sub: sub ?? placeholderDetail };
 }
 
+const booked = { title: "Walk booked", sub: "Clover, tomorrow at 09:00" };
 export const examples = [
   { title: "Fern watered", sub: "Bathroom, just now", icon: "circle_check" },
-  { title: "Walk booked", sub: "Clover, tomorrow at 09:00" },
+  booked,
   { style: "toast", title: "Walk cancelled", icon: "circle_check", undo: true },
-  { detail: "brief", title: "Reminder saved", sub: "Fern · every Friday" },
+  { ...booked, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Success");
