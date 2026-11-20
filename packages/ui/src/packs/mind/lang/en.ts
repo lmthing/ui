@@ -1,4 +1,13 @@
 export const en = {
+  soundscape: {
+    sleep: "Sleep timer",
+    off: "Off",
+    minutes: (value: string) => `${value} min`,
+    play: "Play mix",
+    pause: "Pause mix",
+    volume: (label: string) => `${label} volume`,
+    volumeReading: (label: string, value: string) => `${label}: ${value}`,
+  },
   feelings: {
     title: "Name what you feel",
     hint: "Choose a family, then pick words that fit.",
