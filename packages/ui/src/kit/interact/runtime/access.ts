@@ -67,7 +67,7 @@ function actionsAt(
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, localValues, true);
+    const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
     return affordancesOf(
       def.meta,
       props,

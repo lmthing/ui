@@ -35,7 +35,11 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
       const meta = options.defs[c]?.meta;
       return (
         meta?.confirmParts?.length &&
-        (meta.session || meta.successActions?.length || meta.errorActions?.length || meta.live?.derive)
+        (meta.session ||
+          meta.successActions?.length ||
+          meta.errorActions?.length ||
+          meta.live?.derive ||
+          meta.linkedEdits)
       );
     })
   )
@@ -71,6 +75,8 @@ export function createAgentAccess(options: AgentOptions) {
         store.snapshot(screen!.id),
         list,
         opts.dryRun ? null : options.random,
+        "planner",
+        options.deviceData,
       );
       if (!plan.ok) return plan;
       const reply = { ok: true as const, screen: screen!.id, changed: plan.changed.join("\n") };
