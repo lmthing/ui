@@ -8,6 +8,7 @@ import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
+import { applyReportEdits } from "./report-edits";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -15,7 +16,6 @@ import {
   projectLiveClocks,
   projectMatrix,
 } from "./clocks";
-
 function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
@@ -72,7 +72,7 @@ export function controlValueKey(def: Definition, key: string): string {
 /** Apply stored control edits to wire input, never copying schema-derived output into it. */
 export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const { meta } = def;
-  let source = projectComponentSets(meta, input, get);
+  let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
   const items = meta.items;

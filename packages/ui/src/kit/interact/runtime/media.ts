@@ -1,21 +1,50 @@
-import { photo, type ActStep, type Values } from "../../../catalog";
+import { itemEditSpec, photo, planAct, stageReportEdit, type ActStep, type Values } from "../../../catalog";
 import type { MediaSession } from "../index";
 import type { ControllerContext } from "./context";
-function requestPhoto(ctx: ControllerContext, id: string, target: string) {
-  void ctx.options.requestPhoto!(target)
+function applyPhoto(ctx: ControllerContext, target: string, reference: string) {
+  const step = { address: ctx.relative(target), action: "press" };
+  const [id, ...parts] = step.address.split("/");
+  const source = ctx.sourceOf(id!);
+  const meta = source && ctx.defs[source.c]?.meta;
+  if (meta && itemEditSpec(meta, parts.join("/"))?.action === "photo") {
+    const values = ctx.valuesOf();
+    const visible = ctx.liveScreen(values, ctx.status.openSheet);
+    if (!planAct(visible, ctx.defs, values, [step], null, "controller", ctx.options.deviceData).ok) return;
+    if (
+      !stageReportEdit(visible, ctx.defs, values, step, { kind: "photo", reference }, ctx.options.deviceData)
+    )
+      return;
+    ctx.store.setMany(values);
+  } else {
+    ctx.store.set(target, reference);
+  }
+  ctx.notifyChange();
+}
+
+function requestPhoto(ctx: ControllerContext, id: string, target: string, isCurrent: () => boolean) {
+  const errorAt = target.slice(ctx.key(id, "").length).includes("/")
+    ? `${target}/$error`
+    : ctx.key(id, "error");
+  const fail = (error: unknown) => {
+    if (isCurrent()) ctx.store.set(errorAt, error instanceof Error ? error.message : "Photo unavailable");
+  };
+  let pending: Promise<string | undefined>;
+  try {
+    pending = ctx.options.requestPhoto!(target);
+  } catch (error) {
+    fail(error);
+    return;
+  }
+  void pending
     .then((reference) => {
-      if (ctx.status.disposed || reference === undefined) return;
+      if (!isCurrent() || reference === undefined) return;
       if (!photo.safeParse(reference).success) {
-        ctx.store.set(ctx.key(id, "error"), "Invalid photo reference");
+        fail(new Error("Invalid photo reference"));
         return;
       }
-      ctx.store.set(target, reference);
-      ctx.notifyChange();
+      applyPhoto(ctx, target, reference);
     })
-    .catch((error: unknown) => {
-      if (!ctx.status.disposed)
-        ctx.store.set(ctx.key(id, "error"), error instanceof Error ? error.message : "Photo unavailable");
-    });
+    .catch(fail);
 }
 function playMedia(ctx: ControllerContext, session: MediaSession | undefined, id: string, playing: boolean) {
   if (!playing) {
@@ -76,6 +105,7 @@ function finishPrepared(sessions: Map<string, Opened>, added: Map<string, Opened
 
 export function createMediaRuntime(ctx: ControllerContext) {
   const sessions = new Map<string, Opened>();
+  let photoGeneration = 0;
   function mount(id: string, pending = false) {
     if (sessions.has(id)) return sessions.get(id);
     const gate: Gate = { status: pending ? "pending" : "active", values: {} };
@@ -106,9 +136,13 @@ export function createMediaRuntime(ctx: ControllerContext) {
     mountMedia,
     playMedia: (id: string, playing: boolean) => playMedia(ctx, mountMedia(id), id, playing),
     seekMedia: (id: string, target: number) => mountMedia(id)?.seek(target),
-    requestPhoto: (id: string, target: string) => requestPhoto(ctx, id, target),
+    requestPhoto: (id: string, target: string) => {
+      const generation = photoGeneration;
+      requestPhoto(ctx, id, target, () => !ctx.status.disposed && generation === photoGeneration);
+    },
     prepare,
     reset: () => {
+      photoGeneration++;
       for (const [id, { session }] of sessions) {
         session.pause();
         session.seek(Number(ctx.inputOf(ctx.sourceOf(id)!).at ?? 0));
