@@ -12,6 +12,12 @@ export const en = {
   },
   shiftTimeSeparator: "–",
   shiftCoworkers: (names: string) => ["With ", names] as const,
+  openShift: {
+    claim: "Claim",
+    empty: "No open shifts",
+    success: "Claim requested",
+    detailSeparator: " · ",
+  },
 };
 
 export type TeamWords = typeof en;
