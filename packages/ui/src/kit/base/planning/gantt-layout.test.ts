@@ -54,5 +54,5 @@ it("takes a clear channel beside intervening bars", () => {
   const b = { left: 74, width: 63, index: 1 };
   const c = { left: 42, width: 63, index: 2 };
   const d = { left: 90, width: 63, index: 3 };
-  expect(dependency(a, d, width, [b, c])).toContain(`H${c.left - space.sm} V`);
+  expect(dependency(a, d, width, [b, c])).toContain(`H${c.left - space.xs} V`);
 });
