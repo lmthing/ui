@@ -123,14 +123,34 @@ describe("Weather states and affordances", () => {
     expect(missing).toContain(forecast!.place);
     expect(missing).not.toContain("Sample forecast");
   });
+});
 
+describe("Weather reading and probes", () => {
   it("keeps the reader aligned with host data and offers no actions in any state", () => {
     const input = props.parse(forecast);
     const data = preview(forecast!);
-    expect(readComponent(def, input, "w1", "filled", {}, "en", data).join(" ")).toContain("85% rain");
+    const read = readComponent(def, input, "w1", "filled", {}, "en", data).join(" ");
+    expect(read).toContain("Today · Sample forecast");
+    expect(read).toContain("7° / 2°C · Cloudy");
+    expect(read).toContain("Fri · Rain · 6° / 2° · 85% rain");
     expect(readComponent(def, input, "w1").join(" ")).toContain("Weather unavailable");
     for (const state of meta.states) expect(affordancesOf(meta, input, "w1", {}, state)).toEqual([]);
     expect(readComponent(def, input, "w1", "error", {}, "en", data)).toEqual(["w1 Weather (error)"]);
+  });
+
+  it("reads the typical range without the summary condition in brief", () => {
+    const brief = readComponent(
+      def,
+      { ...typical, detail: "brief" },
+      "w1",
+      "filled",
+      {},
+      "en",
+      preview(typical!),
+    ).join(" ");
+    expect(brief).toContain("Sample · March averages");
+    expect(brief).toContain("14° / 5°C");
+    expect(brief).not.toContain("Cloudy");
   });
 
   it("is a service entry with a core near miss and a variant-specific write probe", () => {

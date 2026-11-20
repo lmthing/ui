@@ -16,6 +16,8 @@ type FlipProps = {
   label: string;
   target: Target;
   disabled?: boolean;
+  /** A start-aligned face and caption share KitContent's `md` inset. */
+  align?: "center" | "start";
 };
 
 export function usePanelTarget(
@@ -82,7 +84,15 @@ function FlipPlaceholder({ hint }: { hint: boolean }) {
   );
 }
 
-function FlipHint({ label, disabled }: { label: string; disabled: boolean }) {
+function FlipHint({
+  label,
+  disabled,
+  align,
+}: {
+  label: string;
+  disabled: boolean;
+  align: "center" | "start";
+}) {
   return (
     <YStack
       marginTop={space.sm}
@@ -90,7 +100,7 @@ function FlipHint({ label, disabled }: { label: string; disabled: boolean }) {
       aria-hidden
       accessibilityElementsHidden
     >
-      <KitText tone="accent" role="label" align="center" part={null}>
+      <KitText tone="accent" role="label" align={align} part={null}>
         {label}
       </KitText>
     </YStack>
@@ -105,8 +115,10 @@ function FlipFace({
   disabled = false,
   flipped,
   loading = false,
+  align = "center",
 }: Omit<FlipProps, "part">) {
   const ks = useKitStyle();
+  const surface = surfaceOf(ks.surface);
   const { environment } = useKit();
   const interactive = usePanelTarget(target, label, loading, disabled);
   const settled = loading || environment.reduceMotion || environment.agentMode;
@@ -117,10 +129,11 @@ function FlipFace({
   return (
     <YStack
       {...interactive}
-      {...surfaceOf(ks.surface)}
+      {...surface}
       borderRadius={shifted("md", ks.radiusShift)}
       minHeight={component.base.ringMd + space.md}
       padding={space.lg}
+      {...(align === "start" ? { paddingHorizontal: space.md - surface.borderWidth } : {})}
       alignItems="center"
       justifyContent="center"
     >
@@ -131,13 +144,13 @@ function FlipFace({
       ) : (
         <YStack
           width="100%"
-          alignItems="center"
+          alignItems={align === "start" ? "stretch" : "center"}
           gap={space.xs}
           y={offset * space.xs}
           opacity={disabled ? 1 - component.base.skeletonOpacity / 2 : 1 - offset / 4}
         >
           {face}
-          {hint && <FlipHint label={label} disabled={disabled} />}
+          {hint && <FlipHint {...{ label, disabled, align }} />}
         </YStack>
       )}
     </YStack>
