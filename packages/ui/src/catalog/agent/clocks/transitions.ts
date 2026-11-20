@@ -4,11 +4,13 @@ import { adjustmentAt } from "./adjustment";
 import {
   clockTargets,
   clockKey,
+  clockMillis,
   clockPropKey,
   clockSeed,
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  isPlaybackClock,
 } from "./clock";
 
 function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
@@ -19,7 +21,7 @@ function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number):
     state?.running && !clockEnded(clock, Number(current)) && !clockEnded(clock, seconds),
   );
   // Keep the next tick on its original boundary when adjusting mid-second.
-  const from = running ? now - (Math.max(0, now - state!.from) % 1000) : now;
+  const from = running ? now - (clockMillis(state!, now) % 1000) : now;
   const zero = clock.spec.zero;
   return {
     [clockKey(clock)]: { running, from, seconds, seed: state?.seed ?? clockSeed(clock) } satisfies ClockState,
@@ -56,6 +58,9 @@ export function clockChanges(
         from: now,
         seconds,
         seed,
+        ...(isPlaybackClock(clock.spec)
+          ? { remainder: state && operation !== "reset" ? clockMillis(state, now) % 1000 : 0 }
+          : {}),
       } satisfies ClockState;
       if (clock.spec.prop) changes[clockPropKey(clock)] = seconds;
       if (trigger.state) changes.$state = trigger.state;

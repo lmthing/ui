@@ -7,7 +7,11 @@ export {
   clockEnded,
   clockTriggerTarget,
   projectClocks,
+  projectLiveClocks,
   clockActionValid,
+  clockControlDeclared,
+  hasPlaybackClock,
+  isPlaybackAction,
 } from "./clock";
 export { clockChanges } from "./transitions";
 export {

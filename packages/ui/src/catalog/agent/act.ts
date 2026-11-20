@@ -15,7 +15,7 @@ import {
   type RandomSource,
 } from "./draw";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "./session";
-import { clockChanges } from "./clocks";
+import { clockChanges, hasPlaybackClock, isPlaybackAction } from "./clocks";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -51,13 +51,15 @@ function stageStandaloneClock(
   const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
   const def = defs[c]!;
   const { live, clocks, items } = def.meta;
-  if (!live?.derive || (!clocks && !items?.clocks && !items?.nested?.clocks)) return;
-  const base = `${screen.id}/${id}/`;
-  const get = (part: string) => next[`${base}${part}`];
-  const props = liveInput(def, input, id!, localValues(screen.id, next));
+  const legacy = live?.derive && (clocks || items?.clocks || items?.nested?.clocks);
+  if (!legacy && !(isPlaybackAction(step.action) && hasPlaybackClock(def.meta))) return;
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const props = legacy
+    ? liveInput(def, input, id!, localValues(screen.id, next))
+    : parseControlProps(def, input, get);
   const now = Number(get("$now") ?? Date.now());
   const changes = clockChanges(def.meta, props, get, parts.join("/") || "root", step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${base}${part}`] = value;
+  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
 
 function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {

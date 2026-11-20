@@ -4,7 +4,7 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
-import { projectClocks } from "./clocks";
+import { projectLiveClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
@@ -37,7 +37,7 @@ function readingProps(
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
-  const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
+  const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live || meta.items?.visibleWhen || Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
