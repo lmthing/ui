@@ -25,7 +25,7 @@ export function ActPane({
       <p className="muted">The compact text the model reads before it acts.</p>
       <pre className="code">{view || "Build a screen first."}</pre>
       <h3>Act</h3>
-      {tier === 3 && (
+      {tier === 4 && (
         <p className="muted">
           Replay has no model to ask. The "View and act" demo above replays real recorded answers.
         </p>
