@@ -89,29 +89,28 @@ export const props = z
 export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
   return { days: weekdays.map((day) => ({ day, on: false, ...availabilityDefaults })) };
 }
+// Ledge's plant-care visits, with a midday break.
+const plantCareWeek = {
+  days: weekdays.map((day) => ({
+    day,
+    on: !["sat", "sun"].includes(day),
+    from: "09:00",
+    to: "17:00",
+    ...(!["sat", "sun"].includes(day) ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
+  })),
+};
 export const examples = [
-  // Ledge's plant-care visits, with a midday break.
-  {
-    days: weekdays.map((day) => ({
-      day,
-      on: !["sat", "sun"].includes(day),
-      from: "09:00",
-      to: "17:00",
-      ...(!["sat", "sun"].includes(day) ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
-    })),
-  },
+  plantCareWeek,
   // Trot's walking week.
   // prettier-ignore
   {
-    density: "compact",
     days: weekdays.map((day) => ({
       day, on: ["mon", "wed", "fri"].includes(day), from: "08:00", to: "16:00",
       ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}),
     })),
   },
-  // prettier-ignore
-  { detail: "brief", days: weekdays.map((day) => ({ day, on: !["sat", "sun"].includes(day),
-    from: "09:00", to: "17:00", ...(day === "mon" ? { breakFrom: "12:00", breakTo: "13:00" } : {}) })) },
+  { ...plantCareWeek, density: "compact" },
+  { ...plantCareWeek, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Availability");
 export const probes = [
