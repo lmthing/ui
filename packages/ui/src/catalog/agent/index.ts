@@ -6,10 +6,26 @@ export {
   type Affordance,
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
-export { emptyDeviceData, selectDeviceData, type DeviceData } from "./device-data";
+export {
+  emptyDeviceData,
+  filterDeviceDataScreen,
+  isDeviceDataVisible,
+  selectDeviceData,
+  type DeviceData,
+} from "./device-data";
 export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
+export {
+  hasReportConfirmation,
+  itemEditSpec,
+  reportConfirmation,
+  reportRemovalAt,
+  stageReportEdit,
+  type ItemEditPath,
+  type ItemEdits,
+  type ReportRemoval,
+} from "./report-edits";
 export {
   choiceOptions,
   choiceValues,

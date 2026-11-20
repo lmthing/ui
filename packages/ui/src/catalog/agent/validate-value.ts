@@ -1,12 +1,19 @@
 // Checks the value an action carries, before anything changes. Errors say the allowed format in
 // under 10 words (plan 4.12).
+import { z } from "zod";
 import { localeOf } from "../lang";
 import type { Meta } from "../meta";
 import type { Values } from "./act";
+import { itemEditAt } from "./report-edits";
 
 export type ValueError = { code: "invalid_value"; hint: string };
+type SetSpec = NonNullable<Meta["set"]>[string];
+type StringLimits =
+  Omit<Extract<SetSpec, { type: "date" }>, "prop"> | Omit<Extract<SetSpec, { type: "choice" }>, "prop">;
+type NumericLimits = { type?: "number"; numeric?: true; min?: number; max?: number; integer?: boolean };
 
 const invalid = (hint: string): ValueError => ({ code: "invalid_value", hint });
+const calendarDate = z.iso.date();
 // The decimal keypad uses ASCII decimal drafts, not localized display notation.
 const plainDecimal = new Intl.NumberFormat(localeOf(), { useGrouping: false, maximumSignificantDigits: 21 });
 
@@ -88,12 +95,26 @@ const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> 
 export function validateActionValue(
   action: string,
   value: unknown,
-  limits?: { numeric?: true; min?: number; max?: number; integer?: boolean },
+  limits?: NumericLimits | StringLimits,
 ): ValueError | null {
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
-  if (limits && (limits.numeric || limits.min !== undefined || limits.max !== undefined || limits.integer)) {
+  if (limits?.type === "date") {
+    const date = calendarDate.safeParse(value);
+    if (!date.success) return invalid("Use a real date in YYYY-MM-DD");
+    if (limits.min !== undefined && date.data < limits.min) return invalid(`Use ${limits.min} or later`);
+    if (limits.max !== undefined && date.data > limits.max) return invalid(`Use ${limits.max} or earlier`);
+    return null;
+  }
+  if (limits?.type === "choice")
+    return typeof value === "string" && limits.choices.includes(value)
+      ? null
+      : invalid("Use one of the declared choices");
+  if (
+    limits &&
+    (limits.type || limits.numeric || limits.min !== undefined || limits.max !== undefined || limits.integer)
+  ) {
     if (typeof value !== "number" || !Number.isFinite(value))
       return { code: "invalid_value", hint: "set takes a finite number" };
     if (limits.integer && !Number.isInteger(value))
@@ -117,7 +138,8 @@ type ChoiceOption = { value: string | number; label?: string };
 
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
 export function choiceOptions(meta: Meta, props: Values, target: string): ChoiceOption[] | undefined {
-  const offer = selectionOffer(meta, target);
+  const item = itemEditAt(meta, props, target);
+  const offer = item?.spec.action === "select" ? item.spec : selectionOffer(meta, target);
   if (!offer) return undefined;
   const source = offer.choices;
   const allowed = "prop" in source ? props[source.prop] : source;
@@ -137,7 +159,7 @@ export function choiceOptions(meta: Meta, props: Values, target: string): Choice
         choices.push({ value: option.value, label: option.label });
     }
   }
-  if (offer.clear && !choices.some(({ value }) => value === offer.clear))
+  if ("clear" in offer && offer.clear && !choices.some(({ value }) => value === offer.clear))
     choices.push({ value: offer.clear });
   return choices;
 }

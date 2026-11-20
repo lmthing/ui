@@ -5,7 +5,7 @@ type ScoreInput = {
   players: readonly { name: string }[];
   rounds: readonly { label: string; points: readonly (number | null)[] }[];
   wins: "high" | "low";
-  style: "grid" | "round";
+  overflow: "all" | "page";
   selectedRound?: string | undefined;
   share: boolean;
 };
@@ -64,14 +64,13 @@ export function scoreReading(input: ScoreInput, lang?: string) {
   ];
   const selected = Number(input.selectedRound ?? "1") - 1;
   const cells = input.rounds.flatMap(({ label, points }, round) =>
-    input.style === "round" && round !== selected
+    input.overflow === "page" && round !== selected
       ? []
       : points.map((score, player) =>
           scoreReadCell(
-            `r${round * input.players.length + player + 1}`,
             input.players[player]!.name,
             label,
-            score === null ? labels.notPlayed : numberLine(score, lang),
+            score === null ? labels.unplayed : numberLine(score, lang),
           ),
         ),
   );

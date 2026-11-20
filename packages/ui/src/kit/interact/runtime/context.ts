@@ -6,11 +6,14 @@ import {
   sessionKey,
   staleSession,
   migrateScreen,
+  filterDeviceDataScreen,
+  isDeviceDataVisible,
   resolveDefinition,
   type ActStep,
   type Definition,
   type DeviceData,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -29,6 +32,7 @@ export type Confirmation = {
   source: string;
   goto?: string;
   step?: ActStep;
+  removal?: ReportRemoval;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -67,10 +71,8 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
 }
 function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
-  const candidates = screen.components.filter(
-    (entry) =>
-      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
-      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
+  const candidates = screen.components.filter(({ id }) =>
+    [drawKey, sessionKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -102,11 +104,28 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
+function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string | undefined) {
+  return (
+    visible !== screen &&
+    screen.components.some(({ id }) => id === sheet) &&
+    !visible.components.some(({ id }) => id === sheet)
+  );
+}
+function visibleConfirmation(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  confirmation?: Confirmation,
+  data?: DeviceData,
+) {
+  if (!confirmation) return;
+  const [source] = relativeAddress(screen.id, confirmation.source).split("/");
+  const component = screen.components.find(({ id }) => id === source)?.c;
+  const meta = component && defs[component]?.meta;
+  if (!meta || isDeviceDataVisible(meta, data)) return confirmation;
+}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
-  const { defs } = options;
+  const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
-  const now = options.now ?? Date.now;
-  const store = options.store ?? createInteractionStore();
   let initial = standalone ? {} : initialValues(screen, defs, now);
   const status = {
     disposed: false,
@@ -124,9 +143,10 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ),
         };
   const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    if (standalone) return screen;
-    const projected = projectScreen(screen, defs, values, at, sheet, false, false);
-    return covered
+    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
+    if (standalone) return visible;
+    const projected = projectScreen(visible, defs, values, at, sheet, false, false);
+    return covered && !hostHidesSheet(screen, visible, sheet)
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
   };
@@ -140,6 +160,8 @@ export function createControllerContext(options: ControllerOptions, standalone =
     status,
     valuesOf,
     liveScreen,
+    confirmationFor: (data = options.deviceData) =>
+      visibleConfirmation(screen, defs, status.confirmation, data),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
@@ -161,15 +183,15 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-
 export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
   return {
     ...ctx,
+    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, ctx.options.deviceData),
     now: () => at,
     valuesOf: () => values,
-    status: { ...ctx.status },
+    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
