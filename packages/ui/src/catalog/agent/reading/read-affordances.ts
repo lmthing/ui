@@ -1,7 +1,7 @@
 import type { Definition } from "../../probes";
 import { liveInputKey } from "../live-inputs";
 import {
-  choiceValues,
+  choiceOptions,
   controlValueKey,
   numericSetAt,
   partTierAt,
@@ -33,10 +33,11 @@ export function readAffordances(
   return affordances.map((a) => {
     const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
-    const choices = a.action === "select" && choiceValues(meta, props, target);
+    const options = a.action === "select" && choiceOptions(meta, props, target);
+    const selected = options ? props[selectionOffer(meta, target)!.prop] : undefined;
     const set = a.action === "set" && numericSetAt(meta, props, target);
-    const value = choices
-      ? props[selectionOffer(meta, target)!.prop]
+    const value = options
+      ? (options.find(({ value }) => value === selected)?.label ?? selected)
       : set
         ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined
@@ -50,7 +51,10 @@ export function readAffordances(
       detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
-    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
+    if (options) {
+      const labels = options.map(({ label, value }) => label ?? value);
+      detail += `${detail ? ";" : ""} choices ${JSON.stringify(labels)}`;
+    }
     return { ...a, detail: `${detail}${risk}` };
   });
 }

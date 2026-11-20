@@ -10,6 +10,7 @@ export { emptyDeviceData, selectDeviceData, type DeviceData } from "./device-dat
 export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
 export {
+  choiceOptions,
   choiceValues,
   resolveKeypadValue,
   selectionOffer,
