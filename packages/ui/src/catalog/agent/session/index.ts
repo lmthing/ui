@@ -1,5 +1,6 @@
 export {
   advanceSession,
+  sessionActionProps,
   sessionAvailable,
   sessionEvent,
   sessionKey,

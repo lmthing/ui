@@ -3,15 +3,25 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, VariantParts, Variants } from "../types";
-
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
-
 type Draw =
   | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
+type RoundFields = Readonly<Record<string, unknown>>;
+type Assessment = {
+  inputs: Readonly<Record<string, "select" | "type">>;
+  readHidden?: readonly string[];
+  revise?: (answers: RoundFields, part: string, value: unknown) => RoundFields;
+  /** Undefined means the response is not ready to check. */
+  grade: (item: RoundFields, answers: RoundFields) => boolean | undefined;
+  project: (item: RoundFields, answers: RoundFields) => RoundFields;
+};
+type RoundKind =
+  | { next: string; assessment?: Assessment; ratings?: never }
+  | { next?: never; assessment?: never; ratings: readonly string[]; front: readonly string[] };
 type Session =
   | {
       kind: "turns";
@@ -25,17 +35,15 @@ type Session =
       reverse?: string;
       restart?: string;
     }
-  | {
+  | ({
       kind: "rounds";
       items: string;
       hidden: readonly string[];
       reveal: string;
-      next: string;
       restart?: string;
-    };
+    } & RoundKind);
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
-
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
 type SelectMeta = {
@@ -50,7 +58,6 @@ type SelectMeta = {
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
 );
-
 export type Meta = {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
@@ -79,6 +86,8 @@ export type Meta = {
   emptyActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` that are also available in `success`. */
   successActions?: readonly `${string}.${ActionName}`[];
+  /** Read visible content and the read summary in success, not just the header and available actions. */
+  readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */

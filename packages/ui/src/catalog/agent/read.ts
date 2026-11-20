@@ -1,18 +1,17 @@
-import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
+import { liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
 import { peekLimit, wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { affordancesOf, formatAffordance, partTierAt, type Affordance } from "./affordances";
-import { numericSetAt, projectClocks } from "./clocks";
+import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+import { projectClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
-import { choiceValues, selectionOffer } from "./validate-value";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
-import { componentTexts, itemTexts, type ReadSchema as Json } from "./reading";
+import { componentTexts, itemTexts, readAffordances, type ReadSchema as Json } from "./reading";
 
 type Props = Record<string, unknown>;
 
@@ -27,43 +26,6 @@ function variantsOf(schema: Json, props: Props): string {
     .join("");
 }
 
-const risks: Record<string, string> = {
-  ok: " !needs-ok",
-  people: " !needs-people",
-  service: " !needs-service",
-};
-
-/** Live values (keyed by address relative to the screen) replace a toggle's or check's initial state. */
-function withValues(
-  affordances: Affordance[],
-  values: Record<string, unknown>,
-  def: Definition,
-  props: Props,
-  instance: string,
-) {
-  const { meta } = def;
-  return affordances.map((a) => {
-    const risk = risks[partTierAt(meta, props, a.part)] ?? "";
-    const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
-    const choices = a.action === "select" && choiceValues(meta, props, target);
-    const set = a.action === "set" && numericSetAt(meta, props, target);
-    const value = choices
-      ? props[selectionOffer(meta, target)!.prop]
-      : set
-        ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-          ? undefined
-          : set.value
-        : (values[`${a.address}/$draft`] ?? values[a.address]);
-    let detail = a.detail;
-    if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
-    if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
-    if (value !== undefined && ["type", "set", "select"].includes(a.action))
-      detail = ` = ${JSON.stringify(value)}`;
-    if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
-    return { ...a, detail: `${detail}${risk}` };
-  });
-}
-
 function readingProps(meta: Meta, props: Props, instance: string, values: Props, session?: SessionState) {
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
@@ -71,8 +33,26 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props,
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
   const projected = visibleNestedProps(meta, projectDraw(meta, timed, get), get);
   if (!session) return projected;
-  const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
+  const current =
+    session.kind === "rounds"
+      ? { [meta.session!.items]: session.recall && session.complete ? [] : [session.item] }
+      : {};
   return { ...projected, ...current, [sessionKey]: session };
+}
+
+function readProgress(session: SessionState | undefined, lang?: string): string[] {
+  const assessment = session?.kind === "rounds" && session.assessment;
+  if (!assessment || assessment.correct === undefined) return [];
+  const { right, of } = assessment.score;
+  return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
+}
+
+/** A feedback view can use the solution without making it part of the agent's read. */
+function sessionForRead(meta: Meta, session: SessionState | undefined) {
+  const hidden = meta.session?.kind === "rounds" ? meta.session.assessment?.readHidden : undefined;
+  if (!hidden?.length || session?.kind !== "rounds") return session;
+  const item = Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)));
+  return { ...session, item };
 }
 
 function migrateInput(component: string, input: unknown) {
@@ -104,19 +84,23 @@ export function readComponent(
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
   const offered = affordancesOf(meta, props, instance, values, state);
-  const affordances = withValues(offered, values, def, props, instance);
-  if (state !== "filled" && !(state === "success" && (draw || session)))
+  const affordances = readAffordances(offered, values, def, props, instance, session);
+  const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
+  if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
-  const roundKey = session?.kind === "rounds" ? meta.session?.items : undefined;
+  const readable = sessionForRead(meta, session);
+  const round = readable?.kind === "rounds" ? readable : undefined;
+  const roundKey = round && meta.session?.items;
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, session), state, lang) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, readable), state, lang) ?? []),
+    ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
-    ...componentTexts(schema, props, key, roundKey, session?.kind === "rounds" ? session.item : undefined),
+    ...componentTexts(schema, props, key, roundKey, round?.item),
   ];
   return readItems(
     meta,

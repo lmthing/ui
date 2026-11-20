@@ -4,7 +4,7 @@ import { isNestedTarget, nestedControls, nestedRemaining } from "./selection";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
-import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
+import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
 export type Affordance = {
   address: string;
@@ -87,10 +87,7 @@ function partsOf(
   );
 }
 
-/**
- * Every action a model may take on one component instance, with its address relative to the screen
- * (`l1/r1/trail`). The reader prints these and act checks verify each one exists on screen.
- */
+/** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
   props: Props,
@@ -99,6 +96,10 @@ export function affordancesOf(
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
 ): Affordance[] {
+  const get = (part: string) => values[`${instance}/${part}`];
+  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  const session = sessionState(meta, props, get);
+  props = sessionActionProps(meta, props, session);
   const { parts, items: itemParts, when, noGoto } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, noGoto?.parts).flatMap((a) => {
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
@@ -112,16 +113,14 @@ export function affordancesOf(
     return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, noGoto?.items);
   });
   const runtime = values[`${instance}/$runtime`];
-  const get = (part: string) => values[`${instance}/${part}`];
   const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
-  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
-  const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
+  const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return offered.filter(({ address, action, part }) => {
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
-    if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role))) return false;
     const event = sessionEvent(meta, target, action);
+    if (!allowedIn(meta, feedback ? "success" : state, `${part}.${action}`, Boolean(role))) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
