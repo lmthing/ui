@@ -20,7 +20,7 @@ import {
 import { z } from "zod";
 // prettier-ignore
 import {
-  KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitPhoto, KitRow, KitSkeleton, KitText, PartScope,
+  KitAction, KitCard, KitContent, KitEmpty, KitPhoto, KitRow, KitSkeleton, KitText, PartScope,
   useControlValue, useKit, usePartContext, useWords,
 } from "../../../kit";
 import { triviaPointsCopy } from "../copy";
@@ -139,15 +139,14 @@ function previewReveal(input: TriviaProps, screen: string, id: string) {
 // prettier-ignore
 function TriviaActions({ primary, loading }: { primary?: "reveal" | "next" | undefined; loading?: boolean }) {
   const { words: { trivia } } = useWords(playWordsFor);
-  const restart = <KitRow role="button" part="restart" label={trivia.restart} lineRole="label">
-    <KitText role="label" tone="muted" align="center" part={null}>{trivia.restart}</KitText>
+  const restart = <KitRow inline role="button" part="restart" label={trivia.restart} lineRole="label">
+    <KitContent inset="md"><KitText role="label" tone="muted" part={null}>{trivia.restart}</KitText></KitContent>
   </KitRow>;
-  return <KitContent group="response">
-    {!primary ? restart : <KitGrid fitLast>
-      {loading ? <KitSkeleton shape="control" label={trivia[primary]} />
-        : <KitAction label={trivia[primary]} part={primary} action="press" />}
-      {loading ? <KitSkeleton shape="control" kind="quiet" label={trivia.restart} /> : restart}
-    </KitGrid>}
+  const kind = primary === "next" ? "primary" : "secondary";
+  const lead = primary && (loading ? <KitSkeleton shape="control" label={trivia[primary]} kind={kind} />
+    : <KitAction label={trivia[primary]} part={primary} action="press" kind={kind} />);
+  return <KitContent group="response" leadingAlign="row" lead={lead}>
+    {loading ? <KitSkeleton shape="control" kind="quiet" label={trivia.restart} /> : restart}
   </KitContent>;
 }
 
