@@ -22,6 +22,7 @@ import {
   KitContent,
   KitEmpty,
   KitGrid,
+  KitIcon,
   KitRow,
   KitText,
   useComponentState,
@@ -30,7 +31,6 @@ import {
 } from "../../../kit";
 import { pantryDates, pantryOrder, pantryReading } from "../copy";
 import { kitchenWordsFor } from "../lang";
-
 // Core first: List/cards cannot order food by use-by date or expose a confirmed used-up removal.
 export const meta = {
   id: "Pantry",
@@ -149,11 +149,13 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
 }
 
 type PantryProps = Props<typeof props, typeof meta>;
+// prettier-ignore
 function PantryFood({ item, detail }: { item: PantryProps["items"][number]; detail: PantryProps["detail"] }) {
   const { words } = useWords(kitchenWordsFor);
   return (
-    <KitContent>
-      <KitText part="name" tone={item.mark === "highlight" ? "accent" : "text"}>
+    <KitRow label={item.name} inline lineRole="label" density="compact"
+      trailing={<KitIcon name="chevron_right" scale="sm" decorative />}>
+      <KitText part="name" role="label" density="compact" tone={item.mark === "highlight" ? "accent" : "text"}>
         {item.name}
       </KitText>
       <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
@@ -162,7 +164,7 @@ function PantryFood({ item, detail }: { item: PantryProps["items"][number]; deta
           {words.pantryPlace(words.pantryLabels[item.place])}
         </KitText>
       )}
-    </KitContent>
+    </KitRow>
   );
 }
 
@@ -173,28 +175,26 @@ export function Pantry({ items, detail: choice }: PantryProps) {
   const { words: { pantryLabels } } = useWords(kitchenWordsFor);
   if (state === "empty") return <KitCard part="root"><KitEmpty part="name" decorativeIcon /></KitCard>;
   const tiles = pantryOrder(items).map((item) => (
-    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} inline>
+    <KitRow key={item.id} item={item.id} part={null} label={item.name} inline>
       <KitContent>
-        {items.length === 1 ? (
-          <KitGrid columns={2}>
-            <PantryFood {...{ item, detail }} />
-            <PantryDate useBy={item.useBy} />
-          </KitGrid>
-        ) : (
-          <KitContent>
-            <PantryFood {...{ item, detail }} />
-            <KitContent group="response">
-              <PantryDate useBy={item.useBy} />
+        <KitRow part="root" label={item.name} goto={item.goto} inline>
+          {items.length === 1 ? (
+            <KitGrid columns={2}><PantryFood {...{ item, detail }} /><PantryDate useBy={item.useBy} /></KitGrid>
+          ) : (
+            <KitContent>
+              <PantryFood {...{ item, detail }} />
+              <KitContent group="response"><PantryDate useBy={item.useBy} /></KitContent>
             </KitContent>
-          </KitContent>
-        )}
-        <KitRow part="used" label={pantryLabels.used} role="button" inline>
-          <KitText part={null} role="label" tone="accent">{pantryLabels.used}</KitText>
+          )}
+        </KitRow>
+        <KitRow part="used" label={pantryLabels.used} role="button" inline
+          lineRole="label" leading={<KitIcon name="trash" scale="sm" tone="bad" decorative />}>
+          <KitText part={null} role="label" tone="muted">{pantryLabels.used}</KitText>
         </KitRow>
       </KitContent>
     </KitRow>
   ));
   return <KitCard part="root" style="inset" padded>
-    {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
+    {tiles.length === 1 ? tiles : <KitGrid columns={2} density="compact">{tiles}</KitGrid>}
   </KitCard>;
 }

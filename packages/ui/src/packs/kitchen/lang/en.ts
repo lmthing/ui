@@ -59,6 +59,7 @@ export const en = {
     value === 0 || value > 1 ? "pieces" : "piece",
   ingredientFractions: ["", "¼", "½", "¾"],
   mealPlanLabels: { ...meals, add: "Add" },
+  mealPlanEmpty: "No meals yet.",
   mealPlanWeek: (date: string) => `Week of ${date}`,
   pantryLabels: {
     ...places,

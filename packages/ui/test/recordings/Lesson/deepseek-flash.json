@@ -1,0 +1,2405 @@
+{
+  "02a75bf19064a922": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Touch the soil. If it feels damp, wait a day to water.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "0376759a42cacda0": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Feel the soil before watering. If the surface still feels damp, wait until tomorrow.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "12974816190cbeb7": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a radical in other characters, hinting at their connection to water. Look for this shape inside a character to guess its meaning relates to water.\",\"example\":\"海 means sea. It contains the water radical on the left, showing that a sea is a large body of water.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a radical in other characters, hinting at their connection to water. Look for this shape inside a character to guess its meaning relates to water.\",\"example\":\"海 means sea. It contains the water radical on the left, showing that a sea is a large body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"full\",\"title\":\"The water radical\",\"text\":\"The water radical 水 appears in many Chinese characters and often hints at a watery meaning. Recognize it by its three strokes and flowing form.\",\"example\":\"海 means sea; it contains the water radical on the left.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"compact\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical\",\"text\":\"The water radical 水 appears in many characters related to water. It often changes to 氵 on the left side of a character.\",\"example\":\"海 means sea — it combines the water radical 氵 with 每, showing a body of water.\",\"photo\":null}"
+    ]
+  },
+  "1eca79b9839aa70d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"Water is written as 水. It appears in many characters about liquids and oceans.\",\"example\":\"海 means sea — it contains the water radical on the left.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"Water is written as 水. It appears in many characters about liquids and oceans.\",\"example\":\"海 means sea — it contains the water radical on the left.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水 means water\",\"text\":\"This character represents water. You see it as a radical in many related words.\",\"example\":\"海 means sea — it uses the water radical on the left, showing a body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水\",\"text\":\"水 means water. It is a common radical found in many Chinese characters related to liquids and rivers.\",\"example\":\"海 means sea. It combines the water radical with 每, showing that a sea is a body of water.\",\"photo\":null}"
+    ]
+  },
+  "287342397abc0499": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "305a1e6fde021dad": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil. If it feels damp, wait a day to water.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"If the soil feels damp, you can wait a day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"If the soil feels damp, you can wait a day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"If the soil feels damp, it can wait.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait a day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "377c160ee1a1f0a0": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The fern is still damp.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The fern is still damp.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — only water when the top feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The fern is still damp under its top layer, so skip watering today.\",\"photo\":null}"
+    ]
+  },
+  "449a1cbd28b0c802": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Ring), confirmation (Success) or a sports score (Scoreboard).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n\nNeed, in the person's words: \"Add a single quiet supporting sentence below the main content, without a heading or button.\"\nReply with only the component id, nothing else.",
+    "reply": "Note",
+    "replies": [
+      "Note",
+      "Note",
+      "Note"
+    ]
+  },
+  "5772fe0e5e78b77b": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Touch the soil before watering. If it still feels damp, give it another day.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "58f435b2a055945a": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Feel the soil before watering. If it’s damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"The character 水 means water. It often appears as a radical in other characters, hinting at their meaning.\",\"example\":\"海 means sea — it combines the water radical with a sound part.\",\"photo\":\"lib:water\"}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"The character 水 means water. It often appears as a radical in other characters, hinting at their meaning.\",\"example\":\"海 means sea — it combines the water radical with a sound part.\",\"photo\":\"lib:water\"}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"水 means water, and it appears as a radical in many Chinese characters. It often hints that a character relates to water or liquid.\",\"example\":\"海 (hǎi) means sea — it contains the water radical 氵on the left, showing it’s a body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 (shuǐ) is the base radical for water. It appears in many related words, either alone or simplified to 氵 on the left side of a character.\",\"example\":\"海 (hǎi) means sea — it combines the water radical 氵 with 每 for sound.\",\"photo\":null}"
+    ]
+  },
+  "591bec38c1ed3c70": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Touch the soil before watering. If it feels damp, wait a day.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "6187d22af97d4282": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Feel the soil before watering. If it’s damp, wait a day.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "627ed1840d7caacb": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Touch the top layer before watering; if it feels wet or cool, delay.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Touch the top layer before watering; if it feels wet or cool, delay.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait until tomorrow.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "662cd96ba057942b": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical\",\"text\":\"The radical 水 means water. When it appears in a character, it often hints at water-related meaning.\",\"example\":\"海 means sea — it contains 水 (water) plus 每.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical\",\"text\":\"The radical 水 means water. When it appears in a character, it often hints at water-related meaning.\",\"example\":\"海 means sea — it contains 水 (water) plus 每.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":\"card\",\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The radical 水 (shuǐ) means water. When it appears as a component on the left side of a character, it often narrows into three dots, but the meaning stays related to water, liquid, or flow.\",\"example\":\"海 (hǎi) means sea — it contains the water radical on the left, and the right side gives a hint of the sound.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It forms the base of many water-related characters.\",\"example\":\"海 means sea, combining water with 'every' – the sea is where all waters gather.\",\"photo\":null}"
+    ]
+  },
+  "712f9a8b6275380f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it still feels damp, give it another day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a component in other characters to hint at water-related meanings.\",\"example\":\"海 (hǎi) means sea — it contains the water radical 氵 on the left, showing the connection to water.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a component in other characters to hint at water-related meanings.\",\"example\":\"海 (hǎi) means sea — it contains the water radical 氵 on the left, showing the connection to water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The radical 水 (water) appears in many Chinese characters related to liquids, rivers, and seas. Recognize it to guess meanings of new words.\",\"example\":\"海 (hǎi) means sea — it contains 水 (water) plus 每, showing water in a vast body.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"The character 水 means water. When it appears as a radical in other characters, it often relates to water or liquid.\",\"example\":\"海 (hǎi) means sea — it combines the water radical with a sound component.\",\"photo\":null}"
+    ]
+  },
+  "78bd6cefdc9d8aae": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Feel the soil before watering. If it’s damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait a day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait a day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Feel the top layer before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Feel the soil before watering. If it’s damp, wait a day.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "7f96f9986d2c6cba": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil. If it feels damp, wait a day to water.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水\",\"text\":\"水 means water. It appears in many characters related to water or liquids.\",\"example\":\"海 means sea — the water radical on the left plus 每 (every) on the right, together suggesting 'every drop makes the sea'.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":null,\"title\":\"The water radical: 水\",\"text\":\"水 means water. It appears in many characters related to water or liquids.\",\"example\":\"海 means sea — the water radical on the left plus 每 (every) on the right, together suggesting 'every drop makes the sea'.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical\",\"text\":\"水 means water. It appears in many Chinese characters as a clue to their meaning.\",\"example\":\"海 means sea, and it contains the water radical on the left.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"水 means water. It is a common component in many Chinese characters.\",\"example\":\"海 means sea — it includes the water radical on the left.\",\"photo\":null}"
+    ]
+  },
+  "81202726f711701e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Leave other axes null unless requested.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but use the brief display so the example stays hidden. Keep Continue visible.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — touch the top of the soil before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — touch the top of the soil before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"compact\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. If the top layer still feels wet, don’t water yet.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Touch the top layer; if it feels wet, delay watering.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "8f18bdd817d18acd": {
+    "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four separate navigation shortcuts together, such as logging, adding and viewing a schedule. Not independent jobs to tick off (Checklist), one main action (Button), or records to browse (List).\n- Amount: One sum of money written properly, with its period, old price or change. Pick: One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note), the screen's main statement (Hero) or a panel with more detail (Sheet).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).\n- Bubbles: A conversation between you and someone else, with each person's messages kept distinct. Pick: Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Camera: Aim at something and take a new picture or scan its code. Pick: Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).\n- Canvas: An idea no existing component can express, such as a game or a drawing tool. Pick: Only choose Canvas for an idea no other component can express, such as an interactive game or a drawing tool. Not a message about missing content (Empty), or an existing image to display (Photo).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented), ticking off jobs (Checklist) or options that each need a sentence (Choice).\n- Choice: Choose among two to five options that each need a sentence to explain. Pick: Choosing among a few options that each carry a short explanation, such as a plan, an answer to a question or a way of doing something. Not one-word filters (Chips), a short value inside a form (Field), switching views of one screen (Segmented), or keep-or-skip one at a time (SwipeStack).\n- Composer: Write several lines of text: an entry, a note, a review or a reply. Pick: Writing more than one line, such as a journal entry, a note, a review or a reply under a conversation. Not one short value on a form (Field), or finding something by name (Search).\n- Counter: Increase or decrease one running count by a fixed step with each tap. Pick: One count whose plus button increments and minus button decrements the number by a fixed step. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Field: Enter or change one labelled piece of information on a form. Pick: Enter one named value, such as a name, date, amount or form choice. Not finding things by typing a query (Search), standalone collection filters and quick choices (Chips), several lines of writing (Composer) or options that each need a sentence (Choice).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The screen's main statement or headline number, including what needs attention today. Pick: The screen's main message, photo-led introduction or headline number, even when it says something needs attention. Not a separate urgent alert or status update (Banner), a supporting sentence (Note), several numbers (Stats) or one sum of money as the point (Amount).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- MapPins: See where nearby places are and open a place. Pick: Places positioned on a map, with matching numbered labels and optional links. Not places visited in travel order (Route) or things to browse without their locations on a map (List).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner), the screen's main statement (Hero) or text the person writes (Composer).\n- People: Who else is involved, with their names and roles. Pick: A plain roster of people: several participants, teammates, clients or family members, with names and optional photos or roles. Choose this even for just names and photos, without roles, links or turn controls. Not general non-person records (List) or one person's identity block (Profile).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Player: Listen to or watch one recording, with play, skip and a scrubber. Pick: One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Progress: Progress toward several targets at once, each bar with its amount and target. Pick: Several measured amounts, each against its own target, such as macros, a budget per category or lessons per course. Not one main goal (Ring), amounts compared with each other (Bars), or place in a short sequence (Steps).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several targets at once (Progress), several summary numbers (Stats) or ordered stages of a process (Steps).\n- Route: Follow a path between places, from the first stop to the last. Pick: Show places visited in travel order, with an optional total distance. Not events ordered by time (Timeline) or locations positioned on a map without a visiting order (MapPins).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips), entering one piece of information (Field) or writing several lines (Composer).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sheet: A panel over the screen for more detail, a longer pick or a few extra actions. Pick: More about one thing without leaving the screen, picking from six or more options, or a few extra actions behind the header. Not a message that stays on the screen (Banner), two to five options shown inline (Choice, Chips), or a whole new task (a new screen).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four independent summary numbers, with labels, units and optional change arrows. Pick: Several independent summary measurements shown together, with an optional change arrow on each. Not amounts compared across days or categories (Bars), one latest measurement with its recent line (Sparkline), one record's details (KeyValue), one headline number (Hero), or one sum of money (Amount).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- SwipeStack: Choose between things one at a time, swiping the current one to keep or skip. Pick: Decide which of several things to keep or skip, one at a time. Swipe only the top choice. Not browsing several captioned pictures together (Gallery) or opening a single featured preview (Card).\n- Timeline: Events in time order, or activities sized by duration on an hour rail. Pick: Dated or timed events in order. Use hours when start/end times, duration and free gaps matter. Not choosing dates (Calendar), things without times to browse (List), or independent jobs (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n- Achievements: See the learning badges you earned and how to unlock the rest. Pick: A grid of learning milestone badges with earned dates and unlock criteria. Not consecutive days of a habit (Streak), photos (Gallery) or redeemable rewards (Rewards).\n- Assignments: Know which coursework is due, handed in or graded. Pick: Homework and coursework with subjects, due dates, hand-in status and grades. Not simple tasks to tick off (Checklist) or the outcome of one practice session (Result).\n- Flashcard: Recall an answer, reveal it and rate how well you remembered it. Pick: Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).\n- Lesson: Learn one idea from a short explanation and worked example before practising it. Pick: Teach one idea with a titled explanation, an optional illustrated example and a continue action. Not a short supporting sentence (Note), long-form reading (Article) or an assessed question (Quiz).\n- Path: See which course units are finished, open now or still locked. Pick: A winding course map with done, current and locked unit nodes, selectable unlocked units and occasional milestones. Not progress through a short flow (Steps) or a plain browsable list (List).\n- Quiz: Practise one question at a time and get feedback after checking each answer. Pick: Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).\n- Result: See a practice score and review the mistakes before trying again. Pick: A finished quiz or practice outcome: score, time, points, mistakes to review and a retry. Not independent summary numbers (Stats), a goal (Ring), confirmation (Success) or a sports score (Scoreboard).\n- Timetable: See the week's repeating classes and where to go for each period. Pick: A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).\n\nNeed, in the person's words: \"Teach me one concept with a heading, an explanation, a separate worked example and a button to carry on.\"\nReply with only the component id, nothing else.",
+    "reply": "Lesson",
+    "replies": [
+      "Lesson",
+      "Lesson",
+      "Lesson"
+    ]
+  },
+  "958c111108340334": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: To hide a saved example, fill example and emit \"detail\":\"brief\". Unless explicitly requested, emit \"density\":null, \"surface\":null, \"emphasis\":null. Keeping the usual spacing, card or heading is not a request for those axes.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 (shuǐ) means water. As a radical, it often appears in simplified form as 氵 on the left side of characters related to water, such as rivers, seas, and liquids.\",\"example\":\"海 (hǎi) means sea. It combines 氵 (water radical) with 每 (each/every) — the sea is where each drop of water gathers.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 (shuǐ) means water. As a radical, it often appears in simplified form as 氵 on the left side of characters related to water, such as rivers, seas, and liquids.\",\"example\":\"海 (hǎi) means sea. It combines 氵 (water radical) with 每 (each/every) — the sea is where each drop of water gathers.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 (shuǐ) means water. When it appears as a radical in other characters, it often shows that the meaning relates to water—like 海 (hǎi), which means sea.\",\"example\":\"海 contains the water radical 氵on the left, plus 每 for sound—so 'sea' is literally 'water' plus a phonetic hint.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 (shuǐ) means water. When it appears as a component in other characters, it often hints at a watery meaning.\",\"example\":\"海 (hǎi) means sea — it contains the water radical on the left, showing a body of water.\",\"photo\":null}"
+    ]
+  },
+  "ae1436521ed256d9": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: To hide a saved example, fill example and emit \"detail\":\"brief\". Unless explicitly requested, emit \"density\":null, \"surface\":null, \"emphasis\":null. Keeping the usual spacing, card or heading is not a request for those axes.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — only water when the top layer feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — only water when the top layer feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — only water when the top layer feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. If the top layer feels moist, delay watering until it dries.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "d63c09ca5744b0d2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it still feels damp, give it another day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"If the soil still feels damp, it can wait another day.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"If the soil still feels damp, it can wait another day.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait another day before watering.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — touch the top layer first. If it feels moist, skip watering.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "e3b89ebd4e5e09c8": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Feel the soil before watering. If the surface still feels damp, wait until tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Feel the soil before watering. If the surface still feels damp, wait until tomorrow.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Feel the soil before watering. If the surface still feels damp, wait until tomorrow.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Feel the soil before watering. If the surface is still damp, it can wait until tomorrow.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Feel the soil before watering. If it's damp, wait a day.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  },
+  "e63d82eb712a4961": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Feel the soil before watering. If the surface still feels damp, wait until tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a component in other characters to show a connection to water.\",\"example\":\"海 means sea — it combines the water radical with elements suggesting a vast body of water.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. It often appears as a component in other characters to show a connection to water.\",\"example\":\"海 means sea — it combines the water radical with elements suggesting a vast body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"compact\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"水 (shuǐ) means water, and as a radical it appears in many characters related to liquids or flowing things. Learn it once, and you'll recognize it in compound characters.\",\"example\":\"海 (hǎi) means sea — the left side is the water radical 氵, showing this character is about a large body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":\"compact\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. When it appears as a radical, it often signals something related to water or liquid.\",\"example\":\"海 (hǎi) means sea — it contains the water radical on the left, showing the sea is full of water.\",\"photo\":null}"
+    ]
+  },
+  "efe77969172290db": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lesson Worked example — Continue — \"Check the soil first\" — \"Touch the soil before watering. If it feels damp, wait a day.\" — \"The bathroom fern is still damp under its top layer, so skip watering today.\" — photo:plants [l1/next press]\n\nTask: Continue from the explanation to the next step.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"l1/next\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}",
+      "{\"address\": \"l1/next\", \"action\": \"press\"}"
+    ]
+  },
+  "f3510292f9c07526": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Leave other axes null unless requested.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the top of the soil before watering. If it still feels damp, wait and check again tomorrow.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled The water radical: 水 means water. Show 海 means sea in a separate worked example.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"Water is a common radical in Chinese characters. It appears simplified as three drops (氵) on the left side of many characters.\",\"example\":\"海 (hǎi) means sea — it contains the water radical 氵 on the left, plus the sound component 每 on the right.\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":\"comfortable\",\"surface\":\"card\",\"emphasis\":\"normal\",\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"Water is a common radical in Chinese characters. It appears simplified as three drops (氵) on the left side of many characters.\",\"example\":\"海 (hǎi) means sea — it contains the water radical 氵 on the left, plus the sound component 每 on the right.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":\"card\",\"emphasis\":null,\"detail\":\"brief\",\"title\":\"The water radical: 水\",\"text\":\"Water is written as 水 when alone. As a radical, it often appears as three drops on the left side of a character.\",\"example\":\"海 (sea) is a worked example: the left three dots show water, combined with 'every' to mean a large body of water.\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":\"card\",\"emphasis\":null,\"detail\":\"full\",\"title\":\"The water radical: 水 means water\",\"text\":\"The character 水 means water. As a radical, it often appears as 氵 on the left side of characters, hinting at water-related meanings.\",\"example\":\"海 (hǎi) means sea. The 氵 on the left shows it's related to water, while the rest gives sound or shape.\",\"photo\":null}"
+    ]
+  },
+  "f6a4ae3dceee554d": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLesson: Learn one idea from a short explanation and worked example before practising it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", emphasis?: normal|hero=\"normal\", detail?: full|brief=\"full\", title: text≤40, text: text≤400, example?: text≤160, photo?: photo lib:<tag>|local:<n> }\nRule: Put the explanation in text and the scenario in example. For any unrequested axis use null, not its default enum value.\nRule: If asked to save a worked example but hide it, still fill example and set detail to \"brief\". Brief hides only the example; do not change density, surface or emphasis.\nexample: {\"c\":\"Lesson\",\"title\":\"Check the soil first\",\"text\":\"Touch the soil before watering. If it feels damp, wait a day.\",\"example\":\"The bathroom fern is still damp under its top layer, so skip watering today.\",\"photo\":\"lib:plants\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Teach one step titled \"Check the soil\". Explain that damp soil can wait. Save the worked example \"The fern is still damp\", but hide that example from the screen. Keep Continue visible and leave the usual spacing, card and heading treatment alone.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lesson",
+              "enum": [
+                "Lesson"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 400
+            },
+            "example": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "emphasis",
+            "detail",
+            "title",
+            "text",
+            "example",
+            "photo"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Only water when the top layer feels dry to the touch.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+    "replies": [
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Only water when the top layer feels dry to the touch.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait — only water when the top layer feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}",
+      "{\"c\":\"Lesson\",\"density\":null,\"surface\":null,\"emphasis\":null,\"detail\":\"brief\",\"title\":\"Check the soil\",\"text\":\"Damp soil can wait. Only water when the top layer feels dry.\",\"example\":\"The fern is still damp\",\"photo\":null}"
+    ]
+  }
+}

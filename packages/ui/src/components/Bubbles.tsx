@@ -4,6 +4,7 @@ import {
   detailOf,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -17,22 +18,30 @@ export const meta = {
   group: "content",
   purpose: "A conversation between you and someone else, with each person's messages kept distinct.",
   pick: "Show an exchange between you and another person, keeping who said each message clear. Not things to browse and tap (List) or one supporting sentence without a reply (Note).",
+  writeHints: [
+    'Leave detail null unless asked to retain a supplied conversation partner in "with" without showing their name above the messages. Then use detail "brief". Keep all messages.',
+  ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "Messages exchanged with another person through a shared messaging service.",
   items: { key: "messages", parts: ["root", "text"] },
-  parts: ["root"],
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["with"] } },
+  parts: ["root", "with"],
   states: ["filled", "empty"],
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  messages: z
-    .array(z.strictObject({ from: z.enum(["me", "them"]), text: text(120) }))
-    .min(1)
-    .max(6),
-  with: text(24).optional(),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    messages: z
+      .array(z.strictObject({ from: z.enum(["me", "them"]), text: text(120) }))
+      .min(1)
+      .max(6),
+    with: text(24).optional(),
+  })
+  .overwrite((value) => (value.detail === "brief" ? { ...value, with: undefined } : value));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -41,6 +50,15 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const detail = item ? detailOf(item, 120, thingOf(cast, item.type)) : undefined;
   return { messages: [{ from: "them", text: detail ?? placeholderDetail }] };
 }
+
+const walkThread = {
+  with: "Anna",
+  messages: [
+    { from: "them", text: "Could Clover's walk start at 09:30 today?" },
+    { from: "me", text: "09:30 works. I'll meet you at the park gate." },
+    { from: "them", text: "Thanks! Clover will be ready." },
+  ],
+} satisfies z.input<typeof props>;
 
 export const examples = [
   {
@@ -53,14 +71,8 @@ export const examples = [
       { from: "them", text: "Perfect, thank you!" },
     ],
   },
-  {
-    with: "Anna",
-    messages: [
-      { from: "them", text: "Could Clover's walk start at 09:30 today?" },
-      { from: "me", text: "09:30 works. I'll meet you at the park gate." },
-      { from: "them", text: "Thanks! Clover will be ready." },
-    ],
-  },
+  walkThread,
+  { ...walkThread, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Bubbles");
@@ -72,6 +84,12 @@ export const probes = [
   write(
     "Show an exchange with Anna: she asks if Clover's walk can start at 09:30, I say 09:30 works, and she thanks me",
   ),
+  {
+    ...write(
+      "Save Anna as the other person in the conversation, but hide her name above the messages. She asks if Clover can be walked at nine. I reply that nine works.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
 export function Bubbles({ messages, with: person }: Props<typeof props, typeof meta>) {
@@ -87,7 +105,7 @@ export function Bubbles({ messages, with: person }: Props<typeof props, typeof m
     <KitCard style="plain" part="root">
       {person && (
         <KitContent inset="md">
-          <KitText role="caption" tone="muted" part={null}>
+          <KitText role="caption" tone="muted" part="with">
             {person}
           </KitText>
         </KitContent>
