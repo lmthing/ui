@@ -23,9 +23,14 @@ export const meta = {
   actions: { parts: { reorder: ["press"] } },
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
-    const { lines, mode } = input as { lines: z.output<typeof lineProps>[]; mode: string };
+    const { lines, mode, date } = input as {
+      lines: z.output<typeof lineProps>[];
+      mode: string;
+      date: string;
+    };
     return [
       mode,
+      c.appointmentDate(date, lang),
       c.totalLine(c.documentTotals({ lines }).total, undefined, lang),
       ...lines.map(({ name, qty, price }) =>
         c.documentFieldLine(

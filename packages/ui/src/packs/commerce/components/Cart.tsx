@@ -32,10 +32,15 @@ export const meta = {
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { lines, delivery } = input as { lines: z.output<typeof lineProps>[]; delivery?: number };
-    const { total } = c.documentTotals({
-      lines: delivery === undefined ? lines : [...lines, { qty: 1, price: delivery }],
-    });
+    const { subtotal } = c.documentTotals({ lines });
+    const total =
+      delivery === undefined
+        ? subtotal
+        : c.documentTotals({ lines: [...lines, { qty: 1, price: delivery }] }).total;
+    const amount = (value: number) => c.moneyLine(value, undefined, undefined, lang);
     return [
+      c.documentFieldLine(c.wordsFor(lang).documentLabels.subtotal, amount(subtotal), lang),
+      ...(delivery === undefined ? [] : [c.documentFieldLine("delivery", amount(delivery), lang)]),
       c.totalLine(total, undefined, lang),
       ...lines.map(({ name, qty, price }) =>
         c.documentFieldLine(

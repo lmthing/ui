@@ -20,6 +20,12 @@ export const meta = {
   parts: ["root", "title", "code", "ends", "photo"],
   states: ["filled"],
   actions: { parts: { root: ["press"], code: ["press"] }, when: { code: { has_code: true } } },
+  read: (input, state, lang): string[] => {
+    const { ends } = input as { ends?: string };
+    return state === "filled" && ends
+      ? [c.documentFieldLine("ends", c.appointmentDate(ends, lang), lang)]
+      : [];
+  },
 } as const satisfies c.Meta;
 
 export const props = z

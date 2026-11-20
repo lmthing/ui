@@ -66,7 +66,10 @@ it("reads unit-price totals rounded to cents for basket and receipt", () => {
   expect(readComponent(components.Cart, cart, "c1")[0]).toMatch(/Total 0\.4\b/);
   expect(readComponent(components.OrderSummary, receipt, "o1")[0]).toMatch(/Total 0\.3\b/);
   expect(readComponent(components.Cart, cart, "c1")[0]).toContain("$0.10");
+  expect(readComponent(components.Cart, cart, "c1")[0]).toContain("Subtotal · $0.30");
+  expect(readComponent(components.Cart, cart, "c1")[0]).toContain("delivery · $0.10");
   expect(readComponent(components.OrderSummary, receipt, "o1")[0]).toContain("$0.10");
+  expect(readComponent(components.OrderSummary, receipt, "o1")[0]).toContain("20 Nov 2026");
   expect(components.Cart.props.safeParse({ ...cart, delivery: 10.075 }).success).toBe(false);
   expect(
     components.OrderSummary.props.safeParse({
@@ -80,10 +83,17 @@ it("reads sale prices, stock, and named option surcharges", () => {
   const { Product, ProductGrid, VariantPicker } = components;
   const reading = readComponent(Product, Product.examples[0], "p1").join("\n");
   expect(reading).toContain("$16 → $12");
-  expect(reading).toContain("Qty 3");
+  expect(reading).toContain("stock · 3");
+  expect(readComponent(Product, { ...Product.examples[0], stock: 0 }, "p1")[0]).toContain("stock · 0");
   const tiles = readComponent(ProductGrid, ProductGrid.examples[0], "p1").join("\n");
   expect(tiles).toContain("Fern pot · $16 → $12");
   expect(tiles).toContain("Basil planter · $10");
   const choices = readComponent(VariantPicker, VariantPicker.examples[0], "v1").join("\n");
   expect(choices).toContain("Clay · +$2");
+});
+
+it("reads the supplied fulfillment times and offer expiry", () => {
+  const { OrderStatus, Promo } = components;
+  expect(readComponent(OrderStatus, OrderStatus.examples[0], "o1")[0]).toContain("Preparing · 09:00");
+  expect(readComponent(Promo, Promo.examples[0], "p1")[0]).toContain("ends · 30 Nov 2026");
 });

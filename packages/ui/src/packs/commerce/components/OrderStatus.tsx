@@ -22,9 +22,15 @@ export const meta = {
   items: { key: "steps", parts: ["root", "label", "time"] },
   states: ["filled", "success"],
   actions: { parts: { next: ["press"] }, when: { next: { can_advance: true } } },
-  read: (input) => {
+  read: (input, state, lang): string[] => {
+    if (state !== "filled") return [];
     const { at, steps } = input as { at: number; steps: z.output<typeof stepProps>[] };
-    return [steps[at]!.label];
+    return [
+      steps[at]!.label,
+      ...steps.flatMap(({ label, time }) =>
+        time === undefined ? [] : [c.documentFieldLine(label, c.timeOfDayLine(time, lang), lang)],
+      ),
+    ];
   },
 } as const satisfies c.Meta;
 
@@ -89,7 +95,7 @@ export const probes = [
   ),
   {
     ...write(
-      'Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. The optional secondary status sentence is "Almost there". Use the brief display that hides that sentence and shows just the track, Do not set spacing or surface options.',
+      'Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. The optional secondary status sentence is "Almost there". Use the brief display that hides that sentence and shows just the track. Do not set spacing or surface options.',
     ),
     variant: { axis: "detail", value: "brief" },
   },

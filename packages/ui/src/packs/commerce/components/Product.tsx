@@ -22,7 +22,7 @@ export const meta = {
     const current = c.moneyLine(price, undefined, undefined, lang);
     return [
       was === undefined ? current : `${c.moneyLine(was, undefined, undefined, lang)} → ${current}`,
-      ...(stock === undefined ? [] : [c.quantityLine(stock, lang)]),
+      ...(stock === undefined ? [] : [c.documentFieldLine("stock", c.numberLine(stock, lang), lang)]),
     ];
   },
 } as const satisfies c.Meta;
