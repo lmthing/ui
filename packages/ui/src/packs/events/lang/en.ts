@@ -1,6 +1,16 @@
 export type EventsWords = typeof en;
 
 export const en = {
+  registry: {
+    claim: "Claim",
+    release: "Release",
+    claimed: "Claimed",
+    available: "Available",
+    success: "Gift claimed",
+    released: "Gift released",
+    owner: (name: string) => ` by ${name}`,
+    reading: (item: string, fields: readonly string[]) => `${item}: ${fields.join(" · ")}`,
+  },
   ticket: {
     pass: "Admission ticket",
     stampSeparator: " · ",

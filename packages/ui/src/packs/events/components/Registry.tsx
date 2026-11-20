@@ -1,11 +1,14 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { registryGift, registryReading } from "../copy";
+import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
 
 // Core first: Checklist/default cannot reserve gifts across guests or show claim ownership only to hosts.
 export const meta = {
   id: "Registry",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Share a gift list and keep guests from choosing the same gift.",
   pick: "A shared event gift list with gift prices, where to buy, and who claimed a gift for hosts. Not a checklist for personal tasks (Checklist), shopping (ProductGrid) or a personal wishlist (Wishlist).",
@@ -20,10 +23,22 @@ export const meta = {
   realPath: "A shared app reserves each gift so two guests cannot claim the same one.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], lead: ["thumb", "none"] },
   variantParts: { "lead.none": { hides: ["photo"] } },
-  parts: ["root"],
+  parts: ["root", "empty", "success"],
   items: {
     key: "gifts",
-    parts: ["root", "title", "photo", "price", "where", "claimed", "by", "claim", "unclaim"],
+    parts: [
+      "root",
+      "title",
+      "photo",
+      "price",
+      "where",
+      "claimed",
+      "by",
+      "claim",
+      "claim_label",
+      "unclaim",
+      "unclaim_label",
+    ],
   },
   confirmParts: ["unclaim"],
   states: ["filled", "empty", "success"],
@@ -32,19 +47,7 @@ export const meta = {
     when: { claim: { claimed: false, host: false }, unclaim: { claimed: true, host: true } },
   },
   live: { derive: hideThumbnails },
-  read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
-    const { gifts } = input as z.output<typeof props>;
-    return gifts.map(({ price, claimed }, index) =>
-      [
-        `r${index + 1}`,
-        claimed ? "claimed" : "unclaimed",
-        price === undefined ? undefined : c.numberLine(price, lang),
-      ]
-        .filter((value) => value !== undefined)
-        .join(" · "),
-    );
-  },
+  read: (input, state, lang): string[] => registryReading(input as z.output<typeof props>, state, lang),
 } as const satisfies c.Meta;
 
 const gift = z.strictObject({
@@ -90,7 +93,7 @@ export const examples = [
   {
     gifts: [
       {
-        title: "Stoneware platter",
+        title: "Clay platter",
         photo: "lib:platter",
         price: 60,
         where: "Clay Studio",
@@ -99,9 +102,6 @@ export const examples = [
       },
     ],
     host: true,
-    density: "compact",
-    surface: "outlined",
-    lead: "none",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -125,3 +125,50 @@ export const probes = [
   },
   read("Reserve the linen tablecloth as my gift.", { address: "r1/r1/claim", action: "press" }),
 ] satisfies c.Probe[];
+
+type RegistryProps = c.Props<typeof props, typeof meta>;
+type Finish = Pick<RegistryProps, "density" | "lead">;
+type GiftRow = RegistryProps["gifts"][number];
+
+// prettier-ignore
+function RegistryGiftRow({ row, host, density, lead }: Finish & { row: GiftRow; host: boolean }) {
+  const { lang } = kit.useWords(eventsWordsFor);
+  const { price, owner, status, action: label } = registryGift(row, host, lang);
+  const photo = lead === "thumb" && row.photo
+    ? <kit.KitPhoto part="photo" shape="thumb" photo={row.photo} label={row.title} /> : undefined;
+  const action = label && <kit.KitAction part={host ? "unclaim" : "claim"} kind={host ? "quiet" : "primary"} label={label} />;
+  const title = <kit.KitText part="title" role="heading" tone={row.claimed ? "muted" : "text"}
+    density="compact" emphasis="quiet">{row.title}</kit.KitText>;
+  const detail = <kit.KitContent lineRole="body" density={density}>
+    {price && <kit.KitText part="price" role="number" numberScale="compact" tabular
+      tone={row.claimed ? "muted" : "text"} density={density}>{price}</kit.KitText>}
+    {row.where && <kit.KitText part="where" role="caption" tone="muted" density={density}>{row.where}</kit.KitText>}
+  </kit.KitContent>;
+  const claimed = row.claimed && <kit.KitText part="claimed" role="caption" tone="muted" density={density}>
+    {status}{owner && <kit.KitText part="by" role="caption" tone="muted" density={density}>{owner}</kit.KitText>}
+  </kit.KitText>;
+  const details = <kit.KitContent lineRole="heading" density={density}>{title}{detail}{claimed}</kit.KitContent>;
+  return <kit.KitRow item={row.id} label={row.title} leading={photo} leadingAlign="row"
+    density="comfortable" lineRole="heading" mark={row.claimed ? "muted" : "none"}>
+    {host && action ? <kit.KitContent lineRole="heading" density={density}>
+      {title}<kit.KitGrid fitLast density="compact">{detail}{action}</kit.KitGrid>{claimed}
+    </kit.KitContent> : action ? <kit.KitGrid fitLast density="compact">{details}{action}</kit.KitGrid> : details}
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function Registry(input: RegistryProps) {
+  const state = kit.useComponentState();
+  const { words: { registry } } = kit.useWords(eventsWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
+  return <kit.KitCard part="root" style="plain" {...{ density, surface }}>
+    {state === "empty" ? <kit.KitEmpty part="empty" icon="gift" decorativeIcon />
+      : state === "success" ? <kit.KitEmpty part="success" icon="check"
+        title={input.host ? registry.released : registry.success} tone="good" decorativeIcon />
+      : <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+        {input.gifts.map((row) => <RegistryGiftRow key={row.id} {...{ row, density, lead }} host={input.host} />)}
+      </kit.KitGrid>}
+  </kit.KitCard>;
+}
