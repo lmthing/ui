@@ -20,6 +20,7 @@ export const results = {
     badges: {
       writeHints: [
         'Use List with lead "number" and trail "value", no style. Provide a short text value for each supplied score; set trail "none" on rows without a supplied score.',
+        'Leave each List row mark null or "none"; use rank numbers, not row highlights.',
       ],
       recipe: [
         { allow: ["Header"], required: true },

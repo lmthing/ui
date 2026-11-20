@@ -19,7 +19,7 @@ export const meta = {
   parts: ["root"],
   items: { key: "items", parts: ["root", "title", "subject", "due", "status", "grade", "done"] },
   states: ["filled", "empty"],
-  actions: { items: { done: ["check"], root: ["press"] }, when: { done: { checkable: true } } },
+  actions: { items: { done: ["check"], root: ["press"] }, when: { done: { submission: "open" } } },
   read: (input, _state, lang): string[] =>
     (input as z.output<typeof props>).items.map(
       ({ due, status }, index) =>
@@ -37,7 +37,12 @@ const assignment = z
     goto: c.screenId,
   })
   .refine(({ grade, status }) => grade === undefined || status === "graded", { path: ["grade"] })
-  .overwrite((value) => ({ ...value, done: value.status !== "todo", checkable: value.status !== "graded" }));
+  .overwrite((value) => ({
+    ...value,
+    // An untouched to-do is the default unchecked state. Live changes are read from the check.
+    ...(value.status === "done" ? { done: true } : {}),
+    submission: value.status === "graded" ? "graded" : "open",
+  }));
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
@@ -103,7 +108,7 @@ export const probes = [
   write(
     "Japanese homework: Water radical worksheet due 2026-11-25, still to do, links to worksheet; Readings practice due 2026-11-18, graded A, links to readings.",
   ),
-  read("Tick the Fern care worksheet's checkbox to mark it as handed in, without opening it.", {
+  read("I finished the Fern care worksheet. Mark it as handed in using its checkbox, not its link.", {
     address: "a1/r1/done",
     action: "check",
   }),
