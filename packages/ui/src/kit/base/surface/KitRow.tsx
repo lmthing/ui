@@ -142,6 +142,7 @@ export function Row(props: RowProps) {
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
       accessibilityRole={actionRole ?? (role === "group" && label ? "group" : undefined)}
+      data-kit-row={isWeb && actionRole ? "" : undefined}
       accessibilityLabel={actionRole || role === "group" ? label : undefined}
       aria-labelledby={contentId}
       aria-current={selected || undefined}

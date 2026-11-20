@@ -15,6 +15,32 @@ beforeAll(async () => {
 });
 afterAll(async () => browser?.close());
 
+function rowNameIssues(markup: string[]) {
+  const hidden = '[aria-hidden="true"], [hidden], [inert], style, script';
+  function visibleText(root: Element) {
+    const copy = root.cloneNode(true) as Element;
+    copy.querySelectorAll(hidden).forEach((node) => node.remove());
+    return normalize(copy.textContent);
+  }
+  const normalize = (value: string | null) => (value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  return markup.flatMap((html, example) => {
+    const document = new DOMParser().parseFromString(html, "text/html");
+    return Array.from(document.querySelectorAll("[data-kit-row]")).flatMap((row) => {
+      if (row.closest(hidden)) return [];
+      const visible = visibleText(row);
+      const references = (row.getAttribute("aria-labelledby") ?? "").trim().split(/\s+/);
+      const labelledBy = references.map((id) => document.getElementById(id));
+      const name =
+        labelledBy.map((node) => (node ? visibleText(node) : "")).join("") ||
+        normalize(row.getAttribute("aria-label")) ||
+        visible;
+      return name && name.startsWith(visible)
+        ? []
+        : [`${example}: mismatched row name at ${row.getAttribute("data-testid")}`];
+    });
+  });
+}
+
 function roleIssues(markup: string[]) {
   const focusable = [
     "a[href]",
@@ -80,6 +106,7 @@ describe("ready core and pack roles", () => {
       if (state !== "filled") markup.push(renderInstance(id, def.examples[0], state, theme));
     }
     expect(await page.evaluate(roleIssues, markup)).toEqual([]);
+    expect(await page.evaluate(rowNameIssues, markup)).toEqual([]);
   });
 });
 
@@ -99,6 +126,7 @@ it("names a Vitals row from all its visible text in screen order", async () => {
   const expected = "Blood pressure 08:10 118 / 76 mmHg Systolic reference 90–120 Systolic: In range";
   const row = page.getByRole("button", { name: expected, exact: true });
   expect(await row.getAttribute("data-testid", { timeout: 3000 })).toBe("home/c1/r1/root");
+  expect(await row.getAttribute("data-kit-row")).toBe("");
 });
 
 it("uses the on-accent foreground in a host without Tamagui's root theme class", async () => {
