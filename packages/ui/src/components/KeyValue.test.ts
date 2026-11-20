@@ -188,7 +188,7 @@ describe("KeyValue rendering", () => {
   it.each(["rows", "grid"] as const)("loads one placeholder per pair in %s at every count", (style) => {
     for (let count = 1; count <= 6; count++) {
       const html = renderPairs(style, count, true);
-      expect(html.match(/aria-busy="true"/g)).toHaveLength(style === "grid" ? count : 1);
+      expect(html.match(/aria-busy="true"/g)).toHaveLength(count);
       expect(html).not.toContain('data-testid="home/c1/r1/label"');
     }
   });

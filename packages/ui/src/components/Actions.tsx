@@ -133,6 +133,7 @@ export function Actions({ items, arrange, surface }: Props<typeof props, typeof 
               label={label}
               goto={goto}
               leading={<KitIcon name={icon} tone="accent" part="icon" />}
+              trailing={<KitIcon name="chevron_right" decorative />}
             >
               <KitText role="label" part="label">
                 {label}

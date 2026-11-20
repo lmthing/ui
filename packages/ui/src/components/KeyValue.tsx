@@ -107,9 +107,9 @@ export const examples = [
   { surface: "plain", pairs: [...facts] },
   { surface: "outlined", pairs: [...facts] },
   { lead: "none", pairs: [...facts] },
-  { pairs: [{ ...facts[0], label: "Plant health", value: "Healthy", tone: "good" }, ...facts.slice(1)] },
-  { pairs: [{ ...facts[0], label: "Soil moisture", value: "Dry", tone: "warn" }, ...facts.slice(1)] },
-  { pairs: [{ ...facts[0], label: "Drainage", value: "Blocked", tone: "bad" }, ...facts.slice(1)] },
+  { pairs: [{ label: "Plant health", value: "Healthy", icon: "heart", tone: "good" }, ...facts.slice(1)] },
+  { pairs: [{ label: "Soil moisture", value: "Dry", icon: "drop", tone: "warn" }, ...facts.slice(1)] },
+  { pairs: [{ label: "Drainage", value: "Blocked", icon: "filter", tone: "bad" }, ...facts.slice(1)] },
   { pairs: [facts[0], facts[1], { ...facts[2], mark: "highlight" }, facts[3]] },
   { pairs: [facts[0], facts[1], facts[2], { ...facts[3], mark: "muted" }] },
 ] satisfies z.input<typeof props>[];
@@ -129,15 +129,17 @@ export const probes = [
 
 type Pair = Props<typeof props, typeof meta>["pairs"][number];
 
+const valueRole = (value: string) =>
+  /^\d+(?:\s+\p{L}+)?$/u.test(value) && value.length <= 6 ? "number" : "body";
+
 function PairRow({ pair, horizontal, density }: { pair: Pair; horizontal: boolean; density: ThemeDensity }) {
   const label = (
     <kit.KitText role="caption" tone="muted" part="label" density={density}>
       {pair.label}
     </kit.KitText>
   );
-  const number = /^\d+(?:\s+\p{L}+)?$/u.test(pair.value) && pair.value.length <= 6;
   const value = (
-    <kit.KitText role={number ? "number" : "body"} part="value" density={density}>
+    <kit.KitText role={valueRole(pair.value)} part="value" density="comfortable">
       {pair.value}
     </kit.KitText>
   );
@@ -159,19 +161,27 @@ function PairRow({ pair, horizontal, density }: { pair: Pair; horizontal: boolea
 }
 
 // prettier-ignore
+function LoadingPair({ pair, grid, density }: { pair: Pair; grid: boolean; density: ThemeDensity }) {
+  if (grid) return <kit.KitSkeleton shape="pairs" density={density} lead={pair.icon ? "dot" : "none"} />;
+  return <kit.KitRow label={pair.label} part={null} density={density}>
+    <kit.KitSkeleton shape="figure" inset="none" density="comfortable" split
+      content={[["caption", pair.label], [valueRole(pair.value), pair.value]]} />
+  </kit.KitRow>;
+}
+
+// prettier-ignore
 export function KeyValue({ arrange, pairs, surface, density: requestedDensity }: Props<typeof props, typeof meta>) {
   const state = kit.useComponentState();
   const density = kit.useVariant("density", meta.variants.density, requestedDensity);
   const grid = arrange === "grid";
-  const rows = grid || state !== "loading";
+  const spacing = grid ? "compact" : density;
   const drawPairs = () => pairs.map((pair) => state === "loading"
-    ? <kit.KitSkeleton key={pair.id} rows={1} shape="pairs" density={density} lead={pair.icon ? "dot" : "none"} />
-    : <PairRow key={pair.id} pair={pair} horizontal={!grid} density={density} />);
+    ? <LoadingPair key={pair.id} {...{ pair, grid }} density={spacing} />
+    : <PairRow key={pair.id} pair={pair} horizontal={!grid} density={spacing} />);
   return (
     <kit.KitCard surface={surface} density={density} part="root">
-      {state === "empty" ? <kit.KitEmpty part="label" /> : rows
-        ? <kit.KitGrid arrange={arrange} density={density}>{drawPairs()}</kit.KitGrid>
-        : <kit.KitSkeleton rows={pairs.length} shape="pairs" density={density} />}
+      {state === "empty" ? <kit.KitEmpty part="label" />
+        : <kit.KitGrid arrange={arrange} density={spacing}>{drawPairs()}</kit.KitGrid>}
     </kit.KitCard>
   );
 }
