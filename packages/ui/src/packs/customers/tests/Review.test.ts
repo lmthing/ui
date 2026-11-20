@@ -143,8 +143,8 @@ describe("Review states, parts and read/act", () => {
     const html = renderInstance("Review", summary, "filled", theme);
     for (const part of ["root", "average", "count", "bars"])
       expect(html).toContain(`data-testid="home/c1/${part}"`);
-    expect(html.match(/data-testid="home\/c1\/label"/g)).toHaveLength(5);
-    expect(html).not.toContain('role="radio"');
+    expect(html).not.toMatch(/data-testid="home\/c1\/(?:label|amount)"|role="radio"/);
+    expect(html).toMatch(/>1 star<[\s\S]*>5 stars</);
     expect(affordancesOf(meta, props.parse(summary), "r1")).toEqual([]);
     const reading = readComponent(components.Review, summary, "r1").join("\n");
     for (const text of ["4.5 of 5", "4 reviews", "1 star 0", "5 stars 2"]) expect(reading).toContain(text);

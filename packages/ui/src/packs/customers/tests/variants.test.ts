@@ -3,7 +3,15 @@ import { affordancesOf, components, readComponent, stampItemIds, type Definition
 import { selectedIds } from "../../../../scripts/build";
 import { renderInstance } from "../../../../test/render";
 
-const ids = ["Agreement", "ClientCard", "ClientHistory", "Invoice", "Loyalty", "PaymentStatus"] as const;
+const ids = [
+  "Agreement",
+  "ClientCard",
+  "ClientHistory",
+  "Invoice",
+  "Loyalty",
+  "PaymentStatus",
+  "Review",
+] as const;
 type Id = (typeof ids)[number];
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const addresses = (id: Id, input: unknown) =>
@@ -20,6 +28,7 @@ const content = {
   Invoice: [0, "detail", "brief", ["note"], "Thank you for keeping things growing."],
   Loyalty: [0, "detail", "brief", ["name"], "Anna Patel"],
   PaymentStatus: [0, "detail", "brief", ["method"], "Bank transfer"],
+  Review: [0, "detail", "brief", ["bars"], "5 stars 2"],
 } as const;
 
 for (const id of selectedIds(ids)) {
@@ -88,5 +97,17 @@ if (selectedIds(ids).includes("ClientCard")) {
     expect(readComponent(def, variant, "c1").join("\n")).not.toContain("photo:people");
     expect(def.props.safeParse({ ...input, photo: undefined }).success).toBe(false);
     expect(def.props.safeParse({ ...variant, photo: undefined }).success).toBe(true);
+  });
+}
+
+if (selectedIds(ids).includes("Review")) {
+  it("keeps stable review and reply addresses when hiding the business response", () => {
+    const def = components.Review;
+    const input = def.examples[1]!;
+    const variant = { ...input, detail: "brief" } as const;
+    const after = addresses("Review", variant);
+    expect([...addresses("Review", input)].filter((part) => !after.has(part))).toEqual(["r1/response"]);
+    expect(after.has("r1/reply")).toBe(true);
+    expect(readComponent(def, variant, "c1").join("\n")).not.toContain("Thank you, Ben.");
   });
 }
