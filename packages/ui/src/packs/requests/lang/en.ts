@@ -3,7 +3,7 @@ const scope = { one: "one affected", several: "several affected", site: "whole s
 export const en = {
   workOrder: {
     status: { ready: "Ready", working: "In progress", blocked: "Blocked", done: "Completed" },
-    blockers: { none: "None", information: "Info", access: "Access", parts: "Parts", other: "Other" },
+    blockers: { none: "none", information: "information", access: "access", parts: "parts", other: "other" },
     number: (id: string) => `Work order ${id}`,
     request: (id: string) => `Request ${id}`,
     assignee: (name: string) => `Assigned to ${name}`,
@@ -13,7 +13,8 @@ export const en = {
     checked: "Done",
     unchecked: "Not done",
     parts: "Parts used",
-    quantity: "Quantity",
+    quantity: "Qty",
+    quantityOf: (part: string) => `Quantity of ${part}`,
     quantityLine: (value: string) => `×${value}`,
     total: "Parts total",
     pricedTotal: "Priced parts total",
@@ -27,7 +28,7 @@ export const en = {
     stop: "Stop clock",
     finish: "Finish work",
     error: "Work not saved",
-    errorDetail: "Check the requirements before trying again.",
+    errorDetail: "Your work details are still here.",
   },
   triage: {
     reported: (urgency: "low" | "normal" | "urgent") => `Reported urgency: ${urgency}`,

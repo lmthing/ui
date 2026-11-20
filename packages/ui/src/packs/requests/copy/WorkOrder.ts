@@ -69,6 +69,7 @@ export function workOrderLine(line: Part, lang?: string) {
 
 export function workOrderCopy(p: Order, state: StateName, lang?: string) {
   const w = requestsWordsFor(lang).workOrder;
+  const showSchedule = p.detail === "full" && state !== "success";
   const status =
     state === "success" || p.status === "done"
       ? "done"
@@ -83,9 +84,9 @@ export function workOrderCopy(p: Order, state: StateName, lang?: string) {
   return {
     number: w.number(p.number),
     request: w.request(p.request),
-    who: p.detail === "full" && p.who ? w.assignee(p.who) : undefined,
+    who: showSchedule && p.who ? w.assignee(p.who) : undefined,
     window:
-      p.detail === "full" && p.date && p.from && p.to
+      showSchedule && p.date && p.from && p.to
         ? w.window(appointmentDate(p.date, lang), timeOfDayLine(p.from, lang), timeOfDayLine(p.to, lang))
         : undefined,
     status: w.status[status],
@@ -120,6 +121,7 @@ export function workOrderReading(input: unknown, state: StateName, lang?: string
   const p = input as Order;
   const w = requestsWordsFor(lang).workOrder;
   const copy = workOrderCopy(p, state, lang);
+  if (state === "success") return [copy.number, p.title, copy.status, copy.request];
   return [
     copy.number,
     p.title,
@@ -132,10 +134,13 @@ export function workOrderReading(input: unknown, state: StateName, lang?: string
     w.checks,
     ...orderLines(p, w, lang),
     p.lines.some((line) => line.kind === "part") ? w.parts : undefined,
+    p.editable && p.lines.some((line) => line.kind === "part") ? w.quantity : undefined,
     copy.total?.label,
     copy.total?.value,
     copy.blocker,
     p.note,
-    ...(state === "filled" && p.editable ? [p.running ? w.stop : w.start, w.blocker, w.note, w.finish] : []),
+    ...(p.editable
+      ? [p.running ? w.stop : w.start, w.blocker, ...Object.values(w.blockers), w.note, w.finish]
+      : []),
   ].filter((line): line is string => Boolean(line));
 }

@@ -130,7 +130,7 @@ describe("WorkOrder states, parts and actions", () => {
       const reading = readScreen(screen, defs, staged.values);
       for (const text of ["Restocked", '"LED grow light" ×2 $38', "[w1/finish press]", "check:done"])
         expect(reading).toContain(text);
-      expect(reading).not.toContain("Blocker: Parts");
+      expect(reading).not.toContain("Blocker: parts");
     }
   });
 

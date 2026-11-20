@@ -19,8 +19,7 @@ export const meta = {
   realPath: "Work records and clock events live on the technician's device without changing stock or payments.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["who", "window"] } },
-  parts: ["root", "number", "request", "title", "who", "window", "status", "clock", "clock_value",
-    "clock_label", "blocked", "note", "finish", "finish_label", "total"],
+  parts: ["root", "number", "request", "title", "who", "window", "status", "clock", "clock_value", "clock_label", "blocked", "note", "finish", "finish_label", "total"],
   items: { key: "lines", parts: ["root", "text", "required", "check", "name", "qty", "cost"],
     set: { qty: { prop: "qty", min: Number.MIN_VALUE } } },
   selections: { blocked: { prop: "blockedBy", choices: blocker.options, runtime: true, clear: "none" } },
@@ -76,10 +75,10 @@ export const examples = [
     status: "blocked", blockedBy: "parts", note: "Waiting for a replacement light.", minutes: 20,
     tasks: [{ text: "Inspect the cable", required: true, done: true }, { text: "Test the grow light timer", required: true, done: false }],
     parts: [{ name: "LED grow light", qty: 1, unitCost: 19 }] },
-  { number: "WO-22", request: "TR-06", title: "Adjust the kennel gate", status: "done", style: "summary", density: "compact", surface: "outlined",
+  { number: "WO-22", request: "TR-06", title: "Adjust the kennel gate", status: "done", style: "summary",
     minutes: 35, tasks: [{ text: "Check the gate latches", required: true, done: true }], parts: [{ name: "Mounting screws", qty: 4 }] },
   { number: "WO-23", request: "TR-07", title: "Replace the lead hooks", who: "Kai", date: "2026-11-21", from: "10:00", to: "11:00",
-    status: "ready", detail: "brief", minutes: 10, tasks: [{ text: "Check the hooks are secure", required: true, done: true }],
+    status: "ready", minutes: 10, tasks: [{ text: "Check the hooks are secure", required: true, done: true }],
     parts: [{ name: "Wall hooks", qty: 2, unitCost: 3.5 }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("WorkOrder");
@@ -113,54 +112,60 @@ function deriveWork(input: c.Values, authorized: boolean) {
 // prettier-ignore
 function workGates(input: c.Values): c.Values { return deriveWork(input, true); }
 // prettier-ignore
-function WorkHeader({ p, copy, loading }: { p: View; copy: Copy; loading: boolean }) {
+function WorkHeader({ p, copy, loading, error }: { p: View; copy: Copy; loading: boolean; error: boolean }) {
   const fields = [["number", "label", copy.number, "muted"], ["title", "heading", p.title, "text"],
     ["status", "label", copy.status, copy.statusTone], ["request", "body", copy.request, "muted"],
     ["who", "body", copy.who, "muted"], ["window", "body", copy.window, "muted"]] as const;
   return loading ? <kit.KitSkeleton shape="figure" inset="none"
     content={fields.flatMap(([, role, text]) => text ? [[role, text] as const] : [])} />
-    : <kit.KitContent>{fields.map(([part, role, text, tone]) => text &&
+    : <kit.KitContent group={error ? "response" : "content"}>{fields.map(([part, role, text, tone]) => text &&
       <kit.KitText key={part} {...{ part, role, tone }}>{text}</kit.KitText>)}</kit.KitContent>;
 }
 // prettier-ignore
-function WorkItems({ p, w, lang }: { p: View; w: Words; lang: string }) {
+function WorkItems({ p, w, lang, group, loading }: { p: View; w: Words; lang: string; group: "content" | "response"; loading: boolean }) {
   return (["task", "part"] as const).map((kind) => {
       const rows = p.lines.filter((line) => line.kind === kind);
-      if (!rows.length) return null;
-      return <kit.KitContent key={kind} group="response">
-        <kit.KitText role="label" tone="muted" part={null}>{kind === "task" ? w.checks : w.parts}</kit.KitText>
+      return rows.length ? <kit.KitContent key={kind} group={group}>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", kind === "task" ? w.checks : w.parts]]} />
+          : <kit.KitText role="label" tone="muted" part={null}>{kind === "task" ? w.checks : w.parts}</kit.KitText>}
         {rows.map((row) => {
-          if (row.kind === "task") return <kit.KitRow key={row.id} item={row.id} label={row.text} inline
-            leadingAlign="row" leading={<kit.KitCheck part="check" done={row.done} label={row.text} readonly={!p.editable} />}>
+          if (row.kind === "task") return loading ? <kit.KitSkeleton key={row.id} lead="box" inset="none"
+            items={[{ title: row.text, sub: row.required ? w.required : undefined }]} />
+          : <kit.KitRow key={row.id} item={row.id} label={row.text} inline leadingWidth="avatar"
+            leading={p.editable ? <kit.KitCheck part="check" done={row.done} label={row.text} />
+              : <kit.KitIcon part="check" name={row.done ? "circle_check" : "minus"} tone={row.done ? "good" : "muted"} />}>
             <kit.KitText part="text">{row.text}</kit.KitText>
-            {row.required && <kit.KitText part="required" role="label" tone="muted">{w.required}</kit.KitText>}
-          </kit.KitRow>;
+            {row.required && <kit.KitText part="required" role="label" tone="muted">{w.required}</kit.KitText>}</kit.KitRow>;
           const { qty, cost } = workOrderLine(row, lang);
-          return <kit.KitRow key={row.id} item={row.id} label={row.name} inline>
-            <kit.KitGrid fitLast>
-              <kit.KitText part="name">{row.name}</kit.KitText>
-              {p.editable ? <kit.KitInput compact projected action="set" kind="number" min={Number.MIN_VALUE} part="qty"
-                label={w.quantity} hint={w.quantity} value={String(row.qty)} />
-                : <kit.KitText part="qty" role="number" numberScale="compact" tabular>{qty}</kit.KitText>}
-            </kit.KitGrid>
-            {cost && <kit.KitText part="cost" role="number" numberScale="compact" tone="muted" tabular>{cost}</kit.KitText>}
-          </kit.KitRow>;
-        })}</kit.KitContent>;
+          return <kit.KitRow key={row.id} {...(loading ? {} : { item: row.id })} label={row.name} inline><kit.KitGrid fitLast>
+            {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["body", row.name], ["body", cost]]} />
+            : <kit.KitContent><kit.KitText part="name">{row.name}</kit.KitText>
+              {cost && <kit.KitText part="cost" role="number" numberScale="compact" tone="muted" tabular>{cost}</kit.KitText>}</kit.KitContent>}
+            {p.editable ? <kit.KitRow inline label={w.quantityOf(row.name)} leading={!loading &&
+              <kit.KitText role="label" part={null} tone="muted">{w.quantity}</kit.KitText>} leadingAlign="row">
+              <kit.KitInput compact projected action="set" kind="number" min={Number.MIN_VALUE} part="qty"
+                label={w.quantityOf(row.name)} hint={w.quantity} value={String(row.qty)} /></kit.KitRow>
+              : !loading && <kit.KitText part="qty" role="number" numberScale="compact" tabular>{qty}</kit.KitText>}
+          </kit.KitGrid></kit.KitRow>;
+        })}</kit.KitContent> : null;
     });
 }
 // prettier-ignore
-function WorkNotes({ p, w, copy }: { p: View; w: Words; copy: Copy }) {
+function WorkNotes({ p, w, copy, loading }: { p: View; w: Words; copy: Copy; loading: boolean }) {
   if (!p.editable && !p.note && !copy.blocker) return null;
+  const render = (value: keyof Words["blockers"]) => <kit.KitChip key={value} item={null} role="radio"
+    label={w.blockers[value]} value={value} disabled={false} on={(p.blockedBy ?? "none") === value} />;
+  const label = (text: string) => loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", text]]} />
+    : <kit.KitText role="label" tone="muted" part={null}>{text}</kit.KitText>;
   return <kit.KitContent group="response">
-    {p.editable ? <>
-      <kit.KitText role="label" tone="muted" part={null}>{w.blocker}</kit.KitText>
+    {p.editable ? <>{label(w.blocker)}
       <kit.KitTrack part="blocked" role="radiogroup" label={w.blocker}>
-        {(["none", ...blocker.options] as const).map((value) => <kit.KitChip key={value} item={null} role="radio"
-          label={w.blockers[value]} value={value} on={(p.blockedBy ?? "none") === value} />)}
-      </kit.KitTrack>
-      <kit.KitText role="label" tone="muted" part={null}>{w.note}</kit.KitText>
-      <kit.KitTextArea part="note" label={w.note} hint={w.noteHint} value={p.note} lines={2} maxLength={maxNote} />
-    </> : <>
+        <kit.KitGrid columns={3}>{(["none", "access", "parts"] as const).map(render)}</kit.KitGrid>
+        <kit.KitGrid>{(["information", "other"] as const).map(render)}</kit.KitGrid>
+      </kit.KitTrack>{label(w.note)}
+      {loading ? <kit.KitRow label={w.note} tone="muted"><kit.KitSkeleton shape="figure" inset="none"
+        content={[["body", p.note || w.noteHint], ["body", w.note]]} /></kit.KitRow> : <kit.KitTextArea part="note"
+        label={w.note} hint={w.noteHint} value={p.note} lines={2} maxLength={maxNote} />}</> : !loading && <>
       {copy.blocker && <kit.KitText part="blocked" tone="warn">{copy.blocker}</kit.KitText>}
       {p.note && <kit.KitText part="note">{p.note}</kit.KitText>}
     </>}
@@ -169,32 +174,27 @@ function WorkNotes({ p, w, copy }: { p: View; w: Words; copy: Copy }) {
 // prettier-ignore
 export function WorkOrder(input: c.Props<typeof props, typeof meta>) {
   const { words: { workOrder: w }, lang } = kit.useWords(requestsWordsFor), state = kit.useComponentState();
-  const density = kit.useVariant("density", meta.variants.density, input.density);
-  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
-  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const live = kit.useLiveControls(meta, input) as View, p = { ...live, detail, editable: state === "filled" && live.editable };
-  const copy = workOrderCopy(p, state, lang), loading = state === "loading", group = density === "compact" ? "content" : "response";
+  const density = kit.useVariant("density", meta.variants.density, input.density), surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail), live = kit.useLiveControls(meta, input) as View;
+  const p = { ...live, detail, editable: (state === "filled" || state === "loading") && live.editable };
+  const copy = workOrderCopy(p, state, lang), success = state === "success", loading = state === "loading", error = state === "error";
+  const group = density === "compact" ? "content" : "response", canFinish = p.finishable && !p.running;
   return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "error" && <kit.KitContent>
-      <kit.KitText part={null} role="label" tone="bad">{w.error}</kit.KitText>
+    {error && <kit.KitContent><kit.KitText part={null} role="label" tone="bad">{w.error}</kit.KitText>
       <kit.KitText part={null} tone="muted">{w.errorDetail}</kit.KitText></kit.KitContent>}
-    <WorkHeader {...{ p, copy, loading }} />
-    <kit.KitContent group={group}>{loading ?
-      <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.clock], ["body", copy.clock]]} /> :
-        <kit.KitGrid fitLast>
-          <kit.KitContent>
-            <kit.KitText role="label" part={null} tone="muted">{w.clock}</kit.KitText>
-            <kit.KitText role="number" numberScale="compact" tabular part="clock_value">{copy.clock}</kit.KitText>
-          </kit.KitContent>
+    <WorkHeader {...{ p, copy, loading, error }} />
+    {!success && <><kit.KitContent group={group}><kit.KitGrid fitLast>
+          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", w.clock], ["body", copy.clock]]} />
+            : <kit.KitContent><kit.KitText role="label" part={null} tone="muted">{w.clock}</kit.KitText>
+              <kit.KitText role="number" numberScale="compact" tabular part="clock_value">{copy.clock}</kit.KitText></kit.KitContent>}
           {p.editable && <kit.KitAction part="clock" kind="secondary" action={p.running ? "stop" : "start"}
             disabled={!p.running && !p.canStart} label={p.running ? w.stop : w.start} />}
-        </kit.KitGrid>}</kit.KitContent>
-    {loading ? <kit.KitSkeleton rows={p.lines.length} lead="box" inset="none" /> : <WorkItems {...{ p, w, lang }} />}
-    {!loading && copy.total && <kit.KitContent group={group}>
+        </kit.KitGrid></kit.KitContent>
+    <WorkItems {...{ p, w, lang, group, loading }} />
+    {!loading && copy.total && <kit.KitGrid fitLast>
       <kit.KitText role="label" tone="muted" part={null}>{copy.total.label}</kit.KitText>
-      <kit.KitText role="number" numberScale="compact" part="total" tabular>{copy.total.value}</kit.KitText></kit.KitContent>}
-    {!loading && <WorkNotes {...{ p, copy, w }} />}
-    {(loading ? live.editable : p.editable) && <kit.KitContent group={group}>
-      <kit.KitAction part="finish" full disabled={!p.finishable || p.running} label={w.finish} /></kit.KitContent>}
+      <kit.KitText role="number" numberScale="compact" part="total" tabular>{copy.total.value}</kit.KitText></kit.KitGrid>}
+    <WorkNotes {...{ p, copy, w, loading }} />
+    {p.editable && <kit.KitContent group="response"><kit.KitAction part="finish" full kind={canFinish ? "primary" : "secondary"} disabled={!canFinish} label={w.finish} /></kit.KitContent>}</>}
   </kit.KitCard>;
 }
