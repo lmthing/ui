@@ -37,7 +37,7 @@ export function usePlanningTarget(
   const kit = useKit();
   const enabled = useContext(ValidTarget) && !loading;
   const address = usePart(enabled ? target?.part : undefined, enabled);
-  if (!enabled) return { testID: undefined };
+  if (!enabled) return {} as { testID?: never };
   const press = kit.interactive && kit.controller ? () => kit.controller!.press(address.testID) : undefined;
   return {
     ...address,
