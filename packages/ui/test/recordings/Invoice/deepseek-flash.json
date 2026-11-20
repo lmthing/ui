@@ -1,4 +1,190 @@
 {
+  "20a1396219e6541f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nInvoice: Bill a client or quote work before they accept it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", number: text≤12, to: text≤28, date: date YYYY-MM-DD, due?: date YYYY-MM-DD, lines: [1..8 { item: text≤32, qty: number, price: num 0.. }], tax?: num 0..100, status: draft|sent|paid, note?: text≤100, style?: invoice|quote=\"invoice\" }\nRule: Write only line quantities and unit prices plus optional tax percent; code computes subtotal, tax, total and overdue.\nRule: style: \"quote\" cannot have status: \"paid\". Use draft or sent for quotes.\nRule: If asked only to hide the note, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the note in the data. Otherwise detail is null.\nexample: {\"c\":\"Invoice\",\"number\":\"L-042\",\"to\":\"Anna Patel\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Plant care visit\",\"qty\":2,\"price\":20},{\"item\":\"Repotting\",\"qty\":1,\"price\":30}],\"tax\":10,\"status\":\"sent\",\"note\":\"Thank you for keeping things growing.\",\"style\":\"invoice\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft invoice T-042 to Ben Carter dated 2026-11-18, due 2026-12-02, eight park walks at 15 each, tax ten percent",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Invoice",
+              "enum": [
+                "Invoice"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lines": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "qty": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "item",
+                  "qty",
+                  "price"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "tax": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "paid"
+              ]
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "invoice",
+                    "quote"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "number",
+            "to",
+            "date",
+            "due",
+            "lines",
+            "tax",
+            "status",
+            "note",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Invoice\",\"density\":null,\"surface\":\"card\",\"detail\":\"full\",\"number\":\"T-042\",\"to\":\"Ben Carter\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Park walk\",\"qty\":8,\"price\":15}],\"tax\":10,\"status\":\"draft\",\"note\":null,\"style\":\"invoice\"}",
+    "replies": [
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":\"card\",\"detail\":\"full\",\"number\":\"T-042\",\"to\":\"Ben Carter\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Park walk\",\"qty\":8,\"price\":15}],\"tax\":10,\"status\":\"draft\",\"note\":null,\"style\":\"invoice\"}",
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":null,\"number\":\"T-042\",\"to\":\"Ben Carter\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Park walk\",\"qty\":8,\"price\":15}],\"tax\":10,\"status\":\"draft\",\"note\":null,\"style\":\"invoice\"}",
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":null,\"number\":\"T-042\",\"to\":\"Ben Carter\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Park walk\",\"qty\":8,\"price\":15}],\"tax\":10,\"status\":\"draft\",\"note\":null,\"style\":\"invoice\"}"
+    ]
+  },
   "3246e9823b0d6b66": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Invoice[quote] Quote T-Q07 — Sent — To · Ben Carter — Issued · 2026-11-18 — Qty 8 — $15 / each — Subtotal — $120 — Total — $120 — Resend — Accept — Decline — \"T-Q07\" — \"Ben Carter\" [i1/send press !needs-service] [i1/accept press] [i1/decline press]\n  r1 \"Morning park walk\"\n\nTask: Accept this quote\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"i1/accept\", \"action\": \"press\"}",
@@ -192,6 +378,192 @@
       "{\"address\": \"i1/accept\", \"action\": \"press\"}",
       "{\"address\": \"i1/accept\", \"action\": \"press\"}",
       "{\"address\": \"i1/accept\", \"action\": \"press\"}"
+    ]
+  },
+  "c26261d78b154dbe": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nInvoice: Bill a client or quote work before they accept it.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", number: text≤12, to: text≤28, date: date YYYY-MM-DD, due?: date YYYY-MM-DD, lines: [1..8 { item: text≤32, qty: number, price: num 0.. }], tax?: num 0..100, status: draft|sent|paid, note?: text≤100, style?: invoice|quote=\"invoice\" }\nRule: Write only line quantities and unit prices plus optional tax percent; code computes subtotal, tax, total and overdue.\nRule: style: \"quote\" cannot have status: \"paid\". Use draft or sent for quotes.\nRule: If asked only to hide the note, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the note in the data. Otherwise detail is null.\nexample: {\"c\":\"Invoice\",\"number\":\"L-042\",\"to\":\"Anna Patel\",\"date\":\"2026-11-18\",\"due\":\"2026-12-02\",\"lines\":[{\"item\":\"Plant care visit\",\"qty\":2,\"price\":20},{\"item\":\"Repotting\",\"qty\":1,\"price\":30}],\"tax\":10,\"status\":\"sent\",\"note\":\"Thank you for keeping things growing.\",\"style\":\"invoice\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft invoice T-043 to Ben Carter dated 2026-11-19 for six river walks at 18 each. Save the note Thank you for booking with Trot, but don't display the note on the invoice.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Invoice",
+              "enum": [
+                "Invoice"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "number": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 12
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "due": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lines": {
+              "minItems": 1,
+              "maxItems": 8,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "item": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 32
+                  },
+                  "qty": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "price": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "item",
+                  "qty",
+                  "price"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "tax": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "sent",
+                "paid"
+              ]
+            },
+            "note": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "invoice",
+                    "quote"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "number",
+            "to",
+            "date",
+            "due",
+            "lines",
+            "tax",
+            "status",
+            "note",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"number\":\"T-043\",\"to\":\"Ben Carter\",\"date\":\"2026-11-19\",\"due\":null,\"lines\":[{\"item\":\"River walk\",\"qty\":6,\"price\":18}],\"tax\":null,\"status\":\"draft\",\"note\":\"Thank you for booking with Trot, but don't display the note on the invoice.\",\"style\":\"invoice\"}",
+    "replies": [
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"number\":\"T-043\",\"to\":\"Ben Carter\",\"date\":\"2026-11-19\",\"due\":null,\"lines\":[{\"item\":\"River walk\",\"qty\":6,\"price\":18}],\"tax\":null,\"status\":\"draft\",\"note\":\"Thank you for booking with Trot, but don't display the note on the invoice.\",\"style\":\"invoice\"}",
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"number\":\"T-043\",\"to\":\"Ben Carter\",\"date\":\"2026-11-19\",\"due\":null,\"lines\":[{\"item\":\"River walk\",\"qty\":6,\"price\":18}],\"tax\":null,\"status\":\"draft\",\"note\":\"Thank you for booking with Trot\",\"style\":\"invoice\"}",
+      "{\"c\":\"Invoice\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"number\":\"T-043\",\"to\":\"Ben Carter\",\"date\":\"2026-11-19\",\"due\":null,\"lines\":[{\"item\":\"River walk\",\"qty\":6,\"price\":18}],\"tax\":null,\"status\":\"draft\",\"note\":\"Thank you for booking with Trot\",\"style\":\"invoice\"}"
     ]
   },
   "e4ec9ce6fc54670e": {

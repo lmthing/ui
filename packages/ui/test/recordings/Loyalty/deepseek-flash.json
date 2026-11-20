@@ -44,6 +44,222 @@
       "Streak"
     ]
   },
+  "6372bac1d5e438f2": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLoyalty: Reward repeat clients with stamps toward a redeemable free thing.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", stamps: int 0..12, of: int 4..12, reward: text≤40, name?: text≤24 }\nRule: stamps is a whole count from zero through of; of is a whole number from four through twelve. Code enables redeem only when full.\nRule: If asked only to hide the client name, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the name in the data. Otherwise detail is null.\nexample: {\"c\":\"Loyalty\",\"stamps\":3,\"of\":6,\"reward\":\"Your sixth plant care visit is free\",\"name\":\"Anna Patel\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Ben Carter has seven of ten stamps and his reward is Your tenth walk is free. Remember his name, but don't display the name on the stamp card.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Loyalty",
+              "enum": [
+                "Loyalty"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stamps": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 12
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 4,
+              "maximum": 12
+            },
+            "reward": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "stamps",
+            "of",
+            "reward",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+    "replies": [
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}"
+    ]
+  },
+  "7d54df2b09823fa6": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLoyalty: Reward repeat clients with stamps toward a redeemable free thing.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", stamps: int 0..12, of: int 4..12, reward: text≤40, name?: text≤24 }\nRule: stamps is a whole count from zero through of; of is a whole number from four through twelve. Code enables redeem only when full.\nRule: If asked only to hide the client name, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"} and keep the name in the data. Otherwise detail is null.\nexample: {\"c\":\"Loyalty\",\"stamps\":3,\"of\":6,\"reward\":\"Your sixth plant care visit is free\",\"name\":\"Anna Patel\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Ben Carter has seven of ten stamps; reward is Your tenth walk is free",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Loyalty",
+              "enum": [
+                "Loyalty"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "stamps": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 12
+            },
+            "of": {
+              "type": "integer",
+              "minimum": 4,
+              "maximum": 12
+            },
+            "reward": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "stamps",
+            "of",
+            "reward",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+    "replies": [
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":null,\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}",
+      "{\"c\":\"Loyalty\",\"density\":null,\"surface\":null,\"detail\":null,\"stamps\":7,\"of\":10,\"reward\":\"Your tenth walk is free\",\"name\":\"Ben Carter\"}"
+    ]
+  },
   "84e9e40453ab54ed": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Loyalty 3 of 6 — Add stamp — \"Your sixth plant care visit is free\" — \"Anna Patel\" [l1/stamp press]\n\nTask: Add a stamp for this visit\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"l1/stamp\", \"action\": \"press\"}",

@@ -111,7 +111,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Client Ben Carter, photo lib:people, joined 2025-04-03, next park walk Monday 10:00, tag Regular. Show his name and contact buttons, but hide when he joined, his next booking and tags; keep those facts on file.",
+      "Show Ben Carter's name, his lib:people portrait and contact buttons. Keep his 2025-04-03 join date, Monday 10:00 park walk and Regular tag on file without displaying those three details.",
     ),
     variant: { axis: "detail", value: "brief" },
   },

@@ -87,7 +87,7 @@ export const probes = [
   write("Ben owes 120 for dog walks dated 2026-11-18, paid 30 so far, due 2026-12-02 by bank transfer"),
   {
     ...write(
-      "Track Ben's payment of 30 out of 120 for walks dated 2026-11-18, due 2026-12-02. Save Bank transfer as the method but hide the method on the card.",
+      "Track Ben's payment of 30 out of 120 for walks dated 2026-11-18, due 2026-12-02. Record Bank transfer as the payment method but don't show the method anywhere.",
     ),
     variant: { axis: "detail", value: "brief" },
   },

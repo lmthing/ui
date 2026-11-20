@@ -95,6 +95,314 @@
       "{\"c\":\"ClientCard\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}"
     ]
   },
+  "638aca3836f7cb83": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nClientCard: Recognise one business client, their next visit and how to contact them.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", detail?: full|brief=\"full\", name: text≤28, photo?: photo lib:<tag>|local:<n>, since?: date YYYY-MM-DD, next?: text≤36, tags: [0..3 text≤12], phone: boolean, address: boolean }\nRule: Use null for unrequested axes. A photo is required unless media is \"none\"; use \"none\" only when asked not to show the photo.\nRule: If asked only to hide tenure, next booking and tags, use {\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\"} and keep those details in the data.\nexample: {\"c\":\"ClientCard\",\"name\":\"Anna Patel\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Plant care · Friday 09:00\",\"tags\":[\"Regular\",\"Key holder\"],\"phone\":true,\"address\":true}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Client Ben Carter, photo lib:people, joined 2025-04-03, next park walk Monday 10:00, tag Regular, allow calls and directions",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ClientCard",
+              "enum": [
+                "ClientCard"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "next": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tags": {
+              "minItems": 0,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              }
+            },
+            "phone": {
+              "type": "boolean"
+            },
+            "address": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "detail",
+            "name",
+            "photo",
+            "since",
+            "next",
+            "tags",
+            "phone",
+            "address"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"detail\":\"full\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+    "replies": [
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"detail\":\"full\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":null,\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"detail\":null,\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}"
+    ]
+  },
+  "a1d8e26c2d7cee7f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nClientCard: Recognise one business client, their next visit and how to contact them.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", detail?: full|brief=\"full\", name: text≤28, photo?: photo lib:<tag>|local:<n>, since?: date YYYY-MM-DD, next?: text≤36, tags: [0..3 text≤12], phone: boolean, address: boolean }\nRule: Use null for unrequested axes. A photo is required unless media is \"none\"; use \"none\" only when asked not to show the photo.\nRule: If asked only to hide tenure, next booking and tags, use {\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\"} and keep those details in the data.\nexample: {\"c\":\"ClientCard\",\"name\":\"Anna Patel\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Plant care · Friday 09:00\",\"tags\":[\"Regular\",\"Key holder\"],\"phone\":true,\"address\":true}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Client Ben Carter, photo lib:people, joined 2025-04-03, next park walk Monday 10:00, tag Regular. Show his name and contact buttons, but hide when he joined, his next booking and tags; keep those facts on file.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ClientCard",
+              "enum": [
+                "ClientCard"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "next": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tags": {
+              "minItems": 0,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              }
+            },
+            "phone": {
+              "type": "boolean"
+            },
+            "address": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "detail",
+            "name",
+            "photo",
+            "since",
+            "next",
+            "tags",
+            "phone",
+            "address"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":null,\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+    "replies": [
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"none\",\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":null,\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}"
+    ]
+  },
   "a5cccfc25dc37617": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 ClientCard Client since 3 Apr 2025 — Next: Plant care · Friday 09:00 — Regular · Key holder — Message — Call — Directions — \"Anna Patel\" — photo:people — \"Plant care · Friday 09:00\" [c1/call press !needs-service] [c1/message press !needs-service] [c1/directions press !needs-service]\n\nTask: Call Anna\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"c1/call\", \"action\": \"press\"}",
@@ -102,6 +410,160 @@
       "{\"address\": \"c1/call\", \"action\": \"press\"}",
       "{\"address\": \"c1/call\", \"action\": \"press\"}",
       "{\"address\": \"c1/call\", \"action\": \"press\"}"
+    ]
+  },
+  "b3830c4bbdf510b8": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nClientCard: Recognise one business client, their next visit and how to contact them.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", media?: thumb|none=\"thumb\", detail?: full|brief=\"full\", name: text≤28, photo?: photo lib:<tag>|local:<n>, since?: date YYYY-MM-DD, next?: text≤36, tags: [0..3 text≤12], phone: boolean, address: boolean }\nRule: Use null for unrequested axes. A photo is required unless media is \"none\"; use \"none\" only when asked not to show the photo.\nRule: If asked only to hide tenure, next booking and tags, use {\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\"} and keep those details in the data.\nexample: {\"c\":\"ClientCard\",\"name\":\"Anna Patel\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Plant care · Friday 09:00\",\"tags\":[\"Regular\",\"Key holder\"],\"phone\":true,\"address\":true}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show Ben Carter's name, his lib:people portrait and contact buttons. Keep his 2025-04-03 join date, Monday 10:00 park walk and Regular tag on file without displaying those three details.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "ClientCard",
+              "enum": [
+                "ClientCard"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "media": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "thumb",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 28
+            },
+            "photo": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "since": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "next": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tags": {
+              "minItems": 0,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 12
+              }
+            },
+            "phone": {
+              "type": "boolean"
+            },
+            "address": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "media",
+            "detail",
+            "name",
+            "photo",
+            "since",
+            "next",
+            "tags",
+            "phone",
+            "address"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Monday 10:00 · Park walk\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+    "replies": [
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Monday 10:00 · Park walk\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":null,\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Monday 10:00 park walk\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}",
+      "{\"c\":\"ClientCard\",\"density\":null,\"surface\":null,\"media\":\"thumb\",\"detail\":\"brief\",\"name\":\"Ben Carter\",\"photo\":\"lib:people\",\"since\":\"2025-04-03\",\"next\":\"Park walk · Monday 10:00\",\"tags\":[\"Regular\"],\"phone\":true,\"address\":true}"
     ]
   },
   "cdd3bf88a946cb35": {
