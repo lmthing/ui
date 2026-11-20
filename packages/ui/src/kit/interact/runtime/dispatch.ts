@@ -5,6 +5,13 @@ import { snapshotPlanning, type ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
 
+export function discardHiddenConfirmation(ctx: ControllerContext) {
+  if (ctx.status.confirmation && !ctx.confirmationFor()) {
+    ctx.status.confirmation = undefined;
+    ctx.store.set(`${ctx.screen.id}/$confirmation`, undefined);
+  }
+}
+
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
@@ -12,6 +19,8 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
+    // A host snapshot change invalidates the confirmation independently of this action's result.
+    if (!opts.dryRun) discardHiddenConfirmation(ctx);
     const planning = snapshotPlanning(ctx);
     const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
