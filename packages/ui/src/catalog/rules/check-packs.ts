@@ -19,9 +19,11 @@ function checkMeta(input: Input, pack: PackMeta): string[] {
   const entry = packIndex.find(({ id }) => id === pack.id);
   const pick = entry?.pick ?? "";
   const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
-  const excludesCore = [...pick.matchAll(/\(core ([A-Z][A-Za-z0-9]*)\)/g)].some(
-    ([, id]) => id !== undefined && input.components[id]?.meta.id === id && !input.packOf[id],
-  );
+  const excludesCore =
+    pick.includes("(core)") ||
+    [...pick.matchAll(/\(core ([A-Z][A-Za-z0-9]*)\)/g)].some(
+      ([, id]) => id !== undefined && input.components[id]?.meta.id === id && !input.packOf[id],
+    );
   if (!entry?.purpose.trim() || !pick.trim() || (!nearest.length && !excludesCore))
     issues.push(`${pack.id}: purpose/pick`);
   if ((input.packArchetypes[pack.id]?.length ?? 0) < 2) issues.push(`${pack.id}: archetypes`);
