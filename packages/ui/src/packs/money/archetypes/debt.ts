@@ -14,7 +14,7 @@ export const debt = {
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
-        { id: "l1", c: "Loan", style: "schedule" },
+        { id: "l1", c: "Loan", detail: "full" },
         { id: "n1", c: "Note" },
         { id: "b1", c: "Button" },
       ],

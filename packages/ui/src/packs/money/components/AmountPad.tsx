@@ -7,6 +7,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -22,6 +23,7 @@ import {
   useControlValue,
   usePartContext,
   useWords,
+  useVariant,
 } from "../../../kit";
 import { amountPadDisplay, amountPadKeys, amountPadReading, amountPadText } from "../copy";
 import { moneyWordsFor } from "../lang";
@@ -34,21 +36,27 @@ export const meta = {
   purpose: "Enter a money amount quickly with a large keypad.",
   pick: "Entering money is the main screen task: large live amount, decimal keypad and optional note. Not a number among form fields (Field), or a count to step (Counter).",
   writeHints: [
-    "value and max are nonnegative numbers; value must not exceed max. note is a boolean enabling a note input, never the note text.",
+    "value and max are nonnegative numbers; value must not exceed max. note enables input, never note text. For a hidden enabled note use note true, detail brief. If no border or surface requested, write surface null, not card.",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "An amount saved to a new entry on the device.",
+  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variantParts: { "detail.brief": { hides: ["note"] } },
   parts: ["root", "label", "value", "pad", "note"],
+  items: { key: "keys", parts: ["root"] },
   states: ["filled", "empty"],
-  actions: { parts: { pad: ["type"], note: ["type"] }, when: { note: { note: true } } },
+  actions: { parts: { pad: ["type"], note: ["type"] }, when: { note: { note: true, detail: "full" } } },
   read: (input, state, lang) =>
-    state === "filled" ? amountPadReading(input as { value?: number | string; note: boolean }, lang) : [],
+    state === "filled"
+      ? amountPadReading(input as { value?: number | string; note: boolean; detail?: "full" | "brief" }, lang)
+      : [],
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     label: text(24),
     value: z.number().nonnegative().optional(),
     max: z.number().nonnegative().optional(),
@@ -58,6 +66,8 @@ export const props = z
     path: ["value"],
     message: "The entered amount must not exceed max",
   })
+  // These fixed keys have view addresses, but share the single authored pad input.
+  .overwrite((value) => ({ ...value, keys: amountPadKeys(moneyWordsFor().amountPad, false) }))
   .meta({ keypadParts: ["pad"] });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -69,6 +79,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { label: "Ledge supplies", value: 24.5, max: 500, note: true },
   { label: "Trot walking income", note: false },
+  { label: "Plant market", value: 42, note: true, detail: "brief", surface: "outlined" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("AmountPad");
@@ -83,6 +94,12 @@ export const probes = [
   write(
     "A full-screen money keypad labelled Supplies with 24.50 entered, maximum 500, and a note input enabled",
   ),
+  {
+    ...write(
+      "Use a money keypad labeled Market with 42 entered. Keep notes enabled in the data, but show the keypad without its note field.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Type 25 into the amount keypad", { address: "a1/pad", action: "type" }),
 ] satisfies Probe[];
 
@@ -92,9 +109,10 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(moneyWordsFor);
   const initialText = amountPadText(input.value);
   const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
+  const surface = useVariant("surface", meta.variants.surface, input.surface);
   const keys = amountPadKeys(words.amountPad, Boolean(draft));
   return (
-    <KitCard part="root" padded={state !== "empty"}>
+    <KitCard surface={surface} part="root" padded={state !== "empty"}>
       {state === "empty" ? (
         <KitEmpty part="label" decorativeIcon />
       ) : (
@@ -107,7 +125,7 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
             value={amountPadDisplay(draft, lang)}
             keys={keys}
           />
-          {input.note && (
+          {input.note && input.detail === "full" && (
             <KitContent group="response">
               <KitInput part="note" hint={words.amountPad.note} />
             </KitContent>

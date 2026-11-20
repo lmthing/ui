@@ -3,6 +3,9 @@ import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
+  affordancesOf,
+  readComponent,
+  stampItemIds,
   archetypes,
   buildPackIndex,
   checkArchetypes,
@@ -21,6 +24,7 @@ import {
   type ArchetypeMeta,
 } from "@lmthing/ui/catalog";
 import { example, pack } from "..";
+import { addressedElements, renderInstance } from "../../../../test/render";
 
 const ids = ["AccountCard", "Transactions", "Bills", "Split", "AmountPad", "PriceChart", "Loan", "Payoff"];
 const definitions = components as Record<string, Definition>;
@@ -68,6 +72,10 @@ it("validates the pack, archetypes and every exact worked-example line", () => {
     expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success, c).toBe(true);
   }
   for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
+  expect(lines.find((line) => line.c === "Loan")).toMatchObject({ detail: "full" });
+  expect(
+    registry.defaultLines("debt", "money_loan", neutral).components.find(({ c }) => c === "Loan"),
+  ).toMatchObject({ detail: "full" });
   const split = lines.find((line) => line.c === "Split");
   expect(split.people).toHaveLength(4);
   // Independent Kitty seeds leave two payers owed and two flatmates owing.
@@ -115,3 +123,53 @@ it.each(
     expect(registry.schema(registry.resolve(c)!)?.safeParse(input).success).toBe(true);
   }
 });
+
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+const cases = [
+  ["AccountCard", "detail", "full", "brief", "r2/last4", "4821"],
+  ["AmountPad", "detail", "full", "brief", "note", "Add a note"],
+  ["Bills", "detail", "full", "brief", "r1/repeat", "Monthly"],
+  ["Loan", "detail", "brief", "full", "schedule", "Upcoming payments"],
+  ["Payoff", "detail", "full", "brief", "line", "Projected balance"],
+  ["PriceChart", "detail", "full", "brief", "change", "this period"],
+  ["Split", "lead", "avatar", "none", "r1/photo", ""],
+  ["Transactions", "lead", "icon", "none", "r1/icon", ""],
+] as const;
+
+it.each(cases)(
+  "%s applies its default and declares the %s delta",
+  (id, axis, defaultValue, value, part, copy) => {
+    const def = components[id];
+    const input = def.examples[0]!;
+    const changed = { ...input, [axis]: value };
+    expect(def.props.parse(input)).toMatchObject({ [axis]: defaultValue });
+    expect(def.props.safeParse({ ...input, [axis]: "custom" }).success).toBe(false);
+    const parsed = def.props.parse(changed);
+    expect(parsed).toMatchObject({ [axis]: value });
+
+    const name = part.split("/").at(-1)!;
+    const adds = id === "Loan";
+    expect(def.meta.variantParts).toMatchObject({
+      [`${axis}.${value}`]: { [adds ? "adds" : "hides"]: [name] },
+    });
+    const addresses = (props: unknown) =>
+      [...addressedElements(renderInstance(id, props, "filled", theme)).keys()].sort();
+    const address = `home/c1/${part}`;
+    const normal = addresses(input);
+    const variant = addresses(changed);
+    const [withPart, without] = adds ? [variant, normal] : [normal, variant];
+    expect(withPart).toContain(address);
+    expect(withPart.filter((current) => !current.endsWith(`/${name}`))).toEqual(without);
+    if (copy) {
+      const read = (props: unknown) => readComponent(def, props, "c1").join("\n");
+      expect(read(adds ? changed : input)).toContain(copy);
+      expect(read(adds ? input : changed)).not.toContain(copy);
+    }
+    const actions = (props: Record<string, unknown>) =>
+      affordancesOf(def.meta, stampItemIds(def.meta, props), "c1");
+    expect(actions(parsed)).toEqual(
+      actions(def.props.parse(input)).filter((action) => id !== "AmountPad" || action.part !== "note"),
+    );
+    expect(def.probes).toContainEqual(expect.objectContaining({ kind: "write", variant: { axis, value } }));
+  },
+);

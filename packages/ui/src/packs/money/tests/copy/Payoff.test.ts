@@ -81,7 +81,7 @@ describe("Payoff copy", () => {
     const copy = payoffCopy(input, "fr-FR");
     expect(copy.total).toBe("100\u00a0$US");
     expect(copy.finish).toContain("avr.");
-    const compact = payoffReading({ ...input, style: "compact" }, "fr-FR");
+    const compact = payoffReading({ ...input, detail: "brief" }, "fr-FR");
     expect(compact).toContain(copy.finish);
     expect(compact).not.toContain(copy.series[0]!.label);
   });
@@ -90,7 +90,7 @@ describe("Payoff copy", () => {
     const choice = { high_rate: "Taux élevé", small_balance: "Petit solde" };
     const unregister = registerMoneyWords("fr", { ...en, payoff: { ...en.payoff, choice } });
     try {
-      const reading = payoffReading({ ...input, style: "compact" }, "fr");
+      const reading = payoffReading({ ...input, detail: "brief" }, "fr");
       expect(reading).toEqual(expect.arrayContaining(Object.values(choice)));
       expect(reading).not.toContain(en.payoff.choice.small_balance);
       expect(payoffSelection("high_rate", en.payoff.choice.small_balance).strategy).toBe("small_balance");
