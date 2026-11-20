@@ -12,7 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
-import { selectDeviceData, type DeviceData } from "./device-data";
+import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -91,6 +91,7 @@ export function readComponent(
   deviceData?: DeviceData,
 ): string[] {
   const { meta } = def;
+  if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(meta.id, input), get);
   const props = liveProps(meta, validated, instance, values, true, deviceData);
