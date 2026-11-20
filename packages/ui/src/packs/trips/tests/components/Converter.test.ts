@@ -151,7 +151,9 @@ describe("Converter actions", () => {
 
 describe("Converter addressed view", () => {
   it("draws both fields, a swap button and the unavailable-rate line without inventing a quote", () => {
-    const parts = addressedElements(renderInstance("Converter", { value: 25 }, "filled", theme));
+    const parts = addressedElements(
+      renderInstance("Converter", { value: 25 }, "filled", theme, { deviceData: {} }),
+    );
     expect(parts.get("home/c1/from")?.attributes).toContain('role="textbox"');
     expect(parts.get("home/c1/from")?.attributes).toContain('value="25"');
     expect(parts.get("home/c1/to")?.attributes).toContain('value=""');
