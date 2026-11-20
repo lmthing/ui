@@ -1,7 +1,10 @@
-import { XStack, YStack } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import { XStack, YStack, styled } from "tamagui";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { component, pickerKey, radius, size, space, type as typography } from "../../../catalog";
+import type { IconName } from "../../../catalog";
+import { useControlValue } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
 
 type OptionProps = {
@@ -122,13 +125,71 @@ function Option(props: OptionProps) {
     </YStack>
   );
 }
-
-/** A card or row option, addressed as one item with title, sub, value and badge parts. */
-export function KitOption({ item, ...props }: { item: string } & OptionProps) {
+type PickerProps = { title: string; choices: readonly string[]; selected?: string | undefined };
+const PickerRow = styled(XStack, {
+  alignItems: "center",
+  justifyContent: "space-between",
+  minHeight: size.control.md,
+  paddingHorizontal: space.md,
+  gap: space.sm,
+});
+function Picker({ title, choices, selected }: PickerProps) {
+  const { screen, component: instance, item } = usePartContext();
+  const kit = useKit();
+  const ks = useKitStyle();
+  const loading = useComponentState() === "loading";
+  const address = usePart("root", !loading);
+  const open = useControlValue<string | undefined>(`${screen}/${instance}/${pickerKey}`, undefined);
+  if (loading)
+    return <PickerRow aria-hidden backgroundColor="$line" borderRadius={shifted("md", ks.radiusShift)} />;
+  const enabled = kit.interactive && !!kit.controller && choices.length > 0;
+  const expanded = enabled && open === item;
+  const Chevron = expanded ? ChevronUp : ChevronDown;
+  const label = selected ? `${title}: ${selected}` : title;
+  const corners = shifted("md", ks.radiusShift);
+  const choose = (value: string) => {
+    const result = kit.controller!.act({ address: address.testID, action: "select", value });
+    const trigger = address.ref.current;
+    if (result.ok && trigger && "focus" in trigger && typeof trigger.focus === "function") trigger.focus();
+  };
+  return (
+    <YStack gap={space.xs}>
+      <PickerRow
+        {...address}
+        borderRadius={corners}
+        backgroundColor={selected ? "$accentSoft" : "$raised"}
+        accessibilityRole="button"
+        aria-expanded={expanded}
+        aria-disabled={!enabled || undefined}
+        accessibilityLabel={label}
+        {...(enabled ? { onPress: () => kit.controller!.press(address.testID) } : {})}
+      >
+        <KitText role="label" part={null} children={label} />
+        <Chevron color="$muted" size={size.icon.sm} aria-hidden />
+      </PickerRow>
+      {expanded && (
+        <YStack role="radiogroup" aria-label={title} borderRadius={corners} backgroundColor="$raised">
+          {choices.map((label) => (
+            <PickerRow
+              key={label}
+              accessibilityRole="radio"
+              aria-checked={label === selected}
+              onPress={() => choose(label)}
+            >
+              <KitText role="label" part={null} children={label} />
+              {label === selected && <KitIcon name="check" tone="accent" scale="sm" decorative />}
+            </PickerRow>
+          ))}
+        </YStack>
+      )}
+    </YStack>
+  );
+}
+export function KitOption({ item, ...props }: { item: string } & (OptionProps | PickerProps)) {
   const context = usePartContext();
   return (
     <PartContext.Provider value={{ ...context, item }}>
-      <Option {...props} />
+      {"choices" in props ? <Picker {...props} /> : <Option {...props} />}
     </PartContext.Provider>
   );
 }
