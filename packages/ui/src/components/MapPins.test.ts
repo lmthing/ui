@@ -18,7 +18,8 @@ describe("MapPins schema", () => {
   );
   it("trims labels without inventing navigation", () => {
     expect(props.parse({ pins: [{ label: "  First place  " }] })).toEqual({
-      pins: [{ label: "First place", root: undefined }],
+      trail: "chevron",
+      pins: [{ label: "First place", root: undefined, tone: "neutral", mark: "none" }],
     });
   });
   it.each([
@@ -33,6 +34,8 @@ describe("MapPins schema", () => {
     { pins: [{ label: "Place", color: "red" }] },
     { pins: [{ label: "Place", pixels: 4 }] },
     { pins: [{ label: "Place" }], style: "satellite" },
+    { pins: [{ label: "Place" }], trail: "toggle" },
+    { pins: [{ label: "Place", mark: "urgent" }] },
     { pins: [{ label: "Place" }], color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths and count, repeated labels and navigation forms", () => {
@@ -51,6 +54,16 @@ describe("MapPins schema", () => {
 });
 
 describe("MapPins actions", () => {
+  it("can hide decorative arrows without changing linked pin addresses", () => {
+    const input = { pins: [{ label: "First place", goto: "first" }, { label: "Second place" }] };
+    const noArrows = { ...input, trail: "none", density: "compact" };
+    const addresses = (raw: unknown) => affordancesOf(meta, stampItemIds(meta, props.parse(raw)), "m1");
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    expect(renderInstance("MapPins", input, "filled", theme)).toContain("<svg");
+    expect(renderInstance("MapPins", noArrows, "filled", theme)).not.toContain("<svg");
+    expect(addresses(noArrows)).toEqual(addresses(input));
+    expect(meta.variantParts["trail.none"]).toEqual({});
+  });
   it("offers press only for pins with navigation, including mixed rows", () => {
     for (const goto of [undefined, "place", "back", "place_details"]) {
       const pins = stampItemIds(
