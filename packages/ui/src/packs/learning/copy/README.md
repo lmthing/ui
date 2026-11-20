@@ -1,3 +1,6 @@
 # Learning copy
 
-Localized reading text and display helpers, exported through `index.ts`.
+Import through `index.ts`.
+
+- `Quiz.ts` and `quiz-answers.ts`: localized Quiz copy and pure answer helpers.
+- `Timetable.ts`: localized reading text and timetable display helpers.

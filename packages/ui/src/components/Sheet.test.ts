@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  migrateLine,
   readComponent,
   stampItemIds,
   type CastLike,
@@ -22,6 +23,7 @@ describe("Sheet schema", () => {
   it("applies defaults and derives what each item does", () => {
     const detail = props.parse({ title: " Walk ", items: facts });
     expect(detail.style).toBe("detail");
+    expect(detail).toMatchObject({ detail: "full", lead: "icon", items: [{ tone: "neutral" }] });
     expect(detail.title).toBe("Walk");
     expect((detail.items[0] as { root?: string }).root).toBeUndefined();
     expect(
@@ -33,7 +35,7 @@ describe("Sheet schema", () => {
       items: [{ label: "Edit" }, { label: "Share" }],
     });
     expect((menu.items[1] as { root?: string }).root).toBe("press");
-    expect(menu.items[1]?.danger).toBe(false);
+    expect(menu.items[1]?.tone).toBe("neutral");
   });
   it.each([
     {},
@@ -55,6 +57,8 @@ describe("Sheet schema", () => {
     { title: "Walk", items: [{ label: "a".repeat(29), value: "x" }] },
     { title: "Walk", items: [{ label: "A", value: "a".repeat(29) }] },
     { title: "Walk", items: [{ label: "A", value: "x", root: "press" }] },
+    { title: "Walk", items: [{ label: "A", value: "x", tone: "danger" }] },
+    { title: "Walk", items: [{ label: "A", value: "x", danger: true }] },
     { title: "Walk", items: facts, color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("is an overlay with no weight, and types view props", () => {
@@ -64,6 +68,52 @@ describe("Sheet schema", () => {
     expectTypeOf<ViewProps["items"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
+});
+
+it("migrates dangerous menu items without changing IDs or actions", () => {
+  const old = {
+    c: "Sheet",
+    id: "s1",
+    style: "menu",
+    title: "Fern",
+    items: [
+      { label: "Edit", goto: "edit_plant", danger: false },
+      { label: "Remove", icon: "trash", danger: true },
+      { label: "Keep", danger: true, tone: "neutral" },
+    ],
+  };
+  const migrated = migrateLine(old);
+  const { c, id, ...input } = migrated;
+  expect({ c, id }).toEqual({ c: "Sheet", id: "s1" });
+  const parsed = stampItemIds(meta, props.parse(input));
+  expect(parsed.items).toMatchObject([
+    { id: "r1", tone: "neutral" },
+    { id: "r2", tone: "bad" },
+    { id: "r3", tone: "neutral" },
+  ]);
+  expect(affordancesOf(meta, parsed, "s1").map((a) => `${a.address} ${a.action}${a.detail}`)).toEqual([
+    "s1/close dismiss",
+    "s1/r1 press→edit_plant",
+    "s1/r2 press",
+    "s1/r3 press",
+  ]);
+  expect(migrateLine(migrated)).toEqual(migrated);
+});
+
+it("hides only the declared secondary parts without losing facts or affordances", () => {
+  const input = { ...examples[0], detail: "brief" };
+  const html = renderInstance("Sheet", input, "filled", theme);
+  const reading = readComponent(components.Sheet, input, "s1").join("\n");
+  for (const address of ["sub", "r2/meta"]) expect(html).not.toContain(`data-testid="home/c1/${address}"`);
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["sub", "meta"]);
+  expect(reading).not.toContain("Meet by the south gate");
+  expect(reading).not.toContain("With Clover and Pip");
+  expect(reading).toContain("Tomorrow, 09:00");
+  expect(reading).toContain("s1/action");
+  const textOnly = renderInstance("Sheet", { ...examples[2], lead: "none" }, "filled", theme);
+  expect(meta.variantParts["lead.none"].hides).toEqual(["icon"]);
+  expect(textOnly).not.toContain('data-testid="home/c1/r1/icon"');
+  expect(textOnly).toContain('data-testid="home/c1/r1/label"');
 });
 
 describe("Sheet fallback, metadata and actions", () => {
