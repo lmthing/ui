@@ -1,4 +1,11 @@
 export {
+  converterMax,
+  exchangeRateOf,
+  projectConverter,
+  converterDisplay,
+  converterReading,
+} from "./Converter";
+export {
   itineraryDate,
   itineraryDuration,
   itineraryStopCopy,

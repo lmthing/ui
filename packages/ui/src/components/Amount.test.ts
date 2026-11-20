@@ -39,7 +39,9 @@ describe("Amount schema", () => {
   );
   it("applies defaults, trims text and derives the link flag", () => {
     expect(props.parse({ value: 5, label: " Total " })).toEqual({
-      style: "inline",
+      emphasis: "normal",
+      surface: "card",
+      detail: "full",
       label: "Total",
       value: 5,
       currency: "USD",
@@ -58,7 +60,10 @@ describe("Amount schema", () => {
     { value: 5, currency: "usd" },
     { value: 5, per: "fortnight" },
     { value: 5, changeIn: "points" },
-    { value: 5, style: "huge" },
+    { value: 5, style: "large" },
+    { value: 5, emphasis: "quiet" },
+    { value: 5, surface: "tinted" },
+    { value: 5, detail: "minimal" },
     { value: 5, label: "" },
     { value: 5, label: "a".repeat(25) },
     { value: 5, sub: "a".repeat(41) },
@@ -76,7 +81,7 @@ describe("Amount schema", () => {
   it("types view props without presentation overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["value"]>().toEqualTypeOf<number>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"inline" | "large" | "total">();
+    expectTypeOf<ViewProps["emphasis"]>().toEqualTypeOf<"normal" | "hero">();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
@@ -137,14 +142,11 @@ describe("Amount fallback, metadata and reading", () => {
 });
 
 describe("Amount rendering", () => {
-  it.each(examples.map((example) => [example.style, example] as const))(
-    "draws %s with one root",
-    (_, example) => {
-      const html = renderInstance("Amount", example, "filled", theme);
-      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
-    },
-  );
+  it.each(examples)("draws one root", (example) => {
+    const html = renderInstance("Amount", example, "filled", theme);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
+  });
   it("strikes an old price and colours a change by its direction", () => {
     const html = renderInstance("Amount", { value: 18, was: 20, change: -2 }, "filled", theme);
     expect(html).toContain("line-through");
@@ -155,5 +157,23 @@ describe("Amount rendering", () => {
   it("draws a skeleton while loading", () => {
     const html = renderInstance("Amount", { value: 18 }, "loading", theme);
     expect(html).toContain('aria-busy="true"');
+  });
+  it("draws the compact rate as secondary copy without adding an address", () => {
+    const input = { value: 18, per: "each", density: "compact" };
+    const html = renderInstance("Amount", input, "filled", theme);
+    expect(html).toMatch(/\$18<span[^>]+> \/ each<\/span>/);
+    expect(html.match(/data-testid="home\/c1\/value"/g)).toHaveLength(1);
+    expect(readComponent(components.Amount, input, "a1")).toEqual(["a1 Amount $18 / each"]);
+  });
+  it("keeps the value and price parts while hiding the secondary note", () => {
+    const input = { label: "Walks", value: 18, was: 20, change: -2, sub: "Morning routes" };
+    const brief = { ...input, detail: "brief" };
+    const parts = (value: unknown) =>
+      [...renderInstance("Amount", value, "filled", theme).matchAll(/data-testid="([^"]+)"/g)].map(
+        ([, address]) => address,
+      );
+    expect(meta.variantParts["detail.brief"].hides).toEqual(["sub"]);
+    expect(parts(brief)).toEqual(parts(input).filter((address) => address !== "home/c1/sub"));
+    expect(readComponent(components.Amount, brief, "a1").join(" ")).not.toContain(input.sub);
   });
 });

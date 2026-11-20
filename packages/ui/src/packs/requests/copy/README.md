@@ -1,4 +1,6 @@
 # Requests copy
 
-Request-specific formatting and reading helpers. All words come from the pack language dictionary.
-Import through `index.ts`.
+Data-only formatting and reading helpers use the Requests language dictionary. Import through `index.ts`.
+
+- `RequestThread.ts`: thread ordering, timeline, reading, and loading helpers.
+- `RequestTriage.ts`: triage reading helper.
