@@ -104,6 +104,9 @@ it("validates every Tide line, screen and internal navigation target", async () 
   expect(checkinFactors.items.map(({ label }) => label)).toEqual(expect.arrayContaining(patterns.factors));
   const { tiles } = lines.find(({ id }) => id === "week_stats")!;
   const stats = components.Stats.props.parse({ tiles });
-  const daysLogged = stats.tiles.find(({ label }) => label === "Days logged");
-  expect(Number(daysLogged?.value)).toBeGreaterThanOrEqual(patterns.minDays);
+  expect(patterns.minDays).toBe(14);
+  expect(stats.tiles).toMatchObject([
+    { label: "Mood days (2 weeks)", value: "14" },
+    { label: "Nights this week", value: "7" },
+  ]);
 });
