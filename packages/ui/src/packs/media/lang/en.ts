@@ -15,6 +15,10 @@ export const en = {
     duration: (hours: string, minutes: string) => `${hours} ${minutes}`,
     summary: (count: string, duration: string) => `${count} · ${duration}`,
   },
+  highlights: {
+    thing: "saved highlight",
+    quote: (text: string) => `“${text}”`,
+  },
   library: {
     empty: "No saved titles yet",
     progress,
