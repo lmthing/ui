@@ -55,6 +55,19 @@ function preserveRankedTrail(props: Line): Line {
   };
 }
 
+/** Old sheets used a boolean per row; an explicit row tone takes precedence. */
+export function migrateSheetItems(props: Line): Line {
+  if (!Array.isArray(props.items)) return props;
+  let changed = false;
+  const items = props.items.map((row: unknown) => {
+    if (!row || typeof row !== "object" || !("danger" in row) || typeof row.danger !== "boolean") return row;
+    const { danger, ...rest } = row;
+    changed = true;
+    return { tone: danger ? "bad" : "neutral", ...rest };
+  });
+  return changed ? { ...props, items } : props;
+}
+
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
@@ -121,6 +134,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
           : props,
     },
   ],
+  Sheet: [],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */
