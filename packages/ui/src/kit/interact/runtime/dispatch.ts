@@ -1,4 +1,10 @@
-import { hasPlaybackClock, wordsFor, type ActStep, type Values } from "../../../catalog";
+import {
+  hasPlaybackClock,
+  withDisabledSelectionChecks,
+  wordsFor,
+  type ActStep,
+  type Values,
+} from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
 import { snapshotPlanning, type ControllerContext } from "./context";
@@ -12,6 +18,16 @@ export function discardHiddenConfirmation(ctx: ControllerContext) {
   }
 }
 
+function planningSnapshot(ctx: ControllerContext): ControllerContext {
+  const snapshot = snapshotPlanning(ctx);
+  const { liveScreen, disabledParts } = snapshot;
+  return {
+    ...snapshot,
+    liveScreen: (values, sheet, covered) =>
+      withDisabledSelectionChecks(liveScreen(values, sheet, covered), disabledParts),
+  };
+}
+
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
@@ -21,7 +37,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = snapshotPlanning(ctx);
+    const planning = planningSnapshot(ctx);
     const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
     if (opts.dryRun)

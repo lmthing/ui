@@ -13,7 +13,12 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
-import { projectSelectionBinding, selectionBindingFor, type BoundSelection } from "./selection-binding";
+import {
+  disabledSelectionChecks,
+  projectSelectionBinding,
+  selectionBindingFor,
+  type BoundSelection,
+} from "./selection-binding";
 
 type Props = Record<string, unknown>;
 
@@ -147,6 +152,7 @@ export type ScreenLike = {
   id: string;
   title?: string;
   components: ({ id: string; c: string; state?: StateName } & Props)[];
+  [disabledSelectionChecks]?: Pick<ReadonlySet<string>, "has">;
 };
 
 /** A whole screen as text, for a model to read before acting. */

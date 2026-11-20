@@ -18,6 +18,13 @@ export type BoundSelection = Readonly<{
   canSelectAll: boolean;
 }>;
 
+/** Host-only eligibility, carried through screen projections but never serialized. */
+export const disabledSelectionChecks = Symbol("disabledSelectionChecks");
+type DisabledChecks = Pick<ReadonlySet<string>, "size" | "has">;
+export function withDisabledSelectionChecks(screen: ScreenLike, disabled?: DisabledChecks): ScreenLike {
+  return disabled?.size ? { ...screen, [disabledSelectionChecks]: disabled } : screen;
+}
+
 /** Resolve against the source's regular row check offers, including its live values and eligibility. */
 export function selectionBindingFor(
   screen: ScreenLike,
@@ -53,7 +60,10 @@ export function selectionBindingFor(
     (props.state as StateName | undefined) ?? state,
   ).filter(
     ({ address, action, part }) =>
-      action === "check" && part === binding.check && address.split("/").length === length,
+      action === "check" &&
+      part === binding.check &&
+      address.split("/").length === length &&
+      !screen[disabledSelectionChecks]?.has(address),
   );
   if (!checks.length) return;
   const selected = checks

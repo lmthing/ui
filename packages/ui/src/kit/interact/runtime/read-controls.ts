@@ -3,6 +3,7 @@ import {
   readComponent,
   readScreen,
   selectionBindingFor,
+  withDisabledSelectionChecks,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -61,11 +62,12 @@ export function readControls(
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
 ): string {
-  const migrated = migrateScreen(screen, { variantOnly: true });
+  const source = withDisabledSelectionChecks(screen, disabled);
+  const migrated = migrateScreen(source, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(screen, defs, values, lang, deviceData);
+    : readScreen(source, defs, values, lang, deviceData);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;

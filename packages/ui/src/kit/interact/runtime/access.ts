@@ -9,6 +9,7 @@ import {
   projectSelectionBinding,
   selectionBindingFor,
   sessionEvent,
+  withDisabledSelectionChecks,
 } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
@@ -71,7 +72,8 @@ function actionsAt(
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
     const data = ctx.options.deviceData;
     const live = liveProps(def.meta, parsed, id, localValues, true, data);
-    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
+    const sourceScreen = withDisabledSelectionChecks(screen, ctx.disabledParts);
+    const selection = selectionBindingFor(sourceScreen, ctx.defs, def.meta, id, localValues, data);
     const props = projectSelectionBinding(def.meta, live, selection?.view);
     return affordancesOf(
       def.meta,

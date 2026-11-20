@@ -16,6 +16,7 @@ import {
   projectSelectionBinding,
   selectDeviceData,
   selectionBindingFor,
+  withDisabledSelectionChecks,
   type Meta,
   type Values,
 } from "../../catalog";
@@ -34,7 +35,8 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
   if (!definition.selectionBinding) return live;
   const sheet = ctx.status.openSheet;
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet));
-  const selection = selectionBindingFor(visible, ctx.defs, definition, component, local, data);
+  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
+  const selection = selectionBindingFor(screen, ctx.defs, definition, component, local, data);
   return projectSelectionBinding(definition, live, selection?.view);
 }
 
