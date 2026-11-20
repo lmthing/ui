@@ -8,7 +8,7 @@ export const payoffChoices = [choice.high_rate, choice.small_balance] as const;
 type Input = PayoffSource & { style: "plan" | "compact"; goto?: string | undefined };
 type Projection = ReturnType<typeof projectPayoff>;
 
-/** The visible choices double as action values; authored plans still use strategy codes. */
+/** Keep existing action values stable regardless of the display language. */
 export function payoffSelection(strategy: PayoffStrategy, strategyChoice?: string) {
   const selected =
     payoffStrategies[strategyChoice === undefined ? -1 : payoffChoices.indexOf(strategyChoice)];
@@ -86,7 +86,7 @@ export function payoffReading(input: Input, lang?: string): string[] {
       : []),
     ...rows.flatMap(({ order, balance, clearance }) => [order, balance, clearance]),
     words.strategy,
-    ...payoffChoices,
+    ...payoffStrategies.map((option) => words.choice[option]),
     ...payoffStrategies.map((option) => words[option]),
     words.extra,
     numberLine(input.extra, lang),
