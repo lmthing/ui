@@ -4,6 +4,7 @@ import {
   KitCard,
   KitContent,
   KitEmpty,
+  KitGrid,
   KitMeter,
   KitRow,
   KitText,
@@ -103,24 +104,17 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { meals: [{ meal: "dinner", items }], goto: "details" };
 }
 // prettier-ignore
-export const examples = [
-  // Ledge: household supper. Trot: breakfast before the walking round.
-  {
-    meals: [{ meal: "dinner", items: [{ name: "Lasagne", kcal: 520, amount: "1 slice" }] }, { meal: "snack", items: [] }],
-    target: 2000, goto: "food_add",
-  },
-  {
-    density: "compact", goto: "food_add",
-    meals: [
-      { meal: "breakfast", items: [{ name: "Apple porridge", kcal: 310, amount: "1 bowl" }, { name: "Milk", kcal: 90 }] },
-      { meal: "lunch", items: [] },
-    ],
-  },
-  { detail: "brief", goto: "food_add", meals: [
+export const examples = (() => {
+  const breakfast = { goto: "food_add", meals: [
     { meal: "breakfast", items: [{ name: "Apple porridge", kcal: 310, amount: "1 bowl" }, { name: "Milk", kcal: 90 }] },
     { meal: "lunch", items: [] },
-  ] },
-] satisfies z.input<typeof props>[];
+  ] } satisfies z.input<typeof props>;
+  return [
+    { meals: [{ meal: "dinner", items: [{ name: "Lasagne", kcal: 520, amount: "1 slice" }] }, { meal: "snack", items: [] }],
+      target: 2000, goto: "food_add" },
+    { ...breakfast, density: "compact" }, breakfast, { ...breakfast, detail: "brief" },
+  ] satisfies z.input<typeof props>[];
+})();
 const { choose, write, read } = probesFor("FoodLog");
 export const probes = [
   choose("Log what I ate today grouped by meal, with food calories and an add button for each meal"),
@@ -150,7 +144,8 @@ function FoodLogRow(row: FoodLogProps["rows"][number], lang: string, detail: Foo
     return (
       <KitRow key={row.id} item={row.id} label={label} inline {...finish}
         trailing={<KitAction icon="plus" kind="quiet" part="add" goto={row.goto} a11y={foodLogLabels.add(label)} />}>
-        <KitText tone="muted" part="meal" {...finish} children={label} />
+        <KitText role={finish.density === "compact" || detail === "brief" ? "label" : "body"}
+          tone="muted" part="meal" {...finish} children={label} />
       </KitRow>
     );
   }
@@ -167,6 +162,7 @@ export function FoodLog(input: FoodLogProps) {
   const { meals, rows, target } = input;
   const finish = { density: useVariant("density", meta.variants.density, input.density) };
   const detail = useVariant("detail", meta.variants.detail, input.detail);
+  const grouped = finish.density === "compact" || detail === "brief";
   const { lang, words } = useWords(kitchenWordsFor);
   const label = words.foodLogLabels.target;
   const state = useComponentState();
@@ -190,11 +186,13 @@ export function FoodLog(input: FoodLogProps) {
           <KitMeter label={label} amount={percentLine(total, target, lang)} ratio={total / target} />
         </KitRow>
       )}
-      {foodLogGroups(meals, rows).map((group, index) => (
-        <KitContent key={index} inset="md" group={index > 0 ? "response" : "content"}>
-          {group.map((row) => FoodLogRow(row, lang, detail, finish))}
-        </KitContent>
-      ))}
+      <KitGrid arrange="rows" list={grouped} density="compact" listRowGap="cards">
+        {foodLogGroups(meals, rows).map((group, index) => (
+          <KitContent key={index} inset="md" group={index > 0 && !grouped ? "response" : "content"}>
+            {group.map((row) => FoodLogRow(row, lang, detail, finish))}
+          </KitContent>
+        ))}
+      </KitGrid>
     </KitCard>
   );
 }
