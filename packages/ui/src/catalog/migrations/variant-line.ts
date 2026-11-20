@@ -94,6 +94,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
       },
     },
   ],
+  Choice: [{ from: "style", values: { cards: { surface: "card" }, list: { surface: "plain" } } }],
   Amount: [
     { from: "style", values: { large: { emphasis: "hero" } } },
     { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
