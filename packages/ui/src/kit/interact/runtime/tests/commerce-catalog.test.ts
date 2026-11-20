@@ -98,7 +98,7 @@ it("applies all named picks and adjust-only wire edits before deriving other pro
     examples: [seed],
     probes: [],
   } satisfies Definition;
-  const values: Record<string, unknown> = { $mode: "second", $method: "new", "r1/$adjust/qty": 5 };
+  const values: Record<string, unknown> = { $mode: "second", $method: "new", "$wire/r1/$adjust/qty": 5 };
   expect(parseControlProps(fixture, seed, (part) => values[part])).toEqual({
     mode: "second",
     method: "new",
@@ -139,6 +139,6 @@ it("stages adjust-only root increments on exactly the addressed item", () => {
   const defs = { [fixture.meta.id]: fixture };
   const step = { address: "c/i2", action: "increment" };
   const result = planAct(screen, defs, {}, [step]);
-  expect(result).toMatchObject({ ok: true, values: { "s/c/i2": 5, "s/c/i2/$adjust/count": 5 } });
+  expect(result).toMatchObject({ ok: true, values: { "s/c/i2": 5, "s/c/$wire/i2/$adjust/count": 5 } });
   if (result.ok) expect(planAct(screen, defs, result.values, [step])).toMatchObject({ ok: false });
 });

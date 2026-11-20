@@ -90,3 +90,35 @@ it("does not infer a named l1 pick or navigate from an opted-out press", () => {
     ["item", "s/c1/r1"],
   ]);
 });
+
+function withQuantity(qtyProp: z.ZodType, row: object, delta: number) {
+  const def = {
+    ...fixture,
+    meta: {
+      ...fixture.meta,
+      items: { ...fixture.meta.items, adjust: { "qty.increment": { prop: "qty", delta } } },
+    },
+    props: fixture.props.extend({ rows: z.array(z.strictObject({ qty: qtyProp, goto: z.string() })) }),
+  } satisfies Definition;
+  const current = { ...screen, components: [{ ...screen.components[0]!, rows: [{ goto: "item", ...row }] }] };
+  const definitions = { [def.meta.id]: def };
+  return { current, definitions, runtime: createScreenController({ screen: current, defs: definitions }) };
+}
+
+it("rejects adjustments beyond a defaulted row field's schema limit", () => {
+  const { current, definitions, runtime } = withQuantity(z.number().max(3).default(3), {}, 1);
+  const step = qty("increment");
+  expect(planAct(current, definitions, {}, [step])).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(runtime.act(step)).toMatchObject({ ok: false, code: "invalid_value" });
+  expect(runtime.read()).toContain("3");
+});
+
+it("uses the parsed row quantity as the next step's seed after schema normalization", () => {
+  const { current, definitions, runtime } = withQuantity(z.number().overwrite(Math.round), { qty: 1 }, 0.6);
+  const steps = [qty("increment"), qty("increment")];
+  const planned = planAct(current, definitions, {}, steps);
+  expect(planned.ok).toBe(true);
+  if (planned.ok) expect(readScreen(current, definitions, planned.values)).toContain("c1 AdjustFixture 3 ");
+  expect(runtime.act(steps).ok).toBe(true);
+  expect(runtime.read()).toContain("c1 AdjustFixture 3 ");
+});

@@ -2,12 +2,27 @@ import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
 import { choiceValues, nestedControls } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
-import { isAdjustOnlyItem } from "./live-props";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
 export type Affordance = { address: string; part: string; action: string; detail: string };
 type Props = Record<string, unknown>;
+
+type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
+
+/** Item increments without a numeric setter or a clock are owned by the pure action planner. */
+export function isAdjustOnlyItem(
+  adjustment: Adjustment | undefined,
+  action: string,
+): adjustment is Adjustment & { clock: undefined; atSet: undefined } {
+  return Boolean(
+    (action === "increment" || action === "decrement") &&
+    adjustment &&
+    !adjustment.clock &&
+    !adjustment.atSet &&
+    adjustment.key.includes("/$adjust/"),
+  );
+}
 
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
 

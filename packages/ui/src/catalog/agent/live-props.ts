@@ -4,6 +4,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { Values } from "./act";
+import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLegacySelection, projectNamedSelections, projectNested, projectSelection } from "./selection";
 import type { ScreenLike } from "./read";
@@ -32,6 +33,29 @@ function defaultInput(field: unknown) {
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
 
+function wireAdjustmentKey(def: Definition, key: string) {
+  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
+  const prop = key.slice(key.lastIndexOf("/") + 1);
+  return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element), prop) ? `$wire/${key}` : key;
+}
+
+function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {
+  const items = def.meta.items;
+  if (!items?.adjust || !Array.isArray(input[items.key])) return input;
+  return {
+    ...input,
+    [items.key]: (input[items.key] as Values[]).map((row, index) => {
+      const id = `${items.prefix ?? "r"}${index + 1}`;
+      for (const spec of Object.values(items.adjust ?? {})) {
+        if (!spec) continue;
+        const value = get(`$wire/${id}/$adjust/${spec.prop}`);
+        if (typeof value === "number" && value !== row[spec.prop]) row = { ...row, [spec.prop]: value };
+      }
+      return row;
+    }),
+  };
+}
+
 /** Wire-backed edits go through schema parsing; derived-only rows are overlaid after parsing. */
 export function controlValueKey(def: Definition, key: string): string {
   const items = def.meta.items;
@@ -59,9 +83,9 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   );
   const nested = projectNested(meta, seeded, get);
   const wireGet = (part: string) => get(controlValueKey(def, part));
-  const adjusted = items.set || items.adjust ? projectAdjustments(meta, nested, wireGet) : nested;
+  const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
-    ? projectMatrix(meta, adjusted, wireGet, (rows, values) => {
+    ? projectMatrix(meta, projectAdjustments(meta, adjusted, wireGet), wireGet, (rows, values) => {
         const array = unwrapField(fieldOf(def.props, rows));
         return array instanceof z.ZodArray
           ? defaultInput(fieldOf(unwrapField(array.element), values))
@@ -147,22 +171,6 @@ export function liveProps(
   return { ...props, [key]: items };
 }
 
-type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
-
-/** Item increments without a numeric setter or a clock are owned by the pure action planner. */
-export function isAdjustOnlyItem(
-  adjustment: Adjustment | undefined,
-  action: string,
-): adjustment is Adjustment & { clock: undefined; atSet: undefined } {
-  return Boolean(
-    (action === "increment" || action === "decrement") &&
-    adjustment &&
-    !adjustment.clock &&
-    !adjustment.atSet &&
-    adjustment.key.includes("/$adjust/"),
-  );
-}
-
 export function stageItemAdjustment(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -179,17 +187,11 @@ export function stageItemAdjustment(
   const base = `${screen.id}/${id}`;
   const get = (part: string) => values[`${base}/${part}`];
   const props = parseControlProps(def, raw, get);
-  const adjustment = adjustmentAt(
-    def.meta,
-    props,
-    parts.join("/"),
-    action,
-    get,
-    Number(get("$now") ?? Date.now()),
-  );
+  const now = Number(get("$now") ?? Date.now());
+  const adjustment = adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
   if (!isAdjustOnlyItem(adjustment, action)) return;
   if (adjustment.next === undefined) return false;
-  values[`${base}/${adjustment.key}`] = adjustment.next;
+  values[`${base}/${wireAdjustmentKey(def, adjustment.key)}`] = adjustment.next;
   values[`${screen.id}/${address}`] = adjustment.next;
   return true;
 }
