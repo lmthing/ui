@@ -98,6 +98,7 @@ const variantExample = {
 export const examples = [
   { stamps: 3, of: 6, reward: "Your sixth plant care visit is free", name: "Anna Patel" },
   { stamps: 10, of: 10, reward: "Your tenth walk is free", name: "Ben Carter" },
+  variantExample,
   { ...variantExample, density: "compact" },
   { ...variantExample, surface: "outlined" },
   { ...variantExample, detail: "brief" },
@@ -118,6 +119,27 @@ export const probes = [
   read("Add a stamp for this visit", { address: "l1/stamp", action: "press" }),
   read("Redeem Ben's free walk", { address: "l1/redeem", action: "press" }, 1),
 ] satisfies Probe[];
+
+const stampColumns = 3,
+  stampsPerPair = 2;
+// prettier-ignore
+function LoyaltyMarks({ stamps, of, density }: { stamps: number; of: number; density: "comfortable" | "compact" }) {
+  const rows = Math.ceil(of / (stampColumns * stampsPerPair));
+  const perRow = Math.ceil(of / rows);
+  return (
+    <KitGrid columns={stampColumns} {...{ density }}>
+      {Array.from({ length: rows * stampColumns }, (_, pair) => {
+        const row = Math.floor(pair / stampColumns);
+        const offset = (pair % stampColumns) * stampsPerPair;
+        const start = row * perRow + offset;
+        const length = Math.max(0, Math.min(stampsPerPair, perRow - offset, of - start));
+        return <KitGrid key={pair} columns={stampsPerPair} {...{ density }}>
+          {Array.from({ length }, (_, index) => <KitDayMark key={index} done={start + index < stamps} />)}
+        </KitGrid>;
+      })}
+    </KitGrid>
+  );
+}
 
 export function Loyalty(input: Props<typeof props, typeof meta>) {
   const { stamps, of, reward, name, surface } = input;
@@ -148,17 +170,7 @@ export function Loyalty(input: Props<typeof props, typeof meta>) {
           </KitText>
         )}
       </KitContent>
-      {!success && (
-        <KitGrid columns={3} {...{ density }}>
-          {Array.from({ length: Math.ceil(of / 2) }, (_, pair) => (
-            <KitGrid key={pair} columns={2} {...{ density }}>
-              {Array.from({ length: Math.min(2, of - pair * 2) }, (_, index) => (
-                <KitDayMark key={index} done={pair * 2 + index < stamps} />
-              ))}
-            </KitGrid>
-          ))}
-        </KitGrid>
-      )}
+      {!success && <LoyaltyMarks {...{ stamps, of, density }} />}
       <KitContent {...{ density }}>
         <KitText role="label" part="reward" {...{ density }}>
           {reward}
@@ -169,7 +181,7 @@ export function Loyalty(input: Props<typeof props, typeof meta>) {
           </KitText>
         )}
       </KitContent>
-      {!success && stamp && <KitAction part="stamp" label={loyaltyLabels.stamp} full />}
+      {!success && stamp && <KitAction part="stamp" label={loyaltyLabels.stamp} kind="secondary" full />}
       {!success && redeem && <KitAction part="redeem" label={loyaltyLabels.redeem} full />}
     </KitCard>
   );
