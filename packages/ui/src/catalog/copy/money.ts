@@ -30,17 +30,18 @@ export const defaultCurrency: Currency = "USD";
 
 export type PerWord = keyof Words["perWords"] | "none";
 
-/** A sum of money, formatted for the currency: "$1,240.50", "€120 / night". Whole sums drop the cents. */
+/** A sum of money, formatted for the currency. Whole sums drop the cents unless a column needs them. */
 export function moneyLine(
   value: number,
   currency: Currency = defaultCurrency,
   per: PerWord = "none",
   lang?: string,
+  fraction: "auto" | "fixed" = "auto",
 ): string {
   const amount = new Intl.NumberFormat(localeOf(lang), {
     style: "currency",
     currency,
-    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    minimumFractionDigits: fraction === "fixed" || !Number.isInteger(value) ? 2 : 0,
     maximumFractionDigits: 2,
   }).format(value);
   const words = wordsFor(lang);
