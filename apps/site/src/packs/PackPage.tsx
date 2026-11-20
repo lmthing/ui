@@ -2,6 +2,7 @@ import { lazyChunk } from "../shared/lazyChunk";
 import { Lazy } from "../shared/Lazy";
 import { packById } from "../data/site";
 import { Specimen } from "../index/Specimen";
+import { TextLinks } from "../shared/TextLinks";
 import { NotFound } from "../shell/NotFound";
 import { cap, shotLabel, statusOf } from "../shared/status";
 
@@ -24,6 +25,7 @@ export default function PackPage({ id }: { id: string }) {
       </p>
       <h1>{cap(pack.id)}</h1>
       <p className="lede">{pack.pick}</p>
+      <TextLinks path={`p/${pack.id}.md`} />
       {pack.example && (
         <p className="pickline">
           <b>Worked example:</b> {pack.example}
