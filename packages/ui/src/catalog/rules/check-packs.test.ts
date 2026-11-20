@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
 import * as catalog from "@lmthing/ui/catalog";
-import type { ArchetypeOverrides, Definition, PackId, PackMeta } from "..";
+import type { ArchetypeOverrides, Definition, PackId, PackMeta, PackProbe } from "..";
 import { checkPacks } from "./index";
 
 const pack: PackMeta = {
@@ -34,9 +34,38 @@ const fixture = () => ({
 });
 type Fixture = ReturnType<typeof fixture>;
 
-it("checks today's empty pack catalog and a complete fixture", () => {
+it("checks today's pack catalog and a fixture with a competing pack", () => {
   expect(checkPacks(catalog)).toEqual([]);
   expect(checkPacks(fixture())).toEqual([]);
+});
+const coreExclusionFixture = (
+  id: "media" | "data",
+  miss: Pick<PackProbe, "expect" | "allow">,
+  player = false,
+) => {
+  const input = fixture();
+  const ideas =
+    id === "media" ? ["Browse podcasts", "Save highlights"] : ["Sort requests", "Summarize records"];
+  const probes: PackProbe[] = ideas.map((idea) => ({ kind: "pack", idea, expect: [id] }));
+  probes.push({ kind: "pack", idea: id === "media" ? "Play one recording" : "Track books I read", ...miss });
+  return {
+    components: player ? { ...input.components, Player: catalog.components.Player } : input.components,
+    packOf: { Slots: id },
+    packs: { [id]: { id, example: pack.example, probes } },
+    packArchetypes: { [id]: input.packArchetypes.booking },
+    packExamples: { [id]: input.packExamples.booking },
+  };
+};
+it.each(["media", "data"] as const)("requires a core-only miss for %s", (id) => {
+  const check = (miss: Pick<PackProbe, "expect" | "allow">) =>
+    checkPacks(coreExclusionFixture(id, miss, id === "media"));
+  expect(check({ expect: [], allow: [] })).toEqual([]);
+  expect(check({ expect: [] })).toEqual([]);
+  expect(check({ expect: ["social"] })).toEqual([`${id}: probes`]);
+  expect(check({ expect: [], allow: ["social"] })).toEqual([`${id}: probes`]);
+});
+it("requires the named core component to exist", () => {
+  expect(checkPacks(coreExclusionFixture("media", { expect: [] }))).toContain("media: purpose/pick");
 });
 it("accepts optional known additions without requiring every allowed pack", () => {
   const input = fixture();
