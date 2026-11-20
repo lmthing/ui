@@ -10,10 +10,10 @@
 {"id":"new_entry","c":"Button","label":"Write an entry","goto":"today"}
 {"id":"breathing","c":"Header","title":"Before bed"}
 {"id":"box_breathing","c":"Breathe","pattern":"box","rounds":4}
-{"id":"breathing_note","c":"Note","style":"hint","text":"You can pause whenever you like."}
+{"id":"breathing_note","c":"Note","emphasis":"quiet","icon":"lightbulb","text":"You can pause whenever you like."}
 {"id":"sounds","c":"Header","title":"Evening sounds"}
 {"id":"evening_mix","c":"Soundscape","sounds":[{"label":"Rain","icon":"cloud_rain","level":6},{"label":"Wind","icon":"wind","level":2}],"timer":20}
-{"id":"mix_note","c":"Note","style":"hint","text":"Adjust each sound on its own."}
+{"id":"mix_note","c":"Note","emphasis":"quiet","icon":"lightbulb","text":"Adjust each sound on its own."}
 {"id":"insights","c":"Header","title":"Mood and sleep"}
 {"id":"last_night","c":"SleepLog","bed":"22:45","wake":"06:45","awake":30,"quality":4,"week":[7,7.5,8,6.5,7,8,7.5],"goto":"sleep_log"}
 {"id":"mood_patterns","c":"Patterns","factors":["Outdoors","Slept well"],"minDays":14}
