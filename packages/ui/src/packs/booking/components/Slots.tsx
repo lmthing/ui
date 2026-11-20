@@ -123,8 +123,8 @@ export const examples = [
   {
     arrange: "rows",
     times: [
-      { time: "23:59", taken: true },
       { time: "00:00", taken: false },
+      { time: "23:59", taken: true },
     ],
     at: "00:00",
     minutes: 600,
