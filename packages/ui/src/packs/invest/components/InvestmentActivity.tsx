@@ -41,7 +41,7 @@ export const meta = {
 const entry = z
   .strictObject({
     id: recordId,
-    at: dateTime,
+    at: dateTime.meta({ kind: "text" }),
     kind: z.enum(["deposit", "withdrawal", "buy", "sell", "fee"]),
     voided: z.boolean().default(false),
     assetId: recordId.optional(),

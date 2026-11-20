@@ -187,4 +187,14 @@ describe("offset timestamps", () => {
     const entries = [{ ...input.entries[0]!, at: earlier }];
     expect(InvestmentActivity.props.safeParse({ ...input, since: later, entries }).success).toBe(false);
   });
+  it("reads entitlement, payment and event dates on the corresponding rows", () => {
+    const dividend = Dividends.examples[0]!;
+    const { entitledAt, payOn } = dividend.distributions[0]!;
+    const distribution = readComponent(Dividends, dividend, "d1").find((line) => line.startsWith("  r1"));
+    expect(distribution).toContain(entitledAt);
+    expect(distribution).toContain(payOn);
+    const activity = InvestmentActivity.examples[0]!;
+    const event = readComponent(InvestmentActivity, activity, "i1").find((line) => line.startsWith("  r2"));
+    expect(event).toContain(activity.entries[1]!.at);
+  });
 });

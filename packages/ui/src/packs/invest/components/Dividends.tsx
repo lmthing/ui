@@ -50,8 +50,8 @@ const distribution = z
   .strictObject({
     id: recordId,
     assetId: recordId,
-    entitledAt: dateTime,
-    payOn: c.isoDate,
+    entitledAt: dateTime.meta({ kind: "text" }),
+    payOn: c.isoDate.meta({ kind: "text" }),
     perUnit: z.number().positive(),
     withheld: z.number().nonnegative().default(0),
     receivedAt: dateTime.optional(),
