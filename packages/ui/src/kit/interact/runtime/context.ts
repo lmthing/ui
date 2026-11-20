@@ -4,8 +4,6 @@ import {
   stampItemIds,
   staleDraw,
   sessionKey,
-  sessionEvent,
-  planAct,
   staleSession,
   migrateScreen,
   resolveDefinition,
@@ -174,26 +172,4 @@ export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
     expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
-}
-
-/** Check whether an earlier step introduced the part before the view could update. */
-export function introducedPart(
-  ctx: ControllerContext,
-  staged: { sheet: string | undefined; values: Values },
-  entry: ScreenComponent,
-  action: ActStep,
-  sessionOnly = false,
-) {
-  const initial = ctx.valuesOf();
-  const cursor = ctx.key(entry.id, "$cursor");
-  if (!sessionOnly && entry.c === "Sheet" && staged.sheet !== ctx.status.openSheet) return true;
-  if (!sessionOnly && entry.c === "SwipeStack" && staged.values[cursor] !== initial[cursor]) return true;
-  const target = action.address.split("/").slice(1).join("/") || "root";
-  const key = ctx.key(entry.id, sessionKey);
-  if (staged.values[key] === initial[key] || !sessionEvent(ctx.defs[entry.c]!.meta, target, action.action))
-    return false;
-  const sheet = ctx.status.openSheet;
-  const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
-  return !planAct(source, ctx.defs, initial, [{ ...action, address: `${source.id}/${action.address}` }], null)
-    .ok;
 }

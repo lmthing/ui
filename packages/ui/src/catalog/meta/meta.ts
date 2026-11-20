@@ -108,6 +108,10 @@ export type Meta = {
     >;
     nested?: {
       key: string;
+      /** Show only the row selected by `select`; before selection, use the first row. */
+      activeParent?: true;
+      /** Maximum on toggles across all parent rows, including hidden ones. */
+      maxActive?: number;
       clocks?: readonly ClockMeta[];
       parts: Readonly<
         Record<

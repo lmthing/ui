@@ -6,7 +6,7 @@ import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
 import { numericSetAt, projectClocks } from "./clocks";
-import { choiceValues } from "./selection";
+import { choiceValues, nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
@@ -68,7 +68,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props,
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  const projected = projectDraw(meta, timed, get);
+  const projected = visibleNestedProps(meta, projectDraw(meta, timed, get), get);
   if (!session) return projected;
   const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
   return { ...projected, ...current, [sessionKey]: session };
@@ -92,37 +92,35 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
 ): string[] {
+  const { meta } = def;
   const get = (part: string) => values[`${instance}/${part}`];
-  const validated = parseControlProps(def, migrateInput(def.meta.id, input), get);
-  const props = liveProps(def.meta, validated, instance, values, true);
-  const base = drawStatus(def.meta, props, (props.state as StateName | undefined) ?? state, get);
-  state = sessionStatus(def.meta, props, base, get);
+  const validated = parseControlProps(def, migrateInput(meta.id, input), get);
+  const props = liveProps(meta, validated, instance, values, true);
+  const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
+  state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
-  const head = `${instance} ${def.meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
-  const draw = drawState(def.meta, props, get);
-  const session = sessionState(def.meta, props, get);
-  const affordances = withValues(
-    affordancesOf(def.meta, props, instance, values, state),
-    values,
-    def,
-    props,
-    instance,
-  );
+  const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
+  const draw = drawState(def.meta, props, get),
+    session = sessionState(meta, props, get);
+  const offered = affordancesOf(meta, props, instance, values, state);
+  const affordances = withValues(offered, values, def, props, instance);
   if (state !== "filled" && !(state === "success" && (draw || session)))
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
-  const roundKey = session?.kind === "rounds" ? def.meta.session?.items : undefined;
-  const key = def.meta.items?.key === roundKey ? undefined : def.meta.items?.key;
+  const roundKey = session?.kind === "rounds" ? meta.session?.items : undefined;
+  const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
+  const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(def.meta.read?.(readingProps(def.meta, validated, instance, values, session), state, lang) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, session), state, lang) ?? []),
     ...readDraw(draw),
+    ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
     ...componentTexts(schema, props, key, roundKey, session?.kind === "rounds" ? session.item : undefined),
   ];
   return readItems(
-    def.meta,
+    meta,
     schema,
-    props,
+    visibleNestedProps(meta, props, get),
     instance,
     key,
     head,
@@ -148,8 +146,8 @@ function readItems(
   const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
-  const firstOnly = meta.items?.visible === "first";
-  const peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
+  const firstOnly = meta.items?.visible === "first",
+    peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
   const items = firstOnly ? all.slice(0, 1) : peek && !peekOpen ? all.slice(0, peekLimit) : all;
   const words = wordsFor(lang),
     hidden = all.length - items.length;
