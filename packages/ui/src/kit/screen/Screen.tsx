@@ -18,13 +18,13 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
   const components = controller.defs;
   const { environment } = useKit();
   const screen = controller.snapshotScreen();
-  const confirmation = controller.confirmation;
   const fingerprint = JSON.stringify(screen);
   useEffect(() => {
     const timer = setTimeout(() => onReport?.(checkScreen(screen, components)), 150);
     return () => clearTimeout(timer);
   }, [fingerprint, components, onReport]);
   const data = useContext(DeviceDataContext) ?? controller.deviceData;
+  const confirmation = controller.confirmationFor(data);
   const visible = filterDeviceDataScreen(screen, components, data);
   const sheet = visible.components.find((entry) => entry.id === controller.openSheet);
   const dismiss = useCallback(() => {

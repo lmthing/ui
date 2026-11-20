@@ -85,7 +85,8 @@ describe.each(ready)("%s conformance", (id) => {
             continue;
           }
           expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-          if (state === "empty") expect(html).toContain(emptyLine("walk"));
+          if (state === "empty")
+            expect(html).toContain(emptyLine((meta as Meta).deviceDataVisible ? undefined : "walk"));
           if (state === "loading") expect(html).toContain(loadingLabel);
           if (state === "filled" && items) {
             const props = stampExampleItems(meta, input);

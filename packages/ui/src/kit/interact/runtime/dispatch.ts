@@ -34,6 +34,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return result.error;
     }
     const { state, effects } = result;
+    const wasConfirming = ctx.status.confirmation;
     ctx.status.openSheet = state.sheet;
     ctx.status.confirmation = state.confirmation;
     if (!ctx.standalone) {
@@ -43,7 +44,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       for (const { c, id } of ctx.screen.components)
         if (ctx.defs[c] && hasPlaybackClock(ctx.defs[c]!.meta)) state.values[ctx.key(id, "$now")] = undefined;
     }
-    if (!ctx.standalone || state.confirmation || planning.status.confirmation)
+    if (!ctx.standalone || state.confirmation || wasConfirming)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
     for (const effect of effects) effect();

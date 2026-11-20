@@ -28,6 +28,12 @@ export function createScreenController(options: ControllerOptions) {
   const clock = createClock(ctx);
   const media = createMediaRuntime(ctx);
   const act = createAct(ctx, media, clock.scheduleClock);
+  const discardHiddenConfirmation = () => {
+    if (ctx.status.confirmation && !ctx.confirmationFor()) {
+      ctx.status.confirmation = undefined;
+      ctx.store.set(`${ctx.screen.id}/$confirmation`, undefined);
+    }
+  };
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -53,8 +59,10 @@ export function createScreenController(options: ControllerOptions) {
       return ctx.status.openSheet;
     },
     get confirmation() {
-      return ctx.status.confirmation;
+      return ctx.confirmationFor();
     },
+    confirmationFor: ctx.confirmationFor,
+    discardHiddenConfirmation,
     snapshotScreen: () => {
       const values = ctx.valuesOf();
       return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);

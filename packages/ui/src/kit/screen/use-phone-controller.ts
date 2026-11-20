@@ -1,6 +1,24 @@
-import { useInsertionEffect, useMemo, useRef } from "react";
-import { createScreenController, createInteractionStore, browserMediaAdapter } from "../interact";
+import { useInsertionEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  createScreenController,
+  createInteractionStore,
+  browserMediaAdapter,
+  type ScreenController,
+} from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
+
+function useCommittedDeviceData(
+  source: { controller: ScreenController; committed: { deviceData: PhoneScreenProps["deviceData"] } },
+  deviceData: PhoneScreenProps["deviceData"],
+) {
+  // Publish only on commit, before a child's layout effect can read the controller.
+  useInsertionEffect(() => {
+    source.committed.deviceData = deviceData;
+  }, [source, deviceData]);
+  useLayoutEffect(() => {
+    source.controller.discardHiddenConfirmation();
+  }, [source, deviceData]);
+}
 
 export function usePhoneController(props: PhoneScreenProps) {
   const {
@@ -55,9 +73,6 @@ export function usePhoneController(props: PhoneScreenProps) {
     });
     return { controller, committed };
   }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
-  // Publish only on commit, before a child's layout effect can read the controller.
-  useInsertionEffect(() => {
-    source.committed.deviceData = props.deviceData;
-  }, [source, props.deviceData]);
+  useCommittedDeviceData(source, props.deviceData);
   return source.controller;
 }

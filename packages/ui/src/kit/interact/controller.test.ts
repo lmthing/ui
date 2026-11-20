@@ -37,6 +37,34 @@ function setup() {
 }
 
 describe("screen actions", () => {
+  it("does not stage a hidden sheet when an opener is pressed", () => {
+    let deviceData = { records: [] as unknown[] };
+    const runtime = createScreenController({
+      screen,
+      defs: {
+        ...components,
+        Sheet: {
+          ...components.Sheet,
+          meta: {
+            ...components.Sheet.meta,
+            deviceData: ["records"],
+            deviceDataVisible: (data) => Boolean(data.records?.length),
+          },
+        },
+      },
+      get deviceData() {
+        return deviceData;
+      },
+    });
+    const opener = { address: "b1", action: "press" };
+    expect(runtime.act(opener)).toMatchObject({ ok: false, code: "not_actionable" });
+    expect(runtime.store.get("home/$sheet")).toBeUndefined();
+    deviceData = { records: [{}] };
+    expect(runtime.read()).not.toContain("s1 Sheet");
+    expect(runtime.act(opener)).toMatchObject({ ok: true });
+    expect(runtime.store.get("home/$sheet")).toBe("s1");
+    runtime.dispose();
+  });
   it("opens, selects and dismisses a sheet through the public agent API", () => {
     const { agent, runtime, onLink } = setup();
     expect(agent.read()).not.toContain("s1 Sheet");

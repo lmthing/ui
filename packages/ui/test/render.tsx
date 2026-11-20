@@ -3,11 +3,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider, createTamagui, createTokens } from "tamagui";
 import {
   components,
-  isDeviceDataVisible,
   stampItemIds,
   themeName,
   type ComponentName,
   type DeviceData,
+  type Meta,
   type StateName,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
@@ -15,6 +15,7 @@ import {
   createScreenController,
   KitProvider,
   PartScope,
+  PhoneScreen,
   kitFonts,
   kitThemes,
   kitTokens,
@@ -64,14 +65,10 @@ export function renderInstance(
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
   const parsed = def.props.parse(input) as Record<string, unknown>;
   const data = deviceData ?? exampleDeviceData(def.meta, parsed, state);
-  if (!isDeviceDataVisible(def.meta, data)) return "";
-  const controller = data
-    ? createScreenController({
-        screen: { id: "home", components: [{ ...parsed, c: id, id: component, state }] },
-        defs: { [id]: def },
-        deviceData: data,
-      })
-    : undefined;
+  const screen = { id: "home", components: [{ ...parsed, c: id, id: component, state }] };
+  const defs = { [id]: def };
+  const gated = Boolean((def.meta as Meta).deviceDataVisible);
+  const controller = data && !gated ? createScreenController({ screen, defs, deviceData: data }) : undefined;
   const props = stampItemIds(def.meta, parsed);
   return renderToStaticMarkup(
     <TamaguiProvider
@@ -79,16 +76,24 @@ export function renderInstance(
       defaultTheme={themeName(theme)}
       disableRootThemeClass={disableRootThemeClass}
     >
-      <KitProvider
-        theme={theme}
-        lang={lang}
-        {...(controller ? { controller } : {})}
-        {...(resolvePhoto ? { resolvePhoto } : {})}
-      >
-        <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
-          <View {...props} />
-        </PartScope>
-      </KitProvider>
+      {gated ? (
+        <PhoneScreen
+          {...{ screen, defs, theme, lang, resolvePhoto }}
+          renderers={{ [id]: View }}
+          deviceData={data}
+        />
+      ) : (
+        <KitProvider
+          theme={theme}
+          lang={lang}
+          {...(controller ? { controller } : {})}
+          {...(resolvePhoto ? { resolvePhoto } : {})}
+        >
+          <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
+            <View {...props} />
+          </PartScope>
+        </KitProvider>
+      )}
     </TamaguiProvider>,
   );
 }

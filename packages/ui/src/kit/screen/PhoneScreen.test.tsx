@@ -169,7 +169,7 @@ it.each(["filled", "empty"] as const)(
       expect(html).not.toContain('data-testid="home/f1/root"');
       expect(View).not.toHaveBeenCalled();
       expect(lines).toEqual([]);
-      expect(controller.read()).toBe("screen home\n");
+      expect(controller.read()).toBe("screen home");
       expect(controller.actionsAt(action.address)).toEqual([]);
       expect(controller.press(action.address)).toMatchObject({ ok: false, code: "not_actionable" });
       expect(controller.act(action)).toMatchObject({ ok: false, code: "not_actionable" });

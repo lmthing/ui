@@ -9,7 +9,7 @@ import {
   type DeviceData,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitAction, KitText, useDeviceData, useKit } from "@lmthing/ui/kit";
+import { KitAction, KitText, renderers as kitRenderers, useDeviceData, useKit } from "@lmthing/ui/kit";
 import { config } from "../../../../../apps/gallery";
 import { PhoneScreen } from "./PhoneScreen";
 
@@ -19,6 +19,7 @@ const screen = {
   components: [
     { id: "c1", c: "Fixture" },
     { id: "c2", c: "GatedFixture", goto: "detail" },
+    { id: "c3", c: "Button", label: "Continue", goto: "detail" },
   ],
 };
 const before = { readings: ["Before"] };
@@ -29,6 +30,7 @@ const gate = new Promise<void>((resolve) => {
 });
 const labelOf = (data?: DeviceData) => String(data?.readings?.[0] ?? "");
 const defs = {
+  Button: components.Button,
   Fixture: {
     ...components.Header,
     props: z.strictObject({}),
@@ -47,6 +49,7 @@ const defs = {
       id: "GatedFixture",
       deviceData: ["readings"],
       deviceDataVisible: (data) => labelOf(data) === "Before",
+      confirmParts: ["root"],
     },
   } satisfies Definition,
 };
@@ -63,7 +66,11 @@ function Fixture() {
   }
   return <KitText>{label}</KitText>;
 }
-const renderers = { Fixture, GatedFixture: () => <KitAction label="Open" part="root" /> };
+const renderers = {
+  Fixture,
+  GatedFixture: () => <KitAction label="Open" part="root" />,
+  Button: kitRenderers.Button,
+};
 
 function Scenario() {
   const [deviceData, setDeviceData] = useState(before);
@@ -71,6 +78,7 @@ function Scenario() {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <button onClick={() => startTransition(() => setDeviceData(after))}>Update snapshot</button>
       <button onClick={() => release()}>Finish rendering</button>
+      <button onClick={() => setDeviceData(before)}>Restore snapshot</button>
       <Suspense fallback={null}>
         <PhoneScreen {...{ defs, renderers, screen, theme, deviceData }} />
       </Suspense>
