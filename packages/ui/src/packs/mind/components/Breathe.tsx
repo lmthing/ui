@@ -17,7 +17,8 @@ export const meta = {
   states: ["filled", "success"],
   actions: { parts: { circle: ["play", "pause"] } },
   writeHints: [
-    "box is 4-4-4-4, calm is 4-7-8, even is 5-5. Only custom takes all four whole seconds: inhale, hold, exhale, rest (0–10 each); use null for those fields with presets.",
+    'For "custom", write all four whole seconds: inhale, hold, exhale and rest (each 0–10). A skipped phase is the number 0, never null. Example: {"pattern":"custom","rounds":5,"inhale":4,"hold":0,"exhale":6,"rest":0}.',
+    'Presets are "box" (4-4-4-4), "calm" (4-7-8) and "even" (5-5). Set all four duration fields to null for preset patterns only.',
   ],
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];

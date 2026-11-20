@@ -8,6 +8,7 @@ export const sleep = {
     log: {
       writeHints: [
         'Use two Fields of kind "time" in order: Bedtime, then Wake time. Leave values null unless actual times are supplied.',
+        "For both time Fields, set repeat and options to literal null. They are individual times, not recurring schedules or menus.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

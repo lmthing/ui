@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { mindWordsFor } from "../lang";
 
 // Core first: Timeline/hours lays out events, not overnight sleep versus awake time, quality and a weekly average.
 export const meta = {
@@ -32,6 +33,7 @@ export const meta = {
       ...(week
         ? [c.durationLine(Math.round((week.reduce((sum, hours) => sum + hours, 0) * 60) / week.length), lang)]
         : []),
+      JSON.stringify(mindWordsFor(lang).editSleep),
     ];
   },
 } as const satisfies c.Meta;
