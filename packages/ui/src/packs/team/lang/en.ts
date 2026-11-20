@@ -52,7 +52,6 @@ export const en = {
     kinds: { time_off: "Time off", swap: "Shift swap", expense: "Expense", other: "Other request" },
     approve: "Approve",
     decline: "Decline",
-    empty: "No pending requests",
     success: "Decision recorded",
     detailSeparator: " · ",
   },

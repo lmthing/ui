@@ -964,10 +964,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\" ,\"amount\":null,\"note\":null}]}",
+    "reply": "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\",\"amount\":null,\"note\":null}]}",
     "replies": [
-      "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\" ,\"amount\":null,\"note\":null}]}",
-      "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\" ,\"amount\":null,\"note\":null}]}",
+      "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\",\"amount\":null,\"note\":null}]}",
+      "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\",\"amount\":null,\"note\":null}]}",
       "{\"c\":\"Approval\",\"density\":null,\"surface\":null,\"lead\":\"none\",\"requests\":[{\"from\":\"Sam\",\"photo\":\"lib:people\",\"kind\":\"swap\",\"title\":\"Swap Saturday walks\",\"dates\":\"21 Nov\",\"amount\":null,\"note\":null}]}"
     ]
   },

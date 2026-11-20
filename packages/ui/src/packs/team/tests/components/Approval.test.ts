@@ -3,6 +3,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  emptyLine,
   packReady,
   placeholderTitle,
   readComponent,
@@ -161,7 +162,7 @@ describe("Approval states and dispatch", () => {
   it.each(["empty", "success"] as const)("shows only feedback and offers no stale actions in %s", (state) => {
     const parts = view(full, state);
     expect([...parts.keys()]).toEqual(["home/c1/root", "home/c1/message"]);
-    expect(parts.get("home/c1/message")?.text).toEqual([words[state]]);
+    expect(parts.get("home/c1/message")?.text).toEqual([state === "success" ? words.success : emptyLine()]);
     expect(readComponent(def, full, "a1", state)).toEqual([`a1 Approval (${state})`]);
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(full)), "a1", {}, state)).toEqual([]);
     const screen = { id: "home", components: [{ ...full, id: "a1", c: "Approval", state }] };

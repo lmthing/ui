@@ -182,7 +182,7 @@ export function Approval(input: ApprovalProps) {
         <kit.KitEmpty
           icon={success ? "check" : "clipboard_list"}
           part="message"
-          title={success ? words.approval.success : words.approval.empty}
+          {...(success ? { title: words.approval.success } : {})}
           tone={success ? "good" : "neutral"}
           decorativeIcon
         />
