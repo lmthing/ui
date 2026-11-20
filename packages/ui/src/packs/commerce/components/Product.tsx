@@ -160,7 +160,9 @@ function ProductBar({ input, state, density }: { input: ProductProps; state: c.S
   const count = soldOut ? 0 : input.qty;
   const number = c.numberLine(count, lang);
   const target = <kit.KitSkeleton shape="control" />;
-  const numberBar = <kit.KitSkeleton shape="figure" inset="none" content={[["number", number, "center", "compact"]]} />;
+  // A figure space reserves one tabular digit, matching the stepper without showing a quantity.
+  const figure = "\u2007".repeat(String(count).length);
+  const numberBar = <kit.KitSkeleton shape="figure" inset="none" content={[["number", figure, "center", "compact"]]} />;
   const stepper = state === "loading" ? <kit.KitRow part={null} inline label={words.quantity(number)} leading={target} leadingAlign="row">
     <kit.KitRow part={null} inline label={words.quantity(number)} leading={numberBar} leadingAlign="row">
       {target}
