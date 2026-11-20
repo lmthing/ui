@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import { XStack, isWeb, styled } from "tamagui";
 import { numberLine, radius, size, space } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
@@ -35,10 +36,9 @@ function StepButton({
   disabled: boolean;
 }) {
   const { controller, interactive } = useKit();
-  const inactive =
-    disabled || Boolean(interactive && controller && !controller.actionsAt(target).includes(action));
-  const act = () => {
-    if (!inactive) controller?.act({ address: target, action });
+  const press = (event: { stopPropagation?(): void }) => {
+    event.stopPropagation?.();
+    if (!disabled) controller?.act({ address: target, action });
   };
   return (
     <Hit
@@ -46,33 +46,26 @@ function StepButton({
       accessibilityLabel={name}
       {...(isWeb
         ? {
-            "aria-disabled": inactive || undefined,
-            tabIndex: interactive && controller && !inactive ? 0 : -1,
+            "aria-disabled": disabled || undefined,
+            "data-step-action": action,
+            tabIndex: interactive && controller && !disabled ? 0 : -1,
           }
-        : { accessibilityState: { disabled: inactive } })}
-      backgroundColor={inactive ? "$raised" : "$accentSoft"}
-      {...(controller && interactive
+        : { accessibilityState: { disabled } })}
+      backgroundColor={disabled ? "$raised" : "$accentSoft"}
+      onPress={controller && interactive ? press : undefined}
+      {...((isWeb && controller && interactive && !disabled
         ? {
-            onPress: (event: { stopPropagation?(): void }) => {
-              event.stopPropagation?.();
-              act();
+            onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              press(event);
             },
-            ...(isWeb && !inactive
-              ? {
-                  onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
-                    if (event.key !== "Enter" && event.key !== " ") return;
-                    event.preventDefault();
-                    event.stopPropagation();
-                    act();
-                  },
-                }
-              : {}),
           }
-        : {})}
+        : {}) as object)}
     >
       <KitIcon
         name={action === "decrement" ? "minus" : "plus"}
-        tone={inactive ? "muted" : "accent"}
+        tone={disabled ? "muted" : "accent"}
         decorative
       />
     </Hit>
@@ -83,16 +76,33 @@ function StepButton({
 export function KitStepper({ part, value, min, max, disabled = false, labels }: StepperProps) {
   const address = usePart(part);
   const state = useComponentState();
+  const { controller, interactive } = useKit();
   const { lang, words } = useWords();
   const { less, more } = labels ?? words.stepLabels;
-  const inactive = disabled || state === "loading";
+  const floor = min !== undefined && value <= min;
+  const ceiling = max !== undefined && value >= max;
+  const inactive = disabled || state === "loading" || (floor && ceiling);
+  useLayoutEffect(
+    () => (inactive ? controller?.registerDisabledPart(address.testID) : undefined),
+    [address.testID, controller, inactive],
+  );
+  // Ignore our own registration here so a newly enabled render sees the catalog's current actions.
+  const offered = interactive
+    ? controller?.actionsAt(address.testID, { ignoreDisabledPart: true })
+    : undefined;
   return (
-    <XStack {...address} alignItems="center" alignSelf="flex-start" gap={space.xs}>
+    <XStack
+      {...address}
+      {...(isWeb ? { accessibilityRole: "group" as const } : {})}
+      alignItems="center"
+      alignSelf="flex-start"
+      gap={space.xs}
+    >
       <StepButton
         target={address.testID}
         action="decrement"
         name={less}
-        disabled={inactive || (min !== undefined && value <= min)}
+        disabled={inactive || floor || offered?.includes("decrement") === false}
       />
       <KitText role="number" numberScale="compact" align="center" part={null} tabular>
         {numberLine(value, lang)}
@@ -101,7 +111,7 @@ export function KitStepper({ part, value, min, max, disabled = false, labels }: 
         target={address.testID}
         action="increment"
         name={more}
-        disabled={inactive || (max !== undefined && value >= max)}
+        disabled={inactive || ceiling || offered?.includes("increment") === false}
       />
     </XStack>
   );

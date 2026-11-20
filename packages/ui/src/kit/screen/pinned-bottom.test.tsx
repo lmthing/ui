@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
-import { config, elementAt, styleAt } from "../../../test/render";
+import { config, elementAt, hasStepTarget, styleAt } from "../../../test/render";
 import { size, themeName, type ThemeChoice } from "../../catalog";
 import { KitStepper, KitText } from "../base";
 import { PartScope } from "../part";
@@ -25,7 +25,7 @@ function render(value: number, withinScreen = false) {
         {withinScreen ? (
           <ScreenBottomSlots>
             <ScreenBottomSource>{details}</ScreenBottomSource>
-            <ScreenBottomOutlet />
+            <ScreenBottomOutlet screen="fixture" order={["d1"]} />
           </ScreenBottomSlots>
         ) : (
           details
@@ -50,7 +50,11 @@ it.each([
   const html = render(value);
   const address = "fixture/d1/r1/qty";
   expect(html.match(new RegExp(`data-testid="${address}"`, "g"))).toHaveLength(1);
-  const [minus, , plus] = elementAt(html, address).children;
+  const group = elementAt(html, address);
+  expect(hasStepTarget(group, "decrement")).toBe(true);
+  expect(hasStepTarget(group, "increment")).toBe(true);
+  expect(hasStepTarget(group, "press")).toBe(false);
+  const [minus, , plus] = group.children;
   for (const [button, name, disabled] of [
     [minus, "Less", less],
     [plus, "More", more],

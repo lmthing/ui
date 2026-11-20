@@ -30,6 +30,11 @@ afterAll(async () => {
 });
 
 const part = (address: string) => page.getByTestId(`fixture/${address}`);
+const setFixture = (name: string, detail?: boolean | string[]) =>
+  page.evaluate(({ name, detail }) => window.dispatchEvent(new CustomEvent(name, { detail })), {
+    name,
+    detail,
+  });
 
 it("pins action bars below the scrolling body and above the regular safe-area footer", async () => {
   const first = part("d1/detail");
@@ -47,12 +52,13 @@ it("pins action bars below the scrolling body and above the regular safe-area fo
   expect((await last.boundingBox())!.y).toBeLessThan(initial.y);
   expect(await qty.boundingBox()).toEqual(initial);
   expect(await footer.boundingBox()).toEqual(bottom);
+  expect(await part("d1/r1/trail").getAttribute("aria-label")).toBe("Row switch");
   expect(errors).toEqual([]);
 });
 
 it("uses one mounted part per row from both touch targets and agent actions", async () => {
   const first = part("d1/r1/qty"),
-    second = part("d1/r2/qty");
+    second = part("d2/r1/qty");
   const minus = first.getByRole("button", { name: less, exact: true });
   const plus = first.getByRole("button", { name: more, exact: true });
   expect(await first.count()).toBe(1);
@@ -69,11 +75,7 @@ it("uses one mounted part per row from both touch targets and agent actions", as
     window.__lmthingUI!.act({ address: "d1/r1/qty", action: "increment" }),
   );
   expect(result.ok).toBe(true);
-  await page.waitForFunction(() =>
-    document
-      .querySelector('[data-testid="fixture/d1/r1/qty"] [aria-disabled="true"]')
-      ?.matches(":last-child"),
-  );
+  await first.locator('[data-step-action="increment"][aria-disabled="true"]').waitFor();
   expect(await first.textContent()).toBe("3");
   expect(await plus.getAttribute("aria-disabled")).toBe("true");
   await minus.click();
@@ -82,16 +84,66 @@ it("uses one mounted part per row from both touch targets and agent actions", as
   expect(errors).toEqual([]);
 });
 
-it("unmounts conditional pins without disturbing the existing bottom region", async () => {
+it("gates both human and agent directions when disabled, and re-enables them", async () => {
+  const first = part("d1/r1/qty");
+  const plus = first.getByRole("button", { name: more });
+  await plus.click();
+  await setFixture("fixture-disabled", true);
+  await first.locator('[data-step-action="increment"][aria-disabled="true"]').waitFor();
+  for (const action of ["increment", "decrement"]) {
+    const button = first.locator(`[data-step-action="${action}"]`);
+    expect(await button.getAttribute("aria-disabled")).toBe("true");
+    await button.dispatchEvent("click");
+    const result = await page.evaluate(
+      (action) => window.__lmthingUI!.act({ address: "d1/r1/qty", action }),
+      action,
+    );
+    expect(result).toMatchObject({ ok: false, code: "disabled" });
+  }
+  expect(await first.textContent()).toBe("2");
+  await setFixture("fixture-disabled", false);
+  await plus.click();
+  expect(await first.textContent()).toBe("3");
+  expect(errors).toEqual([]);
+});
+
+it("unmounts conditional pins and restores their place in the bottom region", async () => {
   const footer = part("b1/root");
   const initial = await footer.boundingBox();
   await part("d1/hide").click();
   await part("d1/r1/qty").waitFor({ state: "detached" });
-  expect(await part("d1/r2/qty").count()).toBe(0);
+  expect(await part("d2/r1/qty").count()).toBe(1);
   expect(await footer.boundingBox()).toEqual(initial);
   const result = await page.evaluate(() =>
     window.__lmthingUI!.act({ address: "d1/r1/qty", action: "increment" }),
   );
   expect(result).toMatchObject({ ok: false, code: "not_mounted" });
+  await setFixture("fixture-show");
+  await part("d1/r1/qty").waitFor();
+  expect((await part("d1/r1/qty").boundingBox())!.y).toBeLessThan((await part("d2/r1/qty").boundingBox())!.y);
+  expect(errors).toEqual([]);
+});
+
+it("orders pins by the live body and drops controls when their source starts exiting", async () => {
+  const first = part("d1/r1/qty");
+  const second = part("d2/r1/qty");
+  await setFixture("fixture-order", ["d2", "d1"]);
+  await page.waitForFunction(
+    () =>
+      document.querySelector('[data-testid$="/qty"]')?.getAttribute("data-testid") === "fixture/d2/r1/qty",
+  );
+  expect((await second.boundingBox())!.y).toBeLessThan((await first.boundingBox())!.y);
+  const exiting = await page.evaluate(async () => {
+    window.dispatchEvent(new CustomEvent("fixture-order", { detail: ["d2"] }));
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    return {
+      detailExiting: !!document
+        .querySelector('[data-testid="fixture/d1/detail"]')
+        ?.closest('[aria-hidden="true"]'),
+      qtyMounted: !!document.querySelector('[data-testid="fixture/d1/r1/qty"]'),
+    };
+  });
+  expect(exiting).toEqual({ detailExiting: true, qtyMounted: false });
+  expect(await second.count()).toBe(1);
   expect(errors).toEqual([]);
 });

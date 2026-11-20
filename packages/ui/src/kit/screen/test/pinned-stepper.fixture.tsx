@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createTamagui, createTokens, TamaguiProvider } from "tamagui";
 import { z } from "zod";
@@ -9,6 +9,7 @@ import {
   KitRow,
   KitStepper,
   KitText,
+  KitTrail,
   PhoneScreen,
   kitFonts,
   kitThemes,
@@ -29,7 +30,7 @@ const fixture = {
     parts: ["hide", "detail", "last"],
     items: {
       key: "rows",
-      parts: ["root", "qty"],
+      parts: ["root", "qty", "trail"],
       adjust: {
         "qty.increment": { prop: "qty", delta: 1, max: 3 },
         "qty.decrement": { prop: "qty", delta: -1, min: 1 },
@@ -37,12 +38,13 @@ const fixture = {
     },
     actions: {
       parts: { hide: ["press"] },
-      items: { qty: ["increment", "decrement"] },
+      items: { qty: ["increment", "decrement"], trail: ["toggle"] },
       noGoto: { parts: ["hide"] },
     },
   },
   props: z.strictObject({
     pinned: z.boolean(),
+    details: z.boolean(),
     rows: z.array(z.strictObject({ qty: z.number() })),
   }),
   fallback: () => ({}),
@@ -50,22 +52,42 @@ const fixture = {
   probes: [],
 } satisfies Definition;
 
-function FixtureView({ pinned, rows }: { pinned: boolean; rows: { id: string; qty: number }[] }) {
+function FixtureView({
+  pinned,
+  details,
+  rows,
+}: {
+  pinned: boolean;
+  details: boolean;
+  rows: { id: string; qty: number }[];
+}) {
+  const [disabled, setDisabled] = useState(false);
+  useEffect(() => {
+    const update = (event: Event) => setDisabled((event as CustomEvent<boolean>).detail);
+    window.addEventListener("fixture-disabled", update);
+    return () => window.removeEventListener("fixture-disabled", update);
+  }, []);
   return (
     <>
-      <KitAction label="Hide bar" part="hide" />
-      <KitText part="detail">First detail</KitText>
+      {details && <KitAction label="Hide bar" part="hide" />}
+      {details && <KitText part="detail">First detail</KitText>}
       {rows.map(({ id, qty }) => (
-        <KitRow key={id} item={id} label={id}>
-          <KitPinnedBottom>{pinned && <KitStepper part="qty" value={qty} min={1} max={3} />}</KitPinnedBottom>
+        <KitRow key={id} item={id} label="Row switch">
+          {pinned && (
+            <KitPinnedBottom>
+              <KitStepper part="qty" value={qty} min={1} max={3} disabled={disabled} />
+              {details && <KitTrail kind="toggle" />}
+            </KitPinnedBottom>
+          )}
         </KitRow>
       ))}
-      {Array.from({ length: 45 }, (_, index) => (
-        <KitText key={index} part={null}>
-          Detail {index + 1}
-        </KitText>
-      ))}
-      <KitText part="last">Last detail</KitText>
+      {details &&
+        Array.from({ length: 45 }, (_, index) => (
+          <KitText key={index} part={null}>
+            Detail {index + 1}
+          </KitText>
+        ))}
+      {details && <KitText part="last">Last detail</KitText>}
     </>
   );
 }
@@ -114,21 +136,37 @@ const nativeHost: NativeHost = {
 
 function App() {
   const [pinned, setPinned] = useState(true);
+  const [order, setOrder] = useState(["d1", "d2"]);
+  useEffect(() => {
+    const update = (event: Event) => setOrder((event as CustomEvent<string[]>).detail);
+    const show = () => setPinned(true);
+    window.addEventListener("fixture-order", update);
+    window.addEventListener("fixture-show", show);
+    return () => {
+      window.removeEventListener("fixture-order", update);
+      window.removeEventListener("fixture-show", show);
+    };
+  }, []);
   const screen = useMemo(
     () => ({
       id: "fixture",
       components: [
-        { id: "d1", c: "Fixture", pinned, rows: [{ qty: 1 }, { qty: 3 }] },
+        ...order.map((id) => ({
+          id,
+          c: "Fixture",
+          details: id === "d1",
+          pinned: id !== "d1" || pinned,
+          rows: [{ qty: id === "d1" ? 1 : 3 }],
+        })),
         { id: "b1", c: "FixtureFooter", goto: "other" },
       ],
     }),
-    [pinned],
+    [pinned, order],
   );
   return (
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <PhoneScreen
         {...{ defs, renderers, screen, theme, nativeHost }}
-        agentMode
         onAction={({ address }) => {
           if (address === "fixture/d1/hide") setPinned(false);
         }}

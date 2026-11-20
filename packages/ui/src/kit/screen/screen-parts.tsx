@@ -75,6 +75,9 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
   const { environment } = useKit();
+  const bodyOrder = props.screen.components
+    .filter(({ c }) => (props.controller.defs[c]?.meta.region ?? "body") === "body")
+    .map(({ id }) => id);
   return (
     <ScreenBottomSlots>
       <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
@@ -101,7 +104,7 @@ export function ScreenContent({ covered, ...props }: RenderProps & { covered: bo
           paddingBottom={Math.max(space.lg, environment.keyboardHeight ? 0 : environment.insets.bottom)}
           gap={space.md}
         >
-          <ScreenBottomOutlet />
+          <ScreenBottomOutlet screen={props.screen.id} order={bodyOrder} />
           <ScreenRegion {...props} name="bottom" />
         </YStack>
       </YStack>

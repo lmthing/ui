@@ -28,10 +28,15 @@ const pressActions = [
   "send",
   "dismiss",
 ];
-function actionsAt(ctx: ControllerContext, address: string, includeBlocked = false): string[] {
+function actionsAt(
+  ctx: ControllerContext,
+  address: string,
+  includeBlocked = false,
+  ignoreDisabledPart = false,
+): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
-  if (ctx.status.disposed || ctx.disabledParts.has(local)) return [];
+  if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
   if (ctx.status.confirmation)
     return local === "confirm/confirm"
       ? ["press"]
@@ -140,7 +145,8 @@ export function createStandaloneAccess(options: ControllerOptions) {
 
 export function createAccess(ctx: ControllerContext, act: Act) {
   return {
-    actionsAt: (address: string) => actionsAt(ctx, address),
+    actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
+      actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx),
     canPress: (address: string) =>
