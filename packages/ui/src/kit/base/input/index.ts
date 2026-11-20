@@ -4,3 +4,4 @@ export { KitTextArea } from "./KitTextArea";
 export { KitInput } from "./KitInput";
 export { KitChip, KitTrack } from "./KitChip";
 export { KitAction, type ActionKind } from "./KitAction";
+export { KitStepper } from "./KitStepper";

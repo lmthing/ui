@@ -5,6 +5,11 @@ export type CommerceWords = {
   emptyProducts: string;
   orderComplete: string;
   priceChange: (was: string, price: string) => string;
+  orderNumber: (number: string) => string;
+  orderMode: Record<"pickup" | "delivery" | "table", string>;
+  orderTotal: string;
+  reorder: string;
+  receiptSeparator: string;
 };
 
 export const en = {
@@ -14,4 +19,9 @@ export const en = {
   emptyProducts: "No products to show",
   orderComplete: "Order complete",
   priceChange: (was, price) => `${was} → ${price}`,
+  orderNumber: (number) => `Order #${number}`,
+  orderMode: { pickup: "Pickup", delivery: "Delivery", table: "At table" },
+  orderTotal: "Total",
+  reorder: "Reorder",
+  receiptSeparator: " · ",
 } satisfies CommerceWords;

@@ -1,7 +1,7 @@
 import { YStack, isWeb, styled } from "tamagui";
 import type { ReactNode } from "react";
-import { component, size, space, type IconName } from "../../../catalog";
-import { useKit, useKitStyle } from "../../provider";
+import { component, size, space, type IconName, type ThemeDensity } from "../../../catalog";
+import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon } from "../text";
 import { KitText } from "../text";
@@ -25,6 +25,9 @@ type TileProps = {
   disabled?: boolean;
   detail?: ReactNode;
   action?: "press" | "toggle" | "start" | "stop";
+  density?: ThemeDensity | undefined;
+  /** Reserve space for the selected border and use a neutral badge when off. */
+  distinctSelection?: boolean;
 };
 function TileLine({ loading, children }: { loading: boolean; children: ReactNode }) {
   return (
@@ -58,15 +61,21 @@ function TileContent({
   detail,
   disabled,
   loading,
-}: Pick<TileProps, "icon" | "label" | "detail" | "disabled"> & { loading: boolean }) {
+  on,
+  distinctSelection,
+}: Pick<TileProps, "icon" | "label" | "detail" | "disabled" | "on" | "distinctSelection"> & {
+  loading: boolean;
+}) {
   const ks = useKitStyle();
+  const neutral = disabled || (distinctSelection && !on);
   return (
     <>
-      <Badge backgroundColor={loading ? "$line" : disabled ? "$raised" : "$accentSoft"}>
-        {!loading && <KitIcon name={icon} tone={disabled ? "muted" : "accent"} scale="lg" />}
+      <Badge backgroundColor={loading ? "$line" : neutral ? "$raised" : "$accentSoft"}>
+        {!loading && <KitIcon name={icon} tone={neutral ? "muted" : "accent"} scale="lg" />}
       </Badge>
       <YStack
-        alignItems="center"
+        alignSelf={distinctSelection ? "stretch" : undefined}
+        alignItems={distinctSelection ? "stretch" : "center"}
         gap={space.xs}
         aria-hidden={loading || undefined}
         borderRadius={shifted("sm", ks.radiusShift)}
@@ -88,11 +97,24 @@ function TileContent({
   );
 }
 
-function Tile({ icon, label, goto, on, disabled = false, detail, action }: Omit<TileProps, "item">) {
+function useTileFinish({ density, distinctSelection, on }: Omit<TileProps, "item">) {
+  const { rowPad, contentGap } = useVariantDensity(density);
+  return {
+    gap: density === "compact" ? space[contentGap] : space.sm,
+    paddingVertical: density === "compact" ? space[rowPad] : space.md,
+    ...(on || distinctSelection
+      ? { borderWidth: component.base.strongBorder, borderColor: on ? "$accent" : "transparent" }
+      : {}),
+  };
+}
+
+function Tile(props: Omit<TileProps, "item">) {
+  const { label, goto, on, disabled = false, action } = props;
   const kit = useKit();
   const ks = useKitStyle();
   const part = usePart();
   const loading = useComponentState() === "loading";
+  const finish = useTileFinish(props);
   const press = () => {
     if (kit.controller)
       return action
@@ -104,13 +126,11 @@ function Tile({ icon, label, goto, on, disabled = false, detail, action }: Omit<
     <YStack
       {...part}
       alignItems="center"
-      gap={space.sm}
-      paddingVertical={space.md}
+      {...finish}
       paddingHorizontal={space.sm}
       minHeight={size.control.lg}
       borderRadius={shifted("md", ks.radiusShift)}
       backgroundColor={on ? "$accentSoft" : undefined}
-      {...(on ? { borderWidth: component.base.strongBorder, borderColor: "$accent" } : {})}
       accessibilityRole={loading ? undefined : goto && !action ? "link" : "button"}
       accessibilityLabel={loading ? undefined : label}
       aria-pressed={on}
@@ -131,7 +151,7 @@ function Tile({ icon, label, goto, on, disabled = false, detail, action }: Omit<
           }
         : {}) as object)}
     >
-      <TileContent {...{ icon, label, detail, disabled, loading }} />
+      <TileContent {...props} {...{ disabled, loading }} />
     </YStack>
   );
 }
