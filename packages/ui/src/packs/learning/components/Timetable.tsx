@@ -60,12 +60,9 @@ export const props = z
       .max(7),
   })
   .refine(({ days }) => new Set(days.map(({ day }) => day)).size === days.length, { path: ["days"] })
-  .refine(
-    ({ days, selected_day }) => selected_day === undefined || days.some(({ day }) => day === selected_day),
-    { path: ["selected_day"] },
-  )
   .overwrite((value) => ({
     ...value,
+    selected_day: value.days.some(({ day }) => day === value.selected_day) ? value.selected_day : undefined,
     scheduled_days: value.days.map(({ day }) => day),
     periods: value.days.flatMap(({ day, periods }) => periods.map((period) => ({ day, ...period }))),
   }));

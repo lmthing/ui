@@ -157,9 +157,16 @@ it("keeps each question a strict Writer object and decodes its unused nullable f
     photo: null,
     ...question,
   }));
-  expect(scoreWrite(JSON.stringify({ c: "Quiz", density: null, surface: null, questions }), quiz).pass).toBe(
-    true,
-  );
+  const reply = {
+    c: "Quiz",
+    density: null,
+    surface: null,
+    selected_option: null,
+    selected_left: null,
+    selected_right: null,
+    questions,
+  };
+  expect(scoreWrite(JSON.stringify(reply), quiz).pass).toBe(true);
 });
 
 it("accepts only scheduled weekdays for the timetable picker and reads the saved selection", () => {
@@ -173,10 +180,23 @@ it("accepts only scheduled weekdays for the timetable picker and reads the saved
   const valid = select("wed");
   expect(valid.ok).toBe(true);
   if (valid.ok) {
+    const values = { "t1/$selected_day": valid.values["schedule/t1/$selected_day"] };
+    expect(readComponent(timetable, input, "t1", "filled", values).join("\n")).toContain(
+      '[t1/day select = "wed"; choices ["mon","wed"]]',
+    );
+    const updated = timetable.examples[1]!;
+    expect(readComponent(timetable, updated, "t1", "filled", values).join("\n")).toContain(
+      '[t1/day select choices ["tue","thu"]]',
+    );
+    const next = { ...screen, components: [{ id: "t1", c: "Timetable", ...updated }] };
     expect(
-      readComponent(timetable, input, "t1", "filled", {
-        "t1/$selected_day": valid.values["schedule/t1/$selected_day"],
-      }).join("\n"),
-    ).toContain('[t1/day select = "wed"; choices ["mon","wed"]]');
+      planAct(
+        next,
+        { Timetable: timetable },
+        valid.values,
+        [{ address: "t1/day", action: "select", value: "thu" }],
+        null,
+      ).ok,
+    ).toBe(true);
   }
 });
