@@ -23,7 +23,10 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
   if (
     screen.components.some(({ c }) => {
       const meta = options.defs[c]?.meta;
-      return meta?.confirmParts?.length && (meta.session || meta.successActions?.length);
+      return (
+        meta?.confirmParts?.length &&
+        (meta.session || meta.successActions?.length || meta.errorActions?.length || meta.live?.derive)
+      );
     })
   )
     return createStandaloneAccess({ ...options, screen });

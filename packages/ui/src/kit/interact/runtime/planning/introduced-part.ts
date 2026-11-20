@@ -8,6 +8,12 @@ import {
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
 
+export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
+  if (ctx.standalone || !entry.state || entry.state === "filled") return false;
+  const { draw, emptyActions, errorActions, session, successActions } = ctx.defs[entry.c]!.meta;
+  return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
+}
+
 /** Check whether an earlier step introduced the part before the view could update. */
 export function introducedPart(
   ctx: ControllerContext,
@@ -25,7 +31,11 @@ export function introducedPart(
   const meta = ctx.defs[entry.c]!.meta;
   const session = staged.values[key] !== initial[key] && sessionEvent(meta, target, action.action);
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
-  if (!session && !nested) return false;
+  const prefix = `${ctx.screen.id}/${entry.id}/`;
+  const gated =
+    (meta.live?.derive || meta.items?.visibleWhen) &&
+    Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
+  if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;
   const source = ctx.liveScreen(initial, sheet, Boolean(sheet));
   const plan = planAct(

@@ -19,24 +19,21 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { introducedPart } from "./introduced-part";
+import { inactive, introducedPart } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
   if (ctx.standalone) {
     const { meta } = def;
-    return meta.confirmParts?.length && (meta.session || meta.successActions?.length)
-      ? parseControlProps(def, raw, get)
-      : raw;
+    const { id: _id, c: _c, state: _state, ...raw } = entry;
+    const { session, successActions, errorActions, live } = meta;
+    const useParsed =
+      meta.confirmParts?.length &&
+      (session || successActions?.length || errorActions?.length || live?.derive);
+    return useParsed ? parseControlProps(def, raw, get) : raw;
   }
   const input = ctx.inputOf(entry);
   return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
-}
-function inactive(ctx: ControllerContext, entry: ScreenComponent) {
-  if (ctx.standalone || !entry.state || entry.state === "filled") return false;
-  const { draw, emptyActions, errorActions, session, successActions } = ctx.defs[entry.c]!.meta;
-  return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
 }
 const qualified = (screen: string, step: ActStep) => ({ ...step, address: `${screen}/${step.address}` });
 
@@ -106,8 +103,10 @@ function prepareStep(
 function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
   if (!ctx.standalone) return true;
   const meta = ctx.defs[entry.c]!.meta;
+  const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
-  return Boolean(meta.successActions?.length || sessionEvent(meta, part, selected.action));
+  if (successActions?.length || errorActions?.length || live?.derive) return true;
+  return Boolean(sessionEvent(meta, part, selected.action));
 }
 function isDraw({ entry, defs, selected }: ActionContext) {
   const target = selected.address.split("/").slice(1).join("/") || "root";

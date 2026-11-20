@@ -1,7 +1,6 @@
 import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
-import { peekLimit, wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance, partTierAt, type Affordance } from "./affordances";
@@ -12,8 +11,9 @@ import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
-import { componentTexts, itemTexts, type ReadSchema as Json } from "./reading";
-import { projectVisibleItems, visibleItems } from "./visibility";
+import { componentTexts, readItems, type ReadSchema as Json } from "./reading";
+import { projectVisibleItems } from "./visibility";
+import { liveInputKey } from "./live-inputs";
 
 type Props = Record<string, unknown>;
 
@@ -54,10 +54,13 @@ function withValues(
         ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined
           : set.value
-        : (values[`${a.address}/$draft`] ?? values[a.address]);
+        : a.input?.kind === "text"
+          ? values[`${instance}/${liveInputKey(target, "type")}`]
+          : (values[`${a.address}/$draft`] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
-    if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
+    if (!a.input && typeof value === "boolean" && a.action === "check")
+      detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
     if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;
@@ -65,12 +68,24 @@ function withValues(
   });
 }
 
-function readingProps(meta: Meta, props: Props, instance: string, values: Props, session?: SessionState) {
+function readingProps(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  values: Props,
+  live: Props,
+  session?: SessionState,
+) {
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  const projected = projectVisibleItems(meta, visibleNestedProps(meta, projectDraw(meta, timed, get), get));
+  const useLive =
+    meta.live || meta.items?.visibleWhen || Object.values(meta.selections ?? {}).some((s) => s.runtime);
+  const projected = projectVisibleItems(
+    meta,
+    visibleNestedProps(meta, useLive ? live : projectDraw(meta, timed, get), get),
+  );
   if (!session) return projected;
   const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
   return { ...projected, ...current, [sessionKey]: session };
@@ -114,7 +129,7 @@ export function readComponent(
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, session), state, lang) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, props, session), state, lang) ?? []),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
     ...componentTexts(schema, props, key, roundKey, session?.kind === "rounds" ? session.item : undefined),
@@ -131,51 +146,6 @@ export function readComponent(
     get("more") === true,
     lang,
   );
-}
-
-function readItems(
-  meta: Meta,
-  schema: Json,
-  props: Props,
-  instance: string,
-  key: string | undefined,
-  head: string,
-  own: string[],
-  affordances: Affordance[],
-  peekOpen: boolean,
-  lang?: string,
-) {
-  const all = key ? visibleItems(meta, props) : [];
-  const ids = meta.items?.visibleWhen && new Set(all.map(({ id }) => id));
-  const ownAff = affordances.filter(({ address }) => {
-    if (!key) return true;
-    const target = address.slice(instance.length);
-    return ids ? !ids.has(target.split("/")[1]) : !/^\/r\d+(?:\/|$)/.test(target);
-  });
-  const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
-  const firstOnly = meta.items?.visible === "first",
-    peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
-  const items = firstOnly ? all.slice(0, 1) : peek && !peekOpen ? all.slice(0, peekLimit) : all;
-  const words = wordsFor(lang),
-    hidden = all.length - items.length;
-  const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
-  const itemSchema = key ? schema.properties?.[key]?.items : undefined;
-  return [
-    line.join(" "),
-    ...items.map((item) => {
-      const base = `${instance}/${String(item.id)}`;
-      const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
-      return `  ${[
-        String(item.id),
-        itemTexts(itemSchema, item, meta.items?.nested?.key).join(" · "),
-        ...mine.map((a) => formatAffordance(a)),
-      ]
-        .filter(Boolean)
-        .join(" ")}`;
-    }),
-    ...(hidden ? [`  ${(firstOnly ? words.moreRead : words.peekCount)(numberLine(hidden, lang))}`] : []),
-    ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
-  ];
 }
 
 export type ScreenLike = {

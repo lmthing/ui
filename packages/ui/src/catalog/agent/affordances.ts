@@ -1,17 +1,18 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
-import { isNestedTarget, nestedControls, nestedRemaining } from "./selection";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
-import { addressedItems, matches, visibleItems } from "./visibility";
+import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
+import { withLiveInput, type LiveInput } from "./live-inputs";
 
 export type Affordance = {
   address: string;
   part: string;
   action: string;
   detail: string;
+  input?: LiveInput;
   blocked?: "max_active";
   togglePeers?: readonly string[];
 };
@@ -47,22 +48,21 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
 
-/** A part exists when its `when` matches and, if named like an optional prop, that prop is set. */
-function present(part: string, holder: Props, when: When, outer: Props): boolean {
-  if (!matches(when?.[part], holder, outer)) return false;
-  return !(part in holder) || holder[part] !== undefined;
-}
-
 function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
   base: string,
   when: When,
   outer: Props,
-  noGoto?: readonly string[],
+  meta: Meta,
+  item = false,
 ) {
+  const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    present(part, holder, when, outer)
+    matches(when?.[part], holder, outer) &&
+    (!(part in holder) ||
+      holder[part] !== undefined ||
+      (!item && (meta.selections?.[part]?.runtime || Object.hasOwn(meta.live?.text ?? {}, part))))
       ? actions
           .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
           .map((action) => {
@@ -74,6 +74,7 @@ function partsOf(
               part,
               action,
               detail: detailOf(action, nested, suppressLink),
+              ...withLiveInput(meta, part, action, holder, item),
             };
           })
       : [],
@@ -95,8 +96,8 @@ export function affordancesOf(
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, items: itemParts, when, noGoto } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, noGoto?.parts).flatMap((a) => {
+  const { parts, items: itemParts, when } = meta.actions ?? {};
+  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
@@ -106,7 +107,7 @@ export function affordancesOf(
   const itemActions = items.flatMap((item, index) => {
     if (visible && !visible.has(item)) return [];
     const base = `${instance}/${String(item.id)}`;
-    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, noGoto?.items);
+    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, meta, true);
   });
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
@@ -137,46 +138,6 @@ export function affordancesOf(
   });
 }
 
-function nestedActions(
-  meta: Meta,
-  props: Props,
-  instance: string,
-  items: Affordance[],
-  get: (part: string) => unknown,
-  includeBlocked: boolean,
-) {
-  const controls = nestedControls(meta, props, get);
-  const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
-  const policy = meta.items?.nested;
-  const remaining = nestedRemaining(meta, props, controls);
-  const nested = controls.flatMap(({ enabled, target, part, spec, item, togglePeers }): Affordance[] => {
-    if (!enabled) return [];
-    const value = item[spec.prop];
-    const blocked =
-      remaining !== undefined && togglePeers && remaining < togglePeers.length && value !== true;
-    if (blocked && !includeBlocked) return [];
-    const detail = spec.action === "toggle" ? (value ? ":on" : ":off") : valueDetail(value);
-    return [
-      {
-        address: `${instance}/${target}`,
-        part,
-        action: spec.action,
-        detail,
-        ...(blocked ? { blocked: "max_active" } : {}),
-        ...(includeBlocked && togglePeers && togglePeers.length > 1
-          ? { togglePeers: togglePeers.map((peer) => `${instance}/${peer}`) }
-          : {}),
-      },
-    ];
-  });
-  const reserved = policy?.activeParent || policy?.maxActive !== undefined;
-  const ordinary = items.filter(
-    ({ address }) =>
-      !targets.has(address) && !(reserved && isNestedTarget(meta, address.slice(instance.length + 1))),
-  );
-  return [...ordinary, ...nested];
-}
-
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
   const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
   if (state === "error" || errorOnly) return state === "error" && errorOnly;
@@ -184,8 +145,6 @@ function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
   return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
 }
-
-const valueDetail = (value: unknown) => (value === undefined ? "" : ` = ${JSON.stringify(value)}`);
 
 /** Resolve a part against live props, without changing the component's tier. */
 export function partTierAt(meta: Meta, props: Props, part: string): Tier {

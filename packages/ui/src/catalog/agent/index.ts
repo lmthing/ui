@@ -7,7 +7,8 @@ export {
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { visibleItems } from "./visibility";
-export { selectionOffer, validateActionValue, type ValueError } from "./validate-value";
+export { projectLiveInputs } from "./live-inputs";
+export { resolveKeypadValue, selectionOffer, validateActionValue, type ValueError } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type Values } from "./act";
 export {
   controlValueKey,

@@ -2,7 +2,7 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
-import type { ItemVariants, VariantParts, Variants } from "../types";
+import type { ItemVariants, LiveActionInputs, VariantParts, Variants } from "../types";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
@@ -38,6 +38,9 @@ type NumericSets = Readonly<Record<string, NumericSet>>;
 
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
+type NamedSelection = { prop: string; choices: ChoiceSource } & (
+  { runtime?: false; clear?: never } | { runtime: true; clear?: string }
+);
 type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
@@ -138,7 +141,8 @@ export type Meta = {
   };
   select?: SelectMeta;
   /** Named component parts with independent destinations and explicit offers. */
-  selections?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
+  selections?: Readonly<Record<string, NamedSelection>>;
+  live?: LiveActionInputs;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;

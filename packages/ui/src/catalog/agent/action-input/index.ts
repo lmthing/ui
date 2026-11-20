@@ -2,6 +2,82 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
 import {
+  liveProps,
+  selectionAt,
+  selectionChanges,
+  selectionError,
+  selectionOffer,
+  type ActStep,
+} from "../index";
+import { storeLiveInput } from "../live-inputs";
+import { resolveKeypadValue, validateActionValue } from "../index";
+
+export function validateStep(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  found: Affordance,
+  step: ActStep,
+  values: Values,
+  key: string,
+) {
+  const number = numericStep(screen, defs, found.address, step.action, values);
+  const limits = number?.set
+    ? { ...number.set.spec, numeric: true as const }
+    : nestedSpec(screen, defs, found.address);
+  const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
+  let result = keypad
+    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
+    : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
+  if (!("code" in result)) {
+    const max = found.input?.kind === "text" ? found.input.max : undefined;
+    if (max !== undefined && typeof result.value === "string" && result.value.length > max)
+      result = { code: "invalid_value", hint: `Use at most ${max} characters` };
+    else if (found.blocked && result.value !== false)
+      return { result: { code: found.blocked, hint: "Turn off an active choice first" }, number, limits };
+  }
+  return { result, number, limits };
+}
+
+export function localValues(screen: string, values: Values): Values {
+  return Object.fromEntries(
+    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
+  );
+}
+
+export function selectStep(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  step: ActStep,
+  address: string,
+  values: Values,
+) {
+  if (step.action !== "select") return { step };
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  const target = parts.join("/") || "root";
+  const offer = def && selectionOffer(def.meta, target);
+  if (!def || (!def.meta.select && !offer)) return { step };
+  const { id: _id, c: _c, state: _state, ...raw } = entry!;
+  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
+  let props = parseControlProps(def, raw, get);
+  if (Object.hasOwn(def.meta.selections ?? {}, target))
+    props = liveProps(def.meta, props, id!, localValues(screen.id, values), true);
+  else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
+  const error = selectionError(def.meta, props, target, step.value);
+  return {
+    step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
+    error,
+    declared: Boolean(offer && !offer.runtime),
+    changes: Object.fromEntries(
+      Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
+        `${screen.id}/${id}/${part}`,
+        value,
+      ]),
+    ),
+  };
+}
+import {
   controlValueKey,
   nestedAt,
   parseControlProps,
@@ -100,7 +176,8 @@ export function stageValue(
     next[key] = amount;
   } else if (action === "toggle" || action === "check") {
     const projected = detail === ":on" || detail === ":done";
-    const now = found.togglePeers ? projected : ((next[key] as boolean | undefined) ?? projected);
+    const now =
+      found.togglePeers || found.input ? projected : ((next[key] as boolean | undefined) ?? projected);
     next[key] = (value as boolean | undefined) ?? !now;
     for (const peer of found.togglePeers ?? []) next[`${screenId}/${peer}`] = next[key];
   } else if (action === "increment" || action === "decrement") {
@@ -112,5 +189,6 @@ export function stageValue(
     next[key] = value;
     if (number?.set) next[`${screenId}/${number.id}/${number.slot}`] = value;
   }
+  storeLiveInput(next, screenId, found, next[key]);
   return true;
 }
