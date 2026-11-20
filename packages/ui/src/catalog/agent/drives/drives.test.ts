@@ -142,6 +142,26 @@ it("disambiguates an internally routed seek when the Player id matches the scree
   }
 });
 
+it("offers a copyable chapter address when the chapter list id matches the screen id", () => {
+  const current = { ...screen, id: "c1" };
+  const { runtime, agent, session } = setup(current);
+  try {
+    const copied = (reading: string) => reading.match(/\[([^ ]+\/r2) press\]/)?.[1];
+    const fromCatalog = copied(readScreen(current, defs));
+    const fromAgent = copied(agent.read());
+    expect(fromCatalog).toBe("c1/c1/r2");
+    expect(fromAgent).toBe(fromCatalog);
+    expect(planAct(current, defs, {}, [{ ...press, address: fromCatalog! }])).toMatchObject({
+      ok: true,
+      values: { "c1/p1/scrubber": 12 },
+    });
+    expect(agent.act({ ...press, address: fromAgent! }).ok).toBe(true);
+    expect(session.seek).toHaveBeenCalledExactlyOnceWith(12);
+  } finally {
+    runtime.dispose();
+  }
+});
+
 it.each([{ code: "not_mounted" }, { code: "disabled" }])(
   "does not advertise a press whose target is $code",
   ({ code }) => {

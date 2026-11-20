@@ -1,6 +1,7 @@
 import { expect, it } from "vitest";
 import { components, packOf } from "@lmthing/ui/catalog";
-import { checkDriveDeclaration, type Meta } from "./index";
+import type { Meta } from "../../meta";
+import { checkDriveDeclaration } from "./declaration";
 
 const driver: Meta = {
   ...components.List.meta,

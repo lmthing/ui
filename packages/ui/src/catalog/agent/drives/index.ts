@@ -1,4 +1,4 @@
-import { driveSeekPart, type Meta } from "../../meta";
+import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import type { StateName } from "../../types";
 import {
@@ -14,8 +14,10 @@ import {
   type Values,
 } from "../index";
 import { addressedItems } from "../visibility";
+import { driveSeekPart } from "./declaration";
+export { checkDriveDeclaration } from "./declaration";
 
-type DriveTarget = { address: string; seconds: unknown };
+type DriveTarget = { address: string; screen: string; seconds: unknown };
 export type CanDrive = (address: string) => boolean;
 
 /** The first same-screen instance offering its declared seek, in screen order. */
@@ -45,7 +47,9 @@ export function driveTarget(
     );
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state);
     if (offered.some((a) => a.address === address && a.action === "seek"))
-      return !canDrive || canDrive(address) ? { address, seconds: props.seconds } : undefined;
+      return !canDrive || canDrive(address)
+        ? { address, screen: screen.id, seconds: props.seconds }
+        : undefined;
   }
 }
 
@@ -65,6 +69,7 @@ export function driveAffordances(
     const value = row.at;
     if (!target || typeof value !== "number" || validateActionValue("seek", value)) return [];
     if (typeof target.seconds === "number" && value > target.seconds) return [];
-    return [{ ...a, detail: "", drive: { address: target.address, action: "seek", value } }];
+    const readAddress = id === target.screen ? `${target.screen}/${a.address}` : a.address;
+    return [{ ...a, readAddress, detail: "", drive: { address: target.address, action: "seek", value } }];
   });
 }

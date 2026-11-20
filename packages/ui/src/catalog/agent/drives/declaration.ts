@@ -1,6 +1,5 @@
-import type { Definition } from "../probes";
-import type { Meta } from "./meta";
-import type { PackId } from "./pack-ids";
+import type { Definition } from "../../probes";
+import type { Meta, PackId } from "../../meta";
 
 function hasDrivePress(meta: Meta) {
   return Boolean(meta.items?.parts.includes("root") && meta.actions?.items?.root?.includes("press"));
