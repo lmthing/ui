@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { components, type Meta } from "@lmthing/ui/catalog";
-import { renderedAddresses, variantPartIssues } from "./variant-parts";
+import { derivedItemIssues, renderedAddresses, variantPartIssues } from "./variant-parts";
 
 const meta: Meta = {
   ...components.List.meta,
@@ -13,6 +13,14 @@ const row = "home/c1/r1/root";
 const title = "home/c1/r1/title";
 const detail = "home/c1/r1/meta";
 const items = ["r1"];
+
+it("checks derived IDs against the declared prefix and accepts gaps", () => {
+  const definition: Meta = { ...meta, items: { key: "runtime", prefix: "d", parts: ["root"] } };
+  expect(derivedItemIssues(definition, {}, ["home/c1/d2/root", "home/c1/d4/root"])).toEqual([]);
+  expect(
+    derivedItemIssues(definition, {}, ["home/c1/r2/root", "home/c1/d0/root", "home/c1/d04/root"]),
+  ).toEqual(["Invalid derived item ID: r2", "Invalid derived item ID: d0", "Invalid derived item ID: d04"]);
+});
 
 it("catches a renamed or renumbered address even when the part name is allowed", () => {
   const renamed = renderedAddresses(
