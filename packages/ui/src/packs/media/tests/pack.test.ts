@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
   archetypes,
@@ -10,8 +11,10 @@ import {
   packExamples,
   packOf,
   packReady,
+  placeholderTitle,
   scoreComposition,
   writerFormat,
+  type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
 
@@ -19,7 +22,23 @@ const ids = ["Article", "Library", "Collection", "Playlist", "ChapterList", "Min
 const core = createRegistry();
 const scoped = createRegistry({ packs: ["media"], includeDrafts: true });
 const defs: Record<string, Definition> = components;
-const cast = { things: [], items: [] };
+const cast: CastLike = { things: [], items: [] };
+const populatedCast: CastLike = {
+  things: [{ type: "recording", fields: ["name", "summary"] }],
+  items: [
+    {
+      id: "recording_1",
+      type: "recording",
+      sample: true,
+      name: "Morning reading",
+      summary: "An introduction",
+    },
+  ],
+};
+const malformedCast: CastLike = {
+  things: [{ type: "recording", fields: ["name", "summary"] }],
+  items: [{ id: "recording_1", type: "recording", sample: true, name: 7, summary: " " }],
+};
 const recipes = {
   "library/covers": ["Header", "Segmented", "Library"],
   "library/home": ["Header", "Stats", "SectionTitle", "List", "SectionTitle", "List"],
@@ -56,16 +75,35 @@ it("has valid examples and neutral fallbacks for all seven definitions", () => {
   for (const id of ids) {
     const def = defs[id]!;
     expect(def.examples.length, id).toBeGreaterThanOrEqual(2);
-    for (const input of [...def.examples, def.fallback({ cast })])
-      expect(def.props.safeParse(input).success, id).toBe(true);
-    if (!def.meta.codeOwned)
+    for (const input of def.examples) expect(def.props.safeParse(input).success, id).toBe(true);
+    for (const sample of [cast, populatedCast, malformedCast]) {
+      const result = def.fallback({ cast: sample });
+      expect(def.props.safeParse(result).success, id).toBe(true);
+      expect(JSON.stringify(result), id).toContain(
+        JSON.stringify(sample === populatedCast ? "Morning reading" : placeholderTitle(0)),
+      );
+    }
+    const { probes } = def;
+    expect(
+      probes.some((probe) => probe.kind === "read"),
+      id,
+    ).toBe(true);
+    if (!def.meta.codeOwned) {
       expect(
-        def.probes.some((probe) => probe.kind === "choose" && core.ids.includes(probe.expect)),
+        probes.some((probe) => probe.kind === "choose" && probe.expect === id),
         id,
       ).toBe(true);
-    else
       expect(
-        def.probes.every((probe) => probe.kind === "read"),
+        probes.some((probe) => probe.kind === "write" && probe.expect === id),
+        id,
+      ).toBe(true);
+      expect(
+        probes.some((probe) => probe.kind === "choose" && core.ids.some((coreId) => coreId === probe.expect)),
+        id,
+      ).toBe(true);
+    } else
+      expect(
+        probes.every((probe) => probe.kind === "read"),
         id,
       ).toBe(true);
     for (const part of [...(def.meta.parts ?? []), ...(def.meta.items?.parts ?? [])])
@@ -131,6 +169,21 @@ it("validates the exact recipe order and neutral defaults for all six compose la
       scoreComposition(JSON.stringify(screen), scoped.archetypes[archetype]!.meta, layout, defs).issues,
       path,
     ).toEqual([]);
+  }
+});
+
+it("preserves cast titles and fills missing cover rows in shelf defaults", () => {
+  for (const [archetype, layout] of [
+    ["library", "home"],
+    ["reader", "article"],
+  ] as const) {
+    const screen = scoped.defaultLines(archetype, layout, populatedCast);
+    for (const { c, id: _id, ...line } of screen.components.filter(({ c }) => c === "List")) {
+      expect(components.List.props.parse(line)).toMatchObject({
+        style: "shelf",
+        rows: [{ title: "Morning reading", photo: "lib:recording" }, { title: placeholderTitle(1) }],
+      });
+    }
   }
 });
 

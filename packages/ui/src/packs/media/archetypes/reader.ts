@@ -1,12 +1,4 @@
-import { placeholderTitle, type ArchetypeMeta, type ComposeProbe } from "../../../catalog";
-
-const shelfSeed = {
-  style: "shelf",
-  rows: [
-    { title: placeholderTitle(0), photo: "lib:item_one" },
-    { title: placeholderTitle(1), photo: "lib:item_two" },
-  ],
-} as const;
+import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
 
 export const reader = {
   id: "reader",
@@ -25,7 +17,7 @@ export const reader = {
         { id: "h1", c: "Header", style: "back" },
         { id: "a1", c: "Article" },
         { id: "t1", c: "SectionTitle" },
-        { id: "l1", c: "List", ...shelfSeed },
+        { id: "l1", c: "List", style: "shelf" },
       ],
     },
     listen: {
