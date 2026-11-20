@@ -38,7 +38,7 @@ export const meta = {
   tier: "phone",
   realPath: "Habit records stored on the device.",
   writeHints: [
-    "Write surface null unless asked for an outline. Do not write the default surface card; use lead none to hide the habit icons without changing the habit names or checks.",
+    "When habit headings should show names but no icons, write lead none and keep each icon in the data. Otherwise write lead null. Write surface null unless asked for an outline.",
   ],
   variants: { surface: ["card", "outlined"], lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon"] } },
@@ -126,7 +126,7 @@ export const probes = [
     ),
     variant: { axis: "lead", value: "none" },
   },
-  read("Mark Monday's ivy check as done", { address: "h1/r1/day_1", action: "check" }),
+  read("On Monday, mark Check Ivy as done, not Mist Ivy.", { address: "h1/r1/day_1", action: "check" }),
 ] satisfies Probe[];
 type Habit = Props<typeof props, typeof meta>["habits"][number];
 function HabitStreak({ habit, today }: { habit: Habit; today: number }) {
