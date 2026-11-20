@@ -117,6 +117,9 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Open work order WO-14 from the repair updates", { address: "r1/r2", action: "press" }),
+  read(
+    "Tap the work order WO-14 row in the repair updates. Use its full address and the action name without the destination.",
+    { address: "r1/r2", action: "press" },
+  ),
   read("Send the drafted reply about the replacement grow light", { address: "r1/send", action: "send" }),
 ] satisfies c.Probe[];
