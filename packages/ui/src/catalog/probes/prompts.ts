@@ -1,6 +1,7 @@
 import type { Definition } from "./types";
-import { readComponent } from "../agent";
+import { planAct, readComponent, readScreen, type ScreenLike } from "../agent";
 import { buildBlock, buildEntry, variantVocabulary } from "../prompt";
+import type { ReadProbeFixture } from "./fixtures";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
   return [
@@ -35,6 +36,26 @@ export function writePrompt(def: Definition, brief: string): string {
   ].join("\n");
 }
 
+function readAfterAction(
+  def: Definition,
+  input: unknown,
+  instance: string,
+  lang: string | undefined,
+  fixture: ReadProbeFixture,
+): string {
+  const id = "home",
+    c = def.meta.id;
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    throw new Error(`Missing example props for ${c} read fixture`);
+  const screen: ScreenLike = { id, components: [{ ...input, c, id: instance }] };
+  const defs = { [c]: def };
+  const { part, ...step } = fixture;
+  // Plan with deterministic fixture entropy so live sampling and replay use the same screen.
+  const result = planAct(screen, defs, {}, [{ ...step, address: `${instance}/${part}` }], null);
+  if (!result.ok) throw new Error(`Could not set up ${c} read fixture: ${result.code}`);
+  return readScreen(screen, defs, result.values, lang);
+}
+
 /** The screen as the model reads it, then a task: reply with where to act and how. */
 export function readPrompt(
   def: Definition,
@@ -42,8 +63,12 @@ export function readPrompt(
   instance: string,
   task: string,
   lang?: string,
+  fixture?: ReadProbeFixture,
 ): string {
-  const lines = readComponent(def, def.examples[screen], instance, undefined, undefined, lang);
+  const input = def.examples[screen];
+  const reading = fixture
+    ? readAfterAction(def, input, instance, lang, fixture)
+    : ["screen home", ...readComponent(def, input, instance, undefined, undefined, lang)].join("\n");
   return [
     "You operate a phone app for a person. You see the screen as text: one line per component,",
     "items indented. Text in quotes is content. Each action is in square brackets and starts with its",
@@ -51,8 +76,7 @@ export function readPrompt(
     "exactly. The action is the word written in that bracket (type, select, increment, press, …),",
     "never a different action and never the → or : part.",
     "",
-    "screen home",
-    ...lines,
+    reading,
     "",
     `Task: ${task}`,
     'Reply with only JSON: {"address": "<address>", "action": "<action>"}',

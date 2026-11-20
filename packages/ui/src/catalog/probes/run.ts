@@ -3,6 +3,7 @@ import { scoreChoose, scoreRead, scoreWrite } from "./score";
 import type { CallModel, Definition, Probe, ProbeResult } from "./types";
 import { writerFormatFor } from "../format";
 import { variantProbeDefinitions } from "./variants";
+import { readFixtureFor } from "./fixtures";
 
 async function runOne(
   def: Definition,
@@ -16,7 +17,14 @@ async function runOne(
   const ids = offered.map((entry) => entry.meta.id);
   if (probe.kind === "read") {
     const instance = probe.expect.address.split("/")[0]!;
-    const prompt = readPrompt(def, probe.screen, instance, probe.task);
+    const prompt = readPrompt(
+      def,
+      probe.screen,
+      instance,
+      probe.task,
+      undefined,
+      readFixtureFor(def.meta.id, probe),
+    );
     const reply = await callModel(prompt);
     const { pass, detail } = scoreRead(reply, probe.expect);
     return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
