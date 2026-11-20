@@ -68,18 +68,25 @@ it("rejects order rows with hidden or empty status badges", () => {
   expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([]);
 });
 
-it("requires value trails on scored rows while allowing unscored rows to omit their trails", () => {
-  const registry = createRegistry({ packs: ["play"], includeDrafts: true });
-  const screen = registry.defaultLines("score_round", "play_results", empty);
+it("requires score values on scored ranking trails and no accessory on unscored rows", () => {
+  const registry = createRegistry({ packs: ["home"], includeDrafts: true });
+  const screen = registry.defaultLines("family", "leaders", empty);
   const list = screen.components.find(({ c }) => c === "List")!;
-  const meta = registry.archetypes.score_round!.meta;
+  const meta = registry.archetypes.family!.meta;
   const unscored = { title: "Item two", trail: "none" };
-  list.rows = [{ title: "Item one", value: "12", trail: "badge" }, unscored];
-  expect(scoreComposition(JSON.stringify(screen), meta, "play_results", components).issues).toEqual([
-    `Layout requires List.trail = "value" (${list.id})`,
-  ]);
-  list.rows = [{ title: "Item one", value: "12" }, unscored];
-  expect(scoreComposition(JSON.stringify(screen), meta, "play_results", components).issues).toEqual([]);
+  const scored = { title: "Item one", value: "12" };
+  for (const rows of [
+    [{ ...scored, trail: "badge" }, unscored],
+    [scored, { ...unscored, trail: "toggle" }],
+    [scored, { title: "Item two" }],
+  ]) {
+    list.rows = rows;
+    expect(scoreComposition(JSON.stringify(screen), meta, "leaders", components).issues).toEqual([
+      `Layout requires List.trail = "value" (${list.id})`,
+    ]);
+  }
+  list.rows = [scored, unscored];
+  expect(scoreComposition(JSON.stringify(screen), meta, "leaders", components).issues).toEqual([]);
 });
 
 it("returns an independent copy of nested seed props", () => {

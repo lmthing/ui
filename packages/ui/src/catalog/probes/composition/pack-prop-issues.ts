@@ -15,7 +15,7 @@ function conflictingTrailRows(
     rows.some((row) => {
       const hasValue = typeof row.value === "string" && row.value.trim().length > 0;
       const effective = row.trail ?? props.trail;
-      return trail === "badge" ? !hasValue || effective !== trail : hasValue && effective !== trail;
+      return trail === "badge" ? !hasValue || effective !== trail : effective !== (hasValue ? trail : "none");
     })
   );
 }
