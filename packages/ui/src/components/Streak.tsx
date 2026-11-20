@@ -21,7 +21,7 @@ export const meta = {
   purpose: "How many days in a row you kept a habit, with this week's completed days.",
   pick: "Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).",
   writeHints: [
-    'Use JSON null for every unrequested Streak axis. To show the running count without the weekly strip, set only detail to "brief"; keep all seven days in the data.',
+    'If the person wants to see which days are done, set detail null and keep the weekly strip visible. Set detail "brief" only if they explicitly ask to hide the strip; still store all seven days. For either request, density is null unless tighter spacing is separately requested.',
   ],
   region: "body",
   weight: 2,

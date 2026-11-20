@@ -37,7 +37,7 @@ export const meta = {
   purpose: "Compare counts or amounts across days or categories, using the actual counted or measured unit.",
   pick: "Compare one amount across days or categories. Not a few separate summary numbers (Stats), a trend with its latest value (Sparkline) or progress toward targets (Progress).",
   writeHints: [
-    'Hiding only the combined total means detail "brief" and density null, never "comfortable" or "compact". Keep all points and their labels. Set density only when tighter spacing is requested.',
+    'A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail "brief"; keep all points and leave density null unless tighter spacing was also requested.',
     "Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).",
     'Shares of a whole use style: "share", with labels up to sixteen characters. Long category names do not make a columns input valid.',
   ],
