@@ -1,35 +1,32 @@
 import { z } from "zod";
-import {
-  itemsOf,
-  numberLine,
-  placeholderTitle,
-  placeholderValue,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-} from "../../../catalog";
+import { itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps } from "../../../catalog";
+import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
+import * as kit from "../../../kit";
+import { chartPoints, chartTicks, pointReading, pointValue, seriesId, seriesTones } from "../copy";
+import { dataWordsFor } from "../lang";
 
 // Core first: Sparkline/default shows one compact trend, not labelled, selectable points from several series.
 export const meta = {
   id: "LineChart",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Compare trends over time and inspect individual values.",
   pick: "Compare one to three time series over four or more labelled points, with labelled axes and readable points. Not a tiny trend under one headline number (Sparkline), category amounts (Bars) or a holding's price (PriceChart).",
   writeHints: [
     "Series values are numbers, one per label in the same order. Labels are at most six characters. Do not write axes, latest values, ticks or colours.",
+    'If asked to omit the latest-value summary but keep the chart and point controls, use detail "brief"; otherwise leave detail null. Leave density and surface null unless requested.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Values aggregated from records on the device.",
-  variants: { density: ["comfortable", "compact"] },
-  parts: ["root", "title", "axes", "latest"],
+  variants: {
+    density: ["comfortable", "compact"],
+    detail: ["full", "brief"],
+    surface: ["card", "outlined"],
+  },
+  variantParts: { "detail.brief": { hides: ["latest"] } },
+  parts: ["root", "title", "axes", "latest", "reading", "points", "series_1", "series_2", "series_3"],
   items: { key: "points", parts: ["root"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["select"] } },
@@ -38,10 +35,12 @@ export const meta = {
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const chart = input as ChartInput;
-    return chartPoints(chart).map(
-      ({ id, series, label, value }) =>
-        `${id} ${series} · ${label} · ${numberLine(value, lang)}${chart.unit ? ` ${chart.unit}` : ""}`,
-    );
+    const points = chartPoints(chart);
+    return [
+      ...(chart.detail === "full" ? [dataWordsFor(lang).chartLatest] : []),
+      ...chartTicks(points, lang),
+      ...points.map((point) => pointReading(point, chart.unit, lang)),
+    ];
   },
 } as const satisfies Meta;
 
@@ -59,31 +58,23 @@ export const props = z
   .refine(({ labels, series }) => series.every(({ values }) => values.length === labels.length), {
     path: ["series"],
     message: "Write one value for every label, in label order",
-  });
+  })
+  .overwrite((input) => ({ ...input, points: chartPoints(input) }));
 
 type ChartInput = z.output<typeof props>;
-function chartPoints(input: ChartInput) {
-  return input.series.flatMap(({ label: series, values }, s) =>
-    values.map((value, i) => ({
-      id: `r${s * input.labels.length + i + 1}`,
-      series,
-      label: input.labels[i]!,
-      value,
-    })),
-  );
-}
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const items = itemsOf(cast, 4, thing?.type);
+  const title = items[0] && titleOf(items[0], 32, thing);
   const labels = Array.from({ length: 4 }, (_, i) => {
     const item = items[i];
-    return (item && titleOf(item, 6, thing)) ?? placeholderTitle(i, lang).slice(0, 6);
+    return (item && titleOf(item, 6, thing)) || dataWordsFor(lang).chartPlaceholder(i);
   });
   return {
-    title: placeholderTitle(0, lang),
+    title: title || placeholderTitle(0, lang),
     labels,
-    series: [{ label: placeholderTitle(1, lang), values: labels.map(() => Number(placeholderValue)) }],
+    series: [{ label: placeholderTitle(1, lang), values: labels.map(() => 0) }],
   };
 }
 
@@ -121,5 +112,85 @@ export const probes = [
   write(
     "Show Watering by week in visits for Nov 2, Nov 9, Nov 16, Nov 23. Plot Ferns at 2, 3, 4, 6 and Succulents at 1, 0, 2, 1.",
   ),
+  {
+    ...write(
+      "Chart Canal and Park walks from Mon to Thu. Canal: 6, 8, 7, 5; Park: 4, 3, 5, 7. Keep the axes and tappable dates, but leave out the latest-value summary.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Select the Ferns point on Nov 9.", { address: "s1/r2", action: "select" }),
 ] satisfies Probe[];
+
+type ChartProps = Props<typeof props, typeof meta>;
+type Point = ReturnType<typeof chartPoints>[number];
+// prettier-ignore
+function ChartLatest({ series, density, loading }: Pick<ChartProps, "series" | "density"> & { loading: boolean }) {
+  const { words, lang } = kit.useWords(dataWordsFor);
+  const summary = <kit.KitGrid columns={series.length === 3 ? 3 : 2} density={density}>
+    {series.map(({ label, values }, index) => {
+      const value = pointValue(values.at(-1)!, undefined, lang);
+      return loading
+      ? <kit.KitSkeleton key={index} shape="figure" inset="none" density={density}
+          content={[["caption", label], ["number", value, "start", "compact"]]} />
+      : <kit.KitContent key={index} density={density}>
+          <kit.KitText role="caption" tone={seriesTones[index]!} part={null} lines={1}>{label}</kit.KitText>
+          <kit.KitText role="number" part={null} numberScale="compact" density={density} tabular>{value}</kit.KitText>
+        </kit.KitContent>; })}
+  </kit.KitGrid>;
+  const caption = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
+    content={[["caption", words.chartLatest]]} /> : <kit.KitText part="latest" role="caption" tone="muted">{words.chartLatest}</kit.KitText>;
+  return <kit.KitContent density={density}>{caption}{summary}</kit.KitContent>;
+}
+
+// prettier-ignore
+function ChartControls({ points, selected, title, labels, loading }: { points: Point[]; selected?: Point | undefined; title: string; labels: string[]; loading: boolean }) {
+  const { words } = kit.useWords(dataWordsFor);
+  const segmented = labels.length <= 4 || (labels.length === 5 && labels.every((label) => label.length <= 4));
+  const tracks = points.filter(({ x }) => x === 0).map(({ series, line }) => (
+    <kit.KitContent key={seriesId(line)} group={line ? "response" : "content"}>
+      {loading ? <kit.KitSkeleton shape="control" inset="none" label={series} full /> : <>
+      <kit.KitText role="caption" tone={seriesTones[line]!} part={null}>{series}</kit.KitText>
+      <kit.KitTrack part={`series_${line + 1}`} look={segmented ? "segments" : "pills"} role="radiogroup" label={words.chartSeriesPoints(series)}>
+        {points.filter((point) => point.line === line).map(({ id, label }) =>
+          <kit.KitChip key={id} item={id} role="radio" look={segmented ? "segment" : "pill"} labelPart={null}
+            label={label} on={selected?.id === id} />)}
+      </kit.KitTrack>
+      </>}
+    </kit.KitContent>
+  ));
+  return loading ? <kit.KitContent>{tracks}</kit.KitContent> : points.length > 12
+    ? <kit.KitScroll part="points" label={words.chartPoints(title)}>{tracks}</kit.KitScroll>
+    : <kit.KitRow part="points" inline role="group" label={words.chartPoints(title)}>{tracks}</kit.KitRow>;
+}
+
+// prettier-ignore
+export function LineChart(input: ChartProps) {
+  const { title, unit } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const full = kit.useVariant("detail", meta.variants.detail, input.detail) === "full";
+  const { words, lang } = kit.useWords(dataWordsFor);
+  const state = kit.useComponentState(), loading = state === "loading";
+  const { screen, component } = kit.usePartContext();
+  const at = kit.useControlValue<number | undefined>(`${screen}/${component}/$point`, undefined);
+  const points = chartPoints(input);
+  const selected = Number.isInteger(at) && at! >= 0 ? points[at!] : undefined;
+  const series = input.series.map((_, line) => ({
+    id: seriesId(line), label: "", tone: seriesTones[line]!,
+    points: points.filter((point) => point.line === line),
+  }));
+  if (state === "empty") return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitEmpty part="title" decorativeIcon />
+  </kit.KitCard>;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {loading ? <kit.KitSkeleton rows={1} shape="figure" inset="none" density={density} content={[["heading", title]]} /> :
+      <kit.KitText part="title" role="heading" density={density}>{title}</kit.KitText>}
+    {full && <ChartLatest {...{ ...input, density, loading }} />}
+    <kit.KitLinePlot part="axes" loading={loading} series={series}
+      {...(unit ? { unit } : {})} {...(selected && !loading ? { selected: selected.id } : {})} />
+    {!loading && selected && <kit.KitText part="reading" role="label" tabular>
+      {words.chartSelected(selected.series, selected.label, pointValue(selected.value, unit, lang))}
+    </kit.KitText>}
+    <ChartControls {...{ points, selected, title, loading }} labels={input.labels} />
+  </kit.KitCard>;
+}
