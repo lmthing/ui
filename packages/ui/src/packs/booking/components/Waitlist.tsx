@@ -1,4 +1,4 @@
-import { useWords, useVariant, KitAction, KitCard, KitContent, KitText } from "../../../kit";
+import { useWords, useVariant, KitAction, KitCard, KitContent, KitRow, KitText } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
 import {
@@ -122,7 +122,9 @@ export function Waitlist(input: Props<typeof props, typeof meta>) {
         {hasPosition &&
           (density === "compact" ? (
             <KitContent lead={number} density={density} leadingAlign="row">
-              {caption}
+              <KitRow inline part={null} label={queueLabels.position} lineRole="number" leading={caption}>
+                {null}
+              </KitRow>
             </KitContent>
           ) : (
             <>

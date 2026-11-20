@@ -179,8 +179,9 @@ describe("Slots selectable item parts", () => {
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html).not.toContain('role="button"');
     expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\//);
-    expect(html).toContain(state === "empty" ? slotLabels.empty : loadingLabel);
-    if (state === "empty") expect(html).not.toContain(emptyLine("appointment"));
+    expect(html).toContain(state === "empty" ? emptyLine("appointment") : loadingLabel);
+    if (state === "empty")
+      expect(renderInstance("Slots", examples[0], state, theme)).toContain(slotLabels.empty);
     expect(readComponent(components.Slots, examples[0], "s1", state)).toEqual([
       `s1 Slots ${state === "empty" ? "(empty)" : "(loading)"}`,
     ]);

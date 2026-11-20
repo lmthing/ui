@@ -1,6 +1,6 @@
 // prettier-ignore
 import {
-  KitCard, KitContent, KitEmpty, KitGrid, KitPhoto, KitRow, KitSkeleton, KitText,
+  KitCard, KitContent, KitEmpty, KitPhoto, KitRow, KitSkeleton, KitText,
   PartContext, type TextRole, type TextTone, useComponentState, usePartContext, useVariant, useWords,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
@@ -128,10 +128,24 @@ export const probes = [
 function ServiceText({ value, part, density, role = "body", tone = "text" }:
   { value: string; part: string | null; density: ThemeDensity; role?: TextRole; tone?: TextTone }) {
   const loading = useComponentState() === "loading";
-  if (loading) return <KitSkeleton density={density} shape="figure" inset="none" content={[[role, value]]} />;
-  return <KitText {...{ role, tone, density, part }} tabular={part === "minutes" || part === "price"}>{value}</KitText>;
+  if (loading) return <KitSkeleton density={density} shape="figure" inset="none" content={[[role, value, "start", "compact"]]} />;
+  return <KitText {...{ role, tone, density, part }} numberScale="compact" tabular={role === "number"}>{value}</KitText>;
 }
 type MenuProps = Props<typeof props, typeof meta>;
+// prettier-ignore
+function ServiceDetails({ service, density, lang }: { service: MenuProps["services"][number]; density: ThemeDensity; lang: string }) {
+  const duration = <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="number" tone="muted" part="minutes" />;
+  const content = <>
+    <ServiceText {...{ density }} value={service.name} part="name" />
+    {service.price === undefined ? duration : (
+      <KitContent lead={duration} leadingAlign="row" density={density}>
+        <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="number" tone="muted" part="price" />
+      </KitContent>
+    )}
+    {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
+  </>;
+  return density === "compact" ? content : <KitContent>{content}</KitContent>;
+}
 // prettier-ignore
 function ServiceRows({ services, density, style, surface }: MenuProps & { density: ThemeDensity }) {
   const { lang, words } = useWords();
@@ -162,16 +176,7 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
           leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
           trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}
         >
-          <KitContent>
-            <ServiceText {...{ density }} value={service.name} part="name" />
-            <KitGrid columns={2} density={density}>
-              <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="caption" tone="muted" part="minutes" />
-              {service.price !== undefined && (
-                <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="caption" tone="muted" part="price" />
-              )}
-            </KitGrid>
-            {service.sub && <ServiceText {...{ density }} value={service.sub} role="caption" tone="muted" part="sub" />}
-          </KitContent>
+          <ServiceDetails {...{ service, density, lang }} />
         </KitRow>,
       ])}
     </>

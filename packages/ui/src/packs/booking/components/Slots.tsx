@@ -6,6 +6,7 @@ import {
   KitSlotGrid,
   KitText,
   useComponentState,
+  useEmptyThing,
   useVariant,
 } from "../../../kit";
 import { bookingWordsFor } from "../lang";
@@ -15,6 +16,7 @@ import {
   clockLine,
   detailOf,
   durationLine,
+  emptyLine,
   itemsOf,
   placeholderValue,
   probesFor,
@@ -151,11 +153,17 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(bookingWordsFor);
   const { slotLabels } = words;
   const state = useComponentState();
+  const thing = useEmptyThing();
   const duration = durationLine(minutes, lang);
   if (state === "empty") {
     return (
       <KitCard style="inset" part="root">
-        <KitEmpty icon="clock" title={slotLabels.empty} part="minutes" decorativeIcon />
+        <KitEmpty
+          icon="clock"
+          title={thing ? emptyLine(thing, lang) : slotLabels.empty}
+          part="minutes"
+          decorativeIcon
+        />
       </KitCard>
     );
   }
