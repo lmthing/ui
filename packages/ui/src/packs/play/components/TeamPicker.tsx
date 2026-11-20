@@ -180,8 +180,8 @@ export function TeamPicker(setup: Setup) {
           <kit.KitEmpty part="empty" icon="users" title={thing ? emptyLine(thing, lang) : words.empty} decorativeIcon />
           {button}
         </> : <>
-          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["title", status]]} /> :
-            <kit.KitText role="title" part={null}>{status}</kit.KitText>}
+          {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} /> :
+            <kit.KitText role="heading" tone={action === "remake" ? "accent" : "text"} part={null}>{status}</kit.KitText>}
           {action === "make" && button}
           <TeamColumns style={setup.style} {...{ panels, density, loading, words }} />
           {action === "remake" && button}
