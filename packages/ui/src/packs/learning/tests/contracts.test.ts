@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { components, packOf, readComponent, type CastLike } from "@lmthing/ui/catalog";
+import {
+  components,
+  packOf,
+  planAct,
+  readComponent,
+  scoreWrite,
+  writerFormatFor,
+  type CastLike,
+} from "@lmthing/ui/catalog";
 
 const invalid = {
   Lesson: [
@@ -114,6 +122,7 @@ it("does not reveal quiz solutions or future questions, or a flashcard's back be
   expect(quiz).toContain("mizu");
   expect(quiz).not.toContain("Mizu is the common reading");
   expect(quiz).not.toContain("Type the reading");
+  expect(quiz).not.toContain("[q1/next press]");
   const typed = readComponent(
     components.Quiz,
     { questions: [{ kind: "type", question: "Name the note", answer: "F sharp" }] },
@@ -133,4 +142,41 @@ it("opens only unlocked course units", () => {
   expect(path).toContain("[p1/r1 press");
   expect(path).toContain("[p1/r2 press");
   expect(path).not.toContain("[p1/r3 press");
+});
+
+it("keeps each question a strict Writer object and decodes its unused nullable fields", () => {
+  const quiz = components.Quiz;
+  const question = writerFormatFor(quiz).json_schema.schema.properties?.questions?.items;
+  expect(question?.additionalProperties).toBe(false);
+  expect(question?.required).toEqual(["question", "kind", "explain", "photo", "options", "answer", "pairs"]);
+  const questions = [...quiz.examples[0]!.questions, ...quiz.examples[1]!.questions].map((question) => ({
+    options: null,
+    answer: null,
+    pairs: null,
+    explain: null,
+    photo: null,
+    ...question,
+  }));
+  expect(scoreWrite(JSON.stringify({ c: "Quiz", density: null, surface: null, questions }), quiz).pass).toBe(
+    true,
+  );
+});
+
+it("accepts only scheduled weekdays for the timetable picker and reads the saved selection", () => {
+  const timetable = components.Timetable;
+  const input = timetable.examples[0]!;
+  const screen = { id: "schedule", components: [{ id: "t1", c: "Timetable", ...input }] };
+  const select = (value: string) =>
+    planAct(screen, { Timetable: timetable }, {}, [{ address: "t1/day", action: "select", value }], null);
+  expect(select("tue").ok).toBe(false);
+  expect(select("banana").ok).toBe(false);
+  const valid = select("wed");
+  expect(valid.ok).toBe(true);
+  if (valid.ok) {
+    expect(
+      readComponent(timetable, input, "t1", "filled", {
+        "t1/$selected_day": valid.values["schedule/t1/$selected_day"],
+      }).join("\n"),
+    ).toContain('[t1/day select = "wed"; choices ["mon","wed"]]');
+  }
 });

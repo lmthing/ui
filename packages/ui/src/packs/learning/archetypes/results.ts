@@ -35,6 +35,7 @@ export const results = {
     class: {
       writeHints: [
         'Use List with lead "number" and trail "value", no style. Provide a short text value for each supplied score; set trail "none" on rows without a supplied score.',
+        "Keep rank and roster rows unhighlighted; rank numbers alone indicate placing.",
       ],
       recipe: [
         { allow: ["Header"], required: true },

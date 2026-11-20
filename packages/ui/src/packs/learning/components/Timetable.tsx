@@ -11,7 +11,7 @@ export const meta = {
   purpose: "See the week's repeating classes and where to go for each period.",
   pick: "A student's repeating week of class periods with subject, room and teacher. Not a one-day schedule (Timeline), staff shifts (Roster), bookable slots (Slots) or family events (Agenda).",
   writeHints: [
-    "Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Do not write the active day or current period.",
+    "Write each scheduled weekday once. For each period, write a 24-hour start time and subject, with room, teacher and semantic tone if supplied. Leave selected_day null; it is for the locally selected view. Never write the current period.",
   ],
   region: "body",
   weight: 3,
@@ -22,6 +22,7 @@ export const meta = {
   parts: ["root", "day"],
   items: { key: "periods", parts: ["root", "time", "subject", "room", "teacher"] },
   states: ["filled", "empty"],
+  selections: { day: { prop: "selected_day", choices: { prop: "scheduled_days" } } },
   actions: { parts: { day: ["select"] }, items: { root: ["press"] } },
   read: (input, _state, lang): string[] => {
     const { days } = input as z.output<typeof props>;
@@ -47,6 +48,7 @@ const period = z.strictObject({
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
+    selected_day: z.enum(weekdays).optional(),
     days: z
       .array(
         z.strictObject({
@@ -58,8 +60,13 @@ export const props = z
       .max(7),
   })
   .refine(({ days }) => new Set(days.map(({ day }) => day)).size === days.length, { path: ["days"] })
+  .refine(
+    ({ days, selected_day }) => selected_day === undefined || days.some(({ day }) => day === selected_day),
+    { path: ["selected_day"] },
+  )
   .overwrite((value) => ({
     ...value,
+    scheduled_days: value.days.map(({ day }) => day),
     periods: value.days.flatMap(({ day, periods }) => periods.map((period) => ({ day, ...period }))),
   }));
 
@@ -110,5 +117,8 @@ export const probes = [
   write(
     "Japanese with Ms Tanaka in B12 at 09:00 every Monday, and Calligraphy in Studio 2 at 10:30 every Wednesday.",
   ),
-  read("Switch the schedule to Wednesday.", { address: "t1/day", action: "select" }),
+  read("Select Wednesday in the weekday picker, without opening any class.", {
+    address: "t1/day",
+    action: "select",
+  }),
 ] satisfies c.Probe[];

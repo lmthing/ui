@@ -102,5 +102,8 @@ export const probes = [
   write(
     "Japanese homework: Water radical worksheet due 2026-11-25, still to do, links to worksheet; Readings practice due 2026-11-18, graded A, links to readings.",
   ),
-  read("Mark the Water radical worksheet as handed in.", { address: "a1/r1/done", action: "check" }),
+  read("Tick the Water radical worksheet's checkbox to mark it as handed in, without opening it.", {
+    address: "a1/r1/done",
+    action: "check",
+  }),
 ] satisfies c.Probe[];

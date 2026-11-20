@@ -9,7 +9,7 @@ export const meta = {
   purpose: "Practise one question at a time and get feedback after checking each answer.",
   pick: "Assessed practice questions with correct answers and immediate feedback. Use for multiple choice, true or false, typed recall or matching pairs. Not choosing a preference (Choice), a vote (Poll), or self-rated recall (Flashcard).",
   writeHints: [
-    "Write only the fields for each kind: choice uses 2–5 options and a zero-based answer index; truefalse uses a boolean answer; type uses a text answer; match uses 3–5 correct left/right pairs and no answer field.",
+    "Use null for unused fields. For choice, write 2–5 options and a zero-based answer index. For truefalse, write a boolean answer. For type, write a text answer. For match, write 3–5 correct left/right pairs and set answer to null.",
   ],
   region: "body",
   weight: 2,
@@ -44,8 +44,8 @@ export const meta = {
     if (!question) return [];
     const options =
       question.kind === "choice"
-        ? question.options
-        : question.kind === "match"
+        ? (question.options ?? [])
+        : question.kind === "match" && question.pairs
           ? [
               question.pairs.map(({ left }) => left).join(" · "),
               question.pairs
@@ -62,27 +62,32 @@ export const meta = {
   },
 } as const satisfies c.Meta;
 
-const common = { question: c.text(120), explain: c.text(200).optional(), photo: c.photo.optional() };
-const question = z.discriminatedUnion("kind", [
-  z
-    .strictObject({
-      ...common,
-      kind: z.literal("choice"),
-      options: z.array(c.text(40)).min(2).max(5),
-      answer: z.int().min(0).max(4),
-    })
-    .refine(({ answer, options }) => answer < options.length, { path: ["answer"] }),
-  z.strictObject({ ...common, kind: z.literal("truefalse"), answer: z.boolean() }),
-  z.strictObject({ ...common, kind: z.literal("type"), answer: c.text(40) }),
-  z.strictObject({
-    ...common,
-    kind: z.literal("match"),
+// The strict Writer requires object keys and represents absent optional fields as null.
+const question = z
+  .strictObject({
+    question: c.text(120),
+    kind: z.enum(["choice", "truefalse", "type", "match"]),
+    explain: c.text(200).optional(),
+    photo: c.photo.optional(),
+    options: z.array(c.text(40)).min(2).max(5).optional(),
+    answer: z.union([z.int().min(0).max(4), z.boolean(), c.text(40)]).optional(),
     pairs: z
       .array(z.strictObject({ left: c.text(20), right: c.text(20) }))
       .min(3)
-      .max(5),
-  }),
-]);
+      .max(5)
+      .optional(),
+  })
+  .refine(({ kind, options }) => (kind === "choice") === (options !== undefined), { path: ["options"] })
+  .refine(({ kind, pairs }) => (kind === "match") === (pairs !== undefined), { path: ["pairs"] })
+  .refine(
+    ({ kind, options, answer }) => {
+      if (kind === "choice") return typeof answer === "number" && answer < (options?.length ?? 0);
+      if (kind === "truefalse") return typeof answer === "boolean";
+      if (kind === "type") return typeof answer === "string";
+      return answer === undefined;
+    },
+    { path: ["answer"] },
+  );
 
 export const props = z
   .strictObject({
@@ -91,7 +96,7 @@ export const props = z
   })
   .overwrite((value) => {
     const kind = value.questions[0]?.kind;
-    // Derived reader/action conditions, never model-written fields.
+    // Initial session conditions. A checked result and the next question need runtime projection.
     return { ...value, kind, has_options: kind === "choice" || kind === "truefalse", checked: false };
   });
 
