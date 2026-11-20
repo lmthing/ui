@@ -41,6 +41,9 @@ function disabledHint(component: string, action: string, input: Values) {
   if (component === "Counter" && action === "decrement" && Number(input.value) < Number(input.step))
     return "The counter cannot go below zero";
 }
+type PreparedStep =
+  | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
+  | { error: Extract<ActReply, { ok: false }> };
 function prepareStep(
   state: ActionState,
   action: ActStep,
@@ -48,7 +51,7 @@ function prepareStep(
   media: MediaRuntime,
   at: number,
   confirmed = false,
-): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
+): PreparedStep {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
   const entry = active.components.find((item) => item.id === id);
@@ -80,6 +83,7 @@ function prepareStep(
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
+    drive: plan.driven?.[0],
     context: {
       screen: ctx.screen,
       active,
@@ -129,6 +133,7 @@ function stepRunner(
       needsConfirmation(ctx, prepared.context) &&
       confirmationFor(before, selected, prepared.context);
     if (pending) return pending;
+    if (!ctx.standalone && prepared.drive) return run(before, prepared.drive);
     execution.performed.push(selected);
     if (isDraw(prepared.context)) {
       execution.drew = true;

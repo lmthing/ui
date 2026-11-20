@@ -1,19 +1,18 @@
 import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
-import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
   controlsAreValid,
+  findAction,
   localValues,
-  selectStep,
   stageProgress,
   stageValue,
   validateStep,
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
-import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
+import { clockChanges, clockControlDeclared } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 
@@ -28,15 +27,9 @@ export type ActResult =
       changed: string[];
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
+      driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
-const relative = (screen: string, address: string) =>
-  address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
-function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
-  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true, data);
-}
 
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
@@ -63,36 +56,9 @@ function stageStandaloneClock(
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
 
-function affordancesOfScreen(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
-) {
-  const local = localValues(screen.id, values);
-  return screen.components.flatMap(({ id, c, state, ...input }) => {
-    const def = defs[c];
-    if (!def) return [];
-    const props = liveInput(def, input, id, local, data);
-    const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
-    const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
-    // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
-    const liveState =
-      (props.state as typeof state) ??
-      (draw ||
-      emptyActions ||
-      errorActions?.length ||
-      session ||
-      successActions?.length ||
-      readSuccess ||
-      policy ||
-      live ||
-      def.meta.linkedEdits ||
-      hasPlaybackClock(def.meta)
-        ? state
-        : undefined);
-    return affordancesOf(def.meta, props, id, local, liveState, true);
-  });
+function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
+  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
+  return liveProps(def.meta, parsed, id, local, true, data);
 }
 function expireProgress(
   screen: ScreenLike,
@@ -134,18 +100,12 @@ export function planAct(
   const changed: string[] = [];
   const links: Extract<ActResult, { ok: true }>["links"] = [];
   const sends: SendDraft[] = [];
+  const driven: ActStep[] = [];
   for (const [at, original] of steps.entries()) {
-    const offered = affordancesOfScreen(screen, defs, next, data);
-    const address = relative(screen.id, original.address);
-    const selected = selectStep(screen, defs, original, address, next, data);
-    const step = selected.step;
-    const found = offered.find((a) => a.address === address && a.action === step.action);
-    if (!found) {
-      const here = offered.filter((a) => a.address === address).map((a) => a.action);
-      const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
-      return { ok: false, code: "not_actionable", at, hint };
-    }
-    if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
+    const action = findAction(screen, defs, next, original, at, data);
+    if (action.error) return action.error;
+    const { address, selected, found, drive, step } = action;
+    if (drive) driven.push(drive);
     const key = `${screen.id}/${address}`;
     const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
@@ -173,5 +133,12 @@ export function planAct(
     if (found.send) sends.push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
-  return { ok: true, values: next, changed, links, ...(sends.length ? { sends } : {}) };
+  return {
+    ok: true,
+    values: next,
+    changed,
+    links,
+    ...(sends.length ? { sends } : {}),
+    ...(driven.length ? { driven } : {}),
+  };
 }

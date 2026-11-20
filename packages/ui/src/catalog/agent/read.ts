@@ -13,6 +13,7 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { driveAffordances, driveTarget } from "./drives";
 
 type Props = Record<string, unknown>;
 
@@ -89,6 +90,7 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  target?: ReturnType<typeof driveTarget>,
 ): string[] {
   const { meta } = def;
   if (!isDeviceDataVisible(meta, deviceData)) return [];
@@ -102,7 +104,8 @@ export function readComponent(
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
   const offered = affordancesOf(meta, props, instance, values, state);
-  const affordances = readAffordances(offered, values, def, props, instance, session);
+  const driven = driveAffordances(meta, props, instance, offered, target);
+  const affordances = readAffordances(driven, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [
@@ -157,11 +160,13 @@ export function readScreen(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
-    ({ id, c, state, ...props }) => {
-      const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
-    },
-  );
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
+    const def = defs[c];
+    const target = def && driveTarget(def.meta, migrated, defs, local, deviceData);
+    return def
+      ? readComponent(def, props, id, state, local, lang, deviceData, target)
+      : [`${id} ${c} (unknown)`];
+  });
   return [header, ...lines].join("\n");
 }

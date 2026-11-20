@@ -2,6 +2,8 @@ import {
   wordsFor,
   affordancesOf,
   clockControlDeclared,
+  driveAffordances,
+  driveTarget,
   isPlaybackAction,
   liveProps,
   parseAddress,
@@ -45,9 +47,8 @@ function actionsAt(
         : [];
   const now = ctx.now();
   const values = ctx.valuesOf(now);
-  const entry = ctx
-    .liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now)
-    .components.find((item) => item.id === id);
+  const screen = ctx.liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now);
+  const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
   const { draw, emptyActions, errorActions, session, successActions } = def.meta;
@@ -68,14 +69,16 @@ function actionsAt(
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
     const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
-    return affordancesOf(
+    const offered = affordancesOf(
       def.meta,
       props,
       id,
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
-    )
+    );
+    const target = driveTarget(def.meta, screen, ctx.defs, localValues, ctx.options.deviceData);
+    return driveAffordances(def.meta, props, id, offered, target)
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {

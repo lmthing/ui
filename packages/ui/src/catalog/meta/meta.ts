@@ -4,7 +4,6 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData } from "../agent";
-
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -67,6 +66,7 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
+  drives?: string; // Forward item root presses as a seek to the item's `at` seconds.
   variants?: Variants;
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
@@ -159,7 +159,6 @@ export type Meta = {
    */
   codeOwned?: boolean;
 };
-
 export type BaseRoles = Record<
   "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
   string
@@ -178,7 +177,6 @@ export type PresetMeta = {
   roles: { light: BaseRoles; dark: BaseRoles };
 };
 export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
-
 export type PackMeta = {
   id: PackId;
   example: string;

@@ -1,4 +1,5 @@
 import {
+  driveTarget,
   migrateScreen,
   readComponent,
   readScreen,
@@ -85,8 +86,9 @@ function readKeypads(
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
+      const target = def && driveTarget(def.meta, screen, defs, local, deviceData);
       return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
+        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData, target)
         : [`${id} ${c} (unknown)`];
     }),
   ].join("\n");
