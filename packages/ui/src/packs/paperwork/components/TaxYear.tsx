@@ -22,7 +22,7 @@ export const meta = {
     "The device matches linked documents and reviewed receipts with usable files to period requirements; tax rules, filing and advice stay outside the app.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "plain"] },
   parts: ["root", "label", "from", "to", "due", "receipt_total", "allocation_total", "empty", "success"],
-  items: { key: "requirements", parts: ["root", "label", "matched", "needed", "missing"] },
+  items: { key: "requirements", parts: ["root", "label", "meta", "matched", "needed", "missing"] },
   states: ["filled", "empty", "loading", "success"],
   emptyActions: ["root.press"],
   successActions: ["root.press"],
@@ -107,5 +107,11 @@ export const probes = [
   write(
     "Call this Ledge archive 2026, from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots.",
   ),
+  {
+    ...write(
+      "Show Ledge archive 2026 from 2026-01-01 to 2026-12-31. Require one Greenhouse permits document tagged permits and three Pot purchase proof receipts tagged pots. Use tighter summary rows so more categories fit, keeping each evidence link.",
+    ),
+    variant: { axis: "density", value: "compact" },
+  },
   read("Open the evidence for Pot purchase proof.", { address: "t1/r2", action: "press" }),
 ] satisfies c.Probe[];

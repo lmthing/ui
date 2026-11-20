@@ -108,5 +108,11 @@ export const probes = [
   write(
     "Track Mina's greenhouse permit renewal. Decide by 2027-03-10, it ends on 2027-04-10, and she hasn't completed it.",
   ),
+  {
+    ...write(
+      "Show the greenhouse permit renewal, notice on 2027-03-10 and end date 2027-04-10. Use shorter rows with less vertical spacing so more deadlines fit on screen.",
+    ),
+    variant: { axis: "density", value: "compact" },
+  },
   read("Ask for a reminder for the greenhouse permit.", { address: "r1/r1/remind", action: "press" }),
 ] satisfies c.Probe[];

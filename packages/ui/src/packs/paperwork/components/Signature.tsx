@@ -87,5 +87,11 @@ export const probes = [
   write(
     "Let Mina draw her signature after reviewing the Allotment access form, supplied as synthetic attachment lib:ledge_access. Hint: Review the access rules first.",
   ),
+  {
+    ...write(
+      "Give Mina a drawing pad for the Allotment access form, synthetic original lib:ledge_access. Show the pad and controls directly on the screen without an enclosing card.",
+    ),
+    variant: { axis: "surface", value: "plain" },
+  },
   read("Open the original allotment access form for review.", { address: "s1/document", action: "press" }),
 ] satisfies c.Probe[];

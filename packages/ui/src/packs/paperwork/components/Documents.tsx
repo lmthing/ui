@@ -126,5 +126,11 @@ export const probes = [
   write(
     "File Mina's greenhouse permit as a certificate from Garden office, expires 2027-04-10, with the supplied synthetic attachment lib:greenhouse_permit and the permits tag.",
   ),
+  {
+    ...write(
+      "File Mina’s greenhouse permit, a certificate expiring 2027-04-10 with tag permits. Put it in an unboxed register, with the rows directly on the screen and no enclosing card.",
+    ),
+    variant: { axis: "surface", value: "plain" },
+  },
   read("Open Mina's greenhouse permit.", { address: "d1/r1", action: "press" }),
 ] satisfies c.Probe[];

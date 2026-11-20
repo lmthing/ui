@@ -127,5 +127,11 @@ export const probes = [
   write(
     "Record a Fern Nursery receipt for 24.50 on 2026-11-19 with supplied scan lib:ledge_supplies. Allocate 50 percent, not reviewed, tag pots.",
   ),
+  {
+    ...write(
+      "Keep proof of the 24.50 payment to Fern Nursery on 2026-11-19, not reviewed, with synthetic scan lib:ledge_supplies and tag pots. Let those receipt rows sit directly on the screen without an enclosing card.",
+    ),
+    variant: { axis: "surface", value: "plain" },
+  },
   read("Mark the Fern Nursery receipt as reviewed.", { address: "r1/r1/reviewed", action: "check" }),
 ] satisfies c.Probe[];
