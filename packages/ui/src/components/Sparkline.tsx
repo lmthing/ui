@@ -7,36 +7,47 @@ import {
   text,
   thingOf,
   trendWord,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitGrid, KitSkeleton, KitSpark, KitText, useComponentState } from "../kit";
+import { KitCard, KitGrid, KitSkeleton, KitSpark, KitText, useComponentState, useVariant } from "../kit";
 
 export const meta = {
   id: "Sparkline",
   group: "data",
   purpose: "See how one measurement is changing, alongside its latest value.",
   pick: "One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).",
+  writeHints: [
+    'If asked only to hide the trend line: detail "brief", density null, tone null; still store the series. Never choose compact density just because the brief hides the line.',
+    "Use a tone only for a requested status treatment; falling or rising points alone do not request a tone.",
+  ],
   region: "body",
   weight: 1,
   tier: "phone",
   realPath: "Recent measurements of one field in the on-device database.",
+  variants: {
+    density: ["comfortable", "compact"],
+    detail: ["full", "brief"],
+    tone: ["neutral", "good", "warn", "bad"],
+  },
+  variantParts: { "detail.brief": { hides: ["line"] } },
   parts: ["root", "label", "value", "line"],
   states: ["filled", "loading"],
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     if (state === "loading") return [];
-    const { points } = input as z.output<typeof props>;
-    return [trendWord(points, lang)];
+    const { points, detail } = input as z.output<typeof props>;
+    return detail === "brief" ? [] : [trendWord(points, lang)];
   },
 } as const satisfies Meta;
 
 export const props = z.strictObject({
+  ...variantProps(meta.variants),
   label: text(24),
   value: text(10),
   points: z.array(z.number()).min(3).max(12),
-  tone: z.enum(["neutral", "good", "warn", "bad"]).default("neutral"),
 });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
@@ -64,6 +75,22 @@ export const examples = [
     points: [80, 160, 240, 280, 400, 520, 640],
     tone: "good",
   },
+  {
+    label: "Walk attendance",
+    value: "67%",
+    points: [90, 82, 67],
+  },
+  {
+    label: "Bookings filled",
+    value: "30%",
+    points: [60, 50, 30],
+    tone: "bad",
+  },
+  { label: "Walk attendance", value: "67%", points: [90, 82, 67], detail: "brief" },
+  { label: "Walk attendance", value: "67%", points: [90, 82, 67], density: "compact" },
+  { label: "Soil moisture", value: "18%", points: [42, 39, 35, 32, 28, 23, 18] },
+  { label: "Earnings this month", value: "€640", points: [80, 160, 240, 280, 400, 520, 640] },
+  { label: "Bookings filled", value: "30%", points: [60, 50, 30] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Sparkline");
@@ -71,28 +98,44 @@ export const probes = [
   choose("Show my plant's soil moisture at 18% now and how it has been falling recently"),
   choose("Show the amounts I earned on each day this week so I can compare the days", "Bars"),
   write("Soil moisture is 18% now, down from readings of 42, 35 and 28; warn me it is drying out"),
+  {
+    ...write(
+      "For Walk attendance, record the series 90, 82, 67 and latest value 67%. Show the name and latest value, but hide the trend line.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
-export function Sparkline({ label, value, points, tone }: Props<typeof props, typeof meta>) {
+export function Sparkline(input: Props<typeof props, typeof meta>) {
+  const { label, value, points, tone, detail } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   const state = useComponentState();
+  const align = detail === "brief" ? "center" : "start";
   if (state === "loading") {
     return (
-      <KitCard style="inset" padded part="root">
-        <KitSkeleton rows={1} lead="none" shape="trend" />
+      <KitCard style="inset" padded part="root" density={density}>
+        <KitSkeleton rows={1} lead="none" shape="trend" density={density} />
       </KitCard>
     );
   }
+  const figure = (
+    <KitText role="number" part="value" lines={1} tabular {...{ density, align }}>
+      {value}
+    </KitText>
+  );
   return (
-    <KitCard style="inset" padded part="root">
-      <KitText role="label" tone="muted" part="label">
+    <KitCard style="inset" padded part="root" {...{ density, align }}>
+      <KitText role="label" tone="muted" part="label" {...{ density, align }}>
         {label}
       </KitText>
-      <KitGrid columns={2}>
-        <KitText role="number" part="value" lines={1} tabular>
-          {value}
-        </KitText>
-        <KitSpark points={points} tone={tone === "neutral" ? "accent" : tone} part="line" />
-      </KitGrid>
+      {detail === "brief" ? (
+        figure
+      ) : (
+        <KitGrid columns={2} density={density}>
+          {figure}
+          <KitSpark points={points} tone={tone === "neutral" ? "accent" : tone} part="line" />
+        </KitGrid>
+      )}
     </KitCard>
   );
 }
