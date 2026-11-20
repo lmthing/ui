@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { breathFrame, breathReading } from "../copy";
 
 // Core first: Timer/down counts time but cannot pace repeating inhale, hold, exhale and rest phases.
 export const meta = {
@@ -16,14 +17,17 @@ export const meta = {
   parts: ["root", "circle", "phase", "rounds"],
   states: ["filled", "success"],
   actions: { parts: { circle: ["play", "pause"] } },
+  readSuccess: true,
   writeHints: [
     'For "custom", write all four whole seconds: inhale, hold, exhale and rest (each 0–10, at least one positive). A skipped phase is the number 0, never null. Example: {"pattern":"custom","rounds":5,"inhale":4,"hold":0,"exhale":6,"rest":0}.',
     'Presets are "box" (4-4-4-4), "calm" (4-7-8) and "even" (5-5). Set all four duration fields to null for preset patterns only.',
   ],
   read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
-    const { pattern, rounds } = input as z.output<typeof props>;
-    return [pattern, c.numberLine(rounds, lang)];
+    if (state !== "filled" && state !== "success") return [];
+    return breathReading(
+      breathFrame(input as z.output<typeof props>, state === "success" ? Infinity : 0),
+      lang,
+    );
   },
 } as const satisfies c.Meta;
 
@@ -51,7 +55,7 @@ export const props = z
     },
   );
 
-export function fallback(): z.input<typeof props> {
+export function fallback(_input: c.FallbackInput): z.input<typeof props> {
   return { pattern: "box", rounds: 1 };
 }
 
