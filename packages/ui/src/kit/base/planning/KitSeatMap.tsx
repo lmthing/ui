@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
@@ -85,7 +85,7 @@ function TableTop({ table, loading }: { table: Table; loading: boolean }) {
       {loading ? (
         <YStack width="60%" height={space.sm} borderRadius={radius.pill} backgroundColor="$line" />
       ) : (
-        <KitText role="body" emphasis="strong" part={null} align="center" lines={round ? 2 : 1}>
+        <KitText role="body" part={null} align="center" lines={round ? 2 : 1}>
           {table.label}
         </KitText>
       )}
@@ -124,6 +124,24 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
 
 const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: "long", seats: [] }];
 
+function SeatTray({ tray, loading }: { tray: ReactNode; loading: boolean }) {
+  const [height, setHeight] = useState<number>(size.control.md);
+  return (
+    <YStack
+      minHeight={loading ? height : size.control.md}
+      justifyContent="center"
+      aria-hidden={loading || undefined}
+      onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}
+    >
+      {loading ? (
+        <YStack width="50%" height={space.md} backgroundColor="$line" borderRadius={radius.pill} />
+      ) : (
+        tray
+      )}
+    </YStack>
+  );
+}
+
 /** Tables and their seats are separate targets, never nested controls. */
 export function KitSeatMap({ part = "root", loading = false, tables, tray }: SeatMapProps) {
   const ks = useKitStyle();
@@ -151,14 +169,7 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray }: Sea
           <TableDrawing table={table} loading={loading} />
         </PartContext.Provider>
       ))}
-      {tray != null &&
-        (loading ? (
-          <YStack minHeight={size.control.md} justifyContent="center" aria-hidden>
-            <YStack width="50%" height={space.md} backgroundColor="$line" borderRadius={radius.pill} />
-          </YStack>
-        ) : (
-          tray
-        ))}
+      {tray != null && <SeatTray tray={tray} loading={loading} />}
     </YStack>
   );
 }
