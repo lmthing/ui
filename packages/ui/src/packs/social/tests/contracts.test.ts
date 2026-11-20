@@ -122,9 +122,27 @@ it("closes the vote affordances after a projected selection", () => {
   expect(result.ok).toBe(true);
   if (!result.ok) return;
   const reading = readScreen(screen, defs, result.values);
-  expect(reading).toContain("Basil · 43%");
+  expect(reading).toContain("Total 8");
+  expect(reading).toContain("Basil · 50%");
   expect(reading).not.toContain(" select");
   expect(planAct(screen, defs, result.values, [step])).toMatchObject({ ok: false, code: "not_actionable" });
+});
+
+it("does not mistake an indented reply for a liked comment", () => {
+  expect(readComponent(Comments, Comments.examples[0], "c1").join("\n")).toContain(
+    "[c1/r2/like toggle:off !needs-people]",
+  );
+});
+
+it("does not read variant-hidden attachments or timestamps", () => {
+  const feed = readComponent(Feed, Feed.examples[1], "f1").join("\n");
+  const event = readComponent(EventCard, EventCard.examples[1], "e1").join("\n");
+  const comments = readComponent(Comments, Comments.examples[1], "c1").join("\n");
+  expect(feed).toContain("photo:people");
+  expect(feed).not.toContain("photo:dog");
+  expect(event).not.toContain("photo:dog");
+  expect(comments).toContain("Around eight");
+  expect(comments).not.toContain("15 min ago");
 });
 
 it("offers the camera at OK tier and points only the intended press actions at their destinations", () => {
@@ -132,6 +150,9 @@ it("offers the camera at OK tier and points only the intended press actions at t
   expect(readComponent(Stories, Stories.examples[0], "s1", "empty").join("\n")).toContain("[s1/add press");
   expect(readComponent(Stories, Stories.examples[1], "s1").join("\n")).not.toContain("s1/add");
   const event = readComponent(EventCard, EventCard.examples[0], "e1").join("\n");
+  expect(event).toMatch(/(?:28 Nov|Nov 28)/);
+  expect(event).toContain("14:00");
+  expect(event).toContain("14");
   expect(event).toContain("[e1 press→swap_meet !needs-people]");
   expect(event).toContain("[e1/going press !needs-people]");
   const challenge = readComponent(Challenge, Challenge.examples[0], "c1").join("\n");

@@ -28,7 +28,7 @@ export const members = {
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "p1", c: "Profile" },
-        { id: "s1", c: "Stats", arrange: "grid" },
+        { id: "s1", c: "Stats", arrange: "rows" },
         { id: "b1", c: "Button" },
         { id: "f1", c: "Feed" },
       ],
@@ -60,7 +60,7 @@ export const probes = [
     archetype: "members",
     layout: "member",
     brief:
-      "Back header, Maya’s profile, a compact row of three totals for posts, followers and following, one Follow button, then Maya’s two latest shared updates.",
+      'Back header, Maya’s profile, three totals for posts, followers and following on three separate lines with each label and number beside each other (arrange "rows"), one Follow button, then Maya’s two latest shared updates.',
   },
   {
     kind: "compose",

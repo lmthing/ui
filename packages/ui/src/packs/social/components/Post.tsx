@@ -33,6 +33,7 @@ export const meta = {
   ],
   states: ["filled", "loading"],
   actions: { parts: { like: ["toggle"], comment: ["press"], share: ["press"], more: ["press"] } },
+  live: { derive: () => ({ more: { goto: "sheet" } }) },
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({

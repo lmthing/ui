@@ -39,10 +39,15 @@ const post = z.strictObject({
   goto: c.screenId,
 });
 
-export const props = z.strictObject({
-  ...c.variantProps(meta.variants),
-  posts: z.array(post).min(1).max(6),
-});
+export const props = z
+  .strictObject({
+    ...c.variantProps(meta.variants),
+    posts: z.array(post).min(1).max(6),
+  })
+  .overwrite((value) => ({
+    ...value,
+    posts: value.media === "none" ? value.posts.map((row) => ({ ...row, image: undefined })) : value.posts,
+  }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

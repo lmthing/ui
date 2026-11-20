@@ -13,6 +13,7 @@ import {
   packOf,
   packReady,
   packs,
+  planAct,
   scoreComposition,
   writerFormat,
   type Definition,
@@ -58,6 +59,17 @@ it("isolates social from the default registry and gates opt-in on pack readiness
     expect(scoped.archetypes).toHaveProperty(id);
     expect(Object.hasOwn(live.archetypes, id)).toBe(ready);
   }
+});
+
+it("uses inline stats and opens the thread moderation sheet from the post", () => {
+  const member = scoped.defaultLines("members", "member", empty);
+  expect(member.components.find(({ c }) => c === "Stats")).toMatchObject({ arrange: "rows" });
+  const thread = scoped.defaultLines("post", "thread", empty);
+  expect(thread.components.find(({ c }) => c === "Sheet")).toMatchObject({ style: "menu" });
+  expect(planAct(thread, components, {}, [{ address: "p1/more", action: "press" }])).toMatchObject({
+    ok: true,
+    links: [{ goto: "sheet", address: `${thread.id}/p1/more` }],
+  });
 });
 
 it("validates pack metadata, all worked example lines and the swap signature", () => {

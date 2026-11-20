@@ -26,7 +26,7 @@ export const meta = {
   readSuccess: true,
   actions: { items: { root: ["select"] }, when: { root: { can_vote: true } } },
   select: { prop: "voted", value: "index" },
-  live: { derive: ({ voted }) => ({ can_vote: voted === undefined }) },
+  live: { derive: pollResult },
   read: (input, state, lang): string[] => {
     const { options, voted, closes } = input as z.output<typeof props>;
     if (voted === undefined && state !== "success") return [];
@@ -51,7 +51,23 @@ export const props = z
     voted: z.int().min(0).max(4).optional(),
     closes: c.isoDate.optional(),
   })
-  .refine(({ voted, options }) => voted === undefined || voted < options.length, { path: ["voted"] });
+  .refine(({ voted, options }) => voted === undefined || voted < options.length, { path: ["voted"] })
+  .overwrite((value) => ({ ...value, seed_has_vote: value.voted !== undefined }));
+
+function pollResult(input: c.Values): c.Values {
+  const { voted, options } = input as z.output<typeof props>;
+  if (voted === undefined) return { can_vote: true };
+  return {
+    can_vote: false,
+    ...(input.seed_has_vote
+      ? {}
+      : {
+          options: options.map((option, index) =>
+            index === voted ? { ...option, votes: option.votes + 1 } : option,
+          ),
+        }),
+  };
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

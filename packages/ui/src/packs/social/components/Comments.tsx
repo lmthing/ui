@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 
-// Core first: Bubbles/chat cannot display public post replies nested under a parent comment.
+// Core first: Bubbles/default cannot display public post replies nested under a parent comment.
 export const meta = {
   id: "Comments",
   status: "draft",
@@ -25,6 +25,7 @@ export const meta = {
   },
   states: ["filled", "empty"],
   actions: { items: { like: ["toggle"], reply: ["press"], more: ["press"] } },
+  live: { derive: commentControls },
 } as const satisfies c.Meta;
 
 const comment = z.strictObject({
@@ -42,6 +43,17 @@ export const props = z
     comments: z.array(comment).min(1).max(6),
   })
   .refine(({ comments }) => !comments[0]?.reply, { path: ["comments", 0, "reply"] });
+
+function commentControls(input: c.Values): c.Values {
+  const { comments, detail } = input as z.output<typeof props>;
+  return {
+    comments: comments.map((row) => ({
+      ...row,
+      like: { liked: false },
+      ...(detail === "brief" ? { time: undefined } : {}),
+    })),
+  };
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

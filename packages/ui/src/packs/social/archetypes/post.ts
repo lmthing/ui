@@ -7,14 +7,14 @@ export const post = {
   layouts: {
     thread: {
       writeHints: [
-        'Use a Sheet with style "menu" for moderation. Give the back Header an action with goto "sheet" to open it. Composer with style "reply" is last in the body; Sheet is an overlay.',
+        'Include a Sheet with style "menu" for post moderation. Also give the back Header an action with goto "sheet", which the screen validator requires as a wire-visible trigger. Composer with style "reply" is last in the body; Sheet is an overlay.',
       ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Post"], required: true },
         { allow: ["Comments"], required: true },
         { allow: ["Composer"], required: true, variant: "reply" },
-        { allow: ["Sheet"], required: false, variant: "menu" },
+        { allow: ["Sheet"], required: true, variant: "menu" },
       ],
       defaults: [
         {

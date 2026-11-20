@@ -23,6 +23,15 @@ export const meta = {
     parts: { root: ["press"], going: ["press"], interested: ["press"] },
     noGoto: { parts: ["going", "interested"] },
   },
+  read: (input, _state, lang): string[] => {
+    const { date, time, going, attendees } = input as z.output<typeof props>;
+    return [
+      c.appointmentDate(date, lang),
+      c.timeOfDayLine(time, lang),
+      c.numberLine(going, lang),
+      ...(attendees ?? []),
+    ];
+  },
 } as const satisfies c.Meta;
 
 export const props = z
@@ -38,7 +47,8 @@ export const props = z
     goto: c.screenId,
     attendees: z.array(c.text(24)).min(0).max(5).optional(),
   })
-  .refine(({ going, attendees }) => !attendees || attendees.length <= going, { path: ["attendees"] });
+  .refine(({ going, attendees }) => !attendees || attendees.length <= going, { path: ["attendees"] })
+  .overwrite((value) => (value.media === "none" ? { ...value, photo: undefined } : value));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
