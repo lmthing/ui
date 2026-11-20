@@ -102,28 +102,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+const walkMembers = [
+  { name: "Anna", role: "Clover's owner", photo: "lib:anna", goto: "anna" },
+  { name: "Ben", role: "Pip's owner", goto: "ben" },
+];
+
 export const examples = [
   { members: [{ name: "Maya", role: "Waters on weekends" }] },
-  {
-    members: [
-      { name: "Anna", role: "Clover's owner", photo: "lib:people", goto: "anna" },
-      { name: "Ben", role: "Pip's owner", goto: "ben" },
-    ],
-  },
+  { members: walkMembers },
   {
     style: "stack",
     more: 3,
-    members: [{ name: "Anna", photo: "lib:people" }, { name: "Ben" }, { name: "Carla", photo: "lib:people" }],
+    members: [{ name: "Anna", photo: "lib:anna" }, { name: "Ben" }, { name: "Carla", photo: "lib:carla" }],
   },
-  {
-    detail: "brief",
-    members: [
-      { name: "Anna", role: "Clover's owner" },
-      { name: "Ben", role: "Pip's owner" },
-    ],
-  },
-  { density: "compact", members: [{ name: "Maya", role: "Waters on weekends" }] },
-  { surface: "outlined", members: [{ name: "Maya", role: "Waters on weekends" }] },
+  { detail: "brief", members: walkMembers },
+  { density: "compact", members: walkMembers },
+  { surface: "outlined", members: walkMembers },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("People");
@@ -150,7 +144,7 @@ function MemberRows({ members, density }: Pick<PeopleProps, "members" | "density
   return members.map((member) => (
     <KitRow
       density={density}
-      leadingAlign={member.photo ? "row" : "line"}
+      leadingAlign={member.photo && member.role ? "row" : "line"}
       leadingWidth={reserve ? "avatar" : undefined}
       key={member.id}
       item={member.id}
@@ -185,7 +179,7 @@ export function People({ style, members, more, surface, density: inputDensity }:
   return <KitCard part="root" {...{ surface, density }} padded={style === "stack" && state !== "empty"}>
     {state === "empty" ? <KitEmpty icon="users" part="name" /> :
       style === "stack" ? <KitAvatarStack members={members.map(({ id, name, photo }) => ({ id, label: name, photo }))}>
-        {more && <KitText role="label" tone="muted" part="more" density={density}>{moreLine(more, lang)}</KitText>}
+        {more && <KitText role="number" numberScale="compact" tone="muted" part="more" density={density}>{moreLine(more, lang)}</KitText>}
       </KitAvatarStack> : <MemberRows {...{ members, density }} />}
   </KitCard>;
 }
