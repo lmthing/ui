@@ -47,6 +47,14 @@ function readProgress(session: SessionState | undefined, lang?: string): string[
   return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
+/** A feedback view can use the solution without making it part of the agent's read. */
+function sessionForRead(meta: Meta, session: SessionState | undefined) {
+  const hidden = meta.session?.kind === "rounds" ? meta.session.assessment?.readHidden : undefined;
+  if (!hidden?.length || session?.kind !== "rounds") return session;
+  const item = Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)));
+  return { ...session, item };
+}
+
 function migrateInput(component: string, input: unknown) {
   if (!input || typeof input !== "object" || Array.isArray(input) || Object.hasOwn(input, "c")) return input;
   const line = { ...input, c: component };
@@ -82,12 +90,13 @@ export function readComponent(
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
-  const round = session?.kind === "rounds" ? session : undefined;
+  const readable = sessionForRead(meta, session);
+  const round = readable?.kind === "rounds" ? readable : undefined;
   const roundKey = round && meta.session?.items;
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, session), state, lang) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, readable), state, lang) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),

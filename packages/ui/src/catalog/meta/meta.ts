@@ -3,7 +3,6 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, VariantParts, Variants } from "../types";
-
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -14,6 +13,7 @@ type Draw =
 type RoundFields = Readonly<Record<string, unknown>>;
 type Assessment = {
   inputs: Readonly<Record<string, "select" | "type">>;
+  readHidden?: readonly string[];
   revise?: (answers: RoundFields, part: string, value: unknown) => RoundFields;
   /** Undefined means the response is not ready to check. */
   grade: (item: RoundFields, answers: RoundFields) => boolean | undefined;

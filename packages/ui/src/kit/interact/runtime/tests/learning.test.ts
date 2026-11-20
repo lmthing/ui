@@ -40,6 +40,7 @@ const quiz = fixture(
       next: "continue",
       assessment: {
         inputs: { root: "select", entry: "type" },
+        readHidden: ["solution"],
         project: (row, answer) => ({
           choices: row.options,
           typed: !row.options,
@@ -51,7 +52,7 @@ const quiz = fixture(
             : String(answer.entry ?? "")
                 .trim()
                 .toLowerCase();
-          return value === undefined || value === "" ? undefined : value === row.solution;
+          return value === undefined || value === "" ? undefined : String(value) === row.solution;
         },
       },
     },
@@ -61,13 +62,17 @@ const quiz = fixture(
       when: { entry: { typed: true }, submit: { checked: false }, continue: { checked: true } },
     },
     successActions: ["continue.press"],
+    read: (input) => {
+      const solution = (input as { steps: { solution?: string }[] }).steps[0]?.solution;
+      return solution ? [JSON.stringify(solution)] : [];
+    },
   },
   z.strictObject({
     steps: z.array(
       z.strictObject({
         cue: text(30),
         options: z.array(z.number()).optional(),
-        solution: z.union([z.number(), text(30)]),
+        solution: text(30),
         reason: text(60),
       }),
     ),
@@ -95,9 +100,9 @@ const recall = fixture(
 const press = (part: string) => ({ address: `study/${part}`, action: "press" });
 const seed = {
   steps: [
-    { cue: "First prompt", options: [1, 2], solution: 2, reason: "First explanation" },
-    { cue: "Second prompt", solution: "second", reason: "Second explanation" },
-    { cue: "Third prompt", options: [0, 1, 2], solution: 0, reason: "Third explanation" },
+    { cue: "First prompt", options: [1, 2], solution: "2", reason: "First explanation" },
+    { cue: "Second prompt", solution: "planet", reason: "Second explanation" },
+    { cue: "Third prompt", options: [0, 1, 2], solution: "0", reason: "Third explanation" },
   ],
 };
 const choice = (value: number) => ({ address: "study", action: "select", value });
@@ -105,11 +110,8 @@ const type = (value: string) => ({ address: "study/entry", action: "type", value
 const submit = press("submit");
 const next = press("continue");
 
-function study(def: Definition, input: Record<string, unknown>, state?: "success", requireMounted = false) {
-  const screen = {
-    id: "s",
-    components: [{ id: "study", c: def.meta.id, ...input, ...(state ? { state } : {}) }],
-  };
+function study(def: Definition, input: Record<string, unknown>, requireMounted = false) {
+  const screen = { id: "s", components: [{ id: "study", c: def.meta.id, ...input }] };
   const defs = { [def.meta.id]: def };
   const store = createInteractionStore();
   const controller = createScreenController({ screen, defs, store, requireMounted });
@@ -118,7 +120,7 @@ function study(def: Definition, input: Record<string, unknown>, state?: "success
 }
 
 it("gates a mounted assessment, reads wrong and right feedback, and starts each question cleanly", () => {
-  const { controller, progress, store } = study(quiz, seed, undefined, true);
+  const { controller, progress, store } = study(quiz, seed, true);
   controller.registerPart("study");
   expect(controller.read()).toContain("[study select choices [1,2]]");
   expect(controller.read()).not.toMatch(/Second prompt|explanation|submit|continue/i);
@@ -140,8 +142,9 @@ it("gates a mounted assessment, reads wrong and right feedback, and starts each 
   controller.registerPart("study/entry");
   expect(controller.act(type(" ")).ok).toBe(true);
   expect(controller.act(submit).ok).toBe(false);
-  expect(controller.act([type(" Second "), submit]).ok).toBe(true);
+  expect(controller.act([type(" Planet "), submit]).ok).toBe(true);
   expect(controller.read()).toContain("(success) correct true — score 1/3");
+  expect(controller.read()).not.toContain('"planet"');
   expect(controller.act([next, choice(0), submit]).ok).toBe(true);
   expect(progress()).toMatchObject({
     complete: true,
@@ -149,6 +152,15 @@ it("gates a mounted assessment, reads wrong and right feedback, and starts each 
   });
   expect(controller.actionsAt("study/continue")).toEqual([]);
   expect(quiz.props.safeParse({ ...seed, score: 2 }).success).toBe(false);
+});
+
+it("dispatches session answers using the projected legacy choice list", () => {
+  const { selections: _selections, ...meta } = quiz.meta;
+  const select = { prop: "choice", choices: { root: { prop: "choices" } } };
+  const { controller } = study({ ...quiz, meta: { ...meta, select } }, seed);
+  expect(controller.read()).toContain("[study select choices [1,2]]");
+  expect(controller.act([choice(2), submit]).ok).toBe(true);
+  expect(controller.read()).toContain("correct true");
 });
 
 it("flips only the current card, records each rating, and completes without exposing a face", () => {
