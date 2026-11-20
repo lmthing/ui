@@ -74,6 +74,12 @@ export const examples = [
 // Host-only, like TabBar: the read gate still checks playback and navigation.
 const { read } = c.probesFor("MiniPlayer");
 export const probes = [
-  read("Pause the recording without opening the full player", { address: "m1/play", action: "pause" }),
+  read(
+    "Pause the recording using the playback control. Use the offered playback action, not a press that opens the full player.",
+    {
+      address: "m1/play",
+      action: "pause",
+    },
+  ),
   read("Open the full player without changing playback", { address: "m1", action: "press" }, 1),
 ] satisfies c.Probe[];

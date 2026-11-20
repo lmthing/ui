@@ -10,7 +10,7 @@ export const meta = {
   pick: "A long article, guide, or policy with several paragraphs and structured text. Not one short supporting sentence (Note), expandable answers (List), a community post (Post), or terms to sign (Agreement).",
   writeHints: [
     "Body uses headings, paragraphs, lists, quotes, bold, italic and [label](screen:screen_id) links. No HTML or external links.",
-    'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed.',
+    'For body-only reading with no header, set detail "brief". Keep title in the line; reading time is computed. Leave density null unless the brief explicitly asks for tighter spacing.',
   ],
   region: "body",
   weight: 2,

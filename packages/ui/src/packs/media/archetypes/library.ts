@@ -18,7 +18,9 @@ export const library = {
       ],
     },
     home: {
-      writeHints: ["Each horizontal shelf must use List with style shelf and at least two photo rows."],
+      writeHints: [
+        'Each horizontal shelf uses List with style "shelf" and at least two photo rows. Leave each row mark null unless the brief expressly asks to highlight a specific row; a Latest heading alone does not highlight a row.',
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Stats"], required: true },

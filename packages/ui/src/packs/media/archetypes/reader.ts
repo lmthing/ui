@@ -6,7 +6,9 @@ export const reader = {
   defaultLayout: "article",
   layouts: {
     article: {
-      writeHints: ["The related horizontal shelf uses List with style shelf and at least two photo rows."],
+      writeHints: [
+        'The related horizontal shelf uses List with style "shelf" and at least two photo rows. Leave each row mark null unless the brief expressly asks to highlight a specific row; related readings are not highlights.',
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Article"], required: true },
