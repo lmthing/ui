@@ -15,6 +15,7 @@ import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
+import { stageReportEdit } from "./report-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -96,23 +97,21 @@ export function planAct(
     if (!preview.ok) return preview;
   }
   const screen = filterDeviceDataScreen(migrateScreen(input, { variantOnly: true }), defs, data);
-  const next: Values = { ...values };
-  const changed: string[] = [];
-  const links: Extract<ActResult, { ok: true }>["links"] = [];
-  const sends: SendDraft[] = [];
-  const driven: ActStep[] = [];
+  const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
+  const { values: next, changed, links } = plan;
   for (const [at, original] of steps.entries()) {
     const action = findAction(screen, defs, next, original, at, data);
     if (action.error) return action.error;
     const { address, selected, found, drive, step } = action;
-    if (drive) driven.push(drive);
+    if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${address}`;
     const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
+    const resolved = { ...step, address, value: result.value };
     try {
       const progress =
         stageLinkedEdit(screen, defs, next, found, result.value) ??
-        stageProgress(screen, defs, address, { ...step, value: result.value }, next, random, data);
+        stageProgress(screen, defs, address, resolved, next, random, data);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;
@@ -121,24 +120,19 @@ export function planAct(
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
     const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
-    if (clockOwner === "planner")
-      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value }, data);
+    if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
     if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
+    if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
+      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
     const validate = limits || edit?.adjustment || adjusted || selected.declared;
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     expireProgress(screen, defs, next, data);
-    if (found.send) sends.push({ ...found.send, address: `${screen.id}/${found.send.address}` });
+    if (found.send)
+      (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
-  return {
-    ok: true,
-    values: next,
-    changed,
-    links,
-    ...(sends.length ? { sends } : {}),
-    ...(driven.length ? { driven } : {}),
-  };
+  return plan;
 }

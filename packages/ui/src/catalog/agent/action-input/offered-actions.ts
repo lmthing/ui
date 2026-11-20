@@ -42,6 +42,8 @@ function affordancesOfScreen(
       live ||
       meta.drives ||
       meta.linkedEdits ||
+      items?.edits ||
+      meta.signOff ||
       hasPlaybackClock(meta)
         ? state
         : undefined);

@@ -3,8 +3,7 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData } from "../agent";
-
+import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -88,10 +87,9 @@ export type Meta = {
   set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
-  /**
-   * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
-   * counts the rest ("+2 more"), and conformance expects only the first item on screen.
-   */
+  /** Confirmed component press part → wire prop holding the sign-off timestamp. */
+  signOff?: Readonly<Record<string, string>>;
+  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
@@ -102,6 +100,10 @@ export type Meta = {
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Item parts backed by wire props. Photo and remove use the declared press actions. */
+    edits?: ItemEdits;
+    /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
+    editPath?: ItemEditPath;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<
       Record<
@@ -153,11 +155,7 @@ export type Meta = {
   read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
   signature?: string;
   status?: "draft" | "ready";
-  /**
-   * Built by code, never chosen or written by the model (TabBar from the sections marked nav). It
-   * stays in the catalog and is read like any component, but choose and write prompts leave it out
-   * and it has only `read` probes.
-   */
+  /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 };
 

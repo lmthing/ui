@@ -3,8 +3,10 @@ import {
   planAct,
   sessionEvent,
   sessionKey,
+  stageReportEdit,
   type ActStep,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
@@ -15,6 +17,23 @@ export function drivenPartBlock(ctx: ControllerContext, address: string) {
   if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
   if (ctx.options.requireMounted && !ctx.mounted.has(address))
     return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
+export function confirmReport(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  removal: ReportRemoval | undefined,
+) {
+  return stageReportEdit(
+    screen,
+    ctx.defs,
+    values,
+    step,
+    { kind: "confirm", now: ctx.now(), removal },
+    ctx.options.deviceData,
+  );
 }
 
 export function dispatchPlan(
@@ -70,7 +89,7 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen) &&
+    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen || meta.items?.edits || meta.signOff) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;

@@ -1,4 +1,11 @@
-import { drawRole, sessionEvent, type ActStep, type RandomSource, type Values } from "../../../../catalog";
+import {
+  drawRole,
+  reportConfirmation,
+  sessionEvent,
+  type ActStep,
+  type RandomSource,
+  type Values,
+} from "../../../../catalog";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import {
   actionFailure,
@@ -11,6 +18,7 @@ import {
 } from "../../actions";
 import type { ControllerContext, MediaRuntime } from "../index";
 import {
+  confirmReport,
   dispatchPlan,
   drivenPartBlock,
   inactive,
@@ -29,7 +37,7 @@ function prepareStep(
   ctx: ControllerContext,
   media: MediaRuntime,
   at: number,
-  confirmed = false,
+  confirmed?: ActionState["confirmation"],
 ): PreparedStep {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
@@ -38,8 +46,7 @@ function prepareStep(
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
   if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
   const def = ctx.defs[entry.c]!;
-  const disabled = ctx.disabledParts.has(action.address);
-  if (disabled && !introducedPart(ctx, state, entry, action, true))
+  if (ctx.disabledParts.has(action.address) && !introducedPart(ctx, state, entry, action, true))
     return fail("disabled", "This control is disabled");
   let input: Values;
   try {
@@ -60,6 +67,8 @@ function prepareStep(
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
+  if (confirmed && confirmReport(ctx, active, values, selected, confirmed.removal) === false)
+    return fail("invalid_value", "Confirmation conflicts with report props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     drive: plan.driven?.[0],
@@ -87,6 +96,7 @@ function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionCo
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));
 }
@@ -103,7 +113,11 @@ function stepRunner(
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
 ) {
-  const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
+  const run = (
+    before: ActionState,
+    original: ActStep,
+    confirmed?: ActionState["confirmation"],
+  ): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
@@ -167,9 +181,7 @@ export function planSteps(
     const run = stepRunner(ctx, media, random, at, execution);
     let result: ActionResult;
     if (state.confirmation)
-      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, (s, a) =>
-        run(s, a, true),
-      );
+      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);
     else result = run(state, step);
     if (result.error) return { ...result, performed: [] };
     state = result.state;

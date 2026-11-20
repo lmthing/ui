@@ -8,6 +8,7 @@ import { addressedItems, matches, nestedActions, visibleItems } from "./visibili
 import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import { linkedInput } from "./linked-edits";
 import type { SendDraft } from "./act";
+import { itemEditOffer, reportConfirmation, reportLocked } from "./report-edits";
 
 export type Affordance = {
   address: string;
@@ -62,23 +63,32 @@ function partsOf(
   item = false,
 ) {
   const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
+  const locked = reportLocked(meta, outer);
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
     matches(when?.[part], holder, outer) &&
     (!(part in holder) ||
       holder[part] !== undefined ||
+      (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
       (!item &&
         (meta.selections?.[part]?.runtime ||
           Object.hasOwn(meta.live?.text ?? {}, part) ||
           linkedInput(meta, part))))
       ? actions
-          .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
+          .filter((action) => {
+            if (!matches(when?.[`${part}.${action}`], holder, outer)) return false;
+            if (!item) return !locked || !reportConfirmation(meta, part, action);
+            const edit = itemEditOffer(meta, holder, part, action);
+            return edit === undefined || (edit && !locked);
+          })
           .map((action) => {
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const suppressLink =
-              action === "press" &&
-              ((!item && meta.linkedEdits?.swap.part === part) ||
-                (nested === holder && !!noGoto?.includes(part)));
+              (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
+              (action === "press" &&
+                ((!item &&
+                  (meta.linkedEdits?.swap.part === part || reportConfirmation(meta, part, action))) ||
+                  (nested === holder && !!noGoto?.includes(part))));
             return {
               address: part === "root" ? base : `${base}/${part}`,
               part,
@@ -88,6 +98,17 @@ function partsOf(
             };
           })
       : [],
+  );
+}
+
+function actionsForItem(meta: Meta, props: Props, item: Props, instance: string, first: boolean) {
+  const { items, when } = meta.actions ?? {};
+  const id = String(item.id);
+  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true).filter(
+    ({ part, action }) =>
+      action !== "select" ||
+      meta.items?.edits?.[part]?.action !== "select" ||
+      Boolean(choiceValues(meta, props, `${id}/${part}`)?.length),
   );
 }
 
@@ -105,7 +126,7 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, items: itemParts, when } = meta.actions ?? {};
+  const { parts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
@@ -115,11 +136,9 @@ export function affordancesOf(
   const items = addressedItems(meta, props);
   const visible = meta.items?.visibleWhen && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
-  const itemActions = items.flatMap((item, index) => {
-    if (visible && !visible.has(item)) return [];
-    const base = `${instance}/${String(item.id)}`;
-    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, meta, true);
-  });
+  const itemActions = items.flatMap((item, index) =>
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0),
+  );
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
