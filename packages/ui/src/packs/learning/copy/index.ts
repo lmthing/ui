@@ -1,0 +1,1 @@
+export { cardsLeft } from "./Flashcard";
