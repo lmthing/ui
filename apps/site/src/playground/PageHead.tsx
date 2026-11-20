@@ -3,6 +3,7 @@ import { packById } from "../data/site";
 import { hrefOf } from "../router";
 import { numberOf } from "../index/Specimen";
 import { cap, tierLabel } from "../shared/status";
+import { TextLinks } from "../shared/TextLinks";
 
 /** The component's name, purpose, tier, status and pack link. */
 export function PageHead({ id, item }: { id: string; item: Item }) {
@@ -19,6 +20,7 @@ export function PageHead({ id, item }: { id: string; item: Item }) {
       </p>
       <h1>{id}</h1>
       <p className="lede">{item.purpose}</p>
+      <TextLinks path={`c/${id}.md`} copy />
       {pack && (
         <p className="muted">
           <a href={hrefOf("p", pack.id)}>See the whole {pack.id} pack</a>

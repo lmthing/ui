@@ -11,12 +11,14 @@ const types: Record<string, string> = {
   ".js": "text/javascript",
   ".css": "text/css",
   ".json": "application/json",
+  ".txt": "text/plain; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".woff2": "font/woff2",
 };
-const compressible = new Set([".html", ".js", ".css", ".json", ".svg"]);
+const compressible = new Set([".html", ".js", ".css", ".json", ".svg", ".txt", ".md"]);
 
 const server = createServer((req, res) => {
   const path = normalize(decodeURIComponent((req.url ?? "/").split("?")[0]!)).replace(/^(\.\.[/\\])+/, "");

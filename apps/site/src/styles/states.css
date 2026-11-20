@@ -1,0 +1,47 @@
+.sk {
+  background: linear-gradient(100deg, var(--raised) 30%, var(--surface) 50%, var(--raised) 70%) 0 0 / 200%
+    100%;
+  animation: shimmer 1.4s linear infinite;
+}
+.sk-title {
+  height: 56px;
+  width: min(420px, 70%);
+  margin-top: 16px;
+}
+.sk-line {
+  height: 18px;
+  width: min(560px, 90%);
+  margin-top: 18px;
+}
+.sk-panel {
+  height: 420px;
+}
+.sk-phone {
+  width: 356px;
+  max-width: 100%;
+  height: 420px;
+  border: 6px solid var(--line);
+  border-radius: 32px;
+}
+
+.textfor {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 10px;
+  font: 500 0.74rem var(--mono);
+}
+.textfor a,
+.textfor button {
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 2px 0;
+  font: inherit;
+  cursor: pointer;
+  text-decoration-color: var(--line);
+}
+.textfor a:hover,
+.textfor button:hover {
+  color: var(--accent);
+}

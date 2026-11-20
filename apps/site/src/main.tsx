@@ -4,6 +4,7 @@ import { reloadOnce } from "./shared/lazyChunk";
 import "./styles/base.css";
 import "./styles/sections.css";
 import "./styles/parts.css";
+import "./styles/states.css";
 import "./styles/chrome.css";
 import "./styles/phone.css";
 import "./styles/home.css";

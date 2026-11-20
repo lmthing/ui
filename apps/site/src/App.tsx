@@ -6,6 +6,7 @@ import { Header } from "./shell/Header";
 import { RouteBoundary } from "./shell/RouteBoundary";
 import { NotFound } from "./shell/NotFound";
 import { Lazy } from "./shared/Lazy";
+import { useAlternate } from "./shared/useAlternate";
 import { PageSkeleton } from "./shell/PageSkeleton";
 import { ThemeProvider } from "./theme/ThemeContext";
 
@@ -16,6 +17,7 @@ const PackPage = lazyChunk(() => import("./packs/PackPage"));
 export function App() {
   const route = useRoute();
   useHashScroll(route.name);
+  useAlternate(route);
   return (
     <ThemeProvider>
       <Header />
