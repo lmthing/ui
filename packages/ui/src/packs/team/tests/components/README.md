@@ -4,3 +4,4 @@
 `OpenShift.test.ts` covers unassigned shift rows, pay visibility, feedback states and claims.
 `TimeClock.test.ts` covers shift clock states, addressed controls, readings and dispatch.
 `Timesheet.test.ts` covers weekly hours and overtime, detail variants, and approval targets.
+`Approval.test.ts` covers staff request details, portrait variants, decision dispatch and decline confirmation.

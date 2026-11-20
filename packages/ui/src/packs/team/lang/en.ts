@@ -48,6 +48,14 @@ export const en = {
     rowReading: (name: string, days: string[], summary: string[]) =>
       `${name}: ${[days.join(", "), ...summary].filter(Boolean).join(" · ")}`,
   },
+  approval: {
+    kinds: { time_off: "Time off", swap: "Shift swap", expense: "Expense", other: "Other request" },
+    approve: "Approve",
+    decline: "Decline",
+    empty: "No pending requests",
+    success: "Decision recorded",
+    detailSeparator: " · ",
+  },
 };
 
 export type TeamWords = typeof en;
