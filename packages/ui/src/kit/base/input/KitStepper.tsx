@@ -1,6 +1,7 @@
-import { useLayoutEffect } from "react";
+import { useContext, useLayoutEffect } from "react";
 import { XStack, isWeb, styled } from "tamagui";
 import { numberLine, radius, size, space } from "../../../catalog";
+import { RowLabelContext } from "../../a11y";
 import { useComponentState, usePart } from "../../part";
 import { useKit, useWords } from "../../provider";
 import { KitIcon, KitText } from "../text";
@@ -79,7 +80,9 @@ export function KitStepper({ part, value, min, max, disabled = false, labels }: 
   const state = useComponentState();
   const { controller } = useKit();
   const { lang, words } = useWords();
-  const { less, more } = labels ?? words.stepLabels;
+  const rowLabel = useContext(RowLabelContext);
+  const { less, more } = words.stepLabels;
+  const name = (label: string) => (rowLabel ? `${label}, ${rowLabel}` : label);
   const floor = !controller && min !== undefined && value <= min;
   const ceiling = !controller && max !== undefined && value >= max;
   const inactive = disabled || state === "loading";
@@ -100,7 +103,7 @@ export function KitStepper({ part, value, min, max, disabled = false, labels }: 
       <StepButton
         target={address.testID}
         action="decrement"
-        name={less}
+        name={labels?.less ?? name(less)}
         disabled={inactive || floor || offered?.includes("decrement") === false}
       />
       <KitText role="number" numberScale="compact" align="center" part={null} tabular>
@@ -109,7 +112,7 @@ export function KitStepper({ part, value, min, max, disabled = false, labels }: 
       <StepButton
         target={address.testID}
         action="increment"
-        name={more}
+        name={labels?.more ?? name(more)}
         disabled={inactive || ceiling || offered?.includes("increment") === false}
       />
     </XStack>

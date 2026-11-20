@@ -52,15 +52,15 @@ it("pins action bars below the scrolling body and above the regular safe-area fo
   expect((await last.boundingBox())!.y).toBeLessThan(initial.y);
   expect(await qty.boundingBox()).toEqual(initial);
   expect(await footer.boundingBox()).toEqual(bottom);
-  expect(await part("d1/r1/trail").getAttribute("aria-label")).toBe("Row switch");
+  expect(await part("d1/r1/trail").getAttribute("aria-label")).toBe("First row");
   expect(errors).toEqual([]);
 });
 
 it("uses one mounted part per row from both touch targets and agent actions", async () => {
   const first = part("d1/r1/qty"),
     second = part("d2/r1/qty");
-  const minus = first.getByRole("button", { name: less, exact: true });
-  const plus = first.getByRole("button", { name: more, exact: true });
+  const minus = first.getByRole("button", { name: `${less}, First row`, exact: true });
+  const plus = first.getByRole("button", { name: `${more}, First row`, exact: true });
   expect(await first.count()).toBe(1);
   expect(await minus.getAttribute("aria-disabled")).toBe("true");
   expect(await minus.getAttribute("tabindex")).toBe("-1");
@@ -171,4 +171,18 @@ it("follows the supplied order for keyed pins within one body entry", async () =
   expect(await first.textContent()).toBe("1");
   expect(await second.textContent()).toBe("2");
   expect(errors).toEqual([]);
+});
+
+it("can call a pinned action directly from onReady", async () => {
+  expect(await page.locator("html").getAttribute("data-pinned-ready")).toBe("ready");
+});
+
+it("gives the same step direction distinct accessible names in different rows", async () => {
+  for (const [row, name] of [
+    ["r1", "First row"],
+    ["r2", "Second row"],
+  ] as const) {
+    const button = part(`d1/${row}/qty`).getByRole("button", { name: `${more}, ${name}`, exact: true });
+    expect(await button.count()).toBe(1);
+  }
 });

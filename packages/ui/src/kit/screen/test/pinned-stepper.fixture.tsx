@@ -72,7 +72,7 @@ function FixturePins({ pinned, details, rows }: FixtureProps) {
     };
   }, []);
   return (reverse ? [...rows].reverse() : rows).map(({ id, qty }, index) => (
-    <KitRow key={id} item={id} label="Row switch">
+    <KitRow key={id} item={id} label={details ? (id === "r1" ? "First row" : "Second row") : "Other row"}>
       {pinned && (
         <KitPinnedBottom order={index}>
           <KitStepper part="qty" value={qty} min={1} max={2} disabled={disabled} />
@@ -176,6 +176,11 @@ function App() {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <PhoneScreen
         {...{ defs, renderers, screen, theme, nativeHost }}
+        onReady={(agent) => {
+          if (document.documentElement.dataset.pinnedReady) return;
+          const result = agent.act({ address: "d1/r1/qty", action: "increment" }, { dryRun: true });
+          document.documentElement.dataset.pinnedReady = result.ok ? "ready" : result.code;
+        }}
         onAction={({ address }) => {
           if (address === "fixture/d1/hide") setPinned(false);
         }}
