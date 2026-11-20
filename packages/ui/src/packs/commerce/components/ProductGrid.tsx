@@ -25,7 +25,7 @@ export const meta = {
   parts: ["root", "empty"],
   items: {
     key: "items",
-    parts: ["root", "name", "price", "was", "photo", "badge", "sub", "add", "add_icon"],
+    parts: ["tile", "root", "name", "price", "was", "photo", "badge", "sub", "add", "add_icon"],
   },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"], add: ["press"] }, noGoto: { items: ["add"] } },
@@ -70,33 +70,21 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
   };
 }
 
+const plants = [
+  { name: "Fern pot", price: 12, was: 16, photo: "lib:fern", badge: "Sale", goto: "fern_pot" },
+  { name: "Basil planter", price: 10, photo: "lib:basil", goto: "basil_planter" },
+];
+// prettier-ignore
 export const examples = [
-  {
-    items: [
-      { name: "Fern pot", price: 12, was: 16, photo: "lib:fern", badge: "Sale", goto: "fern_pot" },
-      { name: "Basil planter", price: 10, photo: "lib:basil", goto: "basil_planter" },
-    ],
-  },
-  {
-    arrange: "rows",
-    density: "compact",
-    items: [
-      {
-        name: "Training bites",
-        sub: "Oat and pumpkin",
-        price: 5,
-        photo: "local:1",
-        goto: "training_bites",
-      },
-      {
-        name: "Trail bag",
-        sub: "Mixed treats for long walks",
-        price: 8,
-        photo: "local:2",
-        goto: "trail_bag",
-      },
-    ],
-  },
+  { items: plants },
+  { arrange: "rows", items: [
+    { ...plants[0]!, sub: "Shade-loving fern" },
+    { ...plants[1]!, sub: "Basil for the kitchen" },
+  ] },
+  { items: [
+    { name: "Training bites", price: 5, photo: "local:1", goto: "training_bites" },
+    { name: "Trail bag", price: 8, photo: "local:2", goto: "trail_bag" },
+  ] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("ProductGrid");
@@ -122,71 +110,91 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type GridProps = c.Props<typeof props, typeof meta>;
-type TileProps = { item: GridProps["items"][number]; menu: boolean; density: c.ThemeDensity };
+type TileProps = {
+  item: GridProps["items"][number];
+  menu: boolean;
+  density: c.ThemeDensity;
+  offerSlot: boolean;
+};
 
 // prettier-ignore
-function ProductPrices({ item, density }: Pick<TileProps, "item" | "density">) {
-  const { lang } = kit.useWords(commerceWordsFor);
+function ProductTile({ item, menu, density, offerSlot }: TileProps) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const group = density === "compact" ? "content" : "response";
   const { price, was } = productAmounts(item, lang);
-  return <kit.KitContent {...{ density }}>
-    <kit.KitText role="number" numberScale="compact" tabular part="price" {...{ density }}>{price}</kit.KitText>
-    {was && <kit.KitText role="caption" tone="muted" strike part="was" {...{ density }}>{was}</kit.KitText>}
-  </kit.KitContent>;
-}
-
-// prettier-ignore
-function ProductTile({ item, menu, density }: TileProps) {
-  const context = kit.usePartContext();
-  const { words } = kit.useWords(commerceWordsFor);
   const photo = <kit.KitPhoto photo={item.photo} shape={menu ? "thumb" : "square"} part="photo" label={item.name} />;
   const add = <kit.KitAction icon="plus" kind="secondary" part="add" action="press" a11y={words.addProduct(item.name)} />;
-  const heading = <kit.KitContent {...{ density }}>
+  const amount = <kit.KitText role="number" numberScale="compact" tabular part="price" {...{ density }}>{price}</kit.KitText>;
+  const previous = was && <kit.KitText role="caption" tone="muted" strike part="was" {...{ density }}>{was}</kit.KitText>;
+  const badge = item.badge && <kit.KitText role="caption" tone="good" part="badge" {...{ density }}>{item.badge}</kit.KitText>;
+  const offer = previous || badge || offerSlot ? <kit.KitText role="caption" part={null} {...{ density }}>
+    {previous}{previous && badge ? " " : null}{badge || (!previous && "\u00a0")}
+  </kit.KitText> : null;
+  const prices = <kit.KitContent {...{ density }}>{amount}{offer}</kit.KitContent>;
+  const heading = <kit.KitContent {...{ density }} group={menu ? "content" : group}>
     <kit.KitText role="body" part="name" {...{ density }}>{item.name}</kit.KitText>
     {menu && item.sub && <kit.KitText role="caption" tone="muted" part="sub" {...{ density }}>{item.sub}</kit.KitText>}
-    {menu && <ProductPrices {...{ item, density }} />}
-    {item.badge && <kit.KitText role="caption" tone="good" part="badge" {...{ density }}>{item.badge}</kit.KitText>}
+    {menu && prices}
   </kit.KitContent>;
-  const details = <kit.KitRow goto={item.goto} label={item.name} inline {...{ density }} part="root">
+  const details = <kit.KitRow goto={item.goto} label={item.name} inline surface="plain" {...{ density }} part="root">
     {menu ? <kit.KitGrid fitLast {...{ density }}>{heading}{photo}</kit.KitGrid> :
       <kit.KitContent {...{ density }}>{photo}{heading}</kit.KitContent>}
   </kit.KitRow>;
-  return <kit.PartContext.Provider value={{ ...context, item: item.id }}>
-    <kit.KitRow label={item.name} surface="card" {...{ density }}>
+  return <kit.KitCard part="tile" padded {...{ density }}>
       {menu ? <kit.KitGrid fitLast {...{ density }}>{details}{add}</kit.KitGrid> :
         <kit.KitContent {...{ density }}>
           {details}
-          <kit.KitGrid fitLast {...{ density }}><ProductPrices {...{ item, density }} />{add}</kit.KitGrid>
+          <kit.KitContent {...{ group, density }}>
+            <kit.KitGrid fitLast {...{ density }}>{prices}{add}</kit.KitGrid>
+          </kit.KitContent>
         </kit.KitContent>}
-    </kit.KitRow>
-  </kit.PartContext.Provider>;
+  </kit.KitCard>;
 }
 
 // prettier-ignore
-function ProductSkeleton({ item, menu, density }: TileProps) {
+function ProductSkeleton({ item, menu, density, offerSlot }: TileProps) {
   const { lang } = kit.useWords(commerceWordsFor);
+  const group = density === "compact" ? "content" : "response";
   const { price, was } = productAmounts(item, lang);
-  const content = [
-    ["body", item.name], ["caption", menu ? item.sub : item.badge],
-    ["number", price, "start", "compact"], ["caption", was],
+  const prices = [
+    ["number", price, "start", "compact"], ["caption", offerSlot || menu ? was ?? item.badge ?? "\u00a0" : undefined],
   ] satisfies Parameters<typeof kit.KitSkeleton>[0]["content"];
-  const visual = <kit.KitSkeleton shape={menu ? "figure" : "media"} aspect="square" inset="none" {...{ density, content }} />;
   const control = <kit.KitSkeleton shape="control" kind="secondary" inset="none" />;
-  return <kit.KitRow label={item.name} surface="card" {...{ density }}>
-    {menu ? <kit.KitGrid fitLast {...{ density }}>{visual}{control}</kit.KitGrid> :
-      <kit.KitContent {...{ density }}>{visual}{control}</kit.KitContent>}
-  </kit.KitRow>;
+  return <kit.KitCard part="tile" padded {...{ density }}>
+    {menu ? <kit.KitGrid fitLast {...{ density }}>
+      <kit.KitGrid fitLast {...{ density }}>
+        <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
+          content={[["body", item.name], ["caption", item.sub], ...prices]} />{control}
+      </kit.KitGrid>{control}
+    </kit.KitGrid> : <kit.KitContent {...{ density }}>
+      <kit.KitSkeleton shape="media" aspect="square" inset="none" content={[]} {...{ density }} />
+      <kit.KitContent {...{ group, density }}><kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", item.name]]} /></kit.KitContent>
+      <kit.KitContent {...{ group, density }}>
+        <kit.KitGrid fitLast {...{ density }}>
+          <kit.KitSkeleton shape="figure" inset="none" content={prices} {...{ density }} />{control}
+        </kit.KitGrid>
+      </kit.KitContent>
+    </kit.KitContent>}
+  </kit.KitCard>;
 }
 
 // prettier-ignore
 export function ProductGrid({ items, arrange: requested, density: spacing }: GridProps) {
   const density = kit.useVariant("density", meta.variants.density, spacing);
   const arrange = kit.useVariant("arrange", meta.variants.arrange, requested);
-  const state = kit.useComponentState(), menu = arrange === "rows";
-  if (state === "empty") return <kit.KitCard part="root"><kit.KitEmpty part="empty" decorativeIcon /></kit.KitCard>;
-  const Tile = state === "loading" ? ProductSkeleton : ProductTile;
+  const context = kit.usePartContext(), menu = arrange === "rows";
+  const { words } = kit.useWords(commerceWordsFor);
+  if (context.state === "empty") return <kit.KitCard part="root">
+    <kit.KitEmpty icon="shopping_bag" part="empty" decorativeIcon {...(context.thing ? {} : { title: words.emptyProducts })} />
+  </kit.KitCard>;
+  const Tile = context.state === "loading" ? ProductSkeleton : ProductTile;
   return <kit.KitCard style="cards" part="root" {...{ density }}>
-    <kit.KitGrid list listRowGap="cards" {...{ arrange, density }}>
-      {items.map((item) => <Tile key={item.id} {...{ item, menu, density }} />)}
+    <kit.KitGrid list listRowGap="cards" {...{ arrange }} density={menu ? density : "comfortable"}>
+      {items.map((item, index) => {
+        const neighbour = items[index % 2 === 0 ? index + 1 : index - 1];
+        const offerSlot = !menu && (item.was !== undefined || !!item.badge || neighbour?.was !== undefined || !!neighbour?.badge);
+        return <kit.PartScope key={item.id} {...context} item={item.id}><Tile {...{ item, menu, density, offerSlot }} /></kit.PartScope>;
+      })}
     </kit.KitGrid>
   </kit.KitCard>;
 }

@@ -140,7 +140,7 @@
     "replies": [
       "{\"c\":\"ProductGrid\",\"items\":[{\"name\":\"Sourdough loaf\",\"price\":6,\"was\":null,\"photo\":\"local:1\",\"badge\":null,\"sub\":\"slow-fermented wheat\",\"goto\":\"sourdough_loaf\"},{\"name\":\"Almond croissant\",\"price\":4,\"was\":null,\"photo\":\"local:2\",\"badge\":null,\"sub\":null,\"goto\":\"almond_croissant\"}],\"density\":null,\"arrange\":\"rows\"}",
       "{\"c\":\"ProductGrid\",\"items\":[{\"name\":\"Sourdough loaf\",\"price\":6,\"was\":null,\"photo\":\"local:1\",\"badge\":null,\"sub\":\"Slow-fermented wheat\",\"goto\":\"sourdough_loaf\"},{\"name\":\"Almond croissant\",\"price\":4,\"was\":null,\"photo\":\"local:2\",\"badge\":null,\"sub\":null,\"goto\":\"almond_croissant\"}],\"density\":null,\"arrange\":\"rows\"}",
-      "{\"c\":\"ProductGrid\",\"items\":[{\"name\":\"Sourdough loaf\",\"price\":6,\"was\":null,\"photo\":\"local:1\",\"badge\":null,\"sub\":\"Slow-fermented wheat\",\"goto\":\"sourdough_loaf\"},{\"name\":\"Almond croissant\",\"price\":4,\"was\":null,\"photo\":\"local:2\",\"badge\":null,\"sub\":null,\"goto\":\"almond_croissant\"}],\"density\":null,\"arrange\":\"rows\"}"
+      "{\"c\":\"ProductGrid\",\"items\":[{\"name\":\"Sourdough loaf\",\"price\":6,\"was\":null,\"photo\":\"local:1\",\"badge\":null,\"sub\":\"slow-fermented wheat\",\"goto\":\"sourdough_loaf\"},{\"name\":\"Almond croissant\",\"price\":4,\"was\":null,\"photo\":\"local:2\",\"badge\":null,\"sub\":null,\"goto\":\"almond_croissant\"}],\"density\":null,\"arrange\":\"rows\"}"
     ]
   },
   "c678ae2d1571d628": {

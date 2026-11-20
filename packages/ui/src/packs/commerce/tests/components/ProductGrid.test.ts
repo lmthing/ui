@@ -142,10 +142,10 @@ describe("ProductGrid states and parts", () => {
     expect(button.attributes).toContain(`aria-label="Add ${input.items[0]!.name} to basket"`);
     expect(JSON.stringify(link.children)).not.toContain(`${prefix}add`);
     const addresses = addressedElements(html);
-    for (const part of ["name", "photo", "price", "add_icon"])
+    for (const part of ["tile", "name", "photo", "price", "add_icon", "badge", "was"])
       expect(addresses.has(prefix + part)).toBe(true);
-    expect(addresses.has(`${prefix}badge`)).toBe(input === grid);
-    expect(addresses.has(`${prefix}was`)).toBe(input === grid);
+    expect(addresses.has("home/c1/r2/badge")).toBe(false);
+    expect(addresses.has("home/c1/r2/was")).toBe(false);
     expect(addresses.has(`${prefix}sub`)).toBe(input === menu);
     if (input === grid) expect(styleAt(html, `${prefix}was`)).toContain("line-through");
   });
@@ -155,7 +155,7 @@ describe("ProductGrid states and parts", () => {
       const html = renderInstance("ProductGrid", input, state, theme, "plant");
       expect(elementAt(html, "home/c1/root")).toBeDefined();
       expect(html).toContain(state === "empty" ? emptyLine("plant") : loadingLabel);
-      expect(html).not.toContain("home/c1/r1/");
+      expect(html).not.toMatch(/home\/c1\/r1\/(?:root|add)/);
       const runtime = createScreenController({
         screen: { ...screen, components: [{ ...screen.components[0]!, state }] },
         defs: components,
