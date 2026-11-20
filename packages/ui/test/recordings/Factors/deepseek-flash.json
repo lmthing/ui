@@ -245,7 +245,7 @@
     "replies": [
       "{\"c\":\"Factors\",\"density\":\"compact\",\"surface\":null,\"items\":[{\"label\":\"Sleep\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Work\",\"icon\":\"briefcase\",\"on\":false},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Friends\",\"icon\":\"heart\",\"on\":true}]}",
       "{\"c\":\"Factors\",\"density\":\"compact\",\"surface\":null,\"items\":[{\"label\":\"Sleep\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Work\",\"icon\":\"briefcase\",\"on\":false},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Friends\",\"icon\":\"heart\",\"on\":true}]}",
-      "{\"c\":\"Factors\",\"density\":\"compact\",\"surface\":null,\"items\":[{\"label\":\"Sleep\",\"icon\":\"bed\",\"on\":true},{\"label\":\"Work\",\"icon\":\"briefcase\",\"on\":false},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Friends\",\"icon\":\"heart\",\"on\":true}]}"
+      "{\"c\":\"Factors\",\"density\":\"compact\",\"surface\":null,\"items\":[{\"label\":\"Sleep\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Work\",\"icon\":\"briefcase\",\"on\":false},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Friends\",\"icon\":\"heart\",\"on\":true}]}"
     ]
   },
   "87d7e670e7675256": {
@@ -724,8 +724,8 @@
     "reply": "{\"c\":\"Factors\",\"density\":null,\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false}]}",
     "replies": [
       "{\"c\":\"Factors\",\"density\":null,\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false}]}",
-      "{\"c\":\"Factors\",\"density\":null,\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false}]}",
-      "{\"c\":\"Factors\",\"density\":null,\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false}]}"
+      "{\"c\":\"Factors\",\"density\":\"comfortable\",\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false}]}",
+      "{\"c\":\"Factors\",\"density\":null,\"surface\":null,\"items\":[{\"label\":\"Slept well\",\"icon\":\"moon\",\"on\":true},{\"label\":\"Outdoors\",\"icon\":\"leaf\",\"on\":true},{\"label\":\"Music\",\"icon\":\"music\",\"on\":false},{\"label\":\"Quiet time\",\"icon\":\"sun\",\"on\":false} ]}"
     ]
   },
   "9669a8e627a4883f": {

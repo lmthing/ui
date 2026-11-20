@@ -98,7 +98,13 @@ export function Factors(input: c.Props<typeof props, typeof meta>) {
     <kit.KitCard part="root" padded {...{ density, surface }}>
       <kit.KitGrid density={density}>
         {input.items.map(({ id, label, icon, on }) => (
-          <kit.KitTile key={id} item={id} {...{ label, icon, on }} action="toggle" />
+          <kit.KitTile
+            key={id}
+            item={id}
+            {...{ label, icon, on, density }}
+            action="toggle"
+            distinctSelection
+          />
         ))}
       </kit.KitGrid>
     </kit.KitCard>
