@@ -1,0 +1,26 @@
+export { pack } from "./pack";
+export * from "./components";
+export * from "./archetypes";
+
+export const example = [
+  '{"id":"h1","c":"Header","title":"Sniff nearby"}',
+  '{"id":"s1","c":"Search","hint":"Find a dog-friendly spot"}',
+  '{"id":"c1","c":"Chips","items":[{"label":"Water bowl"},{"label":"Off lead"}]}',
+  '{"id":"m1","c":"MapList","places":[{"name":"Juniper Café","meta":"Water bowl out front","goto":"juniper"},{"name":"Alder Park","meta":"Off-lead meadow","goto":"park_walk"},{"name":"Canal Green","meta":"Lead-only riverside path","goto":"park_walk"},{"name":"Fern Common","meta":"Shaded benches","goto":"park_walk"},{"name":"Linden Gardens","meta":"Dogs welcome","goto":"park_walk"},{"name":"Corner Café","meta":"Dogs welcome inside","goto":"juniper"}]}',
+  '{"id":"h2","c":"Header","style":"back","title":"Juniper Café"}',
+  '{"id":"g1","c":"Gallery","style":"carousel","photos":[{"photo":"lib:park_walk","caption":"Front terrace"},{"photo":"lib:river_walk","caption":"Riverside tables"}]}',
+  '{"id":"p1","c":"PlaceCard","name":"Juniper Café","category":"Dog-friendly café","rating":4.5,"priceLevel":2,"opens":"09:00","closes":"16:00","goto":"juniper"}',
+  '{"id":"h3","c":"Hours","days":[{"day":"mon","from":"09:00","to":"16:00","closed":false},{"day":"tue","from":"09:00","to":"16:00","closed":false},{"day":"wed","from":"09:00","to":"16:00","closed":false},{"day":"thu","from":"09:00","to":"16:00","closed":false},{"day":"fri","from":"09:00","to":"16:00","closed":false},{"day":"sat","from":"08:00","to":"17:00","closed":false},{"day":"sun","from":"08:00","to":"17:00","closed":false}],"special":[{"date":"2026-12-24","text":"Closes at 14:00"}]}',
+  '{"id":"a1","c":"Address","lines":["8 Linden Road","Bristol BS8 2BE"],"phone":"0117 496 0124","note":"Dogs can use the terrace entrance."}',
+  '{"id":"b1","c":"Button","label":"See the park walk","goto":"park_walk"}',
+  '{"id":"h4","c":"Header","style":"back","title":"Two parks walk"}',
+  '{"id":"r1","c":"Route","stops":[{"label":"Alder Park","meta":"Off-lead meadow"},{"label":"Canal Green","meta":"Lead-only path"}]}',
+  '{"id":"l1","c":"List","rows":[{"title":"Alder Park","meta":"Off-lead meadow"},{"title":"Canal Green","meta":"Lead-only riverside path"}]}',
+  '{"id":"h5","c":"Header","title":"Treat delivery"}',
+  '{"id":"d1","c":"DeliveryTracker","step":"on_the_way","courier":"Nia"}',
+  '{"id":"k1","c":"KeyValue","pairs":[{"label":"Order","value":"SN-42"},{"label":"Drop-off","value":"Side gate"}]}',
+  '{"id":"h6","c":"Header","title":"Buses from the park"}',
+  '{"id":"s2","c":"Search","hint":"Find a stop"}',
+  '{"id":"d2","c":"Departures","stop":"Alder Park","rows":[{"line":"8","to":"Clifton"},{"line":"9","to":"Riverside"}]}',
+  "",
+].join("\n");
