@@ -103,3 +103,54 @@ it("keeps partial active seconds on resume and projects success without a contro
     vi.useRealTimers();
   }
 });
+
+it("applies a declared reset after success for detached controls", () => {
+  vi.useFakeTimers();
+  const restart = { address: "b1/restart", action: "press" };
+  const resettable: Definition = {
+    ...fixture,
+    meta: {
+      ...meta,
+      parts: [...meta.parts!, "restart"],
+      actions: { parts: { ...meta.actions!.parts, restart: ["press"] } },
+      successActions: ["restart.press"],
+      clocks: [{ ...meta.clocks![0]!, reset: { part: "restart", action: "press", state: "filled" } }],
+    },
+  };
+  const agent = createAgentAccess({
+    defs: { [meta.id]: resettable },
+    store: createInteractionStore(),
+    current: () => screen,
+  });
+  try {
+    expect(agent.act(restart).ok).toBe(false);
+    for (let run = 0; run < 2; run++) {
+      expect(agent.act(step("play")).ok).toBe(true);
+      vi.advanceTimersByTime(6000);
+      expect(agent.read()).toContain("PacedFixture (success) 6s paused [b1/restart press]");
+      expect(agent.act(restart).ok).toBe(true);
+      expect(agent.read()).toContain("0s paused [b1/circle play]");
+    }
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("continues timing and accepts pause when detached access takes over a mounted clock", () => {
+  vi.useFakeTimers();
+  const store = createInteractionStore();
+  const controller = createScreenController({ defs, screen, store });
+  try {
+    expect(controller.press(circle).ok).toBe(true);
+    controller.dispose();
+    vi.advanceTimersByTime(2000);
+    const agent = createAgentAccess({ defs, store, current: () => screen });
+    expect(agent.read()).toContain("2s running [b1/circle pause]");
+    expect(agent.act(step("pause")).ok).toBe(true);
+    vi.advanceTimersByTime(10000);
+    expect(agent.read()).toContain("2s paused [b1/circle play]");
+  } finally {
+    controller.dispose();
+    vi.useRealTimers();
+  }
+});

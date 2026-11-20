@@ -1,7 +1,7 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, isPlaybackAction } from "./clocks";
+import { adjustmentAt, clockActionValid, clockControlDeclared } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, matches, nestedActions, visibleItems } from "./visibility";
@@ -131,7 +131,7 @@ export function affordancesOf(
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (
-      (runtime || meta.live?.derive || isPlaybackAction(action)) &&
+      (runtime || meta.live?.derive || clockControlDeclared(meta, target, action, true)) &&
       !clockActionValid(meta, props, target, action, get, now)
     )
       return false;

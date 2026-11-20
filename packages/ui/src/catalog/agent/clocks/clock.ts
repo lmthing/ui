@@ -1,4 +1,5 @@
 import type { ClockMeta, ClockState, ClockTrigger, Meta } from "../../meta";
+import type { StateName } from "../../types";
 import type { Values } from "../index";
 
 type ClockTarget = {
@@ -55,9 +56,8 @@ export const clockSeed = (clock: ClockTarget) =>
   Number(clock.holder[clock.spec.from ?? ""] ?? clock.outer[clock.spec.from ?? ""] ?? 0);
 export const clockMax = ({ spec, holder, outer }: ClockTarget) =>
   (typeof spec.max === "function" ? spec.max(holder, outer) : spec.max) ?? Infinity;
-const activeMillis = (state: ClockState) => state.remainder ?? 0;
 export const clockMillis = (state: ClockState, now: number) =>
-  activeMillis(state) + (state.running ? Math.max(0, now - state.from) : 0);
+  (state.remainder ?? 0) + (state.running ? Math.max(0, now - state.from) : 0);
 export function clockTime(clock: ClockTarget, state: ClockState | undefined, held: unknown, now: number) {
   if (clock.spec.kind === "until") {
     const date = clock.holder[clock.spec.from ?? ""] ?? clock.outer[clock.spec.from ?? ""];
@@ -106,6 +106,7 @@ export function projectClocks(
   now: number,
   mode: "all" | "playback" | "legacy" = "all",
 ): Values {
+  let playbackCompletion: StateName | undefined;
   for (const clock of clockTargets(meta, props)) {
     const playback = isPlaybackClock(clock.spec);
     if (mode !== "all" && playback !== (mode === "playback")) continue;
@@ -117,12 +118,15 @@ export function projectClocks(
       changes[clock.spec.runningProp] = Boolean(state?.running && !clockEnded(clock, seconds));
     const zero = clock.spec.zero;
     if (state && clockEnded(clock, seconds) && zero && zero !== "stop") {
-      if ("state" in zero) props = { ...props, state: zero.state };
-      else changes[zero.prop] = zero.value;
+      if ("state" in zero) {
+        props = { ...props, state: zero.state };
+        if (playback) playbackCompletion = zero.state;
+      } else changes[zero.prop] = zero.value;
     }
     props = projectHolder(meta, props, clock, changes);
   }
   const state = get("$state");
+  if (state === "filled" && playbackCompletion !== undefined) return { ...props, state: playbackCompletion };
   return state === undefined ? props : { ...props, state };
 }
 /** Detached reads project opted-in playback clocks, but do not start legacy clocks. */
@@ -131,7 +135,7 @@ export function projectLiveClocks(meta: Meta, props: Values, get: (part: string)
   return projectClocks(meta, props, get, Number(get("$now") ?? Date.now()), all ? "all" : "playback");
 }
 /** Shared addresses (for example stop-all) are valid if any owning clock can act. */
-export function clockControlDeclared(meta: Meta, target: string, action: string) {
+export function clockControlDeclared(meta: Meta, target: string, action: string, playbackOnly = false) {
   const [row, part = "root"] = target.split("/");
   const groups = [
     { specs: meta.clocks, local: target, own: true },
@@ -139,14 +143,16 @@ export function clockControlDeclared(meta: Meta, target: string, action: string)
     { specs: meta.items?.nested?.clocks, local: part.replace(/_[1-9][0-9]*$/, ""), own: false },
   ];
   return groups.some(({ specs, local, own }) =>
-    (specs ?? []).some((spec) =>
-      [spec.start, spec.stop, spec.reset].some(
-        (trigger) =>
-          trigger?.action === action &&
-          (trigger.scope === "component"
-            ? target === trigger.part
-            : (own || row?.startsWith(meta.items?.prefix ?? "r")) && local === trigger.part),
-      ),
+    (specs ?? []).some(
+      (spec) =>
+        (!playbackOnly || isPlaybackClock(spec)) &&
+        [spec.start, spec.stop, spec.reset].some(
+          (trigger) =>
+            trigger?.action === action &&
+            (trigger.scope === "component"
+              ? target === trigger.part
+              : (own || row?.startsWith(meta.items?.prefix ?? "r")) && local === trigger.part),
+        ),
     ),
   );
 }
