@@ -83,29 +83,18 @@ it("has valid examples and neutral fallbacks for all seven definitions", () => {
         JSON.stringify(sample === populatedCast ? "Morning reading" : placeholderTitle(0)),
       );
     }
-    const { probes } = def;
-    expect(
-      probes.some((probe) => probe.kind === "read"),
-      id,
-    ).toBe(true);
+    const kinds = def.probes.map((probe) => probe.kind);
+    expect(kinds, id).toContain("read");
     if (!def.meta.codeOwned) {
+      const choices = def.probes.flatMap((probe) => (probe.kind === "choose" ? [probe.expect] : []));
+      const writes = def.probes.flatMap((probe) => (probe.kind === "write" ? [probe.expect] : []));
+      expect(choices, id).toContain(id);
+      expect(writes, id).toContain(id);
       expect(
-        probes.some((probe) => probe.kind === "choose" && probe.expect === id),
+        core.ids.some((coreId) => choices.includes(coreId)),
         id,
       ).toBe(true);
-      expect(
-        probes.some((probe) => probe.kind === "write" && probe.expect === id),
-        id,
-      ).toBe(true);
-      expect(
-        probes.some((probe) => probe.kind === "choose" && core.ids.some((coreId) => coreId === probe.expect)),
-        id,
-      ).toBe(true);
-    } else
-      expect(
-        probes.every((probe) => probe.kind === "read"),
-        id,
-      ).toBe(true);
+    } else expect(new Set(kinds), id).toEqual(new Set(["read"]));
     for (const part of [...(def.meta.parts ?? []), ...(def.meta.items?.parts ?? [])])
       expect(part, id).toMatch(/^[a-z][a-z0-9_]*$/);
   }
