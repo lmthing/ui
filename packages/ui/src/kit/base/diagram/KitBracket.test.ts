@@ -1,9 +1,26 @@
 import { createElement } from "react";
 import { expect, it } from "vitest";
-import { emptyLine, size } from "@lmthing/ui/catalog";
-import { KitBracket } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, styleAt } from "../../../../test/render";
-import { renderDiagram } from "./diagram-test-render";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { emptyLine, themeName } from "@lmthing/ui/catalog";
+import { KitBracket, KitProvider, PartScope } from "@lmthing/ui/kit";
+import { addressedElements, config, elementAt, styleAt } from "../../../../test/render";
+import { bracketTieHeight } from "./bracket-layout";
+
+function renderDiagram(view: ReturnType<typeof createElement>) {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "c1",
+    rev: 1,
+    state: "filled",
+    children: view,
+  });
+  const kit = createElement(KitProvider, { theme, children: scope });
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config, defaultTheme: themeName(theme) }, kit),
+  );
+}
 
 const rounds = [
   {
@@ -21,10 +38,11 @@ const rounds = [
       {
         id: "r2",
         sides: [
-          { label: "Elm", score: "1" },
+          { label: "Elm", score: "3" },
           { label: "Yew", score: "2" },
         ],
         winner: 1,
+        winnerLabel: "Yew advances",
         selected: true,
         target: { item: "r4", part: "open" },
       },
@@ -54,9 +72,10 @@ it("draws unplayed, partial, tied and decided ties without computing winners", (
   expect(tied.children[2]!.attributes).not.toContain("aria-current");
   const selected = elementAt(html, "home/c1/r4/open");
   expect(selected.attributes).toContain('aria-current="true"');
+  expect(selected.attributes).toContain('aria-label="Elm, 3, Yew, 2, Yew advances"');
   expect(selected.children[2]!.attributes).toContain('aria-current="true"');
   expect(selected.children[0]!.attributes).not.toContain("aria-current");
-  expect(styleAt(html, selected)).toContain(`height:${size.control.md * 2}px`);
+  expect(styleAt(html, selected)).toContain(`height:${bracketTieHeight}px`);
   expect(html).toContain(">Maple<");
   expect(html).toContain(">Pine<");
   expect(html).toContain(">Final<");

@@ -1,37 +1,50 @@
 import { Children, useState, type ReactNode } from "react";
-import { Path, Svg } from "react-native-svg";
-import { XStack, YStack, useTheme } from "tamagui";
+import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted, useTextStep } from "../text";
-import { DiagramBar, DiagramEmpty, useDiagramTarget, type Drawing, type Target } from "./diagram-drawing";
+import {
+  DiagramBar,
+  DiagramEmpty,
+  FieldLines,
+  useDiagramTarget,
+  type Drawing,
+  type Target,
+} from "./diagram-drawing";
 
 type Player = { id: string; label: string; number: string; target?: Target };
 type Line = { id: string; players: readonly Player[] };
 type PitchProps = Drawing & {
   lines: readonly Line[];
   substitutes?: ReactNode;
+  substitutesHeight?: number;
   style?: "pitch" | "list";
 };
 
-function FieldLines() {
-  const theme = useTheme();
-  // Drawing units, independent of viewport size.
-  const outline = "M2 2H98V98H2ZM2 50H98M26 2V15H74V2M26 98V85H74V98";
-  const arcs = "M50 42A11 8 0 1 1 50 58A11 8 0 1 1 50 42M39 15Q50 27 61 15M39 85Q50 73 61 85";
+function PlayerLabel({ label, list, loading }: { label: string; list: boolean; loading: boolean }) {
+  if (loading) return <DiagramBar width={list ? "50%" : size.avatar.sm} />;
+  if (list)
+    return (
+      <KitText part={null} lines={1}>
+        {label}
+      </KitText>
+    );
   return (
-    <YStack fullscreen aria-hidden accessibilityElementsHidden pointerEvents="none">
-      <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <Path
-          d={`${outline} ${arcs}`}
-          fill="none"
-          stroke={theme.muted?.val}
-          opacity={component.base.gridOpacity}
-          strokeWidth={component.base.borderWidth}
-          vectorEffect="non-scaling-stroke"
-        />
-      </Svg>
+    <YStack position="relative" width="100%" maxWidth={size.control.md * 2} paddingHorizontal={space.xs}>
+      <YStack
+        fullscreen
+        left={space.xs / 2}
+        right={space.xs / 2}
+        backgroundColor="$raised"
+        borderRadius={radius.pill}
+        aria-hidden
+      />
+      <YStack position="relative">
+        <KitText role="caption" align="center" lines={1} part={null}>
+          {label}
+        </KitText>
+      </YStack>
     </YStack>
   );
 }
@@ -77,13 +90,7 @@ function PitchPlayer({ player, list, loading }: { player: Player; list: boolean;
         justifyContent="center"
         {...(list ? { flex: component.base.bodyFlex } : { width: "100%", alignItems: "center" })}
       >
-        {loading ? (
-          <DiagramBar width={list ? "50%" : size.avatar.sm} />
-        ) : (
-          <KitText role={role} align={list ? "start" : "center"} lines={1} part={null}>
-            {player.label}
-          </KitText>
-        )}
+        <PlayerLabel label={player.label} {...{ list, loading }} />
       </YStack>
     </YStack>
   );
@@ -116,16 +123,24 @@ function PitchLine({ line, loading, list }: { line: Line; loading: boolean; list
   );
 }
 
-function PitchSubstitutes({ children, loading }: { children: ReactNode; loading: boolean }) {
+function PitchSubstitutes({
+  children,
+  loading,
+  hint,
+}: {
+  children: ReactNode;
+  loading: boolean;
+  hint?: number | undefined;
+}) {
   const [height, setHeight] = useState<number>(size.control.md);
   if (!Children.toArray(children).length) return null;
   return (
     <YStack
-      minHeight={size.control.md}
+      minHeight={Math.max(size.control.md, loading ? Math.max(hint ?? 0, height) : (hint ?? 0))}
       justifyContent="center"
       onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}
     >
-      {loading ? <DiagramBar width="72%" height={height} /> : children}
+      {loading ? <DiagramBar width="58%" height={space.md} /> : children}
     </YStack>
   );
 }
@@ -134,6 +149,7 @@ function PitchSubstitutes({ children, loading }: { children: ReactNode; loading:
 export function KitPitch({
   lines,
   substitutes,
+  substitutesHeight,
   part = "root",
   loading = false,
   style = "pitch",
@@ -163,7 +179,9 @@ export function KitPitch({
           <DiagramEmpty icon="users" loading={loading} />
         )}
       </YStack>
-      <PitchSubstitutes loading={loading}>{substitutes}</PitchSubstitutes>
+      <PitchSubstitutes loading={loading} hint={substitutesHeight}>
+        {substitutes}
+      </PitchSubstitutes>
     </YStack>
   );
 }

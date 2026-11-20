@@ -1,6 +1,12 @@
 import { expect, it } from "vitest";
 import { space } from "../../../catalog";
-import { bracketGap, bracketLayout, bracketTieHeight, bracketWidth } from "./bracket-layout";
+import {
+  bracketGap,
+  bracketHeadingHeight,
+  bracketLayout,
+  bracketTieHeight,
+  bracketWidth,
+} from "./bracket-layout";
 
 it("centres later ties and draws only supplied forward links", () => {
   const rounds = [
@@ -17,7 +23,7 @@ it("centres later ties and draws only supplied forward links", () => {
   const height = layout.height;
   expect(layout.width).toBe(bracketWidth * 3 + bracketGap * 2);
   expect(layout.columns).toEqual([
-    [space.lg / 2, height - bracketTieHeight - space.lg / 2],
+    [space.md / 2, height - bracketTieHeight - space.md / 2],
     [(height - bracketTieHeight) / 2],
     [(height - bracketTieHeight) / 2],
   ]);
@@ -31,4 +37,20 @@ it("centres later ties and draws only supplied forward links", () => {
       decided: true,
     },
   ]);
+});
+
+it("trims the final round without clipping its card or the incoming elbows", () => {
+  const rounds = [
+    { ties: ["a", "b", "c", "d"].map((id) => ({ id })) },
+    { ties: [{ id: "e" }, { id: "f" }] },
+    { ties: [{ id: "g" }] },
+  ];
+  const layout = bracketLayout(rounds, [
+    { from: "e", to: "g" },
+    { from: "f", to: "g" },
+  ]);
+  const [first, , final] = layout.windows;
+  expect(final!.height).toBeLessThan(first!.height);
+  expect(final!.top).toBeLessThan(layout.height / 4 + bracketHeadingHeight + space.md);
+  expect(final!.top + final!.height).toBeGreaterThan(layout.height * 0.75 + bracketHeadingHeight + space.md);
 });

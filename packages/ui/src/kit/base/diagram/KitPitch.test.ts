@@ -1,10 +1,33 @@
-import { createElement } from "react";
+import { createElement, type ReactNode } from "react";
 import * as jsxRuntime from "react/jsx-dev-runtime";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
 import { expect, it, vi } from "vitest";
-import { components, emptyLine, size } from "@lmthing/ui/catalog";
-import { createScreenController, KitAction, KitPitch } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, styleAt } from "../../../../test/render";
-import { renderDiagram } from "./diagram-test-render";
+import { components, emptyLine, size, themeName } from "@lmthing/ui/catalog";
+import {
+  createScreenController,
+  KitAction,
+  KitPitch,
+  KitProvider,
+  PartScope,
+  type ScreenController,
+} from "@lmthing/ui/kit";
+import { addressedElements, config, elementAt, styleAt } from "../../../../test/render";
+
+function renderDiagram(view: ReactNode, controller?: ScreenController) {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "c1",
+    rev: 1,
+    state: "filled",
+    children: view,
+  });
+  const kit = createElement(KitProvider, { theme, interactive: true, controller, children: scope });
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config, defaultTheme: themeName(theme) }, kit),
+  );
+}
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
 
@@ -18,7 +41,7 @@ const lines = [
     ],
   },
 ];
-const substitutes = createElement(KitAction, { label: "Bench details", part: "bench" });
+const substitutes = createElement(KitAction, { key: "bench", label: "Bench details", part: "bench" });
 
 it.each(["pitch", "list"] as const)("draws player items and substitutes in %s", (style) => {
   const html = renderDiagram(createElement(KitPitch, { lines, substitutes, style, part: "formation" }));
@@ -51,6 +74,23 @@ it.each(["pitch", "list"] as const)("shows shared empty copy for %s with no play
   const html = renderDiagram(createElement(KitPitch, { lines: [{ id: "back", players: [] }], style }));
   expect(html).toContain(emptyLine(undefined));
   expect(html).not.toContain('vector-effect="non-scaling-stroke"');
+});
+
+it("reserves a multi-row bench on a cold loading render without mounting its controls", () => {
+  const substitutesHeight = size.control.md * 2;
+  const bench = [
+    substitutes,
+    createElement(KitAction, { key: "more", label: "More bench details", part: "more" }),
+  ];
+  for (const loading of [false, true]) {
+    const html = renderDiagram(
+      createElement(KitPitch, { lines, substitutes: bench, substitutesHeight, loading }),
+    );
+    expect(styleAt(html, elementAt(html, "home/c1/root").children[1]!)).toContain(
+      `min-height:${substitutesHeight}px`,
+    );
+    expect(html.includes("More bench details")).toBe(!loading);
+  }
 });
 
 it("uses the shared controller for player press and activation keys", async () => {

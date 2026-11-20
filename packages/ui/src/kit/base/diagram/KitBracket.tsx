@@ -1,27 +1,26 @@
-import { Path, Svg } from "react-native-svg";
-import { XStack, YStack, useTheme } from "tamagui";
+import { useState } from "react";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted } from "../text";
-import { bracketGap, bracketLayout, bracketTieHeight, bracketWidth } from "./bracket-layout";
 import {
-  DiagramBar,
-  DiagramEmpty,
-  HorizontalDiagramScroll,
-  useDiagramTarget,
-  type Drawing,
-  type Target,
-} from "./diagram-drawing";
+  bracketGap,
+  bracketHeadingHeight,
+  bracketLayout,
+  bracketRoundWidth,
+  bracketTieHeight,
+} from "./bracket-layout";
+import { BracketLinks, BracketScroll } from "./bracket-scroll";
+import { DiagramBar, DiagramEmpty, useDiagramTarget, type Drawing, type Target } from "./diagram-drawing";
 
 type Side = { label: string; score?: string };
 type Tie = {
   id: string;
   sides: readonly [Side, Side];
-  winner?: 0 | 1;
   selected?: boolean;
   target?: Target;
-};
+} & ({ winner?: undefined; winnerLabel?: undefined } | { winner: 0 | 1; winnerLabel: string });
 type Round = { id: string; label: string; ties: readonly Tie[] };
 type BracketProps = Drawing & {
   rounds: readonly Round[];
@@ -40,7 +39,12 @@ function TieSide({ side, winner, loading }: { side: Side; winner: boolean; loadi
         {loading ? (
           <DiagramBar width="76%" />
         ) : (
-          <KitText role="label" tone={winner ? "accent" : "text"} lines={1} part={null}>
+          <KitText
+            role="label"
+            tone={winner ? "accent" : side.score === undefined ? "muted" : "text"}
+            lines={1}
+            part={null}
+          >
             {side.label}
           </KitText>
         )}
@@ -62,6 +66,7 @@ function TieSide({ side, winner, loading }: { side: Side; winner: boolean; loadi
 function TieCard({ tie, top, loading }: { tie: Tie; top: number; loading: boolean }) {
   const ks = useKitStyle();
   const label = tie.sides.map(({ label, score }) => (score === undefined ? label : `${label}, ${score}`));
+  if (tie.winnerLabel) label.push(tie.winnerLabel);
   const target = useDiagramTarget(tie.target, loading, label.join(", "), tie.selected);
   const selected = !loading && tie.selected;
   return (
@@ -85,22 +90,46 @@ function TieCard({ tie, top, loading }: { tie: Tie; top: number; loading: boolea
   );
 }
 
-function BracketLinks({ layout, loading }: { layout: ReturnType<typeof bracketLayout>; loading: boolean }) {
-  const theme = useTheme();
-  if (!layout.paths.length) return null;
+function RoundColumn({
+  round,
+  tops,
+  roundWidth,
+  loading,
+}: {
+  round: Round;
+  tops: number[];
+  roundWidth: number;
+  loading: boolean;
+}) {
+  const context = usePartContext();
   return (
-    <YStack fullscreen aria-hidden accessibilityElementsHidden pointerEvents="none">
-      <Svg width={layout.width} height={layout.height}>
-        {layout.paths.map(({ d, decided }, index) => (
-          <Path
-            key={index}
-            d={d}
-            fill="none"
-            stroke={theme[!loading && decided ? "accent" : loading ? "line" : "muted"]?.val}
-            strokeWidth={component.base.strongBorder}
-          />
-        ))}
-      </Svg>
+    <YStack
+      width={roundWidth}
+      position="relative"
+      {...(isWeb ? { style: { scrollSnapAlign: "start" } as never } : {})}
+    >
+      <YStack
+        position="absolute"
+        top={tops[0] ?? component.base.none}
+        width="100%"
+        height={bracketHeadingHeight}
+        paddingHorizontal={space.md + component.base.strongBorder}
+        backgroundColor="$raised"
+        justifyContent="center"
+      >
+        {loading ? (
+          <DiagramBar width="54%" height={space.md} />
+        ) : (
+          <KitText role="heading" lines={1} part={null}>
+            {round.label}
+          </KitText>
+        )}
+      </YStack>
+      {round.ties.map((tie, index) => (
+        <PartContext.Provider key={tie.id} value={{ ...context, item: tie.target?.item ?? tie.id }}>
+          <TieCard {...{ tie, loading }} top={tops[index]! + bracketHeadingHeight} />
+        </PartContext.Provider>
+      ))}
     </YStack>
   );
 }
@@ -108,45 +137,25 @@ function BracketLinks({ layout, loading }: { layout: ReturnType<typeof bracketLa
 function BracketGrid({
   rounds,
   layout,
+  roundWidth,
   loading,
 }: {
   rounds: BracketProps["rounds"];
   layout: ReturnType<typeof bracketLayout>;
+  roundWidth: number;
   loading: boolean;
 }) {
-  const context = usePartContext();
   return (
-    <YStack paddingHorizontal={space.md} paddingVertical={space.md} gap={space.xs}>
-      <XStack gap={bracketGap} alignItems="center">
-        {rounds.map(({ id, label }) => (
-          <YStack
-            key={id}
-            width={bracketWidth}
-            height={size.control.md}
-            paddingHorizontal={space.md + component.base.strongBorder}
-            backgroundColor="$raised"
-            justifyContent="center"
-          >
-            {loading ? (
-              <DiagramBar width="54%" height={space.md} />
-            ) : (
-              <KitText role="heading" lines={1} part={null}>
-                {label}
-              </KitText>
-            )}
-          </YStack>
-        ))}
-      </XStack>
-      <XStack gap={bracketGap} width={layout.width} height={layout.height} position="relative">
+    <YStack padding={space.md} width={layout.width + space.md * 2}>
+      <XStack
+        gap={bracketGap}
+        width={layout.width}
+        height={layout.height + bracketHeadingHeight}
+        position="relative"
+      >
         <BracketLinks layout={layout} loading={loading} />
         {rounds.map((round, column) => (
-          <YStack key={round.id} width={bracketWidth} position="relative">
-            {round.ties.map((tie, index) => (
-              <PartContext.Provider key={tie.id} value={{ ...context, item: tie.target?.item ?? tie.id }}>
-                <TieCard {...{ tie, loading }} top={layout.columns[column]![index]!} />
-              </PartContext.Provider>
-            ))}
-          </YStack>
+          <RoundColumn key={round.id} {...{ round, roundWidth, loading }} tops={layout.columns[column]!} />
         ))}
       </XStack>
     </YStack>
@@ -157,27 +166,33 @@ function BracketGrid({
 export function KitBracket({ part = "root", loading = false, rounds, links }: BracketProps) {
   const address = usePart(part);
   const ks = useKitStyle();
+  const [viewport, setViewport] = useState(0);
   const empty = !rounds.some(({ ties }) => ties.length);
-  const layout = bracketLayout(rounds, links);
+  const roundWidth = bracketRoundWidth(viewport);
+  const layout = bracketLayout(rounds, links, roundWidth);
+  const width = layout.width + space.md * 2;
+  const travel = Math.max(0, width - viewport);
+  const offsets = rounds.map((_, index) => Math.min(travel, index * (roundWidth + bracketGap)));
+  const label = rounds.map((round) => round.label).join(", ");
   return (
     <YStack
       {...address}
+      onLayout={(event) => {
+        address.onLayout();
+        setViewport(event.nativeEvent.layout.width);
+      }}
       {...({ "data-look-twoedge": true } as object)}
       borderRadius={shifted("lg", ks.radiusShift)}
-      backgroundColor="$raised"
+      backgroundColor={empty ? undefined : "$raised"}
       overflow="hidden"
       aria-busy={loading || undefined}
     >
       {empty ? (
         <DiagramEmpty icon="trophy" loading={loading} />
       ) : (
-        <HorizontalDiagramScroll
-          width={layout.width + space.md * 2}
-          label={rounds.map(({ label }) => label).join(", ")}
-          loading={loading}
-        >
-          <BracketGrid {...{ rounds, layout, loading }} />
-        </HorizontalDiagramScroll>
+        <BracketScroll {...{ width, offsets, label, loading }} view={viewport} windows={layout.windows}>
+          <BracketGrid {...{ rounds, layout, roundWidth, loading }} />
+        </BracketScroll>
       )}
     </YStack>
   );

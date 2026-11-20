@@ -1,12 +1,46 @@
-import { useState, type ReactNode } from "react";
-import { isWeb, ScrollView, YStack } from "tamagui";
-import { component, emptyLine, size, space, type IconName } from "../../../catalog";
+import { Path, Svg } from "react-native-svg";
+import { isWeb, YStack, useTheme } from "tamagui";
+import { component, emptyLine, radius, size, space, type IconName } from "../../../catalog";
 import { useEmptyThing, usePart } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted } from "../text";
 
 export type Drawing = { part?: string; loading?: boolean };
 export type Target = { item?: string; part: string };
+
+export function FieldLines() {
+  const theme = useTheme();
+  // Drawing units, independent of viewport size.
+  const outline = "M2 2H98V98H2ZM2 50H98M26 2V15H74V2M26 98V85H74V98";
+  const arcs = "M39 15Q50 27 61 15M39 85Q50 73 61 85";
+  return (
+    <YStack fullscreen aria-hidden accessibilityElementsHidden pointerEvents="none">
+      <Svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <Path
+          d={`${outline} ${arcs}`}
+          fill="none"
+          stroke={theme.muted?.val}
+          opacity={component.base.gridOpacity}
+          strokeWidth={component.base.borderWidth}
+          vectorEffect="non-scaling-stroke"
+        />
+      </Svg>
+      <YStack
+        position="absolute"
+        top="50%"
+        left="50%"
+        marginTop={-size.control.lg / 2}
+        marginLeft={-size.control.lg / 2}
+        width={size.control.lg}
+        height={size.control.lg}
+        borderWidth={component.base.borderWidth}
+        borderColor="$muted"
+        opacity={component.base.gridOpacity}
+        borderRadius={radius.pill}
+      />
+    </YStack>
+  );
+}
 
 export function useDiagramTarget(
   target: Target | undefined,
@@ -42,59 +76,6 @@ export function useDiagramTarget(
         }
       : {}),
   };
-}
-
-export function HorizontalDiagramScroll({
-  children,
-  width,
-  label,
-  loading,
-}: {
-  children: ReactNode;
-  width: number;
-  label: string;
-  loading: boolean;
-}) {
-  const { nativeHost } = useKit();
-  const [view, setView] = useState(0);
-  const [left, setLeft] = useState(0);
-  const overflow = view > 0 && width > view;
-  return (
-    <>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        scrollEnabled={!loading}
-        tabIndex={!loading && overflow ? 0 : -1}
-        accessibilityRole="region"
-        accessibilityLabel={loading ? undefined : label}
-        onLayout={(event) => setView(event.nativeEvent.layout.width)}
-        onScroll={(event) => setLeft(event.nativeEvent.contentOffset.x)}
-        onFocus={(event: { target: unknown }) => nativeHost?.ensureVisible?.(event.target)}
-        scrollEventThrottle={16}
-      >
-        {children}
-      </ScrollView>
-      {overflow && (
-        <YStack
-          marginHorizontal={space.md}
-          marginBottom={space.md}
-          height={space.xs}
-          borderRadius={space.xs}
-          backgroundColor="$line"
-          aria-hidden
-        >
-          <YStack
-            left={`${(Math.max(0, Math.min(width - view, left)) / width) * 100}%`}
-            width={`${(view / width) * 100}%`}
-            height="100%"
-            borderRadius={space.xs}
-            backgroundColor={loading ? "$line" : "$muted"}
-          />
-        </YStack>
-      )}
-    </>
-  );
 }
 
 export function DiagramEmpty({ icon, loading }: { icon: IconName; loading: boolean }) {
