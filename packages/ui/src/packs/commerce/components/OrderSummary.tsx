@@ -105,5 +105,5 @@ export const probes = [
   write(
     "Write the receipt for placed order PL-104 on 2026-11-20: two fern pots at 12 each, pickup at the Glasshouse counter.",
   ),
-  read("Buy what I bought in order PL-104 again", { address: "o1/reorder", action: "press" }),
+  read("Reorder the same two fern pots from my receipt PL-104.", { address: "o1/reorder", action: "press" }),
 ] satisfies c.Probe[];
