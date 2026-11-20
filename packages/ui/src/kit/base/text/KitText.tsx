@@ -121,7 +121,7 @@ function maskRuns(children: ReactNode) {
         isValidElement(run) ? (
           run
         ) : (
-          <Frame {...bar}>
+          <Frame {...(typeof run === "string" && /[\p{L}\p{N}]/u.test(run) ? bar : {})}>
             <Text opacity={0}>{run}</Text>
           </Frame>
         ),

@@ -5,7 +5,7 @@ import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
-import { KitIcon, KitText } from "../text";
+import { KitContent, KitIcon, KitText } from "../text";
 
 type Position = "start" | "middle" | "end";
 type RouteProps = {
@@ -88,7 +88,6 @@ function Rail({
   const progress = useSignatureProgress("route_draw");
   return (
     <YStack width={size.icon.md} alignItems="center" aria-hidden accessibilityElementsHidden>
-      {/* The connector runs from the stop above to the stop below, behind the mark. */}
       <YStack
         position="absolute"
         top={position === "start" ? pad + line / 2 : 0}
@@ -105,11 +104,35 @@ function Rail({
   );
 }
 
-function loadingLines(children: ReactNode): ComponentProps<typeof KitText>[] {
+type TextProps = ComponentProps<typeof KitText>;
+const textOnly = (children: ReactNode): ReactNode =>
+  Children.map(children, (node) => (isValidElement<TextProps>(node) ? textOnly(node.props.children) : node));
+function loadingLines(children: ReactNode): ReactNode[] {
   return Children.toArray(children).flatMap((node) => {
-    if (!isValidElement<ComponentProps<typeof KitText>>(node)) return [];
-    if (node.type === KitText && typeof node.props.children === "string") return [node.props];
-    return loadingLines(node.props.children);
+    if (isValidElement<ComponentProps<typeof KitContent>>(node) && node.type === KitContent)
+      return [
+        <KitContent key={node.key} {...node.props} lead={null}>
+          {loadingLines(node.props.children)}
+        </KitContent>,
+      ];
+    if (!isValidElement<TextProps>(node)) return [];
+    if (node.type !== KitText) return loadingLines(node.props.children);
+    return [
+      <YStack key={node.key} justifyContent="center">
+        <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
+          <KitText {...node.props} part={null} goto={undefined} item={undefined}>
+            {textOnly(node.props.children)}
+          </KitText>
+        </YStack>
+        <YStack
+          position="absolute"
+          width="72%"
+          height={space.sm}
+          borderRadius={radius.sm}
+          backgroundColor="$line"
+        />
+      </YStack>,
+    ];
   });
 }
 
@@ -125,20 +148,7 @@ function StopContent({ pad, children, loading, label }: StopContentProps) {
   const lines = loadingLines(children);
   return (
     <YStack flex={1} minHeight={height} paddingVertical={pad} position="relative" aria-hidden>
-      {(lines.length ? lines : [{ children: label }]).map((props, i) => (
-        <YStack key={i} justifyContent="center">
-          <YStack opacity={component.base.none} accessibilityElementsHidden pointerEvents="none">
-            <KitText {...props} part={null} goto={undefined} item={undefined} />
-          </YStack>
-          <YStack
-            position="absolute"
-            width="72%"
-            height={space.sm}
-            borderRadius={radius.sm}
-            backgroundColor="$line"
-          />
-        </YStack>
-      ))}
+      {lines.length ? lines : loadingLines(<KitText>{label}</KitText>)}
     </YStack>
   );
 }
@@ -178,10 +188,6 @@ function Stop({ label, position, children, goto, mark = "route" }: Omit<RoutePro
   );
 }
 
-/**
- * One stop on a route, with `KitRow`'s insets: a start ring, a dot between, a filled pin at the end,
- * centred on the first text line. Milestones can opt into a dot/check and link the entire item.
- */
 export function KitRouteStop({ item, ...props }: RouteProps) {
   const context = usePartContext();
   return (
