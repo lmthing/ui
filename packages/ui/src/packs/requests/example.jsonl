@@ -1,0 +1,55 @@
+{"id":"h1","c":"Header","title":"Report a bike problem","sub":"Spoke"}
+{"id":"f1","c":"Field","kind":"choice","label":"Problem category","options":["Brakes","Drivetrain"],"value":"Drivetrain"}
+{"id":"f2","c":"Field","label":"Where did it happen?","value":"Hill on Mill Road"}
+{"id":"c1","c":"Choice","question":"How urgent is it?","options":[{"title":"Normal"},{"title":"Urgent"}],"at":1}
+{"id":"m1","c":"Composer","style":"entry","hint":"Describe the problem","value":"The chain slips when I pedal uphill."}
+{"id":"b1","c":"Button","label":"Add evidence","goto":"requests_evidence"}
+{"id":"h2","c":"Header","style":"back","title":"Add evidence"}
+{"id":"f3","c":"Field","kind":"photo","label":"Photo of the chain"}
+{"id":"n1","c":"Note","text":"A clear photo of the drivetrain is optional but helps us diagnose the problem."}
+{"id":"b2","c":"Button","label":"Submit report","goto":"requests_submitted"}
+{"id":"h3","c":"Header","title":"Report submitted"}
+{"id":"s1","c":"Success","title":"Report received"}
+{"id":"d1","c":"Card","title":"Slipping chain","meta":"SR-41 · Spoke","body":"The chain slips when I pedal uphill."}
+{"id":"b3","c":"Button","label":"View report","goto":"requests_overview"}
+{"id":"h4","c":"Header","title":"Spoke repair desk"}
+{"id":"s2","c":"Search","hint":"Search repair reports"}
+{"id":"c2","c":"Chips","items":[{"label":"All repairs","on":true},{"label":"Urgent"}]}
+{"id":"q1","c":"RequestQueue","rows":[{"number":"SR-41","title":"Slipping chain","place":"Bench two","status":"new","urgency":"urgent","opened":"2026-11-19","openedAt":"09:00","due":"2026-11-20","dueAt":"16:00","goto":"requests_triage"},{"number":"SR-42","title":"Rear brake rubbing","status":"queued","urgency":"normal","opened":"2026-11-19","openedAt":"09:00","who":"Noor","goto":"brake"}]}
+{"id":"b4","c":"Button","label":"Report a problem","goto":"requests_intake"}
+{"id":"h5","c":"Header","style":"back","title":"Triage SR-41"}
+{"id":"d2","c":"Card","title":"Slipping chain","meta":"SR-41 · Spoke","body":"The chain slips when I pedal uphill."}
+{"id":"t1","c":"RequestTriage","number":"SR-41","title":"Slipping chain","reportedUrgency":"urgent","impact":"one","priority":"normal","queues":[{"label":"Drivetrain"},{"label":"Brakes"}],"at":0,"duplicates":[]}
+{"id":"n2","c":"Note","text":"Routing puts this report in the queue. Assign the technician next."}
+{"id":"h6","c":"Header","style":"back","title":"Assign the repair"}
+{"id":"f4","c":"Field","kind":"choice","label":"Technician","options":["Ella","Noor"],"value":"Ella"}
+{"id":"f5","c":"Field","kind":"date","label":"Work date","value":"2026-11-20"}
+{"id":"f6","c":"Field","kind":"time","label":"Start","value":"13:00"}
+{"id":"f7","c":"Field","kind":"time","label":"End","value":"14:00"}
+{"id":"w1","c":"WorkOrder","number":"WO-12","request":"SR-41","title":"Replace chain and test","who":"Ella","date":"2026-11-20","from":"13:00","to":"14:00","tasks":[{"text":"Inspect the drivetrain","required":true,"done":false},{"text":"Test ride under load","required":true,"done":false}],"parts":[],"status":"ready","minutes":0}
+{"id":"b5","c":"Button","label":"Save assignment","goto":"requests_work"}
+{"id":"h7","c":"Header","style":"back","title":"Your repair"}
+{"id":"d3","c":"Card","title":"Slipping chain","meta":"SR-41 · Spoke","body":"The chain slips when I pedal uphill."}
+{"id":"k1","c":"KeyValue","pairs":[{"label":"Priority","value":"Normal"},{"label":"Promised","value":"20 Nov at 16:00"}]}
+{"id":"l1","c":"List","rows":[{"title":"Work order WO-12","goto":"requests_work"},{"title":"Repair updates","goto":"requests_updates"}]}
+{"id":"b6","c":"Button","label":"Latest update","goto":"requests_updates"}
+{"id":"h8","c":"Header","style":"back","title":"Repair updates"}
+{"id":"d4","c":"Card","title":"Slipping chain","meta":"SR-41 · Spoke","body":"The chain slips when I pedal uphill."}
+{"id":"t2","c":"RequestThread","number":"SR-41","entries":[{"by":"Ella","date":"2026-11-19","time":"10:00","audience":"internal","kind":"assignment","who":"Ella"},{"by":"Ella","date":"2026-11-19","time":"10:05","audience":"internal","kind":"work","order":"WO-12","goto":"requests_work"},{"by":"Ella","date":"2026-11-19","time":"10:10","audience":"requester","kind":"status","from":"working","to":"waiting"},{"by":"Ella","date":"2026-11-19","time":"10:15","audience":"requester","kind":"message","text":"We're waiting for the replacement chain."},{"by":"Ella","date":"2026-11-19","time":"10:20","audience":"internal","kind":"message","text":"Measured chain stretch during inspection.","photo":"local:1"}]}
+{"id":"h9","c":"Header","style":"back","title":"Work order WO-12"}
+{"id":"k2","c":"KeyValue","pairs":[{"label":"Request","value":"SR-41"},{"label":"Technician","value":"Ella"}]}
+{"id":"w2","c":"WorkOrder","number":"WO-12","request":"SR-41","title":"Replace chain and test","who":"Ella","date":"2026-11-20","from":"13:00","to":"14:00","tasks":[{"text":"Inspect the drivetrain","required":true,"done":true},{"text":"Test ride under load","required":true,"done":false}],"parts":[],"status":"blocked","blockedBy":"parts","note":"Waiting for the replacement chain.","minutes":20}
+{"id":"n3","c":"Note","text":"Log the chain when it is fitted, then finish the test ride."}
+{"id":"h13","c":"Header","style":"back","title":"Work completed"}
+{"id":"k3","c":"KeyValue","pairs":[{"label":"Request","value":"SR-41"},{"label":"Technician","value":"Ella"}]}
+{"id":"w3","c":"WorkOrder","number":"WO-12","request":"SR-41","title":"Replace chain and test","who":"Ella","date":"2026-11-20","from":"13:00","to":"14:00","tasks":[{"text":"Inspect the drivetrain","required":true,"done":true},{"text":"Test ride under load","required":true,"done":true}],"parts":[{"name":"10-speed chain","qty":1,"unitCost":19}],"status":"done","minutes":45,"style":"summary"}
+{"id":"n5","c":"Note","text":"The completed test ride is ready for verification."}
+{"id":"h10","c":"Header","style":"back","title":"Verify the repair"}
+{"id":"r1","c":"RequestResolution","number":"SR-41","outcome":"repaired","summary":"Replaced the chain and completed a test ride.","checks":[{"text":"No slipping under load","done":true}],"photos":["local:2"],"style":"receipt"}
+{"id":"n4","c":"Note","text":"If the chain slips again, tell us when it happened so we can reopen the report."}
+{"id":"h11","c":"Header","style":"back","title":"How was the repair?"}
+{"id":"s3","c":"Scale","style":"stars","label":"Rate the repair","value":0}
+{"id":"m2","c":"Composer","style":"entry","hint":"Anything else to tell us?"}
+{"id":"b7","c":"Button","label":"Send feedback"}
+{"id":"h12","c":"Header","title":"Completed repairs"}
+{"id":"s4","c":"Stats","tiles":[{"label":"Repairs closed","value":"18"},{"label":"First-time fixes","value":"16"}]}
