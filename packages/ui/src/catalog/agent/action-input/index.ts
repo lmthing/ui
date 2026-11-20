@@ -2,16 +2,46 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
 export { localValues, selectStep } from "./select-step";
+import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
   nestedAt,
   parseControlProps,
   projectControlInput,
+  resolveKeypadValue,
+  validateActionValue,
   type ActResult,
+  type ActStep,
   type Affordance,
   type ScreenLike,
   type Values,
 } from "../index";
+
+export function validateStep(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  found: Affordance,
+  step: ActStep,
+  values: Values,
+  key: string,
+) {
+  const number = numericStep(screen, defs, found.address, step.action, values);
+  const limits = number?.set
+    ? { ...number.set.spec, numeric: true as const }
+    : nestedSpec(screen, defs, found.address);
+  const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
+  let result = keypad
+    ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
+    : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
+  if (!("code" in result)) {
+    const max = found.input?.kind === "text" ? found.input.max : undefined;
+    if (max !== undefined && typeof result.value === "string" && result.value.length > max)
+      result = { code: "invalid_value", hint: `Use at most ${max} characters` };
+    else if (found.blocked && result.value !== false)
+      return { result: { code: found.blocked, hint: "Turn off an active choice first" }, number, limits };
+  }
+  return { result, number, limits };
+}
 
 export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -101,7 +131,8 @@ export function stageValue(
     next[key] = amount;
   } else if (action === "toggle" || action === "check") {
     const projected = detail === ":on" || detail === ":done";
-    const now = found.togglePeers ? projected : ((next[key] as boolean | undefined) ?? projected);
+    const now =
+      found.togglePeers || found.input ? projected : ((next[key] as boolean | undefined) ?? projected);
     next[key] = (value as boolean | undefined) ?? !now;
     for (const peer of found.togglePeers ?? []) next[`${screenId}/${peer}`] = next[key];
   } else if (action === "increment" || action === "decrement") {
@@ -113,5 +144,6 @@ export function stageValue(
     next[key] = value;
     if (number?.set) next[`${screenId}/${number.id}/${number.slot}`] = value;
   }
+  storeLiveInput(next, screenId, found, next[key]);
   return true;
 }

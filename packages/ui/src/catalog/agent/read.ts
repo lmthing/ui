@@ -1,17 +1,17 @@
 import { liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
-import { peekLimit, wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
-import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+import { affordancesOf, formatAffordance } from "./affordances";
 import { projectClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
-import { componentTexts, itemTexts, readAffordances, type ReadSchema as Json } from "./reading";
+import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
+import { projectVisibleItems } from "./visibility";
 
 type Props = Record<string, unknown>;
 
@@ -26,12 +26,24 @@ function variantsOf(schema: Json, props: Props): string {
     .join("");
 }
 
-function readingProps(meta: Meta, props: Props, instance: string, values: Props, session?: SessionState) {
+function readingProps(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  values: Props,
+  live: Props,
+  session?: SessionState,
+) {
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  const projected = visibleNestedProps(meta, projectDraw(meta, timed, get), get);
+  const useLive =
+    meta.live || meta.items?.visibleWhen || Object.values(meta.selections ?? {}).some((s) => s.runtime);
+  const projected = projectVisibleItems(
+    meta,
+    visibleNestedProps(meta, useLive ? live : projectDraw(meta, timed, get), get),
+  );
   if (!session) return projected;
   const current =
     session.kind === "rounds"
@@ -96,7 +108,7 @@ export function readComponent(
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, readable), state, lang) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, props, readable), state, lang) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
@@ -114,46 +126,6 @@ export function readComponent(
     get("more") === true,
     lang,
   );
-}
-
-function readItems(
-  meta: Meta,
-  schema: Json,
-  props: Props,
-  instance: string,
-  key: string | undefined,
-  head: string,
-  own: string[],
-  affordances: Affordance[],
-  peekOpen: boolean,
-  lang?: string,
-) {
-  const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
-  const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
-  const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
-  const firstOnly = meta.items?.visible === "first",
-    peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
-  const items = firstOnly ? all.slice(0, 1) : peek && !peekOpen ? all.slice(0, peekLimit) : all;
-  const words = wordsFor(lang),
-    hidden = all.length - items.length;
-  const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
-  const itemSchema = key ? schema.properties?.[key]?.items : undefined;
-  return [
-    line.join(" "),
-    ...items.map((item) => {
-      const base = `${instance}/${String(item.id)}`;
-      const mine = affordances.filter((a) => a.address === base || a.address.startsWith(`${base}/`));
-      return `  ${[
-        String(item.id),
-        itemTexts(itemSchema, item, meta.items?.nested?.key).join(" · "),
-        ...mine.map((a) => formatAffordance(a)),
-      ]
-        .filter(Boolean)
-        .join(" ")}`;
-    }),
-    ...(hidden ? [`  ${(firstOnly ? words.moreRead : words.peekCount)(numberLine(hidden, lang))}`] : []),
-    ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
-  ];
 }
 
 export type ScreenLike = {

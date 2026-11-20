@@ -87,6 +87,24 @@ it("keeps legacy data-only dispatch on authored non-filled entries without opt-i
   expect(onLink).toHaveBeenCalledExactlyOnceWith("another", "s/nav");
 });
 
+it("offers an error-only retry through mounted action lookup, read and press", () => {
+  const error: Definition = {
+    ...def,
+    meta: { ...def.meta, errorActions: ["retry.press"], actions: { parts: { retry: ["press"] } } },
+  };
+  const screen = { id: "s", components: [{ id: "game", c: error.meta.id }] };
+  const onAction = vi.fn();
+  const controller = createScreenController({ screen, defs: { [error.meta.id]: error }, onAction });
+  expect(controller.canPress("game/retry")).toBe(false);
+  controller.store.set("s/game/$state", "error");
+  expect(controller.canPress("game/retry")).toBe(true);
+  expect(controller.read()).toContain("[game/retry press]");
+  expect(controller.press("game/retry").ok).toBe(true);
+  expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "s/game/retry", action: "press" });
+  controller.store.set("s/game/$state", "filled");
+  expect(controller.press("game/retry").ok).toBe(false);
+});
+
 it("reads opted-in success details and exposes only the declared actions", () => {
   const result: Definition = {
     ...def,

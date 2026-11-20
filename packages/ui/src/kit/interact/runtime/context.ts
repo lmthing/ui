@@ -21,6 +21,7 @@ import {
   type MediaAdapter,
 } from "../index";
 import { initialClocks } from "../controls";
+import type { ActionEvent, SendHandler } from "../actions";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -37,12 +38,12 @@ export type ControllerOptions = {
   now?: (() => number) | undefined;
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
-  onSend?: ((text: string, address: string) => void) | undefined;
+  onSend?: SendHandler | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
-  onAction?: ((step: ActStep) => void) | undefined;
+  onAction?: ((step: ActionEvent) => void) | undefined;
 };
 export type ScreenComponent = ScreenLike["components"][number];
 function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now: () => number): Values {

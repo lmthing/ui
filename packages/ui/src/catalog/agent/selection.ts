@@ -1,6 +1,7 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { choiceValues, selectionOffer } from "./validate-value";
+import { projectNamedSelections } from "./live-inputs";
 
 type GetValue = (part: string) => unknown;
 const parentSlot = "$nested/parent";
@@ -43,8 +44,12 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
   const select = meta.select;
   const found = selectionAt(meta, props, target, explicit);
   if (!found) return {};
-  if (Object.hasOwn(meta.selections ?? {}, target))
-    return { [target]: found.value, [`$${meta.selections![target]!.prop}`]: found.value };
+  const named = Object.hasOwn(meta.selections ?? {}, target) && meta.selections![target]!;
+  if (named)
+    return {
+      [target]: found.value,
+      [named.runtime ? `$selection/${named.prop}` : `$${named.prop}`]: found.value,
+    };
   if (!select) return {};
   const values: Values = {};
   rowsOf(meta, props).forEach((row, index) => {
@@ -83,16 +88,8 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
 
-export function projectNamedSelections(meta: Meta, props: Values, get: GetValue): Values {
-  for (const { prop } of Object.values(meta.selections ?? {})) {
-    const value = get(`$${prop}`);
-    if (value !== undefined && value !== props[prop]) props = { ...props, [prop]: value };
-  }
-  return props;
-}
-
 export function projectSelection(meta: Meta, props: Values, get: GetValue): Values {
-  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get);
+  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get, "wire");
 }
 
 /** Resolve the visible parent from projected props, without removing or renumbering any rows. */

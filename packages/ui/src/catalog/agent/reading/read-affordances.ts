@@ -1,4 +1,5 @@
 import type { Definition } from "../../probes";
+import { liveInputKey } from "../live-inputs";
 import {
   choiceValues,
   controlValueKey,
@@ -40,10 +41,13 @@ export function readAffordances(
         ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
           ? undefined
           : set.value
-        : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
+        : a.input?.kind === "text"
+          ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
+          : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
-    if (typeof value === "boolean" && a.action === "check") detail = `:${value ? "done" : "todo"}`;
+    if (!a.input && typeof value === "boolean" && a.action === "check")
+      detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
     if (choices) detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices)}`;

@@ -1,5 +1,6 @@
 import { planAct, type ActStep, type Definition, type RandomSource, type ScreenLike } from "../../catalog";
 import { createStandaloneAccess, readControls } from "./runtime";
+import { deliverSend, type SendHandler } from "./actions";
 import type { InteractionStore } from "./store";
 
 export type ActOptions = { dryRun?: boolean; agent?: boolean };
@@ -15,6 +16,7 @@ type AgentOptions = {
   random?: RandomSource | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
+  onSend?: SendHandler;
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
@@ -23,7 +25,10 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
   if (
     screen.components.some(({ c }) => {
       const meta = options.defs[c]?.meta;
-      return meta?.confirmParts?.length && (meta.session || meta.successActions?.length);
+      return (
+        meta?.confirmParts?.length &&
+        (meta.session || meta.successActions?.length || meta.errorActions?.length || meta.live?.derive)
+      );
     })
   )
     return createStandaloneAccess({ ...options, screen });
@@ -64,6 +69,7 @@ export function createAgentAccess(options: AgentOptions) {
       if (opts.dryRun) return { ...reply, dryRun: true };
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);
+      for (const send of plan.sends ?? []) deliverSend(send, options.onSend);
       for (const step of list) log.push({ ...step, at: Date.now() });
       return { ...reply, dryRun: false };
     },

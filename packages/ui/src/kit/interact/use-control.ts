@@ -4,12 +4,23 @@ import {
   nestedControls,
   nestedRemaining,
   projectControls,
+  projectLiveInputs,
   type Meta,
   type Values,
 } from "../../catalog";
 import { usePartContext } from "../part";
 import { useKit } from "../provider";
 const subscribeNone = () => () => {};
+
+/** Use the same store-backed presentation and derived gates as the reader and dispatcher. */
+export function useLiveControls(meta: Meta, props: Values): Values {
+  const { controller } = useKit();
+  const { component } = usePartContext();
+  return (
+    controller?.liveControls(meta, props, component) ??
+    projectLiveInputs(meta, props, component, () => undefined)
+  );
+}
 export function useControlValue<T>(address: string, fallback: T): T {
   const { controller } = useKit();
   return useSyncExternalStore(
