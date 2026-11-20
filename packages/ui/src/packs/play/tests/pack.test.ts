@@ -81,6 +81,11 @@ it("defaults to numbered results without inventing score totals", () => {
   expect(list).toMatchObject({ lead: "number", trail: "value", style: undefined });
   expect(list.rows.every(({ value, trail }) => value === undefined && trail === "none")).toBe(true);
 });
+it("defaults to one score column at a time when awarding points", () => {
+  const registry = createRegistry({ packs: ["play"], includeDrafts: true });
+  const screen = registry.defaultLines("trivia_round", "play_awards", cast);
+  expect(screen.components.find(({ c }) => c === "ScoreSheet")).toMatchObject({ overflow: "page" });
+});
 it("validates each worked-example line and preserves score-record totals and ties", async () => {
   const source = await readFile(new URL("../example.jsonl", import.meta.url), "utf8");
   const lines = source
@@ -97,6 +102,7 @@ it("validates each worked-example line and preserves score-record totals and tie
   for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
   const { id: _id, c: _c, ...scoreInput } = lines.find((line) => line.c === "ScoreSheet");
   const scores = components.ScoreSheet.props.parse(scoreInput);
+  expect(scores.overflow).toBe("page");
   const totals = scores.players
     .map((player, index) => ({
       title: player.name,

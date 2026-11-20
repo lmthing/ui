@@ -20,6 +20,10 @@ export type ClockMeta = {
   max?:
     | number
     | ((holder: Readonly<Record<string, unknown>>, outer: Readonly<Record<string, unknown>>) => number);
+  /** Reparse current numeric settings on mounted ticks when computing a duration with max. */
+  liveDuration?: true;
+  /** An elapsed-time clock can begin again at zero after expiring, without a reset control. */
+  restartOnPlay?: true;
   when?: Readonly<Record<string, string | boolean>>;
   /** Without a start trigger the clock starts when the controller is created. */
   start?: ClockTrigger;
@@ -34,4 +38,6 @@ export type ClockState = {
   seed?: number;
   /** Active milliseconds below one whole second, retained across playback pauses. */
   remainder?: number;
+  /** A replayable clock materialized its expiry, even if its duration is later edited. */
+  expired?: true;
 };

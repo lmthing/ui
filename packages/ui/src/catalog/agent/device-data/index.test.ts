@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { components, writerFormatFor, type Definition } from "@lmthing/ui/catalog";
+import { components, planAct, writerFormatFor, type Definition } from "@lmthing/ui/catalog";
 import { selectDeviceData } from "./index";
 import { readComponent, readScreen } from "../read";
 
@@ -48,5 +48,52 @@ it("keeps the Writer schema, interaction values and preview fixtures separate fr
     "en: readings = 1 — wire props only",
   );
   expect(readComponent(def, {}, "r1", "filled", {}, "en", { readings })[0]).toContain("en: readings = 1");
+  expect(previewDeviceData).not.toHaveBeenCalled();
+});
+
+it("omits gated text and actions and plans only against the supplied host records", () => {
+  const action: Definition = {
+    ...def,
+    meta: { ...def.meta, actions: { parts: { root: ["press"] } } },
+    props: z.strictObject({ goto: z.string() }),
+  };
+  const gated: Definition = {
+    ...action,
+    meta: {
+      ...action.meta,
+      id: "GatedFixture",
+      deviceDataVisible: (data) => !!data.readings?.length && !Object.hasOwn(data, "unrelated"),
+    },
+  };
+  const defs = { ReadingFixture: action, GatedFixture: gated };
+  const input = { goto: "detail" };
+  const screen = {
+    id: "home",
+    components: [
+      { id: "g", c: "GatedFixture", ...input },
+      { id: "u", c: "ReadingFixture", ...input },
+    ],
+  };
+  const values = { "home/g/$deviceData": { readings } };
+  const step = { address: "home/g/root", action: "press" };
+  for (const data of [undefined, { readings: [] }, Object.create({ readings })]) {
+    expect(readComponent(gated, input, "g", "filled", {}, "en", data)).toEqual([]);
+    expect(readScreen(screen, defs, values, "en", data)).not.toContain("GatedFixture");
+    expect(readScreen(screen, defs, values, "en", data)).toContain("[u press");
+    expect(planAct(screen, defs, values, [step], null, "planner", data)).toMatchObject({
+      ok: false,
+      code: "not_actionable",
+      at: 0,
+    });
+    expect(planAct(screen, defs, values, [{ ...step, address: "u" }], null, "planner", data)).toMatchObject({
+      ok: true,
+    });
+  }
+  const data = { readings, unrelated: [{}] };
+  expect(readScreen(screen, defs, values, "en", data)).toContain("[g press");
+  expect(planAct(screen, defs, values, [step], null, "planner", data)).toMatchObject({
+    ok: true,
+    links: [{ goto: "detail" }],
+  });
   expect(previewDeviceData).not.toHaveBeenCalled();
 });

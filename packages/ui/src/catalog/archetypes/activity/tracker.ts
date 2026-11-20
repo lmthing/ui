@@ -10,7 +10,7 @@ export const meta = createMeta(
   },
   {
     counter: [
-      "The Counter shows today's supplied amount. Include a short Note explaining that plus/minus changes today and Save records the entry. Its plus/minus controls change that amount; the Button saves the daily entry. Bars show only prior-day entries using labels Mon, Tue, Wed, Thu, Fri, Sat or Sun. Today belongs in the Counter, not the bars. Use one shared unit.",
+      "The Header names the daily activity, the Counter label names what is counted today, and the Note says to adjust the count with plus or minus, then tap Save entry. Use one primary Button labelled Save entry. Bars are context only: title them Recent entries and copy prior-day values and three-letter day labels. Use one shared unit; Counter density and figures stay null.",
     ],
     scale: [
       "This is a daily mood check-in for the person, not a rating of objects. Scale uses mood style, the supplied current value, readonly false and meta null. Bars must copy only the supplied prior-day ratings and their three-letter labels (Mon, Tue, Wed and so on). Do not write full day names or include Today in Bars. The Button saves today's rating and continues to checkin_saved. Keep Header action null.",
