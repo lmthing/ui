@@ -107,14 +107,16 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { week: "2026-11-16", meals: ["dinner"], cells };
 }
 // prettier-ignore
+const supper = { week: "2026-11-16", meals: ["lunch", "dinner"], cells: [
+  { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" },
+] } satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
-  // Ledge: the plant keeper's household supper.
-  { week: "2026-11-16", meals: ["lunch", "dinner"], cells: [
-    { day: 3, meal: "dinner", title: "Nonna's lasagne", photo: "lib:food", goto: "recipe_overview" },
-  ] },
+  supper,
+  { ...supper, media: "none" },
   // Trot: breakfast before the walking round.
-  { week: "2026-11-23", meals: ["breakfast", "snack"], media: "none", cells: [
-    { day: 0, meal: "breakfast", title: "Apple porridge", photo: "lib:food", goto: "recipe_overview" },
+  { week: "2026-11-23", meals: ["breakfast", "snack"], cells: [
+    { day: 0, meal: "breakfast", title: "Apple porridge", goto: "recipe_overview" },
     { day: 1, meal: "snack", title: "Yogurt and berries", goto: "recipe_overview" },
   ] },
 ] satisfies z.input<typeof props>[];
