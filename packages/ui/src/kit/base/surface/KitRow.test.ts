@@ -59,12 +59,8 @@ describe("KitRow first-line geometry", () => {
     { name: "quiet", variant: { emphasis: "quiet" }, role: "heading" },
     { name: "back", variant: { style: "back" }, role: "heading" },
   ] as const)("uses the $name Header's first line", ({ variant, role }) => {
-    const html = renderInstance(
-      "Header",
-      { ...variant, title: "Title", sub: "Detail", action: { icon: "plus", label: "Add" } },
-      "filled",
-      { preset: "bold", mode: "light", accent: "moss" },
-    );
+    const props = { ...variant, title: "Title", sub: "Detail", action: { icon: "plus", label: "Add" } };
+    const html = renderInstance("Header", props, "filled", { preset: "bold", mode: "light", accent: "moss" });
     const content = elementAt(html, "home/c1/root").children[0]!;
     const line = typography[role].lineHeight;
     expect(styleAt(html, content.children.at(-1)!)).toContain(`height:${line}px`);
