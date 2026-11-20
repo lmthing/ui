@@ -35,6 +35,13 @@ export const en = {
     receiptFor: (name: string) => `Receipt for ${name}`,
     reading: (fields: string[]) => fields.join(" · "),
   },
+  wishlist: {
+    got: "Mark as owned",
+    price: (amount: string) => `Price ${amount}`,
+    target: (amount: string) => `Target ${amount}`,
+    priority: { 1: "High priority", 2: "Medium priority", 3: "Low priority" },
+    separator: " · ",
+  },
 };
 
 export type InventoryWords = typeof en;
