@@ -3,8 +3,10 @@ import {
   itemEditSpec,
   liveProps,
   parseControlProps,
+  projectSelectionBinding,
   reportConfirmation,
   reportRemovalAt,
+  selectionBindingFor,
   stampItemIds,
   type ActStep,
   type StateName,
@@ -36,7 +38,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
-  const props = liveProps(
+  const live = liveProps(
     meta,
     stampItemIds(meta, ctx.input),
     ctx.entry.id,
@@ -44,6 +46,15 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     true,
     ctx.options.deviceData,
   );
+  const selection = selectionBindingFor(
+    ctx.active,
+    ctx.defs,
+    meta,
+    ctx.entry.id,
+    local,
+    ctx.options.deviceData,
+  );
+  const props = projectSelectionBinding(meta, live, selection?.view);
   const part = affordancesOf(
     meta,
     props,

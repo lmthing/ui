@@ -17,6 +17,7 @@ import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
+import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "./selection-binding";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -74,7 +75,8 @@ function affordancesOfScreen(
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveInput(def, input, id, local, data);
+    const selection = selectionBindingFor(screen, defs, def.meta, id, local, data);
+    const props = projectSelectionBinding(def.meta, liveInput(def, input, id, local, data), selection?.view);
     const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
@@ -89,14 +91,20 @@ function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      def.meta.selectionBinding ||
       def.meta.items?.edits ||
       def.meta.signOff ||
       hasPlaybackClock(def.meta)
         ? state
         : undefined);
-    return affordancesOf(def.meta, props, id, local, liveState, true);
+    const offered = affordancesOf(def.meta, props, id, local, liveState, true);
+    if (!selection) return offered;
+    return offered.map((a): PlannedAffordance =>
+      isSelectAll(def.meta, a.part, a.action, isItemOffer(id, a)) ? { ...a, checks: selection.checks } : a,
+    );
   });
 }
+type PlannedAffordance = Affordance & { checks?: readonly Affordance[] };
 function expireProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,

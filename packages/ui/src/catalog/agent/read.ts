@@ -13,6 +13,7 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { projectSelectionBinding, selectionBindingFor, type BoundSelection } from "./selection-binding";
 
 type Props = Record<string, unknown>;
 
@@ -42,6 +43,7 @@ function readingProps(
   const useLive =
     meta.live ||
     meta.linkedEdits ||
+    meta.selectionBinding ||
     meta.items?.visibleWhen ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
@@ -89,12 +91,14 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  selection?: BoundSelection,
 ): string[] {
   const { meta } = def;
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(meta.id, input), get);
-  const props = liveProps(meta, validated, instance, values, true, deviceData);
+  const live = liveProps(meta, validated, instance, values, true, deviceData);
+  const props = projectSelectionBinding(meta, live, selection);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -157,11 +161,12 @@ export function readScreen(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
-    ({ id, c, state, ...props }) => {
-      const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
-    },
-  );
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
+    const def = defs[c];
+    if (!def) return [`${id} ${c} (unknown)`];
+    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, deviceData);
+    return readComponent(def, props, id, state, local, lang, deviceData, selection?.view);
+  });
   return [header, ...lines].join("\n");
 }

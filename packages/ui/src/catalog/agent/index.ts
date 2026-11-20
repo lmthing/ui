@@ -53,6 +53,7 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export { projectSelectionBinding, selectionBindingFor, type BoundSelection } from "./selection-binding";
 export {
   activeParentId,
   isNestedTarget,

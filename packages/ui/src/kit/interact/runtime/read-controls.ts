@@ -2,6 +2,7 @@ import {
   migrateScreen,
   readComponent,
   readScreen,
+  selectionBindingFor,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -85,9 +86,18 @@ function readKeypads(
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
-        : [`${id} ${c} (unknown)`];
+      if (!def) return [`${id} ${c} (unknown)`];
+      const selection = selectionBindingFor(screen, defs, def.meta, id, local, deviceData);
+      return readComponent(
+        withKeypadDrafts(def, id, local),
+        props,
+        id,
+        state,
+        local,
+        lang,
+        deviceData,
+        selection?.view,
+      );
     }),
   ].join("\n");
 }

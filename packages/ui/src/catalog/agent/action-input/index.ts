@@ -114,13 +114,15 @@ export function keypadInput(
 export function stageValue(
   next: Values,
   key: string,
-  found: Affordance,
+  found: Affordance & { checks?: readonly Affordance[] },
   value: unknown,
   edit: ReturnType<typeof setStep>,
   screenId: string,
   links: Extract<ActResult, { ok: true }>["links"],
 ) {
   const { action, detail } = found;
+  for (const check of found.checks ?? [])
+    stageValue(next, `${screenId}/${check.address}`, check, true, undefined, screenId, links);
   if (edit?.adjustment) {
     const { next: amount, atSet } = edit.adjustment;
     if (amount === undefined) return false;

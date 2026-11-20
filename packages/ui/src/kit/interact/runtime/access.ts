@@ -6,6 +6,8 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  projectSelectionBinding,
+  selectionBindingFor,
   sessionEvent,
 } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
@@ -45,9 +47,9 @@ function actionsAt(
         : [];
   const now = ctx.now();
   const values = ctx.valuesOf(now);
-  const entry = ctx
-    .liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now)
-    .components.find((item) => item.id === id);
+  const sheet = ctx.status.openSheet;
+  const screen = ctx.liveScreen(values, sheet, Boolean(sheet), now);
+  const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
   const { draw, emptyActions, errorActions, session, successActions } = def.meta;
@@ -67,7 +69,10 @@ function actionsAt(
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
+    const data = ctx.options.deviceData;
+    const live = liveProps(def.meta, parsed, id, localValues, true, data);
+    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
+    const props = projectSelectionBinding(def.meta, live, selection?.view);
     return affordancesOf(
       def.meta,
       props,

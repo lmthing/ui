@@ -9,6 +9,7 @@ import { sendDraft, withLiveInput, type LiveInput } from "./live-inputs";
 import { linkedInput } from "./linked-edits";
 import type { SendDraft } from "./act";
 import { itemEditOffer, reportConfirmation, reportLocked } from "./report-edits";
+import { boundActionAvailable, isItemOffer, isSelectAll } from "./selection-binding";
 
 export type Affordance = {
   address: string;
@@ -83,6 +84,7 @@ function partsOf(
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const suppressLink =
+              isSelectAll(meta, part, action, item) ||
               (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
               (action === "press" &&
                 ((!item &&
@@ -149,7 +151,9 @@ export function affordancesOf(
   ];
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return offered.filter(({ address, action, part }) => {
+  return offered.filter((offer) => {
+    const { address, action, part } = offer;
+    if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
