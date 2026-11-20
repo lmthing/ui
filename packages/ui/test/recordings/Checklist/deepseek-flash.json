@@ -206,11 +206,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Today\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":\"Today\"}]}",
+    "reply": "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
     "replies": [
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Today\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":\"Today\"}]}",
       "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":\"Kitchen\"}]}",
-      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the fern\",\"done\":false,\"meta\":\"Today\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Done\"},{\"text\":\"Turn the basil\",\"done\":false,\"meta\":\"Kitchen\"}]}"
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":null}]}",
+      "{\"c\":\"Checklist\",\"items\":[{\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":null}]}"
     ]
   },
   "cbfafc1cc4697e14": {

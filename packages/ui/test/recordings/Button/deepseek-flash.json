@@ -255,9 +255,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+    "reply": "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":\"confirm_remove_plant\",\"confirm\":\"Remove this plant and its history?\"}",
     "replies": [
-      "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":null,\"confirm\":\"Remove this plant and its history?\"}",
+      "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":\"confirm_remove_plant\",\"confirm\":\"Remove this plant and its history?\"}",
       "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":\"confirm_remove_plant\",\"confirm\":\"Remove this plant and its history?\"}",
       "{\"c\":\"Button\",\"label\":\"Remove plant\",\"kind\":\"danger\",\"icon\":\"trash\",\"goto\":\"confirm_remove_plant\",\"confirm\":\"Remove this plant and its history?\"}"
     ]
@@ -598,8 +598,8 @@
     "reply": "{\"c\":\"Button\",\"label\":\"Book a dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}",
     "replies": [
       "{\"c\":\"Button\",\"label\":\"Book a dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}",
-      "{\"c\":\"Button\",\"label\":\"Book dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":\"Open booking screen?\"}",
-      "{\"c\":\"Button\",\"label\":\"Book a dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":\"Open booking screen to schedule your dog walk?\"}"
+      "{\"c\":\"Button\",\"label\":\"Book dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}",
+      "{\"c\":\"Button\",\"label\":\"Book dog walk\",\"kind\":\"primary\",\"icon\":\"dog\",\"goto\":\"booking_screen\",\"confirm\":null}"
     ]
   },
   "c4d88a94a46a892e": {

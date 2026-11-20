@@ -33,7 +33,7 @@
     "reply": "{\"address\": \"c1/plus\", \"action\": \"increment\"}",
     "replies": [
       "{\"address\": \"c1/plus\", \"action\": \"increment\"}",
-      "{\"address\": \"c1/minus\", \"action\": \"decrement\"}",
+      "{\"address\": \"c1/plus\", \"action\": \"increment\"}",
       "{\"address\": \"c1/plus\", \"action\": \"increment\"}"
     ]
   },
@@ -120,7 +120,7 @@
     "replies": [
       "{\"c\":\"Counter\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
       "{\"c\":\"Counter\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
-      "{\"c\":\"Counter\",\"label\":\"Three dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
+      "{\"c\":\"Counter\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
     ]
   },
   "aaea844181d28813": {
