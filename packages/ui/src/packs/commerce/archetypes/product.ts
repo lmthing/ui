@@ -1,0 +1,61 @@
+import type { ArchetypeMeta, ComposeProbe } from "../../../catalog";
+
+export const product = {
+  id: "product",
+  job: "Review one product for sale",
+  defaultLayout: "simple",
+  layouts: {
+    simple: {
+      writeHints: [
+        'Scale must use style "stars" and readonly true. It is a displayed customer rating, not an interactive input.',
+      ],
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Gallery"], required: true, variant: "carousel" },
+        { allow: ["Product"], required: true },
+        { allow: ["Scale"], required: true, variant: "stars" },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "g1", c: "Gallery", style: "carousel" },
+        { id: "p1", c: "Product" },
+        { id: "s1", c: "Scale", style: "stars", readonly: true },
+      ],
+    },
+    variants: {
+      writeHints: [
+        'Scale must use style "stars" and readonly true. VariantPicker uses at only when an available option is selected.',
+      ],
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["Gallery"], required: true, variant: "carousel" },
+        { allow: ["Product"], required: true },
+        { allow: ["VariantPicker"], required: true },
+        { allow: ["Scale"], required: true, variant: "stars" },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "g1", c: "Gallery", style: "carousel" },
+        { id: "p1", c: "Product" },
+        { id: "v1", c: "VariantPicker" },
+        { id: "s1", c: "Scale", style: "stars", readonly: true },
+      ],
+    },
+  },
+} as const satisfies ArchetypeMeta;
+
+export const probes = [
+  {
+    kind: "compose",
+    archetype: "product",
+    layout: "simple",
+    brief: "See one product with its photos, price, stock, add control and read-only customer rating.",
+  },
+  {
+    kind: "compose",
+    archetype: "product",
+    layout: "variants",
+    brief:
+      "See one product with its photos, stock and add control, choose its size, and show a read-only rating.",
+  },
+] satisfies ComposeProbe[];
