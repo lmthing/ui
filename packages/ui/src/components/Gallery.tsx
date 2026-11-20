@@ -4,6 +4,7 @@ import {
   KitContent,
   KitEmpty,
   KitGrid,
+  KitIcon,
   KitPhoto,
   KitRow,
   KitSkeleton,
@@ -139,10 +140,12 @@ type Entry = Props<typeof props, typeof meta>["photos"][number];
 // prettier-ignore
 function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; shape: "wide" | "square" }) {
   const { lang } = useWords();
+  const cue = entry.goto && <KitIcon name="chevron_right" scale="sm" decorative />;
+  const caption = entry.caption && <KitText role="caption" tone="muted" part="caption">{entry.caption}</KitText>;
   return <KitRow item={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} goto={entry.goto} inset="none">
     <KitContent lineRole="body">
       <KitPhoto photo={entry.photo} shape={shape} part="photo" {...(entry.caption ? { label: entry.caption } : {})} />
-      {entry.caption && <KitText role="caption" tone="muted" part="caption">{entry.caption}</KitText>}
+      {cue && caption ? <KitContent lead={cue} lineRole="caption">{caption}</KitContent> : cue || caption}
     </KitContent>
   </KitRow>;
 }
