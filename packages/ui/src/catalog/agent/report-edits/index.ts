@@ -75,7 +75,20 @@ export function itemEditOffer(meta: Meta, row: Values, part: string, action: str
 }
 
 type EditRequest =
-  { kind: "input" } | { kind: "confirm"; now: number } | { kind: "photo"; reference: string };
+  | { kind: "input" }
+  | { kind: "confirm"; now: number; removal: ReportRemoval | undefined }
+  | { kind: "photo"; reference: string };
+
+export type ReportRemoval = Readonly<{ index: number; reference: string }>;
+export function reportRemovalAt(meta: Meta, props: Values, target: string): ReportRemoval | undefined {
+  const edit = itemEditAt(meta, props, target);
+  if (edit?.spec.action !== "remove") return;
+  const picker = own(meta.items?.edits, edit.spec.photo);
+  if (picker?.action !== "photo") return;
+  const photos = photoList(edit.row, picker.prop);
+  const reference = photos.at(-1);
+  return reference === undefined ? undefined : { index: photos.length - 1, reference };
+}
 
 function changeAt(
   meta: Meta,
@@ -95,8 +108,11 @@ function changeAt(
     return { prop: spec.prop, value: [...photoList(row, spec.prop), request.reference] };
   if (request.kind === "confirm" && spec.action === "remove") {
     const photo = own(meta.items?.edits, spec.photo);
-    if (photo?.action !== "photo") return;
-    const value = photoList(row, photo.prop).slice(0, -1);
+    if (photo?.action !== "photo" || !request.removal) return;
+    const { index, reference } = request.removal;
+    const photos = photoList(row, photo.prop);
+    if (photos[index] !== reference) return;
+    const value = photos.filter((_, at) => at !== index);
     return { prop: photo.prop, value, picker: { part: spec.photo, reference: value.at(-1) } };
   }
 }

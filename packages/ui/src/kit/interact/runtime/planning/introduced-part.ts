@@ -6,19 +6,26 @@ import {
   stageReportEdit,
   type ActStep,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
 
-export function confirmReport(ctx: ControllerContext, screen: ScreenLike, values: Values, step: ActStep) {
+export function confirmReport(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  removal: ReportRemoval | undefined,
+) {
   return stageReportEdit(
     screen,
     ctx.defs,
     values,
     step,
-    { kind: "confirm", now: ctx.now() },
+    { kind: "confirm", now: ctx.now(), removal },
     ctx.options.deviceData,
   );
 }

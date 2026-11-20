@@ -48,7 +48,7 @@ function prepareStep(
   ctx: ControllerContext,
   media: MediaRuntime,
   at: number,
-  confirmed = false,
+  confirmed?: ActionState["confirmation"],
 ): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
@@ -79,7 +79,7 @@ function prepareStep(
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
-  if (confirmed && confirmReport(ctx, active, values, selected) === false)
+  if (confirmed && confirmReport(ctx, active, values, selected, confirmed.removal) === false)
     return fail("invalid_value", "Confirmation conflicts with report props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
@@ -124,7 +124,11 @@ function stepRunner(
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
 ) {
-  const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
+  const run = (
+    before: ActionState,
+    original: ActStep,
+    confirmed?: ActionState["confirmation"],
+  ): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
@@ -183,9 +187,7 @@ export function planSteps(
     const run = stepRunner(ctx, media, random, at, execution);
     let result: ActionResult;
     if (state.confirmation)
-      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, (s, a) =>
-        run(s, a, true),
-      );
+      result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);
     else result = run(state, step);
     if (result.error) return { ...result, performed: [] };
     state = result.state;

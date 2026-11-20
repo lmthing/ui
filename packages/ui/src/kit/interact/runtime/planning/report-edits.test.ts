@@ -1,4 +1,5 @@
 import { expect, it, vi } from "vitest";
+import type { z } from "zod";
 import { parseControlProps, planAct, readScreen, type Definition } from "@lmthing/ui/catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
 import { Inspections as draft } from "../../../../packs/property";
@@ -35,7 +36,7 @@ const def: Definition = {
     signOff: { finalise: "finalisedAt" },
   },
 };
-const seed = draft.examples[0]!;
+const seed: z.input<typeof draft.props> = draft.examples[0]!;
 const room = seed.rooms[0]!;
 const check = room.checks[0]!;
 const input = {
@@ -166,6 +167,7 @@ it("settles picker results at the requested row, and discards late results after
   expect(requestPhoto).not.toHaveBeenCalled();
   expect(runtime.act([press("r2/photo"), press("r4/photo")]).ok).toBe(true);
   expect(requestPhoto.mock.calls).toEqual([[r2], [r4]]);
+  expect(runtime.act(press("r2/remove_photo")).ok).toBe(true);
   replies.get(r4)!("lib:second");
   replies.get(r2)!("lib:first");
   await Promise.resolve();
@@ -175,16 +177,16 @@ it("settles picker results at the requested row, and discards late results after
   expect(def.props.parse(wire)).toMatchObject({
     entries: [{}, { photos: ["local:1", "lib:first"] }, {}, { photos: ["lib:second"] }],
   });
-  expect(runtime.read()).toContain("local:1 · lib:first");
+  expect(runtime.read()).toContain("[confirm/confirm press]");
   expect(onChange.mock.lastCall?.[0]).toEqual(runtime.snapshotScreen());
-  expect(runtime.act([press("r2/remove_photo"), accept]).ok).toBe(true);
-  expect(runtime.read()).not.toContain("lib:first");
-  expect(runtime.read()).toContain("local:1");
+  expect(runtime.act(accept).ok).toBe(true);
+  expect(runtime.read()).not.toContain("local:1");
+  expect(runtime.read()).toContain("lib:first");
   expect(runtime.act([press("r2/photo"), select("r2/condition", "Good"), press("finalise"), accept]).ok).toBe(
     true,
   );
   replies.get(r2)!("lib:late");
   await Promise.resolve();
-  expect(runtime.store.get(r2)).toBe("local:1");
+  expect(runtime.store.get(r2)).toBe("lib:first");
   expect(runtime.read()).not.toContain("lib:late");
 });

@@ -1,17 +1,32 @@
 import {
   affordancesOf,
+  itemEditSpec,
   liveProps,
+  parseControlProps,
   reportConfirmation,
+  reportRemovalAt,
   stampItemIds,
   type ActStep,
   type StateName,
 } from "../../../catalog";
 import { controlsAction, mediaAction, showConfirmation } from "./families";
-import type { ActionContext, ActionHandler, ActionState } from "./types";
+import { rejected, type ActionContext, type ActionHandler, type ActionState } from "./types";
+
+function confirmReportAction(state: ActionState, ctx: ActionContext, target: string) {
+  const { id, c, state: _state, ...wire } = ctx.entry;
+  const def = ctx.defs[c]!;
+  if (itemEditSpec(def.meta, target)?.action !== "remove") return showConfirmation(state, ctx.selected, ctx);
+  const props = parseControlProps(def, wire, (part) => state.values[ctx.key(id, part)]);
+  const removal = reportRemovalAt(def.meta, props, target);
+  return removal
+    ? showConfirmation(state, ctx.selected, ctx, removal)
+    : rejected(state, ctx.at, "not_actionable", "No photo at this address");
+}
+
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
   const meta = ctx.defs[ctx.entry.c]!.meta;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
-  if (reportConfirmation(meta, target, action.action)) return showConfirmation(state, ctx.selected, ctx);
+  if (reportConfirmation(meta, target, action.action)) return confirmReportAction(state, ctx, target);
   if (
     action.action === "press" &&
     Object.hasOwn(meta.clearItems ?? {}, target) &&
