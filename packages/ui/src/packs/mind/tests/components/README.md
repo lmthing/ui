@@ -4,4 +4,5 @@
 - `Factors.test.ts`: factor tile schema, fallback, rendered parts, and independent toggles.
 - `Entries.test.ts`: schema, fallback, parts, variants, journal layouts and navigation.
 - `Feelings.test.ts`: schema, fallback, active family, word toggles, parts and selection cap.
+- `Patterns.test.ts`: schema, journal snapshots, read-only comparisons, empty state and variant addresses.
 - `SleepLog.test.ts`: schema, fallback, rendered states and edit action.
