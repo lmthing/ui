@@ -595,11 +595,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Review\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+    "reply": "{\"c\":\"Review\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
     "replies": [
-      "{\"c\":\"Review\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
-      "{\"c\":\"Review\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
-      "{\"c\":\"Review\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}"
+      "{\"c\":\"Review\",\"density\":null,\"surface\":\"card\",\"detail\":null,\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}",
+      "{\"c\":\"Review\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"list\",\"average\":null,\"count\":null,\"bars\":null,\"reviews\":[{\"stars\":5,\"name\":\"Ben Carter\",\"date\":\"2026-11-18\",\"text\":\"Great walks\",\"reply\":null},{\"stars\":4,\"name\":\"Mia Jones\",\"date\":\"2026-11-17\",\"text\":\"Reliable pickups\",\"reply\":null}]}"
     ]
   },
   "b516a63f7e8843b2": {

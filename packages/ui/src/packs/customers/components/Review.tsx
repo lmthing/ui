@@ -1,6 +1,6 @@
 import { customersWordsFor } from "../lang";
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
 // prettier-ignore
 import { wordsFor, balancedLine, detailOf, numberLine, isoDate, itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
@@ -175,7 +175,9 @@ function ReviewList(input: ReviewView) {
                 <KitText role="label" tone="muted" part="response" {...{ density }} children={review.reply} />
               </KitContent>
             )}
-            <KitAction label={reviewLabels.reply} kind="quiet" part="reply" />
+            <KitRow part="reply" role="button" label={reviewLabels.reply} lineRole="label" inline>
+              <KitText role="label" tone="accent" part="reply_label" children={reviewLabels.reply} />
+            </KitRow>
           </KitContent>
         </KitRow>
       ))}
