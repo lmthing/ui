@@ -1,10 +1,9 @@
-import { useSignatureProgress, countText } from "../../motion";
-import { motion } from "../../../catalog";
 import { Text, isWeb, styled, useTheme } from "tamagui";
-import type { ReactNode } from "react";
-import { fontFamilies, type as typography, variants } from "../../../catalog";
-import { useKitStyle } from "../../provider";
-import { usePart } from "../../part";
+import { Children, createContext, isValidElement, useContext, type ReactNode } from "react";
+import { fontFamilies, motion, space, type as typography, variants } from "../../../catalog";
+import { useSignatureProgress, countText } from "../../motion";
+import { useKit, useKitStyle } from "../../provider";
+import { PartContext, usePart, usePartContext } from "../../part";
 import { useTextStep, type TextFinish, type TextRole } from "./text-step";
 
 const roleOf = (role: keyof typeof typography) => ({
@@ -25,15 +24,6 @@ const Frame = styled(Text, {
       label: roleOf("label"),
       caption: roleOf("caption"),
       number: roleOf("number"),
-    },
-    tone: {
-      text: { color: "$text" },
-      muted: { color: "$muted" },
-      accent: { color: "$accent" },
-      onAccent: { color: "$onAccent" },
-      good: { color: "$good" },
-      warn: { color: "$warn" },
-      bad: { color: "$bad" },
     },
     align: {
       start: { textAlign: variants.align.start.text },
@@ -59,42 +49,132 @@ type TextProps = {
   numberScale?: "display" | "compact";
   /** Struck through: an old price. */
   strike?: boolean;
-} & TextFinish;
+  goto?: string | undefined;
+  item?: string | undefined;
+  emphasis?: TextFinish["emphasis"] | "strong" | "emphasis";
+} & Omit<TextFinish, "emphasis">;
 
-/** All visible text. Role picks the type scale and the preset's font family; tone picks a colour role. */
-export function KitText(props: TextProps) {
+function useTextLink(part: TextProps["part"], goto: TextProps["goto"], enabled: boolean) {
+  const kit = useKit();
+  const address = usePart(part ?? "root", part !== null && enabled);
+  const link = Boolean(goto && part !== null && enabled);
+  const press = () => {
+    if (goto) kit.onLink?.(goto, address.testID);
+  };
+  return {
+    ...(part !== null && enabled ? address : {}),
+    ...(link ? { accessibilityRole: "link" as const } : {}),
+    ...(link && kit.interactive
+      ? {
+          focusable: true,
+          cursor: "pointer" as const,
+          onPress: (event: { stopPropagation?(): void }) => {
+            event.stopPropagation?.();
+            return press();
+          },
+          onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
+            if (event.key !== "Enter") return;
+            event.preventDefault();
+            event.stopPropagation();
+            return press();
+          },
+        }
+      : {}),
+  };
+}
+
+function fontOf(role: TextRole, fonts: ReturnType<typeof useKitStyle>["fonts"]) {
+  if (role === "display" || role === "title" || role === "heading") return fontFamilies[fonts.heading];
+  return fontFamilies[role === "number" ? fonts.number : fonts.text];
+}
+
+const LoadingRuns = createContext(false);
+const bar = isWeb
+  ? {
+      backgroundImage:
+        "radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), radial-gradient(circle closest-side, var(--line), var(--line) 90%, transparent), linear-gradient(var(--line), var(--line))",
+      backgroundSize: `${space.sm}px ${space.sm}px, ${space.sm}px ${space.sm}px, calc(100% - ${space.sm}px) ${space.sm}px`,
+      backgroundPosition: "left center, right center, center",
+      backgroundRepeat: "no-repeat",
+    }
+  : { backgroundColor: "$line" as const };
+const options = ({ emphasis, item, goto }: TextProps) =>
+  emphasis === "strong" || emphasis === "emphasis" || item !== undefined || goto !== undefined;
+
+function hasOptions(children: ReactNode): boolean {
+  return Children.toArray(children).some(
+    (node) =>
+      isValidElement<TextProps>(node) &&
+      ((node.type === KitText && options(node.props)) || hasOptions(node.props.children)),
+  );
+}
+
+function useRunLoading(props: TextProps) {
+  const inherited = useContext(LoadingRuns);
+  return usePartContext().state === "loading" && (inherited || options(props) || hasOptions(props.children));
+}
+
+function maskRuns(children: ReactNode) {
+  return (
+    <LoadingRuns.Provider value>
+      {Children.map(children, (run) =>
+        isValidElement(run) ? (
+          run
+        ) : (
+          <Frame {...(typeof run === "string" && /[\p{L}\p{N}]/u.test(run) ? bar : {})}>
+            <Text opacity={0}>{run}</Text>
+          </Frame>
+        ),
+      )}
+    </LoadingRuns.Provider>
+  );
+}
+
+function TextRun(props: TextProps) {
   const { children, role = "body", tone = "text", align = "start", part = "root", lines } = props;
-  const { tabular = false, numberScale = "display", strike = false, emphasis = "normal", density } = props;
+  const { tabular = false, numberScale = "display", strike = false, emphasis, density, goto } = props;
   const style = useKitStyle();
   const theme = useTheme();
   // Some hosts omit Tamagui's root class; keep the local theme's foreground as a CSS fallback.
   const onAccent = isWeb && tone === "onAccent" && theme.onAccent?.val;
   const count = useSignatureProgress("count_up");
   const spin = useSignatureProgress("timer_spin");
-  const address = usePart(part ?? "root", part !== null);
-  const stepOf = useTextStep({ density, emphasis });
+  const state = usePartContext().state;
+  const inline = emphasis === "strong" || emphasis === "emphasis";
+  const loading = useRunLoading(props);
+  const nested = loading && Children.toArray(children).some(isValidElement);
+  const linked = Boolean(goto && part !== null && state !== "empty" && !loading && children);
+  const target = useTextLink(part, linked ? goto : undefined, !loading);
+  const finish = inline ? "normal" : (emphasis ?? "normal");
+  const stepOf = useTextStep({ density, emphasis: finish });
   const step = stepOf(role);
   const numberStep = stepOf("body");
-  const heavier = variants.emphasis[emphasis][style.strong ? "strong" : "regular"]?.[step];
-  const family =
-    role === "display" || role === "title" || role === "heading"
-      ? style.fonts.heading
-      : role === "number"
-        ? style.fonts.number
-        : style.fonts.text;
+  const heavier = variants.emphasis[finish][style.strong ? "strong" : "regular"]?.[step];
+  const weight =
+    emphasis === "strong" && (!heavier || Number(heavier) < Number(typography.display.weight))
+      ? typography.display.weight
+      : heavier;
+  const content = role === "number" && typeof children === "string" ? countText(children, count) : children;
   return (
     <Frame
-      {...(part === null ? {} : address)}
+      {...target}
       textRole={step}
       {...(part === "time" && spin < 1 ? { rotate: `${-motion.spinAngle * (1 - spin)}deg` } : {})}
-      tone={tone}
-      {...(onAccent ? { color: `var(--onAccent, ${onAccent})` } : {})}
+      color={
+        loading ? "transparent" : linked ? "$accent" : onAccent ? `var(--onAccent, ${onAccent})` : `$${tone}`
+      }
+      {...(loading && { "aria-hidden": true, ...(!nested && bar) })}
       align={align}
-      fontFamily={fontFamilies[family]}
-      {...(heavier ? { fontWeight: heavier } : {})}
+      fontFamily={fontOf(role, style.fonts)}
+      {...(weight ? { fontWeight: weight } : {})}
+      {...(emphasis === "emphasis" ? { fontStyle: "italic" as const } : {})}
       {...(lines ? { numberOfLines: lines } : {})}
       {...(tabular ? { fontVariant: ["tabular-nums"] as const } : {})}
-      {...(strike ? { textDecorationLine: "line-through" as const } : {})}
+      {...(linked
+        ? { textDecorationLine: "underline" as const }
+        : strike && !loading
+          ? { textDecorationLine: "line-through" as const }
+          : {})}
       {...(role === "number" && numberScale === "compact"
         ? {
             fontSize: typography[numberStep].size,
@@ -103,7 +183,18 @@ export function KitText(props: TextProps) {
           }
         : {})}
     >
-      {role === "number" && typeof children === "string" ? countText(children, count) : children}
+      {nested ? maskRuns(children) : loading && isWeb ? <Text opacity={0}>{content}</Text> : content}
     </Frame>
+  );
+}
+
+/** All visible text, including nested inline runs and addressed screen links. */
+export function KitText(props: TextProps) {
+  const context = usePartContext();
+  if (props.item === undefined) return <TextRun {...props} />;
+  return (
+    <PartContext.Provider value={{ ...context, item: props.item }}>
+      <TextRun {...props} />
+    </PartContext.Provider>
   );
 }
