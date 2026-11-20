@@ -112,16 +112,20 @@ describe("AmountPad states and parts", () => {
     for (const key of ["r1", "r9", "r10", "r11", "r12"]) {
       expect(elementAt(html, part(`${key}/root`)).children[0]?.attributes).toContain('role="button"');
     }
-    expect(elementAt(html, part("r12/root")).children[0]?.attributes).toContain('aria-label="Delete"');
+    const backspace = elementAt(html, part("r12/root")).children[0]?.attributes;
+    expect(backspace).toContain('aria-label="Delete"');
+    expect(backspace).not.toContain('aria-disabled="true"');
   });
 
-  it("shows a blank but editable entry without a seed and omits the disabled note option", () => {
+  it("shows a display-only zero with Delete disabled until a draft exists", () => {
     const input = { label: "Income", note: false };
     const html = render(input);
-    expect(addressedElements(html).get(part("value"))?.text.join("").trim()).toBe("");
+    expect(addressedElements(html).get(part("value"))?.text.join("").trim()).toBe("0");
+    expect(elementAt(html, part("r12/root")).children[0]?.attributes).toContain('aria-disabled="true"');
     expect(elementAt(html, part("pad")).attributes).toContain('role="textbox"');
     expect(html).not.toContain(part("note"));
     const { controller, store } = setup(input);
+    expect(store.get(part("pad"))).toBeUndefined();
     expect(controller.act(type({ append: "7" }))).toMatchObject({ ok: true });
     expect(store.get(part("pad"))).toBe("7");
     expect(controller.act(type("Walk", "note"))).toMatchObject({ ok: false, code: "not_actionable" });
@@ -154,7 +158,7 @@ describe("AmountPad read and act", () => {
     expect(controller.read()).toContain('[a1/note type = "Potting soil"]');
     expect(controller.read()).toContain('[a1/pad type = "25.00"]');
     expect(controller.act(type(""))).toMatchObject({ ok: true });
-    expect(controller.read()).toContain("a1 AmountPad 1 2 3 4 5 6 7 8 9 . 0 Delete");
+    expect(controller.read()).toContain("a1 AmountPad 0 — 1 2 3 4 5 6 7 8 9 . 0 Delete");
   });
 
   it("rejects over-limit or malformed edits and non-actions without changing the draft", () => {

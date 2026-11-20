@@ -92,7 +92,7 @@ export function AmountPad(input: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords(moneyWordsFor);
   const initialText = amountPadText(input.value);
   const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
-  const keys = amountPadKeys(words.amountPad);
+  const keys = amountPadKeys(words.amountPad, Boolean(draft));
   return (
     <KitCard part="root" padded={state !== "empty"}>
       {state === "empty" ? (
