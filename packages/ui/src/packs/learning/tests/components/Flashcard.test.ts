@@ -1,6 +1,3 @@
-import { createElement as h } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
 import {
   components,
@@ -11,14 +8,12 @@ import {
   readComponent,
   sessionKey,
   sessionState,
-  themeName,
   wordsFor,
   type CastLike,
   type StateName,
 } from "@lmthing/ui/catalog";
-import { createScreenController, KitProvider, PartScope } from "@lmthing/ui/kit";
-import { addressedElements, config } from "../../../../../test/render";
-import { Flashcard } from "../../components";
+import { createScreenController } from "@lmthing/ui/kit";
+import { addressedElements, renderInstance } from "../../../../../test/render";
 
 const def = components.Flashcard;
 const { meta, props, examples, fallback, probes } = def;
@@ -29,14 +24,8 @@ const screen = { id: "home", components: [{ ...seed, id: "f1", c: "Flashcard" as
 const address = (part: string) => `home/f1/${part}`;
 const controllerFor = () => createScreenController({ screen, defs: components, requireMounted: false });
 
-// Render the candidate even while the ready-only renderer entry is gated.
-// prettier-ignore
 function renderCard(state: StateName) {
-  return renderToStaticMarkup(h(TamaguiProvider, { config, defaultTheme: themeName(theme) },
-    h(KitProvider, { theme, children: h(PartScope, {
-      screen: "home", component: "f1", state, rev: 1, children: h(Flashcard.Flashcard, seed),
-    }) }),
-  ));
+  return renderInstance("Flashcard", seed, state, theme, { component: "f1" });
 }
 
 describe("Flashcard seed bounds", () => {

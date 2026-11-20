@@ -603,7 +603,7 @@
     "reply": "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"cover\",\"cards\":[{\"front\":\"What light suits ferns?\",\"back\":\"Bright indirect light\",\"hint\":null,\"photo\":\"lib:plants\"},{\"front\":\"What do roots absorb?\",\"back\":\"Water and minerals\",\"hint\":null,\"photo\":\"lib:plants\"}]}",
     "replies": [
       "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"cover\",\"cards\":[{\"front\":\"What light suits ferns?\",\"back\":\"Bright indirect light\",\"hint\":null,\"photo\":\"lib:plants\"},{\"front\":\"What do roots absorb?\",\"back\":\"Water and minerals\",\"hint\":null,\"photo\":\"lib:plants\"}]}",
-      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"cover\",\"cards\":[{\"front\":\"What light suits ferns?\",\"back\":\"Bright indirect light\",\"hint\":\"Think of a shaded forest floor\",\"photo\":\"lib:plants\"},{\"front\":\"What do roots absorb?\",\"back\":\"Water and minerals\",\"hint\":null,\"photo\":\"lib:plants\"}]}",
+      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"cover\",\"cards\":[{\"front\":\"What light suits ferns?\",\"back\":\"Bright indirect light\",\"hint\":null,\"photo\":\"lib:plants\"},{\"front\":\"What do roots absorb?\",\"back\":\"Water and minerals\",\"hint\":null,\"photo\":\"lib:plants\"}]}",
       "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"cover\",\"cards\":[{\"front\":\"What light suits ferns?\",\"back\":\"Bright indirect light\",\"hint\":null,\"photo\":\"lib:plants\"},{\"front\":\"What do roots absorb?\",\"back\":\"Water and minerals\",\"hint\":null,\"photo\":\"lib:plants\"}]}"
     ]
   },
@@ -1172,11 +1172,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Flashcard\",\"surface\":\"card\",\"align\":\"start\",\"density\":\"comfortable\",\"media\":\"thumb\",\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
+    "reply": "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":null,\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
     "replies": [
-      "{\"c\":\"Flashcard\",\"surface\":\"card\",\"align\":\"start\",\"density\":\"comfortable\",\"media\":\"thumb\",\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
-      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":null,\"cards\":[{\"front\":\"水 → ?\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山 → ?\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
-      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":\"thumb\",\"cards\":[{\"front\":\"水\",\"back\":\"mizu (water)\",\"hint\":\"Something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama (mountain)\",\"hint\":null,\"photo\":null}]}"
+      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":null,\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
+      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":null,\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}",
+      "{\"c\":\"Flashcard\",\"surface\":null,\"align\":null,\"density\":null,\"media\":null,\"cards\":[{\"front\":\"水\",\"back\":\"mizu, water\",\"hint\":\"something you drink\",\"photo\":null},{\"front\":\"山\",\"back\":\"yama, mountain\",\"hint\":null,\"photo\":null}]}"
     ]
   },
   "f5bd39505ff4e8bf": {

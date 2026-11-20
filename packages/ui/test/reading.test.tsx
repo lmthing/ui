@@ -22,6 +22,7 @@ const roles: Record<string, string[]> = {
   check: ["checkbox"],
   select: ["radio", "tab", "button", "option", "radiogroup"],
   swipe: ["button"],
+  flip: ["button"],
   increment: ["button"],
   decrement: ["button"],
   start: ["button"],

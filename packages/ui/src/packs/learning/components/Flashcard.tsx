@@ -7,7 +7,7 @@ import { learningWordsFor } from "../lang";
 // Core first: SwipeStack/default cannot reveal a back face and rate recall for spaced review.
 export const meta = {
   id: "Flashcard",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Recall an answer, reveal it and rate how well you remembered it.",
   pick: "Recall from a prompt, flip to reveal its answer, then rate recall to schedule the next review. Not checked answers (Quiz) or swiping to keep or skip things (SwipeStack).",
@@ -140,7 +140,7 @@ function LoadingFront({ card, finish, reveal }: { card: Face; finish: Finish; re
       <KitSkeleton shape="media" aspect="wide" inset="none" content={[]} /> :
       <KitSkeleton shape="media" aspect="avatar" inset="none" content={[]} />)}
     <KitSkeleton shape="figure" inset="none" density={density} content={[["title", card.front, align], ["label", card.hint, align]]} />
-    <KitContent group="response"><KitSkeleton shape="figure" inset="none" centered content={[["label", reveal]]} /></KitContent>
+    <KitContent group="response"><KitSkeleton shape="figure" inset="none" content={[["label", reveal, align]]} /></KitContent>
   </>;
 }
 // prettier-ignore
@@ -157,7 +157,7 @@ function ReviewCard({ card, finish, flipped, loading, remaining }: ActiveCard) {
     </KitContent>
     <KitFlip
       part={flipped || loading ? "card" : null} target={{ part: flipped || loading ? null : "card" }}
-      label={words.reveal} flipped={flipped && !loading}
+      label={words.reveal} align={align} flipped={flipped && !loading}
       front={loading ? <LoadingFront {...{ card, finish }} reveal={words.reveal} /> : card.front && <CardFront card={card} {...finish} />}
       back={<KitText part="back" role="title" {...{ align, density }}>{card.back}</KitText>}
     />
