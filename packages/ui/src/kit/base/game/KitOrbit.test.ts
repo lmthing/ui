@@ -81,6 +81,16 @@ describe("KitOrbit", () => {
 });
 
 describe("KitOrbit alignment", () => {
+  it("fits the ring to the drawing and hides the direction icon while loading", () => {
+    const props = { nodes: nodes.slice(0, 3), at: "r2" };
+    const svgs = (loading: boolean) => render({ ...props, loading }).match(/<svg\b[^>]*>/g)!;
+    const filled = svgs(false);
+    expect(filled).toHaveLength(2);
+    expect(svgs(true)).toEqual([filled[0]]);
+    const width = filled[0]!.match(/\bwidth="([^"]+)"/)?.[1];
+    const height = filled[0]!.match(/\bheight="([^"]+)"/)?.[1];
+    expect(Number(height)).toBeLessThan(Number(width));
+  });
   it("marks only the ring as a non-column layout", () => {
     expect(render({ nodes, at: "r2", style: "ring" })).toContain("data-look-twoedge");
     expect(render({ nodes, at: "r2", style: "queue" })).not.toContain("data-look-twoedge");
