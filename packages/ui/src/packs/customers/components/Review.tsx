@@ -1,6 +1,6 @@
 import { customersWordsFor } from "../lang";
 // prettier-ignore
-import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitMeter, KitRow, KitScaleTrack, KitText, useComponentState, useVariant } from "../../../kit";
 // prettier-ignore
 import { wordsFor, balancedLine, detailOf, numberLine, isoDate, itemsOf, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
@@ -132,27 +132,26 @@ type ReviewView = ReviewProps & { density: NonNullable<ReviewProps["density"]> }
 function ReviewSummary(input: ReviewView) {
   const { lang } = useWords();
   const { density, surface, detail } = input;
-  const largest = Math.max(...input.bars!);
   return (
     <KitCard part="root" padded {...{ density, surface }}>
       <KitText role="number" part="average" tabular {...{ density }} children={reviewRatingLine(input.average!, lang)} />
       <KitText role="caption" tone="muted" part="count" {...{ density }} children={reviewCountLine(input.count!, lang)} />
       <KitScaleTrack style="stars" value={input.average!} labels={reviewScale(lang)} readonly />
       {detail === "full" && <KitCard style="plain" part="bars">
-        {input.bars!.map((amount, index) => (
-          <KitRow key={index} label={reviewStarsLine(index + 1, lang)} inline>
-            <KitMeter
-              label={reviewStarsLine(index + 1, lang)}
-              amount={numberLine(amount, lang)}
-              ratio={largest ? amount / largest : 0}
-              slim
-              addressed={false}
-            />
-          </KitRow>
-        ))}
+        <ReviewBars bars={input.bars!} count={input.count!} {...{ density, lang }} />
       </KitCard>}
     </KitCard>
   );
+}
+// prettier-ignore
+function ReviewBars({ bars, count, density, lang }: { bars: number[]; count: number; density: ReviewView["density"]; lang: string }) {
+  const compact = density === "compact";
+  const meters = bars.map((amount, index) => {
+    const label = reviewStarsLine(index + 1, lang);
+    const meter = <KitMeter key={index} label={label} amount={numberLine(amount, lang)} ratio={count ? amount / count : 0} slim addressed={false} />;
+    return compact ? meter : <KitRow key={index} label={label} inline children={meter} />;
+  });
+  return compact ? <KitContent {...{ density }} children={meters} /> : meters;
 }
 // prettier-ignore
 function ReviewList(input: ReviewView) {
@@ -161,19 +160,19 @@ function ReviewList(input: ReviewView) {
   return (
     <KitCard part="root" {...{ density, surface }}>
       {input.reviews!.map((review) => (
-        <KitRow key={review.id} item={review.id} label={review.name} lineRole="label" {...{ density }}>
+        <KitRow key={review.id} item={review.id} label={review.name} lineRole="heading" {...{ density }}>
           <KitContent {...{ density }}>
-            <KitText role="label" part="name" lines={1} {...{ density }} children={review.name} />
+            <KitText role="heading" part="name" lines={1} {...{ density }} children={review.name} />
             <KitText role="caption" tone="muted" part="date" lines={1} {...{ density }} children={review.date} />
-            <KitText role="caption" tone="muted" part="stars" {...{ density }} children={reviewRatingLine(review.stars, lang)} />
-            <KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly />
-            <KitText part="text" {...{ density }}>{review.text}</KitText>
+            <KitGrid fitLast {...{ density }}>
+              <KitText role="caption" tone="muted" part="stars" {...{ density }} children={reviewRatingLine(review.stars, lang)} />
+              <KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly compact />
+            </KitGrid>
+            <KitText role="label" part="text" {...{ density }} children={review.text} />
             {review.reply && (
               <KitContent {...{ density }}>
                 <KitText role="caption" tone="muted" part={null} {...{ density }} children={reviewLabels.response} />
-                <KitText tone="muted" part="response" {...{ density }}>
-                  {review.reply}
-                </KitText>
+                <KitText role="label" tone="muted" part="response" {...{ density }} children={review.reply} />
               </KitContent>
             )}
             <KitAction label={reviewLabels.reply} kind="quiet" part="reply" />
@@ -183,6 +182,7 @@ function ReviewList(input: ReviewView) {
     </KitCard>
   );
 }
+// prettier-ignore
 export function Review(input: ReviewProps) {
   const state = useComponentState();
   const density = useVariant("density", meta.variants.density, input.density);
@@ -192,9 +192,5 @@ export function Review(input: ReviewProps) {
         <KitEmpty part="text" />
       </KitCard>
     );
-  return input.style === "summary" ? (
-    <ReviewSummary {...input} density={density} />
-  ) : (
-    <ReviewList {...input} density={density} />
-  );
+  return input.style === "summary" ? <ReviewSummary {...input} density={density} /> : <ReviewList {...input} density={density} />;
 }

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest";
 import { affordancesOf, components, readComponent, stampItemIds, type Definition } from "@lmthing/ui/catalog";
 import { selectedIds } from "../../../../scripts/build";
-import { renderInstance } from "../../../../test/render";
+import { elementAt, renderInstance, styleAt } from "../../../../test/render";
 
 const ids = [
   "Agreement",
@@ -101,6 +101,21 @@ if (selectedIds(ids).includes("ClientCard")) {
 }
 
 if (selectedIds(ids).includes("Review")) {
+  it.each(["comfortable", "compact"] as const)("scales %s review bars to all reviews", (density) => {
+    const html = renderInstance(
+      "Review",
+      { average: 4, count: 4, bars: [0, 0, 1, 2, 1], density },
+      "filled",
+      theme,
+    );
+    const breakdown = elementAt(html, "home/c1/bars");
+    const tracks = (node: typeof breakdown): string[] => {
+      const fill = node.attributes.includes('aria-hidden="true"') && node.children[0];
+      return fill ? [styleAt(html, fill)] : node.children.flatMap(tracks);
+    };
+    expect(tracks(breakdown)).toHaveLength(5);
+    expect(tracks(breakdown)[3]).toContain("width:50%");
+  });
   it("keeps stable review and reply addresses when hiding the business response", () => {
     const def = components.Review;
     const input = def.examples[1]!;
