@@ -7,15 +7,14 @@ import {
   parseAddress,
   parseControlProps,
   sessionEvent,
+  type StateName,
 } from "../../../catalog";
-import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
-import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { registerPrivateMark } from "./private-mark";
 import { readControls } from "./read-controls";
-type Act = (step: ActStep) => ActReply;
 const pressActions = [
   "press",
   "select",
@@ -36,7 +35,12 @@ function actionsAt(
 ): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
-  if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
+  if (
+    ctx.status.disposed ||
+    ctx.privateMarks.has(local) ||
+    (!ignoreDisabledPart && ctx.disabledParts.has(local))
+  )
+    return [];
   if (ctx.status.confirmation)
     return local === "confirm/confirm"
       ? ["press"]
@@ -82,7 +86,7 @@ function actionsAt(
     return [];
   }
 }
-function press(ctx: ControllerContext, act: Act, address: string) {
+function press(ctx: ControllerContext, act: ReturnType<typeof createAct>, address: string) {
   const local = ctx.relative(address);
   if (ctx.status.confirmation) {
     if (!["confirm/confirm", "confirm/cancel", "confirm/close"].includes(local))
@@ -129,6 +133,7 @@ function read(ctx: ControllerContext) {
     ctx.options.lang,
     ctx.disabledParts,
     ctx.options.deviceData,
+    ctx.privateMarks,
   );
   if (ctx.standalone) return reading;
   return [
@@ -144,13 +149,12 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-
 export function createStandaloneAccess(options: ControllerOptions) {
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
 }
 
-export function createAccess(ctx: ControllerContext, act: Act) {
+export function createAccess(ctx: ControllerContext, act: ReturnType<typeof createAct>) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
@@ -186,6 +190,11 @@ export function createAccess(ctx: ControllerContext, act: Act) {
       return () => {
         if (ctx.disabledParts.get(local) === token) ctx.disabledParts.delete(local);
       };
+    },
+    registerPrivateMarkPart(address: string, accepts?: (reference: string) => boolean) {
+      return registerPrivateMark(ctx.privateMarks, ctx.relative(address), accepts, (value, token) => {
+        act({ address, action: "set", value }, undefined, token);
+      });
     },
   };
 }

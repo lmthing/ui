@@ -17,6 +17,7 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
+import { acceptsPrivateMark } from "../index";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
 import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
@@ -119,9 +120,12 @@ function stepRunner(
   random: RandomSource | null | undefined,
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
+  markToken: symbol | undefined,
 ) {
   const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
+    if (!acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, markToken))
+      return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     const pending =
@@ -165,6 +169,7 @@ export function planSteps(
   ctx: ControllerContext,
   media: MediaRuntime,
   random: RandomSource | null | undefined,
+  markToken?: symbol,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: { ...ctx.valuesOf() },
@@ -176,7 +181,7 @@ export function planSteps(
   const execution = { performed: [] as ActStep[], drew: false };
   for (const [at, step] of list.entries()) {
     const action = { ...step, address: ctx.relative(step.address) };
-    const run = stepRunner(ctx, media, random, at, execution);
+    const run = stepRunner(ctx, media, random, at, execution, markToken);
     let result: ActionResult;
     if (state.confirmation)
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, (s, a) =>

@@ -6,14 +6,14 @@ import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
-  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
+  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}, markToken?: symbol): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     const planning = snapshotPlanning(ctx);
-    const preview = planSteps(list, planning, media, null);
+    const preview = planSteps(list, planning, media, null, markToken);
     if (preview.error) return preview.error;
     if (opts.dryRun)
       return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
@@ -28,7 +28,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
         error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
-    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random) : preview;
+    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random, markToken) : preview;
     if (result.error) {
       settleMedia(false);
       return result.error;

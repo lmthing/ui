@@ -10,7 +10,7 @@ import {
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:type(?: = "(?:\\.|[^"\\])*")?|increment|decrement)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|set(?: = "(?:\\.|[^"\\])*")?)(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -59,14 +59,17 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  privateMarks?: { has(address: string): boolean; size: number },
 ): string {
   const migrated = migrateScreen(screen, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData)
     : readScreen(screen, defs, values, lang, deviceData);
-  return disabled?.size
-    ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
+  return disabled?.size || privateMarks?.size
+    ? read.replace(controlTokens, (token, address, action) =>
+        (action?.startsWith("set") ? privateMarks : disabled)?.has(address) ? "" : token,
+      )
     : read;
 }
 
