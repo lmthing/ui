@@ -2,10 +2,10 @@ import { useState, type ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
 import { component, radius, size, space, type as typography } from "../../../catalog";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
-import { usePlanningTarget, type Target } from "./usePlanningTarget";
+import { PlanningTargetScope, usePlanningTarget, type Target } from "./usePlanningTarget";
 
 type Seat = { id: string; label: string; initials?: string; selected?: boolean; target?: Target };
 type Table = {
@@ -47,11 +47,10 @@ function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
 }
 
 function ScopedSeat({ seat, loading }: { seat: Seat; loading: boolean }) {
-  const context = usePartContext();
   return (
-    <PartContext.Provider value={seat.target ? { ...context, item: seat.target.item ?? seat.id } : context}>
+    <PlanningTargetScope id={seat.id} target={seat.target}>
       <SeatMark seat={seat} loading={loading} />
-    </PartContext.Provider>
+    </PlanningTargetScope>
   );
 }
 
@@ -153,7 +152,6 @@ function SeatTray({ tray, loading }: { tray: ReactNode; loading: boolean }) {
 export function KitSeatMap({ part = "root", loading = false, tables, tray }: SeatMapProps) {
   const ks = useKitStyle();
   const address = usePart(part);
-  const context = usePartContext();
   const drawings = loading && !tables.length ? loadingTables : tables;
   return (
     <YStack {...address} gap={space[ks.density.gap]} aria-busy={loading || undefined}>
@@ -169,12 +167,9 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray }: Sea
         </YStack>
       )}
       {drawings.map((table) => (
-        <PartContext.Provider
-          key={table.id}
-          value={table.target ? { ...context, item: table.target.item ?? table.id } : context}
-        >
+        <PlanningTargetScope key={table.id} id={table.id} target={table.target}>
           <TableDrawing table={table} loading={loading} />
-        </PartContext.Provider>
+        </PlanningTargetScope>
       ))}
       {tray != null && <SeatTray tray={tray} loading={loading} />}
     </YStack>

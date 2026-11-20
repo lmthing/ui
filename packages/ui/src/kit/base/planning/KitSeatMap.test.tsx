@@ -85,6 +85,22 @@ it("retains both table layouts when loading, without mounting controls or tray c
   expect(render({ tables: [], tray })).toContain("Waiting");
 });
 
+it("keeps descriptive drawing ids separate from controller item ids", () => {
+  const html = render({
+    tables: [
+      {
+        id: "round-table",
+        shape: "round",
+        label: "Juniper",
+        target: { part: "table" },
+        seats: [{ id: "outer-seat", label: "Ari", initials: "AR", target: { item: "r8", part: "seat" } }],
+      },
+    ],
+  });
+  expect(elementAt(html, "home/c1/table").attributes).toContain('aria-label="Juniper"');
+  expect(elementAt(html, "home/c1/r8/seat").attributes).toContain('aria-label="Ari"');
+});
+
 it("dispatches touch and keyboard activation through the controller at the seat's supplied address", async () => {
   const controller = createScreenController({ defs: components, screen: { id: "home", components: [] } });
   const press = vi.spyOn(controller, "press");

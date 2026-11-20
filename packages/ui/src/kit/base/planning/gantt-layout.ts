@@ -25,7 +25,7 @@ export function hitBox(center: number, width: number, span = 0) {
 }
 
 export function milestone(at: number, width: number) {
-  return Math.max(space.md, Math.min(position(at, width), width - space.md));
+  return position(at, width);
 }
 
 type Anchor = { left: number; width: number; index: number };

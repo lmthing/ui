@@ -1,8 +1,25 @@
+import { createElement, type ReactNode } from "react";
 import { isWeb } from "tamagui";
-import { usePart } from "../../part";
+import { parseAddress } from "../../../catalog";
+import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
 export type Target = { item?: string; part: string };
+
+export function PlanningTargetScope({
+  id,
+  target,
+  children,
+}: {
+  id: string;
+  target?: Target | undefined;
+  children: ReactNode;
+}) {
+  const context = usePartContext();
+  const item = target?.item ?? id;
+  const valid = target && parseAddress(`${context.screen}/${context.component}/${item}/root`)?.item === item;
+  return createElement(PartContext.Provider, { value: valid ? { ...context, item } : context }, children);
+}
 
 export function usePlanningTarget(
   target: Target | undefined,
@@ -18,7 +35,9 @@ export function usePlanningTarget(
     ...address,
     accessibilityRole: "button" as const,
     accessibilityLabel: label,
-    ...(isWeb ? { "aria-pressed": selected } : { accessibilityState: { selected } }),
+    ...(isWeb
+      ? { "aria-pressed": selected }
+      : { accessible: true, accessibilityState: { selected }, onAccessibilityTap: press }),
     focusable: Boolean(press),
     ...(press
       ? {

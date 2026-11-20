@@ -29,8 +29,9 @@ it("preserves normalized endpoints, clips out-of-range data and keeps zero-lengt
 
 it("keeps edge milestones and their full touch targets inside the timeline", () => {
   expect(milestone(0.5, width)).toBe(width / 2);
-  expect(milestone(0, width)).toBe(space.md);
-  expect(milestone(1, width)).toBe(width - space.md);
+  expect(milestone(0, width)).toBe(0);
+  expect(milestone(1, width)).toBe(width);
+  expect(milestone(0.125, minimumColumn)).toBe(range(0.125, 0.5, minimumColumn).left);
   expect(hitBox(milestone(0, width), width)).toEqual({ left: 0, width: size.control.md });
   expect(hitBox(milestone(1, width), width)).toEqual({
     left: width - size.control.md,

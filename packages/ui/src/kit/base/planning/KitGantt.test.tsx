@@ -66,6 +66,18 @@ it("keeps labels outside the scrolling timeline and addresses only requested ran
   expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ V[\d.]+ H/g)).toHaveLength(2);
 });
 
+it("keeps descriptive row ids usable as geometry without becoming address items", () => {
+  const html = render({
+    columns,
+    rows: [{ id: "draft", label: "Draft", start: 0, end: 0.8, target: { part: "bar" } }],
+    gates: [{ id: "sign-off", label: "Signoff", at: 1, target: { item: "r8", part: "gate" } }],
+    links: [{ from: "draft", to: "sign-off" }],
+  });
+  expect(elementAt(html, "home/c1/bar").attributes).toContain('aria-label="Draft"');
+  expect(elementAt(html, "home/c1/r8/gate").attributes).toContain('aria-label="Signoff"');
+  expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ V[\d.]+ H/g)).toHaveLength(1);
+});
+
 it("keeps range, gate and dependency geometry in loading while dropping all controls and copy", () => {
   const html = render({ columns, rows, gates, links, loading: true });
   const board = elementAt(html, "home/c1/root").children[0]!;

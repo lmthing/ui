@@ -2,11 +2,10 @@ import { ChevronLeft, ChevronRight } from "@tamagui/lucide-icons";
 import { Svg, Path } from "react-native-svg";
 import { XStack, YStack, useTheme } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
-import { PartContext, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
 import { shifted } from "../text";
 import { dependency, hitBox, laneHeight, milestone, range } from "./gantt-layout";
-import { usePlanningTarget, type Target } from "./usePlanningTarget";
+import { PlanningTargetScope, usePlanningTarget, type Target } from "./usePlanningTarget";
 
 export type Range = {
   id: string;
@@ -95,16 +94,13 @@ export function GanttLane({
   width: number;
   loading: boolean;
 }) {
-  const context = usePartContext();
   return (
-    <PartContext.Provider
-      value={entry.target ? { ...context, item: entry.target.item ?? entry.id } : context}
-    >
+    <PlanningTargetScope id={entry.id} target={entry.target}>
       <LaneHit {...{ entry, width, loading }}>
         {"at" in entry ? (
           <YStack
             position="absolute"
-            left={milestone(entry.at, width) - space.sm / 2}
+            left={Math.max(0, Math.min(milestone(entry.at, width) - space.sm / 2, width - space.sm))}
             width={space.sm}
             height={space.sm}
             rotate="45deg"
@@ -118,7 +114,7 @@ export function GanttLane({
           <RangeMark row={entry} width={width} loading={loading} />
         )}
       </LaneHit>
-    </PartContext.Provider>
+    </PlanningTargetScope>
   );
 }
 
