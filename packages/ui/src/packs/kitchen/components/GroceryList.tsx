@@ -98,7 +98,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 // prettier-ignore
 const breakfast = { aisles: [{ label: "Breakfast", items: [
   { name: "Oats", qty: "1 bag", got: false },
-  { name: "Milk", qty: "1 l", got: false, by: "Alex" },
+  { name: "Milk", qty: "1 L", got: false, by: "Alex" },
 ] }] } satisfies z.input<typeof props>;
 // prettier-ignore
 export const examples = [
@@ -138,25 +138,23 @@ function GroceryItem({ row, detail }: { row: GroceryRow; detail: "full" | "brief
       inline
       trailing={<KitCheck done={row.got} part="got" label={row.name} />}
     >
-      <KitContent>
-        <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
-          {row.name}
+      <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
+        {row.name}
+      </KitText>
+      {row.qty && (
+        <KitText
+          part="qty"
+          role="number"
+          numberScale="compact"
+          tone={detail === "brief" || row.got ? "muted" : "text"}
+          lines={1}
+        >
+          {row.qty}
         </KitText>
-        {row.qty && (
-          <KitText
-            part="qty"
-            role={detail === "brief" ? "number" : "caption"}
-            numberScale="compact"
-            tone="muted"
-            lines={1}
-          >
-            {row.qty}
-          </KitText>
-        )}
-        {detail === "full" && row.by && (
-          <KitText part="by" role="caption" tone="muted" lines={1} children={row.by} />
-        )}
-      </KitContent>
+      )}
+      {detail === "full" && row.by && (
+        <KitText part="by" role="caption" tone="muted" lines={1} children={row.by} />
+      )}
     </KitRow>
   );
 }
@@ -184,8 +182,8 @@ export function GroceryList(value: Props<typeof props, typeof meta>) {
           {live.every((row) => row.got) && <KitText role="heading" tone="good" part="summary">{groceryLabels.allGot}</KitText>}
           {aisles.map((aisle, index) => (
             <KitContent key={index} group={index ? "response" : "content"}>
-              <KitText role="heading" part={null}>{aisle.label}</KitText>
-              <KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
+              <KitText role="label" tone="muted" part={null}>{aisle.label}</KitText>
+              <KitGrid arrange="rows" list listRowGap="cards">
                 {live.filter((row) => row.aisleIndex === index)
                   .sort((a, b) => Number(a.got) - Number(b.got))
                   .map((row) => <GroceryItem key={row.id} {...{ row, detail }} />)}
