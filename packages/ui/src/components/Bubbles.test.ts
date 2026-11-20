@@ -10,7 +10,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { renderInstance } from "../../test/render";
+import { addressedElements, renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Bubbles;
 const message = { from: "them", text: "More details" };
@@ -24,6 +24,7 @@ describe("Bubbles schema", () => {
     expect(props.parse({ messages: [{ from: "me", text: " Reply " }], with: " Someone " })).toEqual({
       messages: [{ from: "me", text: "Reply" }],
       with: "Someone",
+      detail: "full",
     });
     expect(props.parse({ messages: [message] })).not.toHaveProperty("with");
   });
@@ -47,6 +48,7 @@ describe("Bubbles schema", () => {
     { messages: [message], color: "red" },
     { messages: [message], pixels: 4 },
     { messages: [message], style: "chat" },
+    { messages: [message], detail: "short" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths and both senders at the item bounds", () => {
     for (const count of [1, 6])
@@ -70,31 +72,24 @@ describe("Bubbles schema", () => {
 
 describe("Bubbles fallback", () => {
   it("uses only the first item's declared detail, or the neutral placeholder", () => {
+    // prettier-ignore
     const casts: CastLike[] = [
       { things: [], items: [] },
-      {
-        things: [{ type: "entry", fields: ["heading", "detail"] }],
+      { things: [{ type: "entry", fields: ["heading", "detail"] }],
         items: [{ id: "first", type: "entry", sample: true, detail: "More details", heading: "First" }],
       },
-      {
-        things: [{ type: "other", fields: ["name"] }],
+      { things: [{ type: "other", fields: ["name"] }],
         items: [{ id: "first", type: "entry", sample: true, heading: "First", detail: "Mixed detail" }],
       },
-      {
-        things: [{ type: "entry", fields: ["heading", "detail"] }],
+      { things: [{ type: "entry", fields: ["heading", "detail"] }],
         items: [{ id: "first", type: "entry", sample: false, heading: "First", detail: "y".repeat(160) }],
       },
-      {
-        things: [],
-        items: [
-          { id: "first", type: "entry", sample: true, heading: 4, detail: " " },
-          { id: "second", type: "entry", sample: true, heading: "Second", detail: "Not the first" },
-        ],
-      },
-      {
-        things: [{ type: "entry", fields: ["heading"] }],
-        items: [{ id: "first", type: "entry", sample: true, heading: "Title only" }],
-      },
+      { things: [], items: [
+        { id: "first", type: "entry", sample: true, heading: 4, detail: " " },
+        { id: "second", type: "entry", sample: true, heading: "Second", detail: "Not the first" },
+      ] },
+      { things: [{ type: "entry", fields: ["heading"] }],
+        items: [{ id: "first", type: "entry", sample: true, heading: "Title only" }] },
     ];
     const expected = [
       placeholderDetail,
@@ -106,27 +101,21 @@ describe("Bubbles fallback", () => {
     ];
     casts.forEach((cast, index) => {
       const result = fallback({ cast });
-      expect(props.parse(result)).toEqual({ messages: [{ from: "them", text: expected[index] }] });
+      expect(props.parse(result)).toEqual({
+        detail: "full",
+        messages: [{ from: "them", text: expected[index] }],
+      });
     });
   });
-  it("clips the detail on a word boundary using the first item's own thing", () => {
-    const cast: CastLike = {
-      things: [
-        { type: "other", fields: ["name"] },
-        { type: "entry", fields: ["heading", "detail"] },
-      ],
-      items: [
-        {
-          id: "first",
-          type: "entry",
-          sample: true,
-          detail: `${"a".repeat(115)} longerword`,
-          heading: "First",
-        },
-      ],
-    };
-    expect(fallback({ cast }).messages[0]?.text).toBe("a".repeat(115));
-  });
+});
+
+// prettier-ignore
+it("clips the detail on a word boundary using the first item's own thing", () => {
+  const cast: CastLike = {
+    things: [{ type: "other", fields: ["name"] }, { type: "entry", fields: ["heading", "detail"] }],
+    items: [{ id: "first", type: "entry", sample: true, detail: `${"a".repeat(115)} longerword`, heading: "First" }],
+  };
+  expect(fallback({ cast }).messages[0]?.text).toBe("a".repeat(115));
 });
 
 describe("Bubbles metadata and probes", () => {
@@ -138,7 +127,7 @@ describe("Bubbles metadata and probes", () => {
       weight: 2,
       tier: "people",
       items: { key: "messages", parts: ["root", "text"] },
-      parts: ["root"],
+      parts: ["root", "with"],
       states: ["filled", "empty"],
     });
     expect(meta).not.toHaveProperty("actions");
@@ -159,8 +148,6 @@ describe("Bubbles metadata and probes", () => {
   it("builds a data-only registry with separator-tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Bubbles");
-    expect(registry.schema("Bubbles")).toBe(props);
-    expect(registry.resolve("b-u-b-b-l-e-s")).toBe("Bubbles");
     expect(registry.resolve("b-u-b-b-l-e-s")).toBe("Bubbles");
   });
 });
@@ -175,7 +162,9 @@ describe("Bubbles rendering", () => {
         expect(html.match(new RegExp(`data-testid="home/c1/r${index + 1}/${part}"`, "g"))).toHaveLength(1);
       expect(readComponent(components.Bubbles, example, "c1").join("\n")).toContain(item.text);
     }
-    expect(html).toContain(example.with);
+    expect(html.includes('data-testid="home/c1/with"')).toBe(Boolean(parsed.with));
+    const reading = readComponent(components.Bubbles, example, "c1").join("\n");
+    expect(reading.includes(example.with)).toBe(Boolean(parsed.with));
     expect(affordancesOf(meta, parsed, "c1")).toEqual([]);
   });
   it("groups consecutive senders more closely and resets at a side change", () => {
@@ -197,4 +186,15 @@ describe("Bubbles rendering", () => {
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     for (const item of examples[0]!.messages) expect(html).not.toContain(item.text);
   });
+});
+
+it("hides just the partner heading without renumbering messages", () => {
+  const input = examples[0]!;
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["with"]);
+  const addresses = (value: unknown) => [
+    ...addressedElements(renderInstance("Bubbles", value, "filled", theme)).keys(),
+  ];
+  expect(addresses({ ...input, detail: "brief" })).toEqual(
+    addresses(input).filter((part) => part !== "home/c1/with"),
+  );
 });

@@ -18,6 +18,8 @@ type InputProps = {
   compact?: boolean;
   /** Muted, unraised hours that remain editable before their day is enabled. */
   inactive?: boolean;
+  /** Display the supplied live value, not a per-address edit or draft. */
+  projected?: boolean;
   action?: "type" | "set";
   disabled?: boolean;
   min?: number;
@@ -87,7 +89,7 @@ function TextControl({
   const edit = useInputEdit({ hint, kind, ...options }, address.testID);
   const editable = kit.interactive && !options.disabled && !loading;
   const numericSet = kind === "number" && options.action === "set";
-  const shown = editable && kit.controller ? (draft ?? stored) : value;
+  const shown = options.projected ? (value ?? "") : editable && kit.controller ? (draft ?? stored) : value;
   const role = loading ? undefined : numericSet ? "spinbutton" : kind === "search" ? "searchbox" : "textbox";
   return (
     <Input

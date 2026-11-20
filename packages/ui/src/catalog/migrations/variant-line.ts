@@ -55,8 +55,31 @@ function preserveRankedTrail(props: Line): Line {
   };
 }
 
+/** Old sheets used a boolean per row; an explicit row tone takes precedence. */
+export function migrateSheetItems(props: Line): Line {
+  if (!Array.isArray(props.items)) return props;
+  let changed = false;
+  const items = props.items.map((row: unknown) => {
+    if (!row || typeof row !== "object" || !("danger" in row) || typeof row.danger !== "boolean") return row;
+    const { danger, ...rest } = row;
+    changed = true;
+    return { tone: danger ? "bad" : "neutral", ...rest };
+  });
+  return changed ? { ...props, items } : props;
+}
+
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
+  Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
+  Note: [
+    {
+      from: "style",
+      values: { body: {}, quote: { emphasis: "hero" }, hint: { emphasis: "quiet" } },
+      prepare: (props) =>
+        props.style === "body" ? props : { icon: props.style === "quote" ? "quote" : "lightbulb", ...props },
+    },
+  ],
   Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
   Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
@@ -95,6 +118,23 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Stats: [{ from: "style", values: { tiles: { arrange: "grid" }, inline: { arrange: "rows" } } }],
   KeyValue: [{ from: "style", values: { rows: { arrange: "rows" }, grid: { arrange: "grid" } } }],
   Devices: [{ from: "style", values: { tiles: { group: "sections" } } }],
+  Photo: [
+    {
+      from: "style",
+      values: { wide: { aspect: "wide" }, square: { aspect: "square" }, tall: { aspect: "tall" } },
+    },
+  ],
+  Profile: [
+    {
+      from: "style",
+      values: { row: { align: "start" }, centered: { align: "center" } },
+      prepare: (props) =>
+        props.style === "centered" && (props.align ?? "center") === "center" && !props.photo
+          ? { media: "none", ...props }
+          : props,
+    },
+  ],
+  Sheet: [],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */
