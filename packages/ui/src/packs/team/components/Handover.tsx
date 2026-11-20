@@ -7,7 +7,7 @@ import { teamWordsFor } from "../lang";
 // Core first: Composer/entry accepts personal writing, not a shift's authored notes with shared acknowledgements.
 export const meta = {
   id: "Handover",
-  status: "ready",
+  status: "draft",
   group: "content",
   purpose: "Read what the last shift passed on and mark each note as seen.",
   pick: "Read shift-to-shift notes with author, time, optional flag and a mark-as-seen control. Not writing your own note (Composer), chatting (Bubbles), or a record change log (ActivityLog).",
