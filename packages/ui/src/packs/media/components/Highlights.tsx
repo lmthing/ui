@@ -13,7 +13,7 @@ export const meta = {
   pick: "Saved quotes or clip moments with a source, optional time and optional personal note, opening where they came from. Not original journal entries (Entries), whole saved titles (Library), or short tappable rows (List).",
   writeHints: [
     "Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.",
-    'When only asked to hide notes, write "detail":"brief","density":null,"surface":null. Still write the saved note in note. If no display treatment is requested, write null for all three axes, not their default values.',
+    'Write the exact note in note. Use "detail":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write "detail":"brief","density":null,"surface":null unless another axis was requested.',
   ],
   region: "body",
   weight: 2,
@@ -85,7 +85,7 @@ export const examples = [
         goto: "sniff_break",
       },
       {
-        text: "A loose lead is a conversation.",
+        text: "A chat, not a contest.",
         from: "Before the first walk",
         at: "02:14",
         goto: "before_the_walk",
@@ -104,11 +104,11 @@ export const probes = [
     "List",
   ),
   write(
-    "Show my saved passage Water only after checking how the soil feels, from Life on the Fern Shelf at 04:32. My note is Try the finger test on the kitchen fern. Open fern_watering.",
+    'Show my saved passage "Water only after checking how the soil feels" from Life on the Fern Shelf at 04:32. Show my note "Try the finger test on the kitchen fern" below the passage. Open fern_watering.',
   ),
   {
     ...write(
-      "Save the quote A loose lead is a conversation, not a contest from Before the first walk at 02:14, opening before_the_walk. Keep my note Give them time to sniff, but hide it from view. That's the only display change; don't pick a card treatment or spacing for me.",
+      'Save the quote "A loose lead is a conversation, not a contest" from Before the first walk at 02:14, opening before_the_walk. Keep my note "Give them time to sniff" but hide it from view. That is the only display change; do not pick a card treatment or spacing for me.',
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -176,15 +176,12 @@ function HighlightRow({
 
 export function Highlights(input: HighlightsProps) {
   const { items, surface } = input;
-  const context = kit.usePartContext();
+  const state = kit.useComponentState();
   const density = kit.useVariant("density", meta.variants.density, input.density);
-  const { words } = kit.useWords(mediaWordsFor);
-  if (context.state === "empty")
+  if (state === "empty")
     return (
       <kit.KitCard part="root" {...{ density, surface }}>
-        <kit.PartScope {...context} thing={words.highlights.thing}>
-          <kit.KitEmpty part="empty" icon="bookmark" decorativeIcon />
-        </kit.PartScope>
+        <kit.KitEmpty part="empty" icon="bookmark" decorativeIcon />
       </kit.KitCard>
     );
   return (

@@ -278,11 +278,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff, but hide it from view.\",\"goto\":\"before_the_walk\"}]}",
+    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}",
     "replies": [
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}",
       "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff, but hide it from view.\",\"goto\":\"before_the_walk\"}]}",
-      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff, but hide it from view.\",\"goto\":\"before_the_walk\"}]}",
-      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff, but hide it from view.\",\"goto\":\"before_the_walk\"}]}"
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}"
     ]
   },
   "28a0d1f5ecf76405": {
@@ -430,11 +430,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
+    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
     "replies": [
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
       "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
-      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
-      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}"
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}"
     ]
   },
   "3a74aa90a6cb22a3": {
@@ -855,6 +855,140 @@
       "{\"address\": \"h1/r1\", \"action\": \"press\"}",
       "{\"address\": \"h1/r1\", \"action\": \"press\"}",
       "{\"address\": \"h1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "8183fc156c4d3867": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nHighlights: Revisit saved passages and clips at their original source.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", items: [1..6 { text: text≤240, from: text≤36, at?: text≤12, note?: text≤120, goto: id snake_case }] }\nRule: Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.\nRule: Write the exact note in note. Use \"detail\":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write \"detail\":\"brief\",\"density\":null,\"surface\":null unless another axis was requested.\nexample: {\"c\":\"Highlights\",\"items\":[{\"text\":\"Check the soil before watering.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test.\",\"goto\":\"fern_watering\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show my saved passage \"Water only after checking how the soil feels\" from Life on the Fern Shelf at 04:32. Show my note \"Try the finger test on the kitchen fern\" below the passage. Open fern_watering.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Highlights",
+              "enum": [
+                "Highlights"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "from": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "at": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "text",
+                  "from",
+                  "at",
+                  "note",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "items"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":null,\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern\",\"goto\":\"fern_watering\"}]}",
+    "replies": [
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":null,\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern\",\"goto\":\"fern_watering\"}]}",
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":null,\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern\",\"goto\":\"fern_watering\"}]}",
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":null,\"items\":[{\"text\":\"Water only after checking how the soil feels\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern\",\"goto\":\"fern_watering\"}]}"
     ]
   },
   "892397d596fab8a1": {
@@ -1409,6 +1543,140 @@
       "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":null,\"items\":[{\"text\":\"Water only after checking how the soil feels,\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
       "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}",
       "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"Water only after checking how the soil feels.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test on the kitchen fern.\",\"goto\":\"fern_watering\"}]}"
+    ]
+  },
+  "be60ad001a2cff1f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nHighlights: Revisit saved passages and clips at their original source.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", items: [1..6 { text: text≤240, from: text≤36, at?: text≤12, note?: text≤120, goto: id snake_case }] }\nRule: Put the excerpt in text without surrounding quotation marks, the source title in from, and a clip time in at. Set goto to the screen for that source moment.\nRule: Write the exact note in note. Use \"detail\":null for normal excerpts with visible notes. Only when the person explicitly asks to hide notes, write \"detail\":\"brief\",\"density\":null,\"surface\":null unless another axis was requested.\nexample: {\"c\":\"Highlights\",\"items\":[{\"text\":\"Check the soil before watering.\",\"from\":\"Life on the Fern Shelf\",\"at\":\"04:32\",\"note\":\"Try the finger test.\",\"goto\":\"fern_watering\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Save the quote \"A loose lead is a conversation, not a contest\" from Before the first walk at 02:14, opening before_the_walk. Keep my note \"Give them time to sniff\" but hide it from view. That is the only display change; do not pick a card treatment or spacing for me.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Highlights",
+              "enum": [
+                "Highlights"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "from": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 36
+                  },
+                  "at": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 12
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "note": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "text",
+                  "from",
+                  "at",
+                  "note",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "items"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}",
+    "replies": [
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}",
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}",
+      "{\"c\":\"Highlights\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"items\":[{\"text\":\"A loose lead is a conversation, not a contest\",\"from\":\"Before the first walk\",\"at\":\"02:14\",\"note\":\"Give them time to sniff\",\"goto\":\"before_the_walk\"}]}"
     ]
   },
   "d32a0db11d0d7790": {

@@ -16,7 +16,6 @@ export const en = {
     summary: (count: string, duration: string) => `${count} · ${duration}`,
   },
   highlights: {
-    thing: "saved highlight",
     quote: (text: string) => `“${text}”`,
   },
   library: {

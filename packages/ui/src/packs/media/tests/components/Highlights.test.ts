@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   components,
   createRegistry,
+  emptyLine,
   packReady,
   placeholderTitle,
   wordsFor,
@@ -141,11 +142,13 @@ describe("Highlights states and parts", () => {
 
   it("uses an addressed empty message with no excerpt or link", () => {
     expect(meta.states).toEqual(["filled", "empty"]);
-    const html = renderInstance("Highlights", sample, "empty", theme);
-    const parts = addressedElements(html);
-    expect([...parts.keys()]).toEqual([`${prefix}/root`, `${prefix}/empty`]);
-    expect(parts.get(`${prefix}/empty`)?.text).toEqual(["No saved highlights yet"]);
-    expect(html).not.toContain('role="link"');
+    for (const thing of [undefined, "highlight"]) {
+      const html = renderInstance("Highlights", sample, "empty", theme, thing);
+      const parts = addressedElements(html);
+      expect([...parts.keys()]).toEqual([`${prefix}/root`, `${prefix}/empty`]);
+      expect(parts.get(`${prefix}/empty`)?.text).toEqual([emptyLine(thing)]);
+      expect(html).not.toContain('role="link"');
+    }
   });
 });
 
