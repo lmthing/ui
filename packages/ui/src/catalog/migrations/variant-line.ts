@@ -105,6 +105,12 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Stats: [{ from: "style", values: { tiles: { arrange: "grid" }, inline: { arrange: "rows" } } }],
   KeyValue: [{ from: "style", values: { rows: { arrange: "rows" }, grid: { arrange: "grid" } } }],
   Devices: [{ from: "style", values: { tiles: { group: "sections" } } }],
+  Photo: [
+    {
+      from: "style",
+      values: { wide: { aspect: "wide" }, square: { aspect: "square" }, tall: { aspect: "tall" } },
+    },
+  ],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */

@@ -67,3 +67,15 @@ it("keeps the structural number and back treatments", () => {
     { address: "h1/back", part: "back", action: "press", detail: "" },
   ]);
 });
+
+it.each(components.Photo.meta.variants.aspect)(
+  "migrates a saved %s crop, preserving the ID and explicit aspect",
+  (style) => {
+    const old = { c: "Photo", id: "p1", style, photo: "lib:entry" };
+    const { c, id, ...input } = migrateLine(old);
+    expect({ c, id }).toEqual({ c: "Photo", id: "p1" });
+    expect(components.Photo.props.parse(input)).toMatchObject({ photo: "lib:entry", aspect: style });
+    const { c: _c, id: _id, ...overridden } = migrateLine({ ...old, aspect: "square" });
+    expect(components.Photo.props.parse(overridden).aspect).toBe("square");
+  },
+);
