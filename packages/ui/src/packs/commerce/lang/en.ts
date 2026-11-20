@@ -12,6 +12,8 @@ export type CommerceWords = {
   receiptSeparator: string;
   promoEnds: string;
   copyPromoCode: (code: string) => string;
+  variantUnavailable: string;
+  variantReading: (label: string, details: readonly string[]) => string;
 };
 
 export const en = {
@@ -28,4 +30,6 @@ export const en = {
   receiptSeparator: " · ",
   promoEnds: "ends",
   copyPromoCode: (code) => `Copy ${code}`,
+  variantUnavailable: "Sold out",
+  variantReading: (label, details) => [label, ...details].join(" · "),
 } satisfies CommerceWords;
