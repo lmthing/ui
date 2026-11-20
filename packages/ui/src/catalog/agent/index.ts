@@ -11,7 +11,9 @@ export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export {
+  choiceOptions,
   choiceValues,
+  resolveChoice,
   resolveKeypadValue,
   selectionOffer,
   validateActionValue,
