@@ -1,16 +1,23 @@
 export const en = {
-  timetable: {
-    picker: "Show first",
-    days: {
-      mon: { short: "mon", name: "Monday" },
-      tue: { short: "tue", name: "Tuesday" },
-      wed: { short: "wed", name: "Wednesday" },
-      thu: { short: "thu", name: "Thursday" },
-      fri: { short: "fri", name: "Friday" },
-      sat: { short: "sat", name: "Saturday" },
-      sun: { short: "sun", name: "Sunday" },
-    },
-    reading: (parts: readonly (string | undefined)[]) => parts.filter(Boolean).join(" · "),
+  assignments: {
+    handedIn: "Handed in?",
+    graded: "Work graded",
+    gradeSeparator: " · ",
+    dueToday: (date: string) => `Today · ${date}`,
+    dueIn: (days: string, plural: Intl.LDMLPluralRule, date: string) =>
+      `In ${days}\u00a0${plural === "one" ? "day" : "days"} · ${date}`,
+    dueOn: (date: string) => `Due ${date}`,
+    deadlinePassed: (date: string) => `Deadline passed · ${date}`,
+    handInLabel: (title: string) => `${title}: handed in`,
+    reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
+  },
+  lesson: { example: "Worked example", next: "Continue" },
+  path: {
+    status: { done: "Completed", current: "Start unit", locked: "Locked" },
+    milestone: "Badge",
+    separator: " · ",
+    label: (title: string, status: string, milestone?: string) =>
+      [title, status, milestone].filter(Boolean).join(" · "),
   },
   quiz: {
     check: "Check answer",
@@ -31,6 +38,19 @@ export const en = {
     keyed: (label: string, key: string) => `${key} · ${label}`,
     paired: (label: string, other: string) => `${label} (${other})`,
     pair: (left: string, right: string) => `${left} → ${right}`,
+  },
+  timetable: {
+    picker: "Show first",
+    days: {
+      mon: { short: "mon", name: "Monday" },
+      tue: { short: "tue", name: "Tuesday" },
+      wed: { short: "wed", name: "Wednesday" },
+      thu: { short: "thu", name: "Thursday" },
+      fri: { short: "fri", name: "Friday" },
+      sat: { short: "sat", name: "Saturday" },
+      sun: { short: "sun", name: "Sunday" },
+    },
+    reading: (parts: readonly (string | undefined)[]) => parts.filter(Boolean).join(" · "),
   },
 };
 

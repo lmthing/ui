@@ -16,7 +16,7 @@ const def = components.ScoreSheet;
 const { props, meta, examples, fallback, probes } = def;
 const cast = { things: [], items: [] };
 const grid = examples[0]!;
-const round = { ...grid, style: "round" } as const;
+const round = { ...grid, overflow: "page" } as const;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const draw = (input: unknown, state: StateName = "filled") =>
   addressedElements(renderInstance("ScoreSheet", input, state, theme, "game"));
@@ -48,7 +48,7 @@ describe("ScoreSheet contract and bounds", () => {
         { label: " Second ", points: [0, 999] },
       ],
     });
-    expect(parsed).toMatchObject({ wins: "high", style: "grid", share: false, selectedRound: "1" });
+    expect(parsed).toMatchObject({ wins: "high", overflow: "all", share: false, selectedRound: "1" });
     expect(stampItemIds(meta, parsed)).toMatchObject({
       cells: [
         { id: "r1", player: "Anna", round: "First", score: -999 },
@@ -119,6 +119,7 @@ describe("ScoreSheet fallback and metadata", () => {
         expect.objectContaining({ kind: "choose", expect: "ScoreSheet" }),
         expect.objectContaining({ kind: "choose", expect: "Counter" }),
         expect.objectContaining({ kind: "write", expect: "ScoreSheet" }),
+        expect.objectContaining({ kind: "write", variant: { axis: "overflow", value: "page" } }),
         expect.objectContaining({ kind: "read", expect: { address: "s1/r1/score", action: "set" } }),
       ]),
     );
@@ -171,7 +172,7 @@ describe("ScoreSheet read and act", () => {
     expect(runtime.read()).not.toContain("[s1/r1/score set");
     expect(runtime.read()).toContain("[s1/r4/score set");
     expect(run("r4/score", "set", -999)).toMatchObject({ ok: true });
-    expect(runtime.read()).toContain("r4 Anna, Round 2: -999");
+    expect(runtime.read()).toContain("Anna, Round 2: -999");
   });
   it("offers and dispatches share only when enabled", () => {
     const off = start({ ...grid, share: false });

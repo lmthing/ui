@@ -1,6 +1,6 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
-import { choiceValues, selectionOffer } from "./validate-value";
+import { choiceOptions, resolveChoice, selectionOffer } from "./validate-value";
 import { projectNamedSelections } from "./live-inputs";
 
 type GetValue = (part: string) => unknown;
@@ -14,8 +14,8 @@ const rowValue = (value: NonNullable<NonNullable<Meta["select"]>["value"]>, row:
 
 /** Resolve a row or a named part without knowing which component owns it. */
 export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
-  const choices = choiceValues(meta, props, target);
-  if (choices) return choices.includes(explicit) ? { value: explicit } : undefined;
+  const choices = choiceOptions(meta, props, target);
+  if (choices) return resolveChoice(choices, explicit);
   const select = meta.select;
   if (!select) return undefined;
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };

@@ -25,6 +25,7 @@ describe("Player schema", () => {
       ...base,
       title: "Evening",
       style: "audio",
+      detail: "full",
     });
   });
   it.each([
@@ -44,6 +45,8 @@ describe("Player schema", () => {
     { ...base, at: -1 },
     { ...base, at: 721 },
     { ...base, style: "radio" },
+    { ...base, style: "compact" },
+    { ...base, detail: "none" },
     { ...base, autoplay: true },
     { ...base, color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
@@ -56,7 +59,7 @@ describe("Player schema", () => {
   });
   it("types view props and keeps the media reference out of drawing", () => {
     type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"audio" | "video" | "compact">();
+    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"audio" | "video">();
     expectTypeOf<ViewProps["seconds"]>().toEqualTypeOf<number>();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
@@ -137,5 +140,12 @@ describe("Player rendering", () => {
   });
   it("draws a skeleton while loading", () => {
     expect(renderInstance("Player", examples[0], "loading", theme)).toContain('aria-busy="true"');
+  });
+  it("does not hide artwork merely because density is compact", () => {
+    const standard = { ...examples[0], density: "compact" };
+    const brief = { ...standard, detail: "brief" };
+    expect(renderInstance("Player", standard, "filled", theme)).toContain('data-testid="home/c1/artwork"');
+    expect(renderInstance("Player", brief, "filled", theme)).not.toContain('data-testid="home/c1/artwork"');
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["artwork"] });
   });
 });
