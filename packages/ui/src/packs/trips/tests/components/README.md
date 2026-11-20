@@ -6,3 +6,4 @@
 - `PackingList.test.ts` covers packing schema, variants, rendering, and actions.
 - `Reservation.test.ts` covers ticket bounds, states, parts, reading and actions.
 - `TravelDocs.test.ts`: document bounds, masked rows, variants, expiry parts and row actions.
+- `Weather.test.ts` covers contract, fallback, rendering states, parts and readings.
