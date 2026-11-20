@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import {
   archetypes,
   components,
+  defaultLines,
   packOf,
   runComposeProbes,
   type ArchetypeMeta,
@@ -90,7 +91,10 @@ it("composes only the pack's changed core layouts using effective recipes and de
 it("does not inject core list/grouped defaults into a replacement recipe", () => {
   const source = {
     things: [{ type: "item", fields: ["name", "group"] }],
-    items: [{ id: "one", type: "item", sample: true, name: "One", group: "First" }],
+    items: [
+      { id: "one", type: "item", sample: true, name: "One", group: "First" },
+      { id: "two", type: "item", sample: true, name: "Two", group: "Second" },
+    ],
   };
   const active = registryOf(
     components,
@@ -100,11 +104,14 @@ it("does not inject core list/grouped defaults into a replacement recipe", () =>
     {},
     { booking: { list: { grouped: recipe } } },
   );
-  expect(
-    registry()
-      .defaultLines("list", "grouped", source)
-      .components.map(({ c }) => c),
-  ).toContain("Chips");
+  const coreScreen = registry().defaultLines("list", "grouped", source);
+  expect(coreScreen.components.filter(({ c }) => c === "SectionTitle").map(({ text }) => text)).toEqual([
+    "First",
+    "Second",
+  ]);
+  expect(defaultLines(structuredClone(archetypes.list.meta), "grouped", source, registry())).toEqual(
+    coreScreen,
+  );
   expect(active.defaultLines("list", "grouped", source).components.map(({ c }) => c)).toEqual([
     "Header",
     "ServiceMenu",

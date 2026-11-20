@@ -116,14 +116,15 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(Object.keys(views.renderers)).toEqual(["Core", "Ready"]);
 });
 
-it("generates layout overrides through the pack door without registering a second archetype", async () => {
+it.each(["direct", "named"])("generates %s layout override exports through the pack door", async (kind) => {
   const root = await fixture();
   await writeFile(
     join(root, "src/packs/booking/archetypes/index.ts"),
     `export { visitDetail } from "./visit-detail";
-    export const archetypeOverrides = { journal: { entries: {
+    ${kind === "direct" ? "export " : ""}const archetypeOverrides = { journal: { entries: {
       recipe: [{ allow: ["Draft"], required: true }], defaults: [{ id: "draft", c: "Draft" }],
-    } } };`,
+    } } };
+    ${kind === "named" ? "export { archetypeOverrides };" : ""}`,
   );
   const catalog = await loadCatalog(root);
   const registry = catalog.createRegistry({ packs: ["booking"], includeDrafts: true });

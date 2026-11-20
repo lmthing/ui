@@ -19,9 +19,17 @@ async function filesIn(folder: string): Promise<string[]> {
   return paths.flat().sort();
 }
 
-function exportedNames(file: string, source: string): string[] {
+function exportedNames(file: string, source: string, includeNamed = false): string[] {
   const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
   return ast.statements.flatMap((node) => {
+    if (
+      includeNamed &&
+      ts.isExportDeclaration(node) &&
+      !node.isTypeOnly &&
+      node.exportClause &&
+      ts.isNamedExports(node.exportClause)
+    )
+      return node.exportClause.elements.filter((element) => !element.isTypeOnly).map(({ name }) => name.text);
     const exported =
       ts.canHaveModifiers(node) && ts.getModifiers(node)?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
     if (!exported) return [];
@@ -50,7 +58,8 @@ async function packEntry(folder: string, id: PackId) {
     throw new Error(`${folder}/pack.ts is missing export: pack`);
   const door = join(folder, "archetypes", "index.ts");
   const overrides =
-    files.includes(door) && exportedNames(door, await readFile(door, "utf8")).includes("archetypeOverrides");
+    files.includes(door) &&
+    exportedNames(door, await readFile(door, "utf8"), true).includes("archetypeOverrides");
   const archetypes = await Promise.all(
     files
       .filter((file) => {

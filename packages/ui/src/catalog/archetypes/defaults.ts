@@ -6,7 +6,6 @@ import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } 
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
 import { applyPackListDefaults } from "./pack-list-defaults";
-import { list } from "./pages";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
 function fitArrays(def: Definition, input: Record<string, unknown>): void {
@@ -102,7 +101,7 @@ export function defaultLines(
     counts: Record<string, number> = {};
   const category = thingOf(cast)?.fields[1];
   const groups = new Map<string, CastLike["items"]>();
-  if (meta.id === "list" && layout === "grouped" && recipe === list.meta.defaults.grouped && category)
+  if (meta.id === "list" && layout === "grouped" && !meta.layouts[layout]?.packOverride && category)
     for (const item of cast.items) {
       const name = item[category];
       if (typeof name === "string" && name.trim()) groups.set(name, [...(groups.get(name) ?? []), item]);

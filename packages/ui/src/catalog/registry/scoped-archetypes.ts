@@ -30,7 +30,7 @@ export function scopedArchetypes(
         claimed.set(address, pack);
       }
       const current = patterns.get(id)!.meta;
-      const override = packComposition({ id, job: current.purpose, layouts });
+      const override = packComposition({ id, job: current.purpose, layouts, packOverride: true });
       patterns.set(id, {
         meta: {
           ...current,

@@ -1,7 +1,10 @@
 import type { ArchetypeMeta } from "../../meta";
 import type { CoreArchetypeMeta } from "../../archetypes";
 
-type CompositionInput = Omit<ArchetypeMeta, "defaultLayout"> & { defaultLayout?: string };
+type CompositionInput = Omit<ArchetypeMeta, "defaultLayout"> & {
+  defaultLayout?: string;
+  packOverride?: true;
+};
 
 /** Pack defaults are component seeds, completed by the same cast fallbacks as core recipes. */
 export function packComposition(meta: CompositionInput): CoreArchetypeMeta {
@@ -12,6 +15,7 @@ export function packComposition(meta: CompositionInput): CoreArchetypeMeta {
       Object.entries(meta.layouts).map(([id, layout]) => [
         id,
         {
+          ...(meta.packOverride ? { packOverride: true as const } : {}),
           ...(layout.writeHints ? { writeHints: layout.writeHints } : {}),
           slots: layout.recipe.map((slot, index) => ({
             id: `slot_${index}`,
