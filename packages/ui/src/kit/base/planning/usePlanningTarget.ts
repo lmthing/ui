@@ -1,10 +1,11 @@
-import { createElement, type ReactNode } from "react";
+import { createContext, createElement, useContext, type ReactNode } from "react";
 import { isWeb } from "tamagui";
 import { parseAddress } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 
 export type Target = { item?: string; part: string };
+const ValidTarget = createContext(false);
 
 export function PlanningTargetScope({
   id,
@@ -17,8 +18,14 @@ export function PlanningTargetScope({
 }) {
   const context = usePartContext();
   const item = target?.item ?? id;
-  const valid = target && parseAddress(`${context.screen}/${context.component}/${item}/root`)?.item === item;
-  return createElement(PartContext.Provider, { value: valid ? { ...context, item } : context }, children);
+  const valid = Boolean(
+    target && parseAddress(`${context.screen}/${context.component}/${item}/${target.part}`)?.item === item,
+  );
+  return createElement(
+    PartContext.Provider,
+    { value: valid ? { ...context, item } : context },
+    createElement(ValidTarget.Provider, { value: valid }, children),
+  );
 }
 
 export function usePlanningTarget(
@@ -28,8 +35,9 @@ export function usePlanningTarget(
   selected?: boolean,
 ) {
   const kit = useKit();
-  const address = usePart(target?.part, Boolean(target) && !loading);
-  if (!target || loading) return {};
+  const enabled = useContext(ValidTarget) && !loading;
+  const address = usePart(enabled ? target?.part : undefined, enabled);
+  if (!enabled) return {};
   const press = kit.interactive && kit.controller ? () => kit.controller!.press(address.testID) : undefined;
   return {
     ...address,

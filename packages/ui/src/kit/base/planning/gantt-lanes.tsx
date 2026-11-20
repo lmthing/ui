@@ -67,7 +67,7 @@ function LaneHit(props: { entry: Range | Gate; loading: boolean; width: number; 
   return (
     <YStack height={laneHeight} justifyContent="center">
       {children}
-      {entry.target && !loading && (
+      {target.testID && (
         <YStack
           {...target}
           {...hitBox(box.left + box.width / 2, width, box.width)}
@@ -100,7 +100,7 @@ export function GanttLane({
         {"at" in entry ? (
           <YStack
             position="absolute"
-            left={Math.max(0, Math.min(milestone(entry.at, width) - space.sm / 2, width - space.sm))}
+            left={milestone(entry.at, width) - space.sm / 2}
             width={space.sm}
             height={space.sm}
             rotate="45deg"

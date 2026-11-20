@@ -69,11 +69,16 @@ it("keeps labels outside the scrolling timeline and addresses only requested ran
 it("keeps descriptive row ids usable as geometry without becoming address items", () => {
   const html = render({
     columns,
-    rows: [{ id: "draft", label: "Draft", start: 0, end: 0.8, target: { part: "bar" } }],
+    rows: [
+      { id: "draft", label: "Draft", start: 0, end: 0.8, target: { part: "bar" } },
+      { id: "review", label: "Review", start: 0.5, end: 1, target: { part: "bar" } },
+    ],
     gates: [{ id: "sign-off", label: "Signoff", at: 1, target: { item: "r8", part: "gate" } }],
     links: [{ from: "draft", to: "sign-off" }],
   });
-  expect(elementAt(html, "home/c1/bar").attributes).toContain('aria-label="Draft"');
+  expect(html).toContain("Draft");
+  expect(html).toContain("Review");
+  expect(html).not.toContain('data-testid="home/c1/bar"');
   expect(elementAt(html, "home/c1/r8/gate").attributes).toContain('aria-label="Signoff"');
   expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ V[\d.]+ H/g)).toHaveLength(1);
 });

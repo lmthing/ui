@@ -24,7 +24,7 @@ function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
   return (
     <YStack
       {...target}
-      {...(!loading && !seat.target ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
+      {...(!loading && !target.testID ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
       width={size.control.md}
       height={size.control.md}
       alignItems="center"

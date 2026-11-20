@@ -97,7 +97,8 @@ it("keeps descriptive drawing ids separate from controller item ids", () => {
       },
     ],
   });
-  expect(elementAt(html, "home/c1/table").attributes).toContain('aria-label="Juniper"');
+  expect(html).toContain("Juniper");
+  expect(html).not.toContain('data-testid="home/c1/table"');
   expect(elementAt(html, "home/c1/r8/seat").attributes).toContain('aria-label="Ari"');
 });
 
