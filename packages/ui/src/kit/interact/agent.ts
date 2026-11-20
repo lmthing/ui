@@ -1,5 +1,6 @@
 import {
   planAct,
+  hasReportConfirmation,
   type ActStep,
   type Definition,
   type DeviceData,
@@ -34,12 +35,14 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
     screen.components.some(({ c }) => {
       const meta = options.defs[c]?.meta;
       return (
-        meta?.confirmParts?.length &&
-        (meta.session ||
-          meta.successActions?.length ||
-          meta.errorActions?.length ||
-          meta.live?.derive ||
-          meta.linkedEdits)
+        meta &&
+        (hasReportConfirmation(meta) ||
+          (meta.confirmParts?.length &&
+            (meta.session ||
+              meta.successActions?.length ||
+              meta.errorActions?.length ||
+              meta.live?.derive ||
+              meta.linkedEdits)))
       );
     })
   )

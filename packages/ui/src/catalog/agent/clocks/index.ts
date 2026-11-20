@@ -18,6 +18,7 @@ export { isRuntimeSet, projectComponentSets } from "./component-sets";
 export {
   adjustmentAt,
   clearItemSets,
+  hasNumericRoom,
   numericSetAt,
   projectAdjustments,
   projectMatrix,

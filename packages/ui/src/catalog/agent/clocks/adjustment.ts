@@ -2,7 +2,7 @@ import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
-import { componentSetAt, isNumericSet, keyFor } from "./component-sets";
+import { componentSetAt, isNumericSet, isRuntimeSet, keyFor } from "./component-sets";
 import { effectiveLimits, finite, runtimeNumber } from "./numeric-limits";
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
@@ -38,6 +38,12 @@ export function numericSetAt(meta: Meta, props: Values, target: string) {
 
 export function setAt(meta: Meta, props: Values, target: string) {
   return numericSetAt(meta, props, target) ?? componentSetAt(meta, props, target);
+}
+
+export function hasNumericRoom(meta: Meta, props: Values, part: string, action: string) {
+  if (action !== "set" || !isRuntimeSet(meta.set?.[part])) return true;
+  const { min, max } = numericSetAt(meta, props, part)!.spec;
+  return min <= max && max !== -Infinity;
 }
 
 /** Used only after the controller has resumed a confirmed component press. */

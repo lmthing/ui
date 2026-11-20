@@ -13,6 +13,7 @@ import {
   type Values,
 } from "../index";
 import { isRuntimeSet, setAt } from "../clocks";
+import { itemEditAt } from "../report-edits";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -36,7 +37,12 @@ export function readAffordances(
     const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
-    const selected = options ? props[selectionOffer(meta, target)!.prop] : undefined;
+    const item = itemEditAt(meta, props, target);
+    const selected = options
+      ? item?.spec.action === "select"
+        ? item.row[item.spec.prop]
+        : props[selectionOffer(meta, target)!.prop]
+      : undefined;
     // Advertise a label only when copying it back selects this option.
     const choices =
       options &&
@@ -46,17 +52,20 @@ export function readAffordances(
       }));
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
-    const value = linked
-      ? props[linked.prop]
-      : choices
-        ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
-        : set
-          ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
-            ? set.value
-            : undefined
-          : a.input?.kind === "text"
-            ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
-            : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
+    const value =
+      a.action === "type" && item?.spec.action === "type"
+        ? item.row[item.spec.prop]
+        : linked
+          ? props[linked.prop]
+          : choices
+            ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
+            : set
+              ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+                ? set.value
+                : undefined
+              : a.input?.kind === "text"
+                ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
+                : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
     let detail = a.detail;
     if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
     if (!a.input && typeof value === "boolean" && a.action === "check")
