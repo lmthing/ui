@@ -70,7 +70,7 @@ export const examples = [
   { ahead: 4, joined: false },
   { ahead: 0, joined: true },
   { ahead: 0, joined: false },
-  { position: 12, ahead: 11, joined: true, detail: "brief" },
+  { position: 3, ahead: 2, joined: true, detail: "brief" },
   { position: 3, ahead: 2, joined: true, density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Waitlist");
@@ -98,28 +98,40 @@ export function Waitlist(input: Props<typeof props, typeof meta>) {
   const density = useVariant("density", meta.variants.density, input.density);
   const { lang, words } = useWords(bookingWordsFor);
   const { queueLabels } = words;
-  const brief = detail === "brief" && joined && position !== undefined;
+  const hasPosition = joined && position !== undefined;
+  const brief = detail === "brief" && hasPosition;
   const label = brief
     ? queueLabelsForPosition(position, lang)
     : queueExact(ahead, joined ? position : undefined, lang);
+  const number = hasPosition && (
+    <KitText role="number" tabular part="position">
+      {queueCount(position, lang)}
+    </KitText>
+  );
+  const caption = (
+    <KitText role="body" tone="muted" part="label">
+      {queueLabels.position}
+    </KitText>
+  );
   return (
     <KitCard style="inset" padded part="root" label={label} density={density}>
       <KitContent lineRole="heading">
-        <KitText role="label" part="title">
+        <KitText role={hasPosition ? "label" : "heading"} part="title">
           {joined ? queueLabels.joined : queueLabels.waiting}
         </KitText>
-        {joined && position !== undefined && (
-          <>
-            <KitText role="number" tabular part="position">
-              {queueCount(position, lang)}
-            </KitText>
-            <KitText role="body" tone="muted" part="label">
-              {queueLabels.position}
-            </KitText>
-          </>
-        )}
+        {hasPosition &&
+          (density === "compact" ? (
+            <KitContent lead={number} density={density} leadingAlign="row">
+              {caption}
+            </KitContent>
+          ) : (
+            <>
+              {number}
+              {caption}
+            </>
+          ))}
         {!brief && (
-          <KitText role="body" tone="muted" part="ahead" density={density}>
+          <KitText role={hasPosition ? "body" : "caption"} tone="muted" part="ahead" density={density}>
             {queueAhead(ahead, lang)}
           </KitText>
         )}
