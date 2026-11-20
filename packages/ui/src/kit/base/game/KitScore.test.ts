@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, size, space, themeName, type as typography } from "@lmthing/ui/catalog";
+import { size, themeName, type as typography } from "@lmthing/ui/catalog";
 import { KitAction, KitProvider, KitScore, KitText, PartScope } from "@lmthing/ui/kit";
 import { addressedElements, config, elementAt, styleAt } from "../../../../test/render";
 
@@ -63,15 +63,14 @@ const sides = [
 describe("KitScore filled and empty", () => {
   it("draws aligned caller scores and center at the requested root, without invented item parts", () => {
     const html = render({ part: "score", sides, center });
-    const layout = elementAt(html, "home/c1/score").children[0]!;
+    const layout = elementAt(html, "home/c1/score").children[0]!.children[0]!;
     const [left, middle, right] = layout.children;
-    expect(styleAt(html, left!)).toBe(styleAt(html, right!));
     for (const side of [left!, right!]) {
-      const value = side.children[0]!.children[0]!.children[0]!;
+      const value = side.children[0]!;
       expect(styleAt(html, value)).toContain(`font-size:${typography.number.size}px`);
       expect(styleAt(html, value)).toContain("tabular-nums");
     }
-    expect(middle!.children[0]!.children).toEqual([elementAt(html, "home/c1/clock")]);
+    expect(middle!.children).toEqual([elementAt(html, "home/c1/clock")]);
     for (const value of [">0<", ">120<", "North Shore", "Riverside", "12:35"]) expect(html).toContain(value);
     expect([...addressedElements(html).keys()]).toEqual(["home/c1/score", "home/c1/clock"]);
   });
@@ -79,12 +78,11 @@ describe("KitScore filled and empty", () => {
   it("keeps caller-owned control parts only in keeper mode and under their respective sides", () => {
     const html = render({ sides, center, style: "keeper" });
     const controls = elementAt(html, "home/c1/root").children[1]!.children;
-    expect(controls[0]!.children[0]!.children).toEqual([
+    expect(controls[0]!.children).toEqual([
       elementAt(html, "home/c1/home_less"),
       elementAt(html, "home/c1/home_more"),
     ]);
-    expect(controls[1]!.children).toHaveLength(0);
-    expect(controls[2]!.children[0]!.children).toEqual([elementAt(html, "home/c1/away_more")]);
+    expect(controls[1]!.children).toEqual([elementAt(html, "home/c1/away_more")]);
     expect(elementAt(html, "home/c1/away_more").attributes).toContain('role="button"');
   });
 
@@ -117,19 +115,17 @@ describe("KitScore loading", () => {
       expect([...addressedElements(html).keys()]).toEqual(["home/c1/root"]);
       expect(html).not.toMatch(/12:35|role="button"/);
       expect(root.children).toHaveLength(elementAt(filled, "home/c1/root").children.length);
-      const [left, middle, right] = root.children[0]!.children;
-      expect(left!.children[0]!.children[1]!.children[0]!.attributes).toContain('aria-hidden="true"');
-      expect(styleAt(html, left!)).toContain(`flex-basis:${size.control.md * 2 + space.sm}px`);
-      expect(styleAt(html, middle!)).toContain(`flex-basis:${size.control.lg + space.xs}px`);
-      expect(styleAt(html, right!)).toBe(styleAt(html, left!));
+      const [values, labels] = root.children[0]!.children;
+      expect(labels!.children[0]!.children[0]!.attributes).toContain('aria-hidden="true"');
+      expect(styleAt(html, values!.children[1]!)).toContain(`width:${size.avatar.lg}px`);
+      expect(styleAt(html, labels!.children[1]!)).toBe(styleAt(html, labels!.children[0]!));
       if (style === "keeper") {
-        const group = root.children[1]!.children[0]!.children[0]!;
-        const away = root.children[1]!.children[2]!.children[0]!;
-        expect(group.children).toHaveLength(2);
-        expect(away.children).toHaveLength(1);
-        expect(styleAt(html, group)).toContain(`min-height:${size.control.md}px`);
-        expect(styleAt(html, group.children[0]!)).toContain(`width:${size.control.md}px`);
-        expect(html).toContain(`opacity:${component.base.skeletonOpacity}`);
+        const [group, away] = root.children[1]!.children;
+        expect(group!.children).toHaveLength(2);
+        expect(away!.children).toHaveLength(1);
+        expect(styleAt(html, group!)).toContain(`min-height:${size.control.md}px`);
+        expect(styleAt(html, group!.children[0]!)).toContain(`width:${size.control.md}px`);
+        expect(group!.children.every((slot) => slot.children.length === 0)).toBe(true);
       }
     },
   );

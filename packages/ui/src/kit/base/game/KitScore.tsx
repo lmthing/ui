@@ -14,17 +14,19 @@ type ScoreProps = {
   style?: "display" | "keeper";
 };
 
-const sideWidth = size.control.md * 2 + space.sm;
-const centerWidth = size.control.lg + space.xs;
+const centerWidth = size.avatar.lg;
+const sideLayout = { flex: component.base.bodyFlex, minWidth: component.base.none } as const;
 
-function ScoreColumn({ children, middle = false }: { children?: ReactNode; middle?: boolean }) {
+function ScoreValue({ value, loading, end = false }: { value: string; loading: boolean; end?: boolean }) {
   return (
-    <YStack
-      flex={component.base.bodyFlex}
-      flexBasis={middle ? centerWidth : sideWidth}
-      minWidth={component.base.none}
-    >
-      {children}
+    <YStack {...sideLayout} alignItems="center" x={centerWidth / (end ? -4 : 4)}>
+      {loading || !value ? (
+        <ScoreBar width={loading ? size.control.md : size.icon.md} tall={loading} />
+      ) : (
+        <KitText role="number" tabular align="center" lines={1} part={null}>
+          {value}
+        </KitText>
+      )}
     </YStack>
   );
 }
@@ -43,41 +45,25 @@ function ScoreBar({ width, tall = false }: { width: number; tall?: boolean }) {
   );
 }
 
-function ScoreSide({ side, loading }: { side: Side; loading: boolean }) {
+function ScoreLabel({ label, loading }: { label: string; loading: boolean }) {
   const step = useTextStep({});
   return (
-    <YStack alignItems="center" gap={space.xs}>
-      <YStack
-        width="100%"
-        height={typography[step("number")].lineHeight}
-        justifyContent="center"
-        alignItems="center"
-      >
-        {loading || !side.value ? (
-          <ScoreBar width={loading ? size.control.md : size.icon.md} tall={loading} />
-        ) : (
-          <KitText role="number" tabular align="center" lines={1} part={null}>
-            {side.value}
-          </KitText>
-        )}
+    <YStack {...sideLayout} minHeight={typography[step("caption")].lineHeight} alignItems="center">
+      <YStack opacity={loading ? component.base.none : 1} aria-hidden={loading || undefined}>
+        <KitText role="caption" tone="muted" align="center" lines={2} part={null}>
+          {label}
+        </KitText>
       </YStack>
-      <YStack width="100%" minHeight={typography[step("caption")].lineHeight} alignItems="center">
-        <YStack opacity={loading ? component.base.none : 1} aria-hidden={loading || undefined}>
-          <KitText role="caption" tone="muted" align="center" lines={2} part={null}>
-            {side.label}
-          </KitText>
+      {loading && (
+        <YStack
+          position="absolute"
+          top={component.base.none}
+          height={typography[step("caption")].lineHeight}
+          justifyContent="center"
+        >
+          <ScoreBar width={size.control.lg} />
         </YStack>
-        {loading && (
-          <YStack
-            position="absolute"
-            top={component.base.none}
-            height={typography[step("caption")].lineHeight}
-            justifyContent="center"
-          >
-            <ScoreBar width={size.control.lg} />
-          </YStack>
-        )}
-      </YStack>
+      )}
     </YStack>
   );
 }
@@ -94,11 +80,15 @@ function controlCount(controls: ReactNode): number {
 }
 
 function ScoreControls({ controls, loading }: { controls?: ReactNode; loading: boolean }) {
-  const { radiusShift } = useKitStyle();
   const count = controlCount(controls);
-  if (!count) return null;
   return (
-    <XStack justifyContent="center" alignItems="center" minHeight={size.control.md} gap={space.xs}>
+    <XStack
+      {...sideLayout}
+      justifyContent="center"
+      alignItems="center"
+      minHeight={size.control.md}
+      gap={space.xs}
+    >
       {loading
         ? Array.from({ length: count }, (_, index) => (
             <YStack
@@ -107,18 +97,8 @@ function ScoreControls({ controls, loading }: { controls?: ReactNode; loading: b
               height={size.control.md}
               borderRadius={radius.pill}
               backgroundColor="$line"
-              alignItems="center"
-              justifyContent="center"
               aria-hidden
-            >
-              <YStack
-                width={size.icon.md}
-                height={space.xs}
-                borderRadius={shifted("sm", radiusShift)}
-                backgroundColor="$muted"
-                opacity={component.base.skeletonOpacity}
-              />
-            </YStack>
+            />
           ))
         : controls}
     </XStack>
@@ -137,17 +117,10 @@ function ScoreDrawing({
   const step = useTextStep({});
   return (
     <>
-      <XStack alignItems="flex-start">
-        <ScoreColumn>
-          <ScoreSide side={sides[0]} loading={loading} />
-        </ScoreColumn>
-        <ScoreColumn middle>
-          <YStack
-            minHeight={typography[step("number")].lineHeight}
-            justifyContent="center"
-            alignItems="center"
-            gap={space.xs}
-          >
+      <YStack gap={space.xs}>
+        <XStack alignItems="center" minHeight={typography[step("number")].lineHeight}>
+          <ScoreValue value={sides[0].value} loading={loading} />
+          <YStack width={centerWidth} justifyContent="center" alignItems="center" gap={space.xs}>
             {loading ? (
               <>
                 <ScoreBar width={size.control.lg} />
@@ -161,20 +134,17 @@ function ScoreDrawing({
               center
             )}
           </YStack>
-        </ScoreColumn>
-        <ScoreColumn>
-          <ScoreSide side={sides[1]} loading={loading} />
-        </ScoreColumn>
-      </XStack>
+          <ScoreValue value={sides[1].value} loading={loading} end />
+        </XStack>
+        <XStack>
+          <ScoreLabel label={sides[0].label} loading={loading} />
+          <ScoreLabel label={sides[1].label} loading={loading} />
+        </XStack>
+      </YStack>
       {keep && (
         <XStack>
-          <ScoreColumn>
-            <ScoreControls controls={sides[0].controls} loading={loading} />
-          </ScoreColumn>
-          <ScoreColumn middle />
-          <ScoreColumn>
-            <ScoreControls controls={sides[1].controls} loading={loading} />
-          </ScoreColumn>
+          <ScoreControls controls={sides[0].controls} loading={loading} />
+          <ScoreControls controls={sides[1].controls} loading={loading} />
         </XStack>
       )}
     </>
@@ -189,8 +159,17 @@ export function KitScore({ part = "root", loading = false, style = "display", si
   return (
     <YStack {...usePart(part)} width="100%" gap={space.sm} aria-busy={loading}>
       {empty && !loading ? (
-        <YStack alignItems="center" paddingTop={space.xl}>
-          <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
+        <YStack alignItems="center" paddingTop={space.xl} paddingBottom={space.xs}>
+          <YStack
+            width={size.avatar.md}
+            height={size.avatar.md}
+            borderRadius={radius.pill}
+            backgroundColor="$raised"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <KitIcon name="sparkles" tone="muted" scale="lg" decorative />
+          </YStack>
         </YStack>
       ) : (
         <ScoreDrawing sides={sides} center={center} loading={loading} keep={keep} />
