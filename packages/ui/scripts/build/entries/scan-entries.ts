@@ -48,6 +48,9 @@ async function packEntry(folder: string, id: PackId) {
   const meta = files.includes(join(folder, "pack.ts"));
   if (meta && !exportedNames("pack.ts", await readFile(join(folder, "pack.ts"), "utf8")).includes("pack"))
     throw new Error(`${folder}/pack.ts is missing export: pack`);
+  const door = join(folder, "archetypes", "index.ts");
+  const overrides =
+    files.includes(door) && exportedNames(door, await readFile(door, "utf8")).includes("archetypeOverrides");
   const archetypes = await Promise.all(
     files
       .filter((file) => {
@@ -72,7 +75,7 @@ async function packEntry(folder: string, id: PackId) {
   const example = files.includes(join(folder, "example.jsonl"))
     ? await readFile(join(folder, "example.jsonl"), "utf8")
     : undefined;
-  return { id, meta, archetypes, example };
+  return { id, meta, archetypes, overrides, example };
 }
 
 export async function scanEntries(root: string) {
@@ -109,8 +112,14 @@ export async function scanEntries(root: string) {
     if (seen.has(def.name)) throw new Error(`Component id collision: ${def.name}`);
     seen.add(def.name);
   }
-  for (const { id, meta, archetypes, example } of packs) {
-    if (!meta && !archetypes.length && example === undefined && !defs.some((def) => def.pack === id))
+  for (const { id, meta, archetypes, overrides, example } of packs) {
+    if (
+      !meta &&
+      !archetypes.length &&
+      !overrides &&
+      example === undefined &&
+      !defs.some((def) => def.pack === id)
+    )
       continue;
     const door = join(packDir, id, "index.ts");
     await readFile(door, "utf8").catch((error: NodeJS.ErrnoException) => {

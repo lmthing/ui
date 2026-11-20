@@ -116,6 +116,23 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(Object.keys(views.renderers)).toEqual(["Core", "Ready"]);
 });
 
+it("generates layout overrides through the pack door without registering a second archetype", async () => {
+  const root = await fixture();
+  await writeFile(
+    join(root, "src/packs/booking/archetypes/index.ts"),
+    `export { visitDetail } from "./visit-detail";
+    export const archetypeOverrides = { journal: { entries: {
+      recipe: [{ allow: ["Draft"], required: true }], defaults: [{ id: "draft", c: "Draft" }],
+    } } };`,
+  );
+  const catalog = await loadCatalog(root);
+  const registry = catalog.createRegistry({ packs: ["booking"], includeDrafts: true });
+  expect(catalog.packArchetypeOverrides.booking.journal.entries.recipe[0].allow).toEqual(["Draft"]);
+  expect(catalog.packArchetypes.booking.map(({ id }: { id: string }) => id)).toEqual(["visit-detail"]);
+  expect(registry.archetypes.journal.meta.layouts.entries.slots[0].allow).toEqual(["Draft"]);
+  expect(catalog.createRegistry().archetypes.journal.meta).toEqual(catalog.archetypes.journal.meta);
+});
+
 it.each([
   ['{"c":"Ready"}\n', true],
   ['{"c":"Ready"}\n{"c":"Missing"}\n', false],

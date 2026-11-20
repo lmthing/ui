@@ -1,8 +1,10 @@
 import type { ArchetypeMeta } from "../../meta";
 import type { CoreArchetypeMeta } from "../../archetypes";
 
+type CompositionInput = Omit<ArchetypeMeta, "defaultLayout"> & { defaultLayout?: string };
+
 /** Pack defaults are component seeds, completed by the same cast fallbacks as core recipes. */
-export function packComposition(meta: ArchetypeMeta): CoreArchetypeMeta {
+export function packComposition(meta: CompositionInput): CoreArchetypeMeta {
   return {
     id: meta.id,
     purpose: meta.job,
