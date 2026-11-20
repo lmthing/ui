@@ -18,8 +18,8 @@ export const meta = {
   purpose: "See, change or confirm one booking with its time and terms.",
   pick: "One booking with structured date, time, duration and change or cancellation actions. Not a simple record preview (Card), the day's bookings in order (Timeline), free start times (Slots), or goods ordered (OrderSummary).",
   writeHints: [
-    'policy is only allowed with style: "summary". For style: "card", omit policy.',
-    'Hiding who and where changes ONLY detail to "brief"; retain with and place in the data. Always set density to null unless a spacing change is requested; do not spell out "comfortable".',
+    'Use style "summary" only for reviewing before confirmation. For an existing booking or a reschedule action set style to null (the card) and policy to null.',
+    'Set detail to null by default, even if the booking has few fields. Only explicit hiding of who or where requests "brief"; retain with and place. Set density to null unless a spacing change is requested.',
   ],
   region: "body",
   weight: 2,
