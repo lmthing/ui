@@ -1,10 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { nextOrderStage, orderStatusReading } from "../copy";
+import { commerceWordsFor } from "../lang";
 
 // Core first: Steps/default guides the current person through a process, not order progress with stage times and a seller handoff.
 export const meta = {
   id: "OrderStatus",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Follow an order through fulfillment or move it along as the seller.",
   pick: "Track fulfillment milestones on one goods order, with timestamps and a seller's next-stage action. Not a multi-step form (Steps), a map (DeliveryTracker), or an order receipt (OrderSummary).",
@@ -18,19 +21,14 @@ export const meta = {
   realPath: "The seller changes the order on their device; the buyer needs a shared app to see changes live.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "plain"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["line"] } },
-  parts: ["root", "line", "next"],
+  parts: ["root", "track", "status", "line", "next", "next_label"],
   items: { key: "steps", parts: ["root", "label", "time"] },
   states: ["filled", "success"],
   actions: { parts: { next: ["press"] }, when: { next: { can_advance: true } } },
+  readSuccess: true,
   read: (input, state, lang): string[] => {
-    if (state !== "filled") return [];
-    const { at, steps } = input as { at: number; steps: z.output<typeof stepProps>[] };
-    return [
-      steps[at]!.label,
-      ...steps.flatMap(({ label, time }) =>
-        time === undefined ? [] : [c.documentFieldLine(label, c.timeOfDayLine(time, lang), lang)],
-      ),
-    ];
+    if (state !== "filled" && state !== "success") return [];
+    return orderStatusReading(input as z.output<typeof props>, state === "success", lang);
   },
 } as const satisfies c.Meta;
 
@@ -47,7 +45,7 @@ export const props = z
   .overwrite((value) => ({
     ...value,
     ...(value.detail === "brief" ? { line: undefined } : {}),
-    can_advance: value.seller && value.at < value.steps.length - 1,
+    can_advance: nextOrderStage(value) !== undefined,
   }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -67,20 +65,18 @@ export const examples = [
   {
     steps: [{ label: "Received", time: "08:45" }, { label: "Preparing", time: "09:00" }, { label: "Ready" }],
     at: 1,
-    line: "Packing your fern pot now",
+    line: "Fern pot · Shop pickup",
     seller: true,
   },
   {
     steps: [
       { label: "Received", time: "11:00" },
+      { label: "Treats packed", time: "11:25" },
       { label: "On its way", time: "11:50" },
       { label: "Delivered" },
     ],
-    at: 1,
+    at: 2,
     seller: false,
-    detail: "brief",
-    density: "compact",
-    surface: "plain",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -101,3 +97,56 @@ export const probes = [
   },
   read("As the seller, advance the order to its next stage", { address: "o1/next", action: "press" }),
 ] satisfies c.Probe[];
+
+type OrderStatusProps = c.Props<typeof props, typeof meta>;
+
+// prettier-ignore
+function OrderStage({ step, current, pending, complete }: {
+  step: OrderStatusProps["steps"][number]; current: boolean; pending: boolean; complete: boolean;
+}) {
+  const { words, lang } = kit.useWords(commerceWordsFor);
+  const context = kit.usePartContext();
+  const { id, label, time } = step;
+  const tone = current ? (complete ? "good" : "accent") : pending ? "muted" : "text";
+  return <kit.PartScope {...context} item={id}>
+    <kit.KitCard style="plain" part="root" label={current && !complete ? words.currentOrderStage(label) : label}>
+      <kit.KitGrid fitLast>
+        <kit.KitText part="label" role={current ? "heading" : "body"} density="comfortable" {...{ tone }}>{label}</kit.KitText>
+        {time !== undefined && <kit.KitText part="time" role="label" tone="muted" align="end" tabular density="comfortable">
+          {c.timeOfDayLine(time, lang)}
+        </kit.KitText>}
+      </kit.KitGrid>
+    </kit.KitCard>
+  </kit.PartScope>;
+}
+
+// prettier-ignore
+export function OrderStatus(input: OrderStatusProps) {
+  const { at, steps, line } = input;
+  const state = kit.useComponentState();
+  const { words } = kit.useWords(commerceWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const complete = state === "success";
+  const current = complete ? steps.length - 1 : at;
+  const next = state === "filled" ? nextOrderStage(input) : undefined;
+
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <kit.KitContent {...{ density }}>
+      {complete && <kit.KitText part="status" role="label" tone="good" {...{ density }}>{words.orderComplete}</kit.KitText>}
+      <kit.KitStepsTrack style="bar" count={steps.length} at={current + 1} part="track" />
+    </kit.KitContent>
+    <kit.KitContent group="response" {...{ density }}>
+      <kit.KitGrid list arrange="rows" listRowGap="cards" {...{ density }}>
+        {steps.map((step, index) => <OrderStage key={step.id} {...{ step, complete }} current={index === current} pending={index > current} />)}
+      </kit.KitGrid>
+    </kit.KitContent>
+    {((detail === "full" && line) || next) && <kit.KitContent group="response" {...{ density }}>
+      {detail === "full" && line && <kit.KitText part="line" role="label" tone="muted" {...{ density }}>{line}</kit.KitText>}
+      {next && <kit.KitContent group={detail === "full" && line ? "response" : "content"} {...{ density }}>
+        <kit.KitAction part="next" action="press" kind="secondary" label={words.advanceOrder(next)} />
+      </kit.KitContent>}
+    </kit.KitContent>}
+  </kit.KitCard>;
+}

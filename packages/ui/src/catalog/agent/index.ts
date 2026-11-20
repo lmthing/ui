@@ -6,8 +6,10 @@ export {
   type Affordance,
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { emptyDeviceData, selectDeviceData, type DeviceData } from "./device-data";
 export { visibleItems } from "./visibility";
 export { projectLiveInputs } from "./live-inputs";
+export { linkedEditKey } from "./linked-edits";
 export {
   choiceValues,
   resolveKeypadValue,
@@ -65,5 +67,8 @@ export {
   projectAdjustments,
   projectClocks,
   clockActionValid,
+  clockControlDeclared,
+  hasPlaybackClock,
+  isPlaybackAction,
   clockChanges,
 } from "./clocks";

@@ -1,15 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import {
-  affordancesOf,
-  components,
-  emptyLine,
-  planAct,
-  placeholderTitle,
-  readComponent,
-  stampItemIds,
-  type CastLike,
-  type Props,
-} from "@lmthing/ui/catalog";
+// prettier-ignore
+import { affordancesOf, components, emptyLine, planAct, placeholderTitle, readComponent, stampItemIds, type CastLike,
+  type Props } from "@lmthing/ui/catalog";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
 const agenda = components.Agenda;
@@ -87,11 +79,22 @@ describe("Agenda fallback and probes", () => {
     expect(meta).toMatchObject({ status: "ready", tier: "phone", dense: true, weight: 3 });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(probes.map(({ kind }) => kind)).toEqual(["choose", "choose", "write", "read", "read"]);
+    expect(probes.map(({ kind }) => kind)).toEqual(["choose", "choose", "write", "read", "read", "write"]);
     expect(probes[1]).toMatchObject({ expect: "Timeline" });
     expect(probes[2]).toMatchObject({ expect: "Agenda" });
     expect(probes[3]).toMatchObject({ expect: { address: "a1/add", action: "press" } });
     expect(probes[4]).toMatchObject({ expect: { address: "a1/r1", action: "press" } });
+  });
+  // prettier-ignore
+  it("keeps the date grouping default and omits dates from an ungrouped view and read", () => {
+    expect(props.parse(input)).toMatchObject({ group: "dates", surface: "card" });
+    expect(props.safeParse({ ...input, group: "sections" }).success).toBe(false);
+    const flat = { ...input, group: "none" };
+    const html = renderInstance("Agenda", flat, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(html).not.toContain("home/c1/r1/date");
+    const read = readComponent(agenda, flat, "a1").join("\n");
+    expect(read).not.toContain("Fri 20 Nov");
+    expect(read).toContain("[a1/r1 press]");
   });
 });
 

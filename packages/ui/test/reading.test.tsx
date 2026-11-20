@@ -10,7 +10,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { renderers } from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
-import { renderInstance } from "./render";
+import { addressedElements, hasStepTarget, renderInstance } from "./render";
 import { selectedIds } from "../scripts/build";
 import { peekForExample } from "./variants";
 
@@ -71,11 +71,6 @@ function labels(html: string): string[] {
   return [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => decode(m[1]!));
 }
 
-function roleAt(html: string, testId: string): { found: boolean; role: string | undefined } {
-  const tag = html.match(new RegExp(`<[^>]*data-testid="${testId.replace(/\//g, "\\/")}"[^>]*>`))?.[0];
-  return { found: Boolean(tag), role: tag?.match(/\brole="([^"]+)"/)?.[1] };
-}
-
 describe.each(ready)("%s reads as text and can be acted on", (id) => {
   const def = components[id];
   // An open problem listed in test/known/<Id>.md is expected to fail until it is fixed.
@@ -95,14 +90,17 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const props = stampItemIds(def.meta, def.props.parse(example) as Record<string, unknown>);
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
+    const addressed = addressedElements(html);
     for (const affordance of affordancesOf(def.meta, props, "c1")) {
       if (hidden.includes(affordance.address.split("/")[1]!)) continue;
       expect(read, `${affordance.address} is missing from the read`).toContain(
         `[${affordance.address} ${affordance.action}`,
       );
       const testId = `home/${affordance.address}${affordance.part === "root" ? "/root" : ""}`;
-      const { found, role } = roleAt(html, testId);
-      expect(found, `${affordance.address} offers ${affordance.action} but is not on screen`).toBe(true);
+      const element = addressed.get(testId);
+      expect(element, `${affordance.address} offers ${affordance.action} but is not on screen`).toBeDefined();
+      if (element && hasStepTarget(element, affordance.action)) continue;
+      const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
       expect(roles[affordance.action] ?? [], `${affordance.address} has role ${role ?? "none"}`).toContain(
         role,
       );

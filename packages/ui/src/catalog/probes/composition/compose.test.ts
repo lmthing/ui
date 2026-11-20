@@ -15,19 +15,43 @@ import {
 const cast = { things: [], items: [] };
 it("adds the vocabulary once and the screen caps only for recipes with shared axes", () => {
   const meta = archetypes.chat.meta;
-  expect(composePrompt(meta, "thread", cast, components)).not.toContain(variantVocabulary);
-  const defs = {
+  const {
+    variants: _variants,
+    variantParts: _parts,
+    writeHints: _hints,
+    ...plainHeader
+  } = components.Header.meta;
+  const { variants: _chatVariants, variantParts: _chatParts, ...plainBubbles } = components.Bubbles.meta;
+  const withoutAxes = {
     ...components,
     Header: {
       ...components.Header,
-      meta: { ...components.Header.meta, variants: { align: ["start", "center"] } },
+      meta: plainHeader,
+      props: z.strictObject({ title: text(28) }),
+      examples: [{ title: "Chat" }],
     },
-  } as const;
-  const prompt = composePrompt(meta, "thread", cast, defs);
+    Bubbles: {
+      ...components.Bubbles,
+      meta: plainBubbles,
+      props: z.strictObject({
+        messages: z
+          .array(z.strictObject({ from: z.enum(["me", "them"]), text: text(120) }))
+          .min(1)
+          .max(6),
+      }),
+      examples: [{ messages: [{ from: "them", text: "Hello" }] }],
+    },
+  };
+  const caps = "one hero emphasis and one cover collection per screen";
+  const plain = composePrompt(meta, "thread", cast, withoutAxes);
+  expect(plain).not.toContain(variantVocabulary);
+  expect(plain).not.toContain(caps);
+
+  const prompt = composePrompt(meta, "thread", cast, components);
   expect(prompt.split(variantVocabulary)).toHaveLength(2);
   expect(prompt).toContain('At most one third of items per component get mark "highlight" (round down).');
   expect(prompt).toContain("Never infer an axis from the data alone.");
-  expect(prompt).toContain("one hero emphasis and one cover collection per screen");
+  expect(prompt).toContain(caps);
 });
 
 it("snapshots the layout guidance for grounded content and clear actions", async () => {

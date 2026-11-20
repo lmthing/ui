@@ -9,7 +9,17 @@ const kid = points.kids[0]!;
 const prize = points.prizes[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
 const screen = { id: "home", components: [{ id: "r1", c: "Rewards", ...points }] };
-
+it("hides the shortfall in brief view and read without enabling the claim", () => {
+  expect(props.parse(points)).toMatchObject({ detail: "full", surface: "card" });
+  expect(props.safeParse({ ...points, detail: "none" }).success).toBe(false);
+  const input = { ...points, detail: "brief" };
+  const html = renderInstance("Rewards", input, "filled", theme);
+  expect(html).not.toContain("home/c1/r3/reason");
+  expect(elementAt(html, "home/c1/r3/claim").attributes).toContain('aria-disabled="true"');
+  const read = readComponent(components.Rewards, input, "r1").join("\n");
+  expect(read).not.toMatch(/Needs|r1\/r3\/claim/);
+  expect(read).toContain("r2/claim press");
+});
 describe("Rewards contract", () => {
   it.each(examples)("accepts a real example", (example) => {
     expect(props.safeParse(example).success).toBe(true);
@@ -86,7 +96,6 @@ describe("Rewards boundaries", () => {
     ).toEqual([true, true, false]);
   });
 });
-
 describe("Rewards fallback", () => {
   it("clips cast names, limits the jars and uses safe destinations", () => {
     const cast: CastLike = {
@@ -114,7 +123,6 @@ describe("Rewards fallback", () => {
     },
   );
 });
-
 describe("Rewards states and parts", () => {
   it("renders addressed jar links, prize details and the disabled claim", () => {
     const html = renderInstance("Rewards", points, "filled", theme);
@@ -152,7 +160,6 @@ describe("Rewards states and parts", () => {
     expect(runtime.press("r1/r2/claim")).toMatchObject({ ok: false, code: "not_actionable" });
   });
 });
-
 describe("Rewards read and act", () => {
   it("reads displayed prices and offers only affordable claims and kid links", () => {
     const read = readComponent(components.Rewards, points, "r1").join("\n");

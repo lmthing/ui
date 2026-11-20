@@ -1,4 +1,11 @@
-import { planAct, type ActStep, type Definition, type RandomSource, type ScreenLike } from "../../catalog";
+import {
+  planAct,
+  type ActStep,
+  type Definition,
+  type DeviceData,
+  type RandomSource,
+  type ScreenLike,
+} from "../../catalog";
 import { createStandaloneAccess, readControls } from "./runtime";
 import { deliverSend, type SendHandler } from "./actions";
 import type { InteractionStore } from "./store";
@@ -14,6 +21,7 @@ type AgentOptions = {
   lang?: string | undefined;
   store: InteractionStore;
   random?: RandomSource | undefined;
+  deviceData?: DeviceData | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
   onSend?: SendHandler;
@@ -27,7 +35,11 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
       const meta = options.defs[c]?.meta;
       return (
         meta?.confirmParts?.length &&
-        (meta.session || meta.successActions?.length || meta.errorActions?.length || meta.live?.derive)
+        (meta.session ||
+          meta.successActions?.length ||
+          meta.errorActions?.length ||
+          meta.live?.derive ||
+          meta.linkedEdits)
       );
     })
   )
@@ -44,7 +56,7 @@ export function createAgentAccess(options: AgentOptions) {
       const screen = current();
       return (
         standaloneAccess(options, screen)?.read() ??
-        readControls(screen, defs, store.snapshot(screen.id), options.lang)
+        readControls(screen, defs, store.snapshot(screen.id), options.lang, undefined, options.deviceData)
       );
     },
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
@@ -63,6 +75,8 @@ export function createAgentAccess(options: AgentOptions) {
         store.snapshot(screen!.id),
         list,
         opts.dryRun ? null : options.random,
+        "planner",
+        options.deviceData,
       );
       if (!plan.ok) return plan;
       const reply = { ok: true as const, screen: screen!.id, changed: plan.changed.join("\n") };

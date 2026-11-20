@@ -1,21 +1,10 @@
 import { z } from "zod";
-import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine } from "../../../catalog";
+// prettier-ignore
+import { clock, itemsOf, probesFor, text, textsOf, thingOf, timeOfDayLine, variantProps } from "../../../catalog";
 import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitRow,
-  KitText,
-  KitTime,
-  KitTrail,
-  PartScope,
-  useComponentState,
-  usePartContext,
-  useWords,
-} from "../../../kit";
+// prettier-ignore
+import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitRow, KitText, KitTime, KitTrail,
+  PartScope, useComponentState, usePartContext, useVariant, useWords } from "../../../kit";
 import { babyCopyFor, babyRead } from "../copy";
 import { homeWordsFor } from "../lang";
 // Core first: Timer/down times one task, not feed/nappy/sleep tiles and a baby's daily log.
@@ -28,12 +17,15 @@ export const meta = {
   pick: "Baby feeds, nappies and sleeps with quick tiles, an active timer and today's log. Not timing one thing (Timer), adult habits (HabitGrid), or a general care history (Timeline).",
   writeHints: [
     "log has 0–12 entries. Write kind, HH:MM time and optional minutes/amount; never time-since-last. running is none or one kind, not a boolean.",
+    'Use detail "brief" only when asked to hide durations and amounts in history. Keep them in log. Write density:null and surface:null unless the person separately requests spacing or finish.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Baby entries and running timers stay on the device; two parents sharing need a shared app.",
+  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variantParts: { "detail.brief": { hides: ["minutes", "amount"] } },
   items: { key: "entries", parts: itemParts },
   parts: ["root", "running", "elapsed", "heading", "history", "actions", "empty"],
   states: ["filled", "empty"],
@@ -45,8 +37,8 @@ export const meta = {
       "root.press": { entryKind: "log" },
     },
   },
-  read: (input, state, lang?: string) =>
-    state === "filled" ? readWithLastTimes(input as z.output<typeof props>, lang) : [],
+  read: (input, state, lang): string[] =>
+    state === "filled" ? babyRead(input as z.output<typeof props>, lang, true) : [],
 } as const satisfies Meta;
 const kinds = ["feed_left", "feed_right", "bottle", "nappy", "sleep"] as const;
 const logLimit = 12;
@@ -57,6 +49,7 @@ const entry = z.strictObject({
   amount: text(10).optional(),
 });
 const schema = z.strictObject({
+  ...variantProps(meta.variants),
   log: z.array(entry).min(0).max(logLimit),
   running: z.enum(["none", ...kinds]).default("none"),
 });
@@ -72,7 +65,11 @@ const withEntries = (value: z.output<typeof schema>) => ({
         undefined,
       ),
     })),
-    ...value.log.map((row) => ({ ...row, entryKind: "log" as const })),
+    ...value.log.map((row) => ({
+      ...row,
+      ...(value.detail === "brief" ? { minutes: undefined, amount: undefined } : {}),
+      entryKind: "log" as const,
+    })),
   ],
 });
 export const props = schema.overwrite(withEntries) as typeof schema &
@@ -91,17 +88,17 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { log, running: "none" };
 }
 // prettier-ignore
-export const examples = [
-  { log: [
+const feedHistory = { log: [
     { kind: "feed_left", time: "07:30", minutes: 12 },
-    { kind: "nappy", time: "08:00" },
-    { kind: "bottle", time: "09:00", amount: "90 ml" },
-  ], running: "sleep" },
+    { kind: "nappy", time: "08:00" }, { kind: "bottle", time: "09:00", amount: "90 ml" },
+], running: "sleep" } satisfies z.input<typeof props>;
+// prettier-ignore
+export const examples = [
+  feedHistory,
   { log: [
-    { kind: "feed_right", time: "06:45", minutes: 10 },
-    { kind: "sleep", time: "07:00", minutes: 45 },
+    { kind: "feed_right", time: "06:45", minutes: 10 }, { kind: "sleep", time: "07:00", minutes: 45 },
   ], running: "none" },
-  { log: [], running: "none" },
+  { log: [], running: "none" }, { ...feedHistory, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("BabyLog");
 export const probes = [
@@ -110,22 +107,22 @@ export const probes = [
   write(
     "Baby fed left at 07:30 for twelve minutes, nappy at 08:00, bottle at 09:00 with 90 ml, sleep is currently running",
   ),
+  {
+    ...write(
+      "Log a left feed at 07:30 for 12 minutes and a bottle at 09:00 with 90 ml. Keep both measurements saved but show only entry types and times in the history.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Stop the baby's running sleep timer", { address: "b1/r5", action: "stop" }),
   read("Start a left-side feed", { address: "b1/r1", action: "start" }),
   read("Open the feed recorded at 07:30", { address: "b1/r6", action: "press" }),
 ] satisfies Probe[];
 type BabyLogProps = Props<typeof props, typeof meta>;
-function readWithLastTimes(input: z.output<typeof props>, lang?: string) {
-  const absent = ` · ${homeWordsFor(lang).babyLog.last()}`;
-  const count = kinds.length + (input.running === "none" ? 1 : 2);
-  return babyRead(input, lang).map((line, index) =>
-    index < count && line.endsWith(absent) ? line.slice(0, -absent.length) : line,
-  );
-}
-function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }>) {
+// prettier-ignore
+function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "log" }> & Pick<BabyLogProps, "density">) {
   const { lang } = useWords(homeWordsFor);
   const copy = babyCopyFor(lang);
-  const minutes = row.minutes === undefined ? null : copy.duration(row.minutes);
+  const minutes = row.minutes === undefined ? null : copy.duration(row.minutes), hasMeasurement = Boolean(minutes || row.amount);
   const trail = (
     <>
       <KitTime value={timeOfDayLine(row.time, lang)} />
@@ -133,9 +130,9 @@ function BabyLogRow(row: Extract<BabyLogProps["entries"][number], { entryKind: "
     </>
   );
   return (
-    <KitRow item={row.id} label={copy.entry(row)} role="button" lineRole="number" trailing={trail}>
+    <KitRow item={row.id} label={copy.entry(row)} role="button" lineRole={hasMeasurement ? "number" : "label"} trailing={trail} density={row.density}>
       <KitText role="label" part="kind" children={copy.labels[row.kind]} />
-      {(minutes || row.amount) && (
+      {hasMeasurement && (
         <KitText {...value} part={null}>
           {minutes && <KitText {...value} part="minutes" children={minutes} />}
           {minutes && row.amount && " "}
@@ -165,22 +162,25 @@ function BabyQuickAction(row: Extract<BabyLogProps["entries"][number], { entryKi
     </PartScope>
   );
 }
-export function BabyLog({ entries, running }: BabyLogProps) {
+// prettier-ignore
+export function BabyLog(input: BabyLogProps) {
+  const { entries, running, surface } = input;
+  const density = useVariant("density", meta.variants.density, input.density);
   const { lang } = useWords(homeWordsFor);
   const copy = babyCopyFor(lang);
   if (useComponentState() === "empty")
-    return <KitCard part="root" children={<KitEmpty part="empty" icon="clock" decorativeIcon />} />;
+    return <KitCard part="root" {...{ density, surface }} children={<KitEmpty part="empty" icon="clock" decorativeIcon />} />;
   const log = entries
     .filter((row) => row.entryKind === "log")
-    .map((row) => <BabyLogRow key={row.id} {...row} />);
+    .map((row) => <BabyLogRow key={row.id} {...row} {...{ density }} />);
   const tiles = entries
     .filter((row) => row.entryKind === "tile")
     .map((row) => <BabyQuickAction key={row.id} {...row} />);
   const empty = <KitText {...muted} part="empty" children={copy.empty} />;
-  const history = log.length ? log : <KitContent inset="md" children={empty} />;
+  const history = log.length ? <KitGrid list arrange="rows" listRowGap="group" {...{ density }}>{log}</KitGrid> : <KitContent inset="md" children={empty} />;
   return (
-    <KitCard part="root" padded>
-      <KitContent>
+    <KitCard part="root" padded {...{ density, surface }}>
+      <KitContent {...{ density }}>
         <KitGrid fitLast>
           <KitContent inset="md" children={<KitText role="heading" part="heading" children={copy.title} />} />
           <KitContent>
@@ -190,9 +190,9 @@ export function BabyLog({ entries, running }: BabyLogProps) {
             )}
           </KitContent>
         </KitGrid>
-        <KitCard part="actions" style="cards" children={tiles} />
+        <KitCard part="actions" style="cards" {...{ density }} children={tiles} />
         <KitContent group="response">
-          <KitCard part="history" style="cards" label={copy.history} children={history} />
+          <KitCard part="history" style="plain" label={copy.history} children={history} />
         </KitContent>
       </KitContent>
     </KitCard>

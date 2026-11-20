@@ -54,6 +54,7 @@ export function babyEntryLine(entry: Entry, lang?: string) {
 export function babyRead(
   { running, entries }: { running: Kind | "none"; entries: (Tile | Entry)[] },
   lang?: string,
+  visibleOnly = false,
 ) {
   const copy = babyCopyFor(lang);
   return [
@@ -62,7 +63,11 @@ export function babyRead(
     ...entries.map((entry) => {
       const label =
         entry.entryKind === "tile"
-          ? [copy.labels[entry.kind], copy.action(entry.active), copy.last(entry.last)].join(" · ")
+          ? [
+              copy.labels[entry.kind],
+              copy.action(entry.active),
+              ...(entry.last || !visibleOnly ? [copy.last(entry.last)] : []),
+            ].join(" · ")
           : copy.entry(entry);
       return entry.id ? `${entry.id} ${label}` : label;
     }),

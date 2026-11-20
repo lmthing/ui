@@ -32,7 +32,7 @@ describe("Payoff schema", () => {
   );
   it("bounds debts and records and defaults the planner options", () => {
     const debts = Array(6).fill({ ...debt, payments: Array(6).fill(debt.payments[0]) });
-    expect(props.parse({ debts })).toMatchObject({ extra: 0, strategy: "high_rate", style: "plan" });
+    expect(props.parse({ debts })).toMatchObject({ extra: 0, strategy: "high_rate", detail: "full" });
     type View = Props<typeof props, typeof meta>;
     expectTypeOf<View["debts"][number]["id"]>().toEqualTypeOf<string>();
   });

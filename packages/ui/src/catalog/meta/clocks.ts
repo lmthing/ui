@@ -2,7 +2,7 @@ import type { StateName } from "../types";
 
 export type ClockTrigger = {
   part: string;
-  action: "start" | "stop" | "press" | "toggle" | "check";
+  action: "start" | "stop" | "play" | "pause" | "press" | "toggle" | "check";
   scope?: "component";
   value?: boolean;
   state?: StateName;
@@ -16,7 +16,10 @@ export type ClockMeta = {
   /** Optional boolean prop that distinguishes a ticking clock from a paused or finished clock. */
   runningProp?: string;
   at?: string;
-  max?: number;
+  /** Cap in whole seconds, or compute it from the parsed holder and component props. */
+  max?:
+    | number
+    | ((holder: Readonly<Record<string, unknown>>, outer: Readonly<Record<string, unknown>>) => number);
   when?: Readonly<Record<string, string | boolean>>;
   /** Without a start trigger the clock starts when the controller is created. */
   start?: ClockTrigger;
@@ -24,4 +27,11 @@ export type ClockMeta = {
   reset?: ClockTrigger;
   zero?: "stop" | { state: StateName } | { prop: string; value: string | boolean };
 };
-export type ClockState = { running: boolean; from: number; seconds: number; seed?: number };
+export type ClockState = {
+  running: boolean;
+  from: number;
+  seconds: number;
+  seed?: number;
+  /** Active milliseconds below one whole second, retained across playback pauses. */
+  remainder?: number;
+};

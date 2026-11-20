@@ -3,6 +3,7 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
+import type { DeviceData } from "../agent";
 
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
@@ -13,6 +14,17 @@ type Draw =
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
+type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
+type LinkedEdits = {
+  inputs: Readonly<Record<string, { prop: string; max: number }>>;
+  swap: { part: string; sides: readonly [string, string] };
+  /** Project display text and related props from the exact source edit and current order. */
+  project: (
+    props: Readonly<Record<string, unknown>>,
+    state: LinkedEditState,
+    data: DeviceData,
+  ) => Record<string, unknown>;
+};
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
@@ -120,11 +132,17 @@ export type Meta = {
   select?: SelectMeta;
   /** Named component parts with independent destinations and explicit offers. */
   selections?: Readonly<Record<string, NamedSelection>>;
+  /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
+  linkedEdits?: LinkedEdits;
   live?: LiveActionInputs;
+  /** Record kinds this component may read from the host, never from Writer props. */
+  deviceData?: readonly string[];
+  /** Deterministic synthetic records for gallery and look cells only. */
+  previewDeviceData?: (cell: { input: Readonly<Record<string, unknown>>; state: StateName }) => DeviceData;
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string) => string[];
+  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /**

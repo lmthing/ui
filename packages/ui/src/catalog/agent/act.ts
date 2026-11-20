@@ -3,19 +3,19 @@ import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { controlsAreValid, localValues, selectStep, stageValue, validateStep } from "./action-input";
 import {
-  deviceRandom,
-  drawKey,
-  drawRole,
-  holdIndex,
-  performDraw,
-  staleDraw,
-  storeDraw,
-  type RandomSource,
-} from "./draw";
-import { advanceSession, sessionEvent, sessionKey, staleSession } from "./session";
-import { clockChanges } from "./clocks";
+  controlsAreValid,
+  localValues,
+  selectStep,
+  stageProgress,
+  stageValue,
+  validateStep,
+} from "./action-input";
+import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
+import { sessionKey, staleSession } from "./session";
+import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
+import type { DeviceData } from "./device-data";
+import { stageLinkedEdit } from "./linked-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -33,10 +33,9 @@ export type ActResult =
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
-
-function liveInput(def: Definition, input: Values, id: string, local: Values) {
+function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true);
+  return liveProps(def.meta, parsed, id, local, true, data);
 }
 
 /** A mounted controller already stages clocks through its action table. */
@@ -46,26 +45,35 @@ function stageStandaloneClock(
   next: Values,
   address: string,
   step: ActStep,
+  data?: DeviceData,
 ) {
   const [id, ...parts] = address.split("/");
   const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
   const def = defs[c]!;
-  const { live, clocks, items } = def.meta;
-  if (!live?.derive || (!clocks && !items?.clocks && !items?.nested?.clocks)) return;
-  const base = `${screen.id}/${id}/`;
-  const get = (part: string) => next[`${base}${part}`];
-  const props = liveInput(def, input, id!, localValues(screen.id, next));
+  const { meta } = def;
+  const legacy = meta.live?.derive && (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
+  const target = parts.join("/") || "root";
+  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const props = legacy
+    ? liveInput(def, input, id!, localValues(screen.id, next), data)
+    : parseControlProps(def, input, get);
   const now = Number(get("$now") ?? Date.now());
-  const changes = clockChanges(def.meta, props, get, parts.join("/") || "root", step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${base}${part}`] = value;
+  const changes = clockChanges(meta, props, get, target, step, now);
+  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
 
-function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+function affordancesOfScreen(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+  data?: DeviceData,
+) {
   const local = localValues(screen.id, values);
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveInput(def, input, id, local);
+    const props = liveInput(def, input, id, local, data);
     const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
@@ -78,61 +86,29 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
       successActions?.length ||
       readSuccess ||
       policy ||
-      live
+      live ||
+      def.meta.linkedEdits ||
+      hasPlaybackClock(def.meta)
         ? state
         : undefined);
     return affordancesOf(def.meta, props, id, local, liveState, true);
   });
 }
-
-function expireProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
+function expireProgress(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+  data?: DeviceData,
+) {
   for (const { id, c, state: _state, ...raw } of screen.components) {
     const def = defs[c];
     const draw = `${screen.id}/${id}/${drawKey}`;
     const session = `${screen.id}/${id}/${sessionKey}`;
     if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const props = liveInput(def, raw, id, localValues(screen.id, values));
+    const props = liveInput(def, raw, id, localValues(screen.id, values), data);
     if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
     if (staleSession(def.meta, props, values[session])) values[session] = undefined;
   }
-}
-
-function stageProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  address: string,
-  step: ActStep,
-  next: Values,
-  random: RandomSource | null,
-): string | undefined {
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id)!;
-  const def = defs[entry.c]!;
-  const target = parts.join("/") || "root";
-  const event = sessionEvent(def.meta, target, step.action);
-  const role = drawRole(def.meta, target, step.action);
-  if (!event && !role) return;
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
-  const props = liveInput(def, raw, entry.id, localValues(screen.id, next));
-  if (event) {
-    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(
-      def.meta,
-      props,
-      get,
-      event,
-      target,
-      step.value,
-    );
-    return event === "answer" ? ` = ${JSON.stringify(step.value)}` : "";
-  }
-  if (!role) return;
-  const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
-  next[`${screen.id}/${id}/${drawKey}`] = storeDraw(def.meta, props, outcome);
-  if (!random && (role === "draw" || role === "redraw")) return "";
-  const value =
-    role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
-  return ` = ${JSON.stringify(value)}`;
 }
 
 /**
@@ -147,10 +123,11 @@ export function planAct(
   steps: ActStep[],
   random: RandomSource | null = deviceRandom,
   clockOwner: "planner" | "controller" = "planner",
+  data?: DeviceData,
 ): ActResult {
   const screen = migrateScreen(input, { variantOnly: true });
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data);
     if (!preview.ok) return preview;
   }
   const next: Values = { ...values };
@@ -158,9 +135,9 @@ export function planAct(
   const links: Extract<ActResult, { ok: true }>["links"] = [];
   const sends: SendDraft[] = [];
   for (const [at, original] of steps.entries()) {
-    const offered = affordancesOfScreen(screen, defs, next);
+    const offered = affordancesOfScreen(screen, defs, next, data);
     const address = relative(screen.id, original.address);
-    const selected = selectStep(screen, defs, original, address, next);
+    const selected = selectStep(screen, defs, original, address, next, data);
     const step = selected.step;
     const found = offered.find((a) => a.address === address && a.action === step.action);
     if (!found) {
@@ -173,7 +150,9 @@ export function planAct(
     const { result, number, limits } = validateStep(screen, defs, found, step, next, key);
     if ("code" in result) return { ok: false, at, ...result };
     try {
-      const progress = stageProgress(screen, defs, address, { ...step, value: result.value }, next, random);
+      const progress =
+        stageLinkedEdit(screen, defs, next, found, result.value) ??
+        stageProgress(screen, defs, address, { ...step, value: result.value }, next, random, data);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;
@@ -183,14 +162,14 @@ export function planAct(
     }
     const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
     if (clockOwner === "planner")
-      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value });
+      stageStandaloneClock(screen, defs, next, address, { ...step, value: result.value }, data);
     if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
     const validate = limits || number?.adjustment || adjusted || selected.declared;
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
-    expireProgress(screen, defs, next);
+    expireProgress(screen, defs, next, data);
     if (found.send) sends.push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }

@@ -4,11 +4,23 @@ import {
   createMediaRuntime,
   createAct,
   createAccess,
+  type ControllerContext,
   type ControllerOptions,
 } from "./runtime";
 export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
-import { liveProps, type Meta, type Values } from "../../catalog";
+import { emptyDeviceData, liveProps, selectDeviceData, type Meta, type Values } from "../../catalog";
+
+function liveControls(ctx: ControllerContext, meta: Meta, props: Values, component: string) {
+  const prefix = `${ctx.screen.id}/`;
+  const local = Object.fromEntries(
+    Object.entries(ctx.valuesOf())
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([key, value]) => [key.slice(prefix.length), value]),
+  );
+  const definition = ctx.defs[meta.id]?.meta ?? meta;
+  return liveProps(definition, props, component, local, true, ctx.options.deviceData);
+}
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions) {
@@ -23,16 +35,15 @@ export function createScreenController(options: ControllerOptions) {
     mountMedia: media.mountMedia,
     tick: clock.tick,
     ...createAccess(ctx, act),
-    liveControls(meta: Meta, props: Values, component: string) {
-      const values = ctx.valuesOf();
-      const prefix = `${ctx.screen.id}/`;
-      const local = Object.fromEntries(
-        Object.entries(values)
-          .filter(([key]) => key.startsWith(prefix))
-          .map(([key, value]) => [key.slice(prefix.length), value]),
-      );
-      return liveProps(ctx.defs[meta.id]?.meta ?? meta, props, component, local, true);
+    deviceDataFor(component: string, data = options.deviceData) {
+      const source = ctx.sourceOf(component);
+      const def = source && ctx.defs[source.c];
+      return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
     },
+    get deviceData() {
+      return options.deviceData;
+    },
+    liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
     mount() {
       const expired = ctx.expiredProgress(ctx.valuesOf());
       if (Object.keys(expired).length) ctx.store.setMany(expired);

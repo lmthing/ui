@@ -16,10 +16,20 @@ describe("Header schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("applies defaults and trims text", () => {
-    expect(props.parse({ title: "  My plants  " })).toEqual({ style: "large", title: "My plants" });
+    expect(props.parse({ title: "  My plants  " })).toEqual({
+      emphasis: "normal",
+      detail: "full",
+      title: "My plants",
+      action: undefined,
+    });
     expect(
       props.parse({ title: " Plants ", sub: " Today ", action: { icon: "plus", label: " Add " } }),
-    ).toEqual({ style: "large", title: "Plants", sub: "Today", action: { icon: "plus", label: "Add" } });
+    ).toMatchObject({
+      emphasis: "normal",
+      title: "Plants",
+      sub: "Today",
+      action: { icon: "plus", label: "Add" },
+    });
   });
   it.each([
     {},
@@ -30,6 +40,8 @@ describe("Header schema", () => {
     { title: "Plants", sub: "" },
     { title: "Plants", sub: "a".repeat(41) },
     { title: "Plants", style: "grid" },
+    { title: "Plants", style: "inline" },
+    { title: "Plants", emphasis: "hero" },
     { title: "Plants", color: "red" },
     { title: "Plants", pixels: 4 },
     { title: "Plants", action: {} },
@@ -57,15 +69,16 @@ describe("Header schema", () => {
         .success,
     ).toBe(true);
   });
-  it("infers view props without item ids or visual values", () => {
-    type ViewProps = Props<typeof props, typeof meta>;
-    expectTypeOf<ViewProps["title"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"large" | "inline" | "back">();
-    expectTypeOf<NonNullable<ViewProps["action"]>["label"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps>().not.toBeAny();
-    expectTypeOf<ViewProps>().not.toHaveProperty("color");
-    expect(props.safeParse({ title: "Fern", id: "h1" }).success).toBe(false);
-  });
+});
+
+it("infers view props without item ids or visual values", () => {
+  type ViewProps = Props<typeof props, typeof meta>;
+  expectTypeOf<ViewProps["title"]>().toEqualTypeOf<string>();
+  expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"back" | undefined>();
+  expectTypeOf<NonNullable<ViewProps["action"]>["label"]>().toEqualTypeOf<string>();
+  expectTypeOf<ViewProps>().not.toBeAny();
+  expectTypeOf<ViewProps>().not.toHaveProperty("color");
+  expect(props.safeParse({ title: "Fern", id: "h1" }).success).toBe(false);
 });
 
 describe("Header fallback and metadata", () => {
@@ -87,7 +100,7 @@ describe("Header fallback and metadata", () => {
     for (const cast of casts) {
       const result = fallback({ cast });
       expect(props.safeParse(result).success).toBe(true);
-      expect(result.style).toBe("large");
+      expect(result).not.toHaveProperty("style");
       expect(result).not.toHaveProperty("action");
     }
     expect(fallback({ cast: casts[0]! }).title).toBe("Item one");
@@ -128,16 +141,17 @@ describe("Header fallback and metadata", () => {
 });
 
 describe("Header view", () => {
-  it.each(["large", "inline", "back"] as const)(
-    "offers only rendered buttons for %s with and without optional props",
-    (style) => {
+  it.each([{}, { emphasis: "quiet" }, { style: "back" }] as const)(
+    "offers only rendered buttons for %j with and without optional props",
+    (variant) => {
+      const back = "style" in variant;
       for (const optional of [
         {},
         { action: undefined },
         { action: { icon: "plus", label: "Add a plant" } },
         { sub: "Bathroom", action: { icon: "plus", label: "Add a plant", goto: "new_plant" } },
       ]) {
-        const input = { style, title: "Fern", ...optional };
+        const input = { ...variant, title: "Fern", ...optional };
         const parsed = props.parse(input);
         const html = renderInstance("Header", input, "filled", {
           preset: "calm",
@@ -148,7 +162,7 @@ describe("Header view", () => {
         const offered = affordancesOf(meta, parsed, "c1");
         expect(offered.map(({ part }) => part)).toEqual([
           ...(parsed.action ? ["action"] : []),
-          ...(style === "back" ? ["back"] : []),
+          ...(back ? ["back"] : []),
         ]);
         for (const { address, action } of offered) {
           expect(action).toBe("press");
@@ -159,11 +173,22 @@ describe("Header view", () => {
         expect(html).toContain('data-testid="home/c1/title"');
         expect(html.includes('data-testid="home/c1/sub"')).toBe(Boolean(parsed.sub));
         expect(html.includes('data-testid="home/c1/action"')).toBe(Boolean(parsed.action));
-        expect(html.includes('data-testid="home/c1/back"')).toBe(style === "back");
+        expect(html.includes('data-testid="home/c1/back"')).toBe(back);
         expect(read.includes("[c1/action press")).toBe(Boolean(parsed.action));
-        expect(read.includes("[c1/back press")).toBe(style === "back");
+        expect(read.includes("[c1/back press")).toBe(back);
         if (parsed.action) expect(html).toContain('aria-label="Add a plant"');
       }
     },
   );
+  it("hides only the subtitle in brief and keeps both shortcuts available", () => {
+    const input = { ...examples[0]!, style: "back", detail: "brief" } as const;
+    const html = renderInstance("Header", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["sub"] });
+    expect(html).not.toContain('data-testid="home/c1/sub"');
+    expect(readComponent(components.Header, input, "c1").join(" ")).not.toContain(input.sub);
+    expect(affordancesOf(meta, props.parse(input), "c1").map(({ address }) => address)).toEqual([
+      "c1/action",
+      "c1/back",
+    ]);
+  });
 });

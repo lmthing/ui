@@ -31,6 +31,9 @@ describe("PriceChart schema", () => {
       name: "a".repeat(24),
       points: Array(60).fill(0),
       range,
+      detail: "full",
+      emphasis: "normal",
+      surface: "card",
     });
   });
 

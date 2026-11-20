@@ -18,11 +18,13 @@ describe("Photo schema", () => {
   );
   it("applies defaults and trims the optional caption", () => {
     expect(props.parse({ photo: "lib:entry", caption: "  Morning light  " })).toEqual({
-      style: "wide",
+      aspect: "wide",
+      bleed: "inset",
+      detail: "full",
       photo: "lib:entry",
       caption: "Morning light",
     });
-    expect(props.parse({ photo: "local:1" })).toEqual({ style: "wide", photo: "local:1" });
+    expect(props.parse({ photo: "local:1" }).aspect).toBe("wide");
   });
   it.each([
     {},
@@ -39,22 +41,24 @@ describe("Photo schema", () => {
     { photo: "lib:entry", caption: "a".repeat(81) },
     { photo: "lib:entry", caption: 4 },
     { photo: "lib:entry", style: "round" },
+    { photo: "lib:entry", aspect: "round" },
+    { photo: "lib:entry", bleed: "full" },
     { photo: "lib:entry", ratio: "wide" },
     { photo: "lib:entry", color: "red" },
     { photo: "lib:entry", pixels: 4 },
     { photo: "lib:entry", goto: "next" },
     { photo: "lib:entry", id: "p1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts exact limits, every style and both reference forms", () => {
-    for (const style of ["square", "wide", "tall"])
+  it("accepts exact limits, every aspect and both reference forms", () => {
+    for (const aspect of ["square", "wide", "tall"])
       for (const photo of [`lib:${"a".repeat(60)}`, `local:${"1".repeat(58)}`])
-        expect(props.safeParse({ style, photo, caption: "a".repeat(80) }).success).toBe(true);
+        expect(props.safeParse({ aspect, photo, caption: "a".repeat(80) }).success).toBe(true);
   });
   it("types view props without item ids or visual controls", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["caption"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"square" | "wide" | "tall">();
+    expectTypeOf<ViewProps["aspect"]>().toEqualTypeOf<"square" | "wide" | "tall">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -95,9 +99,7 @@ describe("Photo fallback", () => {
       { photo: "lib:entry", caption: "First" },
       { photo: "lib:entry", caption: "First item" },
     ];
-    expected.forEach((value, index) =>
-      expect(fallback({ cast: casts[index]! })).toEqual({ style: "wide", ...value }),
-    );
+    expected.forEach((value, index) => expect(fallback({ cast: casts[index]! })).toEqual(value));
     expect(fallback({ cast: casts[3]! }).caption).toBe("x".repeat(80));
     expect(fallback({ cast: casts[4]! })).toEqual(fallback({ cast: casts[0]! }));
   });
@@ -143,20 +145,20 @@ describe("Photo metadata and probes", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Photo")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Gallery")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Photo" });
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
       for (const name of [meta.id, "Gallery", "Hero"])
         expect(wording).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
     }
-    expect(examples.map((example) => example.style)).toEqual(["wide", "square", "tall"]);
-    expect(examples[2]).not.toHaveProperty("caption");
+    const aspects = examples.map((example) => props.parse(example).aspect);
+    expect(aspects).toEqual(["wide", "wide", "square", "tall", "wide", "wide", "wide"]);
+    expect(examples.at(-1)).not.toHaveProperty("caption");
   });
   it("registers case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.schema("Photo")).toBe(props);
-    expect(registry.resolve("p-h-o-t-o")).toBe("Photo");
     expect(registry.resolve("p-h-o-t-o")).toBe("Photo");
   });
 });
@@ -166,10 +168,11 @@ describe("Photo view", () => {
     const html = renderInstance("Photo", example, "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(elementAt(html, "home/c1/photo").attributes).toContain('role="img"');
-    const ratio = example.style === "wide" ? 16 / 9 : example.style === "tall" ? 3 / 4 : 1;
+    const { aspect, caption } = props.parse(example);
+    const ratio = aspect === "wide" ? 16 / 9 : aspect === "tall" ? 3 / 4 : 1;
     expect(styleAt(html, "home/c1/photo")).toContain(`aspect-ratio:${ratio}`);
-    expect(html.includes('data-testid="home/c1/caption"')).toBe(Boolean(example.caption));
-    if (example.caption) expect(html).toContain(example.caption);
+    expect(html.includes('data-testid="home/c1/caption"')).toBe(Boolean(caption));
+    if (caption) expect(html).toContain(caption);
     expect(affordancesOf(meta, props.parse(example), "p1")).toEqual([]);
   });
   it.each(examples)("draws the media skeleton without exposing filled content", (example) => {
@@ -179,4 +182,16 @@ describe("Photo view", () => {
     expect(html).not.toContain('data-testid="home/c1/caption"');
     expect(readComponent(components.Photo, example, "p1", "loading")[0]).toContain("(loading)");
   });
+});
+
+it("hides the caption part and its reading only in brief", () => {
+  const input = { photo: "lib:entry", caption: "Morning light" };
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["caption"]);
+  expect(renderInstance("Photo", { ...input, detail: "brief" }, "filled", theme)).not.toContain(
+    'data-testid="home/c1/caption"',
+  );
+  expect(readComponent(components.Photo, input, "p1").join("\n")).toContain(input.caption);
+  expect(readComponent(components.Photo, { ...input, detail: "brief" }, "p1").join("\n")).not.toContain(
+    input.caption,
+  );
 });

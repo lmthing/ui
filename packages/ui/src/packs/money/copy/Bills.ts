@@ -8,7 +8,7 @@ type Bill = {
   repeat: "never" | "weekly" | "monthly" | "yearly";
   paid: boolean;
 };
-type View = { bills: readonly Bill[]; style: "due" | "subscriptions" };
+type View = { bills: readonly Bill[]; style: "due" | "subscriptions"; detail?: "full" | "brief" };
 const paymentsPerYear = { never: 0, weekly: 52, monthly: 12, yearly: 1 };
 
 export function localBillDate(now = new Date()): string {
@@ -25,7 +25,7 @@ export function orderedBills<T extends Bill>(bills: readonly T[], style: View["s
   );
 }
 
-export function billLines(bill: Bill, today: string, lang?: string) {
+export function billLines(bill: Bill, today: string, lang?: string, detail = "full") {
   const words = moneyWordsFor(lang).bills;
   const due = bill.due && appointmentDate(bill.due, lang);
   const shortDue =
@@ -40,7 +40,7 @@ export function billLines(bill: Bill, today: string, lang?: string) {
     amount: compactMoneyLine(bill.amount, undefined, lang),
     due,
     shortDue,
-    repeat: bill.repeat === "never" ? undefined : words.repeat[bill.repeat],
+    repeat: detail === "brief" || bill.repeat === "never" ? undefined : words.repeat[bill.repeat],
     overdue: !bill.paid && bill.due !== undefined && bill.due < today,
   };
 }
@@ -66,7 +66,7 @@ export function billsReading(input: View, lang?: string): string[] {
   const words = moneyWordsFor(lang).bills;
   return [
     ...orderedBills(input.bills, input.style).flatMap((bill) => {
-      const { amount, due, repeat } = billLines(bill, today, lang);
+      const { amount, due, repeat } = billLines(bill, today, lang, input.detail);
       const schedule = [repeat, due && words.due(due.replace(/\s/g, "\u00a0"))]
         .filter(Boolean)
         .join(words.separator);

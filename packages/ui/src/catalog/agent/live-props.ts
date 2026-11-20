@@ -3,17 +3,16 @@ import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
-import type { Values } from "./act";
+import type { DeviceData, ScreenLike, Values } from "./index";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
-import type { ScreenLike } from "./read";
 import {
   adjustmentAt,
   projectAdjustments,
-  projectClocks,
   projectComponentSets,
+  projectLiveClocks,
   projectMatrix,
 } from "./clocks";
 
@@ -34,7 +33,6 @@ function defaultInput(field: unknown) {
 }
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
-
 function wireAdjustmentKey(def: Definition, key: string) {
   const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
   if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
@@ -139,6 +137,7 @@ export function liveProps(
   instance: string,
   values: Values,
   wireApplied = false,
+  data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   const { draw, emptyActions, errorActions, successActions, session } = meta;
@@ -148,13 +147,14 @@ export function liveProps(
     props = projectControls(meta, props, get);
     if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
   }
-  if (runtime || meta.live) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
+  const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
+  if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get);
+  props = projectLiveInputs(meta, props, instance, get, data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

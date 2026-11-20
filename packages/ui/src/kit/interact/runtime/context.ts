@@ -9,6 +9,7 @@ import {
   resolveDefinition,
   type ActStep,
   type Definition,
+  type DeviceData,
   type RandomSource,
   type ScreenLike,
   type Values,
@@ -35,6 +36,7 @@ export type ControllerOptions = {
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
   store?: InteractionStore | undefined;
+  deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;

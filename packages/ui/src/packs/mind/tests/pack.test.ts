@@ -86,6 +86,11 @@ it("validates every Tide line, screen and internal navigation target", async () 
     .map((line): ScreenLike["components"][number] => JSON.parse(line));
   expect(new Set(lines.map(({ id }) => id)).size).toBe(lines.length);
   for (const id of ids) expect(lines.some(({ c }) => c === id)).toBe(true);
+  for (const id of ["breathing_note", "mix_note"]) {
+    const note = lines.find((line) => line.id === id);
+    expect(note).toMatchObject({ c: "Note", emphasis: "quiet", icon: "lightbulb" });
+    expect(note).not.toHaveProperty("style");
+  }
   const screens: ScreenLike[] = [];
   for (const line of lines) {
     if (line.c === "Header") screens.push({ id: line.id, components: [] });

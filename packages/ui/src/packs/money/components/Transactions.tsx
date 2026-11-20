@@ -1,34 +1,5 @@
-import {
-  wordsFor,
-  detailOf,
-  icon,
-  isoDate,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitRow,
-  KitSkeleton,
-  KitText,
-  PartScope,
-  useComponentState,
-  usePartContext,
-  useWords,
-} from "../../../kit";
+import * as c from "../../../catalog";
+import * as kit from "../../../kit";
 import { transactionAmount, transactionDay, transactionGroups, transactionReading } from "../copy";
 import { moneyWordsFor } from "../lang";
 import { z } from "zod";
@@ -41,45 +12,54 @@ export const meta = {
   purpose: "See where your money went, entry by entry.",
   pick: "Personal money in and out, grouped by day with payees and signed amounts. Not category totals (Bars), or a client's events (ClientHistory).",
   writeHints: [
-    "Amounts are signed numbers: negative spending, positive income. Dates use YYYY-MM-DD; never write totals or currency.",
+    "Amounts are signed: negative spending, positive income. Dates use YYYY-MM-DD. Never write totals or currency. To hide icons alone, use lead none and keep each source icon.",
+    "Unrequested density, item tone and item mark must be null. Never infer tone from spending, a refund or income; the amount's sign has its own automatic treatment.",
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Entries added on the device or imported from a bank file on the device.",
+  variants: { density: ["comfortable", "compact"], lead: ["icon", "none"] },
+  variantParts: { "lead.none": { hides: ["icon"] } },
   parts: ["root", "empty"],
-  items: { key: "entries", parts: ["root", "date", "payee", "category", "icon", "amount"] },
+  items: {
+    key: "entries",
+    parts: ["root", "date", "payee", "category", "icon", "amount"],
+    variants: { tone: ["neutral", "good", "warn", "bad"], mark: ["none", "highlight", "muted", "new"] },
+  },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state, lang) =>
+  read: (input, state, lang): string[] =>
     state === "filled" ? transactionReading((input as z.output<typeof props>).entries, lang) : [],
-} as const satisfies Meta;
+} as const satisfies c.Meta;
 
 export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
   entries: z
     .array(
       z.strictObject({
-        date: isoDate,
-        payee: text(28),
-        category: text(16),
-        icon,
+        ...c.itemVariantProps(meta.items.variants),
+        date: c.isoDate,
+        payee: c.text(28),
+        category: c.text(16),
+        icon: c.icon,
         amount: z.number(),
-        goto: screenId,
+        goto: c.screenId,
       }),
     )
     .min(1)
     .max(6),
 });
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  const { placeholderDetail } = wordsFor(lang);
-  const thing = thingOf(cast);
-  const items = itemsOf(cast, 3);
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const { placeholderDetail } = c.wordsFor(lang);
+  const thing = c.thingOf(cast);
+  const items = c.itemsOf(cast, 3);
   return {
     entries: (items.length ? items : [undefined]).map((item, index) => ({
       date: "2026-11-19",
-      payee: (item && titleOf(item, 28, thing)) || placeholderTitle(index, lang),
-      category: (item && detailOf(item, 16, thing)) || placeholderDetail,
+      payee: (item && c.titleOf(item, 28, thing)) || c.placeholderTitle(index, lang),
+      category: (item && c.detailOf(item, 16, thing)) || placeholderDetail,
       icon: "dot",
       amount: 0,
       goto: "details",
@@ -89,17 +69,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 
 // Use past dates so the read probe stays stable after today's date changes.
 // prettier-ignore
+const ledgeEntries = {
+  entries: [
+    { date: "2026-11-17", payee: "Ledge Potting", category: "Plant care",
+      icon: "leaf", amount: -24.5, goto: "supplies" },
+    { date: "2026-11-17", payee: "Returned plant pot", category: "Refund",
+      icon: "banknote", amount: 8, goto: "refund" },
+    { date: "2026-11-17", payee: "Garden seeds", category: "Plant care",
+      icon: "leaf", amount: -12, goto: "seeds" },
+  ],
+} satisfies z.input<typeof props>;
+function withItemFinish(finish: Pick<z.input<typeof props>["entries"][number], "tone" | "mark">) {
+  return { entries: ledgeEntries.entries.map((row, index) => (index === 0 ? { ...row, ...finish } : row)) };
+}
+// prettier-ignore
 export const examples = [
-  {
-    entries: [
-      { date: "2026-11-17", payee: "Ledge Potting", category: "Plant care",
-        icon: "leaf", amount: -24.5, goto: "supplies" },
-      { date: "2026-11-17", payee: "Returned plant pot", category: "Refund",
-        icon: "banknote", amount: 8, goto: "refund" },
-      { date: "2026-11-17", payee: "Garden centre seeds", category: "Plant care",
-        icon: "leaf", amount: -12, goto: "seeds" },
-    ],
-  },
+  ledgeEntries,
   {
     entries: [
       { date: "2026-11-16", payee: "Trot walking income", category: "Income",
@@ -108,81 +93,104 @@ export const examples = [
         icon: "shopping_bag", amount: -65, goto: "boots" },
     ],
   },
+  { ...ledgeEntries, lead: "none" },
+  { ...ledgeEntries, density: "compact" },
+  ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
+  ...(["highlight", "muted", "new"] as const).map((mark) => withItemFinish({ mark })),
 ] satisfies z.input<typeof props>[];
 
-const { choose, write, read } = probesFor("Transactions");
+const { choose, write, read } = c.probesFor("Transactions");
 export const probes = [
   choose(
     "Show my bank spending and income entry by entry, grouped by date, with payees, category icons and signed amounts",
   ),
   choose(
-    "Show how my spending divides between groceries, travel and rent as category shares, not individual entries",
+    "Compare the shares of my total spending on groceries, travel and rent as parts of one whole, not individual entries or separate headline totals",
     "Bars",
   ),
   write(
     "Personal entries: groceries at Corner Shop on 2026-11-19 for minus 24.50, category Food, shopping_bag, opening groceries; salary on 2026-11-18 for plus 1200, category Income, banknote, opening salary",
   ),
+  {
+    ...write(
+      "Show Corner Shop, category Food, minus 24.50 on 2026-11-19, opening groceries. Store shopping_bag as the category icon but display the row without any icon.",
+    ),
+    variant: { axis: "lead", value: "none" },
+  },
   read("Open the Ledge potting supplies transaction", { address: "t1/r1", action: "press" }),
-] satisfies Probe[];
+] satisfies c.Probe[];
 
-type TransactionsProps = Props<typeof props, typeof meta>;
+type TransactionsProps = c.Props<typeof props, typeof meta>;
 type Entry = TransactionsProps["entries"][number];
 
-function TransactionRow({ entry }: { entry: Entry }) {
-  const { lang, words } = useWords(moneyWordsFor);
+function TransactionRow({
+  entry,
+  density,
+  lead,
+  framed,
+}: Pick<TransactionsProps, "density" | "lead"> & { entry: Entry; framed: boolean }) {
+  const { lang, words } = kit.useWords(moneyWordsFor);
   const amount = transactionAmount(entry.amount, lang);
+  const label = words.transactions.entry(entry.payee, entry.category, amount);
   // prettier-ignore
-  if (useComponentState() === "loading") return (
-    <KitRow part={null} inline label="" trailing={<KitSkeleton shape="figure" inset="none"
+  if (kit.useComponentState() === "loading") return (
+    <kit.KitRow part={null} inline={!framed} label="" trailing={<kit.KitSkeleton shape="figure" inset="none" density={density}
       content={[["number", amount, "end", "compact"]]} />}>
-      <KitSkeleton shape="figure" inset="none" lead="dot"
+      <kit.KitSkeleton shape="figure" inset="none" density={density} lead={lead === "icon" ? "dot" : "none"}
         content={[["body", entry.payee], ["caption", entry.category]]} />
-    </KitRow>
+    </kit.KitRow>
   );
-  const icon = <KitIcon name={entry.icon} part="icon" tone="muted" />;
+  const icon = lead === "icon" ? <kit.KitIcon name={entry.icon} part="icon" tone="muted" /> : undefined;
   // prettier-ignore
   return (
-    <KitRow item={entry.id} goto={entry.goto} label={words.transactions.entry(entry.payee, entry.category, amount)} inline>
-      <KitContent lead={icon} lineRole="body">
-        <KitGrid fitLast>
-          <KitText part="payee">{entry.payee}</KitText>
-          <KitText part="amount" role="number" numberScale="compact" tone={entry.amount > 0 ? "good" : "text"}
-            tabular align="end" lines={1}>{amount}</KitText>
-        </KitGrid>
-        <KitText part="category" tone="muted" role="caption">{entry.category}</KitText>
-      </KitContent>
-    </KitRow>
+    <kit.KitRow item={entry.id} goto={entry.goto} label={label} inline={!framed} density={density} tone={entry.tone} mark={entry.mark}>
+      <kit.KitContent lead={icon} lineRole="body" density={density}>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitText part="payee" density={density}>{entry.payee}</kit.KitText>
+          <kit.KitText density={density} part="amount" role="number" numberScale="compact" tone={entry.amount > 0 ? "good" : "text"}
+            tabular align="end" lines={1}>{amount}</kit.KitText>
+        </kit.KitGrid>
+        <kit.KitText part="category" tone="muted" role="caption">{entry.category}</kit.KitText>
+      </kit.KitContent>
+    </kit.KitRow>
   );
 }
 
 function DateHeading({ item, day }: { item: string; day: string }) {
-  const scope = usePartContext();
+  const scope = kit.usePartContext();
   return scope.state === "loading" ? (
-    <KitSkeleton shape="figure" inset="none" content={[["caption", day]]} />
+    <kit.KitSkeleton shape="figure" inset="none" content={[["caption", day]]} />
   ) : (
-    <PartScope {...scope} item={item}>
-      <KitText part="date" role="caption" lines={1} children={day} />
-    </PartScope>
+    <kit.PartScope {...scope} item={item}>
+      <kit.KitText part="date" role="caption" lines={1} children={day} />
+    </kit.PartScope>
   );
 }
 
-export function Transactions({ entries }: TransactionsProps) {
-  const state = useComponentState();
-  const { lang } = useWords(moneyWordsFor);
+export function Transactions({ entries, density: requested, lead }: TransactionsProps) {
+  const density = kit.useVariant("density", meta.variants.density, requested);
+  const state = kit.useComponentState();
+  const { lang } = kit.useWords(moneyWordsFor);
+  const framed = entries.some(({ tone, mark }) => tone !== "neutral" || mark !== "none");
   if (state === "empty")
-    return <KitCard part="root" children={<KitEmpty part="empty" icon="banknote" decorativeIcon />} />;
+    return (
+      <kit.KitCard part="root" children={<kit.KitEmpty part="empty" icon="banknote" decorativeIcon />} />
+    );
   return (
-    <KitCard part="root" padded>
+    <kit.KitCard part="root" padded density={density}>
       {transactionGroups(entries).map(({ date, entries }, index) => (
-        <KitContent key={date} group={index === 0 ? "content" : "response"}>
+        <kit.KitContent key={date} group={index === 0 ? "content" : "response"}>
           <DateHeading item={entries[0]!.id} day={transactionDay(date, lang)} />
           {entries.map((entry, row) => (
-            <KitContent key={entry.id} group={row === 0 ? "content" : "response"}>
-              <TransactionRow entry={entry} />
-            </KitContent>
+            <kit.KitContent
+              key={entry.id}
+              group={row === 0 || density === "compact" ? "content" : "response"}
+            >
+              <TransactionRow {...{ entry, density, lead, framed }} />
+            </kit.KitContent>
           ))}
-        </KitContent>
+        </kit.KitContent>
       ))}
-    </KitCard>
+    </kit.KitCard>
   );
 }

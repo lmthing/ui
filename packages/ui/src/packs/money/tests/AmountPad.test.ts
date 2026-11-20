@@ -30,18 +30,23 @@ describe("AmountPad contract and boundaries", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-
   it("trims labels and accepts the exact label length and maximum", () => {
     const label = "a".repeat(24);
-    expect(props.parse({ label: ` ${label} `, value: 50, max: 50, note: true })).toEqual({
+    const parsed = props.parse({ label: ` ${label} `, value: 50, max: 50, note: true });
+    expect(parsed).toMatchObject({
       label,
       value: 50,
       max: 50,
       note: true,
+      detail: "full",
+      surface: "card",
     });
+    expect(parsed).toMatchObject({
+      keys: Array.from({ length: 12 }, (_, index) => ({ id: `r${index + 1}` })),
+    });
+    expect(props.safeParse({ ...sample, keys: [] }).success).toBe(false);
     expect(props.safeParse({ ...sample, value: 0, max: 0 }).success).toBe(true);
   });
-
   it.each([
     {},
     { label: "Supplies" },
@@ -92,8 +97,8 @@ describe("AmountPad fallback", () => {
       { things: [], items: [{ id: "item", type: "entry", sample: true, name: 4 }] },
     ];
     const [empty, full, malformed] = casts.map((cast) => props.parse(fallback({ cast })));
-    expect(empty).toEqual({ label: "Item one", note: false });
-    expect(full).toEqual({ label: "x".repeat(24), note: false });
+    expect(empty).toMatchObject({ label: "Item one", note: false, detail: "full", surface: "card" });
+    expect(full).toMatchObject({ label: "x".repeat(24), note: false, detail: "full", surface: "card" });
     expect(malformed).toEqual(empty);
   });
 });

@@ -4,7 +4,7 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
-import { projectClocks } from "./clocks";
+import { projectLiveClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
@@ -12,6 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
+import { selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -37,9 +38,12 @@ function readingProps(
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
-  const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
+  const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
-    meta.live || meta.items?.visibleWhen || Object.values(meta.selections ?? {}).some((s) => s.runtime);
+    meta.live ||
+    meta.linkedEdits ||
+    meta.items?.visibleWhen ||
+    Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
     visibleNestedProps(meta, useLive ? live : projectDraw(meta, timed, get), get),
@@ -84,11 +88,12 @@ export function readComponent(
   state: StateName = "filled",
   values: Record<string, unknown> = {},
   lang?: string,
+  deviceData?: DeviceData,
 ): string[] {
   const { meta } = def;
   const get = (part: string) => values[`${instance}/${part}`];
   const validated = parseControlProps(def, migrateInput(meta.id, input), get);
-  const props = liveProps(meta, validated, instance, values, true);
+  const props = liveProps(meta, validated, instance, values, true, deviceData);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -108,7 +113,12 @@ export function readComponent(
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, props, readable), state, lang) ?? []),
+    ...(meta.read?.(
+      readingProps(meta, validated, instance, values, props, readable),
+      state,
+      lang,
+      selectDeviceData(meta, deviceData),
+    ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
@@ -140,6 +150,7 @@ export function readScreen(
   defs: Record<string, Definition>,
   values: Record<string, unknown> = {},
   lang?: string,
+  deviceData?: DeviceData,
 ): string {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -148,7 +159,7 @@ export function readScreen(
   const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
     ({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
+      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
     },
   );
   return [header, ...lines].join("\n");
