@@ -5,12 +5,11 @@ import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
-import { applyPackListDefaults } from "./pack-list-defaults";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
-function fitArrays(def: Definition, input: Record<string, unknown>): void {
+function fitArrays(def: Definition, input: Record<string, unknown>, seed?: DefaultLine["seed"]): void {
   for (const [key, value] of Object.entries(input)) {
-    if (!Array.isArray(value)) continue;
+    if (!Array.isArray(value) || (seed && Object.hasOwn(seed, key))) continue;
     const parsed = def.props.safeParse(input);
     if (parsed.success) return;
     const issues = parsed.error.issues.filter((issue) => issue.path[0] === key);
@@ -39,16 +38,12 @@ function inputOf(
   line: DefaultLine,
   defs: Record<string, Definition>,
   cast: CastLike,
-  layout: string,
 ): Record<string, unknown> {
   const def = defs[line.c];
   if (!def) throw new Error(`Missing component ${line.c}`);
   const input = { ...(def.fallback({ cast }) as Record<string, unknown>) };
   const variant = line.variant;
-  if (!variant) {
-    if (line.c === "List") applyPackListDefaults(input, layout);
-    return input;
-  }
+  if (!variant) return input;
   if (line.c === "List" && ["shelf", "toggle"].includes(variant)) {
     const rows = [...(input.rows as Record<string, unknown>[])];
     if (variant === "shelf") {
@@ -87,6 +82,18 @@ function inputOf(
   }
   return input;
 }
+
+function finishInput(def: Definition, line: DefaultLine, input: Record<string, unknown>): void {
+  Object.assign(input, line.seed);
+  // Fallback rows without a value must not draw a value trail. Authored rows are not rewritten.
+  if (line.c === "List" && line.seed?.trail === "value" && !Object.hasOwn(line.seed, "rows"))
+    input.rows = (input.rows as Record<string, unknown>[]).map((row) =>
+      row.value ? row : { ...row, trail: "none" },
+    );
+  fitArrays(def, input, line.seed);
+  def.props.parse(input);
+}
+
 /** A finished, validated default from neutral catalog fallbacks and the caller's cast. */
 export function defaultLines(
   meta: ArchetypeMeta,
@@ -121,7 +128,7 @@ export function defaultLines(
     const id = `${prefix}${(counts[prefix] = (counts[prefix] ?? 0) + 1)}`;
     if (grouped.length && line.c === "SectionTitle") groupIndex++;
     const lineCast = grouped.length && line.c === "List" ? { ...cast, items: grouped[groupIndex]![1] } : cast;
-    const input = inputOf(line, defs, lineCast, `${meta.id}/${layout}`);
+    const input = inputOf(line, defs, lineCast);
     if (grouped.length && line.c === "SectionTitle") input.text = clip(grouped[groupIndex]![0], 24);
     if (grouped.length && line.c === "Chips")
       input.items = [
@@ -132,8 +139,7 @@ export function defaultLines(
       input.label = clip(thingOf(cast)?.fields[fieldIndex++] ?? placeholderTitle(fieldIndex), 24);
     // Label supporting defaults without pretending to know a domain field.
     if (line.c === "Note" && !input.text) input.text = placeholderDetail;
-    fitArrays(defs[line.c]!, input);
-    defs[line.c]!.props.parse(input);
+    finishInput(defs[line.c]!, line, input);
     return { id, c: line.c, ...input };
   });
   const screen = {
