@@ -15,9 +15,16 @@ export const deviceWriteHints = [
   "Sensors require reading and unit (celsius, percent, ppm, lux), optionally normal:{low,high} with low<=high. Sensors MUST have on:null, level:null, temp:null. Light/fan/blind may have level 0–100; blinds MUST have on:null. All non-heat devices MUST have temp:null. Only sensors have unit/normal, only heat/sensor have reading; use null for unsupported optional fields.",
   "Scenes default to []. Each has 2–6 distinct device targets, with key and at least one supported absolute on/level/temp setting. Never target sensors or unknown keys. focus must name a device.",
   "Never write active-scene, out-of-range, pending or command-outcome flags. Code chooses apply versus secure from lock targets. Lock changes and lock scenes always confirm.",
+  'Put devices in their rooms even if the person asks for a single ungrouped list; use group "none" for that presentation only. Use style "focused" only when asked to enlarge a specific device. Write surface:null unless asked for outlined tiles.',
   'Valid heat: {"key":"heat","name":"Thermostat","kind":"heat","on":true,"level":null,"temp":21,"reading":20.5,"unit":null,"normal":null,"goto":null}. Valid blind scene target: {"key":"blind","on":null,"level":0,"temp":null}. Scene targets obey the referenced device kind, not the other devices in the scene.',
 ] as const;
 
+const fanAndLamp = {
+  rooms: [
+    { label: "Hall", devices: [{ key: "fan", name: "Hall fan", kind: "fan", on: true }] },
+    { label: "Kitchen", devices: [{ key: "lamp", name: "Plant lamp", kind: "light", on: false }] },
+  ],
+} satisfies z.input<typeof deviceProps>;
 export const deviceExamples = [
   {
     rooms: [
@@ -71,7 +78,6 @@ export const deviceExamples = [
         ],
       },
     ],
-    style: "tiles",
     scenes: [
       {
         name: "Home time",
@@ -89,6 +95,8 @@ export const deviceExamples = [
       },
     ],
   },
+  fanAndLamp,
+  { ...fanAndLamp, group: "none" },
 ] satisfies z.input<typeof deviceProps>[];
 const { choose, write, read } = probesFor("Devices");
 export const deviceProbes = [
@@ -114,6 +122,12 @@ export const deviceProbes = [
   write(
     "Living room has thermostat key heat, on, set to 21 Celsius, measured 20.5; humidity sensor key humidity reads 45 percent with normal range 40 to 60; light key lamp on at level 70. Focus heat. Evening scene sets lamp to on at 40 and heat to 20.",
   ),
+  {
+    ...write(
+      "The hall fan is on and the kitchen lamp is off. Show the connected devices in one list without room headings.",
+    ),
+    variant: { axis: "group", value: "none" },
+  },
   read("Increase the thermostat's set point by one step", { address: "d1/r1/plus", action: "increment" }),
   read("Apply the Evening scene", { address: "d1/r4/apply", action: "press" }),
   read("Change the front door lock", { address: "d1/r2/lock", action: "toggle" }, 1),
@@ -136,6 +150,5 @@ export function deviceFallback({ cast, lang }: FallbackInput): z.input<typeof de
       },
     ],
     scenes: [],
-    style: "tiles",
   };
 }

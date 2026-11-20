@@ -5,7 +5,7 @@ import { projectPayoff, type PayoffSource, type PayoffStrategy } from "./PayoffP
 export const payoffStrategies = ["high_rate", "small_balance"] as const;
 const { choice } = moneyWordsFor().payoff;
 export const payoffChoices = [choice.high_rate, choice.small_balance] as const;
-type Input = PayoffSource & { style: "plan" | "compact"; goto?: string | undefined };
+type Input = PayoffSource & { detail: "full" | "brief"; goto?: string | undefined };
 type Projection = ReturnType<typeof projectPayoff>;
 
 /** Keep existing action values stable regardless of the display language. */
@@ -81,7 +81,7 @@ export function payoffReading(input: Input, lang?: string): string[] {
     total,
     words.budget,
     words.budgetRead(budget),
-    ...(input.style === "plan"
+    ...(input.detail === "full"
       ? [words.forecast, ...series[0]!.points.map(({ label }) => label).filter(Boolean)]
       : []),
     ...rows.flatMap(({ order, balance, clearance }) => [order, balance, clearance]),

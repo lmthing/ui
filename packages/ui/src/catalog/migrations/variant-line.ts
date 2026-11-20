@@ -57,6 +57,8 @@ function preserveRankedTrail(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
+  Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
   ServiceMenu: [
     { from: "style", values: { rows: { surface: "card" } } },
@@ -92,6 +94,7 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
   Gallery: [{ from: "style", values: { grid: { arrange: "grid" }, strip: { arrange: "strip" } } }],
   Stats: [{ from: "style", values: { tiles: { arrange: "grid" }, inline: { arrange: "rows" } } }],
   KeyValue: [{ from: "style", values: { rows: { arrange: "rows" }, grid: { arrange: "grid" } } }],
+  Devices: [{ from: "style", values: { tiles: { group: "sections" } } }],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */

@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { screenId, text } from "../../catalog";
+import { screenId, text, variantProps } from "../../catalog";
+
+const variants = { group: ["sections", "none"], surface: ["card", "outlined"] } as const;
 
 const switchKinds = ["light", "heat", "plug", "lock", "fan"];
 const levelKinds = ["light", "fan", "blind"];
@@ -41,6 +43,7 @@ const target = z
 /** Bounded model-written device data; addressed rows and capabilities are code-owned. */
 const schema = z
   .strictObject({
+    ...variantProps(variants),
     rooms: z
       .array(
         z.strictObject({
@@ -61,7 +64,7 @@ const schema = z
       .max(6)
       .default([]),
     focus: deviceKey.optional(),
-    style: z.enum(["tiles", "focused"]).default("tiles"),
+    style: z.literal("focused").optional(),
   })
   .refine(({ rooms, scenes, focus }) => {
     const devices = rooms.flatMap((room) => room.devices);
@@ -166,6 +169,8 @@ export const deviceControls = {
   weight: 3,
   dense: true,
   tier: "service",
+  variants,
+  variantParts: { "group.none": { hides: ["room"] } },
   realPath:
     "A host adapter maps device keys to a smart-home service, supplies readings and command acknowledgements; without it this is a labelled mock.",
   items: {

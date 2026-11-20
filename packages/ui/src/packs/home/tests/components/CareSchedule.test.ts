@@ -19,6 +19,19 @@ const screen = { id: "home", components: [{ id: "c1", c: "CareSchedule", tasks: 
 
 afterEach(() => vi.useRealTimers());
 
+it("keeps grid defaults and preserves task addresses in full-width rows", () => {
+  const input = examples[0]!;
+  expect(props.parse(input)).toMatchObject({ arrange: "grid", surface: "card" });
+  expect(props.safeParse({ ...input, arrange: "strip" }).success).toBe(false);
+  const rows = { ...input, arrange: "rows" };
+  const html = renderInstance("CareSchedule", rows, "filled", theme);
+  expect(elementAt(html, "home/c1/r1/last")).toBeDefined();
+  expect(elementAt(html, "home/c1/r1/next")).toBeDefined();
+  expect(elementAt(html, "home/c1/r2/done")).toBeDefined();
+  const read = readComponent(components.CareSchedule, rows, "c1").join("\n");
+  expect(read).toContain("[c1/r2/done press]");
+});
+
 describe("CareSchedule contract and boundaries", () => {
   it.each(examples)("accepts the domain example", (example) => {
     expect(props.safeParse(example).success).toBe(true);

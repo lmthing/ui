@@ -150,8 +150,8 @@ it("accepts exact maxima, zero-rate debts and schema defaults", () => {
   expect(components.Payoff.props.parse({ debts: [debt] })).toMatchObject({
     extra: 0,
     strategy: "high_rate",
-    style: "plan",
+    detail: "full",
     linked: false,
   });
-  expect(components.Loan.props.parse(debt)).toMatchObject({ rate: 0, style: "summary", linked: false });
+  expect(components.Loan.props.parse(debt)).toMatchObject({ rate: 0, detail: "brief", linked: false });
 });

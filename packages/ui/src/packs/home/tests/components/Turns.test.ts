@@ -22,6 +22,15 @@ const roster = {
   at: 5,
 };
 
+it("omits portraits without changing the current person, queue, or actions", () => {
+  expect(props.parse(ledge)).toMatchObject({ lead: "avatar", emphasis: "normal", surface: "card" });
+  expect(props.safeParse({ ...ledge, lead: "icon" }).success).toBe(false);
+  const html = renderInstance("Turns", { ...ledge, lead: "none" }, "filled", theme);
+  expect(html).not.toMatch(/home\/c1\/r[1-3]\/photo/);
+  for (const part of ["r1/name", "r2/name", "r3/name", "next", "skip"])
+    expect(elementAt(html, `home/c1/${part}`)).toBeDefined();
+});
+
 describe("Turns contract", () => {
   it.each(examples)("accepts a real example", (example) => {
     expect(props.safeParse(example).success).toBe(true);

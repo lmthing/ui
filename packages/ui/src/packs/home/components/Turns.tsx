@@ -7,12 +7,23 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../../../catalog";
-import { KitAction, KitCard, KitContent, KitPhoto, KitRow, KitText, useWords } from "../../../kit";
+import {
+  KitAction,
+  KitCard,
+  KitContent,
+  KitPhoto,
+  KitRow,
+  KitText,
+  PartScope,
+  usePartContext,
+  useWords,
+} from "../../../kit";
 import { turnReading, visibleTurns } from "../copy";
 import { homeWordsFor } from "../lang";
 
@@ -25,21 +36,27 @@ export const meta = {
   pick: "One household job rotating through people, with current and next holders. Not a roster of several named household members without turns (People), many chores (Chores), staff shifts (Roster), or game turns (TurnOrder).",
   writeHints: [
     "at is a zero-based index smaller than people.length. The next people and next index are computed.",
+    'Use lead "none" only when asked to show the rotation without portraits or initials. Keep current and upcoming names, and use surface:null and emphasis:null unless asked to change the card finish or prominence.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   partTiers: { next: "people", skip: "people" },
   realPath: "A rotation stays on the device; everyone viewing it on their own phone needs a shared app.",
+  variants: { lead: ["avatar", "none"], surface: ["card", "outlined"], emphasis: ["normal", "hero"] },
+  variantParts: { "lead.none": { hides: ["photo"] } },
   items: { key: "visiblePeople", parts: ["root", "name", "photo"] },
   parts: ["root", "job", "next", "skip"],
   states: ["filled"],
   actions: { parts: { next: ["press"], skip: ["press"] } },
-  read: (input, state, lang) =>
-    state === "filled" ? turnReading((input as z.output<typeof props>).visiblePeople, lang) : [],
+  read: (input, state, lang): string[] =>
+    state === "filled"
+      ? turnReading((input as { visiblePeople: Parameters<typeof turnReading>[0] }).visiblePeople, lang)
+      : [],
 } as const satisfies Meta;
 const schema = z
   .strictObject({
+    ...variantProps(meta.variants),
     job: text(24),
     people: z
       .array(z.strictObject({ name: text(16), photo: photo.optional() }))
@@ -64,17 +81,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   while (people.length < 2) people.push({ name: placeholderTitle(people.length, lang) });
   return { job: placeholderTitle(0, lang), people, at: 0 };
 }
+const plantTurns = {
+  job: "Mist the plants",
+  people: [{ name: "Sam" }, { name: "Alex" }, { name: "Mia" }],
+  at: 0,
+};
 export const examples = [
-  {
-    job: "Mist the plants",
-    people: [{ name: "Sam" }, { name: "Alex" }, { name: "Mia" }],
-    at: 0,
-  },
+  plantTurns,
   {
     job: "Walk Clover",
     people: [{ name: "Alex" }, { name: "Jo" }],
     at: 1,
   },
+  { ...plantTurns, lead: "none" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Turns");
 export const probes = [
@@ -84,6 +103,12 @@ export const probes = [
     "People",
   ),
   write("Mist the plants rotates through Sam, Alex and Mia in that order, Sam is current"),
+  {
+    ...write(
+      "Mist the plants rotates through Sam, Alex and Mia, starting with Sam. Show the names with no portraits or initials.",
+    ),
+    variant: { axis: "lead", value: "none" },
+  },
   read("Finish Sam's turn and give the job to the next person", { address: "t1/next", action: "press" }),
 ] satisfies Probe[];
 
@@ -101,45 +126,65 @@ function TurnRow({
   person,
   current,
   startsQueue,
+  lead,
+  emphasis,
 }: {
   person: Person;
   current: boolean;
   startsQueue: boolean;
+  lead: TurnsProps["lead"];
+  emphasis: TurnsProps["emphasis"];
 }) {
   const { words } = useWords(homeWordsFor);
+  const scope = usePartContext();
   const { current: currentLabel, upcoming } = words.turnLabels;
-  return (
-    <KitRow
-      item={person.id}
-      label={current ? words.turnHolder(currentLabel, person.name) : person.name}
-      inline
-    >
-      <KitContent>
-        {startsQueue && <KitText role="label" tone="muted" part={null} children={upcoming} />}
-        {current ? (
-          <KitContent lead={<TurnPortrait person={person} current />} leadingAlign="row">
-            <KitText role="label" tone="muted" part={null} children={currentLabel} />
-            <KitText role="title" part="name" children={person.name} />
-          </KitContent>
-        ) : (
-          <KitRow label={person.name} leading={<TurnPortrait person={person} current={false} />} inset="none">
-            <KitText role="body" part="name" children={person.name} />
-          </KitRow>
-        )}
-      </KitContent>
+  const portrait = lead === "avatar" && <TurnPortrait {...{ person, current }} />;
+  const label = current ? words.turnHolder(currentLabel, person.name) : person.name;
+  const body = (
+    <KitContent>
+      {startsQueue && <KitText role="label" tone="muted" part={null} children={upcoming} />}
+      {current ? (
+        <KitContent lead={portrait} leadingAlign="row">
+          <KitText role="label" tone="muted" part={null} children={currentLabel} />
+          <KitText role="title" part="name" children={person.name} {...{ emphasis }} />
+        </KitContent>
+      ) : portrait ? (
+        <KitRow label={person.name} leading={portrait} inset="none">
+          <KitText role="body" part="name" children={person.name} />
+        </KitRow>
+      ) : (
+        <KitText role="body" part="name" children={person.name} />
+      )}
+    </KitContent>
+  );
+  return portrait ? (
+    <KitRow item={person.id} label={label} inline>
+      {body}
     </KitRow>
+  ) : (
+    <PartScope {...scope} item={person.id}>
+      <KitCard style="plain" part="root" label={label}>
+        {body}
+      </KitCard>
+    </PartScope>
   );
 }
 
-export function Turns({ job, visiblePeople }: TurnsProps) {
+export function Turns({ job, visiblePeople, lead, surface, emphasis }: TurnsProps) {
   const { words } = useWords(homeWordsFor);
   const { next, skip } = words.turnLabels;
+  const rows = visiblePeople.map((person, index) => (
+    <TurnRow
+      key={person.id}
+      {...{ person, lead, emphasis }}
+      current={index === 0}
+      startsQueue={index === 1}
+    />
+  ));
   return (
-    <KitCard part="root" padded>
+    <KitCard part="root" padded {...{ surface }}>
       <KitText part="job" role="body" children={job} />
-      {visiblePeople.map((person, index) => (
-        <TurnRow key={person.id} person={person} current={index === 0} startsQueue={index === 1} />
-      ))}
+      {lead === "none" ? <KitContent>{rows}</KitContent> : rows}
       <KitContent
         group="response"
         lead={<KitAction part="next" label={next} kind="secondary" />}

@@ -1,6 +1,8 @@
 import {
   wordsFor,
   affordancesOf,
+  clockControlDeclared,
+  isPlaybackAction,
   liveProps,
   parseAddress,
   parseControlProps,
@@ -86,23 +88,29 @@ function press(ctx: ControllerContext, act: Act, address: string) {
     });
   }
   const offered = actionsAt(ctx, address, true);
+  const tap = offered.find((item) => isPressAction(ctx, local, item));
   const action =
-    local.endsWith("/play") && offered.includes("play")
+    tap ??
+    (local.endsWith("/play") && offered.includes("play")
       ? ctx.store.get(ctx.key(local.split("/")[0]!, "play"))
         ? "pause"
         : "play"
-      : offered.find((item) => isPressAction(ctx, local, item));
+      : undefined);
   return action
     ? act({ address, action })
     : actionFailure(0, "not_actionable", "No press action at this address");
 }
 function isPressAction(ctx: ControllerContext, local: string, action: string) {
   if (pressActions.includes(action)) return true;
-  if (action !== "flip") return false;
+  if (action !== "flip" && !isPlaybackAction(action)) return false;
   const [id, ...parts] = local.split("/");
   const entry = ctx.sourceOf(id!);
   const meta = entry && ctx.defs[entry.c]?.meta;
-  return Boolean(meta && sessionEvent(meta, parts.join("/") || "root", action));
+  const target = parts.join("/") || "root";
+  return Boolean(
+    meta &&
+    (action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action)),
+  );
 }
 function read(ctx: ControllerContext) {
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);

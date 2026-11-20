@@ -42,12 +42,20 @@ export function choreLines(chore: ChoreSeed, today = careToday(), lang?: string)
   } as const;
 }
 
-export function choreReading(chores: readonly ChoreSeed[], lang?: string): string[] {
+export function choreReading(chores: readonly ChoreSeed[], lang?: string, brief = false): string[] {
   const today = careToday();
   return chores.map((chore) => {
     const { repeat, last, next, points, done, check } = choreLines(chore, today, lang);
     const reward = points ? `${points.count}${points.suffix}` : undefined;
-    return [chore.title, chore.who, repeat, last, next, reward, done ? check : undefined]
+    return [
+      chore.title,
+      chore.who,
+      brief ? undefined : repeat,
+      brief ? undefined : last,
+      next,
+      reward,
+      done ? check : undefined,
+    ]
       .filter(Boolean)
       .join(" · ");
   });

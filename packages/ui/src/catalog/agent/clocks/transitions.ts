@@ -4,11 +4,13 @@ import { adjustmentAt } from "./adjustment";
 import {
   clockTargets,
   clockKey,
+  clockMillis,
   clockPropKey,
   clockSeed,
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  isPlaybackClock,
 } from "./clock";
 
 function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number): Values {
@@ -19,7 +21,7 @@ function adjustValues(adjustment: ReturnType<typeof adjustmentAt>, now: number):
     state?.running && !clockEnded(clock, Number(current)) && !clockEnded(clock, seconds),
   );
   // Keep the next tick on its original boundary when adjusting mid-second.
-  const from = running ? now - (Math.max(0, now - state!.from) % 1000) : now;
+  const from = running ? now - (clockMillis(state!, now) % 1000) : now;
   const zero = clock.spec.zero;
   return {
     [clockKey(clock)]: { running, from, seconds, seed: state?.seed ?? clockSeed(clock) } satisfies ClockState,
@@ -50,15 +52,32 @@ export function clockChanges(
       if (trigger.value !== undefined && (step.value ?? get(target)) !== trigger.value) continue;
       const state = get(clockKey(clock)) as ClockState | undefined;
       const seed = state?.seed ?? clockSeed(clock);
-      const seconds = operation === "reset" ? seed : clockTime(clock, state, get(clockPropKey(clock)), now);
+      const current = clockTime(clock, state, get(clockPropKey(clock)), now);
+      const seconds = operation === "reset" ? seed : current;
+      const playback = isPlaybackClock(clock.spec);
+      const zero = clock.spec.zero;
       changes[clockKey(clock)] = {
         running: operation === "start",
         from: now,
         seconds,
         seed,
+        ...(playback
+          ? { remainder: state && operation !== "reset" ? clockMillis(state, now) % 1000 : 0 }
+          : {}),
       } satisfies ClockState;
       if (clock.spec.prop) changes[clockPropKey(clock)] = seconds;
       if (trigger.state) changes.$state = trigger.state;
+      // A mounted tick may have saved completion; rewinding removes only that clock's terminal state.
+      else if (
+        operation === "reset" &&
+        playback &&
+        zero &&
+        zero !== "stop" &&
+        "state" in zero &&
+        clockEnded(clock, current) &&
+        get("$state") === zero.state
+      )
+        changes.$state = undefined;
     }
   }
   Object.assign(changes, adjustValues(adjustment, now));

@@ -1,33 +1,10 @@
 import { z } from "zod";
-import {
-  clock,
-  isoDate,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  timeOfDayLine,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitRow,
-  KitText,
-  KitTrack,
-  useComponentState,
-  useWords,
-} from "../../../kit";
+// prettier-ignore
+import { clock, isoDate, itemsOf, placeholderTitle, probesFor, screenId, text, timeOfDayLine,
+  thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
+  KitTrack, useComponentState, useWords } from "../../../kit";
 import {
   agendaDay,
   agendaAttendees,
@@ -47,20 +24,26 @@ export const meta = {
   pick: "The family's next seven days grouped by date: each day heading has timed or all-day events and each event's attendees. This multi-day family week belongs here, not Timeline: Timeline/hours is one day and has no per-event attendees. Not a month of marked dates (Calendar) or class timetables (Timetable).",
   writeHints: [
     'days holds 1–7 dates with 1–6 events each. Each event has 1–4 who labels; use ["Everyone"] for the whole family. Omit time for an all-day event. Code computes conflicts.',
+    'Use group "none" only when asked to hide day headings. Keep the dates in days. Write surface:null unless asked for an outlined card; removing headings does not change its finish.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Events stay on the device; sharing a family calendar needs people and syncing needs a service.",
-  items: { key: "entries", parts: ["root", "date", "time", "title", "who", "conflict"] },
+  variants: { group: ["dates", "none"], surface: ["card", "outlined"] },
+  items: {
+    key: "entries",
+    parts: ["root", "date", "time", "title", "who", "conflict"],
+  },
+  variantParts: { "group.none": { hides: ["date"] } },
   parts: ["root", "empty", "add"],
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] }, parts: { add: ["press"] } },
-  read: (input, state, lang?: string) =>
-    state === "filled"
-      ? agendaScheduleReading((input as { entries: ReturnType<typeof agendaEntries> }).entries, lang)
-      : [],
+  read: (input, state, lang): string[] => {
+    const { entries, group } = input as { entries: ReturnType<typeof agendaEntries>; group: string };
+    return state === "filled" ? agendaScheduleReading(entries, lang, group !== "none") : [];
+  },
 } as const satisfies Meta;
 const eventProps = z.strictObject({
   time: clock.optional(),
@@ -69,7 +52,7 @@ const eventProps = z.strictObject({
 });
 const dayProps = z.strictObject({ date: isoDate, events: z.array(eventProps).min(1).max(6) });
 export const props = z
-  .strictObject({ days: z.array(dayProps).min(1).max(7), goto: screenId })
+  .strictObject({ ...variantProps(meta.variants), days: z.array(dayProps).min(1).max(7), goto: screenId })
   .overwrite((value) => ({ ...value, entries: agendaEntries(value.days), add: { goto: value.goto } }));
 
 type Entry = ReturnType<typeof agendaEntries>[number] & { id: string };
@@ -92,20 +75,21 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     goto: "add_event",
   };
 }
+const plantAgenda = {
+  days: [
+    {
+      date: "2026-11-20",
+      events: [
+        { time: "09:00", title: "Visit the garden centre", who: ["Sam", "Mia"] },
+        { title: "Bring the fern inside", who: ["Alex"] },
+      ],
+    },
+    { date: "2026-11-21", events: [{ time: "11:30", title: "Repot the Monstera", who: ["Sam"] }] },
+  ],
+  goto: "add_event",
+};
 export const examples = [
-  {
-    days: [
-      {
-        date: "2026-11-20",
-        events: [
-          { time: "09:00", title: "Visit the garden centre", who: ["Sam", "Mia"] },
-          { title: "Bring the fern inside", who: ["Alex"] },
-        ],
-      },
-      { date: "2026-11-21", events: [{ time: "11:30", title: "Repot the Monstera", who: ["Sam"] }] },
-    ],
-    goto: "add_event",
-  },
+  plantAgenda,
   {
     days: [
       {
@@ -119,6 +103,7 @@ export const examples = [
     ],
     goto: "add_event",
   },
+  { ...plantAgenda, group: "none" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Agenda");
 export const probes = [
@@ -129,6 +114,12 @@ export const probes = [
   ),
   read("Add a family event", { address: "a1/add", action: "press" }),
   read("Open the garden centre event", { address: "a1/r1", action: "press" }),
+  {
+    ...write(
+      "Garden centre at 09:00 on November 20 for Mia, repot the fern on November 21, 2026 for Sam. Show one continuous family event list without day headings.",
+    ),
+    variant: { axis: "group", value: "none" },
+  },
 ] satisfies Probe[];
 function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: boolean; laterDay: boolean }) {
   const {
@@ -139,7 +130,7 @@ function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: bool
     <KitRow item={event.id} role="button" label={agendaReading(event, "", lang)} inline>
       {heading && (
         <KitContent group={laterDay ? "response" : "content"}>
-          <KitText role="heading" part="date">
+          <KitText role="label" tone="muted" part="date">
             {agendaDay(event.date, lang)}
           </KitText>
         </KitContent>
@@ -168,20 +159,28 @@ function AgendaEvent({ event, heading, laterDay }: { event: Entry; heading: bool
   );
 }
 
-export function Agenda({ entries, goto }: AgendaProps) {
+export function Agenda({ entries, goto, group, surface }: AgendaProps) {
   const state = useComponentState();
   const {
     words: { agendaLabels },
   } = useWords(homeWordsFor);
   if (state === "empty")
-    return <KitCard part="root" children={<KitEmpty part="empty" icon="calendar" decorativeIcon />} />;
+    return (
+      <KitCard
+        part="root"
+        {...{ surface }}
+        children={<KitEmpty part="empty" icon="calendar" decorativeIcon />}
+      />
+    );
   return (
-    <KitCard part="root" padded>
+    <KitCard part="root" padded {...{ surface }}>
       {entries.map((event, index) => {
-        const heading = entries[index - 1]?.date !== event.date;
+        const heading = group === "dates" && entries[index - 1]?.date !== event.date;
         return <AgendaEvent key={event.id} event={event} heading={heading} laterDay={index > 0} />;
       })}
-      <KitAction label={agendaLabels.add} part="add" goto={goto} kind="secondary" full />
+      <KitContent group="response">
+        <KitAction label={agendaLabels.add} part="add" goto={goto} kind="secondary" full />
+      </KitContent>
     </KitCard>
   );
 }

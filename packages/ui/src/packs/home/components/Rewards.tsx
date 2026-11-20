@@ -1,25 +1,12 @@
 import { z } from "zod";
-import { icon, itemsOf, photo, screenId, text } from "../../../catalog";
-import { placeholderTitle, probesFor, thingOf, titleOf } from "../../../catalog";
-import type { FallbackInput, Meta, Probe, Props } from "../../../catalog";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitJar,
-  KitPhoto,
-  KitText,
-  PartScope,
-  useComponentState,
-  usePartContext,
-  useWords,
-} from "../../../kit";
+// prettier-ignore
+import { icon, itemsOf, photo, screenId, text, variantProps, placeholderTitle, probesFor,
+  thingOf, titleOf, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitJar, KitPhoto,
+  KitText, PartScope, useComponentState, usePartContext, useWords } from "../../../kit";
 import { rewardAmount, rewardBalanceParts, rewardJarRatio, rewardReading, rewardShortfall } from "../copy";
 import { homeWordsFor } from "../lang";
-
 // Core first: Ring/md tracks one goal, not children's points spent on claimable prizes.
 export const meta = {
   id: "Rewards",
@@ -29,11 +16,14 @@ export const meta = {
   pick: "Children's points earned and spent on prizes with costs. Not one person's goal (Ring), a business stamp card (Loyalty), or milestone badges (Achievements).",
   writeHints: [
     "Write stored points and prize costs as nonnegative numbers. Claimability and balances after a claim are computed, never written. money means pocket money; never write a currency.",
+    'Use detail "brief" only when asked to hide the amount still needed for unaffordable prizes. Keep the costs and disabled controls. Write surface:null unless an outlined card is requested.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A parent keeps points and prize claims on the device.",
+  variants: { detail: ["full", "brief"], surface: ["card", "outlined"] },
+  variantParts: { "detail.brief": { hides: ["reason"] } },
   items: {
     key: "entries",
     parts: ["root", "jar", "name", "photo", "points", "unit", "title", "cost", "icon", "claim", "reason"],
@@ -45,9 +35,9 @@ export const meta = {
     items: { root: ["press"], claim: ["press"] },
     when: { root: { entryKind: "kid" }, claim: { entryKind: "prize", claimable: true } },
   },
-  read: (input, state, lang?: string) => {
-    const { entries, money } = input as z.output<typeof props>;
-    return rewardReading(entries, money, state, lang);
+  read: (input, state, lang): string[] => {
+    const { entries, money, detail } = input as z.output<typeof props>;
+    return rewardReading(entries, money, state, lang, detail === "brief");
   },
 } as const satisfies Meta;
 const kidProps = z.strictObject({
@@ -58,6 +48,7 @@ const kidProps = z.strictObject({
 });
 const prizeProps = z.strictObject({ title: text(24), cost: z.number().min(0), icon });
 const schema = z.strictObject({
+  ...variantProps(meta.variants),
   kids: z.array(kidProps).min(1).max(4),
   prizes: z.array(prizeProps).min(1).max(6),
   money: z.boolean().default(false),
@@ -89,15 +80,17 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // prettier-ignore
-export const examples = [
-  {
-    kids: [{ name: "Mia", photo: "lib:people", points: 20, goto: "mia" }],
+const plantRewards = {
+    kids: [{ name: "Mia", points: 20, goto: "mia" }],
     prizes: [
       { title: "Choose a new plant", cost: 15, icon: "leaf" },
       { title: "Paint a planter", cost: 30, icon: "star" },
     ],
     money: false,
-  },
+} satisfies z.input<typeof props>;
+// prettier-ignore
+export const examples = [
+  plantRewards,
   {
     kids: [{ name: "Leo", points: 8.5, goto: "leo" }, { name: "Avery", photo: "lib:people", points: 4, goto: "avery" }],
     prizes: [
@@ -106,12 +99,19 @@ export const examples = [
     ],
     money: true,
   },
+  { ...plantRewards, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Rewards");
 export const probes = [
   choose("Children earn points and spend them on a shelf of prizes with costs and a claim button"),
   choose("Show how far I am toward one goal of twenty walks", "Ring"),
   write("Mia has twenty points, can claim Choose a new plant for fifteen points, her details are mia"),
+  {
+    ...write(
+      "Mia has 20 points and a new planter costs 30 points. Show the prize cost but don't display how many more points she needs.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Claim Choose a new plant", { address: "r1/r2/claim", action: "press" }),
 ] satisfies Probe[];
 
@@ -142,12 +142,13 @@ function RewardJar({ kid, target, balance, compact }: JarProps) {
   );
 }
 
-function RewardPrize({ prize, money, best }: { prize: Entry<"prize">; money: boolean; best: number }) {
+// prettier-ignore
+function RewardPrize({ prize, money, best, brief }: { prize: Entry<"prize">; money: boolean; best: number; brief: boolean }) {
   const context = usePartContext();
   const { lang, words } = useWords(homeWordsFor);
   const cost = rewardAmount(prize.cost, money, lang).label;
-  const claim = { label: words.rewardLabels.claim, disabled: !prize.claimable };
-  const reason = rewardShortfall(prize.cost, best, money, lang);
+  const claim = { label: brief && !prize.claimable ? words.rewardLabels.unavailable : words.rewardLabels.claim, disabled: !prize.claimable };
+  const reason = brief ? undefined : rewardShortfall(prize.cost, best, money, lang);
   const lead = <KitIcon name={prize.icon} part="icon" scale="sm" tone="muted" />;
   return (
     <PartScope {...context} item={prize.id}>
@@ -165,12 +166,12 @@ function RewardPrize({ prize, money, best }: { prize: Entry<"prize">; money: boo
   );
 }
 
-export function Rewards({ entries, money }: RewardsProps) {
+export function Rewards({ entries, money, detail, surface }: RewardsProps) {
   const state = useComponentState();
   const { lang, words } = useWords(homeWordsFor);
   if (state === "success")
     return (
-      <KitCard part="root">
+      <KitCard part="root" {...{ surface }}>
         <KitEmpty part="message" title={words.rewardLabels.success} icon="check" tone="good" decorativeIcon />
       </KitCard>
     );
@@ -186,9 +187,10 @@ export function Rewards({ entries, money }: RewardsProps) {
   const jars = balances.map(({ kid, balance }) => (
     <RewardJar key={kid.id} {...{ kid, target, balance, compact }} />
   ));
-  const shelf = prizes.map((prize) => <RewardPrize key={prize.id} {...{ prize, money, best }} />);
+  const brief = detail === "brief";
+  const shelf = prizes.map((prize) => <RewardPrize key={prize.id} {...{ prize, money, best, brief }} />);
   return (
-    <KitCard part="root" padded>
+    <KitCard part="root" padded {...{ surface }}>
       <KitText role="body" tone="muted" part="heading" children={words.rewardLabels.heading} />
       {jars.length === 1 ? jars : <KitGrid>{jars}</KitGrid>}
       <KitCard part="shelf" style="cards" children={shelf} />
