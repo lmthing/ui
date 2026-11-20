@@ -84,6 +84,9 @@ export function migrateProgressItems(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  ScoreSheet: [{ from: "style", values: { grid: { overflow: "all" }, round: { overflow: "page" } } }],
+  TeamPicker: [{ from: "style", values: { columns: { arrange: "strip" }, groups: { arrange: "rows" } } }],
+  Trivia: [{ from: "style", values: { card: { emphasis: "normal" }, large: { emphasis: "hero" } } }],
   Amount: [
     { from: "style", values: { large: { emphasis: "hero" } } },
     { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
