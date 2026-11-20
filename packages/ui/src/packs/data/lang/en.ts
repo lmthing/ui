@@ -1,6 +1,8 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
 export type DataWords = {
+  bulkSelectAll: string;
+  bulkSelected: (count: string) => string;
   chartLatest: string;
   chartPlaceholder: (index: number) => string;
   chartPoints: (title: string) => string;
@@ -16,6 +18,8 @@ export type DataWords = {
 };
 
 export const en = {
+  bulkSelectAll: "Select all",
+  bulkSelected: (count) => `${count} selected`,
   chartLatest: "Latest values",
   chartPlaceholder: (index) => ["One", "Two", "Three", "Four"][index]!,
   chartPoints: (title) => `${title} data points`,
