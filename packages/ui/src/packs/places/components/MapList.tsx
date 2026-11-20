@@ -107,7 +107,10 @@ export const probes = [
   write(
     "Show a linked map and list of plant shops that can switch to list only: Riverside Nursery for outdoor plants (nursery), Greenhouse Shop for indoor plants (greenhouse), and Hilltop Market for pots (hilltop).",
   ),
-  read("Switch to the list-only view", { address: "m1/view", action: "select" }),
+  read("Use the view selector to choose list only, without selecting a pin or opening a venue", {
+    address: "m1/view",
+    action: "select",
+  }),
   read("Open Riverside Nursery", { address: "m1/r1", action: "press" }),
   read("Select the Riverside Nursery pin to highlight its row without opening the venue", {
     address: "m1/r1/pin",

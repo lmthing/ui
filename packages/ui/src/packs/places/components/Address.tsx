@@ -24,7 +24,7 @@ export const meta = {
     parts: { copy: ["press"], directions: ["press"], call: ["press"] },
     when: { call: { callable: true } },
   },
-  read: (input): string[] => [...(input as z.output<typeof props>).lines],
+  read: (input): string[] => (input as z.output<typeof props>).lines.map((line) => JSON.stringify(line)),
 } as const satisfies c.Meta;
 
 export const props = z

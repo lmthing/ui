@@ -29,7 +29,7 @@ export const meta = {
         ({ day, from, to, closed: off }) =>
           `${weekdayNames[weekdays.indexOf(day)]}: ${off ? closed : `${c.timeOfDayLine(from, lang)}–${c.timeOfDayLine(to, lang)}`}`,
       ),
-      ...special.map(({ date, text }) => `${date}: ${text}`),
+      ...special.map(({ date, text }) => `${date}: ${JSON.stringify(text)}`),
     ];
   },
 } as const satisfies c.Meta;
