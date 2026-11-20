@@ -28,12 +28,14 @@ export const meta = {
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { guests } = input as z.output<typeof props>;
-    const parties = new Map<string, string[]>();
-    for (const guest of guests) {
-      const key = guest.party ?? guest.name;
+    const parties = new Map<string | number, { label: string; lines: string[] }>();
+    for (const [index, guest] of guests.entries()) {
+      const key = guest.party ?? index;
       const plus = guest.plus ? ` +${c.numberLine(guest.plus, lang)}` : "";
       const line = [guest.name + plus, guest.status, guest.diet].filter(Boolean).join(" · ");
-      parties.set(key, [...(parties.get(key) ?? []), line]);
+      const party = parties.get(key);
+      if (party) party.lines.push(line);
+      else parties.set(key, { label: guest.party ?? guest.name, lines: [line] });
     }
     return [
       statuses
@@ -42,7 +44,7 @@ export const meta = {
             `${status}: ${c.numberLine(guests.filter((guest) => guest.status === status).length, lang)}`,
         )
         .join(" · "),
-      ...Array.from(parties, ([party, lines]) => `${party}: ${lines.join("; ")}`),
+      ...Array.from(parties.values(), ({ label, lines }) => `${label}: ${lines.join("; ")}`),
     ];
   },
 } as const satisfies c.Meta;

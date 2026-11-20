@@ -88,6 +88,19 @@ describe("events component contracts", () => {
 });
 
 describe("events read and action contracts", () => {
+  it("does not group solo guests with namesakes or with a party that shares their name", () => {
+    const def: Definition = components.GuestList;
+    const row = { name: "Reed", plus: 0, goto: "details", status: "waiting" };
+    const input = def.props.parse({
+      guests: [row, { ...row, name: "Robin", party: "Reed" }, { ...row, status: "yes" }],
+    });
+    expect(def.meta.read?.(input, "filled").slice(1)).toEqual([
+      "Reed: Reed · waiting",
+      "Reed: Robin · waiting",
+      "Reed: Reed · yes",
+    ]);
+  });
+
   it("retains the gift photo in the contract but does not read it or the claimant in a guest no-photo list", () => {
     const def = components.Registry;
     const gift = {
