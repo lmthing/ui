@@ -57,7 +57,8 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
     if (select.mode === "flags") values[id] = index === found.index;
     else
       Object.entries(meta.actions?.items ?? {}).forEach(([part, actions]) => {
-        if (actions.includes("select")) values[part === "root" ? id : `${id}/${part}`] = undefined;
+        if (actions.includes("select") && meta.items?.edits?.[part]?.action !== "select")
+          values[part === "root" ? id : `${id}/${part}`] = undefined;
       });
   });
   [...Object.keys(select.parts ?? {}), ...Object.keys(select.choices ?? {})].forEach((part) => {
