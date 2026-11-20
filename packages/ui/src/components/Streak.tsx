@@ -69,7 +69,17 @@ export const examples = [
     count: 6,
     label: "days training recall",
     days: [true, true, true, true, true, true, false],
+  },
+  {
+    count: 6,
+    label: "days training recall",
+    days: [true, true, true, true, true, true, false],
     density: "compact",
+  },
+  {
+    count: 6,
+    label: "days training recall",
+    days: [true, true, true, true, true, true, false],
     detail: "brief",
   },
 ] satisfies z.input<typeof props>[];
