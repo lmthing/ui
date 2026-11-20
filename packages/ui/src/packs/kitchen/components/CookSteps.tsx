@@ -143,6 +143,8 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
   const { cookStepsLabels } = kitchenWordsFor(lang);
   const done = useComponentState() === "success";
   const step = steps[at - 1]!;
+  const next = <KitAction label={cookStepsLabels.next} part="next" disabled={at === steps.length} full />;
+  const back = <KitAction label={cookStepsLabels.back} kind="quiet" part="back" disabled={at === 1} full />;
   return (
     <KitCard style="inset" part="root" padded>
       <KitContent>
@@ -165,7 +167,7 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
           <KitText role="label" tone="muted" part={null}>
             {cookStepsLabels.timer}
           </KitText>
-          <KitText role="number" tabular part={null}>
+          <KitText role="number" numberScale={detail === "brief" ? "compact" : "display"} tabular part={null}>
             {clockLine(step.minutes * 60, lang)}
           </KitText>
           <KitGrid columns={2}>
@@ -176,8 +178,17 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
       )}
       {!done && (
         <KitContent group="response">
-          <KitAction label={cookStepsLabels.next} part="next" disabled={at === steps.length} full />
-          <KitAction label={cookStepsLabels.back} kind="quiet" part="back" disabled={at === 1} full />
+          {detail === "brief" ? (
+            <KitGrid columns={2}>
+              {next}
+              {back}
+            </KitGrid>
+          ) : (
+            <>
+              {next}
+              {back}
+            </>
+          )}
         </KitContent>
       )}
     </KitCard>
