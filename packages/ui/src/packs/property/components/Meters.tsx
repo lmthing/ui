@@ -9,7 +9,7 @@ import { dateTime, distinct, ref, seedLabels } from "../seeds";
 // prettier-ignore
 export const meta = {
   id: "Meters",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Record cumulative utility readings and compare usage between readings for each meter.",
   pick: "Cumulative utility meter readings and computed consumption between dated readings by meter. Not entering one number (Field), a short trend (Sparkline), body measurements (Measurements), or smart device controls (Devices).",
