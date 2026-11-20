@@ -5,6 +5,7 @@ import { localeOf } from "../lang";
 import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { itemEditAt } from "./report-edits";
+import { pickerAt } from "./live-inputs";
 
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
@@ -139,10 +140,11 @@ type ChoiceOption = { value: string | number; label?: string };
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
 export function choiceOptions(meta: Meta, props: Values, target: string): ChoiceOption[] | undefined {
   const item = itemEditAt(meta, props, target);
-  const offer = item?.spec.action === "select" ? item.spec : selectionOffer(meta, target);
+  const picker = pickerAt(meta, props, target);
+  const offer = picker?.spec ?? (item?.spec.action === "select" ? item.spec : selectionOffer(meta, target));
   if (!offer) return undefined;
   const source = offer.choices;
-  const allowed = "prop" in source ? props[source.prop] : source;
+  const allowed = "prop" in source ? (picker?.row ?? props)[source.prop] : source;
   const choices: ChoiceOption[] = [];
   if (Array.isArray(allowed)) {
     for (const option of allowed as unknown[]) {
@@ -159,7 +161,12 @@ export function choiceOptions(meta: Meta, props: Values, target: string): Choice
         choices.push({ value: option.value, label: option.label });
     }
   }
-  if ("clear" in offer && offer.clear && !choices.some(({ value }) => value === offer.clear))
+  if (
+    "clear" in offer &&
+    typeof offer.clear === "string" &&
+    offer.clear &&
+    !choices.some(({ value }) => value === offer.clear)
+  )
     choices.push({ value: offer.clear });
   return choices;
 }
