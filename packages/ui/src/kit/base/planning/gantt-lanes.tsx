@@ -144,6 +144,7 @@ export function GanttDependencies({
       width: 0,
     }),
   );
+  const anchors = [...points.values()];
   const height = (1 + rows.length + gates.length) * laneHeight;
   return (
     <YStack fullscreen aria-hidden pointerEvents="none">
@@ -154,7 +155,7 @@ export function GanttDependencies({
           return a && b && from !== to ? (
             <Path
               key={`${from}/${to}`}
-              d={dependency(a, b, width)}
+              d={dependency(a, b, width, anchors)}
               fill="none"
               stroke={theme[loading ? "line" : "muted"]?.val}
               strokeWidth={component.base.borderWidth}

@@ -41,10 +41,18 @@ it("keeps edge milestones and their full touch targets inside the timeline", () 
 it("connects the source bar's end to the destination lane in either direction", () => {
   const a = { left: 10, width: 30, index: 0 };
   const b = { left: 20, width: 30, index: 1 };
-  expect(dependency(a, b, width)).toMatch(
-    new RegExp(`^M40 ${laneHeight * 1.5} H.* V${laneHeight * 2.5 - space.sm} `),
+  expect(dependency(a, b, width, [])).toMatch(
+    new RegExp(`^M40 ${laneHeight * 1.5 + space.sm} V.* H.* V${laneHeight * 2.5 - space.sm} `),
   );
-  expect(dependency(b, a, width)).toMatch(
-    new RegExp(`^M50 ${laneHeight * 2.5} H.* V${laneHeight * 1.5 + space.sm} `),
+  expect(dependency(b, a, width, [])).toMatch(
+    new RegExp(`^M50 ${laneHeight * 2.5 - space.sm} V.* H.* V${laneHeight * 1.5 + space.sm} `),
   );
+});
+
+it("takes a clear channel beside intervening bars", () => {
+  const a = { left: 24, width: 40, index: 0 };
+  const b = { left: 74, width: 63, index: 1 };
+  const c = { left: 42, width: 63, index: 2 };
+  const d = { left: 90, width: 63, index: 3 };
+  expect(dependency(a, d, width, [b, c])).toContain(`H${c.left - space.sm} V`);
 });

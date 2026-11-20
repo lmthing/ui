@@ -24,17 +24,20 @@ function TimelineGrid({
   columns,
   lanes,
   loading,
+  width,
 }: {
   columns: readonly Column[];
   lanes: number;
   loading: boolean;
+  width: number;
 }) {
   return (
     <XStack fullscreen pointerEvents="none">
       {columns.map((column) => (
         <YStack
           key={column.id}
-          flex={component.base.bodyFlex}
+          width={width / columns.length}
+          flexShrink={component.base.none}
           minWidth={component.base.none}
           borderLeftWidth={component.base.borderWidth}
           borderColor="$line"
@@ -103,7 +106,7 @@ function GanttTimeline({
       {...(isWeb ? { role: "region", tabIndex: !loading && scrollable ? 0 : -1 } : {})}
     >
       <YStack width={width}>
-        <TimelineGrid columns={columns} lanes={rows.length + gates.length} loading={loading} />
+        <TimelineGrid columns={columns} lanes={rows.length + gates.length} {...{ loading, width }} />
         <GanttDependencies {...{ rows, gates, links, width, loading }} />
         <YStack height={laneHeight} aria-hidden />
         {[...rows, ...gates].map((entry) => (
@@ -133,14 +136,17 @@ export function KitGantt({ part = "root", loading = false, columns, rows, gates,
   return (
     <YStack {...address} aria-busy={loading || undefined} minWidth={component.base.none}>
       {empty && !loading ? (
-        <YStack
-          alignItems="center"
-          paddingTop={space.lg}
-          paddingBottom={space.xs}
-          aria-hidden
-          accessibilityElementsHidden
-        >
-          <ChartGantt size={size.icon.lg} color="$muted" />
+        <YStack alignItems="center" paddingTop={space.sm} aria-hidden accessibilityElementsHidden>
+          <YStack
+            width={size.avatar.md}
+            height={size.avatar.md}
+            borderRadius={radius.pill}
+            backgroundColor="$raised"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <ChartGantt size={size.icon.lg} color="$muted" />
+          </YStack>
         </YStack>
       ) : (
         <XStack

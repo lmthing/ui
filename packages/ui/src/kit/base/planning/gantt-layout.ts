@@ -30,14 +30,41 @@ export function milestone(at: number, width: number) {
 
 type Anchor = { left: number; width: number; index: number };
 
-export function dependency(from: Anchor, to: Anchor, timeline: number) {
+function connectorChannel(from: Anchor, to: Anchor, timeline: number, anchors: readonly Anchor[]) {
+  const inset = component.base.strongBorder;
+  const preferred = Math.max(inset, Math.min(from.left + from.width + space.xs, timeline - inset));
+  const first = Math.min(from.index, to.index);
+  const last = Math.max(from.index, to.index);
+  const obstacles = anchors.filter(({ index }) => index > first && index < last);
+  const candidates = [
+    preferred,
+    ...obstacles.flatMap(({ left, width }) => [left - space.xs, left + width + space.xs]),
+  ];
+  const clear = candidates.filter(
+    (x) =>
+      x >= inset &&
+      x <= timeline - inset &&
+      obstacles.every(({ left, width }) => x <= left - space.xs || x >= left + width + space.xs),
+  );
+  return (
+    clear.reduce<number | undefined>(
+      (nearest, x) =>
+        nearest === undefined || Math.abs(x - preferred) < Math.abs(nearest - preferred) ? x : nearest,
+      undefined,
+    ) ?? (preferred < timeline / 2 ? inset : timeline - inset)
+  );
+}
+
+export function dependency(from: Anchor, to: Anchor, timeline: number, anchors: readonly Anchor[]) {
   const x = from.left + from.width;
   const y = (from.index + 1.5) * laneHeight;
   const end = to.left + Math.min(to.width / 2, space.sm);
   const center = (to.index + 1.5) * laneHeight;
   const direction = from.index < to.index ? 1 : -1;
+  const exit = y + direction * space.sm;
+  const departure = exit + direction * space.xs;
   const tip = center - direction * space.sm;
   const approach = tip - direction * space.sm;
-  const elbow = clamp(x + space.xs, timeline - component.base.strongBorder);
-  return `M${x} ${y} H${elbow} V${approach} H${end} V${tip} M${end - space.xs / 2} ${tip - direction * space.xs} L${end} ${tip} L${end + space.xs / 2} ${tip - direction * space.xs}`;
+  const elbow = connectorChannel(from, to, timeline, anchors);
+  return `M${x} ${exit} V${departure} H${elbow} V${approach} H${end} V${tip} M${end - space.xs / 2} ${tip - direction * space.xs} L${end} ${tip} L${end + space.xs / 2} ${tip - direction * space.xs}`;
 }

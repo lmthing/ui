@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
-import { component, radius, size, space } from "../../../catalog";
+import { component, radius, size, space, type as typography } from "../../../catalog";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
@@ -16,6 +16,7 @@ type Table = {
   target?: Target;
 };
 type SeatMapProps = { part?: string; loading?: boolean; tables: readonly Table[]; tray?: ReactNode };
+const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
 
 function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
   const target = usePlanningTarget(seat.target, seat.label, loading, Boolean(seat.selected));
@@ -104,6 +105,9 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
     <YStack
       gap={space.xs}
       padding={space.md}
+      width="100%"
+      maxWidth={mapWidth}
+      alignSelf="center"
       borderRadius={shifted("lg", ks.radiusShift)}
       borderWidth={component.base.borderWidth}
       borderColor="$line"
@@ -125,10 +129,13 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
 const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: "long", seats: [] }];
 
 function SeatTray({ tray, loading }: { tray: ReactNode; loading: boolean }) {
-  const [height, setHeight] = useState<number>(size.control.md);
+  const [height, setHeight] = useState<number>(typography.label.lineHeight);
   return (
     <YStack
-      minHeight={loading ? height : size.control.md}
+      minHeight={loading ? height : typography.label.lineHeight}
+      width="100%"
+      maxWidth={mapWidth}
+      alignSelf="center"
       justifyContent="center"
       aria-hidden={loading || undefined}
       onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}

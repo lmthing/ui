@@ -63,7 +63,7 @@ it("keeps labels outside the scrolling timeline and addresses only requested ran
   expect(html).toContain("Proof");
   expect(html).not.toContain("home/c1/r3/bar");
   expect(config.getCSS()).toMatch(/border(?:-top)?-style:dashed/);
-  expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ H/g)).toHaveLength(2);
+  expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ V[\d.]+ H/g)).toHaveLength(2);
 });
 
 it("keeps range, gate and dependency geometry in loading while dropping all controls and copy", () => {
@@ -72,7 +72,7 @@ it("keeps range, gate and dependency geometry in loading while dropping all cont
   expect(board.children[0]!.children).toHaveLength(1 + rows.length + gates.length);
   expect(html).toContain('aria-busy="true"');
   expect(html).not.toMatch(/Research|Signoff|role="button"|home\/c1\/r\d/);
-  expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ H/g)).toHaveLength(2);
+  expect(html.match(/<path[^>]+d="M[\d.]+ [\d.]+ V[\d.]+ H/g)).toHaveLength(2);
   expect(render({ columns: [], rows: [], gates: [], links: [] })).toContain("<svg");
   expect(render({ columns: [], rows: [], gates: [], links: [], loading: true })).toContain("aria-busy");
 });
