@@ -25,7 +25,10 @@ export const meta = {
   },
   confirmParts: ["accept", "remove"],
   states: ["filled", "empty", "loading", "success"],
-  actions: { items: { root: ["press"], accept: ["check"], remove: ["press"] } },
+  actions: {
+    items: { root: ["press"], accept: ["check"], remove: ["press"] },
+    noGoto: { items: ["remove"] },
+  },
   successActions: ["root.press", "accept.check", "remove.press"],
   readSuccess: true,
 } as const satisfies c.Meta;

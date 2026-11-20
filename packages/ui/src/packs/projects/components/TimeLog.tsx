@@ -33,6 +33,7 @@ export const meta = {
   actions: {
     parts: { timer: ["start", "stop"], add: ["press"], export: ["press"] },
     items: { root: ["press"], remove: ["press"] },
+    noGoto: { items: ["remove"] },
     when: { "timer.start": { hasTarget: true }, export: { hasEntries: true } },
   },
   clocks: [

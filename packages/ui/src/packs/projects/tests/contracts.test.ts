@@ -74,8 +74,8 @@ it("rejects task cycles, multi-level subtasks and completion written onto parent
   expect(
     affordancesOf(def.meta, withAssignees, "t1")
       .filter(({ part }) => part === "assign")
-      .map(({ address }) => address),
-  ).toEqual(["t1/r1/assign"]);
+      .map(({ address, detail }) => [address, detail]),
+  ).toEqual([["t1/r1/assign", ""]]);
 });
 
 it("requires gate acceptance refs and keeps planned dates distinct from derived state", () => {
@@ -132,6 +132,9 @@ it("checks time entries by actual instants and requires valid week, timer target
   ).toBe(true);
   expect(def.meta.partTiers.export).toBe("service");
   expect(def.meta.confirmParts).toContain("remove");
+  const read = readComponent(def, example, "t1").join("\n");
+  expect(read).toContain("[t1/r1 press→survey_time]");
+  expect(read).toContain("[t1/r1/remove press]");
   const brief = def.examples[1]!;
   expect(def.props.parse(brief).entries[0]?.note).toBe(brief.entries[0]?.note);
   expect(readComponent(def, brief, "t1").join("\n")).not.toContain(brief.entries[0]!.note!);
@@ -150,4 +153,7 @@ it("requires testable, distinct deliverables with bounded revisions, and confirm
   ])
     expect(def.props.safeParse({ ...example, ...updates }).success).toBe(false);
   expect(def.meta.confirmParts).toEqual(expect.arrayContaining(["accept", "remove"]));
+  const read = readComponent(def, example, "s1").join("\n");
+  expect(read).toContain("[s1/r1 press→light_map]");
+  expect(read).toContain("[s1/r1/remove press]");
 });

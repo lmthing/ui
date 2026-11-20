@@ -99,6 +99,8 @@ function projectedTasks(items: Task[]) {
     return {
       ...row,
       root: row.goto,
+      // Assigning uses the host's choices rather than the row's navigation link.
+      assign: {},
       // Absence suppresses the check; false is a visible unchecked control.
       done: row.state !== undefined && !blockers.length ? row.state === "done" : undefined,
       blockers: blockers.map((ref) => byRef.get(ref)?.title ?? ref),
