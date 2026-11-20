@@ -57,8 +57,10 @@ describe("gallery overview data", () => {
     expect(variantCount(id)).toBe(cells.length * presets.length * modes.length);
   });
 
-  it("retains List's 48 previews, rather than multiplying every example by every state", () => {
-    expect(cellsOf("List")).toHaveLength(8);
-    expect(variantCount("List")).toBe(48);
+  it("shows each List example and one preview per non-filled state", () => {
+    const { examples, meta } = components.List;
+    const cells = examples.length + meta.states.filter((state) => state !== "filled").length;
+    expect(cellsOf("List")).toHaveLength(cells);
+    expect(variantCount("List")).toBe(cells * presets.length * modes.length);
   });
 });
