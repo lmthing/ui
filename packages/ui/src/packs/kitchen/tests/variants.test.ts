@@ -4,8 +4,10 @@ import { renderInstance } from "../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const variants = [
+  ["CookSteps", "detail", "full", "brief", "uses", "Olive oil"],
   ["FoodLog", "detail", "full", "brief", "amount", "1 slice"],
   ["GroceryList", "detail", "full", "brief", "by", "Sam"],
+  ["Ingredients", "detail", "full", "brief", "note", "Chopped"],
   ["MealPlan", "media", "thumb", "none", "photo", undefined],
   ["Pantry", "detail", "full", "brief", "place", "fridge"],
 ] as const;
@@ -31,7 +33,8 @@ describe.each(variants)("%s %s", (id, axis, defaultValue, alternative, part, lab
 
   it("hides just the declared part without changing ids or actions", () => {
     const baseline = addresses(input);
-    const isHidden = (address: string | undefined) => new RegExp(`/r\\d+/${part}$`).test(address ?? "");
+    const isHidden = (address: string | undefined) =>
+      new RegExp(id === "CookSteps" ? `/c1/${part}$` : `/r\\d+/${part}$`).test(address ?? "");
     expect(baseline.some(isHidden)).toBe(true);
     expect(addresses(variant)).toEqual(baseline.filter((address) => !isHidden(address)));
     expect(actions(variant)).toEqual(actions(input));

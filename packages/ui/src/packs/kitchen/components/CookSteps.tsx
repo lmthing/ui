@@ -1,4 +1,13 @@
-import { useWords, KitAction, KitCard, KitContent, KitGrid, KitText, useComponentState } from "../../../kit";
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitGrid,
+  KitText,
+  useComponentState,
+  useVariant,
+} from "../../../kit";
 import {
   wordsFor,
   itemsOf,
@@ -8,6 +17,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -26,26 +36,30 @@ export const meta = {
   pick: "Cooking mode showing one recipe instruction, its ingredients and optional timer. Not progress through screens (Steps), a lesson (Lesson), or recording chapters (ChapterList).",
   writeHints: [
     "at is the one-based current step, between 1 and steps.length. minutes belongs only to timed instructions. Do not write timer state.",
+    'If asked to hide the ingredients line, set detail to "brief" and keep the uses data. Otherwise leave detail null.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Recipe steps stored on the device; the screen stays awake while cooking.",
-  parts: ["root", "text", "uses", "next", "back", "timer"],
+  parts: ["root", "text", "uses", "next", "back", "timer", "timer_stop"],
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["uses"] } },
   states: ["filled", "success"],
   actions: {
-    parts: { timer: ["start", "stop"], next: ["press"], back: ["press"] },
+    parts: { timer: ["start"], timer_stop: ["stop"], next: ["press"], back: ["press"] },
     when: { next: { canNext: true }, back: { canBack: true } },
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const value = input as z.output<typeof props>;
-    return cookStepsReading(value.steps, value.at, lang);
+    return cookStepsReading(value.steps, value.at, lang, value.detail);
   },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     steps: z
       .array(
         z.strictObject({
@@ -62,15 +76,17 @@ export const props = z
     path: ["at"],
     message: "at must name an existing step",
   })
-  .overwrite((value) => ({
-    ...value,
-    canNext: value.at < value.steps.length,
-    canBack: value.at > 1,
-    timer:
-      value.steps[value.at - 1]?.minutes === undefined
-        ? undefined
-        : { minutes: value.steps[value.at - 1]!.minutes },
-  }));
+  .overwrite((value) => {
+    const minutes = value.steps[value.at - 1]?.minutes;
+    const timer = minutes === undefined ? undefined : { minutes };
+    return {
+      ...value,
+      canNext: value.at < value.steps.length,
+      canBack: value.at > 1,
+      timer,
+      timer_stop: timer,
+    };
+  });
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
 
@@ -81,20 +97,15 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   }));
   return { steps: steps.length ? steps : [{ text: placeholderDetail, uses: [] }], at: 1 };
 }
+// prettier-ignore
+const supper = { at: 1, steps: [
+  { text: "Gently simmer the tomato sauce until thickened.", uses: ["Tomatoes", "Olive oil"], minutes: 20 },
+  { text: "Layer the sauce and pasta.", uses: ["Lasagne sheets"] },
+  { text: "Bake until golden.", uses: [], minutes: 40 },
+] } satisfies z.input<typeof props>;
 export const examples = [
-  // Ledge: the plant keeper's household supper.
-  {
-    steps: [
-      {
-        text: "Gently simmer the tomato sauce until thickened.",
-        uses: ["Tomatoes", "Olive oil"],
-        minutes: 20,
-      },
-      { text: "Layer the sauce and pasta.", uses: ["Lasagne sheets"] },
-      { text: "Bake until golden.", uses: [], minutes: 40 },
-    ],
-    at: 1,
-  },
+  supper,
+  { ...supper, detail: "brief" },
   // Trot: breakfast before the walking round.
   {
     steps: [
@@ -113,11 +124,18 @@ export const probes = [
   write(
     "Two cooking instructions: simmer tomatoes with olive oil for 20 minutes, then layer the sauce and pasta. Start at step one",
   ),
+  {
+    ...write(
+      "Simmer tomato sauce for 20 minutes. Keep tomatoes and olive oil as ingredients, but hide the ingredients line.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Go to the next cooking instruction", { address: "c1/next", action: "press" }),
   read("Start the sauce's cooking timer", { address: "c1/timer", action: "start" }),
 ] satisfies Probe[];
 
-export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
+export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typeof meta>) {
+  const detail = useVariant("detail", meta.variants.detail, choice);
   const {
     lang,
     words: { timerLabels },
@@ -135,7 +153,7 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
           {done ? cookStepsLabels.finished : cookStepText(step.text)}
         </KitText>
       </KitContent>
-      {!done && step.uses.length > 0 && (
+      {!done && detail === "full" && step.uses.length > 0 && (
         <KitContent group="response">
           <KitText role="label" tone="muted" part="uses">
             {cookStepUses(step.uses, lang)}
@@ -152,7 +170,7 @@ export function CookSteps({ steps, at }: Props<typeof props, typeof meta>) {
           </KitText>
           <KitGrid columns={2}>
             <KitAction label={timerLabels.start} kind="secondary" part="timer" action="start" full />
-            <KitAction label={timerLabels.stop} kind="quiet" part="timer" action="stop" full />
+            <KitAction label={timerLabels.stop} kind="quiet" part="timer_stop" action="stop" full />
           </KitGrid>
         </KitContent>
       )}

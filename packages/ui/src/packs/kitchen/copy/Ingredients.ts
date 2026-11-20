@@ -3,8 +3,8 @@ import { kitchenWordsFor } from "../lang";
 
 export const { ingredientsLabels } = kitchenWordsFor();
 export const servingControls = [
-  { action: "decrement", icon: "minus", label: "less", bound: 1 },
-  { action: "increment", icon: "plus", label: "more", bound: 24 },
+  { part: "servings_less", action: "decrement", icon: "minus", label: "less", bound: 1 },
+  { part: "servings", action: "increment", icon: "plus", label: "more", bound: 24 },
 ] as const;
 
 type Unit = "g" | "kg" | "ml" | "l" | "tsp" | "tbsp" | "cup" | "piece" | "pinch" | "none";
@@ -15,11 +15,6 @@ type Ingredient = {
   note?: string | undefined;
 };
 const millilitres = { tsp: 4.92892159375, tbsp: 14.78676478125, cup: 236.5882365 } as const;
-
-/** The controller stores a step delta, not the recipe's seed servings. */
-export function servingCount(seed: number, delta: number): number {
-  return Math.max(1, Math.min(24, seed + delta));
-}
 
 function amountText(value: number, lang?: string): string {
   const quarters = Math.round(value * 4);
@@ -56,25 +51,30 @@ export function ingredientAmount(item: Ingredient, scale: number, system: "metri
 export function ingredientsReading(
   input: {
     servings: number;
+    servingsShown?: number;
+    detail?: "full" | "brief";
     system: "metric" | "us";
     groups: readonly { label?: string | undefined; items: readonly Ingredient[] }[];
   },
   lang?: string,
 ): string[] {
   const { ingredientsLabels, ingredientServings } = kitchenWordsFor(lang);
+  const shown = input.servingsShown ?? input.servings;
   let index = 0;
   return [
-    ingredientServings(numberLine(input.servings, lang), ingredientsLabels.servings),
+    ingredientServings(numberLine(shown, lang), ingredientsLabels.servings),
     ingredientsLabels.metric,
     ingredientsLabels.us,
     ingredientsLabels.shop,
     ...input.groups.flatMap((group) => [
       ...(group.label ? [group.label] : []),
       ...group.items.map((item) => {
-        const quantity = ingredientAmount(item, 1, input.system, lang);
+        const quantity = ingredientAmount(item, shown / input.servings, input.system, lang);
         return kitchenItemLine(
           index++,
-          [item.name, quantity.amount, quantity.unit, item.note].filter(Boolean).join(" "),
+          [item.name, quantity.amount, quantity.unit, input.detail !== "brief" && item.note]
+            .filter(Boolean)
+            .join(" "),
         );
       }),
     ]),
