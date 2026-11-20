@@ -29,7 +29,6 @@ const remake = { address: "t1/remake", action: "press" };
 const confirm = { address: "confirm/confirm", action: "press" };
 const cancel = { address: "confirm/cancel", action: "dismiss" };
 const impossible = { ...setup, players: setup.players.map((player) => ({ ...player, team: 0 })) };
-
 // Draft views are excluded from the generated renderer map until their probes pass.
 // prettier-ignore
 function render(input: Setup, state: StateName, thing?: string) {
@@ -39,7 +38,6 @@ function render(input: Setup, state: StateName, thing?: string) {
       createElement(PartScope, { screen: "home", component: "t1", rev: 1, state, ...(thing ? { thing } : {}), children: null },
         createElement(view.TeamPicker, stamped)))));
 }
-
 function game(input: Setup = setup, state: StateName = "empty", random = vi.fn(() => 0)) {
   const screen = { id: "home", components: [{ ...input, id: "t1", c: "TeamPicker", state }] };
   const onAction = vi.fn();
@@ -56,7 +54,7 @@ describe("TeamPicker contract and boundaries", () => {
     expect(props.parse({ players, teams })).toMatchObject({
       players,
       teams: teams.map(({ label }) => ({ label: label.trim() })),
-      style: "columns",
+      arrange: "strip",
     });
     expectTypeOf<Props<typeof props, typeof meta>["players"][number]["id"]>().toEqualTypeOf<string>();
   });
@@ -89,6 +87,7 @@ describe("TeamPicker contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "TeamPicker" }),
       expect.objectContaining({ kind: "choose", expect: "Choice" }),
       expect.objectContaining({ kind: "write", expect: "TeamPicker" }),
+      expect.objectContaining({ kind: "write", variant: { axis: "arrange", value: "rows" } }),
       expect.objectContaining({ kind: "read", expect: make }),
       expect.objectContaining({ kind: "read", expect: remake }),
     ]);

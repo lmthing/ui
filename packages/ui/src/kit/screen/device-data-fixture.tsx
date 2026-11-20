@@ -9,12 +9,19 @@ import {
   type DeviceData,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitText, useDeviceData, useKit } from "@lmthing/ui/kit";
+import { KitAction, KitText, renderers as kitRenderers, useDeviceData, useKit } from "@lmthing/ui/kit";
 import { config } from "../../../../../apps/gallery";
 import { PhoneScreen } from "./PhoneScreen";
 
 const theme = { preset: "calm", accent: "moss", mode: "light" } satisfies ThemeChoice;
-const screen = { id: "home", components: [{ id: "c1", c: "Fixture" }] };
+const screen = {
+  id: "home",
+  components: [
+    { id: "c1", c: "Fixture" },
+    { id: "c2", c: "GatedFixture", goto: "detail" },
+    { id: "c3", c: "Button", label: "Continue", goto: "detail" },
+  ],
+};
 const before = { readings: ["Before"] };
 const after = { readings: ["After"] };
 let release = () => {};
@@ -23,6 +30,7 @@ const gate = new Promise<void>((resolve) => {
 });
 const labelOf = (data?: DeviceData) => String(data?.readings?.[0] ?? "");
 const defs = {
+  Button: components.Button,
   Fixture: {
     ...components.Header,
     props: z.strictObject({}),
@@ -31,6 +39,17 @@ const defs = {
       id: "Fixture",
       deviceData: ["readings"],
       read: (_input, _state, _lang, data) => [labelOf(data)],
+    },
+  } satisfies Definition,
+  GatedFixture: {
+    ...components.Button,
+    props: z.strictObject({ goto: z.string() }),
+    meta: {
+      ...components.Button.meta,
+      id: "GatedFixture",
+      deviceData: ["readings"],
+      deviceDataVisible: (data) => labelOf(data) === "Before",
+      confirmParts: ["root"],
     },
   } satisfies Definition,
 };
@@ -47,7 +66,11 @@ function Fixture() {
   }
   return <KitText>{label}</KitText>;
 }
-const renderers = { Fixture };
+const renderers = {
+  Fixture,
+  GatedFixture: () => <KitAction label="Open" part="root" />,
+  Button: kitRenderers.Button,
+};
 
 function Scenario() {
   const [deviceData, setDeviceData] = useState(before);
@@ -55,6 +78,7 @@ function Scenario() {
     <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
       <button onClick={() => startTransition(() => setDeviceData(after))}>Update snapshot</button>
       <button onClick={() => release()}>Finish rendering</button>
+      <button onClick={() => setDeviceData(before)}>Restore snapshot</button>
       <Suspense fallback={null}>
         <PhoneScreen {...{ defs, renderers, screen, theme, deviceData }} />
       </Suspense>
