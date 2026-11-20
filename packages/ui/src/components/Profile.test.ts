@@ -18,14 +18,12 @@ describe("Profile schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
+  // prettier-ignore
   it("applies defaults and trims text", () => {
-    expect(props.parse({ name: "  Monstera  " })).toEqual({ style: "row", name: "Monstera" });
-    expect(props.parse({ name: " Clover ", meta: " Beagle · 4 years ", photo: "lib:dogs" })).toEqual({
-      style: "row",
-      name: "Clover",
-      meta: "Beagle · 4 years",
-      photo: "lib:dogs",
-    });
+    const finish = { align: "start", detail: "full", media: "thumb" };
+    expect(props.parse({ name: "  Monstera  " })).toEqual({ ...finish, name: "Monstera" });
+    expect(props.parse({ name: " Clover ", meta: " Beagle · 4 years ", photo: "lib:dogs" }))
+      .toEqual({ ...finish, name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" });
   });
   it.each([
     {},
@@ -42,22 +40,24 @@ describe("Profile schema", () => {
     { name: "Clover", photo: "local:dog" },
     { name: "Clover", photo: "" },
     { name: "Clover", style: "grid" },
+    { name: "Clover", align: "centered" },
+    { name: "Clover", media: "cover" },
     { name: "Clover", color: "red" },
     { name: "Clover", pixels: 4 },
     { name: "Clover", goto: "clover" },
     { name: "Clover", id: "p1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts exact maximum lengths and reference forms in both styles", () => {
-    for (const style of ["row", "centered"]) {
+  it("accepts exact maximum lengths and reference forms at either alignment", () => {
+    for (const align of ["start", "center"]) {
       expect(
         props.safeParse({
-          style,
+          align,
           name: "a".repeat(32),
           meta: "a".repeat(48),
           photo: `lib:${"a".repeat(60)}`,
         }).success,
       ).toBe(true);
-      expect(props.safeParse({ style, name: "Clover", photo: "local:1" }).success).toBe(true);
+      expect(props.safeParse({ align, name: "Clover", photo: "local:1" }).success).toBe(true);
     }
   });
   it("infers view props without item ids, actions or visual controls", () => {
@@ -65,7 +65,7 @@ describe("Profile schema", () => {
     expectTypeOf<ViewProps["name"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps["meta"]>().toEqualTypeOf<string | undefined>();
     expectTypeOf<ViewProps["photo"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"row" | "centered">();
+    expectTypeOf<ViewProps["align"]>().toEqualTypeOf<"start" | "center">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -110,19 +110,17 @@ const casts: CastLike[] = [
 describe("Profile fallback and metadata", () => {
   it("uses the first cast item, declared fields and shared neutral placeholders", () => {
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
-    const neutral = { style: "row", name: placeholderTitle(0), meta: placeholderDetail };
+    const neutral = { name: placeholderTitle(0), meta: placeholderDetail };
     expect(fallback({ cast: casts[0]! })).toEqual(neutral);
-    expect(fallback({ cast: casts[1]! })).toEqual({ style: "row", name: "Monstera", meta: "Living room" });
-    expect(fallback({ cast: casts[2]! })).toEqual({ style: "row", name: "Clover", meta: "Beagle · 4 years" });
-    expect(fallback({ cast: casts[3]! })).toEqual({ style: "row", name: "First", meta: "Second" });
+    expect(fallback({ cast: casts[1]! })).toEqual({ name: "Monstera", meta: "Living room" });
+    expect(fallback({ cast: casts[2]! })).toEqual({ name: "Clover", meta: "Beagle · 4 years" });
+    expect(fallback({ cast: casts[3]! })).toEqual({ name: "First", meta: "Second" });
     expect(fallback({ cast: casts[4]! })).toEqual({
-      style: "row",
       name: "x".repeat(32),
       meta: "y".repeat(48),
     });
     expect(fallback({ cast: casts[5]! })).toEqual(neutral);
     expect(fallback({ cast: casts[6]! })).toEqual({
-      style: "row",
       name: "Only a name",
       meta: placeholderDetail,
     });
@@ -141,35 +139,34 @@ describe("Profile fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Profile")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Header")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(1);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Profile" });
-    expect(examples.map((example) => example.style)).toEqual(["row", "centered"]);
+    expect(props.parse(examples[1]).align).toBe("center");
   });
   it("builds a data-only registry with case and separator tolerant ids", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Profile");
     expect(registry.schema("Profile")).toBe(props);
     expect(registry.resolve("p-r-o-f-i-l-e")).toBe("Profile");
-    expect(registry.resolve("p-r-o-f-i-l-e")).toBe("Profile");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
 });
 
 describe("Profile view", () => {
-  it.each(["row", "centered"] as const)("draws only present parts and offers no actions: %s", (style) => {
+  it.each(meta.variants.align)("preserves photo, name and meta addresses at %s alignment", (align) => {
     for (const optional of [
       {},
       { meta: "Beagle · 4 years" },
       { photo: "lib:dogs" },
       { meta: "Beagle · 4 years", photo: "local:1" },
     ]) {
-      const input = { style, name: "Clover", ...optional };
+      const input = { align, name: "Clover", ...optional };
       const parsed = props.parse(input);
       const html = renderInstance("Profile", input, "filled", theme);
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       expect(html).toContain('data-testid="home/c1/name"');
       expect(html.includes('data-testid="home/c1/meta"')).toBe(Boolean(parsed.meta));
-      expect(html.includes('data-testid="home/c1/photo"')).toBe(style === "row" || Boolean(parsed.photo));
+      expect(html).toContain('data-testid="home/c1/photo"');
       expect(html.includes('role="img"')).toBe(Boolean(parsed.photo));
       if (parsed.photo) expect(html).toContain('aria-label="Clover"');
       expect(html).not.toContain('role="button"');
@@ -181,18 +178,23 @@ describe("Profile view", () => {
       expect(read).not.toContain(" press");
     }
   });
-  it.each(["row", "centered"] as const)(
-    "shows a loading skeleton without stale identity parts: %s",
-    (style) => {
-      const input = { style, name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" };
-      const html = renderInstance("Profile", input, "loading", theme);
-      expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      expect(html).toContain('aria-busy="true"');
-      expect(html).not.toContain("Clover");
-      for (const part of ["name", "meta", "photo"])
-        expect(html).not.toContain(`data-testid="home/c1/${part}"`);
-      const read = readComponent(components.Profile, input, "c1", "loading");
-      expect(read).toEqual([`c1 Profile${style === "centered" ? "[centered]" : ""} (loading)`]);
-    },
-  );
+  it.each(meta.variants.align)("shows a loading skeleton without stale identity parts: %s", (align) => {
+    const input = { align, name: "Clover", meta: "Beagle · 4 years", photo: "lib:dogs" };
+    const html = renderInstance("Profile", input, "loading", theme);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(html).toContain('aria-busy="true"');
+    expect(html).not.toContain("Clover");
+    for (const part of ["name", "meta", "photo"]) expect(html).not.toContain(`data-testid="home/c1/${part}"`);
+    const read = readComponent(components.Profile, input, "c1", "loading");
+    expect(read).toEqual(["c1 Profile (loading)"]);
+  });
+});
+
+it("hides only the declared content parts and supporting reading", () => {
+  const input = { ...examples[0], detail: "brief", media: "none" };
+  const html = renderInstance("Profile", input, "filled", theme);
+  for (const { hides } of Object.values(meta.variantParts))
+    for (const part of hides) expect(html).not.toContain(`data-testid="home/c1/${part}"`);
+  expect(html).toContain('data-testid="home/c1/name"');
+  expect(readComponent(components.Profile, input, "p1").join("\n")).not.toContain(examples[0]!.meta);
 });

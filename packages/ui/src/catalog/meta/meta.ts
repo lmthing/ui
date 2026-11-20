@@ -14,6 +14,17 @@ type Draw =
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type NumericSets = Readonly<Record<string, NumericSet>>;
+type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
+type LinkedEdits = {
+  inputs: Readonly<Record<string, { prop: string; max: number }>>;
+  swap: { part: string; sides: readonly [string, string] };
+  /** Project display text and related props from the exact source edit and current order. */
+  project: (
+    props: Readonly<Record<string, unknown>>,
+    state: LinkedEditState,
+    data: DeviceData,
+  ) => Record<string, unknown>;
+};
 type RowSelection = "index" | "position" | { field: string };
 type ChoiceSource = readonly (string | number)[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
@@ -121,6 +132,8 @@ export type Meta = {
   select?: SelectMeta;
   /** Named component parts with independent destinations and explicit offers. */
   selections?: Readonly<Record<string, NamedSelection>>;
+  /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
+  linkedEdits?: LinkedEdits;
   live?: LiveActionInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];

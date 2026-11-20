@@ -12,10 +12,11 @@ it("shares unit labels with the reader, without exposing hidden status text in b
 });
 
 it("uses the registered pack language and falls back to English", () => {
-  const { path } = learningWordsFor();
+  const words = learningWordsFor();
   const unregister = registerLearningWords("fr", {
+    ...words,
     path: {
-      ...path,
+      ...words.path,
       status: { done: "Terminé", current: "Commencer", locked: "Verrouillé" },
       milestone: "Jalon",
     },

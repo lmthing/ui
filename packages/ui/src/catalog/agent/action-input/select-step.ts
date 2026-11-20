@@ -1,4 +1,5 @@
 import type { Definition } from "../../probes";
+import type { DeviceData } from "../device-data";
 import {
   liveProps,
   parseControlProps,
@@ -26,6 +27,7 @@ export function selectStep(
   step: ActStep,
   address: string,
   values: Values,
+  data?: DeviceData,
 ) {
   if (step.action !== "select") return { step };
   const [id, ...parts] = address.split("/");
@@ -38,7 +40,8 @@ export function selectStep(
   const local = localValues(screen.id, values);
   const get = (part: string) => local[`${id}/${part}`];
   let props = parseControlProps(def, raw, get);
-  if (Object.hasOwn(def.meta.selections ?? {}, target)) props = liveProps(def.meta, props, id!, local, true);
+  if (Object.hasOwn(def.meta.selections ?? {}, target))
+    props = liveProps(def.meta, props, id!, local, true, data);
   else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
   props = sessionActionProps(def.meta, props, sessionState(def.meta, props, get));
   const error = selectionError(def.meta, props, target, step.value);
