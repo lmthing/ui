@@ -1,6 +1,7 @@
 import type { LDMLPluralRule } from "../../../catalog";
 
 export type DataWords = {
+  activityLabel: (who: string, text: string, time: string) => string;
   bulkSelectAll: string;
   bulkSelected: (count: string) => string;
   chartLatest: string;
@@ -18,6 +19,7 @@ export type DataWords = {
 };
 
 export const en = {
+  activityLabel: (who, text, time) => `${who}: ${text} (${time})`,
   bulkSelectAll: "Select all",
   bulkSelected: (count) => `${count} selected`,
   chartLatest: "Latest values",
