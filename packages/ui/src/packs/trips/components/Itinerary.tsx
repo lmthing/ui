@@ -1,69 +1,46 @@
 import { z } from "zod";
+// prettier-ignore
 import {
-  clock,
-  dateLocaleOf,
-  detailOf,
-  durationLine,
-  isoDate,
-  itemsOf,
-  placeholderTitle,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  timeOfDayLine,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
+  clock, detailOf, formatAddress, isoDate, itemsOf, placeholderTitle, probesFor, screenId,
+  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
+import * as kit from "../../../kit";
+import { initialItineraryDay, itineraryDate, itineraryStopCopy, readItinerary } from "../copy";
+import { tripsWordsFor } from "../lang";
 
 const maxStops = 6;
 const stopParts = Array.from({ length: maxStops }, (_, i) => `stop_${i + 1}`);
+const durationParts = Array.from({ length: maxStops }, (_, i) => `duration_${i + 1}`);
+const timeParts = stopParts.map((part) => `${part}_time`);
 const stopActions = Object.fromEntries(stopParts.map((part) => [part, ["press"] as const]));
+const icons = { stop: "pin", travel: "train", meal: "utensils", stay: "bed" } as const;
 
 // Core first: Timeline/day cannot nest timed stops and travel legs under independently foldable dates.
 export const meta = {
   id: "Itinerary",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See the whole trip day by day, including stops and travel between them.",
   pick: "A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).",
   writeHints: [
     "Use 1–14 dated days and 1–6 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
+    'To hide travel durations without losing the values, use detail "brief" and keep minutes on each travel stop.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "The plan lives on the device; sharing it needs a shared app.",
-  variants: { density: ["comfortable", "compact"] },
-  parts: ["root"],
-  items: { key: "days", parts: ["root", "date", "place", ...stopParts] },
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: durationParts } },
+  parts: ["root", "title"],
+  items: { key: "days", parts: ["root", "date", "place", ...stopParts, ...timeParts, ...durationParts] },
   states: ["filled", "empty"],
   actions: { items: { root: ["toggle"], ...stopActions } },
   read: (input, state, lang) => {
     if (state !== "filled") return [];
-    const formatter = new Intl.DateTimeFormat(dateLocaleOf(lang), {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      timeZone: "UTC",
-    });
-    return (input as { days: z.output<typeof day>[] }).days.map(({ date, place, stops }) => {
-      const when = formatter.format(new Date(`${date}T00:00:00Z`));
-      const list = stops.map(({ time, title, minutes }) =>
-        [
-          time && timeOfDayLine(time, lang),
-          JSON.stringify(title),
-          minutes === undefined ? undefined : durationLine(minutes, lang),
-        ]
-          .filter(Boolean)
-          .join(" "),
-      );
-      return `${when} ${JSON.stringify(place)}: ${list.join(", ")}`;
-    });
+    const { days, detail } = input as { days: z.output<typeof day>[]; detail?: string };
+    return readItinerary(days, detail !== "brief", lang);
   },
 } as const satisfies Meta;
 
@@ -112,6 +89,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+// prettier-ignore
 export const examples = [
   {
     days: [
@@ -120,14 +98,14 @@ export const examples = [
         place: "Tokyo",
         stops: [
           { time: "09:00", title: "Shinjuku Gyoen", kind: "stop", goto: "garden" },
-          { time: "12:30", title: "Lunch at the market", kind: "meal", goto: "market" },
+          { time: "16:00", title: "Train to Kyoto", kind: "travel", minutes: 130, goto: "train" },
         ],
       },
       {
         date: "2027-03-05",
         place: "Kyoto",
         stops: [
-          { time: "08:30", title: "Train to Kyoto", kind: "travel", minutes: 130, goto: "train" },
+          { time: "08:30", title: "Walk the Philosopher’s Path", kind: "stop", goto: "path" },
           { title: "Check in at the inn", kind: "stay", goto: "inn" },
         ],
       },
@@ -139,7 +117,11 @@ export const examples = [
       {
         date: "2027-05-10",
         place: "Inverness",
-        stops: [{ time: "10:00", title: "River Ness walk", kind: "stop", goto: "river" }],
+        stops: [
+          { time: "10:00", title: "River Ness walk", kind: "stop", goto: "river" },
+          { time: "12:30", title: "Lunch at the market", kind: "meal", goto: "market" },
+          { title: "Check in by the river", kind: "stay", goto: "stay" },
+        ],
       },
     ],
   },
@@ -152,5 +134,62 @@ export const probes = [
   write(
     "Plan two collapsible days: Tokyo on 2027-03-04, garden visit at 09:00 linking to garden; Kyoto on 2027-03-05, 130-minute train at 08:30 linking to train.",
   ),
+  {
+    ...write(
+      "Plan 2027-03-05 in Kyoto. The 08:30 train to Kyoto takes 130 minutes and opens train. Keep the duration in its data, but hide it from the day’s rows.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open the Shinjuku Gyoen stop", { address: "i1/r1/stop_1", action: "press" }),
 ] satisfies Probe[];
+
+type ItineraryProps = Props<typeof props, typeof meta>;
+type DayProps = Pick<ItineraryProps, "density" | "detail">;
+
+// prettier-ignore
+function ItineraryDay({ day, initial, density, detail }: DayProps & { day: ItineraryProps["days"][number]; initial: boolean }) {
+  const scope = kit.usePartContext(), { controller } = kit.useKit();
+  const toggled = kit.useControlValue(formatAddress({ ...scope, item: day.id }), false);
+  // Like List/expand, static rendering exposes the full content; a phone folds it.
+  const open = !controller || initial !== toggled;
+  const { lang, words } = kit.useWords(tripsWordsFor);
+  const date = itineraryDate(day.date, lang);
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitRow item={day.id} part="root" label={words.itinerary.dayLabel(date, day.place)}
+        role="button" expanded={open} density={density} lineRole="heading"
+        trailing={<kit.KitIcon name={open ? "minus" : "plus"} decorative />}>
+        <kit.KitText part="place" role="heading" density={density}>{day.place}</kit.KitText>
+        <kit.KitText part="date" role="label" tone="muted" density={density}>{date}</kit.KitText>
+      </kit.KitRow>
+      {open && day.stops.map((stop, index) => {
+        const part = stopParts[index]!;
+        const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
+        return <kit.KitRow key={part} item={day.id} {...{ part, density }} goto={stop.goto} label={stop.title}
+          leading={<kit.KitTime value={time ?? words.itinerary.untimed} part={timeParts[index]!} />}
+          trailing={<kit.KitIcon name={icons[stop.kind]} decorative />}>
+          <kit.KitText density={density} part={null}>{stop.title}</kit.KitText>
+          {duration && <kit.KitText part={durationParts[index]!} role="label" tone="muted" density={density}>{duration}</kit.KitText>}
+        </kit.KitRow>;
+      })}
+    </kit.KitContent>
+  );
+}
+
+export function Itinerary(input: ItineraryProps) {
+  const { days, detail, surface } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const state = kit.useComponentState();
+  const current = initialItineraryDay(days, new Date());
+  return (
+    <kit.KitCard {...{ density, surface }} part="root">
+      {state === "empty" ? (
+        <kit.KitEmpty icon="calendar_days" decorativeIcon />
+      ) : (
+        days.map((day, index) => (
+          <ItineraryDay key={day.id} {...{ day, density, detail }} initial={index === current} />
+        ))
+      )}
+    </kit.KitCard>
+  );
+}
