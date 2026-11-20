@@ -51,7 +51,8 @@ export function readAffordances(
       options &&
       options.map(({ label, value }) => ({
         value,
-        offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
+        offered:
+          label !== undefined && resolveChoice(options, label, !!picker)?.value === value ? label : value,
       }));
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);

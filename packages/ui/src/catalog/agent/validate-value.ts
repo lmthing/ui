@@ -175,15 +175,17 @@ export function choiceValues(meta: Meta, props: Values, target: string): unknown
   return choiceOptions(meta, props, target)?.map(({ value }) => value);
 }
 
-export function resolveChoice(choices: ChoiceOption[], explicit: unknown) {
-  if (isChoiceValue(explicit) && choices.some(({ value }) => value === explicit)) return { value: explicit };
-  if (typeof explicit !== "string") return undefined;
+export function resolveChoice(choices: ChoiceOption[], explicit: unknown, preferLabel = false) {
+  if (!isChoiceValue(explicit)) return undefined;
+  const exact = choices.find(({ value }) => value === explicit);
+  if (!preferLabel && exact) return { value: exact.value };
   let matched: string | number | undefined;
   for (const { label, value } of choices) {
-    if (label !== explicit) continue;
+    if ((preferLabel ? (label ?? String(value)) : label) !== explicit) continue;
     // Never silently pick a different option when two values share a visible label.
     if (matched !== undefined && matched !== value) return undefined;
     matched = value;
   }
-  return matched === undefined ? undefined : { value: matched };
+  const value = matched ?? exact?.value;
+  return value === undefined ? undefined : { value };
 }

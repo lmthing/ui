@@ -17,7 +17,7 @@ import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
 import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
-import { stageInlineInputs } from "./live-inputs";
+import { stageInlinePress } from "./live-inputs";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -90,7 +90,9 @@ function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
-      def.meta.items?.edits ||
+      items?.edits ||
+      items?.pickers ||
+      def.meta.clear ||
       def.meta.signOff ||
       hasPlaybackClock(def.meta)
         ? state
@@ -171,7 +173,8 @@ export function planAct(
     if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
     if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
-    stageInlineInputs(screen, defs, resolved, Object.assign(next, selected.changes));
+    stageInlinePress(screen, defs, resolved, next);
+    Object.assign(next, selected.changes);
     if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
     const validate = limits || edit?.adjustment || adjusted || selected.declared;

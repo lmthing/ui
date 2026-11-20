@@ -4,7 +4,7 @@ import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
 import { projectPickers } from "./pickers";
-export { pickerAt, pickerKey, stageInlineInputs } from "./pickers";
+export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
 export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;

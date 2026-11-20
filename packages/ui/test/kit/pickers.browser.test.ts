@@ -55,7 +55,7 @@ it("opens, selects and clears by tap and by agent through the same mounted item 
     .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-testid")));
   expect(ids.length).toBe(new Set(ids).size);
   expect(ids.filter((id) => id?.includes("/r1/"))).toEqual([part("r1/root")]);
-  await page.getByRole("radio", { name: "Living room" }).click();
+  await page.getByRole("button", { name: "Living room" }).click();
   expect(await room.textContent()).toBe("Room: Living room");
   expect(await room.getAttribute("aria-expanded")).toBe("false");
   expect(await act({ address: "filters/r2", action: "press" })).toMatchObject({ ok: true });
@@ -78,6 +78,32 @@ it("opens, selects and clears by tap and by agent through the same mounted item 
   expect(await at("field").inputValue()).toBe("");
   expect(await room.textContent()).toBe("Room");
   expect(await at("sort").textContent()).toBe("Oldest first");
+});
+
+it("supports keyboard activation and returns focus to the picker trigger", async () => {
+  await page.goto(url());
+  const room = at("r1/root");
+  await room.press("Enter");
+  expect(await room.getAttribute("aria-expanded")).toBe("true");
+  await page.keyboard.press("Tab");
+  await page.keyboard.press("Tab");
+  expect(await page.evaluate(() => document.activeElement?.textContent)).toBe("Living room");
+  await page.keyboard.press("Space");
+  expect(await room.textContent()).toBe("Room: Living room");
+  expect(await room.getAttribute("aria-expanded")).toBe("false");
+  expect(await page.evaluate(() => document.activeElement?.getAttribute("data-testid"))).toBe(
+    part("r1/root"),
+  );
+});
+
+it("shows picker controls as disabled when metadata gates their actions", async () => {
+  await page.goto(url("?gate"));
+  expect(await at("r1/root").isDisabled()).toBe(true);
+  await at("r2/root").click();
+  expect(await page.getByRole("button", { name: "Low light" }).isDisabled()).toBe(true);
+  expect(await act({ address: "filters/r2", action: "select", value: "Low light" })).toMatchObject({
+    ok: false,
+  });
 });
 
 it("captures picker look sheets and passes the shared visual checks", async () => {

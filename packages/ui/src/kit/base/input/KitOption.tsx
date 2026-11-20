@@ -1,4 +1,4 @@
-import { XStack, YStack, styled } from "tamagui";
+import { XStack, YStack, isWeb, styled } from "tamagui";
 import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
 import { component, pickerKey, radius, size, space, type as typography } from "../../../catalog";
 import type { IconName } from "../../../catalog";
@@ -132,35 +132,38 @@ const PickerRow = styled(XStack, {
   minHeight: size.control.md,
   paddingHorizontal: space.md,
   gap: space.sm,
+  borderWidth: component.base.none,
+  backgroundColor: "transparent",
 });
+const button = isWeb ? ({ tag: "button", type: "button" } as const) : {};
 function Picker({ title, choices, selected }: PickerProps) {
   const { screen, component: instance, item } = usePartContext();
   const kit = useKit();
-  const ks = useKitStyle();
+  const corners = shifted("md", useKitStyle().radiusShift);
   const loading = useComponentState() === "loading";
   const address = usePart("root", !loading);
   const open = useControlValue<string | undefined>(`${screen}/${instance}/${pickerKey}`, undefined);
-  if (loading)
-    return <PickerRow aria-hidden backgroundColor="$line" borderRadius={shifted("md", ks.radiusShift)} />;
-  const enabled = kit.interactive && !!kit.controller && choices.length > 0;
-  const expanded = enabled && open === item;
+  if (loading) return <PickerRow aria-hidden backgroundColor="$line" borderRadius={corners} />;
+  const actions = kit.interactive && choices.length ? kit.controller?.actionsAt(address.testID) : undefined;
+  const enabled = !!actions?.includes("press");
+  const canChoose = !!actions?.includes("select");
+  const expanded = Boolean(actions && open === item);
   const Chevron = expanded ? ChevronUp : ChevronDown;
   const label = selected ? `${title}: ${selected}` : title;
-  const corners = shifted("md", ks.radiusShift);
   const choose = (value: string) => {
-    const result = kit.controller!.act({ address: address.testID, action: "select", value });
-    const trigger = address.ref.current;
-    if (result.ok && trigger && "focus" in trigger && typeof trigger.focus === "function") trigger.focus();
+    if (kit.controller!.act({ address: address.testID, action: "select", value }).ok)
+      (address.ref.current as { focus?: () => void } | null)?.focus?.();
   };
   return (
     <YStack gap={space.xs}>
       <PickerRow
+        {...button}
         {...address}
         borderRadius={corners}
         backgroundColor={selected ? "$accentSoft" : "$raised"}
         accessibilityRole="button"
         aria-expanded={expanded}
-        aria-disabled={!enabled || undefined}
+        disabled={!enabled}
         accessibilityLabel={label}
         {...(enabled ? { onPress: () => kit.controller!.press(address.testID) } : {})}
       >
@@ -168,13 +171,15 @@ function Picker({ title, choices, selected }: PickerProps) {
         <Chevron color="$muted" size={size.icon.sm} aria-hidden />
       </PickerRow>
       {expanded && (
-        <YStack role="radiogroup" aria-label={title} borderRadius={corners} backgroundColor="$raised">
+        <YStack role="group" aria-label={title} borderRadius={corners} backgroundColor="$raised">
           {choices.map((label) => (
             <PickerRow
               key={label}
-              accessibilityRole="radio"
-              aria-checked={label === selected}
-              onPress={() => choose(label)}
+              {...button}
+              accessibilityRole="button"
+              aria-pressed={label === selected}
+              disabled={!canChoose}
+              onPress={canChoose ? () => choose(label) : undefined}
             >
               <KitText role="label" part={null} children={label} />
               {label === selected && <KitIcon name="check" tone="accent" scale="sm" decorative />}

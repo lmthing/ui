@@ -48,6 +48,20 @@ const mode = params.get("mode") === "dark" ? "dark" : "light";
 const columns = params.has("w") ? presets.map(({ id }) => id) : (["calm"] as const);
 const store = (open: boolean) => createInteractionStore(open ? { [part("$picker")]: "r1" } : {});
 const renderers = { PickerFixture: Filters };
+const fixtureDefs = params.has("gate")
+  ? {
+      PickerFixture: {
+        ...defs.PickerFixture,
+        meta: {
+          ...meta,
+          actions: {
+            ...meta.actions,
+            when: { "root.press": { title: "Light" }, "root.select": { title: "Room" } },
+          },
+        },
+      },
+    }
+  : defs;
 function Frame({ preset, open }: { preset: ThemeChoice["preset"]; open: boolean }) {
   const theme = { preset, mode, accent: "moss" } satisfies ThemeChoice;
   return (
@@ -59,7 +73,7 @@ function Frame({ preset, open }: { preset: ThemeChoice["preset"]; open: boolean 
         dataSet={{ lookFrame: `${preset}-${open ? "open" : "closed"}` }}
       >
         <PhoneScreen
-          defs={defs}
+          defs={fixtureDefs}
           renderers={renderers}
           screen={screen}
           theme={theme}

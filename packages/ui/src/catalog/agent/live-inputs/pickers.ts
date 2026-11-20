@@ -59,34 +59,33 @@ function clearInputs(
   }
 }
 
-function stagePickerInputs(meta: Meta, props: Values, step: ActStep, values: Values, screen: string) {
-  const [id, ...parts] = step.address.split("/");
-  const target = parts.join("/") || "root";
-  const put = (key: string, value: unknown) => (values[`${screen}/${key}`] = value);
-  const open = `${id}/${pickerKey}`;
-  if (step.action === "press") {
-    if (pickerAt(meta, props, target)) put(open, values[`${screen}/${open}`] === target ? undefined : target);
-    else if (Object.hasOwn(meta.clear ?? {}, target)) {
-      clearInputs(meta, props, target, id!, put);
-      put(open, undefined);
-    }
-  } else if (step.action === "select" && pickerAt(meta, props, target)) {
-    put(`${id}/${selectionKey(target)}`, step.value);
-    if (values[`${screen}/${open}`] === target) put(open, undefined);
-  }
+export function pickerSelectionChanges(base: string, target: string, value: string | number, values: Values) {
+  const open = `${base}/${pickerKey}`;
+  return {
+    [`${base}/${selectionKey(target)}`]: value,
+    ...(values[open] === target ? { [open]: undefined } : {}),
+  };
 }
 
-export function stageInlineInputs(
+export function stageInlinePress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   step: ActStep,
   values: Values,
 ) {
-  if (step.action !== "press" && step.action !== "select") return;
-  const id = step.address.split("/")[0]!;
+  if (step.action !== "press") return;
+  const [id, ...parts] = step.address.split("/");
+  const target = parts.join("/") || "root";
   const { id: _id, c, state: _state, ...raw } = screen.components.find((entry) => entry.id === id)!;
   const def = defs[c]!;
   if (!def.meta.clear && !def.meta.items?.pickers) return;
-  const props = parseControlProps(def, raw, (part) => values[`${screen.id}/${id}/${part}`]);
-  stagePickerInputs(def.meta, props, step, values, screen.id);
+  const put = (key: string, value: unknown) => (values[`${screen.id}/${key}`] = value);
+  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
+  const props = parseControlProps(def, raw, get);
+  if (pickerAt(def.meta, props, target))
+    put(`${id}/${pickerKey}`, get(pickerKey) === target ? undefined : target);
+  else if (Object.hasOwn(def.meta.clear ?? {}, target)) {
+    clearInputs(def.meta, props, target, id!, put);
+    put(`${id}/${pickerKey}`, undefined);
+  }
 }

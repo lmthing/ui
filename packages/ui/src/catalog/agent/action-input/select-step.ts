@@ -1,7 +1,7 @@
 import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
 import { itemEditSpec } from "../report-edits";
-import { pickerAt } from "../live-inputs";
+import { pickerAt, pickerSelectionChanges } from "../live-inputs";
 import {
   choiceOptions,
   liveProps,
@@ -49,11 +49,12 @@ export function selectStep(
     props = liveProps(def.meta, props, id!, local, true, data);
   else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
   props = sessionActionProps(def.meta, props, sessionState(def.meta, props, get));
-  if (item || pickerAt(def.meta, props, target)) {
-    const selected = resolveChoice(choiceOptions(def.meta, props, target) ?? [], step.value);
-    return selected
-      ? { step: { ...step, value: selected.value } }
-      : { step, error: "Select an allowed value at this address" };
+  const picker = pickerAt(def.meta, props, target);
+  if (item || picker) {
+    const selected = resolveChoice(choiceOptions(def.meta, props, target) ?? [], step.value, !!picker);
+    if (!selected) return { step, error: "Select an allowed value at this address" };
+    const changes = picker && pickerSelectionChanges(`${screen.id}/${id}`, target, selected.value, values);
+    return { step: { ...step, value: selected.value }, changes };
   }
   if (!def.meta.select && !offer) return { step };
   const error = selectionError(def.meta, props, target, step.value);

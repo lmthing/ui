@@ -50,3 +50,54 @@ it("clears live and seeded inputs in one commit, keeping sort and dropping error
     controller.dispose();
   }
 });
+
+it("rejects a schema-incompatible wire sort without throwing", () => {
+  const definition = defs.PickerFixture;
+  const wireSort = {
+    PickerFixture: {
+      ...definition,
+      meta: {
+        ...definition.meta,
+        selections: {
+          sort: { prop: "order", choices: ["random"] },
+        },
+      },
+    },
+  };
+  expect(planAct(screen, wireSort, {}, [{ ...sort, value: "random" }])).toMatchObject({
+    ok: false,
+    code: "invalid_value",
+  });
+});
+
+it("does not offer picker-only actions while loading", () => {
+  const definition = defs.PickerFixture;
+  const { live: _live, clear: _clear, ...meta } = definition.meta;
+  const pickerOnly = { PickerFixture: { ...definition, meta } };
+  const loading = { ...screen, components: [{ ...screen.components[0]!, state: "loading" as const }] };
+  expect(planAct(loading, pickerOnly, {}, [open])).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(planAct(loading, pickerOnly, {}, [room("Study")])).toMatchObject({
+    ok: false,
+    code: "not_actionable",
+  });
+});
+
+it("treats a picker label as authoritative if it collides with another option's value", () => {
+  const entry = screen.components[0]!;
+  const filters = [
+    {
+      title: "Room",
+      choices: [
+        { value: "study", label: "Study" },
+        { value: "Study", label: "Office" },
+      ],
+    },
+  ];
+  const changedScreen = { ...screen, components: [{ ...entry, filters }] };
+  const plan = planAct(changedScreen, defs, {}, [room("Study")]);
+  expect(plan).toMatchObject({ ok: true, values: { [part("r1")]: "study" } });
+  if (plan.ok)
+    expect(readScreen(changedScreen, defs, plan.values)).toContain(
+      '[filters/r1 select = "Study"; choices ["Study","Office"]]',
+    );
+});
