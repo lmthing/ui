@@ -100,11 +100,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
+    "reply": "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"full\",\"value\":120}",
     "replies": [
-      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
-      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
-      "{\"c\":\"Converter\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"value\":120}"
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"full\",\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"full\",\"value\":120}"
     ]
   },
   "9d866bafdfd85232": {
@@ -285,6 +285,15 @@
       "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}",
       "{\"c\":\"Converter\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}",
       "{\"c\":\"Converter\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}"
+    ]
+  },
+  "b718a6300d9df5da": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Converter USD · Home amount: 25.5 — JPY · Local amount: 3815 — Swap currencies — Rate as of 19 Nov 2026 [c1/from type = \"25.5\" !needs-service] [c1/to type = \"3815\" !needs-service] [c1/swap press !needs-service]\n\nTask: Swap the two currencies\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}"
     ]
   },
   "bc94cb6f76b6b203": {
