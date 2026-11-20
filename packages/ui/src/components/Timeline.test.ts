@@ -20,7 +20,8 @@ describe("Timeline schema", () => {
   it("applies defaults and trims text", () => {
     expect(props.parse({ items: [{ time: " 09:00 ", title: " Morning walk ", meta: " Park " }] })).toEqual({
       style: "day",
-      items: [{ ...item, meta: "Park", done: false }],
+      detail: "full",
+      items: [{ ...item, meta: "Park", done: false, tone: "neutral" }],
     });
   });
   it.each([
@@ -40,6 +41,8 @@ describe("Timeline schema", () => {
     { items: [{ ...item, pixels: 4 }] },
     { items: [{ ...item, color: "red" }] },
     { style: "list", items: [item] },
+    { detail: "none", items: [item] },
+    { items: [{ ...item, tone: "muted" }] },
     { color: "red", items: [item] },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts the exact maximum lengths and count", () => {
@@ -53,6 +56,16 @@ describe("Timeline schema", () => {
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
+});
+
+it("withdraws secondary text from brief events without renumbering rows", () => {
+  const input = { items: [{ ...item, meta: "Meet near the park", tone: "warn" }] };
+  const parsed = stampItemIds(meta, props.parse({ ...input, detail: "brief", density: "compact" }));
+  expect(parsed.items[0]).toMatchObject({ id: "r1", meta: undefined, tone: "warn" });
+  expect(readComponent(components.Timeline, { ...input, detail: "brief" }, "t1").join("\n")).not.toContain(
+    "Meet near the park",
+  );
+  expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["meta"] });
 });
 
 describe("Timeline fallback and metadata", () => {
@@ -155,12 +168,12 @@ describe("Timeline fallback and metadata", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("Timeline");
     expect(registry.schema("Timeline")).toBe(props);
-    expect(registry.resolve("TIME-LINE")).toBe("Timeline");
-    expect(registry.resolve("t-i-m-e-l-i-n-e")).toBe("Timeline");
-    expect(registry.resolve("chronology")).toBe("Timeline");
+    for (const name of ["TIME-LINE", "t-i-m-e-l-i-n-e", "chronology"])
+      expect(registry.resolve(name)).toBe("Timeline");
   });
 });
 
+// prettier-ignore
 describe.each(["day", "history"] as const)("Timeline %s rendering", (style) => {
   it("draws every allowed count with mixed completion and optional details", () => {
     for (let count = 1; count <= 6; count++) {
@@ -172,13 +185,9 @@ describe.each(["day", "history"] as const)("Timeline %s rendering", (style) => {
           ...(i % 2 === 0 ? { meta: "Park" } : {}),
         })),
       };
-      const html = renderInstance("Timeline", input, "filled", {
-        preset: "calm",
-        mode: "light",
-        accent: "moss",
-      });
+      const html = renderInstance("Timeline", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      expect(html.match(/<svg\b/g) ?? []).toHaveLength(style === "history" ? Math.ceil(count / 2) : 0);
+      expect(html.match(/<svg\b/g) ?? []).toHaveLength(Math.ceil(count / 2));
       expect(html).toContain("tabular-nums");
       for (let i = 1; i <= count; i++) {
         for (const part of ["root", "time", "title"]) {
