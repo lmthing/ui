@@ -89,7 +89,8 @@ export function useMoveFocus(pending: RefObject<string | null>, testID: string, 
     const card = node();
     (
       card?.querySelector<HTMLElement>('[role="link"]') ??
-      card?.querySelector<HTMLElement>('[data-step-action="move"][tabindex="0"]')
+      card?.querySelector<HTMLElement>('[data-step-action="move"][tabindex="0"]') ??
+      card
     )?.focus();
   });
   return (move: () => { ok: boolean }) => {

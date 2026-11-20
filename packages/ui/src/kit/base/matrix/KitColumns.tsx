@@ -76,7 +76,7 @@ function Destination({ destination, name, press }: DestinationProps) {
       alignItems="center"
       justifyContent="center"
       borderRadius={shifted("sm", ks.radiusShift)}
-      backgroundColor="$accentSoft"
+      backgroundColor="$raised"
       accessibilityRole="button"
       accessibilityLabel={name}
       {...(isWeb ? { "data-step-action": "move", tabIndex: press ? 0 : -1 } : {})}
@@ -91,7 +91,7 @@ function Destination({ destination, name, press }: DestinationProps) {
           }
         : {}) as object)}
     >
-      <KitText role="label" tone="accent" part={null}>
+      <KitText role="label" tone="text" part={null}>
         {destination}
       </KitText>
     </XStack>
@@ -127,7 +127,7 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
     <YStack
       {...(loading ? { "aria-hidden": true } : address)}
       {...(!loading && isWeb
-        ? { accessibilityRole: "group", "aria-label": card.label, "data-kit-move-item": "" }
+        ? { accessibilityRole: "group", "aria-label": card.label, "data-kit-move-item": "", tabIndex: -1 }
         : {})}
     >
       <MatrixContent loading={loading}>{row}</MatrixContent>

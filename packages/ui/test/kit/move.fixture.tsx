@@ -13,7 +13,11 @@ const props = z
       .min(2)
       .max(5),
     cards: z.array(
-      z.strictObject({ title: text(32), column: z.number().int().min(0).max(4), goto: z.string() }),
+      z.strictObject({
+        title: text(32),
+        column: z.number().int().min(0).max(4),
+        goto: z.string().optional(),
+      }),
     ),
   })
   .refine(({ cards, columns }) => cards.every(({ column }) => column < columns.length), {

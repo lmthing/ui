@@ -52,3 +52,20 @@ it("moves via keyboard, click and agent while keeping the original press link", 
     await page.close();
   }
 });
+
+it("focuses the moved card itself when it has no remaining controls", async () => {
+  const page = await browser.newPage();
+  await page.addInitScript("globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(`${url()}?move-only`, { waitUntil: "networkidle" });
+    const card = page.getByTestId("home/c1/r1/root");
+    await card.getByRole("button", { name: "Move Snake plant to Finished" }).press("Enter");
+    await page.waitForFunction(
+      () => document.activeElement?.getAttribute("data-testid") === "home/c1/r1/root",
+    );
+    expect(await card.getByRole("button").count()).toBe(0);
+    expect(await card.getByRole("link").count()).toBe(0);
+  } finally {
+    await page.close();
+  }
+});
