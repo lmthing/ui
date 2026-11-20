@@ -74,22 +74,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     goto: "details",
   };
 }
+const plantBooking = {
+  style: "card",
+  service: "Plant care visit",
+  with: "Anna",
+  date: "2026-11-20",
+  time: "09:00",
+  minutes: 30,
+  place: "Home",
+  price: 20,
+  status: "confirmed",
+  goto: "time",
+} satisfies z.input<typeof props>;
 export const examples = [
-  {
-    style: "card",
-    service: "Plant care visit",
-    with: "Anna",
-    date: "2026-11-20",
-    time: "09:00",
-    minutes: 30,
-    place: "Home",
-    price: 20,
-    status: "confirmed",
-    goto: "time",
-  },
+  plantBooking,
   {
     style: "summary",
-    density: "compact",
     service: "Morning park walk",
     with: "Sam",
     date: "2026-11-21",
@@ -100,9 +100,8 @@ export const examples = [
     policy: "Move or cancel up to two hours before.",
     goto: "time",
   },
-  // prettier-ignore
-  { service: "Home visit", with: "Sam", place: "Home", date: "2026-11-22", time: "16:00",
-    minutes: 30, price: 15, status: "confirmed", goto: "time", detail: "brief" },
+  { ...plantBooking, density: "compact" },
+  { ...plantBooking, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Appointment");
 export const probes = [
@@ -155,6 +154,10 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
   const change = card ? "reschedule" : "edit";
   const density = useVariant("density", meta.variants.density, input.density);
   const finish = { loading, density };
+  const line = ({ part, text }: { part: string; text: string }) => (
+    <AppointmentLine key={part} value={text} part={part} {...finish} />
+  );
+  const details = appointmentDetails(input, lang);
   return (
     <KitCard
       padded
@@ -164,28 +167,15 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
       density={density}
     >
       <AppointmentLine value={date} part="date" {...finish} />
-      <KitGrid density={density}>
+      <KitGrid fitLast density={density}>
         <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" {...finish} />
-        {card && (
-          <KitContent
-            lead={<KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />}
-            leadingAlign="row"
-          >
-            {null}
-          </KitContent>
-        )}
+        {card && <KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />}
       </KitGrid>
       <KitContent>
         <AppointmentLine value={input.service} part="service" {...finish} />
+        {details.filter(({ part }) => part === "with" || part === "place").map(line)}
         <KitGrid density={density}>
-          {appointmentDetails(input, lang)
-            .filter(({ part }) => part !== "policy")
-            .flatMap(({ part, text }, index) => [
-              ...(part === "price" && index % 2 === 0
-                ? [<KitContent key="price-gap">{null}</KitContent>]
-                : []),
-              <AppointmentLine key={part} value={text} part={part} {...finish} />,
-            ])}
+          {details.filter(({ part }) => part === "minutes" || part === "price").map(line)}
         </KitGrid>
         {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
       </KitContent>
