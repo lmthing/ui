@@ -11,7 +11,7 @@ export const meta = {
   pick: "Property viewing appointments with a unit, prospect, confirmation, invitation or attendance outcome. Not a day's timed agenda (Timeline), free slots (Slots), or a booked service (Appointment).",
   writeHints: [
     "Use snake_case viewing and unit refs, a start datetime carrying its timezone, duration in minutes and an edit screen goto. Future viewings cannot be attended or no_show; elapsed time alone is not attendance.",
-    'Default to brief rows. For detailed cards with the stored note, use surface "card" and detail "full".',
+    'To show all details including a note, set detail to "full". Leave surface and density null unless separately asked for cards or tighter spacing.',
   ],
   region: "body",
   weight: 2,

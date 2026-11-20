@@ -8,11 +8,11 @@ export const meta = {
   status: "draft",
   group: "data",
   purpose: "See who occupies each rental unit and the agreed rent on a chosen date.",
-  pick: "Occupancy and agreed rent across independently rented units, derived from dated lets. Not a plain list or tenant directory (List), owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
+  pick: "Only choose this to derive occupancy or agreed rent across rental units from dated lets. For a directory of tenant names linking to profiles, choose List, not Units. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
   writeHints: [
     "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
     'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
-    'Default to the plain register with no photos. For photo cards use surface "card" and media "thumb".',
+    'A requested thumbnail sets media to "thumb" only. Leave surface and density null unless asked separately for a card surface or tighter spacing.',
   ],
   region: "body",
   weight: 3,
@@ -168,7 +168,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Show North Cabin (north_cabin) on 2026-11-18 with its thumbnail photo lib:home on a card; there are no agreed lets.",
+      "Show North Cabin (north_cabin) on 2026-11-18 with thumbnail photo lib:home; there are no agreed lets. Keep the usual row surface and spacing.",
     ),
     variant: { axis: "media", value: "thumb" },
   },

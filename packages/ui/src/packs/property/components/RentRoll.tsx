@@ -13,6 +13,7 @@ export const meta = {
   writeHints: [
     "Every receipt references a charge in this line; keep older charges when needed for arrears. Seed obligations and allocations only, not computed receipt totals, outstanding, arrears, credit or statuses.",
     'Give each charge and each receipt its own snake_case reference. Charges and receipts use positive numbers, not currency text. Use style "outstanding" only to filter unpaid units.',
+    'If asked to shorten numbers, set figures to "short". Leave density null unless the person asks for tighter rows, even when figures is "short".',
   ],
   region: "body",
   weight: 3,
