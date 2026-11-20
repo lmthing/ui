@@ -130,15 +130,24 @@ function ClientText({
   role?: TextRole;
   density: NonNullable<ClientProps["density"]>;
 }) {
+  const emphasis = part === "name" && density === "compact" ? "hero" : "normal";
   if (useComponentState() === "loading")
-    return <KitSkeleton shape="figure" inset="none" centered content={[[role, value]]} {...{ density }} />;
+    return (
+      <KitSkeleton
+        shape="figure"
+        inset="none"
+        centered
+        content={[[role, value]]}
+        {...{ density, emphasis }}
+      />
+    );
   return (
     <KitText
       role={role}
       tone={part === "name" ? "text" : "muted"}
       align="center"
       part={part}
-      {...{ density }}
+      {...{ density, emphasis }}
     >
       {value}
     </KitText>
