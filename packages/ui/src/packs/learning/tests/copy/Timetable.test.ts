@@ -26,6 +26,7 @@ describe("timetable copy", () => {
   });
   it("formats time in the given language and omits only room and teacher in brief", () => {
     expect(readTimetable(rows, "mon", "brief", "ar-EG-u-nu-arab")).toEqual([
+      "Show first",
       "Monday · mon",
       "r3: ٠٨:٣٠ · Math",
       "r2: ١٠:٠٠ · Art",

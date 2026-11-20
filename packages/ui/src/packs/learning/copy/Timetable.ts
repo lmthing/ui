@@ -45,12 +45,15 @@ export function readTimetable(
   lang?: string,
 ): string[] {
   const words = learningWordsFor(lang).timetable;
-  return timetableDays(periods, selected).flatMap(({ day, rows }) => [
-    words.reading([words.days[day].name, words.days[day].short]),
-    ...rows.map((row) => {
-      const time = timeOfDayLine(row.time, lang);
-      const details = detail === "full" ? [row.room, row.teacher] : [];
-      return `${row.id}: ${words.reading([time, row.subject, ...details])}`;
-    }),
-  ]);
+  return [
+    words.picker,
+    ...timetableDays(periods, selected).flatMap(({ day, rows }) => [
+      words.reading([words.days[day].name, words.days[day].short]),
+      ...rows.map((row) => {
+        const time = timeOfDayLine(row.time, lang);
+        const details = detail === "full" ? [row.room, row.teacher] : [];
+        return `${row.id}: ${words.reading([time, row.subject, ...details])}`;
+      }),
+    ]),
+  ];
 }

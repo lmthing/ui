@@ -146,8 +146,9 @@ function PeriodRow({ row, density, detail, active }: {
   const full = detail === "full";
   const time = c.timeOfDayLine(row.time, lang);
   const label = words.timetable.reading([time, subject, full ? room : undefined, full ? teacher : undefined]);
+  const stamp = <kit.KitText part="time" role="number" numberScale="compact" tabular density={density}>{time}</kit.KitText>;
   return <kit.KitRow item={id} part="root" role="button" label={label}
-    {...{ density, tone }} selected={active} leading={<kit.KitTime value={time} />}
+    {...{ density, tone }} selected={active} leading={stamp}
     trailing={active && <kit.KitIcon name="clock" tone="accent" decorative />}>
     <kit.KitText role="body" part="subject" density={density}>{subject}</kit.KitText>
     {full && room && <kit.KitText role="caption" tone="muted" part="room" density={density}>{room}</kit.KitText>}
@@ -166,19 +167,21 @@ export function Timetable(input: TimetableProps) {
   const { words } = kit.useWords(learningWordsFor);
   const at = new Date(), days = timetableDays(periods, selected, at), current = currentPeriod(periods, at);
   const options = weekdays.filter((day) => days.some((group) => group.day === day));
-  const segmented = options.length > 1 && options.length <= 4;
   return <kit.KitCard part="root" padded={state !== "empty"} {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty icon="calendar_days" part="title" decorativeIcon /> : <>
-      <kit.KitTrack part="day" look={segmented ? "segments" : "pills"} role="radiogroup" label={words.timetable.picker}>
+      <kit.KitContent inset="md" density={density}>
+        <kit.KitText role="label" tone="muted" part={null} density={density}>{words.timetable.picker}</kit.KitText>
+      </kit.KitContent>
+      <kit.KitTrack part="day" role="radiogroup" label={words.timetable.picker}>
         {options.map((day) =>
-          <kit.KitChip key={day} item={null} look={segmented ? "segment" : "pill"} role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
+          <kit.KitChip key={day} item={null} role="radio" label={words.timetable.days[day].short} value={day} on={day === days[0]?.day} />
         )}
       </kit.KitTrack>
-      {days.map(({ day, rows }) => <kit.KitContent key={day} group="response" density={density}>
-        <kit.KitContent inset="md" density={density}>
+      {days.map(({ day, rows }, index) => <kit.KitContent key={day} group="response" density={density}>
+        <kit.KitContent inset="md" group={index ? "response" : "content"} density={density}>
           <kit.KitText role="body" tone="muted" part={null} density={density}>{words.timetable.days[day].name}</kit.KitText>
         </kit.KitContent>
-        <kit.KitGrid arrange="rows" list listRowGap="group" density={density}>
+        <kit.KitGrid arrange="rows" list density={density}>
           {rows.map((row) => <PeriodRow key={row.id} {...{ row, density, detail }} active={row === current} />)}
         </kit.KitGrid>
       </kit.KitContent>)}

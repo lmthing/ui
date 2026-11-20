@@ -1,6 +1,6 @@
 export const en = {
   timetable: {
-    picker: "Class days",
+    picker: "Show first",
     days: {
       mon: { short: "mon", name: "Monday" },
       tue: { short: "tue", name: "Tuesday" },
