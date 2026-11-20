@@ -56,11 +56,11 @@ describe("gallery overview data", () => {
     expect(new Set(cells.map(cellKey)).size).toBe(cells.length);
     expect(variantCount(id)).toBe(cells.length * presets.length * modes.length);
   });
+});
 
-  it("shows each List example and one preview per non-filled state", () => {
-    const { examples, meta } = components.List;
-    const cells = examples.length + meta.states.filter((state) => state !== "filled").length;
-    expect(cellsOf("List")).toHaveLength(cells);
-    expect(variantCount("List")).toBe(cells * presets.length * modes.length);
-  });
+it("shows each List example and one preview per non-filled state", () => {
+  const { examples, meta } = components.List;
+  const cells = examples.length + meta.states.filter((state) => state !== "filled").length;
+  expect(cellsOf("List")).toHaveLength(cells);
+  expect(variantCount("List")).toBe(cells * presets.length * modes.length);
 });
