@@ -8,7 +8,14 @@ import {
 } from "./runtime";
 export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
-import { emptyDeviceData, liveProps, selectDeviceData, type Meta, type Values } from "../../catalog";
+import {
+  emptyDeviceData,
+  liveProps,
+  selectDeviceData,
+  type DeviceData,
+  type Meta,
+  type Values,
+} from "../../catalog";
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions) {
@@ -28,7 +35,7 @@ export function createScreenController(options: ControllerOptions) {
       const def = source && ctx.defs[source.c];
       return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
     },
-    liveControls(meta: Meta, props: Values, component: string) {
+    liveControls(meta: Meta, props: Values, component: string, data?: DeviceData) {
       const values = ctx.valuesOf();
       const prefix = `${ctx.screen.id}/`;
       const local = Object.fromEntries(
@@ -36,7 +43,8 @@ export function createScreenController(options: ControllerOptions) {
           .filter(([key]) => key.startsWith(prefix))
           .map(([key, value]) => [key.slice(prefix.length), value]),
       );
-      return liveProps(ctx.defs[meta.id]?.meta ?? meta, props, component, local, true);
+      const definition = ctx.defs[meta.id]?.meta ?? meta;
+      return liveProps(definition, props, component, local, true, data ?? options.deviceData);
     },
     mount() {
       const expired = ctx.expiredProgress(ctx.valuesOf());

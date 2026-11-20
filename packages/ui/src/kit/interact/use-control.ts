@@ -27,9 +27,10 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller } = useKit();
   const { component } = usePartContext();
+  const data = useContext(DeviceDataContext);
   return (
-    controller?.liveControls(meta, props, component) ??
-    projectLiveInputs(meta, props, component, () => undefined)
+    controller?.liveControls(meta, props, component, data) ??
+    projectLiveInputs(meta, props, component, () => undefined, data)
   );
 }
 export function useControlValue<T>(address: string, fallback: T): T {
