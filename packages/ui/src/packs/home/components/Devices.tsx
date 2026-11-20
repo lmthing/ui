@@ -8,7 +8,7 @@ import { homeWordsFor } from "../lang";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
   id: "Devices",
-  status: "draft",
+  status: "ready",
   writeHints: home.deviceWriteHints,
   ...home.deviceControls,
   read: home.readDevices,
