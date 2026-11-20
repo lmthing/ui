@@ -69,6 +69,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { style: "filter", items: labels.map((label, index) => ({ label, on: index === 0 })) };
 }
 
+const walkFilters = [
+  { label: "Park", icon: "dog", on: true },
+  { label: "River", icon: "drop" },
+];
+
 export const examples = [
   {
     style: "filter",
@@ -83,13 +88,8 @@ export const examples = [
     style: "choose",
     items: [{ label: "30 min", on: true, icon: "clock" }, { label: "45 min" }, { label: "60 min" }],
   },
-  {
-    lead: "none",
-    items: [
-      { label: "Park", icon: "dog" },
-      { label: "River", icon: "drop" },
-    ],
-  },
+  { items: walkFilters },
+  { lead: "none", items: walkFilters },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Chips");
