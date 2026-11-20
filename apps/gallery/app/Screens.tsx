@@ -4,7 +4,8 @@
 import { TamaguiProvider, Text, XStack, YStack } from "tamagui";
 import { accents, components, presets, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
-import { config, createSeededDraw, drawPreviewEnvironment, previewComponent } from "../index";
+import { config, drawPreviewEnvironment, previewComponent } from "../index";
+import { createPreviewController } from "./draw";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
 import { cellKey, cellLabel, cellsOf, DraftPreview, type Cell } from "./overview";
@@ -27,7 +28,7 @@ function Screen({
   const input = def.props.parse(cell.example) as Record<string, unknown>;
   const props = stampItemIds(def.meta, input);
   const screen = `${id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
-  const controller = View ? createSeededDraw(def, input, screen, cell) : undefined;
+  const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   return (
     <YStack gap={space.xs}>

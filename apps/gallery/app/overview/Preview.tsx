@@ -2,13 +2,8 @@ import { Text, YStack } from "tamagui";
 import { accents, component, components, space, stampItemIds } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { variantSheet } from "../../../../packages/ui/scripts/variants";
-import {
-  createSeededDraw,
-  drawPreviewEnvironment,
-  galleryParts,
-  previewComponent,
-  resolvePhoto,
-} from "../../index";
+import { drawPreviewEnvironment, galleryParts, previewComponent, resolvePhoto } from "../../index";
+import { createPreviewController } from "../draw";
 import { cellKey, cellLabel, type Cell, type modes } from "./gallery-data";
 import { DraftPreview } from "./DraftPreview";
 
@@ -36,7 +31,7 @@ export function Preview({ cell, preset, mode, responsive = false, label = true, 
   const legacyScreen = `${cell.id.toLowerCase()}_${preset}_${mode}_${cellKey(cell)}`;
   const screen = variant ? `${cell.id.toLowerCase()}_variant_${variant.index}` : legacyScreen;
   const theme = { preset, mode, accent: accents[0]!.id } as never;
-  const controller = View ? createSeededDraw(def, input, screen, cell) : undefined;
+  const controller = View ? createPreviewController(def, input, screen, cell) : undefined;
   if (cell.drawn && !controller) return null;
   return (
     <YStack

@@ -18,6 +18,8 @@ export function usePhoneController(props: PhoneScreenProps) {
   } = props;
   const language = useRef(props.lang);
   language.current = props.lang;
+  const deviceData = useRef(props.deviceData);
+  deviceData.current = props.deviceData;
   const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
   callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
@@ -30,6 +32,9 @@ export function usePhoneController(props: PhoneScreenProps) {
         defs,
         get lang() {
           return language.current;
+        },
+        get deviceData() {
+          return deviceData.current;
         },
         store,
         interactive,

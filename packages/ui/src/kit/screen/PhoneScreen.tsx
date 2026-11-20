@@ -4,6 +4,7 @@ import { usePhoneLifecycle } from "./use-phone-lifecycle";
 import {
   type ActStep,
   type Definition,
+  type DeviceData,
   type ScreenLike,
   type ThemeChoice,
   type Values,
@@ -39,6 +40,7 @@ export type PhoneScreenProps = {
   onSend?: ((text: string, address: string) => void) | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interaction?: InteractionStore | undefined;
+  deviceData?: DeviceData | undefined;
   interactive?: boolean | undefined;
   onReport?: ((issues: Issue[]) => void) | undefined;
   nativeHost?: NativeHost | undefined;

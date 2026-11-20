@@ -12,6 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
+import { selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -84,6 +85,7 @@ export function readComponent(
   state: StateName = "filled",
   values: Record<string, unknown> = {},
   lang?: string,
+  deviceData?: DeviceData,
 ): string[] {
   const { meta } = def;
   const get = (part: string) => values[`${instance}/${part}`];
@@ -108,7 +110,12 @@ export function readComponent(
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
-    ...(meta.read?.(readingProps(meta, validated, instance, values, props, readable), state, lang) ?? []),
+    ...(meta.read?.(
+      readingProps(meta, validated, instance, values, props, readable),
+      state,
+      lang,
+      selectDeviceData(meta, deviceData),
+    ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
@@ -140,6 +147,7 @@ export function readScreen(
   defs: Record<string, Definition>,
   values: Record<string, unknown> = {},
   lang?: string,
+  deviceData?: DeviceData,
 ): string {
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
@@ -148,7 +156,7 @@ export function readScreen(
   const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
     ({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang) : [`${id} ${c} (unknown)`];
+      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
     },
   );
   return [header, ...lines].join("\n");

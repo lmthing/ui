@@ -1,8 +1,12 @@
 // Every ready component, every example, every declared state, every preset and mode:
 // renders, stamps its root and item addresses once, and draws empty and loading the shared way.
 import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import type { ReactNode } from "react";
 import {
   accents,
+  component,
   components,
   emptyLine,
   loadingLabel,
@@ -14,13 +18,76 @@ import {
   type Meta,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { kitThemes, renderers } from "@lmthing/ui/kit";
-import { config, renderInstance } from "./render";
+import { KitBars, KitProvider, PartScope, kitThemes, renderers } from "@lmthing/ui/kit";
+import { addressedElements, config, renderInstance, styleAt } from "./render";
 import { selectedIds } from "../scripts/build";
 import { peekForExample } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const modes = ["light", "dark"] as const;
+
+function renderBars(children: ReactNode, item: string) {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
+  return renderToStaticMarkup(
+    <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
+      <KitProvider theme={theme}>
+        <PartScope screen="home" component="c1" item={item} rev={1} state="filled">
+          {children}
+        </PartScope>
+      </KitProvider>
+    </TamaguiProvider>,
+  );
+}
+
+describe("KitBars", () => {
+  it("keeps two read-only bars in the caller's item with one part per bar", () => {
+    const html = renderBars(
+      <KitBars
+        pair={[
+          { part: "with", label: "With", value: 8 },
+          { part: "without", label: "Without", value: 4 },
+        ]}
+      />,
+      "r7",
+    );
+    const parts = addressedElements(html);
+    expect([...parts.keys()]).toEqual(["home/c1/r7/with", "home/c1/r7/without"]);
+    expect(html.match(/data-testid=/g)).toHaveLength(2);
+    expect(html).toContain(">With<");
+    expect(html).toContain(">Without<");
+    expect(html).not.toMatch(/role="(button|slider)"|tabindex=/i);
+    for (const [name, scale] of [
+      ["with", 1],
+      ["without", 0.5],
+    ] as const) {
+      const column = parts.get(`home/c1/r7/${name}`)!.children[0]!.children[1]!;
+      expect(column.attributes).toContain('aria-hidden="true"');
+      expect(styleAt(html, column)).toContain(`height:${component.base.barsHeight * scale}px`);
+    }
+  });
+
+  it("keeps legacy item roots, labels and the explicit highlight override", () => {
+    const html = renderBars(
+      <KitBars
+        points={[
+          { id: "r1", label: "First", value: 8 },
+          { id: "r2", label: "Second", value: 4 },
+        ]}
+        highlight={1}
+      />,
+      "ignored",
+    );
+    const parts = addressedElements(html);
+    expect([...parts.keys()]).toEqual([
+      "home/c1/r1/root",
+      "home/c1/r1/label",
+      "home/c1/r2/root",
+      "home/c1/r2/label",
+    ]);
+    const second = parts.get("home/c1/r2/root")!.children[0]!.children[1]!;
+    expect(styleAt(html, second)).toContain("var(--accent)");
+  });
+});
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
   const { draw, items } = meta;
