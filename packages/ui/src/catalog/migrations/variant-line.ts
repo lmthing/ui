@@ -4,7 +4,7 @@ type Line = Record<string, unknown>;
 type VariantPatch = { [A in Axis]?: AxisValue<A> };
 
 export type VariantMove = {
-  from: "style" | "tone";
+  from: "style" | "tone" | "kind";
   values: Readonly<Partial<Record<string, VariantPatch>>>;
   retainStyle?: true;
   prepare?: (props: Line) => Line;
@@ -84,6 +84,16 @@ export function migrateProgressItems(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Button: [
+    {
+      from: "kind",
+      values: {
+        primary: {},
+        secondary: { surface: "tinted" },
+        quiet: { surface: "plain" },
+      },
+    },
+  ],
   Amount: [
     { from: "style", values: { large: { emphasis: "hero" } } },
     { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
