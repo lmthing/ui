@@ -123,11 +123,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+    "reply": "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk count\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
     "replies": [
-      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
-      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
-      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts this week\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
+      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk count\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts this week\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+      "{\"c\":\"Bars\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
     ]
   },
   "34be21e5e4e0ac18": {
@@ -248,11 +248,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Spending Split\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+    "reply": "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"This month's spending\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
     "replies": [
-      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Spending Split\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
-      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Spending Split\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
-      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Nov Spending\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}"
+      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"This month's spending\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Spending split\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+      "{\"c\":\"Bars\",\"style\":\"share\",\"title\":\"Spending\",\"unit\":\"€\",\"points\":[{\"label\":\"Rent\",\"value\":800},{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Fun\",\"value\":120}]}"
     ]
   },
   "7c6b3aacd970497e": {

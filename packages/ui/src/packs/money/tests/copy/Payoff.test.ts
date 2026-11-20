@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { payoffCopy, payoffReading, projectPayoff } from "../../copy";
+import { payoffCopy, payoffReading, payoffSelection, projectPayoff } from "../../copy";
+import { moneyWordsFor, registerMoneyWords } from "../../lang";
 
 const debt = { principal: 100, rate: 0, payment: 20, firstDue: "2026-12-01", payments: [] };
 const input = { debts: [debt], extra: 0, strategy: "high_rate" as const };
@@ -83,5 +84,18 @@ describe("Payoff copy", () => {
     const compact = payoffReading({ ...input, style: "compact" }, "fr-FR");
     expect(compact).toContain(copy.finish);
     expect(compact).not.toContain(copy.series[0]!.label);
+  });
+  it("reads translated strategy choices without changing the values accepted by the controls", () => {
+    const en = moneyWordsFor();
+    const choice = { high_rate: "Taux élevé", small_balance: "Petit solde" };
+    const unregister = registerMoneyWords("fr", { ...en, payoff: { ...en.payoff, choice } });
+    try {
+      const reading = payoffReading({ ...input, style: "compact" }, "fr");
+      expect(reading).toEqual(expect.arrayContaining(Object.values(choice)));
+      expect(reading).not.toContain(en.payoff.choice.small_balance);
+      expect(payoffSelection("high_rate", en.payoff.choice.small_balance).strategy).toBe("small_balance");
+    } finally {
+      unregister();
+    }
   });
 });

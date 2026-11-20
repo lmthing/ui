@@ -1,4 +1,10 @@
 export const en = {
+  amountPad: {
+    digits: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] as const,
+    decimal: ".",
+    backspace: "Delete",
+    note: "Add a note",
+  },
   bills: {
     month: "Monthly estimate",
     year: "Yearly total",
@@ -104,6 +110,7 @@ export const en = {
     today: "Today",
     yesterday: "Yesterday",
     date: (weekday: string, day: string, month: string) => `${weekday} ${day} ${month}`,
+    compactAmount: (amount: string, negative: boolean) => `${negative ? "-" : "+"}${amount}`,
     entry: (payee: string, category: string, amount: string) => `${payee} · ${category} · ${amount}`,
   },
 };

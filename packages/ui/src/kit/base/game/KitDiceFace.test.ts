@@ -2,8 +2,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it } from "vitest";
-import { component, presets, size, themeName } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, KitDiceFace, KitWheel, KitOrbit, KitText } from "@lmthing/ui/kit";
+import { component, presets, size, space, type as typography, themeName } from "@lmthing/ui/catalog";
+import { KitProvider, PartScope, KitDiceFace } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
 function render(props: Parameters<typeof KitDiceFace>[0], preset = "calm", mode = "light") {
@@ -44,14 +44,18 @@ describe("KitDiceFace", () => {
         expect(hold.attributes).toContain('aria-pressed="true"');
         expect(styleAt(html, hold)).toContain(`width:${size.control.md * 2}px`);
         expect(styleAt(html, hold)).toContain("var(--accent)");
-        const dots = hold.children[0]!.children.flatMap((row) => row.children);
+        const pips = hold.children[0]!;
+        expect(styleAt(html, pips)).toContain(`top:${space.sm}px`);
+        const dots = pips.children.flatMap((row) => row.children);
         expect(dots.filter((dot) => styleAt(html, dot).includes("opacity:1"))).toHaveLength(value);
       }
   });
   it.each([4, 6, 8, 10, 12, 20] as const)("draws caller-owned numbered %s-sided faces", (sides) => {
     const html = render({ ...die, sides, style: "numbers", value: sides, disabled: true });
-    expect(elementAt(html, "home/c1/r1/hold").attributes).toContain('aria-disabled="true"');
-    expect(styleAt(html, "home/c1/r1/hold")).toContain(`opacity:${component.base.disabledOpacity}`);
+    const hold = elementAt(html, "home/c1/r1/hold");
+    expect(hold.attributes).toContain('aria-disabled="true"');
+    expect(styleAt(html, hold)).toContain(`opacity:${component.base.disabledOpacity}`);
+    expect(styleAt(html, hold.children[0]!)).toContain(`font-size:${typography.heading.size}px`);
     expect(html).toContain(`>${sides}</span>`);
     expect(render({ ...die, sides, style: "numbers" })).not.toContain('role="text"');
     expect(render({ ...die, sides, style: "numbers", value: sides + 1 })).not.toContain('role="text"');
@@ -68,12 +72,30 @@ describe("KitDiceFace", () => {
     const html = render({ item: "r2", sides: 6, value: 3, held: false, label: "Static face" });
     expect(elementAt(html, "home/c1/r2/root").attributes).not.toContain('role="button"');
   });
-  it("keeps a valid pip pattern and a distinct numeric loading footprint", () => {
-    const pips = render({ ...die, value: 6, loading: true });
-    const numbers = render({ ...die, value: 6, style: "numbers", loading: true });
-    expect(pips).toContain("var(--line)");
-    expect(numbers).toContain(`height:${size.control.md - 8}px`);
-    expect(numbers).not.toEqual(render({ ...die, style: "numbers" }));
-    expect(pips).not.toContain("First face");
+  it.each(presets)("uses one value-independent loading bar and a softer edge in $id", ({ id }) => {
+    for (const mode of ["light", "dark"]) {
+      const loading = render({ ...die, loading: true }, id, mode);
+      expect(loading).toEqual(render({ ...die, value: 1, loading: true }, id, mode));
+      expect(loading).toEqual(
+        render({ ...die, sides: 20, value: 20, style: "numbers", loading: true }, id, mode),
+      );
+      expect(loading).toContain("border-top-color:var(--line)");
+      expect(loading).toContain(`width:${size.control.md * 2}px`);
+      expect(loading).toContain(`width:${size.icon.lg + space.md}px`);
+      expect(loading).toContain(`height:${space.sm}px`);
+      expect(loading).not.toEqual(render(die, id, mode));
+    }
   });
+});
+
+it("marks both dice hold controls and distinguishes the held value without relying on color", () => {
+  const unheld = render({ ...die, value: 6 });
+  const held = render({ ...die, value: 6, held: true });
+  expect(styleAt(unheld, "home/c1/r1/hold")).toContain("var(--raised)");
+  expect(elementAt(unheld, "home/c1/r1/hold").attributes).toContain('aria-pressed="false"');
+  const iconOf = (html: string) => html.match(/<svg\b.*?<\/svg>/)?.[0];
+  expect(iconOf(unheld)).toBeDefined();
+  expect(iconOf(held)).toBeDefined();
+  expect(iconOf(held)).not.toEqual(iconOf(unheld));
+  expect(iconOf(render({ ...die, value: 6, loading: true }))).toBeUndefined();
 });

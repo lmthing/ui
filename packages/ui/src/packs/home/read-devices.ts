@@ -1,46 +1,60 @@
 import type { z } from "zod";
 import type { StateName } from "../../catalog";
-import { homeWordsFor } from "./lang";
-import { numberLine } from "../../catalog";
 import type { deviceProps } from ".";
+import { deviceRange, deviceValue, focusedDevice } from "./copy";
+import { homeWordsFor } from "./lang";
 
-/** Keep each nested device/scene's label beside its validator-owned addressed row. */
-export function readDevices(input: unknown, state: StateName, lang?: string): string[] {
-  const { deviceUnits, deviceLabels } = homeWordsFor(lang);
-  if (state !== "filled") return [];
-  const { rooms, scenes, entries } = input as z.output<typeof deviceProps> & {
-    entries: { id?: string }[];
-  };
-  const devices = rooms.flatMap((room) => room.devices.map((row) => ({ ...row, room: room.label })));
+type Input = z.output<typeof deviceProps>;
+type Entry = Input["entries"][number] & { id?: string };
+
+function readEntry(row: Entry, enlarged: boolean, lang?: string) {
+  const { deviceLabels, devicePanel, deviceUnits } = homeWordsFor(lang);
+  if (row.entryKind === "scene")
+    return [
+      [row.id, row.name].filter(Boolean).join(" "),
+      row.secure ? deviceLabels.secure : deviceLabels.apply,
+      row.secure ? devicePanel.reviewScene(JSON.stringify(devicePanel.secure)) : undefined,
+    ];
+  const range = deviceRange(row, lang);
+  const unit = row.unit ?? "celsius";
   return [
-    ...devices.map((row, index) =>
-      [
-        entries[index]?.id,
-        row.room,
-        row.name,
-        row.on === undefined
-          ? ""
-          : row.kind === "lock"
-            ? row.on
-              ? deviceLabels.locked
-              : deviceLabels.unlocked
-            : String(row.on),
-        row.temp === undefined
-          ? ""
-          : `${deviceLabels.setPoint} ${numberLine(row.temp, lang)} ${deviceUnits.celsius}`,
-        row.reading === undefined
-          ? ""
-          : `${deviceLabels.reading} ${numberLine(row.reading, lang)} ${deviceUnits[row.unit ?? "celsius"]}`,
-        row.normal
-          ? `${deviceLabels.normal} ${numberLine(row.normal.low, lang)}–${numberLine(row.normal.high, lang)}${row.reading! < row.normal.low || row.reading! > row.normal.high ? ` · ${deviceLabels.outOfRange}` : ""}`
-          : "",
-      ]
+    row.id,
+    row.room,
+    row.name,
+    row.kind === "lock" ? (row.on ? deviceLabels.locked : deviceLabels.unlocked) : undefined,
+    row.temp === undefined ? undefined : `${deviceLabels.setPoint} ${deviceValue(row.temp, "celsius", lang)}`,
+    row.reading === undefined ? undefined : `${deviceLabels.reading} ${deviceValue(row.reading, unit, lang)}`,
+    enlarged && row.temp !== undefined
+      ? devicePanel.measure(deviceLabels.setPoint, deviceUnits.celsius)
+      : undefined,
+    enlarged && row.reading !== undefined
+      ? devicePanel.measure(deviceLabels.reading, deviceUnits[unit])
+      : undefined,
+    range ? `${deviceLabels.normal} ${range.label}` : undefined,
+    range?.status,
+    row.linked ? devicePanel.controls : undefined,
+  ];
+}
+
+/** Keep each projected device or scene beside its validator-owned addressed row. */
+export function readDevices(input: unknown, state: StateName, lang?: string): string[] {
+  if (state !== "filled") return [];
+  const { entries, focus, style } = input as Input & { entries: Entry[] };
+  const words = homeWordsFor(lang);
+  const focused =
+    style === "focused" &&
+    focusedDevice(
+      entries.filter((row) => row.entryKind === "device"),
+      focus,
+    );
+  return [
+    ...(focused ? [words.deviceFocus(JSON.stringify(focused.name))] : []),
+    words.devicePanel.preview,
+    ...(entries.some((row) => row.entryKind === "scene") ? [words.devicePanel.scenes] : []),
+    ...entries.map((row) =>
+      readEntry(row, row === focused, lang)
         .filter(Boolean)
         .join(" · "),
-    ),
-    ...scenes.map(
-      (scene, index) =>
-        `${entries[devices.length + index]?.id ?? ""} ${scene.name} · ${scene.targets.some((target) => devices.find((row) => row.key === target.key)?.kind === "lock") ? deviceLabels.secure : deviceLabels.apply}`,
     ),
   ];
 }

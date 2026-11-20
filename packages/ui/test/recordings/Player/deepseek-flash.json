@@ -28,9 +28,9 @@
   },
   "d07f03bec3d95eb3": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Player 4:05 — -7:55 — \"Evening wind-down\" — \"Guided breathing\" — photo:plants [p1/scrubber seek] [p1/back press] [p1/play play] [p1/play pause] [p1/forward press]\n\nTask: Pause the recording\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+    "reply": "{\"address\": \"p1/play play\", \"action\": \"pause\"}",
     "replies": [
-      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+      "{\"address\": \"p1/play play\", \"action\": \"pause\"}",
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}"
     ]

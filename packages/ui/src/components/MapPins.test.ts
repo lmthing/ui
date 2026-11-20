@@ -176,7 +176,7 @@ describe("MapPins rendering", () => {
           if (state === "filled") {
             expect(html).toContain(`>${index}</span>`);
             const tag = html.match(new RegExp(`<[^>]*data-testid="home/m1/r${index}/root"[^>]*>`))![0];
-            expect(tag).toContain(`role="${index % 2 === 1 ? "link" : "listitem"}"`);
+            expect(tag).toContain(`role="${index % 2 === 1 ? "link" : "group"}"`);
           }
         }
       }

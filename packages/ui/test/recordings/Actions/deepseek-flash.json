@@ -225,11 +225,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_dog_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
+    "reply": "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
     "replies": [
+      "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
       "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_dog_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_dog_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}",
-      "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"trending_up\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
+      "{\"c\":\"Actions\",\"items\":[{\"icon\":\"dog\",\"label\":\"Book walk\",\"goto\":\"book_walk\"},{\"icon\":\"users\",\"label\":\"Clients\",\"goto\":\"clients\"},{\"icon\":\"wallet\",\"label\":\"Earnings\",\"goto\":\"earnings\"},{\"icon\":\"message\",\"label\":\"Messages\",\"goto\":\"messages\"}]}"
     ]
   },
   "60d88e8fa246f9da": {

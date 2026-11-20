@@ -4,18 +4,25 @@ import {
   photo,
   placeholderTitle,
   probesFor,
+  sessionAvailable,
+  sessionKey,
+  sessionState,
   text,
   thingOf,
   titleOf,
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
+  type SessionState,
 } from "../../../catalog";
-
+import * as kit from "../../../kit";
+import { turnOrderLines } from "../copy";
+import { playWordsFor } from "../lang";
 // Core first: People/default cannot track a game turn cursor, laps, skips or reversed direction.
 export const meta = {
   id: "TurnOrder",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Track the current game player, lap and direction with next, skip and reverse.",
   pick: "Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).",
@@ -30,10 +37,26 @@ export const meta = {
   items: { key: "players", parts: ["root", "name", "photo"] },
   parts: ["root", "current", "lap", "next", "skip", "reverse", "restart"],
   states: ["filled", "loading", "success"],
+  session: {
+    kind: "turns",
+    items: "players",
+    first: "first",
+    direction: "direction",
+    laps: "laps",
+    next: "next",
+    skip: "skip",
+    reverse: "reverse",
+    restart: "restart",
+  },
   actions: { parts: { next: ["press"], skip: ["press"], reverse: ["press"], restart: ["press"] } },
-  read: (input) => {
-    const value = input as z.output<typeof props>;
-    return [value.players[value.first]!.name, value.direction];
+  successActions: ["restart.press"],
+  read: (input, state, lang) => {
+    const value = input as z.output<typeof props> & { [sessionKey]?: SessionState };
+    const current = value[sessionKey];
+    if (current?.kind !== "turns") return [];
+    const { status, player, lap } = turnOrderLines(value, current, state === "success", lang);
+    const words = playWordsFor(lang).turnOrder;
+    return [status, player, lap, ...availableParts(current, state === "success").map((part) => words[part])];
   },
 } as const satisfies Meta;
 export const props = z
@@ -60,13 +83,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { players };
 }
 export const examples = [
-  // Ledge's two-lap game.
   {
     players: [{ name: "Anna", photo: "lib:people" }, { name: "Ben" }, { name: "Sam" }],
     laps: 2,
     style: "ring",
   },
-  // Trot's walkers play an open-ended reverse queue.
   { players: [{ name: "Jo" }, { name: "Lee" }], first: 1, direction: "reverse", style: "queue" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TurnOrder");
@@ -77,3 +98,103 @@ export const probes = [
   read("Move to the next player's turn", { address: "t1/next", action: "press" }),
   read("Reverse the following play order", { address: "t1/reverse", action: "press" }),
 ] satisfies Probe[];
+type Setup = Props<typeof props, typeof meta>;
+type Turns = Extract<SessionState, { kind: "turns" }>;
+const turnParts = ["next", "skip", "reverse", "restart"] as const;
+const availableParts = (current: Turns, success: boolean) =>
+  turnParts.filter((part) => (!success || part === "restart") && sessionAvailable(current, part));
+function PlayerAvatar({ player: { photo, name } }: { player: Setup["players"][number] }) {
+  const image = photo && photo !== "lib:people" ? { photo } : { initials: Array.from(name)[0]! };
+  return <kit.KitPhoto {...image} shape="round" part="photo" label={name} />;
+}
+type Actions = { current: Turns; loading: boolean; success: boolean; queue: boolean };
+function TurnActions({ current, loading, success, queue }: Actions) {
+  const { KitAction, KitContent, KitGrid, KitRow, KitSkeleton, KitText } = kit;
+  const { words } = kit.useWords(playWordsFor);
+  const controls = availableParts(current, success).map((part) => {
+    const label = words.turnOrder[part];
+    if (part === "next" || success)
+      return loading ? (
+        <KitSkeleton key={part} shape="control" label={label} full />
+      ) : (
+        <KitAction key={part} part={part} label={label} action="press" full />
+      );
+    const role = loading ? "text" : "button";
+    const target = { role, part: loading ? null : part, label: loading ? "" : label } as const;
+    return (
+      <KitRow key={part} {...target} surface="outlined" inline>
+        <KitContent inset="md">
+          {loading ? (
+            <KitSkeleton shape="figure" centered inset="none" content={[["label", label]]} />
+          ) : (
+            <KitText part={null} role="label" align="center" children={label} />
+          )}
+        </KitContent>
+      </KitRow>
+    );
+  });
+  if (success) return controls;
+  const group = queue ? "response" : "content";
+  return (
+    <KitContent group={group}>
+      <KitContent group={group}>
+        <KitGrid>{controls}</KitGrid>
+      </KitContent>
+    </KitContent>
+  );
+}
+
+export function TurnOrder(setup: Setup) {
+  const { KitContent, KitOrbit, KitSkeleton, KitText } = kit;
+  const { players, style } = setup;
+  const { screen, component } = kit.usePartContext();
+  const { lang } = kit.useWords(playWordsFor);
+  const state = kit.useComponentState();
+  const stored = kit.useControlValue<unknown>(`${screen}/${component}/${sessionKey}`, undefined);
+  const current = sessionState(meta, setup, (part) => (part === sessionKey ? stored : undefined));
+  if (current?.kind !== "turns") return null;
+  const loading = state === "loading";
+  const success = state === "success";
+  // Static previews can request the success state without replaying a game.
+  const display = success && !current.complete ? { ...current, lap: setup.laps ?? current.lap } : current;
+  const { status, player, lap } = turnOrderLines(setup, display, success, lang);
+  const hero = { role: "title", tone: "text" } as const;
+  const detail = { role: "label", tone: "muted" } as const;
+  const count = { role: "number", numberScale: "compact", tone: "muted" } as const;
+  const loadingLines: Parameters<typeof KitSkeleton>[0]["content"] = [
+    ["label", status],
+    ["title", player],
+    ["number", lap, "center", "compact"],
+  ];
+  return (
+    <KitContent>
+      <KitContent align="center">
+        {loading ? (
+          <KitSkeleton shape="figure" centered inset="none" content={loadingLines} />
+        ) : (
+          <>
+            <KitText {...(success ? hero : detail)} align="center" part={null} children={status} />
+            <KitText {...(success ? detail : hero)} align="center" part="current" children={player} />
+            <KitText {...count} align="center" part="lap" children={lap} />
+          </>
+        )}
+      </KitContent>
+      <KitContent group="response">
+        <KitOrbit
+          part="root"
+          nodes={players.map((player) => ({
+            id: player.id,
+            label: player.name,
+            content: <PlayerAvatar player={player} />,
+          }))}
+          at={success ? "" : (players[current.index]?.id ?? "")}
+          reverse={current.direction === "reverse"}
+          style={style}
+          loading={loading}
+          namePart
+        />
+      </KitContent>
+      <TurnActions current={current} loading={loading} success={success} queue={style === "queue"} />
+    </KitContent>
+  );
+}

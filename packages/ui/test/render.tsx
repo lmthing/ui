@@ -29,6 +29,7 @@ export type RenderOptions = {
   thing?: string;
   lang?: string;
   component?: string;
+  disableRootThemeClass?: boolean;
   resolvePhoto?: (reference: string) => string | undefined;
 };
 
@@ -43,13 +44,18 @@ export function renderInstance(
     thing,
     lang,
     component = "c1",
+    disableRootThemeClass = false,
     resolvePhoto,
   } = typeof options === "string" ? { thing: options } : options;
   const def = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
   const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
   return renderToStaticMarkup(
-    <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
+    <TamaguiProvider
+      config={config}
+      defaultTheme={themeName(theme)}
+      disableRootThemeClass={disableRootThemeClass}
+    >
       <KitProvider theme={theme} lang={lang} {...(resolvePhoto ? { resolvePhoto } : {})}>
         <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
           <View {...props} />
