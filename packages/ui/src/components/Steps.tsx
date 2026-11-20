@@ -48,12 +48,15 @@ export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
   return { count: 3, at: 1 };
 }
 
+const reminderStep = { count: 4, at: 2, label: "Set a watering reminder" } as const;
+
 export const examples = [
   { style: "dots", count: 3, at: 2, label: "Add your first plant" },
   { style: "numbered", count: 4, at: 3, label: "Confirm Clover's walk" },
   { style: "bar", count: 5, at: 1 },
-  { density: "compact", count: 4, at: 2, label: "Set a watering reminder" },
-  { detail: "brief", count: 4, at: 2, label: "Set a watering reminder" },
+  reminderStep,
+  { ...reminderStep, density: "compact" },
+  { ...reminderStep, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Steps");
@@ -89,22 +92,19 @@ export function Steps({
     <KitBlock label={label ? `${position} · ${label}` : position} density={density}>
       <KitContent density={density}>
         <KitStepsTrack style={style} count={count} at={at} part="track" />
-        <KitText
-          role={label ? "body" : "caption"}
-          tone={label ? "text" : "muted"}
-          part="label"
-          density={density}
-        >
-          <KitText role="caption" tone="muted" part={null} density={density}>
+        {label ? (
+          <KitText role="body" tone="muted" part="label" density={density}>
+            <KitText role="number" part={null} density={density}>
+              {position}
+            </KitText>
+            {"\n"}
+            {label}
+          </KitText>
+        ) : (
+          <KitText role="number" part="label" density={density}>
             {position}
           </KitText>
-          {label && (
-            <>
-              {"\n"}
-              {label}
-            </>
-          )}
-        </KitText>
+        )}
       </KitContent>
     </KitBlock>
   );
