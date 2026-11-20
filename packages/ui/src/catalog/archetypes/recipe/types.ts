@@ -5,7 +5,7 @@ export type Slot = {
   max: number;
   variant?: string;
 };
-export type DefaultLine = { c: string; variant?: string };
+export type DefaultLine = { c: string; variant?: string; seed?: Readonly<Record<string, unknown>> };
 export type ArchetypeMeta = {
   id: string;
   purpose: string;

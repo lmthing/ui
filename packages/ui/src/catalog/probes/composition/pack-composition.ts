@@ -30,12 +30,14 @@ export function packComposition(meta: CompositionInput): CoreArchetypeMeta {
     defaults: Object.fromEntries(
       Object.entries(meta.layouts).map(([id, layout]) => [
         id,
-        layout.defaults.map((line) => ({
-          c: line.c,
-          ...(typeof (line.kind ?? line.style) === "string"
-            ? { variant: String(line.kind ?? line.style) }
-            : {}),
-        })),
+        layout.defaults.map(({ c, id: _id, state: _state, ...seed }) => {
+          const variant = c === "Field" || c === "Camera" ? seed.kind : seed.style;
+          return {
+            c,
+            ...(typeof variant === "string" ? { variant } : {}),
+            ...(Object.keys(seed).length ? { seed } : {}),
+          };
+        }),
       ]),
     ),
   };
