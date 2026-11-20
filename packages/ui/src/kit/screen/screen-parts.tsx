@@ -12,6 +12,7 @@ import {
   type ScreenLike,
 } from "../../catalog";
 import type { RendererMap } from "./Screen";
+import { ScreenBottomOutlet, ScreenBottomSlots, ScreenBottomSource } from "./pinned-bottom";
 
 type RenderProps = { controller: ScreenController; renderers: RendererMap; screen: ScreenLike };
 function ScreenEntry({
@@ -74,32 +75,40 @@ function ScreenRegion({ name, ...props }: RenderProps & { name: string }) {
 }
 export function ScreenContent({ covered, ...props }: RenderProps & { covered: boolean }) {
   const { environment } = useKit();
+  const bodyOrder = props.screen.components
+    .filter(({ c }) => (props.controller.defs[c]?.meta.region ?? "body") === "body")
+    .map(({ id }) => id);
   return (
-    <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
-      <YStack
-        paddingLeft={Math.max(space.gutter, environment.insets.left)}
-        paddingRight={Math.max(space.gutter, environment.insets.right)}
-        paddingTop={Math.max(space.lg, environment.insets.top)}
-        gap={space.md}
-      >
-        <ScreenRegion {...props} name="top" />
+    <ScreenBottomSlots>
+      <YStack flex={1} {...(covered ? { inert: true, "aria-hidden": true } : {})}>
+        <YStack
+          paddingLeft={Math.max(space.gutter, environment.insets.left)}
+          paddingRight={Math.max(space.gutter, environment.insets.right)}
+          paddingTop={Math.max(space.lg, environment.insets.top)}
+          gap={space.md}
+        >
+          <ScreenRegion {...props} name="top" />
+        </YStack>
+        <ScrollView
+          flex={1}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          contentContainerStyle={{ padding: space.gutter }}
+        >
+          <ScreenBottomSource>
+            <ScreenRegion {...props} name="body" />
+          </ScreenBottomSource>
+        </ScrollView>
+        <YStack
+          paddingHorizontal={space.gutter}
+          paddingBottom={Math.max(space.lg, environment.keyboardHeight ? 0 : environment.insets.bottom)}
+          gap={space.md}
+        >
+          <ScreenBottomOutlet screen={props.screen.id} order={bodyOrder} />
+          <ScreenRegion {...props} name="bottom" />
+        </YStack>
       </YStack>
-      <ScrollView
-        flex={1}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="on-drag"
-        contentContainerStyle={{ padding: space.gutter }}
-      >
-        <ScreenRegion {...props} name="body" />
-      </ScrollView>
-      <YStack
-        paddingHorizontal={space.gutter}
-        paddingBottom={Math.max(space.lg, environment.keyboardHeight ? 0 : environment.insets.bottom)}
-        gap={space.md}
-      >
-        <ScreenRegion {...props} name="bottom" />
-      </YStack>
-    </YStack>
+    </ScreenBottomSlots>
   );
 }
 export function ScreenSheet({ controller, renderers, screen }: RenderProps) {
