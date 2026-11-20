@@ -31,7 +31,8 @@ it("keeps edge milestones and their full touch targets inside the timeline", () 
   expect(milestone(0.5, width)).toBe(width / 2);
   expect(milestone(0, width)).toBe(space.sm / Math.SQRT2);
   expect(milestone(1, width)).toBe(width - space.sm / Math.SQRT2);
-  expect(milestone(0.125, minimumColumn)).toBe(range(0.125, 0.5, minimumColumn).left);
+  expect(milestone(0.05, minimumColumn)).toBeGreaterThan(milestone(0, minimumColumn));
+  expect(milestone(0.95, minimumColumn)).toBeLessThan(milestone(1, minimumColumn));
   expect(hitBox(milestone(0, width), width)).toEqual({ left: 0, width: size.control.md });
   expect(hitBox(milestone(1, width), width)).toEqual({
     left: width - size.control.md,

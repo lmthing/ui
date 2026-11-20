@@ -25,9 +25,9 @@ export function hitBox(center: number, width: number, span = 0) {
 }
 
 export function milestone(at: number, width: number) {
-  // The small inset keeps the entire rotated diamond visible at the timeline endpoints.
+  // Inset the full span so distinct positions remain distinct even near the edges.
   const inset = space.sm / Math.SQRT2;
-  return Math.max(inset, Math.min(position(at, width), width - inset));
+  return inset + position(at, width - 2 * inset);
 }
 
 type Anchor = { left: number; width: number; index: number };
