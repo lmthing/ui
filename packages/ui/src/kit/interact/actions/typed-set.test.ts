@@ -1,7 +1,12 @@
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { isoDate, planAct, readScreen, type Definition } from "../../../catalog";
-import { createScreenController } from "../index";
+import { KitInput, KitProvider, Screen } from "@lmthing/ui/kit";
+import { config, elementAt, type Theme } from "../../../../test/render";
+import { isoDate, planAct, readScreen, themeName, type Definition } from "../../../catalog";
+import { createScreenController, type ScreenController } from "../index";
 
 const fixture = {
   meta: {
@@ -54,6 +59,26 @@ function setup() {
   return { runtime, onAction };
 }
 
+function DateControl({ on }: { on: string }) {
+  return createElement(KitInput, {
+    part: "date",
+    kind: "date",
+    action: "set",
+    projected: true,
+    value: on,
+    hint: "Date",
+  });
+}
+
+function renderDate(controller: ScreenController) {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies Theme;
+  const content = createElement(Screen, { controller, renderers: { [fixture.meta.id]: DateControl } });
+  const host = createElement(KitProvider, { theme, controller, interactive: true, children: content });
+  return renderToStaticMarkup(
+    createElement(TamaguiProvider, { config, defaultTheme: themeName(theme) }, host),
+  );
+}
+
 it("projects typed set values into snapshots, render props and both reads", () => {
   const { runtime, onAction } = setup();
   const steps = [
@@ -77,6 +102,9 @@ it("projects typed set values into snapshots, render props and both reads", () =
     ...expected,
     summary: "2024-02-29 some 5 2",
   });
+  const date = elementAt(renderDate(runtime), "s/c1/date");
+  expect(date.tag).toBe("input");
+  expect(date.attributes).toContain('value="2024-02-29"');
   const reading = readScreen(screen, defs, plan.ok ? plan.values : {});
   expect(runtime.read()).toBe(reading);
   expect(reading).toContain("Current 2024-02-29 some 5 2");
@@ -84,6 +112,22 @@ it("projects typed set values into snapshots, render props and both reads", () =
   expect(reading).toContain('[c1 set = "some"]');
   expect(runtime.act(set("date", "2024-03-15")).ok).toBe(true);
   expect(runtime.snapshotScreen().components[0]?.on).toBe("2024-03-15");
+});
+
+it("commits early ISO years when the destination schema permits them", () => {
+  const def = {
+    ...fixture,
+    meta: { ...fixture.meta, set: { ...fixture.meta.set, date: { prop: "on", type: "date" } } },
+    props: fixture.props.safeExtend({ on: z.iso.date() }),
+  } satisfies Definition;
+  const definitions = { [def.meta.id]: def };
+  const step = set("date", "0004-02-29");
+  const planned = planAct(screen, definitions, {}, [step]);
+  expect(planned.ok).toBe(true);
+  if (planned.ok) expect(readScreen(screen, definitions, planned.values)).toContain("0004-02-29");
+  const runtime = createScreenController({ defs: definitions, screen });
+  expect(runtime.act(step).ok).toBe(true);
+  expect(runtime.snapshotScreen().components[0]?.on).toBe("0004-02-29");
 });
 
 it.each([
