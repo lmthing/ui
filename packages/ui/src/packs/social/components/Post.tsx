@@ -1,39 +1,49 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { postCountParts, postReading } from "../copy";
+import { socialWordsFor } from "../lang";
 
 // Core first: Card/feature cannot show a full authored post with a carousel and a reaction bar.
+const imageParts = ["images", "image_2", "image_3", "image_4"] as const;
 export const meta = {
   id: "Post",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Read and react to one community post in full.",
   pick: "One community post in full, with author, long text, optional photo carousel and like, comment and share controls. Not several posts (Feed), an article (Article), or one featured thing preview (Card).",
   writeHints: [
-    "Use images for up to four post attachments, not for the author photo. Keep the images in the data when asked to hide their display.",
+    'Write null for unrequested variants, not an explicit default. If only asked to hide attachments, write "density":null, "surface":null, "media":"none". Preserve the images array and the author photo.',
+    "Use images for up to four post attachments, not for the author avatar. Use zero for unknown counts and false for an unknown liked state.",
   ],
   region: "body",
   weight: 2,
   tier: "people",
   realPath: "A post in a shared app; more opens the screen's menu.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], media: ["cover", "none"] },
-  variantParts: { "media.none": { hides: ["images"] } },
+  variantParts: { "media.none": { hides: imageParts } },
   parts: [
     "root",
     "name",
     "photo",
     "time",
     "text",
-    "images",
+    ...imageParts,
     "like",
+    "like_icon",
     "likes",
     "comment",
+    "comment_icon",
     "comments",
     "share",
+    "share_icon",
     "more",
+    "more_icon",
   ],
   states: ["filled", "loading"],
   actions: { parts: { like: ["toggle"], comment: ["press"], share: ["press"], more: ["press"] } },
   live: { derive: () => ({ more: { goto: "sheet" } }) },
+  read: postReading,
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
@@ -66,8 +76,8 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 
 // prettier-ignore
 export const examples = [
-  { name: "Maya", photo: "lib:people", time: "5 min ago", text: "My fern finally unfurled a new frond. It had been drying out by the window vent, so I moved it onto the bathroom shelf. These two pictures show how it looked before and after the move.", images: ["lib:fern", "lib:plants"], likes: 7, comments: 2, liked: false },
-  { density: "compact", surface: "outlined", media: "none", name: "Anna", photo: "lib:people", time: "Yesterday", text: "Clover tried the riverside loop for the first time. We went slowly past the ducks and stopped for water at the bridge. I’d take this route again on a quiet morning.", images: ["lib:dog"], likes: 4, comments: 1, liked: true },
+  { name: "Maya", photo: "lib:people_maya", time: "5 min ago", text: "My fern finally unfurled a new frond. It had been drying out by the window vent, so I moved it onto the bathroom shelf. The new frond is still pale green and already as long as my hand.", images: ["lib:fern", "lib:plants"], likes: 7, comments: 2, liked: false },
+  { name: "Anna", photo: "lib:people_anna", time: "Yesterday", text: "Clover tried the riverside loop for the first time. We went slowly past the ducks and stopped for water at the bridge. I’d take this route again on a quiet morning.", images: ["lib:dog"], likes: 4, comments: 1, liked: true },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("Post");
@@ -90,3 +100,78 @@ export const probes = [
   },
   read("Open the menu on Maya’s post.", { address: "p1/more", action: "press" }),
 ] satisfies c.Probe[];
+
+type PostProps = c.Props<typeof props, typeof meta>;
+type Finish = { density: c.ThemeDensity; loading: boolean };
+
+// prettier-ignore
+function PostHeader({ input, density, loading }: Finish & { input: PostProps }) {
+  const { words: { post } } = kit.useWords(socialWordsFor);
+  const { name, photo, time } = input;
+  return <kit.KitGrid fitLast density={density}>
+    <kit.KitContent density={density} leadingAlign="row" lead={loading ?
+      <kit.KitSkeleton shape="control" kind="secondary" /> :
+      <kit.KitPhoto part="photo" photo={photo} shape="round" label={name} />}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[["label", name], ["caption", time]]} /> : <>
+          <kit.KitText part="name" role="label" lines={1} density={density}>{name}</kit.KitText>
+          <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{time}</kit.KitText>
+        </>}
+    </kit.KitContent>
+    {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+      <kit.KitAction part="more" icon="more" kind="quiet" a11y={post.more} />}
+  </kit.KitGrid>;
+}
+
+// prettier-ignore
+function PostImages({ images, density, loading }: Finish & Pick<PostProps, "images">) {
+  const { lang, words: { post } } = kit.useWords(socialWordsFor);
+  const cells = images.map((photo, index) => loading ?
+    <kit.KitSkeleton key={index} shape="media" aspect="wide" inset="none" content={[]} density={density} /> :
+    <kit.KitPhoto key={index} part={imageParts[index]!} photo={photo} shape="wide"
+      label={post.image(c.numberLine(index + 1, lang), c.numberLine(images.length, lang))} />);
+  return cells.length > 1 ? <kit.KitStrip overflow="page" density={density}>{cells}</kit.KitStrip> : cells[0] ?? null;
+}
+
+// prettier-ignore
+function PostReactions({ input, density, loading }: Finish & { input: PostProps }) {
+  const { lang, words: { feed, post } } = kit.useWords(socialWordsFor);
+  const { testID } = kit.usePart("like", false);
+  const liked = kit.useControlValue(testID, input.liked);
+  const [likes, comments] = postCountParts(input, lang);
+  const like = <kit.KitAction part="like" action="toggle" icon="heart" kind={liked ? "secondary" : "quiet"}
+    a11y={post.withCount(feed.reaction(input.name, liked), likes.line)} />;
+  const comment = <kit.KitAction part="comment" icon="message" kind="quiet"
+    a11y={post.withCount(post.comment, comments.line)} />;
+  const count = ({ part, count }: typeof likes | typeof comments) => loading
+    ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", count, "start", "compact"]]} density={density} />
+    : <kit.KitText part={part} role="number" numberScale="compact" tone="muted" tabular lines={1} density={density}>{count}</kit.KitText>;
+  const control = <kit.KitSkeleton shape="control" kind="quiet" />;
+  const pair = { inline: true, part: null, label: "", density } as const;
+  return <kit.KitGrid fitLast density={density}>
+    <kit.KitContent density={density} leadingAlign="row"
+      lead={<kit.KitRow {...pair} leading={loading ? control : like}>{count(likes)}</kit.KitRow>}>
+      <kit.KitContent inset="md" density={density}>
+        <kit.KitRow {...pair} leading={loading ? control : comment}>{count(comments)}</kit.KitRow>
+      </kit.KitContent>
+    </kit.KitContent>
+    {loading ? control : <kit.KitAction part="share" icon="share" kind="quiet" a11y={post.share} />}
+  </kit.KitGrid>;
+}
+
+// prettier-ignore
+export function Post(input: PostProps) {
+  const loading = kit.useComponentState() === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const media = kit.useVariant("media", meta.variants.media, input.media);
+  const hasImages = media !== "none" && input.images.length > 0;
+  const reactions = <PostReactions {...{ input, density, loading }} />;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    <PostHeader {...{ input, density, loading }} />
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", input.text]]} /> :
+      <kit.KitText part="text" density={density}>{input.text}</kit.KitText>}
+    {hasImages && <PostImages images={input.images} {...{ density, loading }} />}
+    {hasImages ? reactions : <kit.KitContent group="response" density={density}>{reactions}</kit.KitContent>}
+  </kit.KitCard>;
+}

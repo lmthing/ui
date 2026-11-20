@@ -12,6 +12,13 @@ export type SocialWords = {
     image: string;
     skeleton: { author: string; time: string; excerpt: string; likes: string; comments: string };
   };
+  post: {
+    more: string;
+    comment: string;
+    share: string;
+    image: (position: string, total: string) => string;
+    withCount: (action: string, count: string) => string;
+  };
 };
 
 export const en = {
@@ -29,5 +36,12 @@ export const en = {
       likes: "Likes",
       comments: "Comments",
     },
+  },
+  post: {
+    more: "More post actions",
+    comment: "Comment on this post",
+    share: "Share this post",
+    image: (position, total) => `Post photo ${position} of ${total}`,
+    withCount: (action, count) => `${action} · ${count}`,
   },
 } satisfies SocialWords;
