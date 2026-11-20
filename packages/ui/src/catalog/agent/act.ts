@@ -1,9 +1,9 @@
-import { liveProps, parseControlProps } from "./live-props";
+import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { resolveKeypadValue, validateActionValue } from "./validate-value";
+import { resolveKeypadValue, selectionOffer, validateActionValue } from "./validate-value";
 import { selectionAt, selectionChanges, selectionError } from "./selection";
 import { projectAdjustments } from "./clocks";
 import { controlsAreValid, keypadInput, nestedSpec, numericStep, stageValue } from "./action-input";
@@ -110,17 +110,20 @@ function selectStep(
   const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && defs[entry.c];
-  if (!def?.meta.select) return { step };
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const target = parts.join("/") || "root";
+  const offer = def && selectionOffer(def.meta, target);
+  if (!def || (!def.meta.select && !offer)) return { step };
+  const { id: _id, c: _c, state: _state, ...raw } = entry!;
   const get = (part: string) => values[`${screen.id}/${id}/${part}`];
-  const parsed = parseControlProps(def, raw, get);
-  const props = def.meta.items?.set ? projectAdjustments(def.meta, parsed, get) : parsed;
+  let props = parseControlProps(def, raw, get);
+  if (Object.hasOwn(def.meta.selections ?? {}, target))
+    props = liveProps(def.meta, props, id!, localValues(screen.id, values), true);
+  else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
   const error = selectionError(def.meta, props, target, step.value);
   return {
     step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
     error,
-    declared: Object.hasOwn(def.meta.select.choices ?? {}, target),
+    declared: Boolean(offer),
     changes: Object.fromEntries(
       Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
         `${screen.id}/${id}/${part}`,
@@ -183,10 +186,12 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    if (!stageValue(next, key, found, result.value, number, screen.id, links))
+    const adjusted = number ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
+    if (!(adjusted ?? stageValue(next, key, found, result.value, number, screen.id, links)))
       return { ok: false, code: "not_actionable", at };
     Object.assign(next, selected.changes);
-    if ((limits || number?.adjustment || selected.declared) && !controlsAreValid(screen, defs, address, next))
+    const validate = limits || number?.adjustment || adjusted || selected.declared;
+    if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     expireProgress(screen, defs, next);
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);

@@ -1,6 +1,7 @@
 import type { Meta } from "../meta";
-import type { StateName } from "../types";
-import { choiceValues, isNestedTarget, nestedControls, nestedRemaining } from "./selection";
+import type { StateName, Tier } from "../types";
+import { isNestedTarget, nestedControls, nestedRemaining } from "./selection";
+import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
@@ -15,16 +16,30 @@ export type Affordance = {
 };
 type Props = Record<string, unknown>;
 
+type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
+
+/** Item increments without a numeric setter or a clock are owned by the pure action planner. */
+export function isAdjustOnlyItem(
+  adjustment: Adjustment | undefined,
+  action: string,
+): adjustment is Adjustment & { clock: undefined; atSet: undefined } {
+  return Boolean(
+    (action === "increment" || action === "decrement") &&
+    !adjustment?.clock &&
+    !adjustment?.atSet &&
+    adjustment?.key.includes("/$adjust/"),
+  );
+}
+
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
 
-function detailOf(action: string, holder: Props): string {
-  if ((action === "press" || action === "select") && typeof holder.goto === "string")
+function detailOf(action: string, holder: Props, suppressLink: boolean): string {
+  if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
     return `→${holder.goto}`;
   if (action === "toggle" && ["on", "off"].includes(String(holder.value))) return `:${holder.value}`;
   if (action === "toggle" || action === "check") {
     const on = firstBoolean(holder);
     if (on !== undefined) return action === "check" ? `:${on ? "done" : "todo"}` : `:${on ? "on" : "off"}`;
-    if (typeof holder.trail === "string") return "";
   }
   return "";
 }
@@ -51,19 +66,21 @@ function partsOf(
   base: string,
   when: When,
   outer: Props,
+  noGoto?: readonly string[],
 ) {
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
     present(part, holder, when, outer)
       ? actions
           .filter((action) => matches(when?.[`${part}.${action}`], holder, outer))
           .map((action) => {
-            const target = (holder[part] as Props | undefined) ?? holder;
-            const nested = typeof target === "object" && target !== holder ? target : holder;
+            const target = holder[part];
+            const nested = target && typeof target === "object" ? (target as Props) : holder;
+            const suppressLink = action === "press" && nested === holder && !!noGoto?.includes(part);
             return {
               address: part === "root" ? base : `${base}/${part}`,
               part,
               action,
-              detail: detailOf(action, nested),
+              detail: detailOf(action, nested, suppressLink),
             };
           })
       : [],
@@ -82,20 +99,18 @@ export function affordancesOf(
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
 ): Affordance[] {
-  const when = meta.actions?.when as When;
-  const own = ownActions(meta, props, instance, when);
+  const { parts, items: itemParts, when, noGoto } = meta.actions ?? {};
+  const own = partsOf(parts, props, instance, when, props, noGoto?.parts).flatMap((a) => {
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
   const key = meta.items?.key;
   const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   // `$first` in a rule is true only for the first item (the top card of a stack).
-  const itemActions = items.flatMap((item, index) =>
-    partsOf(
-      meta.actions?.items as Record<string, readonly string[]>,
-      item,
-      `${instance}/${String(item.id)}`,
-      when,
-      { ...props, $first: index === 0 },
-    ),
-  );
+  const itemActions = items.flatMap((item, index) => {
+    const base = `${instance}/${String(item.id)}`;
+    return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, noGoto?.items);
+  });
   const runtime = values[`${instance}/$runtime`];
   const get = (part: string) => values[`${instance}/${part}`];
   const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
@@ -109,9 +124,10 @@ export function affordancesOf(
     const event = sessionEvent(meta, target, action);
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
-    if (!runtime && !meta.set && !meta.items?.set) return true;
+    if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
     const adjustment = adjustmentAt(meta, props, target, action, get, now);
-    if (!runtime) return !adjustment?.atSet || adjustment.next !== undefined;
+    if (!runtime)
+      return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
     return (
       (!adjustment || adjustment.next !== undefined) &&
       clockActionValid(meta, props, target, action, get, now)
@@ -137,14 +153,7 @@ function nestedActions(
     const blocked =
       remaining !== undefined && togglePeers && remaining < togglePeers.length && value !== true;
     if (blocked && !includeBlocked) return [];
-    const detail =
-      spec.action === "toggle"
-        ? value
-          ? ":on"
-          : ":off"
-        : value === undefined
-          ? ""
-          : ` = ${JSON.stringify(value)}`;
+    const detail = spec.action === "toggle" ? (value ? ":on" : ":off") : valueDetail(value);
     return [
       {
         address: `${instance}/${target}`,
@@ -172,17 +181,17 @@ function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
   return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));
 }
 
-function ownActions(meta: Meta, props: Props, instance: string, when: When) {
-  return partsOf(
-    meta.actions?.parts as Record<string, readonly string[]>,
-    props,
-    instance,
-    when,
-    props,
-  ).flatMap((a) => {
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
+const valueDetail = (value: unknown) => (value === undefined ? "" : ` = ${JSON.stringify(value)}`);
+
+/** Resolve a part against live props, without changing the component's tier. */
+export function partTierAt(meta: Meta, props: Props, part: string): Tier {
+  const rule = Object.hasOwn(meta.partTiersBy ?? {}, part) ? meta.partTiersBy![part] : undefined;
+  const value = rule && props[rule.prop];
+  if (rule && ["string", "number", "boolean"].includes(typeof value)) {
+    const key = String(value);
+    if (Object.hasOwn(rule.tiers, key) && rule.tiers[key]) return rule.tiers[key];
+  }
+  return meta.partTiers?.[part] ?? meta.tier;
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
