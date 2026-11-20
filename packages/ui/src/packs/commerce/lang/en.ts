@@ -24,8 +24,8 @@ export const en = {
   checkout: {
     fulfillment: "Fulfillment",
     payment: "Payment",
-    modes: { pickup: "Pickup", delivery: "Delivery", table: "Table" },
-    methods: { card: "Card", cash: "Cash", wallet: "Wallet" },
+    modes: { pickup: "pickup", delivery: "delivery", table: "table" },
+    methods: { card: "card", cash: "cash", wallet: "wallet" },
     time: "Time",
     address: "Delivery address",
     addAddress: "Add delivery address",

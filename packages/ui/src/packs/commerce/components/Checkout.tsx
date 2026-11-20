@@ -16,7 +16,8 @@ export const meta = {
   pick: "Finish a goods order by choosing pickup or delivery and a payment method, then place it. Not editing one field (Field), reviewing an appointment (Appointment), or editing basket items (Cart).",
   writeHints: [
     "Use unique modes and methods, and select a mode and method that appear in their lists. The total comes from the basket, not props.",
-    'Leave surface and density null unless the brief requests a different container or spacing. Use detail "brief" only to hide the time, and still write the supplied time. Delivery address and order total stay visible.',
+    'Use detail null for a time that should show and "brief" for a time the brief explicitly hides. Always write the supplied time.',
+    'If only the detail changes, use {"detail":"brief","surface":null,"density":null}. Keeping the address or total visible does not request a card. Never emit "card" for the default surface.',
   ],
   region: "body",
   weight: 2,
@@ -90,8 +91,6 @@ export const examples = [
     time: "Today at 16:00",
     methods: ["wallet", "cash"],
     method: "cash",
-    density: "compact",
-    surface: "plain",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -125,7 +124,7 @@ function CheckoutChoices<T extends string>({ part, label, options, labels, selec
   selected: T;
   density: c.ThemeDensity;
 }) {
-  return <kit.KitContent {...{ density }}>
+  return <kit.KitContent {...{ density }} group={part === "method" ? "response" : "content"}>
     <kit.KitText role="label" tone="muted" part={null}>{label}</kit.KitText>
     <kit.KitTrack look="segments" role="radiogroup" {...{ part, label }}>
       {options.map((value) => <kit.KitChip key={value} item={null} role="radio" look="segment"
@@ -172,7 +171,7 @@ export function Checkout(input: CheckoutProps) {
     <CheckoutDetails {...input} {...{ density, success }} />
     {!success && <CheckoutChoices part="method" label={words.payment} options={input.methods}
       labels={words.methods} selected={input.method} {...{ density }} />}
-    <kit.KitContent group={density === "compact" ? "content" : "response"} {...{ density }}>
+    <kit.KitContent group="response" {...{ density }}>
       <kit.KitText role="label" tone="muted" part={null}>{words.total}</kit.KitText>
       <kit.KitText role="number" numberScale="compact" part="total" tabular {...{ density }}>
         {checkoutAmount(basket, lang)}

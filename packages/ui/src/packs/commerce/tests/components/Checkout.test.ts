@@ -98,8 +98,8 @@ describe("Checkout states and parts", () => {
   it("draws two named controls with radios, a delivery button and a separate place button", () => {
     const html = renderInstance("Checkout", delivery, "filled", theme);
     for (const [part, label, options, selected] of [
-      ["mode", "Fulfillment", ["Pickup", "Delivery", "Table"], "Delivery"],
-      ["method", "Payment", ["Card", "Cash", "Wallet"], "Card"],
+      ["mode", "Fulfillment", ["pickup", "delivery", "table"], "delivery"],
+      ["method", "Payment", ["card", "cash", "wallet"], "card"],
     ] as const) {
       const group = elementAt(html, `home/c1/${part}`);
       expect(group.attributes).toContain('role="radiogroup"');
