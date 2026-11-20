@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { placesWordsFor } from "../lang";
 
 // Core first: Card/plain cannot show structured venue rating, price level, open state and distance.
 export const meta = {
@@ -7,7 +8,7 @@ export const meta = {
   status: "draft",
   group: "content",
   purpose: "See whether a venue is open and worth visiting.",
-  pick: "One venue to visit with its opening times, distance, rating or price level. Not a generic featured story (Card), several places (List), a product (Product), or a rental (Listing).",
+  pick: "One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).",
   writeHints: [
     "Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.",
     'Use media "none" to hide supplied artwork, keeping the photo reference. Leave unrequested axes null.',
@@ -21,6 +22,15 @@ export const meta = {
   parts: ["root", "photo", "name", "category", "rating", "price_level", "distance", "open_state"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] } },
+  read: (input, _state, lang): string[] => {
+    const { rating, priceLevel, opens, closes } = input as z.output<typeof props>;
+    const words = placesWordsFor(lang);
+    return [
+      ...(rating === undefined ? [] : [words.rating(c.numberLine(rating, lang))]),
+      ...(priceLevel === undefined ? [] : [words.priceLevel(c.numberLine(priceLevel, lang))]),
+      ...(opens && closes ? [`${c.timeOfDayLine(opens, lang)}–${c.timeOfDayLine(closes, lang)}`] : []),
+    ];
+  },
 } as const satisfies c.Meta;
 
 export const props = z
@@ -70,7 +80,10 @@ export const examples = [
 const { choose, write, read } = c.probesFor("PlaceCard");
 export const probes = [
   choose("Show one café to visit with its star rating, price level, distance and whether it's open now"),
-  choose("Feature one community announcement with a headline, photo and short description", "Card"),
+  choose(
+    "Preview one saved community announcement in the middle of the screen, with a thumbnail and short blurb. Tap to open the full announcement.",
+    "Card",
+  ),
   write(
     "Feature Riverside Nursery, a garden centre rated 4.7 at price level 2, open 09:00 to 18:00. Tap to open nursery.",
   ),

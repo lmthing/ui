@@ -6,7 +6,7 @@ export const example = [
   '{"id":"h1","c":"Header","title":"Sniff nearby"}',
   '{"id":"s1","c":"Search","hint":"Find a dog-friendly spot"}',
   '{"id":"c1","c":"Chips","items":[{"label":"Water bowl"},{"label":"Off lead"}]}',
-  '{"id":"m1","c":"MapList","places":[{"name":"Juniper Café","meta":"Water bowl out front","goto":"juniper"},{"name":"Alder Park","meta":"Off-lead meadow","goto":"park_walk"},{"name":"Canal Green","meta":"Lead-only riverside path","goto":"park_walk"},{"name":"Fern Common","meta":"Shaded benches","goto":"park_walk"},{"name":"Linden Gardens","meta":"Dogs welcome","goto":"park_walk"},{"name":"Corner Café","meta":"Dogs welcome inside","goto":"juniper"}]}',
+  '{"id":"m1","c":"MapList","places":[{"name":"Juniper Café","meta":"Water bowl out front","goto":"juniper"},{"name":"Alder Park","meta":"Off-lead meadow","goto":"park_walk"},{"name":"Canal Green","meta":"Lead-only riverside path","goto":"park_walk"}]}',
   '{"id":"h2","c":"Header","style":"back","title":"Juniper Café"}',
   '{"id":"g1","c":"Gallery","style":"carousel","photos":[{"photo":"lib:park_walk","caption":"Front terrace"},{"photo":"lib:river_walk","caption":"Riverside tables"}]}',
   '{"id":"p1","c":"PlaceCard","name":"Juniper Café","category":"Dog-friendly café","rating":4.5,"priceLevel":2,"opens":"09:00","closes":"16:00","goto":"juniper"}',

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { placesWordsFor } from "../lang";
 
 // Core first: Timeline/hours shows one day's events, not a recurring opening week with special dates.
 export const meta = {
@@ -19,11 +20,24 @@ export const meta = {
   items: { key: "days", parts: ["root", "day", "from", "to", "closed"] },
   parts: ["root", "open_state", "special"],
   states: ["filled"],
+  read: (input, _state, lang): string[] => {
+    const { days, special } = input as z.output<typeof props>;
+    const { weekdayNames } = c.wordsFor(lang);
+    const { closed } = placesWordsFor(lang);
+    return [
+      ...days.map(
+        ({ day, from, to, closed: off }) =>
+          `${weekdayNames[weekdays.indexOf(day)]}: ${off ? closed : `${c.timeOfDayLine(from, lang)}–${c.timeOfDayLine(to, lang)}`}`,
+      ),
+      ...special.map(({ date, text }) => `${date}: ${text}`),
+    ];
+  },
 } as const satisfies c.Meta;
 
 const weekdays = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+const midnight = "00:00";
 const dayProps = z.strictObject({
-  day: z.enum(weekdays).meta({ kind: "text" }),
+  day: z.enum(weekdays),
   from: c.clock,
   to: c.clock,
   closed: z.boolean(),
@@ -44,10 +58,16 @@ export const props = z
   .refine(({ days }) => days.every(({ from, to, closed }) => closed || from !== to), {
     path: ["days"],
     message: "Use different opening and closing times on open days",
-  });
+  })
+  .overwrite((value) => ({
+    ...value,
+    days: [...value.days]
+      .sort((a, b) => weekdays.indexOf(a.day) - weekdays.indexOf(b.day))
+      .map((day) => (day.closed ? { ...day, from: midnight, to: midnight } : day)),
+  }));
 
 export function fallback(_input: c.FallbackInput): z.input<typeof props> {
-  return { days: weekdays.map((day) => ({ day, from: "00:00", to: "00:00", closed: true })), special: [] };
+  return { days: weekdays.map((day) => ({ day, from: midnight, to: midnight, closed: true })), special: [] };
 }
 
 export const examples = [

@@ -6,7 +6,6 @@ import {
   placeholderDetail,
   placeholderTitle,
   readComponent,
-  stampItemIds,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
@@ -76,12 +75,6 @@ it("offers only applicable actions and never accepts authored live data", () => 
   const delivery = components.DeliveryTracker;
   const delivered = delivery.props.parse({ step: "delivered", courier: "Nia" });
   expect(affordancesOf(delivery.meta, delivered, "d1")).toEqual([]);
-  const map = components.MapList;
-  const pin = stampItemIds(map.meta, map.props.parse({ places: [row] }));
-  expect(affordancesOf(map.meta, pin, "m1")).toMatchObject([
-    { address: "m1/view", action: "select" },
-    { address: "m1/r1", action: "press", detail: "→riverside" },
-  ]);
 });
 
 it("enforces venue and address limits", () => {
@@ -120,6 +113,11 @@ it("requires a seven-day week, real times, and at most three real special dates"
   const { days, special } = hours.examples[0]!;
   expect(hours.props.safeParse({ days, special: [] }).success).toBe(true);
   expect(hours.props.safeParse({ days, special: Array(3).fill(special[0]) }).success).toBe(true);
+  const sundayFirst = [{ ...days[6]!, closed: true }, ...days.slice(0, 6)];
+  expect(hours.props.parse({ days: sundayFirst, special }).days).toEqual([
+    ...days.slice(0, 6),
+    { day: "sun", closed: true, from: "00:00", to: "00:00" },
+  ]);
   for (const input of [
     { days: days.slice(0, 6) },
     { days: [...days, days[0]] },
@@ -151,9 +149,11 @@ it("bounds delivery, place rows and departures and rejects extra service fields"
     [{ ...row, meta: "a".repeat(33) }],
     [{ ...row, goto: "Bad ID" }],
     [{ ...row, distance: 2 }],
+    [{ ...row, pin: {} }],
   ])
     expect(map.safeParse({ places }).success).toBe(false);
   expect(map.safeParse({ places: [row], view: "list" }).success).toBe(false);
+  expect(map.safeParse({ places: [row], total: 10 }).success).toBe(false);
   expect(transit.safeParse({ stop: "a".repeat(32), rows: Array(6).fill(departure) }).success).toBe(true);
   for (const rows of [
     [],

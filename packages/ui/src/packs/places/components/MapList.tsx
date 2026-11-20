@@ -19,15 +19,53 @@ export const meta = {
   items: { key: "places", parts: ["root", "pin", "name", "meta", "distance"] },
   parts: ["root", "map", "view", "more"],
   states: ["filled", "empty", "loading"],
+  select: { prop: "activePin", value: "position" },
   selections: { view: { prop: "view", choices: ["map", "list"], runtime: true } },
-  actions: { parts: { view: ["select"] }, items: { root: ["press"] } },
+  live: { derive: ({ view }) => ({ mapVisible: view !== "list" }) },
+  actions: {
+    parts: { view: ["select"] },
+    items: { root: ["press"], pin: ["select"] },
+    when: { pin: { mapVisible: true } },
+  },
+  deviceData: ["place_results"],
+  read: (input, _state, lang, data): string[] => {
+    const { places } = input as z.output<typeof props>;
+    const count = remainingPlaces(places, data);
+    return count ? [c.wordsFor(lang).peekCount(c.numberLine(count, lang))] : [];
+  },
 } as const satisfies c.Meta;
 
 const placeProps = z.strictObject({ name: c.text(28), meta: c.text(32), goto: c.screenId });
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
-  places: z.array(placeProps).min(1).max(6),
+  // The separately addressed pin selects locally, not through its row's goto.
+  places: z
+    .array(placeProps.overwrite((place) => ({ ...place, pin: {} })))
+    .min(1)
+    .max(6),
 });
+
+const placeResults = z.object({
+  shown: z
+    .array(z.object({ name: c.text(28), goto: c.screenId }))
+    .min(1)
+    .max(6),
+  total: z.int().nonnegative(),
+});
+
+function remainingPlaces(places: z.output<typeof placeProps>[], data?: c.DeviceData): number {
+  for (const entry of data?.place_results ?? []) {
+    const result = placeResults.safeParse(entry);
+    if (!result.success) continue;
+    const { shown, total } = result.data;
+    if (
+      shown.length === places.length &&
+      shown.every(({ name, goto }, index) => name === places[index]?.name && goto === places[index]?.goto)
+    )
+      return Math.max(0, total - shown.length);
+  }
+  return 0;
+}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -71,4 +109,8 @@ export const probes = [
   ),
   read("Switch to the list-only view", { address: "m1/view", action: "select" }),
   read("Open Riverside Nursery", { address: "m1/r1", action: "press" }),
+  read("Select the Riverside Nursery pin to highlight its row without opening the venue", {
+    address: "m1/r1/pin",
+    action: "select",
+  }),
 ] satisfies c.Probe[];

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { placesWordsFor } from "../lang";
 
 // Core first: Route/default shows ordered stops, not a live courier, destination and delivery ETA.
 export const meta = {
@@ -10,7 +11,7 @@ export const meta = {
   pick: "Live courier and destination together on a map with delivery ETA and current step. Not order steps without a map (OrderStatus) or a path through planned stops (Route).",
   writeHints: [
     "Write the current step only. Never write an ETA or map positions; the delivery service supplies them.",
-    'Use media "none" to hide the courier photo without removing its reference. Leave unrequested axes null.',
+    'Hiding the courier photo only changes media: use "media":"none","density":null. Keep the photo reference. Use density null unless tighter spacing was requested separately.',
   ],
   region: "body",
   weight: 2,
@@ -22,6 +23,9 @@ export const meta = {
   states: ["filled", "loading", "success"],
   readSuccess: true,
   actions: { parts: { call: ["press"] }, when: { call: { callable: true } } },
+  read: (input, _state, lang): string[] => [
+    placesWordsFor(lang).deliveryStep[(input as z.output<typeof props>).step],
+  ],
 } as const satisfies c.Meta;
 
 export const props = z

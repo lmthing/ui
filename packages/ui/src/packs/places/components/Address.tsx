@@ -8,7 +8,9 @@ export const meta = {
   group: "content",
   purpose: "Find a venue, copy its address, or call it.",
   pick: "One place’s postal address with a map tile and copy or directions; call if a phone is supplied. Not facts about a venue (KeyValue) or live delivery progress (DeliveryTracker).",
-  writeHints: ['Use detail "brief" to hide an access note without deleting it. Leave unrequested axes null.'],
+  writeHints: [
+    'Hiding an access note only changes detail: use "detail":"brief","density":null. Keep the supplied note text verbatim. Use density null unless tighter spacing was requested separately.',
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
@@ -22,6 +24,7 @@ export const meta = {
     parts: { copy: ["press"], directions: ["press"], call: ["press"] },
     when: { call: { callable: true } },
   },
+  read: (input): string[] => [...(input as z.output<typeof props>).lines],
 } as const satisfies c.Meta;
 
 export const props = z
@@ -70,7 +73,10 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Copy the street address", { address: "a1/copy", action: "press" }),
+  read("Tap the button that puts 14 Greenhouse Lane on my clipboard", {
+    address: "a1/copy",
+    action: "press",
+  }),
   read("Get directions to the nursery", { address: "a1/directions", action: "press" }),
   read("Call the nursery", { address: "a1/call", action: "press" }),
 ] satisfies c.Probe[];
