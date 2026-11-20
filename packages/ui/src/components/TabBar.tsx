@@ -4,10 +4,12 @@ import {
   clip,
   badgeLine,
   icon,
+  itemVariantProps,
   placeholderTitle,
   screenId,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -15,6 +17,7 @@ import {
 } from "../catalog";
 import { KitTabBar } from "../kit";
 
+const trails = ["badge", "none"] as const;
 export const meta = {
   id: "TabBar",
   group: "structure",
@@ -25,7 +28,9 @@ export const meta = {
   tier: "phone",
   realPath: "The host builds linked tabs from sections marked nav and tracks the current screen.",
   codeOwned: true,
-  items: { key: "tabs", parts: ["root", "icon", "label", "badge"] },
+  variants: { trail: trails },
+  items: { key: "tabs", parts: ["root", "icon", "label", "badge"], variants: { trail: trails } },
+  variantParts: { "trail.none": { hides: ["badge"] }, "trail.badge": { adds: ["badge"] } },
   select: { prop: "at", value: "index" },
   parts: ["root"],
   states: ["filled"],
@@ -38,9 +43,16 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     tabs: z
       .array(
-        z.strictObject({ icon, label: text(12), goto: screenId, count: z.int().min(0).max(9999).optional() }),
+        z.strictObject({
+          icon,
+          label: text(12),
+          goto: screenId,
+          count: z.int().min(0).max(9999).optional(),
+          ...itemVariantProps(meta.items.variants, { inheritTrail: true }),
+        }),
       )
       .min(2)
       .max(5),
@@ -49,7 +61,13 @@ export const props = z
   .refine(({ tabs, at }) => at < tabs.length, {
     path: ["at"],
     message: "Must index an available tab",
-  });
+  })
+  .overwrite((value) => ({
+    ...value,
+    tabs: value.tabs.map((tab) =>
+      (tab.trail ?? value.trail) === "none" ? { ...tab, count: undefined } : tab,
+    ),
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const tabs = [0, 1].map((index) => {
@@ -93,6 +111,14 @@ export const examples = [
       { icon: "settings", label: "Settings", goto: "settings", count: 0 },
     ],
     at: 0,
+  },
+  {
+    trail: "none",
+    tabs: [
+      { icon: "message", label: "Messages", goto: "messages", count: 3 },
+      { icon: "calendar", label: "Schedule", goto: "schedule", count: 12, trail: "badge" },
+      { icon: "settings", label: "Settings", goto: "settings", count: 2, trail: "none" },
+    ],
   },
 ] satisfies z.input<typeof props>[];
 
