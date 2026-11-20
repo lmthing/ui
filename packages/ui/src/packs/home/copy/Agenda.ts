@@ -74,10 +74,10 @@ export function agendaReading(event: Omit<EventLine, "date">, id = event.id, lan
   return `${id ?? ""} ${event.time ? timeOfDayLine(event.time, lang) : agendaLabels.allDay} ${event.title} · ${people}${initials}${conflict}`.trim();
 }
 
-export function agendaScheduleReading(entries: EventLine[], lang?: string): string[] {
+export function agendaScheduleReading(entries: EventLine[], lang?: string, headings = true): string[] {
   return [
     ...entries.flatMap((event, index) => [
-      ...(entries[index - 1]?.date !== event.date ? [agendaDay(event.date, lang)] : []),
+      ...(headings && entries[index - 1]?.date !== event.date ? [agendaDay(event.date, lang)] : []),
       agendaReading(event, event.id, lang),
     ]),
     homeWordsFor(lang).agendaLabels.add,

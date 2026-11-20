@@ -15,7 +15,7 @@ import {
   type RandomSource,
 } from "./draw";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "./session";
-import { clockChanges } from "./clocks";
+import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
@@ -33,7 +33,6 @@ export type ActResult =
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
-
 function liveInput(def: Definition, input: Values, id: string, local: Values) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true);
@@ -50,14 +49,17 @@ function stageStandaloneClock(
   const [id, ...parts] = address.split("/");
   const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
   const def = defs[c]!;
-  const { live, clocks, items } = def.meta;
-  if (!live?.derive || (!clocks && !items?.clocks && !items?.nested?.clocks)) return;
-  const base = `${screen.id}/${id}/`;
-  const get = (part: string) => next[`${base}${part}`];
-  const props = liveInput(def, input, id!, localValues(screen.id, next));
+  const { meta } = def;
+  const legacy = meta.live?.derive && (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
+  const target = parts.join("/") || "root";
+  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const props = legacy
+    ? liveInput(def, input, id!, localValues(screen.id, next))
+    : parseControlProps(def, input, get);
   const now = Number(get("$now") ?? Date.now());
-  const changes = clockChanges(def.meta, props, get, parts.join("/") || "root", step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${base}${part}`] = value;
+  const changes = clockChanges(meta, props, get, target, step, now);
+  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
 
 function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
@@ -78,13 +80,13 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
       successActions?.length ||
       readSuccess ||
       policy ||
-      live
+      live ||
+      hasPlaybackClock(def.meta)
         ? state
         : undefined);
     return affordancesOf(def.meta, props, id, local, liveState, true);
   });
 }
-
 function expireProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values) {
   for (const { id, c, state: _state, ...raw } of screen.components) {
     const def = defs[c];

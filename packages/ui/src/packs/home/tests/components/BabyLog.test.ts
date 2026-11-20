@@ -21,6 +21,18 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const render = (input: unknown, state: "filled" | "empty" = "filled") =>
   renderInstance("BabyLog", input, state, theme, { component: "b1" });
 
+it("keeps authored measurements but omits them from brief history", () => {
+  expect(props.parse(sample)).toMatchObject({ detail: "full", surface: "card" });
+  const input = { ...sample, detail: "brief" };
+  expect(props.parse(input).log).toEqual(sample.log);
+  expect(props.safeParse({ ...sample, detail: "none" }).success).toBe(false);
+  const html = render(input);
+  expect(html).not.toMatch(/\/(?:minutes|amount)"/);
+  const read = readComponent(definition, input, "b1").join("\n");
+  expect(read).not.toMatch(/12 min|90 ml/);
+  expect(read).toContain("[b1/r8 press]");
+});
+
 describe("BabyLog schema and boundaries", () => {
   it.each(examples)("accepts a domain example", (example) =>
     expect(props.safeParse(example).success).toBe(true),

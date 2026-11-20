@@ -1,7 +1,7 @@
 import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
-import { clockKey, clockPropKey, clockTargets, clockTime } from "./clock";
+import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
@@ -110,7 +110,7 @@ export function adjustmentAt(
       ? (row < 0 ? props : rows[row])?.[prop]
       : saved;
   const min = Math.max(spec.min ?? -Infinity, bounds?.min ?? -Infinity, clock ? 0 : -Infinity);
-  const max = Math.min(spec.max ?? Infinity, bounds?.max ?? Infinity, clock?.spec.max ?? Infinity);
+  const max = Math.min(spec.max ?? Infinity, bounds?.max ?? Infinity, clock ? clockMax(clock) : Infinity);
   const next = finite(current) ? nextNumber(current, delta, min, max) : undefined;
   const atSet =
     setter && (action === "increment" || action === "decrement")

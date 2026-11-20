@@ -12,8 +12,8 @@ import type { ScreenLike } from "./read";
 import {
   adjustmentAt,
   projectAdjustments,
-  projectClocks,
   projectComponentSets,
+  projectLiveClocks,
   projectMatrix,
 } from "./clocks";
 
@@ -34,7 +34,6 @@ function defaultInput(field: unknown) {
 }
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
-
 function wireAdjustmentKey(def: Definition, key: string) {
   const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
   if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
@@ -148,7 +147,8 @@ export function liveProps(
     props = projectControls(meta, props, get);
     if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
   }
-  if (runtime || meta.live) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
+  const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
+  if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };

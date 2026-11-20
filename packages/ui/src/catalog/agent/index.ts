@@ -65,5 +65,8 @@ export {
   projectAdjustments,
   projectClocks,
   clockActionValid,
+  clockControlDeclared,
+  hasPlaybackClock,
+  isPlaybackAction,
   clockChanges,
 } from "./clocks";

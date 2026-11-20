@@ -17,6 +17,7 @@ const adoptedVariants: readonly string[] = [
   "KeyValue",
   "Slots",
   "ServiceMenu",
+  "Devices",
   "Loan",
   "Payoff",
   "Hero",
