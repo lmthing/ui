@@ -80,18 +80,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   }));
   return { staff: staff.length ? staff : [{ name: placeholderTitle(0, lang), photo: "local:1" }] };
 }
+const walkingStaff = {
+  staff: [
+    { name: "Sam", photo: "local:1", role: "Dog walker" },
+    { name: "Alex", photo: "local:2", role: "Dog trainer" },
+  ],
+  anyone: false,
+  at: 1,
+};
 export const examples = [
   { staff: [{ name: "Anna", photo: "lib:people", role: "Plant care" }], anyone: true, at: 0 },
-  {
-    density: "compact",
-    staff: [
-      { name: "Sam", photo: "lib:people", role: "Walker" },
-      { name: "Alex", photo: "lib:people" },
-    ],
-    anyone: false,
-    at: 1,
-  },
-  { staff: [{ name: "Sam", photo: "lib:people", role: "Walker" }], at: 1, detail: "brief" },
+  walkingStaff,
+  { ...walkingStaff, density: "compact" },
+  { ...walkingStaff, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("StaffPicker");
 export const probes = [
