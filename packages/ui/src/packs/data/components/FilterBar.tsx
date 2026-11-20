@@ -103,7 +103,7 @@ export const probes = [
     "Chips",
   ),
   write(
-    "Use Find a plant as the search hint, a Room dropdown with Kitchen and Study selected, a Light dropdown with Bright and Indirect and sort by Recently watered.",
+    "Use Find a plant as the search hint, a Room dropdown with Kitchen and Study as options and Study selected, a Light dropdown with Bright and Indirect, and sort by Recently watered.",
   ),
   read("Change the Room filter to Kitchen.", { address: "s1/r1", action: "select" }),
 ] satisfies Probe[];

@@ -15,7 +15,7 @@ export const example = [
   '{"id":"b2","c":"Bars","title":"Sales by category","unit":"orders","style":"share","points":[{"label":"Tools","value":20},{"label":"Seeds","value":25}]}',
   '{"id":"h3","c":"Header","title":"Stockroom traffic"}',
   '{"id":"m1","c":"Heatmap","title":"Busy hours","unit":"visits","style":"hours","days":[[0,0,0,0,2,4,6,5,3,1,0,0],[0,0,0,0,2,4,7,4,2,1,0,0],[0,0,0,0,3,4,8,4,3,1,0,0],[0,0,0,0,3,5,8,5,3,1,0,0],[0,0,0,0,4,6,9,6,3,1,0,0],[0,0,0,0,5,8,9,7,4,1,0,0],[0,0,0,0,3,5,7,6,2,1,0,0]]}',
-  '{"id":"b3","c":"Bars","title":"Weekend visits","unit":"visits","points":[{"label":"Sat","value":34},{"label":"Sun","value":28}]}',
+  '{"id":"b3","c":"Bars","title":"Weekend visits","unit":"visits","points":[{"label":"Sat","value":34},{"label":"Sun","value":24}]}',
   '{"id":"h4","c":"Header","title":"Reorders"}',
   '{"id":"f2","c":"FilterBar","hint":"Find reorders","filters":[{"label":"Supplier","options":["Green Lane","Cedar Mill"]}]}',
   '{"id":"b4","c":"Board","columns":[{"label":"Requested"},{"label":"Ordered"},{"label":"Received"}],"cards":[{"title":"Seed trays","column":0,"tag":"Low stock","who":"Ana","value":28,"goto":"trays"},{"title":"Trowels","column":1,"who":"Mina","goto":"trowels"}]}',

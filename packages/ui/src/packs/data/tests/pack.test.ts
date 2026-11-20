@@ -158,3 +158,16 @@ it("rejects inconsistent shapes, invalid references and values beyond the plan l
   ];
   for (const [def, input] of invalid) expect(def.props.safeParse(input).success, def.meta.id).toBe(false);
 });
+
+it("routes only dangerous bulk actions through confirmation and hides all actions when empty", () => {
+  const def: Definition = components.BulkActions;
+  const input = def.examples[0];
+  const read = readComponent(def, input, "b1").join("\n");
+  expect(def.meta.confirmParts).toContain("confirm");
+  expect(def.meta.confirmParts).not.toContain("root");
+  expect(read).toContain("[b1/r1 press]");
+  expect(read).not.toContain("[b1/r1/confirm press]");
+  expect(read).not.toContain("[b1/r2 press]");
+  expect(read).toContain("[b1/r2/confirm press]");
+  expect(readComponent(def, input, "b1", "empty").join("\n")).not.toContain(" press]");
+});
