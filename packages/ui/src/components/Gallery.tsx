@@ -145,7 +145,7 @@ function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; sha
   return <KitRow item={entry.id} label={entry.caption ?? placeholderTitle(index, lang)} goto={entry.goto} inset="none">
     <KitContent lineRole="body">
       <KitPhoto photo={entry.photo} shape={shape} part="photo" {...(entry.caption ? { label: entry.caption } : {})} />
-      {cue && caption ? <KitContent lead={cue} lineRole="caption">{caption}</KitContent> : cue || caption}
+      {cue ? <KitGrid fitLast>{caption || <></>}{cue}</KitGrid> : caption}
     </KitContent>
   </KitRow>;
 }
