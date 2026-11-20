@@ -2,7 +2,7 @@ import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 // prettier-ignore
-import { isCompletedRequest, orderedRequests, queueCounts, queueSnapshot, requestLines,
+import { isCompletedRequest, requestGroups, queueCounts, queueSnapshot, requestLines, requestSkeleton,
   requestQueueReading, requestStatuses, requestUrgencies, type QueueRecord } from "../copy";
 import { requestsWordsFor } from "../lang";
 
@@ -14,7 +14,7 @@ export const meta = {
   purpose: "Find the next service request to work on by urgency and deadline.",
   pick: "An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).",
   writeHints: [
-    'Write 1–6 records across both views. For one ordered queue without headings, write group "none" and density null. Only set density when spacing is requested.',
+    'Write 1–6 records across both views, only from the brief. An explicit request for one flat queue with no status headings requires group "none", not null. Only set density when spacing is requested.',
     "Never write display order, age, overdue or counts.",
     "Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.",
   ],
@@ -23,7 +23,7 @@ export const meta = {
   tier: "phone",
   realPath: "The operator's request records live on the device; sharing changes needs a shared app.",
   variants: { density: ["comfortable", "compact"], group: ["sections", "none"] },
-  variantParts: { "group.none": { hides: ["status_heading"] } },
+  variantParts: { "group.none": { hides: ["status_heading"], adds: ["status"] } },
   parts: ["root", "view", "count", "status_heading", "retry", "empty", "error", "more"],
   items: {
     key: "addressed_rows",
@@ -92,37 +92,27 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 // prettier-ignore
 export const examples = [
   { rows: [
-    { number: "LG-41", title: "Grow light keeps flickering", place: "Fern shelf", status: "working", urgency: "urgent", who: "Noor", opened: "2026-11-18", openedAt: "09:00", due: "2026-11-20", dueAt: "16:00", goto: "grow_light" },
+    { number: "LG-41", title: "Flickering grow light", place: "Fern shelf", status: "working", urgency: "urgent", who: "Noor", opened: "2026-11-18", openedAt: "09:00", due: "2026-11-20", dueAt: "16:00", goto: "grow_light" },
     { number: "LG-42", title: "Leaking mister", status: "new", urgency: "normal", opened: "2026-11-19", openedAt: "10:00", goto: "mister" },
   ] },
-  { group: "none", density: "compact", view: "completed", rows: [
+  { view: "completed", rows: [
     { number: "TR-06", title: "Loose kennel gate", status: "closed", urgency: "low", opened: "2026-11-17", openedAt: "13:30", goto: "kennel_gate" },
     { number: "TR-07", title: "Torn spare lead", status: "resolved", urgency: "urgent", opened: "2026-11-19", openedAt: "11:30", goto: "spare_lead" },
   ] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("RequestQueue");
+// prettier-ignore
 export const probes = [
-  choose(
-    "Give the repair desk one inbox to switch between active and completed tickets, grouped by status and ordered by urgency and promised deadlines",
-  ),
-  choose(
-    "Show my three saved repair shops as ordinary tappable rows, each with a short status badge",
-    "List",
-  ),
+  choose("Give the repair desk one inbox to switch between active and completed tickets, grouped by status and ordered by urgency and promised deadlines"),
+  choose("Show my three saved repair shops as ordinary tappable rows, each with a short status badge", "List"),
   {
     ...write(
-      "Show repair ticket LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00; open mister. Put all requests in one ordered queue without section headings.",
+      "Show my service request queue as one flat, ordered list. Do not group by status or show any section headings. The only ticket is LG-42 Leaking mister, new and normal, opened 2026-11-19 at 10:00; tapping it opens mister.",
     ),
     variant: { axis: "group", value: "none" },
   },
-  read(
-    "Tap the Grow light keeps flickering report row to open its details. Leave the queue view unchanged.",
-    {
-      address: "r1/r1",
-      action: "press",
-    },
-  ),
+  read("Tap the Flickering grow light report row to open its details. Leave the queue view unchanged.", { address: "r1/r1", action: "press" }),
 ] satisfies c.Probe[];
 
 type QueueProps = c.Props<typeof props, typeof meta>;
@@ -134,44 +124,53 @@ function readQueue(input: unknown, state: c.StateName, lang?: string, data?: c.D
 }
 
 // prettier-ignore
-function QueueRow({ row, now, density }: { row: QueueRowProps; now: number; density: c.ThemeDensity }) {
+function QueueRow({ row, now, density, grouped, loading }: {
+  row: QueueRowProps; now: number; density: c.ThemeDensity; grouped: boolean; loading: boolean;
+}) {
   const { lang, words: { queue } } = kit.useWords(requestsWordsFor);
   const line = requestLines(row, now, lang);
-  const sub = { role: "caption", tone: "muted", density } as const;
-  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} lineRole="heading" density={density}
-    trailing={<kit.KitTrail kind="badge" part="urgency" value={line.urgency} tone={row.urgency === "urgent" ? "warn" : "muted"} />}>
-    <kit.KitText part="title" role="heading" density={density}>{row.title}</kit.KitText>
+  const sub = { role: "caption", tone: "muted", density } as const, compact = density === "compact";
+  if (loading) return <kit.KitRow part={null} label={row.title} inline>
+    {requestSkeleton(row, line, grouped, compact, lang).map(({ key, ...entry }) => <kit.KitSkeleton key={key} shape="figure" inset="none" density={density} lines={[entry]} />)}
+  </kit.KitRow>;
+  const place = row.place && <kit.KitText part="place" {...sub}>{row.place}</kit.KitText>;
+  const who = line.who && <kit.KitText part="who" {...sub}>{line.who}</kit.KitText>;
+  return <kit.KitRow item={row.id} label={row.title} goto={row.goto} inline lineRole="heading" density="comfortable"
+    trailing={<kit.KitIcon name="chevron_right" tone="muted" decorative scale="sm" />}>
+    <kit.KitText part="title" role="heading" density="comfortable">{row.title}</kit.KitText>
     <kit.KitText part={null} {...sub}>
       <kit.KitText part="number" {...sub} tabular>{row.number}</kit.KitText>{queue.separator}
-      <kit.KitText part="status" {...sub}>{line.status}</kit.KitText>{queue.separator}
-      <kit.KitText part="age" {...sub}>{line.age}</kit.KitText>
+      <kit.KitText part="urgency" {...sub} tone={row.urgency === "urgent" ? "warn" : "muted"}>{line.urgency}</kit.KitText>
     </kit.KitText>
-    {row.place && <kit.KitText part="place" {...sub}>{row.place}</kit.KitText>}
-    {line.who && <kit.KitText part="who" {...sub}>{line.who}</kit.KitText>}
+    <kit.KitText part="age" {...sub}>{line.age}</kit.KitText>
+    {!grouped && <kit.KitText part="status" {...sub}>{line.status}</kit.KitText>}
+    {compact && place && who ? <kit.KitText part={null} {...sub}>{place}{queue.separator}{who}</kit.KitText> : <>{place}{who}</>}
     {line.due && <kit.KitText part="due" {...sub} tone={line.overdue ? "bad" : "muted"}>{line.due}</kit.KitText>}
   </kit.KitRow>;
 }
 
 // prettier-ignore
-function QueueRows({ rows, now, density, grouped }: { rows: QueueRowProps[]; now: number; density: c.ThemeDensity; grouped: boolean }) {
+function QueueRows({ rows, now, density, grouped, loading = false }: {
+  rows: QueueRowProps[]; now: number; density: c.ThemeDensity; grouped: boolean; loading?: boolean;
+}) {
   const { words: { queue } } = kit.useWords(requestsWordsFor);
-  const ordered = orderedRequests(rows, grouped);
-  const draw = (row: QueueRowProps) => <QueueRow key={row.id} {...{ row, now, density }} />;
-  if (!grouped) return <>{ordered.map(draw)}</>;
-  return <kit.KitCard style="plain" part="status_heading">
-    {requestStatuses.map((status) => {
-      const group = ordered.filter((row) => row.status === status);
-      return group.length > 0 && <kit.KitContent key={status} group="response" density={density}>
-        <kit.KitContent inset="md"><kit.KitText part={null} role="label" tone="muted">{queue.status[status]}</kit.KitText></kit.KitContent>
-        {group.map(draw)}
-      </kit.KitContent>;
-    })}
-  </kit.KitCard>;
+  const groups = <kit.KitContent inset="md" group={density === "compact" ? "content" : "response"}>
+    <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+      {requestGroups(rows, grouped).map(({ status, rows }, index) => <kit.KitContent key={status ?? "rows"} group={index ? "response" : "content"}>
+        {status && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", queue.status[status]]]} /> :
+          <kit.KitText part={null} role="label" tone="muted">{queue.status[status]}</kit.KitText>)}
+        <kit.KitGrid arrange="rows" list listRowGap="cards" density={density}>
+          {rows.map((row) => <QueueRow key={row.id} {...{ row, now, density, grouped, loading }} />)}
+        </kit.KitGrid>
+      </kit.KitContent>)}
+    </kit.KitGrid>
+  </kit.KitContent>;
+  return grouped && !loading ? <kit.KitCard style="plain" part="status_heading">{groups}</kit.KitCard> : groups;
 }
 
 // prettier-ignore
 export function RequestQueue(input: QueueProps) {
-  const state = kit.useComponentState();
+  const state = kit.useComponentState(), { thing } = kit.usePartContext();
   const { lang, words: { queue } } = kit.useWords(requestsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const grouped = kit.useVariant("group", meta.variants.group, input.group) === "sections";
@@ -179,11 +178,14 @@ export function RequestQueue(input: QueueProps) {
   const { more, now } = queueSnapshot(kit.useDeviceData(), view), counts = queueCounts(rows.length, more, lang);
   return <kit.KitCard part="root" density={density} padded inset="none">
     {state === "loading" ? <>
-      <kit.KitContent inset="md"><kit.KitSkeleton shape="control" full kind="secondary" label={queue.viewLabel} /></kit.KitContent>
-      <kit.KitSkeleton rows={Math.max(1, rows.length)} lead="none" density={density} />
+      <kit.KitContent inset="md">
+        <kit.KitSkeleton shape="control" full kind="secondary" label={queue.viewLabel} />
+        <kit.KitSkeleton shape="figure" inset="none" content={[["caption", counts.count]]} />
+      </kit.KitContent>
+      {rows.length ? <QueueRows {...{ rows, now, density, grouped }} loading /> : <kit.KitSkeleton rows={1} lead="none" density={density} />}
     </> : state === "error" ? <kit.KitContent inset="md" align="center">
       <kit.KitEmpty title={queue.error} part="error" icon="clipboard_list" decorativeIcon />
-      <kit.KitAction part="retry" label={queue.retry} kind="secondary" />
+      <kit.KitAction part="retry" label={queue.retry} kind="secondary" full />
     </kit.KitContent> : <>
       <kit.KitContent inset="md">
         <kit.KitTrack look="segments" role="radiogroup" label={queue.viewLabel} part="view">
@@ -191,10 +193,8 @@ export function RequestQueue(input: QueueProps) {
         </kit.KitTrack>
         {state === "filled" && <kit.KitText part="count" role="caption" tone="muted">{counts.count}</kit.KitText>}
       </kit.KitContent>
-      {state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" ? { title: queue.empty[view] } : {})} /> : <QueueRows {...{ rows, now, density, grouped }} />}
-      {state === "filled" && counts.more && <kit.KitContent inset="md">
-        <kit.KitText part="more" role="caption" tone="muted">{counts.more}</kit.KitText>
-      </kit.KitContent>}
+      {state === "empty" || !rows.length ? <kit.KitEmpty part="empty" icon="clipboard_list" decorativeIcon {...(state === "filled" || !thing ? { title: queue.empty[view] } : {})} /> : <QueueRows {...{ rows, now, density, grouped }} />}
+      {state === "filled" && counts.more && <kit.KitContent inset="md"><kit.KitText part="more" role="caption" tone="muted">{counts.more}</kit.KitText></kit.KitContent>}
     </>}
   </kit.KitCard>;
 }

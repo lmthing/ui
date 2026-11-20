@@ -51,6 +51,15 @@ export function orderedRequests<T extends QueueRecord>(rows: readonly T[], group
   );
 }
 
+export function requestGroups<T extends QueueRecord>(rows: readonly T[], grouped: boolean) {
+  const ordered = orderedRequests(rows, grouped);
+  if (!grouped) return [{ status: undefined, rows: ordered }];
+  return requestStatuses.flatMap((status) => {
+    const rows = ordered.filter((row) => row.status === status);
+    return rows.length ? [{ status, rows }] : [];
+  });
+}
+
 function ageLine(row: QueueRecord, now: number, lang?: string) {
   const words = requestsWordsFor(lang).queue;
   const minutes = Math.floor((now - new Date(`${row.opened}T${row.openedAt}`).getTime()) / minuteMs);
@@ -91,6 +100,31 @@ export function queueCounts(shown: number, more: number, lang?: string) {
   };
 }
 
+export function requestSkeleton(
+  row: QueueRecord,
+  lines: ReturnType<typeof requestLines>,
+  grouped: boolean,
+  compact: boolean,
+  lang?: string,
+) {
+  const { separator } = requestsWordsFor(lang).queue;
+  const merge = compact && row.place && lines.who;
+  const metadata = {
+    number: [row.number, lines.urgency].join(separator),
+    age: lines.age,
+    status: !grouped && lines.status,
+    place: merge ? [row.place, lines.who].join(separator) : row.place,
+    who: !merge && lines.who,
+    due: lines.due,
+  };
+  return [
+    { key: "title", text: row.title, role: "heading" as const, density: "comfortable" as const },
+    ...Object.entries(metadata).flatMap(([key, text]) =>
+      text ? [{ key, text, role: "caption" as const }] : [],
+    ),
+  ];
+}
+
 export function requestQueueReading(
   rows: readonly (QueueRecord & { id: string })[],
   view: QueueView,
@@ -101,22 +135,19 @@ export function requestQueueReading(
   const words = requestsWordsFor(lang).queue;
   const { more, now } = queueSnapshot(data, view);
   const counts = queueCounts(rows.length, more, lang);
-  let previous: Status | undefined;
   return [
     ...Object.values(words.views),
     counts.count,
     ...(rows.length ? [] : [words.empty[view]]),
-    ...orderedRequests(rows, grouped).flatMap((row) => {
-      const lines = requestLines(row, now, lang);
-      const heading = grouped && previous !== row.status ? [lines.status] : [];
-      previous = row.status;
-      return [
-        ...heading,
-        [
+    ...requestGroups(rows, grouped).flatMap(({ status, rows }) => [
+      ...(status ? [words.status[status]] : []),
+      ...rows.map((row) => {
+        const lines = requestLines(row, now, lang);
+        return [
           row.id,
           row.number,
           JSON.stringify(row.title),
-          lines.status,
+          !grouped && lines.status,
           lines.urgency,
           row.place,
           lines.who,
@@ -124,9 +155,9 @@ export function requestQueueReading(
           lines.due,
         ]
           .filter(Boolean)
-          .join(words.separator),
-      ];
-    }),
+          .join(words.separator);
+      }),
+    ]),
     ...(counts.more ? [counts.more] : []),
   ];
 }

@@ -101,14 +101,16 @@ describe("RequestQueue states and parts", () => {
     const first = addressedElements(draw(mixed));
     expect(first.get(address("view"))?.attributes).toContain('role="radiogroup"');
     expect(first.get(address("r2/root"))?.attributes).toContain('role="link"');
-    for (const part of ["number", "title", "place", "status", "urgency", "who", "age", "due"])
+    for (const part of ["number", "title", "place", "urgency", "who", "age", "due"])
       expect(first.has(address(`r2/${part}`))).toBe(true);
     for (const part of ["place", "who", "due"]) expect(first.has(address(`r3/${part}`))).toBe(false);
     expect(first.has(address("r1/root"))).toBe(false);
     expect(first.has(address("status_heading"))).toBe(true);
+    expect(first.has(address("r2/status"))).toBe(false);
     const second = draw({ ...mixed, view: "completed", group: "none", density: "compact" });
     const parts = addressedElements(second);
     expect(parts.has(address("r1/root"))).toBe(true);
+    expect(parts.has(address("r1/status"))).toBe(true);
     expect(parts.has(address("r2/root"))).toBe(false);
     expect(parts.has(address("status_heading"))).toBe(false);
     expect(second).toContain("1 request");
@@ -123,7 +125,7 @@ describe("RequestQueue states and parts", () => {
     expect(parts.has(address("empty"))).toBe(state === "empty");
     expect(parts.has(address("error"))).toBe(state === "error");
     expect(parts.has(address("retry"))).toBe(state === "error");
-    expect(html).not.toContain(ticket.title);
+    if (state !== "loading") expect(html).not.toContain(ticket.title);
   });
 
   it("shows a view-specific empty message after filtering out every row", () => {

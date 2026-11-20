@@ -2,7 +2,7 @@ import type { LDMLPluralRule } from "../../../catalog";
 
 export const en = {
   queue: {
-    views: { active: "Active", completed: "Completed" },
+    views: { active: "Show active", completed: "Show completed" },
     viewLabel: "Request view",
     status: {
       new: "New",
