@@ -86,6 +86,12 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { tabs, at: 0 };
 }
 
+const badgeTabs = [
+  { icon: "message", label: "Messages", goto: "messages", count: 3 },
+  { icon: "calendar", label: "Schedule", goto: "schedule", count: 120 },
+  { icon: "settings", label: "Settings", goto: "settings", count: 0 },
+] as const;
+
 export const examples = [
   {
     tabs: [
@@ -104,22 +110,9 @@ export const examples = [
     ],
     at: 3,
   },
-  {
-    tabs: [
-      { icon: "message", label: "Messages", goto: "messages", count: 3 },
-      { icon: "calendar", label: "Schedule", goto: "schedule", count: 120 },
-      { icon: "settings", label: "Settings", goto: "settings", count: 0 },
-    ],
-    at: 0,
-  },
-  {
-    trail: "none",
-    tabs: [
-      { icon: "message", label: "Messages", goto: "messages", count: 3 },
-      { icon: "calendar", label: "Schedule", goto: "schedule", count: 12, trail: "badge" },
-      { icon: "settings", label: "Settings", goto: "settings", count: 2, trail: "none" },
-    ],
-  },
+  { tabs: [...badgeTabs] },
+  { trail: "none", tabs: [...badgeTabs] },
+  { tabs: [badgeTabs[0], { ...badgeTabs[1], trail: "none" }, badgeTabs[2]] },
 ] satisfies z.input<typeof props>[];
 
 const { read } = probesFor("TabBar");

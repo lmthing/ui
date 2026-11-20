@@ -135,12 +135,12 @@ describe("TabBar fallback", () => {
 });
 
 it.each(["none", "badge"] as const)("reads and renders only effective badges for %s", (trail) => {
-  const input = { ...examples[3]!, trail };
+  const [messages, schedule, settings] = examples[2]!.tabs;
+  // prettier-ignore
+  const input = { trail, tabs: [messages!, { ...schedule!, count: 12, trail: "badge" }, { ...settings!, count: 2, trail: "none" }] };
   const html = renderInstance("TabBar", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
-  const badges = trail === "none" ? ["r2"] : ["r1", "r2"];
-  expect([...html.matchAll(/data-testid="home\/c1\/(r\d+)\/badge"/g)].map((match) => match[1])).toEqual(
-    badges,
-  );
+  const badges = html.match(/r\d+\/badge(?=")/g);
+  expect(badges).toEqual(trail === "none" ? ["r2/badge"] : ["r1/badge", "r2/badge"]);
   const read = readComponent(components.TabBar, input, "t1").join("\n");
   expect(read.includes("Messages: 3")).toBe(trail === "badge");
   expect(read).toContain("Schedule: 12");
