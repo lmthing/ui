@@ -108,7 +108,7 @@ type TextProps = ComponentProps<typeof KitText>;
 const textOnly = (children: ReactNode): ReactNode =>
   Children.map(children, (node) => (isValidElement<TextProps>(node) ? textOnly(node.props.children) : node));
 function loadingLines(children: ReactNode): ReactNode[] {
-  return Children.toArray(children).flatMap((node) => {
+  return Children.toArray(children).flatMap<ReactNode>((node) => {
     if (isValidElement<ComponentProps<typeof KitContent>>(node) && node.type === KitContent)
       return [
         <KitContent key={node.key} {...node.props} lead={null}>
