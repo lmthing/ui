@@ -99,6 +99,7 @@ const variantExample = {
   name: "Anna Patel",
   date: "2026-11-19",
 } satisfies z.input<typeof props>;
+const unsignedExample = { title: variantExample.title, terms: variantExample.terms, signed: false };
 export const examples = [
   {
     title: "Plant care access consent",
@@ -113,7 +114,8 @@ export const examples = [
     date: "2026-11-18",
   },
   variantExample,
-  { title: variantExample.title, terms: variantExample.terms, signed: false, density: "compact" },
+  unsignedExample,
+  { ...unsignedExample, density: "compact" },
   { ...variantExample, surface: "outlined" },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
@@ -152,7 +154,7 @@ export function Agreement(input: Props<typeof props, typeof meta>) {
         inline
         {...{ density }}
         label={accepted ? copy.accepted : copy.agree}
-        trailing={
+        leading={
           <KitCheck
             part="agree"
             done={accepted}
@@ -161,9 +163,7 @@ export function Agreement(input: Props<typeof props, typeof meta>) {
           />
         }
       >
-        <KitText part={null} {...{ density }}>
-          {accepted ? copy.accepted : copy.agree}
-        </KitText>
+        <KitText part={null} {...{ density }} children={accepted ? copy.accepted : copy.agree} />
       </KitRow>
       {(!accepted || name) && (
         <KitContent {...{ density }}>

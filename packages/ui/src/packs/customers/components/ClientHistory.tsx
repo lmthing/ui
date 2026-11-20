@@ -139,6 +139,7 @@ const kindIcons = {
   message: "message",
 } as const;
 
+// prettier-ignore
 export function ClientHistory(input: Props<typeof props, typeof meta>) {
   const { entries, lead, surface } = input;
   const density = useVariant("density", meta.variants.density, input.density);
@@ -175,24 +176,14 @@ export function ClientHistory(input: Props<typeof props, typeof meta>) {
             trailing={
               <>
                 {entry.amount !== undefined && (
-                  <KitText
-                    role="number"
-                    numberScale="compact"
-                    align="end"
-                    tabular
-                    part="amount"
-                    {...{ density }}
-                  >
-                    {changeLine(entry.amount, "money", undefined, lang)}
-                  </KitText>
+                  <KitText role="number" numberScale="compact" align="end" tabular part="amount" {...{ density }}
+                    children={changeLine(entry.amount, "money", undefined, lang)} />
                 )}
                 <KitIcon name="chevron_right" decorative />
               </>
             }
           >
-            <KitText part="title" {...{ density }}>
-              {entry.title}
-            </KitText>
+            <KitText part="title" {...{ density }} children={entry.title} />
             <KitText role="caption" tone="muted" part="date" {...{ density }}>
               {historyDetailLine(entry.kind, entry.date)}
             </KitText>
