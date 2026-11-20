@@ -111,6 +111,16 @@ export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[
       values: { wide: { aspect: "wide" }, square: { aspect: "square" }, tall: { aspect: "tall" } },
     },
   ],
+  Profile: [
+    {
+      from: "style",
+      values: { row: { align: "start" }, centered: { align: "center" } },
+      prepare: (props) =>
+        props.style === "centered" && (props.align ?? "center") === "center" && !props.photo
+          ? { media: "none", ...props }
+          : props,
+    },
+  ],
 };
 
 /** Move recognised legacy values only; an explicitly authored destination wins. */

@@ -79,3 +79,24 @@ it.each(components.Photo.meta.variants.aspect)(
     expect(components.Photo.props.parse(overridden).aspect).toBe("square");
   },
 );
+
+it.each([
+  [{ style: "row" }, { align: "start", media: "thumb" }],
+  [
+    { style: "centered", photo: "lib:dogs" },
+    { align: "center", media: "thumb", photo: "lib:dogs" },
+  ],
+  [{ style: "centered" }, { align: "center", media: "none" }],
+  [
+    { style: "centered", align: "start" },
+    { align: "start", media: "thumb" },
+  ],
+  [
+    { style: "centered", media: "thumb" },
+    { align: "center", media: "thumb" },
+  ],
+] as const)("migrates %j with explicit axes winning", (fields, expected) => {
+  const { c, id, ...input } = migrateLine({ c: "Profile", id: "p1", name: "Clover", ...fields });
+  expect({ c, id }).toEqual({ c: "Profile", id: "p1" });
+  expect(components.Profile.props.parse(input)).toMatchObject({ name: "Clover", ...expected });
+});
