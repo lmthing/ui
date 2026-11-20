@@ -126,7 +126,7 @@ describe("SymptomLog states, parts, read and actions", () => {
     const html = renderInstance("SymptomLog", example, "filled", theme, { component: "s1" });
     const reading = readComponent(components.SymptomLog, example, "s1").join("\n");
     expect(html.match(/data-testid="home\/s1\/root"/g)).toHaveLength(1);
-    for (const line of example.detail === "brief" ? [] : symptomReading(parsed.groups)) {
+    for (const line of symptomReading(parsed.groups)) {
       for (const text of line.split(" · ")) expect(html).toContain(text);
       expect(reading).toContain(line);
     }
@@ -141,9 +141,7 @@ describe("SymptomLog states, parts, read and actions", () => {
           const slider = elementAt(html, `home/s1/${row.id}/severity_${index + 1}`).attributes;
           expect(slider).toContain('role="slider"');
           expect(slider).toContain(`aria-valuenow="${entry.severity}"`);
-          expect(html.includes(`data-testid="home/s1/${row.id}/reading_${index + 1}"`)).toBe(
-            example.detail !== "brief",
-          );
+          expect(html.includes(`data-testid="home/s1/${row.id}/reading_${index + 1}"`)).toBe(true);
         } else expect(html).not.toContain(`data-testid="home/s1/${row.id}/severity_${index + 1}"`);
       });
     }

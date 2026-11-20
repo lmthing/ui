@@ -53,7 +53,10 @@ export const cycleNextLine = (date: string, lang?: string): string =>
   healthWordsFor(lang).cycleNext(dateLine(date, lang));
 export const cycleWindowLine = (start: string, end: string, lang?: string): string =>
   healthWordsFor(lang).cycleWindow(
-    keepTogether(dateFormatter(lang).formatRange(atMidnight(start), atMidnight(end))),
+    keepTogether(dateFormatter(lang).formatRange(atMidnight(start), atMidnight(end))).replace(
+      /–/g,
+      "\u2060–\u2060",
+    ),
   );
 
 export function cycleReading(input: CycleSeed & { detail?: "full" | "brief" }, lang?: string): string[] {

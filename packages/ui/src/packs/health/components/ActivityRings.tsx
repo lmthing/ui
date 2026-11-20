@@ -84,7 +84,6 @@ export const examples = [
     ],
   },
   {
-    surface: "outlined",
     rings: [
       { label: "Walks", value: 9, of: 12, unit: "walks" },
       { label: "Active", value: 45, of: 60, unit: "min" },
@@ -98,7 +97,6 @@ export const examples = [
     ],
   },
   {
-    detail: "brief",
     rings: [
       { label: "Steps", value: 8500, of: 8000, unit: "steps" },
       { label: "Water", value: 5, of: 8, unit: "glasses" },
@@ -159,8 +157,7 @@ export function ActivityRings({ rings, detail, surface }: Props<typeof props, ty
                   align: "center",
                   numberScale: numberScaleOf(ring.value, rings.length),
                 },
-                ...(full ? [{ text: goalLine(ring.of, lang), role: "caption", align: "center" } as const] : []),
-                { text: ring.unit, role: "caption", align: "center" },
+                { text: full ? `${goalLine(ring.of, lang)} ${ring.unit}` : ring.unit, role: "caption", align: "center" },
               ]}
             />
           ) : (
@@ -171,10 +168,9 @@ export function ActivityRings({ rings, detail, surface }: Props<typeof props, ty
               <KitText {...ringNumber(ring.value, rings.length)} part="value">
                 {numberLine(ring.value, lang)}
               </KitText>
-              {full && <KitText role="caption" tone="muted" align="center" part="of">{goalLine(ring.of, lang)}</KitText>}
-              <KitText role="caption" tone="muted" align="center" part="unit">
-                {ring.unit}
-              </KitText>
+              {full ? <KitText role="caption" tone="muted" align="center" part="of">
+                {goalLine(ring.of, lang)}{"\u00a0"}<KitText role="caption" tone="muted" part="unit">{ring.unit}</KitText>
+              </KitText> : <KitText role="caption" tone="muted" align="center" part="unit">{ring.unit}</KitText>}
             </KitRow>
           ),
         )}

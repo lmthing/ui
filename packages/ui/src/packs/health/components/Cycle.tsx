@@ -118,7 +118,7 @@ export function Cycle(input: Props<typeof props, typeof meta>) {
   const segments = Array.from({ length: input.length }, (_, index) => {
     const day = index + 1;
     const tone: TextTone =
-      day <= input.period ? "accent" : day >= cycle.fertileFrom && day <= cycle.fertileTo ? "good" : "muted";
+      day <= input.period ? "accent" : day >= cycle.fertileFrom && day <= cycle.fertileTo ? "text" : "muted";
     return { id: String(day), tone, current: day === cycle.day };
   });
   return (

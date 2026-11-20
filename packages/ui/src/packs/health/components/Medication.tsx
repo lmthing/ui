@@ -98,9 +98,8 @@ export const examples = [
     ],
     refillAt: 5,
   },
-  { density: "compact", doses: [{ name: "Iron supplement", dose: "1 tablet", time: "09:30", status: "skipped" }] },
+  { doses: [{ name: "Iron supplement", dose: "1 tablet", time: "09:30", status: "skipped" }] },
   {
-    detail: "brief",
     doses: [
       { name: "Vitamin B12", dose: "1 tablet", time: "08:00", status: "taken", left: 30 },
       { name: "Vitamin D", dose: "1 tablet", time: "09:00", status: "due", left: 4 },
@@ -133,8 +132,11 @@ function MedicationStatus({ dose, detail }: { dose: Dose; detail: DoseFinish["de
   const { lang, words } = useWords(healthWordsFor);
   return (
     <KitContent lineRole="body">
-      <KitText role="caption" tone={dose.status === "taken" ? "good" : "muted"}
-        part={dose.status === "skipped" ? "skip" : null}>{words.medicationLabels[dose.status]}</KitText>
+      <KitText role="caption" tone="muted" part="dose">
+        {dose.dose}{"\u00a0\u00a0"}
+        <KitText role="caption" tone={dose.status === "taken" ? "good" : "muted"}
+          part={dose.status === "skipped" ? "skip" : null}>{words.medicationLabels[dose.status]}</KitText>
+      </KitText>
       {detail === "full" && dose.left !== undefined &&
         <KitText role="caption" tabular tone="muted" part="left">{stockLine(dose.left, lang)}</KitText>}
     </KitContent>
@@ -149,7 +151,7 @@ function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) 
       item={dose.id} mark={dose.mark} {...{ density }} label={dose.name}
       trailing={
         <>
-          {due && <KitAction icon="close" a11y={words.medicationLabels.skip} kind="quiet" part="skip" />}
+          {due && <KitAction label={words.medicationLabels.skip} kind="quiet" part="skip" />}
           {dose.status !== "skipped" && <KitCheck done={dose.status === "taken"} readonly={!due}
             part="taken" label={words.medicationLabels.taken} />}
         </>
@@ -158,7 +160,6 @@ function MedicationDose({ dose, density, detail }: { dose: Dose } & DoseFinish) 
       <KitContent lineRole="body">
         <KitText role="body" part="name">{dose.name}</KitText>
         <KitText role="number" numberScale="compact" tabular part="time">{timeOfDayLine(dose.time, lang)}</KitText>
-        <KitText role="caption" tone="muted" part="dose">{dose.dose}</KitText>
         <MedicationStatus {...{ dose, detail }} />
       </KitContent>
     </KitRow>

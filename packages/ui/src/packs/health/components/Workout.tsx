@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { clockLine, probesFor, text, variantProps } from "../../../catalog";
+import { clockLine, numberLine, probesFor, text, variantProps } from "../../../catalog";
 import type { ClockState, FallbackInput, Meta, Probe, Props } from "../../../catalog";
 import * as kit from "../../../kit";
 import { indexedParts, seedTitles } from "..";
@@ -102,7 +102,7 @@ export const examples = [
     exercises: [{ name: "Goblet squat", sets: [
       { weight: 25, reps: 12, done: true, remaining: 36 }, { weight: 25, reps: 10, done: false },
     ] }],
-    rest: 60, unit: "lb", elapsed: 125, detail: "brief",
+    rest: 60, unit: "lb", elapsed: 125,
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Workout");
@@ -154,25 +154,24 @@ function WorkoutSet({ item, set, pos, unit, stop }: SetProps) {
   return hasWorkoutSetFields(set)
     ? <kit.KitSetRow {...row} labelPart={labelPart} fields={fields} done={done} detail={detail} />
     : <><kit.KitRow {...row} inline lineRole="label" trailing={done}>
-        <kit.KitText part={labelPart} role="label">{label}</kit.KitText>
+        <kit.KitText part={labelPart} role="label">{set.seconds === undefined ? label : <>
+          {w.timedSet(w.set(numberLine(pos, lang)), "")}
+          <kit.KitText part={null} role="number" numberScale="compact" tabular>{clockLine(set.seconds, lang)}</kit.KitText>
+        </>}</kit.KitText>
       </kit.KitRow>{detail}</>;
 }
 
+// prettier-ignore
 export function Workout({ exercises, unit, rest, elapsed, surface, detail }: WorkoutProps) {
   const full = kit.useVariant("detail", meta.variants.detail, detail) === "full";
   const state = kit.useComponentState();
-  const { controller } = kit.useKit();
-  const { screen, component } = kit.usePartContext();
-  const { lang, words } = kit.useWords(healthWordsFor);
-  const w = words.workout;
+  const { controller } = kit.useKit(), { screen, component } = kit.usePartContext();
+  const { lang, words: { workout: w } } = kit.useWords(healthWordsFor);
   const time = clockLine(elapsed ?? 0, lang);
-  const running =
-    controller &&
-    ((id: string, pos: number) =>
+  const running = controller && ((id: string, pos: number) =>
       (controller.store.get(`${screen}/${component}/${id}/$rest_${pos}`) as ClockState | undefined)
         ?.running === true);
   const restAt = rest > 0 && activeWorkoutRest(exercises, running);
-  // prettier-ignore
   return (
     <kit.KitCard style="inset" part="root" padded surface={surface}>
       {state === "empty" ? (
@@ -186,7 +185,7 @@ export function Workout({ exercises, unit, rest, elapsed, surface, detail }: Wor
             <kit.KitText part="time" role="number" numberScale="compact" tabular>{time}</kit.KitText>
           </kit.KitContent>}
           {exercises.map(({ id, name, sets }) => (
-            <kit.KitRow key={id} item={id} label={name} inset="none">
+            <kit.KitRow key={id} item={id} label={name} inline>
               <kit.KitText part="name" role="number" numberScale="compact">{name}</kit.KitText>
               {sets.map((set, at) => <WorkoutSet key={at} item={id} set={set} unit={unit}
                 pos={at + 1} stop={Boolean(restAt && restAt.id === id && restAt.pos === at + 1)} />)}

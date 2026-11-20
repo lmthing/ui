@@ -116,9 +116,7 @@ describe("Measurements fallback and probes", () => {
 describe("Measurements states, parts, reading and actions", () => {
   it.each(examples)("draws every required part and only the supplied goal", (input) => {
     const html = renderInstance("Measurements", input, "filled", theme, { component: "m1" });
-    for (const part of meta.parts
-      .filter((part) => part !== "goal" || "goal" in input)
-      .filter((part) => input.detail !== "brief" || part !== "change"))
+    for (const part of meta.parts.filter((part) => part !== "goal" || "goal" in input))
       expect(elementAt(html, `home/m1/${part}`)).toBeDefined();
     if (!("goal" in input)) expect(html).not.toContain('data-testid="home/m1/goal"');
     expect(elementAt(html, "home/m1/range").attributes).toContain('role="radiogroup"');
@@ -145,7 +143,7 @@ describe("Measurements states, parts, reading and actions", () => {
       `m1 Measurements (${state})`,
     ]);
     if (state === "empty") {
-      expect(html).toContain("Nothing here yet");
+      expect(html).toContain(measurementLabels.empty);
       expect(html).not.toContain("Body weight");
     } else {
       expect(html).toContain('aria-busy="true"');

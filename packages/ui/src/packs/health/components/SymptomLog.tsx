@@ -111,7 +111,7 @@ export const examples = [
     { label: "Head", symptoms: [{ label: "Headache", severity: 2, on: true }, { label: "Dizziness", severity: 0 }] },
     { label: "Stomach", symptoms: [{ label: "Nausea", severity: 1 }, { label: "Cramping", severity: 0 }] },
   ] },
-  { detail: "brief", groups: [
+  { groups: [
     { label: "Energy", symptoms: [{ label: "Fatigue", severity: 4 }, { label: "Weakness", severity: 1 }] },
   ] },
 ] satisfies z.input<typeof props>[];
@@ -174,10 +174,11 @@ function SymptomSeverity({ symptom, index, full }: {
 export function SymptomLog({ groups, detail, density: preferred }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
   const density = useVariant("density", meta.variants.density, preferred);
+  const compact = density === "compact";
   return (
-    <KitCard style="inset" part="root" density={density}>
+    <KitCard style="inset" part="root" density={density} padded={compact}>
       {groups.map((group) => (
-        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading" density={density}>
+        <KitRow item={group.id} key={group.id} label={group.label} lineRole="heading" density={density} inline={compact}>
           <KitText role="heading" part="label">{group.label}</KitText>
           <KitTrack part="chips" label={group.label}>
             {group.symptoms.map((_, index) => <SymptomChip key={index} {...{ group, index }} />)}

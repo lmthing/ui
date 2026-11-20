@@ -98,13 +98,13 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 }
 // prettier-ignore
 export const examples = [
-  { readings: [{ label: "Greenhouse temp", value: 22, unit: "°C", low: 18, high: 26, at: "08:10" }], goto: "add_reading" },
+  { readings: [{ label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:10" }], goto: "add_reading" },
   { readings: [{ label: "Post-walk pulse", value: 104, unit: "bpm", low: 60, high: 100, at: "09:15" }], goto: "add_reading" },
   { readings: [
     { label: "Blood pressure", value: 118, value2: 76, unit: "mmHg", low: 90, high: 120, at: "08:10" },
     { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
   ], goto: "add_reading" },
-  { detail: "brief", readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
+  { readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Vitals");
 export const probes = [

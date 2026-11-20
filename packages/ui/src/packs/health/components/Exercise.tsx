@@ -3,6 +3,7 @@ import {
   KitAction,
   KitCard,
   KitContent,
+  KitGrid,
   KitPhoto,
   KitRow,
   KitSkeleton,
@@ -85,14 +86,12 @@ export const examples = [
   },
   {
     name: "Bodyweight squat",
-    photo: "lib:exercise",
-    media: "none",
+    photo: "local:2",
     muscles: ["Quads", "Glutes"],
     cues: ["Keep heels down", "Track knees over toes"],
     best: "20 reps",
     last: "15 reps",
   },
-  { name: "Bench press", surface: "outlined", photo: "lib:exercise", muscles: ["Chest", "Triceps"], cues: ["Keep feet planted"] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Exercise");
 export const probes = [
@@ -152,10 +151,10 @@ function ExerciseResults({
       {results.map(
         ([part, value]) =>
           value && (
-            <KitRow key={part} part={part} label={exerciseLabels[part]} inline
-              trailing={<ExerciseText value={value} part={null} role="number" loading={loading} />}>
+            <KitGrid key={part} fitLast>
               <ExerciseText value={exerciseLabels[part]} part={null} role="label" muted loading={loading} />
-            </KitRow>
+              <ExerciseText value={value} part={part} role="number" loading={loading} />
+            </KitGrid>
           ),
       )}
     </KitContent>

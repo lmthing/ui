@@ -138,8 +138,7 @@ describe("Vitals states, parts and read/act", () => {
     example.readings.forEach((row, index) => {
       for (const part of meta.items.parts) {
         const address = `home/c1/r${index + 1}/${part}`;
-        if ((part === "value2" && !("value2" in row)) || (part === "at" && example.detail === "brief"))
-          expect(html).not.toContain(`data-testid="${address}"`);
+        if (part === "value2" && !("value2" in row)) expect(html).not.toContain(`data-testid="${address}"`);
         else expect(html.match(new RegExp(`data-testid="${address}"`, "g"))).toHaveLength(1);
       }
       expect(read).toContain(`${row.label}: ${row.value}`);

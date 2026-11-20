@@ -106,7 +106,7 @@ export const examples = [
       { name: "Mist Ivy", icon: "drop", days: [true, true, true, false, false, false, false] },
     ],
   },
-  { lead: "none", habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
+  { habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("HabitGrid");
 export const probes = [
@@ -180,8 +180,9 @@ export function HabitGrid({ habits, lead, surface }: Props<typeof props, typeof 
       ),
     })),
   }));
+  const outlined = surface === "outlined";
   return (
-    <KitCard part="root" surface={surface}>
+    <KitCard part="root" surface={surface} style={outlined ? "plain" : "inset"} clip={outlined}>
       <KitWeekMatrix
         part="grid" {...{ days, rows }} corner={null} today={days[today]!.id}
         trailing={habits.map((habit) => ({
