@@ -61,8 +61,11 @@ it("reads the committed host records while a newer phone render is suspended", a
       expect(await page.evaluate(() => document.body.dataset.layoutRead)).not.toContain("GatedFixture");
       expect(await page.evaluate((previous) => window.__lmthingUI === previous, agent)).toBe(true);
       await page.getByRole("button", { name: "Restore snapshot" }).click();
-      await page.getByTestId("home/c2/root").waitFor();
+      const reopened = page.getByTestId("home/c2/root");
+      await reopened.waitFor();
       expect(await page.getByTestId("home/confirm/confirm").count()).toBe(0);
+      await reopened.click({ timeout: 3000 });
+      await page.getByTestId("home/confirm/confirm").waitFor({ timeout: 3000 });
     } finally {
       await browser.close();
     }

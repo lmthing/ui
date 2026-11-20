@@ -77,11 +77,7 @@ export function renderInstance(
       disableRootThemeClass={disableRootThemeClass}
     >
       {gated ? (
-        <PhoneScreen
-          {...{ screen, defs, theme, lang, resolvePhoto }}
-          renderers={{ [id]: View }}
-          deviceData={data}
-        />
+        <PhoneScreen {...{ screen, theme, lang, resolvePhoto }} deviceData={data} />
       ) : (
         <KitProvider
           theme={theme}

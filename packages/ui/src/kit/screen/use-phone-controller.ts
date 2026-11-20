@@ -1,4 +1,4 @@
-import { useInsertionEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { useInsertionEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   createScreenController,
   createInteractionStore,
@@ -11,12 +11,15 @@ function useCommittedDeviceData(
   source: { controller: ScreenController; committed: { deviceData: PhoneScreenProps["deviceData"] } },
   deviceData: PhoneScreenProps["deviceData"],
 ) {
+  const [, refreshWithCommittedData] = useState(deviceData);
   // Publish only on commit, before a child's layout effect can read the controller.
   useInsertionEffect(() => {
     source.committed.deviceData = deviceData;
   }, [source, deviceData]);
   useLayoutEffect(() => {
     source.controller.discardHiddenConfirmation();
+    // Render-time control availability calls the controller, which just received the new snapshot.
+    refreshWithCommittedData(deviceData);
   }, [source, deviceData]);
 }
 

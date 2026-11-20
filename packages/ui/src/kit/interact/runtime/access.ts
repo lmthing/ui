@@ -12,7 +12,7 @@ import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
-import { createAct } from "./dispatch";
+import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
@@ -84,6 +84,7 @@ function actionsAt(
 }
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);
+  if (!ctx.status.disposed && ctx.options.interactive !== false) discardHiddenConfirmation(ctx);
   if (ctx.confirmationFor()) {
     if (!["confirm/confirm", "confirm/cancel", "confirm/close"].includes(local))
       return actionFailure(0, "not_actionable", "Answer the confirmation first");
