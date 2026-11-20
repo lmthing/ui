@@ -25,6 +25,8 @@ describe("Loyalty contract and boundaries", () => {
     expect(props.parse({ ...seed, reward: " A free visit ", name: " Sam " })).toEqual({
       ...seed,
       name: "Sam",
+      detail: "full",
+      surface: "card",
       stamp: true,
       redeem: false,
     });

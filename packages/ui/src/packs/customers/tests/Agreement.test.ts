@@ -24,6 +24,8 @@ describe("Agreement schema and boundaries", () => {
       title: "Consent",
       terms: "Terms",
       signed: false,
+      detail: "full",
+      surface: "card",
     });
     expect(props.parse({ ...seed, name: "  Ben Carter  " }).name).toBe("Ben Carter");
   });
@@ -41,6 +43,9 @@ describe("Agreement schema and boundaries", () => {
     { ...seed, date: "tomorrow" },
     { ...seed, color: "#fff" },
     { ...seed, pixels: 44 },
+    { ...seed, detail: "short" },
+    { ...seed, density: "dense" },
+    { ...seed, surface: "tinted" },
     { ...seed, id: "a1" },
   ])("rejects invalid content and presentation props", (input) =>
     expect(props.safeParse(input).success).toBe(false),
