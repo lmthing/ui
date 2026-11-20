@@ -116,8 +116,11 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 // prettier-ignore
+const supper = { timers: [{ label: "Béchamel", seconds: 372 }, { label: "Oven", seconds: 1120 }] } satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
-  { timers: [{ label: "Béchamel", seconds: 372 }, { label: "Oven", seconds: 1120 }] },
+  supper,
+  { ...supper, arrange: "rows" },
   { arrange: "rows", timers: [{ label: "Stock", seconds: 3599 }, { label: "Slow roast", seconds: 14400 }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("KitchenTimers");
@@ -160,7 +163,7 @@ function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
   return (
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
       {stacked ? (
-        <KitGrid columns={2}>
+        <KitGrid columns={2} fitLast>
           <KitContent>{label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow></KitContent>
           <KitContent>{actions}</KitContent>
         </KitGrid>
