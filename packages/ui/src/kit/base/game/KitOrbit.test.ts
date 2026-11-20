@@ -79,3 +79,21 @@ describe("KitOrbit", () => {
     expect(render({ nodes: [], at: "", style, loading: true })).not.toContain("Nothing here yet");
   });
 });
+
+describe("KitOrbit alignment", () => {
+  it("marks only the ring as a non-column layout", () => {
+    expect(render({ nodes, at: "r2", style: "ring" })).toContain("data-look-twoedge");
+    expect(render({ nodes, at: "r2", style: "queue" })).not.toContain("data-look-twoedge");
+  });
+  it.each(presets)("keeps the queue inset the same for current and inactive nodes in $id", ({ id }) => {
+    const html = render({ nodes, at: "r2", style: "queue" }, id);
+    const inset = (item: string) => {
+      const css = styleAt(html, `home/c1/${item}/root`);
+      const padding = css.match(/padding(?:-left)?:\s*(\d+)px/)?.[1];
+      const border = css.match(/border(?:-left)?-width:\s*(\d+)px/)?.[1];
+      expect(padding).toBeDefined();
+      return Number(padding) + Number(border ?? 0);
+    };
+    expect(inset("r1")).toBe(inset("r2"));
+  });
+});

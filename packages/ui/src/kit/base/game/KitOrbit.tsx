@@ -54,6 +54,11 @@ function NodeLabel({ node, current, loading, queue = false, namePart }: NodeProp
 function OrbitNode({ node, current, loading, queue = false, namePart = false }: NodeProps) {
   const ks = useKitStyle();
   const address = usePart("root", !loading);
+  const surface = surfaceOf(ks.surface);
+  const active = !loading && current;
+  const borderWidth = active ? component.base.strongBorder : surface.borderWidth;
+  // Keep the queue contents aligned when the current border replaces the preset border.
+  const queuePad = space[ks.density.rowPad] + component.base.strongBorder - borderWidth;
   return (
     <YStack
       {...(loading ? { "aria-hidden": true } : address)}
@@ -63,16 +68,15 @@ function OrbitNode({ node, current, loading, queue = false, namePart = false }: 
       height={
         queue ? size.avatar.md + space[ks.density.rowPad] * 2 + component.base.strongBorder * 2 : nodeHeight
       }
-      padding={queue ? space[ks.density.rowPad] : space.md}
+      padding={queue ? queuePad : space.md}
       gap={space.sm}
       flexDirection={queue ? "row" : "column"}
       alignItems="center"
       justifyContent={queue ? "flex-start" : "center"}
       borderRadius={shifted("lg", ks.radiusShift)}
-      {...surfaceOf(ks.surface)}
-      {...(!loading && current
-        ? { borderWidth: component.base.strongBorder, borderColor: "$accent", backgroundColor: "$accentSoft" }
-        : {})}
+      {...surface}
+      borderWidth={borderWidth}
+      {...(active ? { borderColor: "$accent", backgroundColor: "$accentSoft" } : {})}
     >
       <YStack width={size.avatar.md} height={size.avatar.md} alignItems="center" justifyContent="center">
         {loading ? (
@@ -98,7 +102,7 @@ function Ring({ nodes, at, loading, reverse, namePart = false }: LayoutProps) {
   const Direction = reverse ? RotateCcw : RotateCw;
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={{ minWidth: "100%" }}>
-      <YStack width={box} height={box} marginHorizontal="auto">
+      <YStack width={box} height={box} marginHorizontal="auto" {...({ "data-look-twoedge": true } as object)}>
         <YStack position="absolute" aria-hidden>
           <Svg width={box} height={box}>
             <Circle
