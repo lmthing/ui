@@ -1,197 +1,166 @@
-import { useWords, KitCard, KitContent, KitGrid, KitSkeleton, KitText, useComponentState } from "../kit";
-import {
-  wordsFor,
-  probesFor,
-  changeLine,
-  clip,
-  currencies,
-  moneyLine,
-  placeholderTitle,
-  screenId,
-  text,
-  thingOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../catalog";
 import { z } from "zod";
+import * as c from "../catalog";
+import * as kit from "../kit";
 
 export const meta = {
   id: "Amount",
   group: "data",
   purpose: "One sum of money written properly, with its period, old price or change.",
   pick: "One sum of money is the point: a balance, a price, a total or what is owed. Not several figures side by side (Stats), the screen's headline in words (Hero), or the price on each row of a list (List).",
+  writeHints: [
+    "Use JSON null for every unrequested Amount axis, not its default string. Never write comfortable, normal, or card just because they are defaults.",
+    'If asked only to hide the secondary note, use detail "brief" and keep sub; density, emphasis, and surface must be null.',
+    "For one large focal figure, use emphasis hero and leave surface null. Only a separate request for an outline sets surface outlined. Use style total only for a total with the automatic label.",
+  ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A sum computed on the device from stored records. No money moves.",
+  variants: {
+    density: ["comfortable", "compact"],
+    emphasis: ["normal", "hero"],
+    surface: ["card", "outlined"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["sub"] } },
   parts: ["root", "label", "value", "was", "change", "sub"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] }, when: { root: { linked: true } } },
-  read: (input, state, lang?: string) => {
-    const { moneyLabels } = wordsFor(lang);
-
+  read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
-    const v = input as z.output<typeof props>;
-    return [
-      ...(v.style === "total" && !v.label ? [moneyLabels.total] : []),
-      moneyLine(v.value, v.currency, v.per, lang),
-      ...(v.was === undefined ? [] : [moneyLine(v.was, v.currency, undefined, lang)]),
-      ...(v.change === undefined ? [] : [changeLine(v.change, v.changeIn, v.currency, lang)]),
-    ];
+    const v = input as AmountData;
+    const { shown, sum, was, change } = amountCopy(v, lang);
+    return [!v.label ? shown : undefined, sum, was, change].filter((s) => s !== undefined);
   },
-} as const satisfies Meta;
+} as const satisfies c.Meta;
 
 export const props = z
   .strictObject({
-    style: z.enum(["inline", "large", "total"]).default("inline"),
-    label: text(24).optional(),
+    ...c.variantProps(meta.variants),
+    style: z.enum(["inline", "total"]).optional(),
+    label: c.text(24).optional(),
     value: z.number(),
-    currency: z.enum(currencies).default("USD"),
+    currency: z.enum(c.currencies).default("USD"),
     per: z.enum(["none", "hour", "day", "night", "week", "month", "year", "each", "person"]).default("none"),
     was: z.number().optional(),
     change: z.number().optional(),
     changeIn: z.enum(["money", "percent"]).default("money"),
-    sub: text(40).optional(),
-    goto: screenId.optional(),
+    sub: c.text(40).optional(),
+    goto: c.screenId.optional(),
   })
-  // Derived, never written: only a linked amount can be pressed.
-  .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
+  .overwrite((value) => ({
+    ...value,
+    ...(value.detail === "brief" ? { sub: undefined } : {}),
+    linked: value.goto !== undefined,
+  }));
 
-export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
-  return {
-    style: "inline",
-    label: clip(thingOf(cast)?.type.trim() || placeholderTitle(0, lang), 24),
-    value: 0,
-  };
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  return { label: c.clip(c.thingOf(cast)?.type.trim() || c.placeholderTitle(0, lang), 24), value: 0 };
 }
 
 export const examples = [
-  { style: "large", label: "Spent on plants", value: 42.5, change: -6.5, sub: "this month" },
-  { style: "inline", label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks" },
-  { style: "total", value: 54, currency: "GBP" },
+  { emphasis: "hero", label: "Spent on plants", value: 42.5, change: -6.5, sub: "this month" },
+  { label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks", density: "compact" },
+  { label: "Spent on plants", value: 42.5, change: -6.5, sub: "this month" },
+  { label: "Morning walk", value: 18, per: "each", was: 20, goto: "walks" },
+  { style: "total", surface: "card", value: 54, currency: "GBP" },
+  { style: "total", surface: "outlined", value: 54, currency: "GBP" },
+  { label: "Weekly walks", value: 72, sub: "Four walks" },
+  { label: "Weekly walks", value: 72, detail: "brief", sub: "Four walks" },
 ] satisfies z.input<typeof props>[];
 
-const { choose, write, read } = probesFor("Amount");
+const { choose, write, read } = c.probesFor("Amount");
 export const probes = [
   choose("Show how much I owe my flatmates this month as one big figure, with what changed since last month"),
   choose("Show my income, what I spent and what is left this month as three numbers side by side", "Stats"),
   write("My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings"),
+  {
+    ...write("Show £72 labelled Weekly walks. Store the note Four morning walks but hide it on screen."),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open the walks price", { address: "a1", action: "press" }, 1),
-] satisfies Probe[];
+] satisfies c.Probe[];
 
-function AmountFigure({
-  style,
-  value,
-  currency,
-  per,
-  was,
-  change,
-  changeIn,
-  sub,
-}: Props<typeof props, typeof meta>) {
-  const { lang } = useWords();
-  const large = style === "large";
-  return (
-    <>
-      <KitText
-        role="number"
-        numberScale={large ? "display" : "compact"}
-        align={large ? "center" : "end"}
-        tabular
-        part="value"
-      >
-        {moneyLine(value, currency, per, lang)}
-      </KitText>
-      {was !== undefined && (
-        <KitText role="caption" tone="muted" strike align={large ? "center" : "end"} tabular part="was">
-          {moneyLine(was, currency, undefined, lang)}
-        </KitText>
-      )}
-      {change !== undefined && (
-        <KitText
-          role="caption"
-          tone={change > 0 ? "good" : change < 0 ? "bad" : "muted"}
-          align={large ? "center" : "end"}
-          tabular
-          part="change"
-        >
-          {changeLine(change, changeIn, currency, lang)}
-        </KitText>
-      )}
-      {sub && (
-        <KitText role="caption" tone="muted" align={large ? "center" : "end"} part="sub">
-          {sub}
-        </KitText>
-      )}
-    </>
-  );
+type AmountData = z.output<typeof props>;
+type AmountProps = c.Props<typeof props, typeof meta>;
+
+function amountCopy(
+  { style, label, value, currency, per, was, change, changeIn }: AmountData,
+  lang?: string,
+) {
+  const { moneyLabels, perAmount, perWords } = c.wordsFor(lang);
+  const price = c.moneyLine(value, currency, undefined, lang);
+  return {
+    shown: label ?? (style === "total" ? moneyLabels.total : undefined),
+    price,
+    sum: per === "none" ? price : perAmount(price, perWords[per]),
+    was: was === undefined ? undefined : c.moneyLine(was, currency, undefined, lang),
+    change: change === undefined ? undefined : c.changeLine(change, changeIn, currency, lang),
+  };
 }
 
-function AmountLoading(input: Props<typeof props, typeof meta>) {
-  const { lang, words } = useWords();
-  const { moneyLabels } = words;
-  const { style, label, value, currency, per, was, change, changeIn } = input;
-  const shown = style === "total" ? (label ?? moneyLabels.total) : label;
+function AmountLoading(input: AmountProps & { density: "comfortable" | "compact" }) {
+  const { lang } = kit.useWords();
+  const { shown, sum, was, change } = amountCopy(input, lang);
+  const { density, surface, sub } = input;
+  const large = input.emphasis === "hero",
+    centered = large && !input.style;
   return (
-    <KitCard style="inset" padded look={style === "total" ? "outlined" : "surface"}>
-      <KitSkeleton
+    <kit.KitCard style="inset" padded {...{ density, surface }}>
+      <kit.KitSkeleton
         shape="figure"
         inset="none"
-        centered={style === "large"}
-        split={style !== "large" && Boolean(shown)}
+        centered={centered}
+        split={!centered && Boolean(shown)}
+        density={density}
         content={[
-          [style === "large" ? "label" : "body", shown],
-          [style === "large" ? "number" : "body", moneyLine(value, currency, per, lang), "end"],
-          ["caption", was === undefined ? undefined : moneyLine(was, currency, undefined, lang), "end"],
-          ["caption", change === undefined ? undefined : changeLine(change, changeIn, currency, lang), "end"],
-          ["caption", input.sub, "end"],
+          [large ? "label" : "body", shown],
+          [large ? "number" : "body", sum, "end"],
+          ["caption", was, "end"],
+          ["caption", change, "end"],
+          ["caption", sub, "end"],
         ]}
       />
-    </KitCard>
+    </kit.KitCard>
   );
 }
 
-export function Amount(input: Props<typeof props, typeof meta>) {
-  const { lang, words } = useWords();
-  const { moneyLabels } = words;
-  const { style, label, value, currency, per, goto } = input;
-  const state = useComponentState();
-  if (state === "loading") return <AmountLoading {...input} />;
-  const large = style === "large";
-  const shown = style === "total" ? (label ?? moneyLabels.total) : label;
-  const figure = <AmountFigure {...input} />;
-  const name = shown && (
-    <KitText
-      role={large ? "label" : "body"}
-      tone={large ? "muted" : "text"}
-      align={large ? "center" : "start"}
-      part="label"
-    >
-      {shown}
-    </KitText>
-  );
-  return (
-    <KitCard
-      style="inset"
-      look={style === "total" ? "outlined" : "surface"}
-      part="root"
-      padded
-      goto={goto}
-      label={shown ?? moneyLine(value, currency, per, lang)}
-    >
-      {large || !shown ? (
-        <KitContent>
-          {name}
-          {figure}
-        </KitContent>
-      ) : (
-        <KitGrid columns={2}>
-          {name}
-          <KitContent>{figure}</KitContent>
-        </KitGrid>
-      )}
-    </KitCard>
-  );
+// prettier-ignore
+function AmountFigure({ input, copy }: { input: AmountProps; copy: ReturnType<typeof amountCopy> }) {
+  const { emphasis, density, sub } = input;
+  const large = emphasis === "hero", align = large && !input.style ? "center" : "end";
+  const delta = input.change ?? 0;
+  const rateAt = density === "compact" && input.per !== "none" ? copy.sum.indexOf(copy.price) : -1;
+  const rate = (word: string) => word && <kit.KitText role="caption" tone="muted" part={null}>{word}</kit.KitText>;
+  return <>
+    <kit.KitText role="number" numberScale={large ? "display" : "compact"} {...{ align, density }} tabular part="value">
+      {rateAt < 0 ? copy.sum : <>
+        {rate(copy.sum.slice(0, rateAt))}{copy.price}{rate(copy.sum.slice(rateAt + copy.price.length))}
+      </>}
+    </kit.KitText>
+    {copy.was !== undefined && <kit.KitText role="caption" tone="muted" strike {...{ align, density }} tabular part="was">
+      {copy.was}
+    </kit.KitText>}
+    {copy.change !== undefined && <kit.KitText role="caption" tone={delta > 0 ? "good" : delta < 0 ? "bad" : "muted"}
+      {...{ align, density }} tabular part="change">{copy.change}</kit.KitText>}
+    {sub && <kit.KitText role="caption" tone="muted" {...{ align, density }} part="sub">{sub}</kit.KitText>}
+  </>;
+}
+
+// prettier-ignore
+export function Amount(input: AmountProps) {
+  const { lang } = kit.useWords();
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const emphasis = kit.useVariant("emphasis", meta.variants.emphasis, input.emphasis);
+  if (state === "loading") return <AmountLoading {...input} {...{ density, emphasis }} />;
+  const copy = amountCopy(input, lang), { shown } = copy, { surface, goto } = input;
+  const centered = emphasis === "hero" && !input.style;
+  const figure = <AmountFigure input={{ ...input, density, emphasis }} copy={copy} />;
+  const name = shown && <kit.KitText role={centered ? "label" : "body"} tone={centered ? "muted" : "text"}
+    align={centered ? "center" : "start"} part="label" {...{ density }}>{shown}</kit.KitText>;
+  return <kit.KitCard style="inset" part="root" padded {...{ density, surface, goto }} label={shown ?? copy.sum}>
+    {centered || !shown ? <kit.KitContent {...{ density }}>{name}{figure}</kit.KitContent> :
+      <kit.KitGrid columns={2} {...{ density }}>{name}<kit.KitContent {...{ density }}>{figure}</kit.KitContent></kit.KitGrid>}
+  </kit.KitCard>;
 }
