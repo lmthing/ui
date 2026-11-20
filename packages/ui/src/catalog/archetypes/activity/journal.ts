@@ -14,8 +14,8 @@ export const meta = createMeta(
       "These are dated journal entries, not a catalog of objects. Show each supplied entry's title, date and actual summary in a Card, newest first. Photo and unused badge are null. Header action is null; the only new-entry action is the final Button navigating to new_entry.",
     ],
     photos: [
-      "Name the subject and photo journal in the Header. Its subtitle tells the person to open a photo to see the entry. Set Header action to literal null; never put a camera or New entry shortcut there. The final Button, labeled Write entry, is the only creation action and goes to new_entry.",
-      "Use each supplied photo with a distinct caption and a goto to its entry. When photos share a reference, make their captions useful with the record name and a short supplied fact, such as its care interval. Keep the fact readable and the full caption within 24 characters; do not use a clipped word or invent a photo or date.",
+      "Name the subject and photo journal in the Header. Use the subtitle “Tap a photo to read its entry”. Header action and axes are null. The final Button says Write entry and goes to new_entry; its axes, kind, icon and confirm are null.",
+      "Use each supplied photo with a distinct caption and a goto to its entry, such as entry_fern. When photos share a reference, use the record name and an exact, plain-language fact from the cast. With care intervals, use “Fern · every 7 days” within the 24-character limit, never abbreviate days to d. Leave Gallery axes null.",
     ],
     write: [
       "Name the task in Header.title, e.g. Write a journal entry, and show one short instruction in Header.sub about dating, rating and writing the entry. Leave Header axes and action null. Use one Save entry button that goes to the journal after saving; do not make it a navigation shortcut before the entry is saved.",
