@@ -20,6 +20,14 @@ export const en = {
     progress,
     progressReading: (title: string, percent: string) => `${title} · ${progress}: ${percent}`,
   },
+  playlist: {
+    download: (title: string) => `Download ${title}`,
+    nowPlaying: (title: string) => `Now playing: ${title}`,
+    completed: "Played",
+    position: (percent: string) => `${percent} played`,
+    timing: (duration: string, position: string) => `${duration} · ${position}`,
+    timingReading: (title: string, timing: string) => `${title} · ${timing}`,
+  },
 };
 
 export type MediaWords = typeof en;
