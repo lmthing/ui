@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement, useSyncExternalStore } from "react";
 import * as runtime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
@@ -8,6 +8,7 @@ import { KitCard, KitInput, KitProvider, PartScope, type ScreenController } from
 import { config, elementAt, styleAt } from "../../../../test/render";
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
+vi.mock("react", { spy: true });
 function render(
   props: Parameters<typeof KitInput>[0],
   preset = "calm",
@@ -66,6 +67,28 @@ describe("KitInput compact and inactive options", () => {
     expect(body(render(input))).toBe(body(render({ ...input, compact: false, inactive: false })));
     expect(styleAt(render(input), "home/c1/field")).not.toContain("width:0px");
     expect(styleAt(render(input), "home/c1/field")).toContain("color:var(--text)");
+  });
+  it("uses the supplied value in projected mode instead of stored edits or drafts", () => {
+    const stored: Record<string, string> = {
+      "home/c1/field": "old",
+      "home/c1/field/$draft": "draft",
+    };
+    const controller = {
+      store: { subscribe: () => () => {}, get: (address: string) => stored[address] },
+    } as unknown as ScreenController;
+    const attrs = (props: Parameters<typeof KitInput>[0]) =>
+      elementAt(render(props, "calm", "light", controller), "home/c1/field").attributes;
+    const snapshot = vi.mocked(useSyncExternalStore).mockImplementation((_, getSnapshot) => getSnapshot());
+    try {
+      expect(attrs({ hint: "Value", value: "current" })).toContain('value="draft"');
+      delete stored["home/c1/field/$draft"];
+      expect(attrs({ hint: "Value", value: "current" })).toContain('value="old"');
+      expect(attrs({ hint: "Value", value: "current", projected: true })).toContain('value="current"');
+      stored["home/c1/field/$draft"] = "draft";
+      expect(attrs({ hint: "Value", value: "", projected: true })).toContain('value=""');
+    } finally {
+      snapshot.mockRestore();
+    }
   });
 });
 
