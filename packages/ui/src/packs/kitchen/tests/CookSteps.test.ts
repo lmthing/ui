@@ -23,9 +23,11 @@ describe("CookSteps schema and boundaries", () => {
     expect(props.parse({ steps: [{ text: "  Instruction  " }] })).toEqual({
       steps: [{ text: "Instruction", uses: [] }],
       at: 1,
+      detail: "full",
       canNext: false,
       canBack: false,
       timer: undefined,
+      timer_stop: undefined,
     });
     expect(props.parse({ steps: [step, step], at: 2 })).toMatchObject({
       canNext: false,
@@ -112,7 +114,7 @@ describe("CookSteps fallback and contract", () => {
     expect(meta.dense).toBe(true);
     expect(meta.weight).toBe(3);
     expect(meta.states).toEqual(["filled", "success"]);
-    expect(meta.parts).toEqual(["root", "text", "uses", "next", "back", "timer"]);
+    expect(meta.parts).toEqual(["root", "text", "uses", "next", "back", "timer", "timer_stop"]);
     expect(meta.realPath).toContain("stays awake");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
     expect(meta.pick).toContain("Steps");
@@ -130,8 +132,7 @@ describe("CookSteps states, parts and read/act", () => {
     const html = renderInstance("CookSteps", input, "filled", theme);
     expect(html.replace(/\u00a0/g, " ")).toContain(text.trim());
     expect(html).toContain("4:00:00");
-    const clock = elementAt(html, "home/c1/timer").attributes;
-    expect(clock).toContain('role="button"');
+    expect(elementAt(html, "home/c1/timer").attributes).toContain('role="button"');
     const timer = html.match(/<span[^>]*>4:00:00<\/span>/)?.[0];
     expect(timer).toBeDefined();
     expect(styleAt(html, { tag: "span", attributes: timer!, children: [] })).toContain(
@@ -144,7 +145,7 @@ describe("CookSteps states, parts and read/act", () => {
     const parsed = props.parse(input);
     const actions = affordancesOf(meta, stampItemIds(meta, parsed), "c1");
     expect(actions.map(({ address, action }) => `${address} ${action}`)).toEqual([
-      ...(at === 2 ? [] : ["c1/timer start", "c1/timer stop"]),
+      ...(at === 2 ? [] : ["c1/timer start", "c1/timer_stop stop"]),
       ...(at < 3 ? ["c1/next press"] : []),
       ...(at > 1 ? ["c1/back press"] : []),
     ]);
@@ -167,8 +168,11 @@ describe("CookSteps states, parts and read/act", () => {
       expect(html).not.toContain(unused.text);
       expect(read).not.toContain(unused.text);
     }
-    expect(html.includes('data-testid="home/c1/uses"')).toBe(current.uses.length > 0);
-    expect(html.includes('data-testid="home/c1/timer"')).toBe(current.minutes !== undefined);
+    expect(html.includes('data-testid="home/c1/uses"')).toBe(
+      current.uses.length > 0 && props.parse(input).detail !== "brief",
+    );
+    for (const part of ["timer", "timer_stop"])
+      expect(html.includes(`data-testid="home/c1/${part}"`)).toBe(current.minutes !== undefined);
   });
   it("keeps a single untimed instruction inert and draws the completed state without controls", () => {
     const input = { steps: [{ text: "Single instruction" }] };

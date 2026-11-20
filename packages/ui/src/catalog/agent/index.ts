@@ -1,6 +1,12 @@
-export { affordancesOf, formatAffordance, type Affordance } from "./affordances";
+export {
+  affordancesOf,
+  formatAffordance,
+  isAdjustOnlyItem,
+  partTierAt,
+  type Affordance,
+} from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
-export { validateActionValue, type ValueError } from "./validate-value";
+export { choiceValues, selectionOffer, validateActionValue, type ValueError } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type Values } from "./act";
 export {
   controlValueKey,
@@ -28,6 +34,7 @@ export {
   projectNested,
 } from "./selection";
 export {
+  sessionActionProps,
   sessionAvailable,
   sessionEvent,
   sessionKey,
@@ -44,6 +51,7 @@ export {
   clockTime,
   clockEnded,
   clockTriggerTarget,
+  numericSetAt,
   adjustmentAt,
   clearItemSets,
   projectAdjustments,

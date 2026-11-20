@@ -3,6 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   components,
   readPrompt,
+  planAct,
+  projectSelection,
+  readScreen,
+  selectionChanges,
+  selectionError,
   text,
   type Definition,
   type Meta,
@@ -118,4 +123,75 @@ it("keeps every core read probe prompt identical when selection metadata is pres
       );
     }
   }
+});
+
+const namedFixture = definition({ prop: "at", value: "index" });
+
+it("stages independent offers in order and rejects schema conflicts atomically", () => {
+  const def = {
+    ...namedFixture,
+    meta: {
+      ...namedFixture.meta,
+      selections: {
+        mode: { prop: "mode", choices: ["simple", "custom"] },
+        method: { prop: "method", choices: { prop: "methods" } },
+      },
+      actions: { parts: { mode: ["select"], method: ["select"], apply: ["press"] } },
+      partTiersBy: { apply: { prop: "method", tiers: { other: "service" } } },
+    },
+    props: z
+      .strictObject({ mode: z.string(), method: z.string() })
+      .refine(({ mode, method }) => mode !== "simple" || method !== "other")
+      .overwrite((input) => ({ ...input, methods: input.mode === "custom" ? ["base", "other"] : [] })),
+  } satisfies Definition;
+  const current = { id: "test", components: [{ id: "p1", c: def.meta.id, mode: "simple", method: "base" }] };
+  const defs = { [def.meta.id]: def };
+  const mode = (value: string) => ({ address: "p1/mode", action: "select", value });
+  const method = { address: "p1/method", action: "select", value: "other" };
+  const initial = {};
+  expect(planAct(current, defs, initial, [method])).toMatchObject({ ok: false, code: "not_actionable" });
+  expect(planAct(current, defs, initial, [mode("custom"), method, mode("simple")])).toMatchObject({
+    ok: false,
+    code: "invalid_value",
+    at: 2,
+  });
+  expect(initial).toEqual({});
+  expect(readScreen(current, defs)).toContain("[p1/apply press]");
+  const plan = planAct(current, defs, initial, [mode("custom"), method]);
+  expect(plan).toMatchObject({
+    ok: true,
+    values: { "test/p1/$mode": "custom", "test/p1/$method": "other" },
+  });
+  if (!plan.ok) return;
+  const read = readScreen(current, defs, plan.values);
+  expect(read).toContain('[p1/mode select = "custom"; choices ["simple","custom"]]');
+  expect(read).toContain('[p1/method select = "other"; choices ["base","other"]]');
+  expect(read).toContain("[p1/apply press !needs-service]");
+});
+
+it("stores named selections independently, without clearing legacy row selections", () => {
+  const declared = {
+    ...namedFixture.meta,
+    selections: {
+      layout: { prop: "layout", choices: { prop: "layouts" } },
+      method: { prop: "method", choices: ["first", "second"] },
+    },
+  } satisfies Meta;
+  const input = { rows, layouts: ["wide", "narrow"], layout: "wide", method: "first" };
+  const values = {
+    ...selectionChanges(declared, input, "r2"),
+    ...selectionChanges(declared, input, "layout", "narrow"),
+    ...selectionChanges(declared, input, "method", "second"),
+  };
+  expect(values).toMatchObject({ r2: 1, layout: "narrow", method: "second" });
+  expect(projectSelection(declared, input, (part) => values[part])).toEqual({
+    ...input,
+    at: 1,
+    layout: "narrow",
+    method: "second",
+  });
+  expect(selectionChanges(declared, input, "method", "wide")).toEqual({});
+  expect(selectionError(declared, input, "layout", undefined)).toBe(
+    "Select an allowed value at this address",
+  );
 });

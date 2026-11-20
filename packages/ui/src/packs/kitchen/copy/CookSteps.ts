@@ -12,6 +12,7 @@ export function cookStepsReading(
   steps: readonly { text: string; uses: readonly string[]; minutes?: number | undefined }[],
   at: number,
   lang?: string,
+  detail: "full" | "brief" = "full",
 ): string[] {
   const { cookStepsLabels } = kitchenWordsFor(lang);
   const { timerLabels } = wordsFor(lang);
@@ -19,7 +20,7 @@ export function cookStepsReading(
   return [
     stepLine(at, steps.length, lang),
     JSON.stringify(cookStepText(step.text)),
-    ...(step.uses.length ? [JSON.stringify(cookStepUses(step.uses, lang))] : []),
+    ...(detail === "full" && step.uses.length ? [JSON.stringify(cookStepUses(step.uses, lang))] : []),
     ...(step.minutes === undefined
       ? []
       : [

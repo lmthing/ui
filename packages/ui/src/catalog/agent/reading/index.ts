@@ -1,3 +1,5 @@
+export { readAffordances } from "./read-affordances";
+
 type Props = Record<string, unknown>;
 export type ReadSchema = {
   properties?: Record<string, ReadSchema>;

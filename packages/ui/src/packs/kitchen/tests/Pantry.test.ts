@@ -56,7 +56,8 @@ describe("Pantry contract and boundaries", () => {
     expect(props.safeParse({ items: Array.from({ length: 20 }, () => max) }).success).toBe(true);
     expect(props.safeParse({ items: [{ ...item, useBy: "2024-02-29" }] }).success).toBe(true);
     expect(props.parse({ items: [{ ...item, name: " Item ", qty: " 2 " }] })).toEqual({
-      items: [{ ...item, use_by: undefined, used: {} }],
+      detail: "full",
+      items: [{ ...item, mark: "none", use_by: undefined, used: {} }],
     });
     expectTypeOf<Props<typeof props, typeof meta>["items"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<Props<typeof props, typeof meta>>().not.toBeAny();

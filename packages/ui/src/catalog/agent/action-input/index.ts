@@ -1,6 +1,7 @@
 import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
+export { localValues, selectStep } from "./select-step";
 import {
   controlValueKey,
   nestedAt,

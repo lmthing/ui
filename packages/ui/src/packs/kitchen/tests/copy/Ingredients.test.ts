@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ingredientAmount, ingredientsReading, servingCount } from "../../copy";
+import { ingredientAmount, ingredientsReading } from "../../copy";
 
 describe("Ingredients fixed quantities", () => {
   it.each([
@@ -39,12 +39,6 @@ describe("Ingredients fixed quantities", () => {
     expect(ingredientAmount({ name: "Seed", unit: "pinch" }, 2, "us")).toEqual({ amount: "", unit: "pinch" });
     expect(ingredientAmount({ name: "Seed", unit: "none" }, 2, "metric")).toEqual({ amount: "", unit: "" });
     expect(ingredientAmount({ name: "Seed", amount: 0.00001, unit: "none" }, 1, "us").amount).not.toBe("0");
-  });
-  it("bounds every serving delta and keeps the seed stable", () => {
-    expect(servingCount(4, 2)).toBe(6);
-    expect(servingCount(4, 0)).toBe(4);
-    expect(servingCount(1, -1)).toBe(1);
-    expect(servingCount(24, 1)).toBe(24);
   });
 });
 describe("Ingredients readings", () => {

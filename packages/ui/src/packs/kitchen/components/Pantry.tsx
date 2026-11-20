@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   detailOf,
   isoDate,
+  itemVariantProps,
   itemsOf,
   placeholderTitle,
   wordsFor,
@@ -10,6 +11,7 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -23,6 +25,7 @@ import {
   KitRow,
   KitText,
   useComponentState,
+  useVariant,
   useWords,
 } from "../../../kit";
 import { pantryDates, pantryOrder, pantryReading } from "../copy";
@@ -37,28 +40,37 @@ export const meta = {
   pick: "Food in the cupboard, fridge and freezer with quantities and use-by dates. Not ordinary things to browse (List), things owned generally (Things), or groceries to buy (GroceryList).",
   writeHints: [
     "Write stored useBy dates, never expiry status, tones or sorted ranks. Dates and today's clock determine those.",
+    'If asked to hide storage locations, set detail to "brief" and keep place in the data. Always write mark null unless the user explicitly asks to highlight a specific item; quantities and expiry dates are not a request to highlight.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Food and dates stored on the device, entered by typing or Camera scan.",
-  items: { key: "items", parts: ["root", "name", "qty", "place", "use_by", "used"] },
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["place"] } },
+  items: {
+    key: "items",
+    parts: ["root", "name", "qty", "place", "use_by", "used"],
+    variants: { mark: ["none", "highlight"] },
+  },
   parts: ["root"],
   states: ["filled", "empty"],
   confirmParts: ["used"],
   actions: { items: { root: ["press"], used: ["press"] } },
-  read: (input, state, lang?: string) =>
+  read: (input, state, lang?: string): string[] =>
     state === "filled" ? pantryReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     items: z
       .array(
         z.strictObject({
+          ...itemVariantProps(meta.items.variants),
           name: text(24),
           qty: text(12),
-          place: z.enum(["cupboard", "fridge", "freezer"]).meta({ kind: "text" }),
+          place: z.enum(["cupboard", "fridge", "freezer"]),
           useBy: isoDate.optional(),
           goto: screenId,
         }),
@@ -86,20 +98,18 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
       : [{ name: placeholderTitle(0, lang), qty: placeholderValue, place: "cupboard", goto: "details" }],
   };
 }
+// prettier-ignore
+const berries = { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" } as const;
+const oats = { name: "Oats", qty: "1 bag", place: "cupboard", goto: "food_details" } as const;
+// prettier-ignore
 export const examples = [
-  // Ledge: the plant keeper's household supper.
-  {
-    items: [
-      { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
-      { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
-    ],
-  },
-  // Trot: breakfast before the walking round.
-  {
-    items: [
-      { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" },
-    ],
-  },
+  { items: [
+    { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
+    { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
+  ] },
+  { items: [{ ...berries, mark: "highlight" }, oats] },
+  { items: [berries, oats] },
+  { detail: "brief", items: [berries, oats] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Pantry");
 export const probes = [
@@ -113,9 +123,14 @@ export const probes = [
   write(
     "My pantry has 250 g ricotta in the fridge, use by 2026-11-20, and one box of lasagne sheets in the cupboard; both open food_details",
   ),
+  {
+    ...write(
+      "Show 250 g ricotta, use by 2026-11-20, opening food_details. Keep fridge as its storage location in the data but don't show storage locations.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Mark the ricotta as used up", { address: "p1/r1/used", action: "press" }),
 ] satisfies Probe[];
-
 function PantryDate({ useBy }: { useBy?: string | undefined }) {
   const { lang } = useWords(kitchenWordsFor);
   const expiry = pantryDates(useBy, undefined, lang);
@@ -133,61 +148,53 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
   );
 }
 
-function PantryFood({ item }: { item: Props<typeof props, typeof meta>["items"][number] }) {
+type PantryProps = Props<typeof props, typeof meta>;
+function PantryFood({ item, detail }: { item: PantryProps["items"][number]; detail: PantryProps["detail"] }) {
   const { words } = useWords(kitchenWordsFor);
   return (
     <KitContent>
-      <KitText part="name" role="body">
+      <KitText part="name" tone={item.mark === "highlight" ? "accent" : "text"}>
         {item.name}
       </KitText>
-      <KitText part="qty" role="number" numberScale="compact" tabular>
-        {item.qty}
-      </KitText>
-      <KitText part="place" role="caption" tone="muted">
-        {words.pantryPlace(words.pantryLabels[item.place])}
-      </KitText>
+      <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
+      {detail === "full" && (
+        <KitText part="place" role="caption" tone="muted">
+          {words.pantryPlace(words.pantryLabels[item.place])}
+        </KitText>
+      )}
     </KitContent>
   );
 }
 
-export function Pantry({ items }: Props<typeof props, typeof meta>) {
+// prettier-ignore
+export function Pantry({ items, detail: choice }: PantryProps) {
   const state = useComponentState();
-  const {
-    words: { pantryLabels },
-  } = useWords(kitchenWordsFor);
-  if (state === "empty")
-    return (
-      <KitCard part="root">
-        <KitEmpty part="name" decorativeIcon />
-      </KitCard>
-    );
+  const detail = useVariant("detail", meta.variants.detail, choice);
+  const { words: { pantryLabels } } = useWords(kitchenWordsFor);
+  if (state === "empty") return <KitCard part="root"><KitEmpty part="name" decorativeIcon /></KitCard>;
   const tiles = pantryOrder(items).map((item) => (
     <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} inline>
       <KitContent>
         {items.length === 1 ? (
           <KitGrid columns={2}>
-            <PantryFood item={item} />
+            <PantryFood {...{ item, detail }} />
             <PantryDate useBy={item.useBy} />
           </KitGrid>
         ) : (
           <KitContent>
-            <PantryFood item={item} />
+            <PantryFood {...{ item, detail }} />
             <KitContent group="response">
               <PantryDate useBy={item.useBy} />
             </KitContent>
           </KitContent>
         )}
         <KitRow part="used" label={pantryLabels.used} role="button" inline>
-          <KitText part={null} role="label" tone="accent">
-            {pantryLabels.used}
-          </KitText>
+          <KitText part={null} role="label" tone="accent">{pantryLabels.used}</KitText>
         </KitRow>
       </KitContent>
     </KitRow>
   ));
-  return (
-    <KitCard part="root" style="inset" padded>
-      {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
-    </KitCard>
-  );
+  return <KitCard part="root" style="inset" padded>
+    {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
+  </KitCard>;
 }

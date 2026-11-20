@@ -4,11 +4,19 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { Values } from "./act";
+import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
-import { projectNested, projectSelection } from "./selection";
-import { projectAdjustments, projectClocks, projectComponentSets, projectMatrix } from "./clocks";
+import { projectLegacySelection, projectNamedSelections, projectNested, projectSelection } from "./selection";
+import type { ScreenLike } from "./read";
+import {
+  adjustmentAt,
+  projectAdjustments,
+  projectClocks,
+  projectComponentSets,
+  projectMatrix,
+} from "./clocks";
 
-function unwrapField(field: unknown) {
+function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
     field instanceof z.ZodNullable ||
@@ -16,6 +24,7 @@ function unwrapField(field: unknown) {
     field instanceof z.ZodPrefault
   )
     field = field.unwrap();
+  if (wire && field instanceof z.ZodPipe) return unwrapField(field.in, true);
   return field;
 }
 function defaultInput(field: unknown) {
@@ -24,6 +33,30 @@ function defaultInput(field: unknown) {
 }
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
+
+function wireAdjustmentKey(def: Definition, key: string) {
+  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
+  if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
+  const prop = key.slice(key.lastIndexOf("/") + 1);
+  return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
+}
+
+function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {
+  const items = def.meta.items;
+  if (!items?.adjust || !Array.isArray(input[items.key])) return input;
+  return {
+    ...input,
+    [items.key]: (input[items.key] as Values[]).map((row, index) => {
+      const id = `${items.prefix ?? "r"}${index + 1}`;
+      for (const spec of Object.values(items.adjust ?? {})) {
+        if (!spec) continue;
+        const value = get(`$wire/${id}/$adjust/${spec.prop}`);
+        if (typeof value === "number" && value !== row[spec.prop]) row = { ...row, [spec.prop]: value };
+      }
+      return row;
+    }),
+  };
+}
 
 /** Wire-backed edits go through schema parsing; derived-only rows are overlaid after parsing. */
 export function controlValueKey(def: Definition, key: string): string {
@@ -41,9 +74,10 @@ export function controlValueKey(def: Definition, key: string): string {
 export function projectControlInput(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const { meta } = def;
   let source = projectComponentSets(meta, input, get);
-  if (meta.select?.choices) source = projectSelection(meta, source, get);
+  if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
+  source = projectNamedSelections(meta, source, get);
   const items = meta.items;
-  if (!items || (!items.set && !(items.nested && (meta.select || meta.set)))) return source;
+  if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
   for (const { matrix } of Object.values(items.set ?? {})) if (matrix) keys.add(matrix.rows);
   const seeded = Object.fromEntries(
@@ -51,14 +85,15 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   );
   const nested = projectNested(meta, seeded, get);
   const wireGet = (part: string) => get(controlValueKey(def, part));
+  const adjusted = projectWireAdjustments(def, nested, get);
   const projected = items.set
-    ? projectMatrix(meta, projectAdjustments(meta, nested, wireGet), wireGet, (rows, values) => {
+    ? projectMatrix(meta, projectAdjustments(meta, adjusted, wireGet), wireGet, (rows, values) => {
         const array = unwrapField(fieldOf(def.props, rows));
         return array instanceof z.ZodArray
           ? defaultInput(fieldOf(unwrapField(array.element), values))
           : undefined;
       })
-    : nested;
+    : adjusted;
   for (const key of keys) {
     const next = projected[key],
       seed = seeded[key];
@@ -91,9 +126,9 @@ export function projectParsedControls(
   get: (part: string) => unknown,
   runtime: boolean,
 ): Values {
-  const selected = meta.select?.choices ? props : projectSelection(meta, props, get);
+  const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
-  return runtime || meta.items?.set ? projectAdjustments(meta, nested, get) : nested;
+  return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
 }
 
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
@@ -109,7 +144,7 @@ export function liveProps(
   if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
   else {
     props = projectControls(meta, props, get);
-    if (meta.items?.set || runtime) props = projectAdjustments(meta, props, get);
+    if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
   }
   if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
   else if (
@@ -136,4 +171,30 @@ export function liveProps(
       values[`${instance}/${String(item.id)}`] === false ? { ...item, body: undefined } : item,
     );
   return { ...props, [key]: items };
+}
+
+export function stageItemAdjustment(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  address: string,
+  action: string,
+  values: Values,
+): boolean | undefined {
+  if (action !== "increment" && action !== "decrement") return;
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((item) => item.id === id);
+  const def = entry && defs[entry.c];
+  if (!entry || !def?.meta.items?.adjust) return;
+  const { id: _id, c: _c, state: _state, ...raw } = entry;
+  const base = `${screen.id}/${id}`;
+  const get = (part: string) => values[`${base}/${part}`];
+  const props = parseControlProps(def, raw, get);
+  const now = Number(get("$now") ?? Date.now());
+  const adjustment = adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
+  if (!isAdjustOnlyItem(adjustment, action)) return;
+  const slot = wireAdjustmentKey(def, adjustment.key);
+  if (adjustment.next === undefined || !slot) return false;
+  values[`${base}/${slot}`] = adjustment.next;
+  values[`${screen.id}/${address}`] = adjustment.next;
+  return true;
 }

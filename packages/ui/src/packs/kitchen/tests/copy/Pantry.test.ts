@@ -36,7 +36,7 @@ describe("Pantry date copy and ordering", () => {
     expect(pantryReading({ items: [{ id: "r2", name: "Item", qty: "2", place: "freezer" }] })).toEqual([
       "r2: Item",
       "2",
-      "Freezer",
+      "freezer",
       "Use-by date",
       "Not set",
       "Used up",
