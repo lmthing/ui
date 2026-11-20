@@ -13,6 +13,7 @@ import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, itemTexts, type ReadSchema as Json } from "./reading";
+import { projectVisibleItems, visibleItems } from "./visibility";
 
 type Props = Record<string, unknown>;
 
@@ -69,7 +70,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props,
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  const projected = visibleNestedProps(meta, projectDraw(meta, timed, get), get);
+  const projected = projectVisibleItems(meta, visibleNestedProps(meta, projectDraw(meta, timed, get), get));
   if (!session) return projected;
   const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
   return { ...projected, ...current, [sessionKey]: session };
@@ -144,9 +145,14 @@ function readItems(
   peekOpen: boolean,
   lang?: string,
 ) {
-  const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
+  const all = key ? visibleItems(meta, props) : [];
+  const ids = meta.items?.visibleWhen && new Set(all.map(({ id }) => id));
+  const ownAff = affordances.filter(({ address }) => {
+    if (!key) return true;
+    const target = address.slice(instance.length);
+    return ids ? !ids.has(target.split("/")[1]) : !/^\/r\d+(?:\/|$)/.test(target);
+  });
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
-  const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
   const firstOnly = meta.items?.visible === "first",
     peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
   const items = firstOnly ? all.slice(0, 1) : peek && !peekOpen ? all.slice(0, peekLimit) : all;

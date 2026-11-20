@@ -35,8 +35,8 @@ function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Val
 }
 function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   if (ctx.standalone || !entry.state || entry.state === "filled") return false;
-  const { draw, emptyActions, session, successActions } = ctx.defs[entry.c]!.meta;
-  return !draw && !emptyActions?.length && !session && !successActions?.length;
+  const { draw, emptyActions, errorActions, session, successActions } = ctx.defs[entry.c]!.meta;
+  return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
 }
 const qualified = (screen: string, step: ActStep) => ({ ...step, address: `${screen}/${step.address}` });
 

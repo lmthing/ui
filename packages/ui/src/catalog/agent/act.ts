@@ -46,12 +46,14 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
-    const { draw, emptyActions, session, successActions, items } = def.meta;
+    const { draw, emptyActions, errorActions, session, successActions, items } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
     const liveState =
       (props.state as typeof state) ??
-      (draw || emptyActions || session || successActions?.length || policy ? state : undefined);
+      (draw || emptyActions || errorActions?.length || session || successActions?.length || policy
+        ? state
+        : undefined);
     return affordancesOf(def.meta, props, id, local, liveState, true);
   });
 }

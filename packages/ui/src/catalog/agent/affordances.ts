@@ -5,6 +5,7 @@ import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
+import { addressedItems, matches, visibleItems } from "./visibility";
 
 export type Affordance = {
   address: string;
@@ -45,14 +46,6 @@ function detailOf(action: string, holder: Props, suppressLink: boolean): string 
 }
 
 type When = Record<string, Record<string, string | boolean>> | undefined;
-
-/** A rule matches when every key equals its value, read from the item first, then the component. */
-function matches(rule: Record<string, string | boolean> | undefined, holder: Props, outer: Props): boolean {
-  return (
-    !rule ||
-    Object.entries(rule).every(([key, value]) => (key in holder ? holder[key] : outer[key]) === value)
-  );
-}
 
 /** A part exists when its `when` matches and, if named like an optional prop, that prop is set. */
 function present(part: string, holder: Props, when: When, outer: Props): boolean {
@@ -99,22 +92,31 @@ export function affordancesOf(
   state = (props.state as StateName | undefined) ?? "filled",
   includeBlocked = false,
 ): Affordance[] {
+  const get = (part: string) => values[`${instance}/${part}`];
+  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  if (meta.errorActions) props = { ...props, state };
   const { parts, items: itemParts, when, noGoto } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, noGoto?.parts).flatMap((a) => {
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });
-  const key = meta.items?.key;
-  const items = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
+  const items = addressedItems(meta, props);
+  const visible = meta.items?.visibleWhen && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
   const itemActions = items.flatMap((item, index) => {
+    if (visible && !visible.has(item)) return [];
     const base = `${instance}/${String(item.id)}`;
     return partsOf(itemParts, item, base, when, { ...props, $first: index === 0 }, noGoto?.items);
   });
   const runtime = values[`${instance}/$runtime`];
-  const get = (part: string) => values[`${instance}/${part}`];
-  const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
-  state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
+  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
+  const offered = [
+    ...own,
+    ...nested.filter(
+      ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+    ),
+  ];
   const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
   return offered.filter(({ address, action, part }) => {
@@ -176,6 +178,8 @@ function nestedActions(
 }
 
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {
+  const errorOnly = meta.errorActions?.some((allowed) => allowed === pair);
+  if (state === "error" || errorOnly) return state === "error" && errorOnly;
   if (state === "filled") return true;
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
   return state === "success" && (draw || meta.successActions?.some((allowed) => allowed === pair));

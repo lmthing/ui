@@ -36,12 +36,13 @@ function actionsAt(ctx: ControllerContext, address: string, includeBlocked = fal
     .components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
-  const { draw, emptyActions, session, successActions } = def.meta;
+  const { draw, emptyActions, errorActions, session, successActions } = def.meta;
   if (
     entry.state &&
     entry.state !== "filled" &&
     !draw &&
     !emptyActions?.length &&
+    !errorActions?.length &&
     !session &&
     !successActions?.length
   )

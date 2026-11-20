@@ -79,6 +79,8 @@ export type Meta = {
   emptyActions?: readonly `${string}.${ActionName}`[];
   /** Part/action pairs from `actions` that are also available in `success`. */
   successActions?: readonly `${string}.${ActionName}`[];
+  /** Part/action pairs from `actions` available only in `error`. */
+  errorActions?: readonly `${string}.${ActionName}`[];
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
@@ -96,6 +98,8 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    /** Match the addressed row first, then its component. Filter only after stamping. */
+    visibleWhen?: Readonly<Record<string, string | boolean>>;
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;

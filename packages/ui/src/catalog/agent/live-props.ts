@@ -148,7 +148,11 @@ export function liveProps(
   }
   if (runtime) props = projectClocks(meta, props, get, Number(get("$now") ?? Date.now()));
   else if (
-    (meta.draw || meta.emptyActions?.length || meta.successActions?.length || meta.session) &&
+    (meta.draw ||
+      meta.emptyActions?.length ||
+      meta.errorActions?.length ||
+      meta.successActions?.length ||
+      meta.session) &&
     get("$state") !== undefined
   )
     props = { ...props, state: get("$state") };
