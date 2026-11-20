@@ -111,13 +111,17 @@ export function selectionOffer(meta: Meta, target: string) {
   if (Object.hasOwn(meta.selections ?? {}, target)) return meta.selections![target];
   const choices = meta.select?.choices;
   if (choices && Object.hasOwn(choices, target))
-    return { prop: meta.select!.prop, choices: choices[target]! };
+    return { prop: meta.select!.prop, choices: choices[target]!, runtime: false as const, clear: undefined };
 }
 
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
 export function choiceValues(meta: Meta, props: Values, target: string): unknown[] | undefined {
-  const source = selectionOffer(meta, target)?.choices;
-  if (!source) return undefined;
+  const offer = selectionOffer(meta, target);
+  if (!offer) return undefined;
+  const source = offer.choices;
   const allowed = "prop" in source ? props[source.prop] : source;
-  return Array.isArray(allowed) ? allowed.filter((value) => !validateActionValue("select", value)) : [];
+  const choices = Array.isArray(allowed)
+    ? allowed.filter((value) => !validateActionValue("select", value))
+    : [];
+  return offer.clear && !choices.includes(offer.clear) ? [...choices, offer.clear] : choices;
 }

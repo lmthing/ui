@@ -17,6 +17,13 @@ export function navigationAction(state: ActionState, action: ActStep, ctx: Actio
       sheet = sheets[0]!.id;
     } else effects.push(() => ctx.options.onLink?.(link.goto, link.address));
   }
-  effects.push(() => ctx.options.onAction?.({ ...action, address: `${ctx.screen.id}/${action.address}` }));
+  effects.push(() =>
+    ctx.options.onAction?.({
+      address: `${ctx.screen.id}/${action.address}`,
+      action: action.action,
+      ...(Object.hasOwn(action, "value") ? { value: action.value } : {}),
+      ...(ctx.send ? { delivery: ctx.send } : {}),
+    }),
+  );
   return { state: { ...state, sheet }, effects };
 }

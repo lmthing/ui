@@ -1,6 +1,5 @@
 import {
   drawRole,
-  planAct,
   projectAdjustments,
   sessionEvent,
   parseControlProps,
@@ -19,26 +18,22 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { introducedPart } from "./introduced-part";
+import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
   if (ctx.standalone) {
     const { meta } = def;
-    return meta.confirmParts?.length && (meta.session || meta.successActions?.length)
-      ? parseControlProps(def, raw, get)
-      : raw;
+    const { id: _id, c: _c, state: _state, ...raw } = entry;
+    const { session, successActions, errorActions, live } = meta;
+    const useParsed =
+      meta.confirmParts?.length &&
+      (session || successActions?.length || errorActions?.length || live?.derive);
+    return useParsed ? parseControlProps(def, raw, get) : raw;
   }
   const input = ctx.inputOf(entry);
   return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
 }
-function inactive(ctx: ControllerContext, entry: ScreenComponent) {
-  if (ctx.standalone || !entry.state || entry.state === "filled") return false;
-  const { draw, emptyActions, session, successActions } = ctx.defs[entry.c]!.meta;
-  return !draw && !emptyActions?.length && !session && !successActions?.length;
-}
-const qualified = (screen: string, step: ActStep) => ({ ...step, address: `${screen}/${step.address}` });
 
 function disabledHint(component: string, action: string, input: Values) {
   if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
@@ -73,7 +68,7 @@ function prepareStep(
   const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
   if (hint) return fail("disabled", hint);
   const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = planAct(active, ctx.defs, state.values, [qualified(active.id, selected)], null);
+  const plan = dispatchPlan(ctx, active, state.values, selected, null);
   if (!plan.ok) return { error: { ...plan, at } };
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
@@ -93,6 +88,7 @@ function prepareStep(
       defs: ctx.defs,
       selected,
       links: plan.links,
+      send: plan.sends?.[0],
       at,
       now: ctx.now,
       key: ctx.key,
@@ -106,8 +102,10 @@ function prepareStep(
 function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
   if (!ctx.standalone) return true;
   const meta = ctx.defs[entry.c]!.meta;
+  const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
-  return Boolean(meta.successActions?.length || sessionEvent(meta, part, selected.action));
+  if (successActions?.length || errorActions?.length || live?.derive) return true;
+  return Boolean(sessionEvent(meta, part, selected.action));
 }
 function isDraw({ entry, defs, selected }: ActionContext) {
   const target = selected.address.split("/").slice(1).join("/") || "root";
@@ -136,7 +134,7 @@ function stepRunner(
       execution.drew = true;
       if (random !== null) {
         const { active, selected: planned } = prepared.context;
-        const plan = planAct(active, ctx.defs, before.values, [qualified(active.id, planned)], random);
+        const plan = dispatchPlan(ctx, active, before.values, planned, random);
         if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
         prepared.state.values = plan.values;
         prepared.state.changes = [...before.changes, ...plan.changed];
@@ -146,11 +144,7 @@ function stepRunner(
     if (ctx.standalone)
       return {
         state: prepared.state,
-        effects: prepared.context.links.map(
-          ({ goto, address }) =>
-            () =>
-              ctx.options.onLink?.(goto, address),
-        ),
+        effects: standaloneEffects(prepared.context),
       };
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
     const links = prepared.context.links.map((link) => ({
