@@ -89,6 +89,13 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { photos };
 }
 
+const plantPhotos = [
+  { photo: "lib:fern", caption: "Fern", goto: "fern" },
+  { photo: "lib:monstera", caption: "Monstera", goto: "monstera" },
+  { photo: "lib:basil", caption: "Basil" },
+  { photo: "lib:aloe", caption: "Aloe" },
+];
+
 export const examples = [
   {
     photos: [
@@ -99,28 +106,17 @@ export const examples = [
     ],
   },
   {
-    arrange: "strip",
-    photos: [
-      { photo: "lib:dogs", caption: "Park walk", goto: "morning_walk" },
-      { photo: "lib:dogs", caption: "River walk" },
-      { photo: "lib:dogs" },
-    ],
-  },
-  {
     style: "carousel",
     photos: [
-      { photo: "lib:plants", caption: "Front room" },
-      { photo: "lib:plants", caption: "Kitchen" },
-      { photo: "lib:plants", caption: "Garden" },
+      { photo: "lib:park_walk", caption: "Park walk", goto: "morning_walk" },
+      { photo: "lib:river_walk", caption: "River walk" },
+      { photo: "lib:evening_walk" },
     ],
   },
-  {
-    aspect: "wide",
-    photos: [
-      { photo: "lib:fern", caption: "Fern" },
-      { photo: "lib:basil", caption: "Basil" },
-    ],
-  },
+  { photos: plantPhotos },
+  { arrange: "strip", photos: plantPhotos },
+  { aspect: "wide", photos: plantPhotos },
+  { detail: "brief", photos: plantPhotos },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Gallery");
