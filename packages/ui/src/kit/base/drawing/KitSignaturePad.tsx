@@ -44,16 +44,47 @@ function useCapture(address: string, adapter: PrivateMarkAdapter | undefined, en
   return (mark: string) => binding.capture?.(mark);
 }
 
+function PadLabel({
+  label,
+  unavailable,
+  loading,
+}: {
+  label: string;
+  unavailable: boolean;
+  loading: boolean;
+}) {
+  return (
+    <YStack width="100%" alignItems="center" justifyContent="center">
+      <YStack width="100%" opacity={loading ? component.base.none : undefined}>
+        <KitText part={null} role="label" align="center" tone={unavailable ? "muted" : "text"}>
+          {label}
+        </KitText>
+      </YStack>
+      {loading && (
+        <YStack
+          position="absolute"
+          width="36%"
+          height={space.sm}
+          borderRadius={radius.pill}
+          backgroundColor="$line"
+        />
+      )}
+    </YStack>
+  );
+}
+
 function PadDrawing({
   label,
   preview,
   unavailable,
   loading,
+  editable,
 }: {
   label: string;
   preview: ReactElement | undefined;
   unavailable: boolean;
   loading: boolean;
+  editable: boolean;
 }) {
   return (
     <YStack
@@ -72,16 +103,18 @@ function PadDrawing({
         ) : (
           (preview ?? <KitIcon name={unavailable ? "lock" : "pencil"} scale="lg" decorative />)
         )}
+        {editable && (
+          <YStack
+            position="absolute"
+            bottom={component.base.none}
+            width="76%"
+            height={component.base.borderWidth}
+            backgroundColor="$muted"
+            opacity={component.base.disabledOpacity}
+          />
+        )}
       </YStack>
-      {loading ? (
-        <YStack height={size.icon.md} width="100%" alignItems="center" justifyContent="center">
-          <YStack width="36%" height={space.sm} borderRadius={radius.pill} backgroundColor="$line" />
-        </YStack>
-      ) : (
-        <KitText part={null} role="label" align="center" tone={unavailable ? "muted" : "text"}>
-          {label}
-        </KitText>
-      )}
+      <PadLabel {...{ label, unavailable, loading }} />
     </YStack>
   );
 }
@@ -95,7 +128,9 @@ function PadSurface({ label, mark, disabled, loading, target }: Omit<PadProps, "
   const enabled = Boolean(!loading && !disabled && !unavailable && interactive && controller);
   const onMark = useCapture(address.testID, adapter, enabled);
   const Surface = adapter?.Surface;
-  const drawing = <PadDrawing {...{ label, preview, unavailable, loading: Boolean(loading) }} />;
+  const drawing = (
+    <PadDrawing {...{ label, preview, unavailable, loading: Boolean(loading), editable: enabled }} />
+  );
   return (
     <YStack
       {...(!loading ? address : {})}

@@ -13,7 +13,7 @@ import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct } from "./dispatch";
 import { createMediaRuntime } from "./media";
-import { registerPrivateMark } from "./private-mark";
+import { privateMarkKey, registerPrivateMark } from "./private-mark";
 import { readControls } from "./read-controls";
 const pressActions = [
   "press",
@@ -38,6 +38,7 @@ function actionsAt(
   if (
     ctx.status.disposed ||
     ctx.privateMarks.has(local) ||
+    ctx.store.get(privateMarkKey(ctx.screen.id, local)) ||
     (!ignoreDisabledPart && ctx.disabledParts.has(local))
   )
     return [];
@@ -153,7 +154,6 @@ export function createStandaloneAccess(options: ControllerOptions) {
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
 }
-
 export function createAccess(ctx: ControllerContext, act: ReturnType<typeof createAct>) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>

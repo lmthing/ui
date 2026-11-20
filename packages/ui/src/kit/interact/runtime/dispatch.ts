@@ -4,6 +4,7 @@ import { actionFailure } from "../actions";
 import { snapshotPlanning, type ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
+import { privateMarkKey } from "./private-mark";
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
   return function act(steps: ActStep | ActStep[], opts: ActOptions = {}, markToken?: symbol): ActReply {
@@ -45,6 +46,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
+    if (markToken) state.values[privateMarkKey(ctx.screen.id, ctx.relative(list[0]!.address))] = true;
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
     for (const effect of effects) effect();
     scheduleClock();

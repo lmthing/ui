@@ -17,7 +17,7 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import { acceptsPrivateMark } from "../index";
+import { acceptsPrivateMark, privateMarkKey } from "../index";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
 import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
@@ -113,7 +113,6 @@ function isDraw({ entry, defs, selected }: ActionContext) {
   const role = drawRole(defs[entry.c]!.meta, target, selected.action);
   return role === "draw" || role === "redraw";
 }
-
 function stepRunner(
   ctx: ControllerContext,
   media: MediaRuntime,
@@ -124,7 +123,11 @@ function stepRunner(
 ) {
   const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
-    if (!acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, markToken))
+    const tagged = before.values[privateMarkKey(ctx.screen.id, selected.address)] === true;
+    if (
+      (!markToken && tagged) ||
+      !acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, markToken)
+    )
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };

@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
 import { type Definition } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
+import { createAgentAccess, createScreenController, type InteractionStore } from "@lmthing/ui/kit";
 
 const fixture = {
   meta: {
@@ -23,10 +23,13 @@ const fixture = {
 
 const address = "home/c1/pad";
 const own = "local-ref";
-const controllerForPad = () =>
+const defs = { Fixture: fixture };
+const screen = { id: "home", components: [{ id: "c1", c: "Fixture" }] };
+const controllerForPad = (store?: InteractionStore) =>
   createScreenController({
-    defs: { Fixture: fixture },
-    screen: { id: "home", components: [{ id: "c1", c: "Fixture" }] },
+    defs,
+    screen,
+    store,
     requireMounted: true,
   });
 
@@ -52,6 +55,15 @@ it("permits only an opaque reference accepted by the registered host, through no
   pad.unregister();
   expect(controller.read()).not.toContain(own);
   controller.dispose();
+  const replacement = controllerForPad(controller.store);
+  expect(replacement.read()).not.toContain(own);
+  expect(replacement.actionsAt(address)).toEqual([]);
+  replacement.registerPart(address);
+  expect(replacement.act(direct)).toMatchObject({ ok: false, code: "not_actionable" });
+  replacement.dispose();
+  const detached = createAgentAccess({ defs, store: controller.store, current: () => screen });
+  expect(detached.read()).not.toContain("c1/pad set");
+  expect(detached.read()).not.toContain(own);
 });
 
 it("rejects stale callbacks, unavailable adapters and resolver failures", () => {
