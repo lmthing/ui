@@ -9,7 +9,7 @@ it("migrates saved Devices tiles and preserves ids, scene confirmation and expli
   const { c, id, state, ...migrated } = migrateLine(legacy);
   expect({ c, id, state }).toEqual({ c: "Devices", id: "d1", state: "filled" });
   expect(migrated).not.toHaveProperty("style");
-  expect(migrated).toMatchObject({ group: "sections", rooms: input.rooms, scenes: input.scenes });
+  expect(migrated).toMatchObject({ ...input, group: "sections" });
   const stamped = (value: unknown) => stampItemIds(def.meta, def.props.parse(value));
   expect(stamped(migrated)).toEqual(stamped(input));
   expect(affordancesOf(def.meta, stamped(migrated), "d1")).toContainEqual(
