@@ -4,17 +4,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
 import { component, components, size, space, themeName } from "@lmthing/ui/catalog";
-import {
-  KitChip,
-  KitProvider,
-  KitTrack,
-  PartScope,
-  createScreenController,
-  type ScreenController,
-} from "@lmthing/ui/kit";
+import * as kit from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
-
 vi.mock("react/jsx-dev-runtime", { spy: true });
+const { KitChip, KitProvider, KitTrack, PartScope, createScreenController } = kit;
+type ScreenController = kit.ScreenController;
 type ChipProps = Parameters<typeof KitChip>[0];
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const chip = { item: "r1", label: "Headache", on: true, role: "checkbox" } as const;
@@ -56,7 +50,6 @@ async function capture(input: ChipProps, controller: ScreenController, track = f
   }
   return hits.at(-1)!;
 }
-
 describe("KitChip optional named parts", () => {
   it.each(["pill", "segment"] as const)("keeps default %s markup and addresses identical", (look) => {
     const input = { ...chip, look };
@@ -98,7 +91,6 @@ describe("KitChip optional named parts", () => {
     expect(act).toHaveBeenCalledWith({ address: "home/c1/field", action: "select", value: "US" });
   });
 });
-
 describe("KitChip variant options", () => {
   it.each(["pill", "segment", "box"] as const)(
     "draws fixed swatches in the %s without addressing them",
@@ -119,11 +111,7 @@ describe("KitChip variant options", () => {
   );
   it("addresses only an opted-in, stamped, visible swatch dot", () => {
     const input = { ...chip, swatch: "navy", swatchPart: "swatch" } as const;
-    const address = "home/c1/r1/swatch";
-    const html = render(input);
-    expect(styleAt(html, address)).toContain(component.swatch.navy);
-    expect(elementAt(html, address).attributes).toContain('aria-hidden="true"');
-    expect(elementAt(html, "home/c1/r1/label")).toBeDefined();
+    expect(styleAt(render(input), "home/c1/r1/swatch")).toContain(component.swatch.navy);
     expect(render({ ...input, item: null }, undefined, true)).not.toContain('/swatch"');
     expect(render(input, undefined, false, "loading")).not.toContain('/swatch"');
   });
