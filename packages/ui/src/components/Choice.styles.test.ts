@@ -5,11 +5,11 @@ import { elementAt, renderInstance, styleAt } from "../../test/render";
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 describe("Choice filled layout", () => {
-  it.each(["cards", "list"])("reserves the same icon column in %s options", (style) => {
+  it.each(["card", "plain"])("reserves the same icon column with surface %s", (surface) => {
     const html = renderInstance(
       "Choice",
       {
-        style,
+        surface,
         options: [
           { title: "First", sub: "First detail", icon: "drop" },
           { title: "Second", sub: "Second detail" },
