@@ -47,8 +47,11 @@ export const props = z
     attendees: z.array(c.text(24)).min(0).max(5).optional(),
   })
   .refine(({ going, attendees }) => !attendees || attendees.length <= going, { path: ["attendees"] })
-  .overwrite((value) => (value.media === "none" ? { ...value, photo: undefined } : value))
-  .transform((value) => ({ ...value, members: (value.attendees ?? []).map((label) => ({ label })) }));
+  .overwrite((value) => ({
+    ...value,
+    photo: value.media === "none" ? undefined : value.photo,
+    members: (value.attendees ?? []).map((label) => ({ label })),
+  }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -110,7 +113,7 @@ export const probes = [
   read("Say I’m going to the cutting swap.", { address: "e1/going", action: "press" }),
 ] satisfies c.Probe[];
 
-type EventProps = c.Props<typeof props, typeof meta>;
+type EventProps = c.Props<typeof props, typeof meta> & { members: { id: string; label: string }[] };
 type EventFinish = { density: c.ThemeDensity; loading: boolean };
 type EventCopy = ReturnType<typeof eventCopy>;
 
