@@ -25,7 +25,34 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
   } as const;
   const prompt = composePrompt(meta, "thread", cast, defs);
   expect(prompt.split(variantVocabulary)).toHaveLength(2);
-  expect(prompt).toContain("highlight at most one third");
+  expect(prompt).toContain('At most one third of items per component get mark "highlight" (round down).');
+  expect(prompt).toContain("Never infer an axis from the data alone.");
+  expect(prompt).toContain("one hero emphasis and one cover collection per screen");
+});
+
+it("snapshots the layout guidance for grounded content and clear actions", async () => {
+  const { browse, calendar, dashboard, detail, journal, onboarding, tracker } = archetypes;
+  const prompts = [
+    composePrompt(dashboard.meta, "rings", cast, components),
+    composePrompt(dashboard.meta, "charts", cast, components),
+    composePrompt(browse.meta, "shelves", cast, components),
+    composePrompt(tracker.meta, "timer", cast, components),
+    composePrompt(detail.meta, "facts", cast, components),
+    composePrompt(calendar.meta, "week", cast, components),
+    composePrompt(tracker.meta, "scale", cast, components),
+    composePrompt(journal.meta, "photos", cast, components),
+    composePrompt(onboarding.meta, "single", cast, components),
+    composePrompt(onboarding.meta, "steps", cast, components),
+  ];
+  const guidance = prompts
+    .map((prompt) =>
+      prompt
+        .split("\n")
+        .filter((line) => /^Layout[: ]/.test(line))
+        .join("\n"),
+    )
+    .join("\n\n");
+  await expect(`${guidance}\n`).toMatchFileSnapshot("../../../../test/snapshots/compose-layout-guidance.txt");
 });
 
 it("uses the effective List trail for toggle recipes and respects row overrides", () => {

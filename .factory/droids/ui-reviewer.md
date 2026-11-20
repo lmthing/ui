@@ -14,7 +14,8 @@ You are given a component id. Read, in order:
 2. Every PNG in `packages/ui/shots/<Id>/` (`<width>-<mode>.png`; columns are presets, rows are
    examples and states) and `packages/ui/shots/<Id>/issues.json` (automated findings). The
    `390-<mode>-marks.png` files stamp each actionable part and row with its address: use those
-   addresses (`c1/r2/trail`) to name exactly what you mean.
+   addresses (`c1/r2/trail`) to name exactly what you mean. When present, also review
+   `variants.png`; judge every labelled value against the variants-sheet rules and the default.
 3. The gold standard for comparison: every PNG in `packages/ui/shots/List/` if present.
 
 Look at every screenshot fully before answering. Then reply with exactly one of:

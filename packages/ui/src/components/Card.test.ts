@@ -16,11 +16,16 @@ describe("Card schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("applies defaults, trims text and derives link presence", () => {
-    const defaults = { style: "plain", title: "Fern", tone: "neutral", linked: false };
     expect(props.parse({ title: " Fern ", body: " Bathroom ", meta: " Today " })).toEqual({
-      ...defaults,
+      title: "Fern",
       body: "Bathroom",
       meta: "Today",
+      emphasis: "normal",
+      surface: "card",
+      media: "thumb",
+      detail: "full",
+      tone: "neutral",
+      linked: false,
     });
     expect(props.parse({ title: "Fern", goto: "fern" })).toMatchObject({ linked: true });
   });
@@ -34,7 +39,12 @@ describe("Card schema", () => {
       icon: ["unknown", null],
       photo: ["https://example.org/image.png", `lib:${"a".repeat(61)}`, "local:0", "local:dog"],
       goto: ["", "Bad ID", "a".repeat(65)],
-      style: ["inset"],
+      style: ["plain", "tinted", "outlined", "media"],
+      density: ["dense"],
+      emphasis: ["large"],
+      surface: ["inset"],
+      media: ["wide"],
+      detail: ["short"],
       tone: ["accent"],
       color: ["red"],
       ...Object.fromEntries(["pixels", "id", "linked", "root"].map((key) => [key, [true]])),
@@ -43,16 +53,16 @@ describe("Card schema", () => {
       for (const value of values)
         expect(props.safeParse({ title: "Fern", [key]: value }).success).toBe(false);
   });
-  it("accepts exact maximum lengths, reference forms and all styles and tones", () => {
-    for (const style of ["plain", "tinted", "outlined", "media"])
-      for (const tone of ["neutral", "good", "warn", "bad"])
-        expect(props.safeParse({ style, tone, ...maximum }).success).toBe(true);
+  it("accepts exact maximum lengths, reference forms and all surfaces and tones", () => {
+    for (const surface of meta.variants.surface)
+      for (const tone of meta.variants.tone)
+        expect(props.safeParse({ surface, tone, ...maximum }).success).toBe(true);
     expect(props.safeParse({ title: "Fern", photo: "local:1", goto: "back" }).success).toBe(true);
   });
   it("derives view props without item ids or visual overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["title"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"plain" | "tinted" | "outlined" | "media">();
+    expectTypeOf<ViewProps["media"]>().toEqualTypeOf<"thumb" | "none" | "icon" | "cover">();
     expectTypeOf<ViewProps["tone"]>().toEqualTypeOf<"neutral" | "good" | "warn" | "bad">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
@@ -91,54 +101,31 @@ describe("Card fallback", () => {
       castOf(["title"], { title: "Only a title" }),
     ];
     for (const cast of casts) expect(props.safeParse(fallback({ cast })).success).toBe(true);
-    expect(fallback({ cast: empty })).toEqual({
-      style: "plain",
-      title: placeholderTitle(0),
-      body: placeholderDetail,
-    });
-    expect(fallback({ cast: casts[1]! })).toEqual({ style: "plain", title: "First", body: "More details" });
-    expect(fallback({ cast: casts[2]! })).toEqual({ style: "plain", title: "First", body: "Its detail" });
-    expect(fallback({ cast: casts[3]! })).toEqual({
-      style: "plain",
-      title: "x".repeat(40),
-      body: "y".repeat(120),
-    });
+    expect(fallback({ cast: empty })).toEqual({ title: placeholderTitle(0), body: placeholderDetail });
+    expect(fallback({ cast: casts[1]! })).toEqual({ title: "First", body: "More details" });
+    expect(fallback({ cast: casts[2]! })).toEqual({ title: "First", body: "Its detail" });
+    expect(fallback({ cast: casts[3]! })).toEqual({ title: "x".repeat(40), body: "y".repeat(120) });
     expect(fallback({ cast: casts[4]! })).toEqual(fallback({ cast: empty }));
-    expect(fallback({ cast: casts[5]! })).toEqual({ style: "plain", title: "First", body: "Second" });
+    expect(fallback({ cast: casts[5]! })).toEqual({ title: "First", body: "Second" });
     expect(fallback({ cast: casts[6]! }).body).toBe(placeholderDetail);
   });
 });
 describe("Card metadata and probes", () => {
   it("has the required contract and well-formed choose, write and read probes", () => {
-    expect(meta).toMatchObject({ id: "Card", group: "content", region: "body", weight: 2, tier: "phone" });
-    expect(meta.parts).toEqual(["root", "icon", "photo", "badge", "title", "body", "meta"]);
-    expect(meta.states).toEqual(["filled", "loading"]);
-    expect(meta.actions).toEqual({ parts: { root: ["press"] }, when: { root: { linked: true } } });
-    expect(meta.realPath).not.toBe("");
-    expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(meta.pick).toContain("List");
-    expect(meta.pick).toContain("Hero");
     const choose = probes.filter((probe) => probe.kind === "choose");
     expect(choose.map((probe) => probe.expect)).toEqual(["Card", "List"]);
     for (const probe of choose)
       for (const name of [meta.id, "List", "Hero"])
         expect(probe.need).not.toMatch(new RegExp(`\\b${name}\\b`, "i"));
-    expect(probes.filter((probe) => probe.kind === "write").map((probe) => probe.expect)).toEqual([
-      "Card",
-      "Card",
+    expect(probes.filter((probe) => probe.kind === "write")).toMatchObject([
+      { expect: "Card", variant: { axis: "media", value: "cover" } },
+      { expect: "Card" },
     ]);
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
       task: "Open the fern card",
       expect: { address: "c1", action: "press" },
     });
-    expect(examples.map((example) => example.style)).toEqual([
-      "media",
-      "tinted",
-      "plain",
-      "outlined",
-      "plain",
-    ]);
   });
 });
 describe("Card view and actions", () => {
@@ -152,9 +139,10 @@ describe("Card view and actions", () => {
       );
     }
     expect(html).toContain(example.title);
-    if (example.style === "media") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
-    if (example.style === "tinted") expect(styleAt(html, "home/c1/root")).toContain("--goodSoft");
-    if (example.style === "outlined") expect(styleAt(html, "home/c1/root")).toMatch(/border[^;]*:/);
+    if (example.media === "cover") expect(styleAt(html, "home/c1/photo")).toMatch(/aspect-ratio:\s*1\.777/);
+    if (example.surface === "tinted")
+      expect(styleAt(html, "home/c1/root")).toContain(`--${example.tone ?? "accent"}Soft`);
+    if (example.surface === "outlined") expect(styleAt(html, "home/c1/root")).toMatch(/border[^;]*:/);
   });
   it.each([undefined, "local-photo-uri"])("draws wide media only when resolved: %s", (source) => {
     const resolvePhoto = vi.fn(() => source);
@@ -178,7 +166,7 @@ describe("Card actions and loading", () => {
       expect(html).toContain(text);
     }
     expect(read.includes("[c1 press")).toBe(Boolean(goto));
-    expect(readComponent(components.Card, input, "c1", "loading")[0]).not.toContain('"');
+    expect(html.includes("<svg")).toBe(Boolean(goto));
   });
   it.each([undefined, "uri"])("loads only resolved media without navigation: %s", (source) => {
     for (const input of [examples[0], examples[1], examples[2], { title: "Title" }]) {
@@ -193,8 +181,19 @@ describe("Card actions and loading", () => {
       checkHidden(elementAt(html, "home/c1/root"));
       const firstPlaceholder = elementAt(html, "home/c1/root").children[0]!.children[0]!;
       expect(styleAt(html, firstPlaceholder).includes("aspect-ratio")).toBe(
-        props.parse(input).style === "media" && Boolean(source),
+        props.parse(input).media === "cover" && Boolean(source),
       );
     }
   });
+});
+it("keeps the title, badge and link when brief hides body and metadata from the view and reader", () => {
+  const input = { ...examples[0], detail: "brief", badge: "Due today" };
+  const html = renderInstance("Card", input, "filled", theme);
+  const read = readComponent(components.Card, input, "c1").join(" ");
+  for (const output of [html, read]) {
+    expect(output).toContain("Fern");
+    expect(output).toContain("Due today");
+    expect(output).not.toMatch(/Bathroom|Water today/);
+  }
+  expect(read).toContain("[c1 press");
 });

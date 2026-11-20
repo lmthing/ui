@@ -5,6 +5,7 @@ import type { ScreenLike } from "../agent";
 import { placeholderDetail, placeholderTitle, placeholderValue, thingOf, clip } from "../cast";
 import { definitionsOf, checkScreen, type RegistryLike } from "../rules";
 import type { ArchetypeMeta, DefaultLine } from "./recipe";
+import { applyPackListDefaults } from "./pack-list-defaults";
 
 /** Refined styles can impose tighter array bounds than the base schema exposes. */
 function fitArrays(def: Definition, input: Record<string, unknown>): void {
@@ -38,12 +39,16 @@ function inputOf(
   line: DefaultLine,
   defs: Record<string, Definition>,
   cast: CastLike,
+  layout: string,
 ): Record<string, unknown> {
   const def = defs[line.c];
   if (!def) throw new Error(`Missing component ${line.c}`);
   const input = { ...(def.fallback({ cast }) as Record<string, unknown>) };
   const variant = line.variant;
-  if (!variant) return input;
+  if (!variant) {
+    if (line.c === "List") applyPackListDefaults(input, layout);
+    return input;
+  }
   if (line.c === "List" && ["shelf", "toggle"].includes(variant)) {
     const rows = [...(input.rows as Record<string, unknown>[])];
     if (variant === "shelf") {
@@ -116,7 +121,7 @@ export function defaultLines(
     const id = `${prefix}${(counts[prefix] = (counts[prefix] ?? 0) + 1)}`;
     if (grouped.length && line.c === "SectionTitle") groupIndex++;
     const lineCast = grouped.length && line.c === "List" ? { ...cast, items: grouped[groupIndex]![1] } : cast;
-    const input = inputOf(line, defs, lineCast);
+    const input = inputOf(line, defs, lineCast, `${meta.id}/${layout}`);
     if (grouped.length && line.c === "SectionTitle") input.text = clip(grouped[groupIndex]![0], 24);
     if (grouped.length && line.c === "Chips")
       input.items = [

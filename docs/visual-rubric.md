@@ -54,3 +54,12 @@ comparisons. The planned 0.1% CI baseline gate and axe/native checks are **pendi
 
 17. Next to `List` at the same width and preset, the component looks like part of the same app:
     same density, radius, type and surface treatment.
+
+## Variants sheet
+
+18. Every alternative is visibly different from its default when shown with comparable content.
+    Media and accessories have real content; detail and overflow variants have something to hide.
+19. Every alternative still looks like `calm` at 390px in light mode: soft surfaces, readable
+    contrast and the same type and spacing system as the default.
+20. Compact fits without clipping, crowding or shrinking an actionable target.
+21. Hero draws the eye once without shouting: secondary text and nearby controls stay secondary.

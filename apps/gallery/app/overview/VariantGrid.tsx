@@ -1,6 +1,6 @@
 import { XStack } from "tamagui";
 import { presets, space, type ComponentName } from "@lmthing/ui/catalog";
-import { cellsOf, modes } from "./gallery-data";
+import { cellKey, cellsOf, modes } from "./gallery-data";
 import { Preview } from "./Preview";
 
 export function VariantGrid({
@@ -24,7 +24,7 @@ export function VariantGrid({
             .flatMap((value) =>
               cellsOf(id).map((cell) => (
                 <Preview
-                  key={`${item.id}_${value}_${cell.index}_${cell.state}`}
+                  key={`${item.id}_${value}_${cellKey(cell)}`}
                   cell={cell}
                   preset={item.id}
                   mode={value}

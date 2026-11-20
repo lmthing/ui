@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  formatAddress,
   itemsOf,
   placeholderTitle,
   probesFor,
@@ -9,12 +10,26 @@ import {
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import {
+  KitCard,
+  KitContent,
+  KitEmpty,
+  KitInput,
+  KitNumberPad,
+  useComponentState,
+  useControlValue,
+  usePartContext,
+  useWords,
+} from "../../../kit";
+import { amountPadKeys, amountPadReading, amountPadText } from "../copy";
+import { moneyWordsFor } from "../lang";
 
 // Core first: Field/number cannot provide a screen-dominant amount with a decimal keypad and backspace.
 export const meta = {
   id: "AmountPad",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Enter a money amount quickly with a large keypad.",
   pick: "Entering money is the main screen task: large live amount, decimal keypad and optional note. Not a number among form fields (Field), or a count to step (Counter).",
@@ -28,6 +43,8 @@ export const meta = {
   parts: ["root", "label", "value", "pad", "note"],
   states: ["filled", "empty"],
   actions: { parts: { pad: ["type"], note: ["type"] }, when: { note: { note: true } } },
+  read: (input, state, lang) =>
+    state === "filled" ? amountPadReading(input as { value?: number | string; note: boolean }, lang) : [],
 } as const satisfies Meta;
 
 export const props = z
@@ -40,7 +57,8 @@ export const props = z
   .refine(({ value, max }) => value === undefined || max === undefined || value <= max, {
     path: ["value"],
     message: "The entered amount must not exceed max",
-  });
+  })
+  .meta({ keypadParts: ["pad"] });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
@@ -67,3 +85,35 @@ export const probes = [
   ),
   read("Type 25 into the amount keypad", { address: "a1/pad", action: "type" }),
 ] satisfies Probe[];
+
+export function AmountPad(input: Props<typeof props, typeof meta>) {
+  const state = useComponentState();
+  const { screen, component } = usePartContext();
+  const { words } = useWords(moneyWordsFor);
+  const initialText = amountPadText(input.value);
+  const draft = useControlValue(formatAddress({ screen, component, part: "pad" }), initialText);
+  const keys = amountPadKeys(words.amountPad);
+  return (
+    <KitCard part="root" padded={state !== "empty"}>
+      {state === "empty" ? (
+        <KitEmpty part="label" decorativeIcon />
+      ) : (
+        <>
+          <KitNumberPad
+            part="pad"
+            displayPart="value"
+            target={{ part: "pad" }}
+            label={input.label}
+            value={draft}
+            keys={keys}
+          />
+          {input.note && (
+            <KitContent group="response">
+              <KitInput part="note" hint={words.amountPad.note} />
+            </KitContent>
+          )}
+        </>
+      )}
+    </KitCard>
+  );
+}

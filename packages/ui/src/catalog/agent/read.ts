@@ -1,7 +1,7 @@
 import { controlValueKey, liveProps, parseControlProps, projectParsedControls } from "./live-props";
 import { z } from "zod";
 import { numberLine } from "../format";
-import { wordsFor } from "../lang";
+import { peekLimit, wordsFor } from "../lang";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance, type Affordance } from "./affordances";
@@ -83,11 +83,7 @@ function migrateInput(component: string, input: unknown) {
   return props;
 }
 
-/**
- * The default reader: one line per component, items indented, text quoted, affordances in brackets
- * with their part. No pixels, colours or fonts. Format: plan 4.12. Actions on a part whose tier is
- * not `phone` carry a risk mark (`!needs-ok`): a real app would gate them. Secrets read as `(secret)`.
- */
+/** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
   input: unknown,
@@ -123,7 +119,18 @@ export function readComponent(
     ...readDraw(draw),
     ...componentTexts(schema, props, key, roundKey, session?.kind === "rounds" ? session.item : undefined),
   ];
-  return readItems(def.meta, schema, props, instance, key, head, own, affordances, lang);
+  return readItems(
+    def.meta,
+    schema,
+    props,
+    instance,
+    key,
+    head,
+    own,
+    affordances,
+    get("more") === true,
+    lang,
+  );
 }
 
 function readItems(
@@ -135,14 +142,18 @@ function readItems(
   head: string,
   own: string[],
   affordances: Affordance[],
+  peekOpen: boolean,
   lang?: string,
 ) {
   const ownAff = affordances.filter((a) => !key || !/^\/r\d+(?:\/|$)/.test(a.address.slice(instance.length)));
   const line = [head, own.join(" — "), ...ownAff.map((a) => formatAffordance(a))].filter(Boolean);
   const all = key && Array.isArray(props[key]) ? (props[key] as Props[]) : [];
-  // A stack shows only its first item; the rest are counted, not read.
   const firstOnly = meta.items?.visible === "first";
-  const items = firstOnly ? all.slice(0, 1) : all;
+  const peek = props.overflow === "peek" && meta.variants?.overflow?.includes("peek");
+  const items = firstOnly ? all.slice(0, 1) : peek && !peekOpen ? all.slice(0, peekLimit) : all;
+  const words = wordsFor(lang),
+    hidden = all.length - items.length;
+  const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
   const itemSchema = key ? schema.properties?.[key]?.items : undefined;
   return [
     line.join(" "),
@@ -157,9 +168,8 @@ function readItems(
         .filter(Boolean)
         .join(" ")}`;
     }),
-    ...(firstOnly && all.length > 1
-      ? [`  ${wordsFor(lang).moreRead(numberLine(all.length - 1, lang))}`]
-      : []),
+    ...(hidden ? [`  ${(firstOnly ? words.moreRead : words.peekCount)(numberLine(hidden, lang))}`] : []),
+    ...(disclosure ? [`  ${peekOpen ? words.peekLess : words.peekMore}`] : []),
   ];
 }
 

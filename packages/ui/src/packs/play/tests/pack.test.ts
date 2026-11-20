@@ -73,6 +73,14 @@ it("checks every recipe, layout, neutral default and core isolation", () => {
   expect(packs.play.probes.filter((probe) => probe.kind === "pack").length).toBeGreaterThanOrEqual(3);
   expect(packs.play.probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Counter" }));
 });
+it("defaults to numbered results without inventing score totals", () => {
+  const registry = createRegistry({ packs: ["play"], includeDrafts: true });
+  const screen = registry.defaultLines("score_round", "play_results", cast);
+  const { id: _id, c: _c, ...input } = screen.components.find(({ c }) => c === "List")!;
+  const list = components.List.props.parse(input);
+  expect(list).toMatchObject({ lead: "number", trail: "value", style: undefined });
+  expect(list.rows.every(({ value, trail }) => value === undefined && trail === "none")).toBe(true);
+});
 it("validates each worked-example line and preserves score-record totals and ties", async () => {
   const source = await readFile(new URL("../example.jsonl", import.meta.url), "utf8");
   const lines = source
@@ -95,9 +103,9 @@ it("validates each worked-example line and preserves score-record totals and tie
       value: String(scores.rounds.reduce((sum, round) => sum + (round.points[index] ?? 0), 0)),
     }))
     .sort((left, right) => Number(right.value) - Number(left.value));
-  expect(
-    lines
-      .find((line) => line.c === "List")
-      .rows.map(({ title, value }: { title: string; value: string }) => ({ title, value })),
-  ).toEqual(totals);
+  const { id: _listId, c: _listName, ...listInput } = lines.find((line) => line.c === "List");
+  const list = components.List.props.parse(listInput);
+  expect(list).toMatchObject({ lead: "number", trail: "value", style: undefined });
+  expect(list.rows.every(({ trail }) => trail === "value")).toBe(true);
+  expect(list.rows.map(({ title, value }) => ({ title, value }))).toEqual(totals);
 });

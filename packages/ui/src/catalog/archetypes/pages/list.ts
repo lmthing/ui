@@ -11,6 +11,7 @@ export const meta = createMeta(
   {
     grouped: [
       "Group every supplied record by its category field, once each, with no duplicates and no invented due dates. Use one SectionTitle and one List per group, up to three groups.",
+      "Keep each row’s supplied detail visible: leave detail, overflow, group and mark null. SectionTitle already names each group. Use the actual group names in the filter chips and leave the optional Header action null so the Button is the one main next action.",
     ],
   },
 ) satisfies ArchetypeMeta;

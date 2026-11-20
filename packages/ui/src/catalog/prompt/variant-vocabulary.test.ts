@@ -6,6 +6,10 @@ import { estimateTokens, variantVocabulary } from "./index";
 
 it("states the whole shared axis vocabulary in at most 160 estimated tokens", () => {
   expect(estimateTokens(variantVocabulary)).toBeLessThanOrEqual(160);
+  expect(variantVocabulary).toContain(
+    "including item axes, only when explicitly requested; otherwise use null",
+  );
+  expect(variantVocabulary).toContain('At most one third of items per component get mark "highlight"');
   for (const [axis, { values }] of Object.entries(variantAxes)) {
     expect(variantVocabulary).toMatch(new RegExp(`^${axis}( \\([^\\n]+\\))?: ${values.join("\\|")}$`, "m"));
   }
