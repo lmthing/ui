@@ -122,7 +122,7 @@ describe("Agreement contract and probes", () => {
 
 describe("Agreement states, parts and reading", () => {
   it.each([false, true])("draws only valid actions when signed is %s", (signed) => {
-    const input = { ...examples[1]!, signed };
+    const input = { ...props.parse(examples[1]!), signed };
     const html = renderInstance("Agreement", input, "filled", theme);
     const actions = affordancesOf(meta, stampItemIds(meta, props.parse(input)), "a1");
     expect(actions.map(({ part, action }) => [part, action])).toEqual(
