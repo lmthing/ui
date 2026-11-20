@@ -11,6 +11,7 @@ import {
   useVariant,
 } from "../../../kit";
 import {
+  balancedLine,
   wordsFor,
   detailOf,
   isoDate,
@@ -40,6 +41,7 @@ export const meta = {
   writeHints: [
     "Keep the supplied client's name in name even when signed is false; an unsigned agreement may have a prefilled name.",
     "Only write date when a signing date is supplied. Never invent a name or signing date.",
+    'Keep density and surface null unless the person explicitly requests a different appearance; never write "comfortable" or "card" just to indicate the default.',
     'If asked only to hide the signing date, use {"density":null,"surface":null,"detail":"brief"} and keep the supplied date in the data. Otherwise detail is null.',
   ],
   region: "body",
@@ -73,7 +75,7 @@ export const props = z
   .strictObject({
     ...variantProps(meta.variants),
     title: text(32),
-    terms: text(600),
+    terms: text(600).overwrite(balancedLine),
     signed: z.boolean(),
     name: text(28).optional(),
     date: isoDate.optional(),
@@ -110,7 +112,8 @@ export const examples = [
     name: "Ben Carter",
     date: "2026-11-18",
   },
-  { ...variantExample, density: "compact" },
+  variantExample,
+  { title: variantExample.title, terms: variantExample.terms, signed: false, density: "compact" },
   { ...variantExample, surface: "outlined" },
   { ...variantExample, detail: "brief" },
 ] satisfies z.input<typeof props>[];
@@ -136,11 +139,10 @@ export function Agreement(input: Props<typeof props, typeof meta>) {
   const { agreementLabels: copy } = words;
   const state = useComponentState();
   const accepted = signed || state === "success";
+  const emphasis = density === "compact" ? "hero" : "normal";
   return (
     <KitCard padded part="root" {...{ density, surface }}>
-      <KitText role="heading" part="title" {...{ density }}>
-        {title}
-      </KitText>
+      <KitText role="heading" part="title" {...{ density, emphasis }} children={title} />
       <KitScroll part="terms" label={title}>
         <KitText part={null} {...{ density }}>
           {terms}
@@ -173,7 +175,7 @@ export function Agreement(input: Props<typeof props, typeof meta>) {
               {name}
             </KitText>
           ) : (
-            <KitInput part="name" hint={copy.name} label={copy.name} value={name} />
+            <KitInput part="name" hint="" label={copy.name} value={name} />
           )}
         </KitContent>
       )}
