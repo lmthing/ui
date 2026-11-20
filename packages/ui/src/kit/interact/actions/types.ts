@@ -1,4 +1,4 @@
-import type { ActStep, Definition, ScreenLike, Values } from "../../../catalog";
+import type { ActStep, Definition, ScreenLike, SendDraft, Values } from "../../../catalog";
 import type { ActReply } from "../index";
 import type { Confirmation, ControllerContext } from "../runtime";
 export type ActionState = {
@@ -20,6 +20,7 @@ export type ActionContext = {
   defs: Record<string, Definition>;
   selected: ActStep;
   links: { goto: string; address: string }[];
+  send?: SendDraft | undefined;
   at: number;
   now: () => number;
   key: ControllerContext["key"];

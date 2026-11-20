@@ -15,6 +15,7 @@ type AgentOptions = {
   random?: RandomSource | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
+  onSend?: (text: string, address: string) => void;
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
@@ -67,6 +68,7 @@ export function createAgentAccess(options: AgentOptions) {
       if (opts.dryRun) return { ...reply, dryRun: true };
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);
+      for (const send of plan.sends ?? []) options.onSend?.(send.text, send.address);
       for (const step of list) log.push({ ...step, at: Date.now() });
       return { ...reply, dryRun: false };
     },

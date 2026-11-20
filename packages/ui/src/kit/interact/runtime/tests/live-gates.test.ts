@@ -167,3 +167,30 @@ it("keeps a staged derived row selection out of the snapshot but exposes it to t
   expect(controller.snapshotScreen()).toEqual(screen);
   expect(controller.canPress(save.address)).toBe(true);
 });
+
+it("delivers the draft from the admitted send step after commit on both runtime paths", () => {
+  const { def, screen } = fixture();
+  const bound: Definition = {
+    ...def,
+    meta: {
+      ...def.meta,
+      live: { text: def.meta.live!.text!, send: { send: "reason" } },
+      actions: { parts: { reason: ["type"], send: ["send"] } },
+    },
+  };
+  const defs = { [bound.meta.id]: bound };
+  const steps = [type("A"), send, type("B")];
+  for (const mounted of [false, true]) {
+    const onSend = vi.fn();
+    const store = createInteractionStore();
+    const runtime = mounted
+      ? createScreenController({ screen, defs, store, onSend })
+      : createAgentAccess({ current: () => screen, defs, store, onSend });
+    expect(runtime.act(steps, { dryRun: true }).ok).toBe(true);
+    expect(runtime.act([...steps, type("1234567890123")]).ok).toBe(false);
+    expect(onSend).not.toHaveBeenCalled();
+    expect(runtime.act(steps).ok).toBe(true);
+    expect(onSend).toHaveBeenCalledExactlyOnceWith("A", "s/entry/reason");
+    expect(store.get("s/entry/reason")).toBe("B");
+  }
+});

@@ -13,6 +13,7 @@ export type Affordance = {
   action: string;
   detail: string;
   input?: LiveInput;
+  send?: { address: string; text: string };
   blocked?: "max_active";
   togglePeers?: readonly string[];
 };
@@ -98,6 +99,14 @@ export function affordancesOf(
   if (meta.errorActions) props = { ...props, state };
   const { parts, items: itemParts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    const sends = meta.live?.send;
+    if (a.action === "send" && sends && Object.hasOwn(sends, a.part)) {
+      const part = sends[a.part]!;
+      const spec = meta.live?.text?.[part];
+      const text = spec && props[spec.prop];
+      const address = part === "root" ? instance : `${instance}/${part}`;
+      return typeof text === "string" && text.trim() ? [{ ...a, send: { address, text } }] : [];
+    }
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });

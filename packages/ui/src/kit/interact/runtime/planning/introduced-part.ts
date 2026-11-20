@@ -7,6 +7,17 @@ import {
   type Values,
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
+import type { ActionContext } from "../../actions";
+
+export function standaloneEffects({ links, send, options }: ActionContext) {
+  const effects = links.map(
+    ({ goto, address }) =>
+      () =>
+        options.onLink?.(goto, address),
+  );
+  if (send) effects.push(() => options.onSend?.(send.text, send.address));
+  return effects;
+}
 
 export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   if (ctx.standalone || !entry.state || entry.state === "filled") return false;

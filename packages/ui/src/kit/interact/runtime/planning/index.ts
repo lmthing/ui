@@ -19,7 +19,7 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { inactive, introducedPart } from "./introduced-part";
+import { inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
@@ -90,6 +90,7 @@ function prepareStep(
       defs: ctx.defs,
       selected,
       links: plan.links,
+      send: plan.sends?.[0],
       at,
       now: ctx.now,
       key: ctx.key,
@@ -145,11 +146,7 @@ function stepRunner(
     if (ctx.standalone)
       return {
         state: prepared.state,
-        effects: prepared.context.links.map(
-          ({ goto, address }) =>
-            () =>
-              ctx.options.onLink?.(goto, address),
-        ),
+        effects: standaloneEffects(prepared.context),
       };
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
     const links = prepared.context.links.map((link) => ({

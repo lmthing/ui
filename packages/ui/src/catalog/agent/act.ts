@@ -18,9 +18,16 @@ import { advanceSession, sessionEvent, sessionKey, staleSession } from "./sessio
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
+export type SendDraft = { address: string; text: string };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
-  | { ok: true; values: Values; changed: string[]; links: { goto: string; address: string }[] }
+  | {
+      ok: true;
+      values: Values;
+      changed: string[];
+      links: { goto: string; address: string }[];
+      sends?: SendDraft[];
+    }
   | { ok: false; code: ActCode; at: number; hint?: string };
 
 const relative = (screen: string, address: string) =>
@@ -112,6 +119,7 @@ export function planAct(
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: Extract<ActResult, { ok: true }>["links"] = [];
+  const sends: SendDraft[] = [];
   for (const [at, original] of steps.entries()) {
     const offered = affordancesOfScreen(screen, defs, next);
     const address = relative(screen.id, original.address);
@@ -144,7 +152,8 @@ export function planAct(
     if (validate && !controlsAreValid(screen, defs, address, next))
       return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
     expireProgress(screen, defs, next);
+    if (found.send) sends.push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
-  return { ok: true, values: next, changed, links };
+  return { ok: true, values: next, changed, links, ...(sends.length ? { sends } : {}) };
 }

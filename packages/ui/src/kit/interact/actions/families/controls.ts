@@ -34,9 +34,9 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
   }
   if (control.value !== undefined)
     changes[changes.length - 1] = `${action.address} ${action.action} = ${JSON.stringify(control.value)}`;
-  if (control.send) {
-    const message = control.send;
-    appendMessage(values, message, ctx);
+  const message = ctx.send ?? control.send;
+  if (message) {
+    if (control.send) appendMessage(values, message, ctx);
     effects.push(() => ctx.options.onSend?.(message.text, message.address));
   }
   if (control.requestPhoto && ctx.options.requestPhoto) {
