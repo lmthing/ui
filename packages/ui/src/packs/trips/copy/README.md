@@ -8,4 +8,5 @@ Data-only formatting for trips components. Import through `index.ts`; built-in w
 - `PackingList.ts` formats packing progress, quantities and addressed reading.
 - `Reservation.ts` formats ticket dates, times and reading text.
 - `TravelDocs.ts` formats masked document details, expiry warnings and trip dates for the view and reading.
+- `Weather.ts` validates weather data and formats display copy and addressed reading.
 - `index.ts` exports pack copy.
