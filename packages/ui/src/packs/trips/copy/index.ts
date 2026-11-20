@@ -16,3 +16,4 @@ export { clockReadings } from "./Clocks";
 export { packingProgress, packingQuantity, packingRead, packingRows } from "./PackingList";
 export { reservationReading, reservationStampParts } from "./Reservation";
 export { travelDocLines, travelDocsReading, travelDocsTripEnd } from "./TravelDocs";
+export { weatherCopy, weatherReading } from "./Weather";

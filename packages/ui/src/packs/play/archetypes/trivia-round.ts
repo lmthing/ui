@@ -24,17 +24,17 @@ export const trivia_round = {
     },
     play_awards: {
       writeHints: [
-        'ScoreSheet uses style "round" with one integer or null per player in each round. Awarded round points are raw score records; never write computed totals, ranks or winners.',
+        'ScoreSheet uses overflow "page" with one integer or null per player in each round. Awarded round points are raw score records; never write computed totals, ranks or winners.',
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["ScoreSheet"], required: true, variant: "round" },
+        { allow: ["ScoreSheet"], required: true },
         { allow: ["Note"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header" },
-        { id: "s1", c: "ScoreSheet", style: "round" },
+        { id: "s1", c: "ScoreSheet", overflow: "page" },
         { id: "n1", c: "Note" },
         { id: "b1", c: "Button" },
       ],
