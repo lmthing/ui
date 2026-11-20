@@ -1,4 +1,10 @@
 export type TripsWords = {
+  itinerary: {
+    untimed: string;
+    hours: (hours: string, minutes?: string) => string;
+    dayLabel: (date: string, place: string) => string;
+    dayLine: (date: string, place: string, stops: string[]) => string;
+  };
   travelDocs: {
     kinds: Record<"passport" | "visa" | "insurance" | "licence" | "health" | "other", string>;
     tripEnds: (date: string) => string;
@@ -13,6 +19,12 @@ export type TripsWords = {
 };
 
 export const en = {
+  itinerary: {
+    untimed: "—",
+    hours: (hours, minutes) => `${hours} h${minutes ? ` ${minutes} min` : ""}`,
+    dayLabel: (date, place) => `${place}, ${date}`,
+    dayLine: (date, place, stops) => `${date} ${place}: ${stops.join(", ")}`,
+  },
   travelDocs: {
     kinds: {
       passport: "Passport",

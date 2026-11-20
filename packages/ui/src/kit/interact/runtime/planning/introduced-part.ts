@@ -25,6 +25,7 @@ export function dispatchPlan(
     [{ ...step, address: `${screen.id}/${step.address}` }],
     random,
     ctx.standalone ? "planner" : "controller",
+    ctx.options.deviceData,
   );
 }
 
@@ -63,7 +64,7 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.items?.visibleWhen) &&
+    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;
