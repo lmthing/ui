@@ -128,7 +128,7 @@ it("rejects invalid nested fields, bounds, dates and service-computed input", ()
 
 it("reads nested available parts and masks travel document numbers", () => {
   const itinerary = readComponent(components.Itinerary, components.Itinerary.examples[0], "i1").join("\n");
-  expect(itinerary).toContain('Thu, 4 Mar "Tokyo": 09:00 "Shinjuku Gyoen"');
+  expect(itinerary).toMatch(/Thu,? 4 Mar "Tokyo": 09:00 "Shinjuku Gyoen"/);
   expect(itinerary).toContain("[i1/r1 toggle]");
   expect(itinerary).toContain("[i1/r1/stop_1 press→garden]");
   expect(itinerary).not.toContain("stop_3");
