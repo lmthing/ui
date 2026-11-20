@@ -34,9 +34,28 @@ const fixture = () => ({
 });
 type Fixture = ReturnType<typeof fixture>;
 
-it("checks today's empty pack catalog and a complete fixture", () => {
+it("checks today's pack catalog and a fixture with a competing pack", () => {
   expect(checkPacks(catalog)).toEqual([]);
   expect(checkPacks(fixture())).toEqual([]);
+});
+it.each([
+  { expect: [], allow: [], issues: [] },
+  { expect: ["social"], allow: [], issues: ["media: probes"] },
+  { expect: [], allow: ["social"], issues: ["media: probes"] },
+] as const)("checks the core exclusion with Director expect $expect and allow $allow", (miss) => {
+  const pack: PackMeta = catalog.packs.media;
+  const positives = pack.probes.filter((probe) => probe.kind === "pack" && probe.expect.includes("media"));
+  const probes = [
+    ...positives,
+    { kind: "pack", idea: "Play one recording", expect: miss.expect, allow: miss.allow },
+  ] as const;
+  expect(checkPacks({ ...catalog, packs: { ...catalog.packs, media: { ...pack, probes } } })).toEqual(
+    miss.issues,
+  );
+});
+it("requires the named core component to exist", () => {
+  const { Player: _player, ...components } = catalog.components;
+  expect(checkPacks({ ...catalog, components })).toContain("media: purpose/pick");
 });
 it("accepts optional known additions without requiring every allowed pack", () => {
   const input = fixture();
