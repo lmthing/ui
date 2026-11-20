@@ -20,7 +20,7 @@ export const meta = {
   pick: "Triage one incoming service report: compare reported urgency with impact, set effective priority and route it or link a duplicate. Not a simple form dropdown (Field) or manager permission (Approval).",
   writeHints: [
     "at and duplicateAt are zero-based indices. A chosen duplicate needs a reason and must not have the report's own number.",
-    'Use detail "brief" for the decision only; keep the report number and title in the data.',
+    'For the decision only, set detail "brief" and density null. Keep the report number and title in the data. Only set density when spacing is requested.',
   ],
   region: "body",
   weight: 2,
@@ -38,16 +38,26 @@ export const meta = {
     when: {
       "root.select": { kind: "queue" },
       "root.press": { kind: "duplicate" },
-      link: { kind: "duplicate", self: false },
+      link: { kind: "duplicate", canLink: true },
+      apply: { canApply: true },
     },
   },
-  select: { prop: "at", value: "index" },
+  // Apply the selected queue to the wire before deriving whether this decision can be applied.
+  select: { prop: "at", value: "index", choices: {} },
   selections: { priority: { prop: "priority", choices: urgency.options }, ...duplicateLinks },
   read: (input): string[] => {
-    const { reportedUrgency, impact, priority, queues, duplicates, detail } = input as z.output<typeof props>;
+    const { reportedUrgency, impact, priority, queues, duplicates, detail, at, duplicateAt } =
+      input as z.output<typeof props>;
+    const decision =
+      duplicateAt !== undefined
+        ? duplicates[duplicateAt]?.number
+        : at === undefined
+          ? undefined
+          : queues[at]?.label;
     return [
       ...(detail === "full" ? [`${reportedUrgency} / ${impact}`] : []),
       priority,
+      ...(decision ? [`Selected: ${decision}; apply to save`] : []),
       ...queues.map(({ label }, index) => `r${index + 1} ${JSON.stringify(label)}`),
       ...duplicates.map(
         ({ number, title }, index) =>
@@ -95,18 +105,20 @@ export const props = z
   .overwrite((value) => ({
     ...value,
     reason: value.reason ?? "",
+    canApply: value.at !== undefined || value.duplicateAt !== undefined,
     choices: [
       ...value.queues.map((queue) => ({ ...queue, kind: "queue" })),
-      ...value.duplicates.map((entry) => ({
+      ...value.duplicates.map(({ goto, ...entry }) => ({
         ...entry,
+        root: { goto },
         kind: "duplicate",
-        self: entry.number === value.number,
+        canLink: entry.number !== value.number && Boolean(value.reason),
       })),
     ],
     ...Object.fromEntries(
       value.duplicates.map((entry, index) => [
         `link_${value.queues.length + index + 1}`,
-        entry.number === value.number ? [] : [index],
+        entry.number !== value.number && value.reason ? [index] : [],
       ]),
     ),
   }));
@@ -140,9 +152,12 @@ export const probes = [
   choose("On the report form add one category dropdown with Plant care, Gears and Other", "Field"),
   {
     ...write(
-      "For LG-41 Grow light keeps flickering, reported urgent but affects one bike, set normal priority and select Equipment from Equipment and Plant care. No duplicates. Show only the decision, not the original report.",
+      "For LG-41 Grow light keeps flickering, reported urgent but affects one shelf, set normal priority and select Equipment from Equipment and Plant care. No duplicates. Show only the decision, not the original report.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Apply the decision to route the ticket to Equipment", { address: "r1/apply", action: "press" }),
+  read(
+    "The queue is already selected. Save and confirm the triage decision now without changing the selection.",
+    { address: "r1/apply", action: "press" },
+  ),
 ] satisfies c.Probe[];

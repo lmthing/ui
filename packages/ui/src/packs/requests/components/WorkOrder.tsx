@@ -54,8 +54,8 @@ export const meta = {
     parts: { clock: ["start", "stop"], blocked: ["select"], note: ["type"], finish: ["press"] },
     items: { check: ["check"], qty: ["set"] },
     when: {
-      check: { style: "worksheet", kind: "task" },
-      qty: { style: "worksheet", kind: "part" },
+      check: { editable: true, kind: "task" },
+      qty: { editable: true, kind: "part" },
       "clock.start": { canStart: true, running: false },
       "clock.stop": { editable: true, running: true },
       blocked: { editable: true },
@@ -64,16 +64,18 @@ export const meta = {
     },
   },
   read: (input, _state, lang): string[] => {
-    const { tasks, parts, date, from, to, status, blockedBy, minutes } = input as z.output<typeof props>;
+    const { lines, date, from, to, status, blockedBy, minutes } = input as z.output<typeof props> & {
+      lines: (({ kind: "task" } & z.output<typeof task>) | ({ kind: "part" } & z.output<typeof part>))[];
+    };
     return [
       `${status}${blockedBy ? ` (${blockedBy})` : ""}`,
       ...(date ? [`${date} ${from}–${to}`] : []),
       c.durationLine(minutes, lang),
-      ...tasks.map(
-        ({ text, required }, index) =>
-          `r${index + 1} ${JSON.stringify(text)}${required ? " (required)" : ""}`,
+      ...lines.map((line, index) =>
+        line.kind === "task"
+          ? `r${index + 1} ${JSON.stringify(line.text)}${line.required ? " (required)" : ""}`
+          : `r${index + 1} ${JSON.stringify(line.name)} ×${line.qty}`,
       ),
-      ...parts.map(({ name, qty }, index) => `r${tasks.length + index + 1} ${JSON.stringify(name)} ×${qty}`),
     ];
   },
 } as const satisfies c.Meta;

@@ -11,7 +11,8 @@ export const meta = {
   purpose: "Find the next service request to work on by urgency and deadline.",
   pick: "An operator's active and completed service tickets, grouped by lifecycle status and ordered by urgency and deadline. Not a short tappable badge list (List), arbitrary stages (Board), or one rental repair (Request).",
   writeHints: [
-    'Write 1–6 records across both views. Use group "none" for one ordered queue without headings. Never write display order, age, overdue or counts.',
+    'Write 1–6 records across both views. For one ordered queue without headings, write group "none" and density null. Only set density when spacing is requested.',
+    "Never write display order, age, overdue or counts.",
     "Use date and HH:MM for opening; dueAt requires due. Omit both if there is no deadline.",
   ],
   region: "body",
@@ -22,7 +23,7 @@ export const meta = {
   variantParts: { "group.none": { hides: ["status_heading"] } },
   parts: ["root", "view", "count", "status_heading", "retry"],
   items: {
-    key: "rows",
+    key: "addressed_rows",
     parts: ["root", "number", "title", "place", "status", "urgency", "who", "age", "due"],
   },
   states: ["filled", "empty", "loading", "error"],
@@ -34,12 +35,16 @@ export const meta = {
   emptyActions: ["view.select"],
   selections: { view: { prop: "view", choices: ["active", "completed"] } },
   read: (input): string[] => {
-    const { rows, view } = input as z.output<typeof props>;
-    return rows.flatMap(({ number, status, urgency, due, dueAt }) =>
-      completed(status) === (view === "completed")
-        ? [`${number}: ${status}, ${urgency}${due ? `, ${due}${dueAt ? ` ${dueAt}` : ""}` : ""}`]
-        : [],
-    );
+    const { rows, view, group } = input as z.output<typeof props>;
+    return rows
+      .map((row, index) => ({ ...row, address: `r${index + 1}` }))
+      .filter((row) => completed(row.status) === (view === "completed"))
+      .sort((a, b) => compareRows(a, b, group === "sections"))
+      .map(({ address, number, title, place, who, status, urgency, due, dueAt }) =>
+        [address, number, JSON.stringify(title), status, urgency, place, who, due, dueAt]
+          .filter(Boolean)
+          .join(" "),
+      );
   },
 } as const satisfies c.Meta;
 
@@ -61,6 +66,14 @@ const row = z
   })
   .refine(({ due, dueAt }) => !dueAt || due !== undefined, { path: ["dueAt"] });
 
+type Row = z.output<typeof row>;
+function compareRows(a: Row, b: Row, grouped: boolean) {
+  const urgencyOrder = urgency.options.indexOf(b.urgency) - urgency.options.indexOf(a.urgency);
+  const statusOrder = requestStatus.options.indexOf(a.status) - requestStatus.options.indexOf(b.status);
+  const deadline = ({ due, dueAt }: Row) => (due ? `${due} ${dueAt ?? "23:59"}` : "\uffff");
+  return (grouped ? statusOrder : 0) || urgencyOrder || deadline(a).localeCompare(deadline(b));
+}
+
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
@@ -69,9 +82,10 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
-    rows: value.rows.map((row) => ({
-      ...row,
-      inView: completed(row.status) === (value.view === "completed"),
+    // The reader describes only visible rows above. Keep every address slot when switching views.
+    addressed_rows: value.rows.map(({ status, goto }) => ({
+      goto,
+      inView: completed(status) === (value.view === "completed"),
     })),
   }));
 
@@ -119,5 +133,11 @@ export const probes = [
     ),
     variant: { axis: "group", value: "none" },
   },
-  read("Open the urgent ticket about the flickering grow light", { address: "r1/r1", action: "press" }),
+  read(
+    "Tap the Grow light keeps flickering report row to open its details. Leave the queue view unchanged.",
+    {
+      address: "r1/r1",
+      action: "press",
+    },
+  ),
 ] satisfies c.Probe[];

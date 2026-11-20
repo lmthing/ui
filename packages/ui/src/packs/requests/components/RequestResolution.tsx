@@ -48,11 +48,11 @@ export const meta = {
       outcome: { style: "review" },
       resolve: { style: "review" },
       accept: { style: "receipt", verified: true },
-      reopen: { style: "receipt" },
+      reopen: { style: "receipt", canReopen: true },
     },
   },
   successActions: ["reason.type", "reopen.press"],
-  selections: { outcome: { prop: "outcome", choices: outcomes } },
+  selections: { outcome: { prop: "outcome", choices: { prop: "outcome_choices" } } },
   read: (input): string[] => {
     const { outcome, duplicateOf, checks } = input as z.output<typeof props>;
     return [
@@ -88,6 +88,11 @@ export const props = z
   .overwrite((value) => ({
     ...value,
     reason: value.reason ?? "",
+    canReopen: Boolean(value.reason),
+    outcome_choices:
+      value.outcome === "duplicate"
+        ? ["duplicate"]
+        : ["repaired", "workaround", ...(value.reason ? ["unable"] : [])],
     verified: value.checks.every(({ done }) => done),
   }));
 
