@@ -11,7 +11,7 @@ import {
 } from "../../../catalog";
 import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
-import { createAct } from "./dispatch";
+import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { privateMarkKey, registerPrivateMark } from "./private-mark";
 import { readControls } from "./read-controls";
@@ -42,7 +42,7 @@ function actionsAt(
     (!ignoreDisabledPart && ctx.disabledParts.has(local))
   )
     return [];
-  if (ctx.status.confirmation)
+  if (ctx.confirmationFor())
     return local === "confirm/confirm"
       ? ["press"]
       : ["confirm/cancel", "confirm/close"].includes(local)
@@ -89,7 +89,8 @@ function actionsAt(
 }
 function press(ctx: ControllerContext, act: ReturnType<typeof createAct>, address: string) {
   const local = ctx.relative(address);
-  if (ctx.status.confirmation) {
+  if (!ctx.status.disposed && ctx.options.interactive !== false) discardHiddenConfirmation(ctx);
+  if (ctx.confirmationFor()) {
     if (!["confirm/confirm", "confirm/cancel", "confirm/close"].includes(local))
       return actionFailure(0, "not_actionable", "Answer the confirmation first");
     return act({
@@ -124,8 +125,9 @@ function isPressAction(ctx: ControllerContext, local: string, action: string) {
 }
 function read(ctx: ControllerContext) {
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
-  if (ctx.status.confirmation)
-    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(ctx.status.confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
+  const confirmation = ctx.confirmationFor();
+  if (confirmation)
+    return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
   const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
   const reading = readControls(
     visible,
