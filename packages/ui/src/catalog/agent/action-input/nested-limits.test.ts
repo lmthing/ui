@@ -89,3 +89,26 @@ it("remembers which row was selected when parents have the same field value", ()
     },
   );
 });
+
+it("requires room for every toggle address that shares the changed field", () => {
+  const screen = { id: "s", components: [{ id: "c1", c: def.meta.id, ...input, rows: [input.rows[1]!] }] };
+  const toggle = (part: string) => ({ address: `c1/r1/${part}_1`, action: "toggle" });
+  const withLimit = (maxActive: number): Definition => {
+    const { items } = def.meta;
+    const { nested } = items;
+    const parts = { ...nested.parts, alias: nested.parts.pick };
+    return { ...def, meta: { ...def.meta, items: { ...items, nested: { ...nested, maxActive, parts } } } };
+  };
+  const tooSmall = { [def.meta.id]: withLimit(1) };
+  expect(readScreen(screen, tooSmall)).not.toContain("toggle:off");
+  expect(planAct(screen, tooSmall, {}, [toggle("pick")])).toMatchObject({ ok: false, code: "max_active" });
+  const fits = { [def.meta.id]: withLimit(2) };
+  const on = planAct(screen, fits, {}, [toggle("alias")]);
+  if (!on.ok) throw new Error(on.code);
+  expect(readScreen(screen, fits, on.values)).toContain("remaining 0");
+  const off = planAct(screen, fits, on.values, [toggle("pick")]);
+  if (!off.ok) throw new Error(off.code);
+  const read = readScreen(screen, fits, off.values);
+  expect(read).toContain("remaining 2");
+  expect(read).not.toContain("toggle:on");
+});

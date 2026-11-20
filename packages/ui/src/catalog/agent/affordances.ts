@@ -11,6 +11,7 @@ export type Affordance = {
   action: string;
   detail: string;
   blocked?: "max_active";
+  togglePeers?: readonly string[];
 };
 type Props = Record<string, unknown>;
 
@@ -129,11 +130,12 @@ function nestedActions(
   const controls = nestedControls(meta, props, get);
   const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
   const policy = meta.items?.nested;
-  const full = nestedRemaining(meta, props, controls) === 0;
-  const nested = controls.flatMap(({ enabled, target, part, spec, item }): Affordance[] => {
+  const remaining = nestedRemaining(meta, props, controls);
+  const nested = controls.flatMap(({ enabled, target, part, spec, item, togglePeers }): Affordance[] => {
     if (!enabled) return [];
     const value = item[spec.prop];
-    const blocked = full && spec.action === "toggle" && value !== true;
+    const blocked =
+      remaining !== undefined && togglePeers && remaining < togglePeers.length && value !== true;
     if (blocked && !includeBlocked) return [];
     const detail =
       spec.action === "toggle"
@@ -150,6 +152,9 @@ function nestedActions(
         action: spec.action,
         detail,
         ...(blocked ? { blocked: "max_active" } : {}),
+        ...(includeBlocked && togglePeers && togglePeers.length > 1
+          ? { togglePeers: togglePeers.map((peer) => `${instance}/${peer}`) }
+          : {}),
       },
     ];
   });

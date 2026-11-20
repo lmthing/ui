@@ -35,7 +35,9 @@ export function useNestedControls(meta: Meta, props: Values) {
       .map((control) => ({
         ...control,
         disabled:
-          remaining === 0 && control.spec.action === "toggle" && control.item[control.spec.prop] !== true,
+          remaining !== undefined &&
+          remaining < (control.togglePeers?.length ?? 0) &&
+          control.item[control.spec.prop] !== true,
       })),
   };
 }

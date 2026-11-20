@@ -99,8 +99,10 @@ export function stageValue(
     next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
     next[key] = amount;
   } else if (action === "toggle" || action === "check") {
-    const now = (next[key] as boolean | undefined) ?? (detail === ":on" || detail === ":done");
+    const projected = detail === ":on" || detail === ":done";
+    const now = found.togglePeers ? projected : ((next[key] as boolean | undefined) ?? projected);
     next[key] = (value as boolean | undefined) ?? !now;
+    for (const peer of found.togglePeers ?? []) next[`${screenId}/${peer}`] = next[key];
   } else if (action === "increment" || action === "decrement") {
     next[key] = Number(next[key] ?? 0) + (action === "increment" ? 1 : -1);
   } else if (action === "press" || action === "select") {

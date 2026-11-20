@@ -99,10 +99,8 @@ export function activeParentId(meta: Meta, props: Values, get?: GetValue): strin
   const value = select?.value;
   let index = 0;
   if (select?.mode === "flags") {
-    index = Math.max(
-      0,
-      rows.findIndex((row) => row[select.prop] === true),
-    );
+    const flagged = rows.findIndex((row) => row[select.prop] === true);
+    index = Math.max(0, flagged);
   } else if (select && value && props[select.prop] !== undefined) {
     const matches = (row: Values, at: number) => rowValue(value, row, at) === props[select.prop];
     const saved = get?.(parentSlot);
@@ -113,28 +111,33 @@ export function activeParentId(meta: Meta, props: Values, get?: GetValue): strin
   return row && idOf(meta, row, index);
 }
 
-/** Identify reserved generated addresses even if a particular row has fewer children. */
 export function isNestedTarget(meta: Meta, target: string): boolean {
   const [row, part, extra] = target.split("/");
   const name = part?.match(/^(.+)_[1-9]\d*$/)?.[1];
   return Boolean(row && name && extra === undefined && Object.hasOwn(meta.items?.nested?.parts ?? {}, name));
 }
 
-/** Enumerate controls from real sub-items, including inactive ones needed for counting. */
 export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
   const nested = meta.items?.nested;
   if (!nested) return [];
   const activeParent = activeParentId(meta, props, get);
+  const parts = Object.entries(nested.parts);
   return rowsOf(meta, props).flatMap((row, index) => {
     const id = idOf(meta, row, index);
     const children = row[nested.key];
     if (!Array.isArray(children)) return [];
     return (children as Values[]).flatMap((item, at) =>
-      Object.entries(nested.parts).map(([name, spec]) => ({
+      parts.map(([name, spec]) => ({
         target: `${id}/${name}_${at + 1}`,
         part: `${name}_${at + 1}`,
         spec,
         item,
+        togglePeers:
+          nested.maxActive !== undefined && spec.action === "toggle"
+            ? parts
+                .filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
+                .map(([peer]) => `${id}/${peer}_${at + 1}`)
+            : undefined,
         enabled:
           (!nested.activeParent || id === activeParent) &&
           (typeof spec.when === "object"
