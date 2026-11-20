@@ -8,6 +8,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.SwipeStack;
 const card = { title: "Fern" };
@@ -19,9 +20,11 @@ describe("SwipeStack schema", () => {
   );
   it("trims text without inventing optional content", () => {
     expect(props.parse({ cards: [{ title: "  Fern  ", meta: "  Shade  " }, card] })).toEqual({
+      detail: "full",
+      media: "cover",
       cards: [{ title: "Fern", meta: "Shade" }, card],
     });
-    expect(props.parse({ cards: pair })).toEqual({ cards: pair });
+    expect(props.parse({ cards: pair })).toEqual({ detail: "full", media: "cover", cards: pair });
   });
   it("shows how to omit optional detail in the model's first example", () => {
     const cards = props.parse(examples[0]).cards;
@@ -49,6 +52,8 @@ describe("SwipeStack schema", () => {
     { cards: [{ title: "Fern", root: true }, card] },
     { cards: [{ title: "Fern", $first: true }, card] },
     { cards: pair, style: "grid" },
+    { cards: pair, media: "thumb" },
+    { cards: pair, detail: "short" },
     { cards: pair, visible: "first" },
     { cards: pair, color: "#fff" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
@@ -66,8 +71,18 @@ describe("SwipeStack schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
-
-describe("SwipeStack fallback and metadata", () => {
+describe("SwipeStack fallback", () => {
+  it("hides declared content parts without changing the top card's swipe address", () => {
+    const input = { cards: examples[0]!.cards, media: "none", detail: "brief" };
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const html = renderInstance("SwipeStack", input, "filled", theme);
+    expect(html).toContain('data-testid="home/c1/r1/root"');
+    for (const part of ["meta", "photo"]) expect(html).not.toContain(`data-testid="home/c1/r1/${part}"`);
+    const read = readComponent(components.SwipeStack, input, "s1").join("\n");
+    expect(read).toContain('"Fern" [s1/r1 swipe]');
+    expect(read).not.toContain("Soft indirect light");
+    expect(read).not.toContain("photo:");
+  });
   it.each([2, 3, 4, 5, 6])("reads only the first of %i cards and counts the rest", (count) => {
     const cards = Array.from({ length: count }, (_, index) => ({
       title: `Choice ${index}`,
@@ -150,15 +165,14 @@ describe("SwipeStack fallback and metadata", () => {
     expect(fallback({ cast: casts[4]! }).cards).toEqual(fallback({ cast: casts[0]! }).cards);
   });
 });
-
-describe("SwipeStack fallback and metadata", () => {
+describe("SwipeStack metadata", () => {
   it("has the specified parts, states, tier and well-formed probes", () => {
     expect(meta).toMatchObject({
       group: "content",
       region: "body",
       weight: 3,
       tier: "phone",
-      items: { key: "cards", parts: ["root", "photo", "title"], visible: "first" },
+      items: { key: "cards", parts: ["root", "photo", "title", "meta"], visible: "first" },
       parts: ["root"],
       states: ["filled", "empty"],
       actions: { items: { root: ["swipe"] }, when: { root: { $first: true } } },
@@ -180,7 +194,6 @@ describe("SwipeStack fallback and metadata", () => {
     const registry = createRegistry();
     expect(registry.ids).toContain("SwipeStack");
     expect(registry.schema("SwipeStack")).toBe(props);
-    expect(registry.resolve("s-w-i-p-e-s-t-a-c-k")).toBe("SwipeStack");
     expect(registry.resolve("s-w-i-p-e-s-t-a-c-k")).toBe("SwipeStack");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
