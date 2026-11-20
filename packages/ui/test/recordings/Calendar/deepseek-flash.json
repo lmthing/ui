@@ -146,7 +146,7 @@
     "reply": "{\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
     "replies": [
       "{\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
-      "{\"c\":\"Calendar\",\"style\":\"week\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
+      "{\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}",
       "{\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"marked\":[{\"day\":5,\"tone\":\"good\"},{\"day\":12,\"tone\":\"good\"},{\"day\":19,\"tone\":\"good\"},{\"day\":26,\"tone\":\"good\"}],\"selected\":12,\"start\":1,\"days\":30}"
     ]
   },

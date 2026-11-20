@@ -232,7 +232,7 @@
     "reply": "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":\"walks\",\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
     "replies": [
       "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":\"walks\",\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
-      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":\"walks\",\"trend\":null},{\"label\":\"Earnings\",\"value\":\"€180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
+      "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":\"walks\",\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}",
       "{\"c\":\"Stats\",\"style\":\"tiles\",\"tiles\":[{\"label\":\"Walks this week\",\"value\":\"9\",\"unit\":\"walks\",\"trend\":null},{\"label\":\"Earned\",\"value\":\"180\",\"unit\":\"EUR\",\"trend\":\"up\"}]}"
     ]
   },

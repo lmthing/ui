@@ -308,11 +308,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Chips\",\"style\":\"choose\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}",
+    "reply": "{\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}",
     "replies": [
+      "{\"c\":\"Chips\",\"style\":\"filter\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}",
       "{\"c\":\"Chips\",\"style\":\"choose\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}",
-      "{\"c\":\"Chips\",\"style\":\"choose\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}",
-      "{\"c\":\"Chips\",\"style\":\"choose\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"timer\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"timer\"}]}"
+      "{\"c\":\"Chips\",\"style\":\"choose\",\"items\":[{\"label\":\"30 min\",\"on\":true,\"icon\":\"timer\"},{\"label\":\"45 min\",\"on\":false,\"icon\":\"clock\"},{\"label\":\"60 min\",\"on\":false,\"icon\":\"alarm_clock\"}]}"
     ]
   },
   "819955d0e9928f50": {

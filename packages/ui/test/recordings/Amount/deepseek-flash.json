@@ -398,8 +398,8 @@
     "reply": "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"this week\",\"goto\":null}",
     "replies": [
       "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"this week\",\"goto\":null}",
-      "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":1272.5,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"down this week\",\"goto\":null}",
-      "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"down this week\",\"goto\":null}"
+      "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":1272.5,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"down €32 this week\",\"goto\":null}",
+      "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"none\",\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"this week\",\"goto\":null}"
     ]
   },
   "b7c2bebaad24f25f": {
