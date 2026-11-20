@@ -57,6 +57,16 @@ function preserveRankedTrail(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
+  Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
+  Note: [
+    {
+      from: "style",
+      values: { body: {}, quote: { emphasis: "hero" }, hint: { emphasis: "quiet" } },
+      prepare: (props) =>
+        props.style === "body" ? props : { icon: props.style === "quote" ? "quote" : "lightbulb", ...props },
+    },
+  ],
   Loan: [{ from: "style", values: { summary: { detail: "brief" }, schedule: { detail: "full" } } }],
   Payoff: [{ from: "style", values: { plan: { detail: "full" }, compact: { detail: "brief" } } }],
   Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],

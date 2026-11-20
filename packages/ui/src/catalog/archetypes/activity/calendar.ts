@@ -14,8 +14,8 @@ export const meta = createMeta(
     ],
     month: [
       ...timelineHint,
-      "Use a short month-specific title such as “November appointments” in both title and Header.title. Use Header.sub as a compact guide to the whole screen: count the month's supplied visits, say which dates to tap, and identify the selected day's agenda. Example: “3 visits · Tap dots · Nov 18 agenda” (at most 40 characters). Use the actual count and date.",
-      "Dots guide the person to visits: mark each supplied appointment date with tone good and leave other dates unmarked. Keep the supplied selection. The Timeline is that date’s agenda, not a second month list: show only its actual appointments in time order, with their exact titles and times. Put the purpose first and the friendly date second in meta, e.g. “Routine review · Nov 18”. Leave Timeline density and detail null.",
+      "Name the displayed month and purpose in Header.title. Header.sub names the selected day's agenda and tells the person where to tap in at most 40 characters, e.g. “Nov 18 agenda · Tap marked dates”. Use the real selected date and leave all Header axes null.",
+      "Dots guide the person to visits: mark each supplied appointment date with tone good. Keep the supplied selection. The Timeline is that selected day's agenda: exclude every appointment on a different date, even when marked on the Calendar. Copy selected-day titles and times and put the purpose first and date second in meta. Leave Timeline density and detail null.",
     ],
   },
 ) satisfies ArchetypeMeta;
