@@ -15,19 +15,31 @@ import {
 const cast = { things: [], items: [] };
 it("adds the vocabulary once and the screen caps only for recipes with shared axes", () => {
   const meta = archetypes.chat.meta;
-  expect(composePrompt(meta, "thread", cast, components)).not.toContain(variantVocabulary);
-  const defs = {
+  const {
+    variants: _variants,
+    variantParts: _parts,
+    writeHints: _hints,
+    ...plainHeader
+  } = components.Header.meta;
+  const withoutHeaderAxes = {
     ...components,
     Header: {
       ...components.Header,
-      meta: { ...components.Header.meta, variants: { align: ["start", "center"] } },
+      meta: plainHeader,
+      props: z.strictObject({ title: text(28) }),
+      examples: [{ title: "Chat" }],
     },
-  } as const;
-  const prompt = composePrompt(meta, "thread", cast, defs);
+  };
+  const caps = "one hero emphasis and one cover collection per screen";
+  const plain = composePrompt(meta, "thread", cast, withoutHeaderAxes);
+  expect(plain).not.toContain(variantVocabulary);
+  expect(plain).not.toContain(caps);
+
+  const prompt = composePrompt(meta, "thread", cast, components);
   expect(prompt.split(variantVocabulary)).toHaveLength(2);
   expect(prompt).toContain('At most one third of items per component get mark "highlight" (round down).');
   expect(prompt).toContain("Never infer an axis from the data alone.");
-  expect(prompt).toContain("one hero emphasis and one cover collection per screen");
+  expect(prompt).toContain(caps);
 });
 
 it("snapshots the layout guidance for grounded content and clear actions", async () => {

@@ -17,6 +17,9 @@ export const meta = createMeta(
       "Name the subject and photo journal in the Header. Its subtitle tells the person to open a photo to see the entry. Set Header action to literal null; never put a camera or New entry shortcut there. The final Button, labeled Write entry, is the only creation action and goes to new_entry.",
       "Use each supplied photo with a distinct caption and a goto to its entry. When photos share a reference, make their captions useful with the record name and a short supplied fact, such as its care interval. Keep the fact readable and the full caption within 24 characters; do not use a clipped word or invent a photo or date.",
     ],
+    write: [
+      "Name the task in Header.title, e.g. Write a journal entry, and show one short instruction in Header.sub about dating, rating and writing the entry. Leave Header axes and action null. Use one Save entry button that goes to the journal after saving; do not make it a navigation shortcut before the entry is saved.",
+    ],
   },
 ) satisfies ArchetypeMeta;
 export const defaults = meta.defaults;
