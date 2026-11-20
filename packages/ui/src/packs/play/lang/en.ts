@@ -30,6 +30,15 @@ export const en = {
   scoreCell: (player: string, round: string) => `${player}, ${round}`,
   scoreReadCell: (id: string, player: string, round: string, points: string) =>
     `${id} ${player}, ${round}: ${points}`,
+  trivia: {
+    emptyThing: "trivia question",
+    points: (value: string, plural: Intl.LDMLPluralRule) =>
+      `${value} ${plural === "one" ? "point" : "points"}`,
+    photo: "Question photo",
+    reveal: "Reveal answer",
+    next: "Next question",
+    restart: "Restart",
+  },
   dice: {
     one: (count: string, sides: string) => `${count} die · ${sides} sides`,
     other: (count: string, sides: string) => `${count} dice · ${sides} sides`,
