@@ -68,7 +68,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props,
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
   const timed = runtime ? projectClocks(meta, reading, get, Number(get("$now") ?? Date.now())) : reading;
-  const projected = visibleNestedProps(meta, projectDraw(meta, timed, get));
+  const projected = visibleNestedProps(meta, projectDraw(meta, timed, get), get);
   if (!session) return projected;
   const current = session.kind === "rounds" ? { [meta.session!.items]: [session.item] } : {};
   return { ...projected, ...current, [sessionKey]: session };
@@ -120,7 +120,7 @@ export function readComponent(
   return readItems(
     meta,
     schema,
-    visibleNestedProps(meta, props),
+    visibleNestedProps(meta, props, get),
     instance,
     key,
     head,

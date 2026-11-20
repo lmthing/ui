@@ -33,7 +33,7 @@ const fixture = {
     tier: "phone",
     realPath: "Local preferences.",
     items: { key: "rows", parts: ["root", "pick_1", "pick_2", "pick_3"], nested },
-    select: { prop: "parent", value: "index" },
+    select: { prop: "parent", value: { field: "code" } },
     actions: { items: { root: ["select"], pick_1: ["toggle"], pick_2: ["toggle"], pick_3: ["toggle"] } },
   },
   props: z
@@ -45,6 +45,7 @@ const fixture = {
       ...input,
       rows: input.rows.map((row) => ({
         ...row,
+        code: "same",
         choices: row.labels.map((label) => ({ on: input.seed.includes(label) })),
       })),
     })),

@@ -95,9 +95,9 @@ export function affordancesOf(
       { ...props, $first: index === 0 },
     ),
   );
-  const offered = [...own, ...nestedActions(meta, props, instance, itemActions, includeBlocked)];
   const runtime = values[`${instance}/$runtime`];
   const get = (part: string) => values[`${instance}/${part}`];
+  const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
   const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
@@ -123,9 +123,10 @@ function nestedActions(
   props: Props,
   instance: string,
   items: Affordance[],
+  get: (part: string) => unknown,
   includeBlocked: boolean,
 ) {
-  const controls = nestedControls(meta, props);
+  const controls = nestedControls(meta, props, get);
   const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
   const policy = meta.items?.nested;
   const full = nestedRemaining(meta, props, controls) === 0;

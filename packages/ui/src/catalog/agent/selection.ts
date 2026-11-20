@@ -2,6 +2,8 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { validateActionValue } from "./validate-value";
 
+type GetValue = (part: string) => unknown;
+const parentSlot = "$nested/parent";
 const rowsOf = (meta: Meta, props: Values): Values[] =>
   meta.items?.key && Array.isArray(props[meta.items.key]) ? (props[meta.items.key] as Values[]) : [];
 const idOf = (meta: Meta, row: Values, index: number) =>
@@ -64,6 +66,8 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
     values[part] = undefined;
   });
   if (select.mode !== "flags") {
+    if (meta.items?.nested?.activeParent)
+      values[parentSlot] = found.row ? idOf(meta, found.row, found.index) : undefined;
     values[`$${select.prop}`] = found.value;
     if (!Object.hasOwn(select.choices ?? {}, target)) values[select.prop] = found.value;
     values[target] = found.value;
@@ -88,7 +92,7 @@ export function projectSelection(meta: Meta, props: Values, get: (part: string) 
 }
 
 /** Resolve the visible parent from projected props, without removing or renumbering any rows. */
-export function activeParentId(meta: Meta, props: Values): string | undefined {
+export function activeParentId(meta: Meta, props: Values, get?: GetValue): string | undefined {
   if (!meta.items?.nested?.activeParent) return undefined;
   const rows = rowsOf(meta, props);
   const select = meta.select;
@@ -100,7 +104,10 @@ export function activeParentId(meta: Meta, props: Values): string | undefined {
       rows.findIndex((row) => row[select.prop] === true),
     );
   } else if (select && value && props[select.prop] !== undefined) {
-    index = rows.findIndex((row, at) => rowValue(value, row, at) === props[select.prop]);
+    const matches = (row: Values, at: number) => rowValue(value, row, at) === props[select.prop];
+    const saved = get?.(parentSlot);
+    const selected = rows.findIndex((row, at) => idOf(meta, row, at) === saved && matches(row, at));
+    index = selected < 0 ? rows.findIndex(matches) : selected;
   }
   const row = rows[index];
   return row && idOf(meta, row, index);
@@ -114,10 +121,10 @@ export function isNestedTarget(meta: Meta, target: string): boolean {
 }
 
 /** Enumerate controls from real sub-items, including inactive ones needed for counting. */
-export function nestedControls(meta: Meta, props: Values) {
+export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
   const nested = meta.items?.nested;
   if (!nested) return [];
-  const activeParent = activeParentId(meta, props);
+  const activeParent = activeParentId(meta, props, get);
   return rowsOf(meta, props).flatMap((row, index) => {
     const id = idOf(meta, row, index);
     const children = row[nested.key];
@@ -146,11 +153,11 @@ export function nestedRemaining(meta: Meta, props: Values, controls = nestedCont
 }
 
 /** Keep inactive children out of read callbacks, but never discard them from live state. */
-export function visibleNestedProps(meta: Meta, props: Values): Values {
+export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Values {
   const items = meta.items;
   if (!items?.nested?.activeParent) return props;
   const { key } = items.nested;
-  const active = activeParentId(meta, props);
+  const active = activeParentId(meta, props, get);
   return {
     ...props,
     [items.key]: rowsOf(meta, props).map((row, index) =>

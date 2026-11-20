@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { text } from "../../props";
 import type { Definition } from "../../probes";
-import { readComponent, planAct } from "../index";
+import { readComponent, planAct, readScreen } from "../index";
 
 const def = {
   meta: {
@@ -70,4 +70,22 @@ it("lets a wire-backed toggle free a slot for a choice under another parent", ()
     activation,
   ]);
   expect(result).toMatchObject({ ok: true, values: { "s/c1/r1/pick_1": false, "s/c1/r2/pick_1": true } });
+});
+
+it("remembers which row was selected when parents have the same field value", () => {
+  const rows = input.rows.map((row) => ({ ...row, label: "Same" }));
+  const screen = { id: "s", components: [{ id: "c1", c: def.meta.id, rows }] };
+  const defs = { [def.meta.id]: def };
+  const result = planAct(screen, defs, {}, [{ address: "c1/r2", action: "select" }]);
+  if (!result.ok) throw new Error(result.code);
+  const read = readScreen(screen, defs, result.values);
+  expect(read).toContain("shown 0 — shown 1");
+  expect(read).toContain('"Visible"');
+  expect(read).not.toContain('"Hidden"');
+  expect(planAct(screen, defs, result.values, [{ address: "c1/r2/pick_1", action: "toggle" }])).toMatchObject(
+    {
+      ok: false,
+      code: "max_active",
+    },
+  );
 });

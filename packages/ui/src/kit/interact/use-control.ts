@@ -23,13 +23,12 @@ export function useControlValue<T>(address: string, fallback: T): T {
 export function useNestedControls(meta: Meta, props: Values) {
   const { controller } = useKit();
   const { screen, component } = usePartContext();
-  const live = projectControls(meta, props, (part) =>
-    controller?.store.get(`${screen}/${component}/${part}`),
-  );
-  const controls = nestedControls(meta, live);
+  const get = (part: string) => controller?.store.get(`${screen}/${component}/${part}`);
+  const live = projectControls(meta, props, get);
+  const controls = nestedControls(meta, live, get);
   const remaining = nestedRemaining(meta, live, controls);
   return {
-    parent: activeParentId(meta, live),
+    parent: activeParentId(meta, live, get),
     remaining,
     controls: controls
       .filter(({ enabled }) => enabled)
