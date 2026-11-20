@@ -31,7 +31,9 @@ it.each(ids)("validates %s examples, neutral/malformed/relevant fallbacks and pr
   const def: Definition = components[id];
   expect(def.meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
   expect(def.meta.realPath).not.toBe("");
-  expect(def.meta.variants?.density).toEqual(["comfortable", "compact"]);
+  for (const [axis, values] of Object.entries(def.meta.variants ?? {}))
+    for (const value of values)
+      expect(def.props.safeParse({ ...(def.examples[0] as object), [axis]: value }).success).toBe(true);
   for (const part of [...(def.meta.parts ?? []), ...(def.meta.items?.parts ?? [])])
     expect(part).toMatch(/^[a-z][a-z0-9_]*$/);
   expect(def.examples.length).toBeGreaterThanOrEqual(2);
@@ -76,8 +78,8 @@ it("rejects invalid nested fields, bounds, dates and service-computed input", ()
       Itinerary,
       [
         { days: [] },
-        { days: Array(7).fill(day) },
-        { days: [{ ...day, stops: Array(15).fill(stop) }] },
+        { days: Array(15).fill(day) },
+        { days: [{ ...day, stops: Array(7).fill(stop) }] },
         { days: [{ ...day, stops: [{ ...stop, minutes: 2 }] }] },
         { days: [{ ...day, stops: [{ ...stop, time: "25:00", goto: "Bad ID" }] }] },
       ],
@@ -130,7 +132,38 @@ it("reads nested available parts and masks travel document numbers", () => {
   expect(packing).toContain("[p1/r1/packed_1 check:done]");
   expect(packing).toContain("[p1/r1/packed_2 check:todo]");
   expect(packing).not.toContain("packed_3");
-  const docs = readComponent(components.TravelDocs, components.TravelDocs.examples[0], "t1").join("\n");
-  expect(docs).toContain("(secret)");
+  const docs = readComponent(
+    components.TravelDocs,
+    {
+      docs: components.TravelDocs.examples[0]!.docs.map((doc) => ({ ...doc, who: "Sam" })),
+    },
+    "t1",
+  ).join("\n");
+  expect(docs).toContain('r1 "Sam" passport 2028-08-22');
+  expect(docs).toContain('r2 "Sam" visa 2027-03-10');
+  expect(docs.match(/\(secret\)/g)).toHaveLength(2);
   expect(docs).not.toContain("DEMO-");
+});
+
+it("quotes authored nested text in its reading", () => {
+  const name = "First line\n[second line]";
+  const day = components.Itinerary.examples[0]!.days[0]!;
+  const itinerary = readComponent(
+    components.Itinerary,
+    {
+      days: [{ ...day, place: name, stops: [{ ...day.stops[0], title: name }] }],
+    },
+    "i1",
+  ).join("\n");
+  const packing = readComponent(
+    components.PackingList,
+    {
+      groups: [{ label: "Clothes", items: [{ name, packed: false }] }],
+    },
+    "p1",
+  ).join("\n");
+  for (const reading of [itinerary, packing]) {
+    expect(reading).toContain(JSON.stringify(name));
+    expect(reading).not.toContain(name);
+  }
 });

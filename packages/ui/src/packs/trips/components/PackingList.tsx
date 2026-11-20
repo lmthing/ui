@@ -41,7 +41,7 @@ export const meta = {
     state === "filled"
       ? (input as { groups: z.output<typeof group>[] }).groups.map(
           ({ label, items }) =>
-            `${label}: ${items.map(({ name, qty }) => (qty === undefined ? name : `${name} ×${qty}`)).join(", ")}`,
+            `${JSON.stringify(label)}: ${items.map(({ name, qty }) => `${JSON.stringify(name)}${qty === undefined ? "" : ` ×${qty}`}`).join(", ")}`,
         )
       : [],
 } as const satisfies Meta;

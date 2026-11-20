@@ -34,6 +34,12 @@ export const meta = {
   items: { key: "docs", parts: ["root", "kind", "who", "number", "expires", "warning"] },
   states: ["filled", "empty"],
   actions: { items: { root: ["press"] } },
+  read: (input, state) =>
+    state === "filled"
+      ? (input as { docs: z.output<typeof doc>[] }).docs.map(
+          ({ kind, who, expires }, index) => `r${index + 1} ${JSON.stringify(who)} ${kind} ${expires}`,
+        )
+      : [],
 } as const satisfies Meta;
 
 const doc = z.strictObject({

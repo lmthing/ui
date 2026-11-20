@@ -70,6 +70,12 @@ it("validates shared checks and the exact worked-example lines", () => {
   for (const { c, id: _id, ...props } of lines)
     expect(scoped.schema(c)?.safeParse(props).success, c).toBe(true);
   expect(lines.map(({ c }) => c)).toEqual(expect.arrayContaining([...ids, "Route"]));
+  expect(lines.find(({ c }) => c === "Itinerary")?.days).toHaveLength(10);
+  const packed = lines
+    .find(({ c }) => c === "PackingList")
+    ?.groups.flatMap(({ items }: { items: { packed: boolean }[] }) => items.map(({ packed }) => packed));
+  expect(packed).toHaveLength(10);
+  expect(packed.filter(Boolean)).toHaveLength(7);
 });
 
 it("validates the exact recipe and compose defaults for all eight layouts", () => {

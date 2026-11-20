@@ -17,7 +17,7 @@ import {
   type Probe,
 } from "../../../catalog";
 
-const maxStops = 14;
+const maxStops = 6;
 const stopParts = Array.from({ length: maxStops }, (_, i) => `stop_${i + 1}`);
 const stopActions = Object.fromEntries(stopParts.map((part) => [part, ["press"] as const]));
 
@@ -29,7 +29,7 @@ export const meta = {
   purpose: "See the whole trip day by day, including stops and travel between them.",
   pick: "A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).",
   writeHints: [
-    "Use 1–6 dated days and 1–14 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
+    "Use 1–14 dated days and 1–6 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
   ],
   region: "body",
   weight: 3,
@@ -45,9 +45,9 @@ export const meta = {
     state === "filled"
       ? (input as { days: z.output<typeof day>[] }).days.map(
           ({ date, place, stops }) =>
-            `${date} ${place}: ${stops
+            `${date} ${JSON.stringify(place)}: ${stops
               .map(({ time, title, minutes }) =>
-                [time, title, minutes === undefined ? undefined : durationLine(minutes, lang)]
+                [time, JSON.stringify(title), minutes === undefined ? undefined : durationLine(minutes, lang)]
                   .filter(Boolean)
                   .join(" "),
               )
@@ -79,7 +79,7 @@ const day = z
 
 export const props = z.strictObject({
   ...variantProps(meta.variants),
-  days: z.array(day).min(1).max(6),
+  days: z.array(day).min(1).max(14),
 });
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {

@@ -21,7 +21,7 @@ export const pack = {
     },
     {
       kind: "choose",
-      need: "Just show the number of days left until we leave for Japan, counting down automatically to March 4.",
+      need: "Show a live clock counting down the time until we leave for Japan on March 4 at 08:00, with the hours, minutes and seconds ticking down, not a progress ring or percentage.",
       expect: "Timer",
     },
   ],
