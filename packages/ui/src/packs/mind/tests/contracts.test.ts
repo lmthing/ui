@@ -126,6 +126,7 @@ it("limits custom breathing to four phase durations and validates rounds", () =>
   }
   for (const input of [
     { ...custom, rest: undefined },
+    { ...custom, inhale: 0, exhale: 0 },
     { ...custom, inhale: 11 },
     { ...custom, rounds: 21 },
     { ...custom, rounds: 0 },
@@ -138,6 +139,7 @@ it("computes midnight-crossing sleep and weekly averages without accepting deriv
   const reading = readComponent(SleepLog, example, "s1").join("\n");
   expect(reading).toContain("450 min");
   expect(reading).toContain("441 min");
+  expect(reading).toContain('"Edit sleep times"');
   expect(SleepLog.meta.partTiers).toMatchObject({ import: "ok" });
   expect(readComponent(SleepLog, example, "s1", "empty").join("\n")).toContain("[s1/edit press");
   for (const invalid of [
