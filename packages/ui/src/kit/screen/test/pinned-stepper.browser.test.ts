@@ -71,6 +71,8 @@ it("uses one mounted part per row from both touch targets and agent actions", as
   }
   await plus.press("Enter");
   expect(await first.textContent()).toBe("2");
+  // The fixture's preview max is 2; the controller's declared max is 3 for both paths.
+  expect(await plus.getAttribute("aria-disabled")).toBeNull();
   const result = await page.evaluate(() =>
     window.__lmthingUI!.act({ address: "d1/r1/qty", action: "increment" }),
   );
@@ -90,7 +92,9 @@ it("gates both human and agent directions when disabled, and re-enables them", a
   await plus.click();
   await setFixture("fixture-disabled", true);
   await first.locator('[data-step-action="increment"][aria-disabled="true"]').waitFor();
+  const reading = await page.evaluate(() => window.__lmthingUI!.read());
   for (const action of ["increment", "decrement"]) {
+    expect(reading).not.toContain(`[d1/r1/qty ${action}]`);
     const button = first.locator(`[data-step-action="${action}"]`);
     expect(await button.getAttribute("aria-disabled")).toBe("true");
     await button.dispatchEvent("click");
@@ -102,6 +106,10 @@ it("gates both human and agent directions when disabled, and re-enables them", a
   }
   expect(await first.textContent()).toBe("2");
   await setFixture("fixture-disabled", false);
+  await first.locator('[data-step-action="increment"]:not([aria-disabled])').waitFor();
+  const enabledReading = await page.evaluate(() => window.__lmthingUI!.read());
+  expect(enabledReading).toContain("[d1/r1/qty increment]");
+  expect(enabledReading).toContain("[d1/r1/qty decrement]");
   await plus.click();
   expect(await first.textContent()).toBe("3");
   expect(errors).toEqual([]);
@@ -145,5 +153,22 @@ it("orders pins by the live body and drops controls when their source starts exi
   });
   expect(exiting).toEqual({ detailExiting: true, qtyMounted: false });
   expect(await second.count()).toBe(1);
+  expect(errors).toEqual([]);
+});
+
+it("follows the supplied order for keyed pins within one body entry", async () => {
+  const first = part("d1/r1/qty");
+  const second = part("d1/r2/qty");
+  expect((await first.boundingBox())!.y).toBeLessThan((await second.boundingBox())!.y);
+  await setFixture("fixture-row-order");
+  await page.waitForFunction(
+    () =>
+      document
+        .querySelector('[data-testid^="fixture/d1/"][data-testid$="/qty"]')
+        ?.getAttribute("data-testid") === "fixture/d1/r2/qty",
+  );
+  expect((await second.boundingBox())!.y).toBeLessThan((await first.boundingBox())!.y);
+  expect(await first.textContent()).toBe("1");
+  expect(await second.textContent()).toBe("2");
   expect(errors).toEqual([]);
 });

@@ -52,35 +52,44 @@ const fixture = {
   probes: [],
 } satisfies Definition;
 
-function FixtureView({
-  pinned,
-  details,
-  rows,
-}: {
+type FixtureProps = {
   pinned: boolean;
   details: boolean;
   rows: { id: string; qty: number }[];
-}) {
+};
+
+function FixturePins({ pinned, details, rows }: FixtureProps) {
   const [disabled, setDisabled] = useState(false);
+  const [reverse, setReverse] = useState(false);
   useEffect(() => {
     const update = (event: Event) => setDisabled((event as CustomEvent<boolean>).detail);
+    const reorder = () => setReverse((value) => !value);
     window.addEventListener("fixture-disabled", update);
-    return () => window.removeEventListener("fixture-disabled", update);
+    window.addEventListener("fixture-row-order", reorder);
+    return () => {
+      window.removeEventListener("fixture-disabled", update);
+      window.removeEventListener("fixture-row-order", reorder);
+    };
   }, []);
+  return (reverse ? [...rows].reverse() : rows).map(({ id, qty }, index) => (
+    <KitRow key={id} item={id} label="Row switch">
+      {pinned && (
+        <KitPinnedBottom order={index}>
+          <KitStepper part="qty" value={qty} min={1} max={2} disabled={disabled} />
+          {details && id === "r1" && <KitTrail kind="toggle" />}
+        </KitPinnedBottom>
+      )}
+    </KitRow>
+  ));
+}
+
+function FixtureView(props: FixtureProps) {
+  const { details } = props;
   return (
     <>
       {details && <KitAction label="Hide bar" part="hide" />}
       {details && <KitText part="detail">First detail</KitText>}
-      {rows.map(({ id, qty }) => (
-        <KitRow key={id} item={id} label="Row switch">
-          {pinned && (
-            <KitPinnedBottom>
-              <KitStepper part="qty" value={qty} min={1} max={3} disabled={disabled} />
-              {details && <KitTrail kind="toggle" />}
-            </KitPinnedBottom>
-          )}
-        </KitRow>
-      ))}
+      <FixturePins {...props} />
       {details &&
         Array.from({ length: 45 }, (_, index) => (
           <KitText key={index} part={null}>
@@ -156,7 +165,7 @@ function App() {
           c: "Fixture",
           details: id === "d1",
           pinned: id !== "d1" || pinned,
-          rows: [{ qty: id === "d1" ? 1 : 3 }],
+          rows: id === "d1" ? [{ qty: 1 }, { qty: 2 }] : [{ qty: 3 }],
         })),
         { id: "b1", c: "FixtureFooter", goto: "other" },
       ],

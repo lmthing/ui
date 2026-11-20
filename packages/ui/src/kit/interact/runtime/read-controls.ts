@@ -8,7 +8,8 @@ import {
 } from "../../../catalog";
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
-const typeTokens = /"(?:\\.|[^"\\])*"| \[([\w/-]+) type(?: = "(?:\\.|[^"\\])*")?(?: !needs-[a-z]+)?\]/g;
+const controlTokens =
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:type(?: = "(?:\\.|[^"\\])*")?|increment|decrement)(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -62,7 +63,7 @@ export function readControls(
     ? readKeypads(migrated, defs, values, lang)
     : readScreen(screen, defs, values, lang);
   return disabled?.size
-    ? read.replace(typeTokens, (token, address) => (disabled.has(address) ? "" : token))
+    ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
 }
 

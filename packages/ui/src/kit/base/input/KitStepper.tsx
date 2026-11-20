@@ -8,6 +8,7 @@ import { KitIcon, KitText } from "../text";
 type StepperProps = {
   part: string;
   value: number;
+  /** Preview bounds without a controller. Mounted bounds come from the declared adjustments. */
   min?: number | undefined;
   max?: number | undefined;
   disabled?: boolean;
@@ -76,20 +77,18 @@ function StepButton({
 export function KitStepper({ part, value, min, max, disabled = false, labels }: StepperProps) {
   const address = usePart(part);
   const state = useComponentState();
-  const { controller, interactive } = useKit();
+  const { controller } = useKit();
   const { lang, words } = useWords();
   const { less, more } = labels ?? words.stepLabels;
-  const floor = min !== undefined && value <= min;
-  const ceiling = max !== undefined && value >= max;
-  const inactive = disabled || state === "loading" || (floor && ceiling);
+  const floor = !controller && min !== undefined && value <= min;
+  const ceiling = !controller && max !== undefined && value >= max;
+  const inactive = disabled || state === "loading";
   useLayoutEffect(
     () => (inactive ? controller?.registerDisabledPart(address.testID) : undefined),
     [address.testID, controller, inactive],
   );
   // Ignore our own registration here so a newly enabled render sees the catalog's current actions.
-  const offered = interactive
-    ? controller?.actionsAt(address.testID, { ignoreDisabledPart: true })
-    : undefined;
+  const offered = inactive ? undefined : controller?.actionsAt(address.testID, { ignoreDisabledPart: true });
   return (
     <XStack
       {...address}

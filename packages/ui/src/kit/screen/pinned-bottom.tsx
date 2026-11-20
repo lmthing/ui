@@ -5,7 +5,7 @@ import { RowLabelContext } from "../a11y";
 import { PartContext, usePartContext } from "../part";
 import { useKit } from "../provider";
 
-type Slots = Map<string, { screen: string; owner: string; node: ReactNode }>;
+type Slots = Map<string, { screen: string; owner: string; order: number; node: ReactNode }>;
 type SetSlots = React.Dispatch<React.SetStateAction<Slots>>;
 const SlotUpdates = createContext<SetSlots | null>(null);
 const SlotSource = createContext<SetSlots | null>(null);
@@ -27,7 +27,9 @@ export function ScreenBottomSource({ children }: { children: ReactNode }) {
 export function ScreenBottomOutlet({ screen, order }: { screen: string; order: readonly string[] }) {
   const slots = useContext(SlotContents);
   if (!slots?.size) return null;
-  const current = [...slots.values()].filter((slot) => slot.screen === screen);
+  const current = [...slots.values()]
+    .filter((slot) => slot.screen === screen)
+    .sort((a, b) => a.order - b.order);
   // Follow the live body order and omit entries that KitPresence is still fading out.
   return (
     <>{order.flatMap((owner) => current.filter((slot) => slot.owner === owner).map((slot) => slot.node))}</>
@@ -35,16 +37,33 @@ export function ScreenBottomOutlet({ screen, order }: { screen: string; order: r
 }
 
 /** Move a body renderer's action bar to its screen's fixed bottom region. Inline outside a screen body. */
-export function KitPinnedBottom({ children }: { children: ReactNode }) {
+export function KitPinnedBottom({
+  children,
+  order = 0,
+}: {
+  children: ReactNode;
+  /** Pass the current row index if one body component contributes multiple pins. */
+  order?: number;
+}) {
   const setSlots = useContext(SlotSource);
   return setSlots && children != null && typeof children !== "boolean" ? (
-    <PinnedSlot setSlots={setSlots}>{children}</PinnedSlot>
+    <PinnedSlot setSlots={setSlots} order={order}>
+      {children}
+    </PinnedSlot>
   ) : (
     <>{children}</>
   );
 }
 
-function PinnedSlot({ setSlots, children }: { setSlots: SetSlots; children: ReactNode }) {
+function PinnedSlot({
+  setSlots,
+  children,
+  order,
+}: {
+  setSlots: SetSlots;
+  children: ReactNode;
+  order: number;
+}) {
   const id = useId();
   const scope = usePartContext();
   const rowLabel = useContext(RowLabelContext);
@@ -62,8 +81,10 @@ function PinnedSlot({ setSlots, children }: { setSlots: SetSlots; children: Reac
         </RowLabelContext.Provider>
       </PartContext.Provider>
     );
-    setSlots((slots) => new Map(slots).set(id, { screen: scope.screen, owner: scope.component, node }));
-  }, [id, setSlots, scope, rowLabel, children, left, right]);
+    setSlots((slots) =>
+      new Map(slots).set(id, { screen: scope.screen, owner: scope.component, order, node }),
+    );
+  }, [id, setSlots, scope, rowLabel, children, left, right, order]);
   useLayoutEffect(
     () => () =>
       setSlots((slots) => {
