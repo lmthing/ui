@@ -16,7 +16,7 @@ import {
   projectMatrix,
 } from "./clocks";
 
-function unwrapField(field: unknown) {
+function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
     field instanceof z.ZodNullable ||
@@ -24,6 +24,7 @@ function unwrapField(field: unknown) {
     field instanceof z.ZodPrefault
   )
     field = field.unwrap();
+  if (wire && field instanceof z.ZodPipe) return unwrapField(field.in, true);
   return field;
 }
 function defaultInput(field: unknown) {
@@ -34,9 +35,9 @@ const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
 
 function wireAdjustmentKey(def: Definition, key: string) {
-  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
+  const rows = unwrapField(fieldOf(def.props, def.meta.items!.key), true);
   const prop = key.slice(key.lastIndexOf("/") + 1);
-  return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element), prop) ? `$wire/${key}` : key;
+  return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
 }
 
 function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {

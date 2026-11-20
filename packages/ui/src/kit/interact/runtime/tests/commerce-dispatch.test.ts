@@ -91,22 +91,24 @@ it("does not infer a named l1 pick or navigate from an opted-out press", () => {
   ]);
 });
 
-function withQuantity(qtyProp: z.ZodType, row: object, delta: number) {
+function withQuantity(qtyProp: z.ZodType, row: object, delta: number, pipe?: "array" | "item") {
+  const item = z.strictObject({ qty: qtyProp, goto: z.string() });
+  const rows = z.array(pipe === "item" ? item.transform((value) => value) : item);
   const def = {
     ...fixture,
     meta: {
       ...fixture.meta,
       items: { ...fixture.meta.items, adjust: { "qty.increment": { prop: "qty", delta } } },
     },
-    props: fixture.props.extend({ rows: z.array(z.strictObject({ qty: qtyProp, goto: z.string() })) }),
+    props: fixture.props.extend({ rows: pipe === "array" ? rows.transform((value) => value) : rows }),
   } satisfies Definition;
   const current = { ...screen, components: [{ ...screen.components[0]!, rows: [{ goto: "item", ...row }] }] };
   const definitions = { [def.meta.id]: def };
   return { current, definitions, runtime: createScreenController({ screen: current, defs: definitions }) };
 }
 
-it("rejects adjustments beyond a defaulted row field's schema limit", () => {
-  const { current, definitions, runtime } = withQuantity(z.number().max(3).default(3), {}, 1);
+it.each([undefined, "array", "item"] as const)("rejects out-of-schema adjustments (pipe: %s)", (pipe) => {
+  const { current, definitions, runtime } = withQuantity(z.number().max(3).default(3), {}, 1, pipe);
   const step = qty("increment");
   expect(planAct(current, definitions, {}, [step])).toMatchObject({ ok: false, code: "invalid_value" });
   expect(runtime.act(step)).toMatchObject({ ok: false, code: "invalid_value" });
