@@ -1,4 +1,7 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   affordancesOf,
   components,
@@ -9,10 +12,12 @@ import {
   planAct,
   readComponent,
   stampItemIds,
+  themeName,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { PhoneScreen } from "@lmthing/ui/kit";
+import { addressedElements, config, renderInstance } from "../../../../../test/render";
 import { pack } from "../..";
 
 const { Itinerary } = components;
@@ -22,6 +27,25 @@ const day = first.days[0]!;
 const stop = day.stops[0]!;
 const inputWith = (patch: object) => ({ days: [{ ...day, stops: [{ ...stop, ...patch }] }] });
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+const screen = { id: "home", components: [{ id: "i1", c: "Itinerary", ...first }] };
+
+function phoneAddresses(now: Date) {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(now);
+  try {
+    return addressedElements(
+      renderToStaticMarkup(
+        createElement(
+          TamaguiProvider,
+          { config, defaultTheme: themeName(theme) },
+          createElement(PhoneScreen, { theme, screen }),
+        ),
+      ),
+    );
+  } finally {
+    vi.useRealTimers();
+  }
+}
 
 describe("Itinerary contract", () => {
   it.each(examples)("parses a domain example", (example) => {
@@ -103,6 +127,17 @@ describe("Itinerary fallback and states", () => {
 });
 
 describe("Itinerary parts and read/act", () => {
+  it.each([
+    [4, 1, 2],
+    [5, 2, 1],
+    [6, 1, 2],
+  ])("opens the right day on the phone on March %i", (date, open, closed) => {
+    const parts = phoneAddresses(new Date(2027, 2, date));
+    expect(parts.get(`home/i1/r${open}/root`)?.attributes).toContain('aria-expanded="true"');
+    expect(parts.get(`home/i1/r${closed}/root`)?.attributes).toContain('aria-expanded="false"');
+    expect(parts.has(`home/i1/r${open}/stop_1`)).toBe(true);
+    expect(parts.has(`home/i1/r${closed}/stop_1`)).toBe(false);
+  });
   it("keeps finish addresses and hides only durations in brief detail", () => {
     const addresses = (axes = {}) =>
       addressedElements(renderInstance("Itinerary", { ...first, ...axes }, "filled", theme));
@@ -123,7 +158,6 @@ describe("Itinerary parts and read/act", () => {
     );
   });
   it("toggles days independently, links stops and rejects a missing stop", () => {
-    const screen = { id: "home", components: [{ id: "i1", c: "Itinerary", ...first }] };
     const steps = [
       { address: "i1/r1", action: "toggle" },
       { address: "i1/r2", action: "toggle" },

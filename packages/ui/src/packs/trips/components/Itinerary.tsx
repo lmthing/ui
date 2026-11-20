@@ -24,7 +24,7 @@ export const meta = {
   pick: "A whole trip grouped into foldable dated days with places, timed stops and travel legs. Not a single day's time order (Timeline), a path through places (Route), or a family week (Agenda).",
   writeHints: [
     "Use 1–14 dated days and 1–6 stops per day. Give each stop a title and a goto screen id. Only a travel stop may have minutes.",
-    'To hide travel durations without losing the values, use detail "brief" and keep minutes on each travel stop.',
+    'Leave density and surface null unless requested. To hide travel durations, set only detail to "brief" and keep minutes on travel stops.',
   ],
   region: "body",
   weight: 3,
@@ -105,22 +105,21 @@ export const examples = [
         date: "2027-03-05",
         place: "Kyoto",
         stops: [
-          { time: "08:30", title: "Walk the Philosopher’s Path", kind: "stop", goto: "path" },
-          { title: "Check in at the inn", kind: "stay", goto: "inn" },
+          { time: "08:30", title: "Nanzen-ji", kind: "stop", goto: "temple" },
+          { title: "Inn check-in", kind: "stay", goto: "inn" },
         ],
       },
     ],
   },
   {
-    density: "compact",
     days: [
       {
         date: "2027-05-10",
         place: "Inverness",
         stops: [
           { time: "10:00", title: "River Ness walk", kind: "stop", goto: "river" },
-          { time: "12:30", title: "Lunch at the market", kind: "meal", goto: "market" },
-          { title: "Check in by the river", kind: "stay", goto: "stay" },
+          { time: "12:30", title: "Market lunch", kind: "meal", goto: "market" },
+          { title: "Riverside inn", kind: "stay", goto: "stay" },
         ],
       },
     ],
@@ -136,7 +135,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Plan 2027-03-05 in Kyoto. The 08:30 train to Kyoto takes 130 minutes and opens train. Keep the duration in its data, but hide it from the day’s rows.",
+      "On 2027-03-05 in Kyoto show just the 08:30 train to Kyoto, linking to train. Keep its 130-minute duration in the plan but hide the duration in the row. Leave the usual spacing and card appearance alone.",
     ),
     variant: { axis: "detail", value: "brief" },
   },
@@ -157,39 +156,42 @@ function ItineraryDay({ day, initial, density, detail }: DayProps & { day: Itine
   return (
     <kit.KitContent density={density}>
       <kit.KitRow item={day.id} part="root" label={words.itinerary.dayLabel(date, day.place)}
-        role="button" expanded={open} density={density} lineRole="heading"
+        role="button" expanded={open} density="comfortable" lineRole="heading" tone="muted"
         trailing={<kit.KitIcon name={open ? "minus" : "plus"} decorative />}>
-        <kit.KitText part="place" role="heading" density={density}>{day.place}</kit.KitText>
-        <kit.KitText part="date" role="label" tone="muted" density={density}>{date}</kit.KitText>
+        <kit.KitText part="place" role="heading" density="comfortable">{day.place}</kit.KitText>
+        <kit.KitText part="date" role="label" tone="muted" density="comfortable">{date}</kit.KitText>
       </kit.KitRow>
-      {open && day.stops.map((stop, index) => {
+      {open && <kit.KitGrid arrange="rows" list listRowGap={density === "compact" ? undefined : "group"} density={density}>{day.stops.map((stop, index) => {
         const part = stopParts[index]!;
         const { time, duration } = itineraryStopCopy(stop, detail !== "brief", lang);
         return <kit.KitRow key={part} item={day.id} {...{ part, density }} goto={stop.goto} label={stop.title}
-          leading={<kit.KitTime value={time ?? words.itinerary.untimed} part={timeParts[index]!} />}
-          trailing={<kit.KitIcon name={icons[stop.kind]} decorative />}>
-          <kit.KitText density={density} part={null}>{stop.title}</kit.KitText>
-          {duration && <kit.KitText part={durationParts[index]!} role="label" tone="muted" density={density}>{duration}</kit.KitText>}
+          leading={<kit.KitIcon name={icons[stop.kind]} decorative />}
+          trailing={<kit.KitText part={timeParts[index]!} role="label" tone="muted" tabular density="comfortable">{time ?? words.itinerary.untimed}</kit.KitText>}>
+          <kit.KitText density="comfortable" part={null}>{stop.title}</kit.KitText>
+          {duration && <kit.KitText part={durationParts[index]!} role="label" tone="muted" density="comfortable">{duration}</kit.KitText>}
         </kit.KitRow>;
-      })}
+      })}</kit.KitGrid>}
     </kit.KitContent>
   );
 }
 
+// prettier-ignore
 export function Itinerary(input: ItineraryProps) {
   const { days, detail, surface } = input;
   const density = kit.useVariant("density", meta.variants.density, input.density);
-  const state = kit.useComponentState();
-  const current = initialItineraryDay(days, new Date());
+  const empty = kit.useComponentState() === "empty", current = initialItineraryDay(days, new Date());
   return (
-    <kit.KitCard {...{ density, surface }} part="root">
-      {state === "empty" ? (
-        <kit.KitEmpty icon="calendar_days" decorativeIcon />
-      ) : (
-        days.map((day, index) => (
-          <ItineraryDay key={day.id} {...{ day, density, detail }} initial={index === current} />
-        ))
-      )}
+    <kit.KitCard {...{ density, surface }} padded={!empty} part="root">
+      {empty ? <kit.KitEmpty icon="calendar_days" decorativeIcon /> : days.map((day, index) => {
+        const section = <ItineraryDay {...{ day, density, detail }} initial={index === current} />;
+        const group = "response";
+        const separated = <kit.KitContent {...{ density, group }}>
+          <kit.KitContent {...{ density, group }}>{section}</kit.KitContent>
+        </kit.KitContent>;
+        return <kit.KitContent key={day.id} density={density} group={index > 0 ? group : "content"}>
+          {index > 0 && density !== "compact" ? separated : section}
+        </kit.KitContent>;
+      })}
     </kit.KitCard>
   );
 }
