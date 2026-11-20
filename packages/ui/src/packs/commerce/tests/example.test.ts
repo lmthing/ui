@@ -1,0 +1,68 @@
+import { readFileSync } from "node:fs";
+import { URL } from "node:url";
+import { expect, it } from "vitest";
+import {
+  checkScreen,
+  components,
+  createRegistry,
+  packExamples,
+  packOf,
+  readComponent,
+  type ScreenLike,
+} from "@lmthing/ui/catalog";
+
+function linksOf(value: unknown): string[] {
+  if (Array.isArray(value)) return value.flatMap(linksOf);
+  if (!value || typeof value !== "object") return [];
+  return Object.entries(value).flatMap(([key, child]) =>
+    key === "goto" && typeof child === "string" ? [child] : linksOf(child),
+  );
+}
+
+it("validates the worked Crumb screens and their destinations", () => {
+  const draft = createRegistry({ packs: ["commerce"], includeDrafts: true });
+  const commerceIds = Object.entries(packOf)
+    .filter(([, pack]) => pack === "commerce")
+    .map(([id]) => id);
+  expect(packExamples.commerce).toBe(readFileSync(new URL("../example.jsonl", import.meta.url), "utf8"));
+  const screens: ScreenLike[] = [];
+  const lines = packExamples.commerce.trim().split("\n");
+  for (const line of lines) {
+    const entry: ScreenLike["components"][number] = JSON.parse(line);
+    if (entry.c === "Header") screens.push({ id: entry.id.replace(/_header$/, ""), components: [] });
+    screens.at(-1)!.components.push(entry);
+  }
+  expect(screens.map(({ id }) => id)).toEqual([
+    "shop",
+    "loaf",
+    "pastry",
+    "basket",
+    "checkout",
+    "status",
+    "orders",
+    "ready_order",
+    "order",
+  ]);
+  const used = new Set(screens.flatMap((screen) => screen.components.map(({ c }) => c)));
+  for (const id of commerceIds) expect(used.has(id)).toBe(true);
+  for (const screen of screens) expect(checkScreen(screen, draft)).toEqual([]);
+  for (const screen of screens)
+    for (const goto of linksOf(screen.components)) expect(screens.some(({ id }) => id === goto)).toBe(true);
+
+  const orders = screens.find(({ id }) => id === "orders")!;
+  const rows = components.List.props.parse({
+    rows: orders.components.find(({ c }) => c === "List")!.rows,
+  }).rows;
+  for (const { title, goto } of rows) {
+    const receipt = screens.find(({ id }) => id === goto)?.components.find(({ c }) => c === "OrderSummary");
+    expect(receipt?.number).toBe(title);
+  }
+});
+
+it("reads unit-price totals rounded to cents for basket and receipt", () => {
+  const lines = [{ name: "Item one", qty: 3, price: 0.1 }];
+  const cart = { lines: [{ ...lines[0]!, photo: "local:1" }], delivery: 0.1 };
+  const receipt = { number: "1", date: "2026-11-20", lines, mode: "pickup" };
+  expect(readComponent(components.Cart, cart, "c1")[0]).toMatch(/Total 0\.4\b/);
+  expect(readComponent(components.OrderSummary, receipt, "o1")[0]).toMatch(/Total 0\.3\b/);
+});

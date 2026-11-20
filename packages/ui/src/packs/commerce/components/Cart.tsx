@@ -32,9 +32,11 @@ export const meta = {
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
     const { lines, delivery } = input as { lines: z.output<typeof lineProps>[]; delivery?: number };
-    const subtotal = lines.reduce((sum, { price, qty }) => sum + price * qty, 0);
+    const { total } = c.documentTotals({
+      lines: delivery === undefined ? lines : [...lines, { qty: 1, price: delivery }],
+    });
     return [
-      c.totalLine(subtotal + (delivery ?? 0), undefined, lang),
+      c.totalLine(total, undefined, lang),
       ...lines.map(({ name, qty }) => `${name}: ${c.numberLine(qty, lang)}`),
     ];
   },

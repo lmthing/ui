@@ -26,11 +26,7 @@ export const meta = {
     const { lines, mode } = input as { lines: z.output<typeof lineProps>[]; mode: string };
     return [
       mode,
-      c.totalLine(
-        lines.reduce((sum, { price, qty }) => sum + price * qty, 0),
-        undefined,
-        lang,
-      ),
+      c.totalLine(c.documentTotals({ lines }).total, undefined, lang),
       ...lines.map(({ name, qty }) => `${name}: ${c.numberLine(qty, lang)}`),
     ];
   },

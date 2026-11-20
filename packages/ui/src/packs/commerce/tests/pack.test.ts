@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { URL } from "node:url";
 import { expect, it } from "vitest";
 import {
   archetypes,
@@ -18,7 +16,6 @@ import {
   type ArchetypeMeta,
   type CastLike,
   type Definition,
-  type ScreenLike,
 } from "@lmthing/ui/catalog";
 import * as commerce from "..";
 
@@ -79,26 +76,6 @@ it("generates commerce entries without leaking them into the default registry", 
 it("checks pack metadata, layout ownership and every Crumb line", () => {
   expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
   expect(checkArchetypes({ components, archetypes, packOf, packArchetypes })).toEqual([]);
-  expect(packExamples.commerce).toBe(readFileSync(new URL("../example.jsonl", import.meta.url), "utf8"));
-  const screens: ScreenLike[] = [];
-  const lines = packExamples.commerce.trim().split("\n");
-  for (const line of lines) {
-    const entry: ScreenLike["components"][number] = JSON.parse(line);
-    if (entry.c === "Header") screens.push({ id: entry.id.replace(/_header$/, ""), components: [] });
-    screens.at(-1)!.components.push(entry);
-  }
-  expect(screens.map(({ id }) => id)).toEqual([
-    "shop",
-    "loaf",
-    "basket",
-    "checkout",
-    "status",
-    "orders",
-    "order",
-  ]);
-  const used = new Set(screens.flatMap((screen) => screen.components.map(({ c }) => c)));
-  for (const id of ids) expect(used.has(id)).toBe(true);
-  for (const screen of screens) expect(checkScreen(screen, draft)).toEqual([]);
 });
 
 it.each(cases)("completes per-layout defaults from the neutral cast", (meta, probes, layouts) => {

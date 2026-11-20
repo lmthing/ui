@@ -10,6 +10,7 @@ export const meta = {
   pick: "Track fulfillment milestones on one goods order, with timestamps and a seller's next-stage action. Not a multi-step form (Steps), a map (DeliveryTracker), or an order receipt (OrderSummary).",
   writeHints: [
     "at is the zero-based current step index and must exist in the steps array. Use a real HH:MM time when known.",
+    'If asked to suppress an authored secondary status sentence, set detail to "brief". Omitting line alone is not the brief layout. Leave density and surface null unless requested.',
   ],
   region: "body",
   weight: 2,
@@ -88,7 +89,7 @@ export const probes = [
   ),
   {
     ...write(
-      "Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. Hide the secondary status sentence and show just the track.",
+      'Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. The optional secondary status sentence is "Almost there". Use the brief display that hides that sentence and shows just the track, with normal spacing and surface left unchanged.',
     ),
     variant: { axis: "detail", value: "brief" },
   },

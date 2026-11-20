@@ -10,6 +10,7 @@ export const meta = {
   pick: "Browse several priced goods with a quick add per product, as photo cards or food menu rows. Not photos without prices (Gallery), timed services (ServiceMenu), or owned things (Things).",
   writeHints: [
     'Use arrange "grid" for two-column product cards. Use "rows" for menu rows with a right-hand photo and optional sub line; omit sub for grid.',
+    "Leave density null when only the arrangement is requested; menu rows do not imply a change of spacing.",
   ],
   region: "body",
   weight: 3,
