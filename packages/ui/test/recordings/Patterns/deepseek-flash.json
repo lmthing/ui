@@ -194,9 +194,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}",
+    "reply": "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":null,\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}",
     "replies": [
-      "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}",
+      "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":null,\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}",
       "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":null,\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}",
       "{\"c\":\"Patterns\",\"density\":null,\"surface\":null,\"detail\":null,\"factors\":[\"Outdoors\",\"Slept well\"],\"minDays\":21}"
     ]

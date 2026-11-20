@@ -3,13 +3,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider, createTamagui, createTokens } from "tamagui";
 import {
   components,
+  selectDeviceData,
   stampItemIds,
   themeName,
   type ComponentName,
+  type Definition,
+  type DeviceData,
   type StateName,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import {
+  createScreenController,
+  KitProvider,
+  PartScope,
+  kitFonts,
+  kitThemes,
+  kitTokens,
+  renderers,
+} from "@lmthing/ui/kit";
 
 export const config = createTamagui({
   tokens: createTokens(kitTokens),
@@ -31,7 +42,28 @@ export type RenderOptions = {
   component?: string;
   disableRootThemeClass?: boolean;
   resolvePhoto?: (reference: string) => string | undefined;
+  deviceData?: DeviceData;
 };
+
+export function exampleDeviceData(def: Definition, input: Record<string, unknown>, state: StateName) {
+  if (!def.meta.deviceData?.length || !def.meta.previewDeviceData) return undefined;
+  return selectDeviceData(def.meta, def.meta.previewDeviceData({ input, state }));
+}
+
+/** Use the same parsed example and state that gallery cells pass to the declared fixture. */
+export function renderExample(
+  id: ComponentName,
+  input: unknown,
+  state: StateName,
+  theme: Theme,
+  options: Omit<RenderOptions, "deviceData"> = {},
+) {
+  const def: Definition = components[id];
+  const props = def.props.parse(input) as Record<string, unknown>;
+  const deviceData = exampleDeviceData(def, props, state);
+  const html = renderInstance(id, input, state, theme, { ...options, ...(deviceData ? { deviceData } : {}) });
+  return { html, props, deviceData };
+}
 
 export function renderInstance(
   id: ComponentName,
@@ -46,23 +78,42 @@ export function renderInstance(
     component = "c1",
     disableRootThemeClass = false,
     resolvePhoto,
+    deviceData,
   } = typeof options === "string" ? { thing: options } : options;
   const def = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
   const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
-  return renderToStaticMarkup(
-    <TamaguiProvider
-      config={config}
-      defaultTheme={themeName(theme)}
-      disableRootThemeClass={disableRootThemeClass}
-    >
-      <KitProvider theme={theme} lang={lang} {...(resolvePhoto ? { resolvePhoto } : {})}>
-        <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
-          <View {...props} />
-        </PartScope>
-      </KitProvider>
-    </TamaguiProvider>,
-  );
+  const controller =
+    deviceData &&
+    createScreenController({
+      screen: { id: "home", components: [{ ...(input as object), id: component, c: id, state }] },
+      defs: { [id]: def },
+      deviceData,
+      lang,
+      interactive: false,
+    });
+  try {
+    return renderToStaticMarkup(
+      <TamaguiProvider
+        config={config}
+        defaultTheme={themeName(theme)}
+        disableRootThemeClass={disableRootThemeClass}
+      >
+        <KitProvider
+          theme={theme}
+          lang={lang}
+          controller={controller}
+          {...(resolvePhoto ? { resolvePhoto } : {})}
+        >
+          <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
+            <View {...props} />
+          </PartScope>
+        </KitProvider>
+      </TamaguiProvider>,
+    );
+  } finally {
+    controller?.dispose();
+  }
 }
 
 /** Inspect rendered markup without depending on React element trees or mocked kit hooks. */

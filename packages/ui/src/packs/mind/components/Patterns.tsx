@@ -7,7 +7,7 @@ import { mindWordsFor } from "../lang";
 // Core first: Bars/columns can plot supplied values but cannot derive with-and-without comparisons from journal entries.
 export const meta = {
   id: "Patterns",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Find which logged daily factors tend to go with better or worse moods.",
   pick: "Derive findings from a mood journal by comparing days with and without a tagged factor after at least two weeks. Choose this for journal-derived comparisons even when findings also use paired bars. Not plotting values the person already supplied (Bars) or a single time trend (Sparkline).",

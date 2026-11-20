@@ -8,6 +8,42 @@ export function renderedAddresses(html: string) {
   return [...html.matchAll(/\bdata-testid="(home\/[^"]+)"/g)].map((match) => match[1]!);
 }
 
+export function derivedItemIds(addresses: string[]) {
+  return [
+    ...new Set(
+      addresses.flatMap((address) => {
+        const item = /^home\/c1\/([^/]+)\/[^/]+$/.exec(address)?.[1];
+        return item ? [item] : [];
+      }),
+    ),
+  ];
+}
+
+/** Runtime-derived rows have no Writer IDs to stamp; verify their declared parts and scopes. */
+export function derivedItemIssues(meta: Meta, props: Record<string, unknown>, addresses: string[]) {
+  if (!meta.items) return [];
+  const expectsRoot =
+    meta.items.parts.includes("root") &&
+    !Object.entries(props).some(
+      ([axis, value]) =>
+        typeof value === "string" &&
+        meta.variantParts?.[`${axis}.${value}` as keyof NonNullable<Meta["variantParts"]>]?.hides?.includes(
+          "root",
+        ),
+    );
+  const issues: string[] = [];
+  if (new Set(addresses).size !== addresses.length) issues.push("Duplicate part address");
+  for (const id of derivedItemIds(addresses)) {
+    const path = `${prefix}${id}/`;
+    for (const address of addresses.filter((address) => address.startsWith(path))) {
+      if (!meta.items.parts.includes(address.slice(path.length)))
+        issues.push(`Undeclared item part: ${address}`);
+    }
+    if (expectsRoot && !addresses.includes(`${path}root`)) issues.push(`Missing item root: ${path}root`);
+  }
+  return issues;
+}
+
 function allowedPart(address: string, parts: readonly string[], item?: string) {
   const [head, tail] = address.slice(prefix.length).split("/");
   return (!item || (head === item && tail !== undefined)) && parts.includes(tail ?? head!);
