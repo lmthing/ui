@@ -16,9 +16,14 @@ describe("SectionTitle schema", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("trims text and optional link labels", () => {
-    expect(props.parse({ text: "  A group  " })).toEqual({ text: "A group" });
+    expect(props.parse({ text: "  A group  " })).toEqual({
+      text: "A group",
+      detail: "full",
+      link: undefined,
+    });
     expect(props.parse({ text: " A group ", link: { label: " See all " } })).toEqual({
       text: "A group",
+      detail: "full",
       link: { label: "See all" },
     });
   });
@@ -29,6 +34,7 @@ describe("SectionTitle schema", () => {
     { text: "a".repeat(33) },
     { text: 4 },
     { text: "A group", style: "large" },
+    { text: "A group", detail: "hidden" },
     { text: "A group", color: "red" },
     { text: "A group", pixels: 4 },
     { text: "A group", link: {} },
@@ -127,6 +133,19 @@ describe("SectionTitle fallback and metadata", () => {
 });
 
 describe("SectionTitle view", () => {
+  it("omits a hidden link from both the view and the reader", () => {
+    const input = { ...examples[0]!, detail: "brief" } as const;
+    const html = renderInstance("SectionTitle", input, "filled", {
+      preset: "calm",
+      mode: "light",
+      accent: "moss",
+    });
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["link"] });
+    expect(html).toContain('data-testid="home/c1/text"');
+    expect(html).not.toContain('data-testid="home/c1/link"');
+    expect(affordancesOf(meta, props.parse(input), "c1")).toEqual([]);
+    expect(readComponent(components.SectionTitle, input, "c1").join(" ")).not.toContain("See all");
+  });
   it("offers only the rendered link with and without optional navigation", () => {
     for (const optional of [
       {},
