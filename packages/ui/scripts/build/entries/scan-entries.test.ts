@@ -25,7 +25,7 @@ it.each([
   else
     expect(await scanEntries(root)).toEqual({
       defs: [],
-      packs: [{ id: "booking", meta: false, archetypes: [], example: undefined }],
+      packs: [{ id: "booking", meta: false, archetypes: [], overrides: false, example: undefined }],
     });
 });
 

@@ -76,7 +76,10 @@ type DocumentInput = {
 };
 
 /** Round each extended line and the tax to cents before adding the payable total. */
-export function documentTotals(input: Pick<DocumentInput, "lines" | "tax">) {
+export function documentTotals<Line extends { qty: number; price: number }>(input: {
+  lines: readonly Line[];
+  tax?: number | undefined;
+}) {
   const subtotalCents = input.lines.reduce(
     (sum, line) => sum + Math.round((line.qty * line.price + Number.EPSILON) * 100),
     0,

@@ -101,7 +101,7 @@ export function defaultLines(
     counts: Record<string, number> = {};
   const category = thingOf(cast)?.fields[1];
   const groups = new Map<string, CastLike["items"]>();
-  if (meta.id === "list" && layout === "grouped" && category)
+  if (meta.id === "list" && layout === "grouped" && !meta.layouts[layout]?.packOverride && category)
     for (const item of cast.items) {
       const name = item[category];
       if (typeof name === "string" && name.trim()) groups.set(name, [...(groups.get(name) ?? []), item]);
