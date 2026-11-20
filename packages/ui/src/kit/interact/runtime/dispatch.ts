@@ -1,4 +1,4 @@
-import { hasPlaybackClock, privateMarkKey, wordsFor, type ActStep, type Values } from "../../../catalog";
+import { hasPlaybackClock, wordsFor, type ActStep, type Values } from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
 import { snapshotPlanning, type ControllerContext } from "./context";
@@ -18,6 +18,8 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
+    if (markToken && (ctx.standalone || opts.agent || list.length !== 1))
+      return actionFailure(0, "not_actionable", "Private control");
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
@@ -54,7 +56,6 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
-    if (markToken) state.values[privateMarkKey(ctx.screen.id, ctx.relative(list[0]!.address))] = true;
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
     for (const effect of effects) effect();
     scheduleClock();

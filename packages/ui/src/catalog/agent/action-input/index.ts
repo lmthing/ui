@@ -5,6 +5,8 @@ export { localValues, selectStep } from "./select-step";
 export { stageProgress } from "./progress";
 export { affordancesOfScreen, liveInput } from "./screen-offers";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./host-actions";
+export { planAct, planHostAct } from "./plan";
+export { createPrivateMarks, registerPrivateMark, type PrivateMarks } from "./host-marks";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,

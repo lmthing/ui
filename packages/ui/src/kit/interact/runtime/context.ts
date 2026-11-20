@@ -20,7 +20,7 @@ import { createInteractionStore, projectScreen, valueKey } from "../index";
 import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
-import type { PrivateMarks } from "./private-mark";
+import { createPrivateMarks } from "./private-mark";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -164,7 +164,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     },
     mounted: new Map<string, symbol>(),
     disabledParts: new Map<string, symbol>(),
-    privateMarks: new Map() as PrivateMarks,
+    privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
@@ -191,7 +191,6 @@ export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     status: { ...ctx.status, confirmation: ctx.confirmationFor() },
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
-    privateMarks: new Map(ctx.privateMarks),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
     expiredProgress: (next) => ctx.expiredProgress(next, at),
   };

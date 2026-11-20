@@ -26,7 +26,7 @@ export {
   validateActionValue,
   type ValueError,
 } from "./validate-value";
-export { planAct, planHostAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
+export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
   controlValueKey,
   liveProps,

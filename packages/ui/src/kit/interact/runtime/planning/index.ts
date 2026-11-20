@@ -17,9 +17,9 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import { acceptsPrivateMark } from "../index";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
 import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
+import { hostCaptureEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
@@ -123,8 +123,8 @@ function stepRunner(
   markToken: symbol | undefined,
 ) {
   const run = (before: ActionState, original: ActStep, confirmed = false): ActionResult => {
-    const selected = { ...original, address: ctx.relative(original.address) };
-    if (!markToken && !acceptsPrivateMark(ctx.privateMarks, selected.address, selected.value, undefined))
+    const selected = markToken ? original : { ...original, address: ctx.relative(original.address) };
+    if (!markToken && ctx.privateMarks.has(selected.address))
       return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
@@ -132,13 +132,16 @@ function stepRunner(
       !confirmed &&
       needsConfirmation(ctx, prepared.context) &&
       confirmationFor(before, selected, prepared.context);
+    if (markToken && pending)
+      return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
     if (pending) return pending;
     execution.performed.push(selected);
+    if (markToken) return { state: prepared.state, effects: hostCaptureEffects(prepared.context) };
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {
         const { active, selected: planned } = prepared.context;
-        const plan = dispatchPlan(ctx, active, before.values, planned, random, markToken);
+        const plan = dispatchPlan(ctx, active, before.values, planned, random);
         if (!plan.ok) return { state: before, effects: [], error: { ...plan, at } };
         prepared.state.values = plan.values;
         prepared.state.changes = [...before.changes, ...plan.changed];
@@ -180,7 +183,7 @@ export function planSteps(
   const effects: (() => void)[] = [];
   const execution = { performed: [] as ActStep[], drew: false };
   for (const [at, step] of list.entries()) {
-    const action = { ...step, address: ctx.relative(step.address) };
+    const action = markToken ? step : { ...step, address: ctx.relative(step.address) };
     const run = stepRunner(ctx, media, random, at, execution, markToken);
     let result: ActionResult;
     if (state.confirmation)

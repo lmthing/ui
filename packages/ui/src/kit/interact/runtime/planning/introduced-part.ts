@@ -1,7 +1,6 @@
 import {
   isNestedTarget,
   planAct,
-  planHostAct,
   sessionEvent,
   sessionKey,
   type ActStep,
@@ -9,7 +8,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
-import { acceptsPrivateMark, type ControllerContext, type ScreenComponent } from "../index";
+import { planHostAct } from "../../../../catalog/agent/action-input";
+import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
 
 export function dispatchPlan(
@@ -20,16 +20,10 @@ export function dispatchPlan(
   random: RandomSource | null | undefined,
   markToken?: symbol,
 ) {
-  if (markToken && !ctx.standalone)
-    return planHostAct(
-      screen,
-      ctx.defs,
-      values,
-      step,
-      ({ action, address, value }) =>
-        action === "set" && acceptsPrivateMark(ctx.privateMarks, address, value, markToken),
-      ctx.options.deviceData,
-    );
+  if (markToken) {
+    if (!ctx.mounted.has(step.address)) return { ok: false as const, code: "not_mounted" as const, at: 0 };
+    return planHostAct(screen, ctx.defs, values, step, ctx.privateMarks, markToken, ctx.options.deviceData);
+  }
   return planAct(
     screen,
     ctx.defs,
@@ -39,6 +33,11 @@ export function dispatchPlan(
     ctx.standalone ? "planner" : "controller",
     ctx.options.deviceData,
   );
+}
+
+/** The planner has staged the mark already; don't send its canonical address through other controls. */
+export function hostCaptureEffects({ selected, screen, options }: ActionContext) {
+  return [() => options.onAction?.({ ...selected, address: `${screen.id}/${selected.address}` })];
 }
 
 export function standaloneEffects({ links, send, options }: ActionContext) {

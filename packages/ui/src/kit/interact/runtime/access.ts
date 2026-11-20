@@ -78,9 +78,8 @@ function actionsAt(
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
     );
-    return hostOnlyAddresses(def, id, offered)?.has(local)
-      ? []
-      : offered.filter((item) => item.address === local).map((item) => item.action);
+    if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
+    return offered.filter((item) => item.address === local).map((item) => item.action);
   } catch {
     return [];
   }
@@ -192,8 +191,9 @@ export function createAccess(ctx: ControllerContext, act: ReturnType<typeof crea
       };
     },
     registerPrivateMarkPart(address: string, accepts?: (reference: string) => boolean) {
-      return registerPrivateMark(ctx.privateMarks, ctx.relative(address), accepts, (value, token) => {
-        act({ address, action: "set", value }, undefined, token);
+      const local = ctx.relative(address);
+      return registerPrivateMark(ctx.privateMarks, local, accepts, (value, token) => {
+        act({ address: local, action: "set", value }, undefined, token);
       });
     },
   };
