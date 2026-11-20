@@ -34,8 +34,15 @@ export function priceChartPoints(points: readonly number[], lang?: string) {
   }));
 }
 
-export function priceChartReading(points: readonly number[], lang?: string): string[] {
+export function priceChartReading(points: readonly number[], lang?: string, detail = "full"): string[] {
   const { price, change } = priceChartCopy(points, lang);
   const { start, latest, series, options } = moneyWordsFor(lang).priceChart;
-  return [price, change, start, latest, series, ...priceChartRanges.map((range) => options[range])];
+  return [
+    price,
+    ...(detail === "full" ? [change] : []),
+    start,
+    latest,
+    series,
+    ...priceChartRanges.map((range) => options[range]),
+  ];
 }

@@ -6,15 +6,16 @@ export const debt = {
   defaultLayout: "money_loan",
   layouts: {
     money_loan: {
+      writeHints: ["This layout requests the upcoming instalment schedule. Set Loan detail to full."],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
-        { allow: ["Loan"], required: true, variant: "schedule" },
+        { allow: ["Loan"], required: true },
         { allow: ["Note"], required: true },
         { allow: ["Button"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
-        { id: "l1", c: "Loan", style: "schedule" },
+        { id: "l1", c: "Loan", detail: "full" },
         { id: "n1", c: "Note" },
         { id: "b1", c: "Button" },
       ],
