@@ -32,6 +32,21 @@ const root = (html: string) => elementAt(html, `${base}/root`);
 const badge = (html: string) => styleAt(html, root(html).children[0]!);
 
 describe("KitTile opt-in finish", () => {
+  it.each(["label", "title", null] as const)(
+    "uses the %s label address without changing the name",
+    (labelPart) => {
+      const html = render({ labelPart, action: "press" });
+      const parts = addressedElements(html);
+      expect([...parts.keys()]).toEqual(
+        ["root", "icon", ...(labelPart === null ? [] : [labelPart])].map((part) => `${base}/${part}`),
+      );
+      expect(root(html).attributes).toContain('aria-label="Outdoors"');
+      expect(root(html).attributes).toContain('role="button"');
+      expect(html).toContain(">Outdoors</span>");
+      if (labelPart) expect(parts.get(`${base}/${labelPart}`)?.text).toEqual(["Outdoors"]);
+    },
+  );
+
   it("keeps ordinary linked tiles accented, unbordered, and comfortable", () => {
     const html = render({ goto: "outdoors" });
     expect(root(html).attributes).toContain('role="link"');

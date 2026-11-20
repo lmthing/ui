@@ -20,6 +20,8 @@ type TileProps = {
   item: string;
   icon: IconName;
   label: string;
+  /** Label address; null leaves the visible label unaddressed. */
+  labelPart?: string | null;
   goto?: string | undefined;
   on?: boolean;
   disabled?: boolean;
@@ -58,12 +60,13 @@ function TileLine({ loading, children }: { loading: boolean; children: ReactNode
 function TileContent({
   icon,
   label,
+  labelPart = "label",
   detail,
   disabled,
   loading,
   on,
   distinctSelection,
-}: Pick<TileProps, "icon" | "label" | "detail" | "disabled" | "on" | "distinctSelection"> & {
+}: Pick<TileProps, "icon" | "label" | "labelPart" | "detail" | "disabled" | "on" | "distinctSelection"> & {
   loading: boolean;
 }) {
   const ks = useKitStyle();
@@ -85,7 +88,7 @@ function TileContent({
             role="label"
             align="center"
             tone={disabled ? "muted" : "text"}
-            part={loading ? null : "label"}
+            part={loading ? null : labelPart}
             lines={2}
           >
             {label}
