@@ -32,8 +32,11 @@ export function derivedItemIssues(meta: Meta, props: Record<string, unknown>, ad
         ),
     );
   const issues: string[] = [];
+  const itemPrefix = meta.items.prefix ?? "r";
   if (new Set(addresses).size !== addresses.length) issues.push("Duplicate part address");
   for (const id of derivedItemIds(addresses)) {
+    if (!id.startsWith(itemPrefix) || !/^[1-9]\d*$/.test(id.slice(itemPrefix.length)))
+      issues.push(`Invalid derived item ID: ${id}`);
     const path = `${prefix}${id}/`;
     for (const address of addresses.filter((address) => address.startsWith(path))) {
       if (!meta.items.parts.includes(address.slice(path.length)))
