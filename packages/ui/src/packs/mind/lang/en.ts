@@ -10,9 +10,14 @@ export const en = {
   editSleep: "Edit sleep times",
   breathe: {
     phase: { inhale: "Breathe in", hold: "Hold", exhale: "Breathe out", rest: "Rest" },
-    complete: "Exercise complete",
-    roundsLeft: (count: string, plural: Intl.LDMLPluralRule) =>
-      `${count} ${plural === "one" ? "round" : "rounds"} left`,
+    complete: "Complete",
+    play: "Play",
+    pause: "Pause",
+    controlLabel: (action: string, phase: string) => `${action} breathing · ${phase}`,
+    roundsLeft: (plural: Intl.LDMLPluralRule) => ({
+      before: "",
+      after: ` ${plural === "one" ? "round" : "rounds"} left`,
+    }),
   },
   sleep: {
     log: "Log sleep",

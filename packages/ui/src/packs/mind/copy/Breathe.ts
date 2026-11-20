@@ -15,10 +15,22 @@ type BreathSeed = {
 
 type Frame = { phase: Phase; progress: number; roundsLeft: number };
 
+function timingsOf(seed: BreathSeed) {
+  return seed.pattern === "custom" ? seed : presets[seed.pattern];
+}
+
+function roundSeconds(timings: ReturnType<typeof timingsOf>) {
+  return phases.reduce((sum, phase) => sum + (timings[phase] ?? 0), 0);
+}
+
+export function breathSeconds(seed: BreathSeed): number {
+  return roundSeconds(timingsOf(seed)) * seed.rounds;
+}
+
 /** Map elapsed seconds to the current phase and rounds, skipping zero-length phases. */
 export function breathFrame(seed: BreathSeed, elapsed = 0): Frame {
-  const timings = seed.pattern === "custom" ? seed : presets[seed.pattern];
-  const duration = phases.reduce((sum, phase) => sum + (timings[phase] ?? 0), 0);
+  const timings = timingsOf(seed);
+  const duration = roundSeconds(timings);
   const seconds = Math.max(0, elapsed);
   if (!duration || seconds >= duration * seed.rounds) return { phase: "rest", progress: 0, roundsLeft: 0 };
   const roundsLeft = seed.rounds - Math.floor(seconds / duration);
@@ -31,9 +43,16 @@ export function breathFrame(seed: BreathSeed, elapsed = 0): Frame {
   return { phase: "rest", progress: 0, roundsLeft };
 }
 
-export function breathReading(frame: Frame, lang?: string): string[] {
+export function breathReading(frame: Frame, lang?: string): [phase: string, rounds: string] {
+  const { cue, rounds } = breathCopy(frame, lang);
+  return [cue, `${rounds.before}${rounds.count}${rounds.after}`];
+}
+
+export function breathCopy(frame: Frame, lang?: string) {
   const { phase, complete, roundsLeft } = mindWordsFor(lang).breathe;
   const count = frame.roundsLeft;
-  const rounds = roundsLeft(numberLine(count, lang), pluralForm(count, lang));
-  return [count ? phase[frame.phase] : complete, rounds];
+  return {
+    cue: count ? phase[frame.phase] : complete,
+    rounds: { ...roundsLeft(pluralForm(count, lang)), count: numberLine(count, lang) },
+  };
 }

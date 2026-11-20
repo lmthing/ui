@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { breathFrame, breathReading } from "../../copy";
+import { breathFrame, breathReading, breathSeconds } from "../../copy";
 
 describe("breathFrame", () => {
   it.each([
@@ -36,6 +36,18 @@ describe("breathFrame", () => {
   });
 });
 
+it.each([
+  ["box", 16],
+  ["calm", 19],
+  ["even", 10],
+] as const)("caps the %s clock after all rounds", (pattern, seconds) => {
+  expect(breathSeconds({ pattern, rounds: 20 })).toBe(20 * seconds);
+});
+
+it("caps a custom clock using only the configured durations", () => {
+  expect(breathSeconds({ pattern: "custom", rounds: 20, inhale: 0, hold: 4, exhale: 6, rest: 10 })).toBe(400);
+});
+
 it("uses localized numbers, singular/plural rounds and completion copy", () => {
   expect(breathReading({ phase: "inhale", progress: 0, roundsLeft: 1 }, "en")).toEqual([
     "Breathe in",
@@ -46,7 +58,7 @@ it("uses localized numbers, singular/plural rounds and completion copy", () => {
     "١٢ rounds left",
   ]);
   expect(breathReading({ phase: "rest", progress: 0, roundsLeft: 0 }, "en")).toEqual([
-    "Exercise complete",
+    "Complete",
     "0 rounds left",
   ]);
 });
