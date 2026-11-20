@@ -34,7 +34,7 @@ export const meta = {
     set: { score: { prop: "score", min: scoreMin, max: scoreMax, integer: true,
       matrix: { rows: "rounds", values: "points" } } },
   },
-  select: { prop: "selectedRound", choices: { root: { prop: "roundKeys" } } },
+  select: { prop: "selectedRound", choices: { root: { prop: "roundOptions" } } },
   parts: ["root", "sheet", "matrix", "title", "progress", "empty", "reset", "share"],
   states: ["filled", "empty", "loading", "success"],
   actions: {
@@ -65,7 +65,7 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
-    roundKeys: value.rounds.map((_, index) => roundKey(index)),
+    roundOptions: value.rounds.map(({ label }, index) => ({ value: roundKey(index), label })),
     cells: value.rounds.flatMap((round, at) =>
       value.players.map((player, index) => ({
         player: player.name,
