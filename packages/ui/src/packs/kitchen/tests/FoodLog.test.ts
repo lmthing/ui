@@ -159,7 +159,7 @@ describe("FoodLog states, parts, reading and actions", () => {
         expect(found).toHaveLength(parts.includes(part) ? 1 : 0);
       }
     });
-    expect(html.includes('data-testid="home/c1/target"')).toBe(example.target !== undefined);
+    expect(html.includes('data-testid="home/c1/target"')).toBe(parsed.target !== undefined);
     expect(readComponent(components.FoodLog, example, "f1").join("\n")).not.toContain("undefined");
   });
   it("draws the shared empty state without stale totals, food rows or actions", () => {
