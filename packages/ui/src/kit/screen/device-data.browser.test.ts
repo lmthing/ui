@@ -1,4 +1,4 @@
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL } from "node:url";
 import { expect, it } from "vitest";
 import { createServer } from "vite";
 import { galleryConfig, launchChrome } from "../../../scripts/look";
@@ -41,6 +41,7 @@ it("reads the committed host records while a newer phone render is suspended", a
       await page.getByRole("button", { name: "Finish rendering" }).click();
       await view.filter({ hasText: "After" }).waitFor();
       expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Fixture After");
+      expect(await page.evaluate(() => document.body.dataset.layoutRead)).toContain("Fixture After");
       expect(await page.evaluate((previous) => window.__lmthingUI === previous, agent)).toBe(true);
     } finally {
       await browser.close();

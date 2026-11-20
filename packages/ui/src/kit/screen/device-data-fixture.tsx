@@ -1,4 +1,4 @@
-import { startTransition, Suspense, use, useState } from "react";
+import { startTransition, Suspense, use, useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
@@ -9,7 +9,7 @@ import {
   type DeviceData,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitText, useDeviceData } from "@lmthing/ui/kit";
+import { KitText, useDeviceData, useKit } from "@lmthing/ui/kit";
 import { config } from "../../../../../apps/gallery";
 import { PhoneScreen } from "./PhoneScreen";
 
@@ -37,6 +37,10 @@ const defs = {
 
 function Fixture() {
   const label = labelOf(useDeviceData());
+  const { controller } = useKit();
+  useLayoutEffect(() => {
+    document.body.dataset.layoutRead = controller?.read() ?? "";
+  }, [controller, label]);
   if (label === "After") {
     document.body.dataset.attempted = "true";
     use(gate);

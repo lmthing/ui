@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { useInsertionEffect, useMemo, useRef } from "react";
 import { createScreenController, createInteractionStore, browserMediaAdapter } from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
 
@@ -55,8 +55,8 @@ export function usePhoneController(props: PhoneScreenProps) {
     });
     return { controller, committed };
   }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
-  // Rendering gets its own snapshot from context. The published agent only sees committed data.
-  useLayoutEffect(() => {
+  // Publish only on commit, before a child's layout effect can read the controller.
+  useInsertionEffect(() => {
     source.committed.deviceData = props.deviceData;
   }, [source, props.deviceData]);
   return source.controller;
