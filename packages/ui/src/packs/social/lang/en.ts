@@ -19,6 +19,13 @@ export type SocialWords = {
     image: (position: string, total: string) => string;
     withCount: (action: string, count: string) => string;
   };
+  poll: {
+    voteFor: (label: string) => string;
+    chosen: (label: string) => string;
+    votes: (form: LDMLPluralRule) => string;
+    closes: (date: string) => string;
+    share: (label: string, percent: string) => string;
+  };
 };
 
 export const en = {
@@ -43,5 +50,12 @@ export const en = {
     share: "Share this post",
     image: (position, total) => `Post photo ${position} of ${total}`,
     withCount: (action, count) => `${action} · ${count}`,
+  },
+  poll: {
+    voteFor: (label) => `Vote for ${label}`,
+    chosen: (label) => `${label} chosen`,
+    votes: (form) => (form === "one" ? "vote" : "votes"),
+    closes: (date) => `Closes ${date}`,
+    share: (label, percent) => `${label} · ${percent}`,
   },
 } satisfies SocialWords;
