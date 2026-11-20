@@ -82,14 +82,14 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+const plantJobs = [
+  { text: "Water the bathroom fern", done: false, meta: "Today · Ledge" },
+  { text: "Mist the monstera", done: true, meta: "Living room" },
+  { text: "Turn the kitchen basil", done: false },
+];
+
 export const examples = [
-  {
-    items: [
-      { text: "Water the bathroom fern", done: false, meta: "Today · Ledge" },
-      { text: "Mist the monstera", done: true, meta: "Living room" },
-      { text: "Turn the kitchen basil", done: false },
-    ],
-  },
+  { items: plantJobs },
   {
     items: [
       { text: "Clip Clover's lead", done: true },
@@ -97,14 +97,9 @@ export const examples = [
       { text: "Bring spare waste bags", done: false },
     ],
   },
-  {
-    detail: "brief",
-    items: [
-      { text: "Water the fern", mark: "highlight" },
-      { text: "Mist the monstera" },
-      { text: "Turn the basil" },
-    ],
-  },
+  { density: "compact", items: plantJobs },
+  { detail: "brief", items: plantJobs },
+  { items: [{ ...plantJobs[0]!, mark: "highlight" }, ...plantJobs.slice(1)] },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Checklist");
