@@ -38,7 +38,7 @@ export const meta = {
   tier: "phone",
   realPath: "Habit records stored on the device.",
   writeHints: [
-    "Leave axes null unless asked; use lead none to hide the habit icons without changing the habit names or checks.",
+    "Write surface null unless asked for an outline. Do not write the default surface card; use lead none to hide the habit icons without changing the habit names or checks.",
   ],
   variants: { surface: ["card", "outlined"], lead: ["icon", "none"] },
   variantParts: { "lead.none": { hides: ["icon"] } },
@@ -106,7 +106,7 @@ export const examples = [
       { name: "Mist Ivy", icon: "drop", days: [true, true, true, false, false, false, false] },
     ],
   },
-  { lead: "none", surface: "outlined", habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
+  { lead: "none", habits: [{ name: "Walk Pip", icon: "check", days: [true, false, true, false, false, false, false] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("HabitGrid");
 export const probes = [

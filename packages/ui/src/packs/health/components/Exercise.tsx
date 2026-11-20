@@ -35,7 +35,7 @@ export const meta = {
   purpose: "Learn one exercise's form, muscles and equipment, and recall previous results.",
   pick: "One exercise explained with media, muscles, short form cues and best and last results. Not playing just an exercise video (Player), a lesson in a course (Lesson), or a whole session (Workout).",
   writeHints: [
-    "Leave axes null unless asked; a supplied photo normally shows as a wide frame. Only when asked to hide it, use media none and keep the photo reference in the data.",
+    "Write surface null unless asked for an outline. Do not write the default surface card; a supplied photo normally shows as a wide frame. Only when asked to hide it, use media none and keep the photo reference in the data.",
   ],
   variants: { surface: ["card", "outlined"], media: ["cover", "none"] },
   variantParts: { "media.none": { hides: ["photo"] } },
@@ -72,6 +72,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     cues: [placeholderDetail],
   };
 }
+// prettier-ignore
 export const examples = [
   {
     name: "Bench press",
@@ -86,12 +87,12 @@ export const examples = [
     name: "Bodyweight squat",
     photo: "lib:exercise",
     media: "none",
-    surface: "outlined",
     muscles: ["Quads", "Glutes"],
     cues: ["Keep heels down", "Track knees over toes"],
     best: "20 reps",
     last: "15 reps",
   },
+  { name: "Bench press", surface: "outlined", photo: "lib:exercise", muscles: ["Chest", "Triceps"], cues: ["Keep feet planted"] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Exercise");
 export const probes = [

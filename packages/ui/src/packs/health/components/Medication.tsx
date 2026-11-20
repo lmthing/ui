@@ -42,7 +42,7 @@ export const meta = {
   realPath:
     "Doses stored on the device; reminders need notification permission, and this log is not medical advice.",
   writeHints: [
-    "Leave axes null unless asked. To hide individual pill counts, set detail brief but keep left and refillAt in the data. Mark only an explicitly highlighted dose.",
+    "Write density and dose mark null unless explicitly requested. For a request to hide stock alone, only detail is set. To hide individual pill counts, set detail brief but keep left and refillAt in the data. Mark only an explicitly highlighted dose.",
   ],
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["left"] } },
@@ -89,6 +89,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     })),
   };
 }
+// prettier-ignore
 export const examples = [
   {
     doses: [
@@ -97,13 +98,12 @@ export const examples = [
     ],
     refillAt: 5,
   },
-  { doses: [{ name: "Iron supplement", dose: "1 tablet", time: "09:30", status: "skipped" }] },
+  { density: "compact", doses: [{ name: "Iron supplement", dose: "1 tablet", time: "09:30", status: "skipped" }] },
   {
-    density: "compact",
     detail: "brief",
     doses: [
       { name: "Vitamin B12", dose: "1 tablet", time: "08:00", status: "taken", left: 30 },
-      { name: "Vitamin D", dose: "1 tablet", time: "09:00", status: "due", left: 4, mark: "highlight" },
+      { name: "Vitamin D", dose: "1 tablet", time: "09:00", status: "due", left: 4 },
       { name: "Magnesium", dose: "1 capsule", time: "20:00", status: "due", left: 20 },
     ],
     refillAt: 5,

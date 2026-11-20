@@ -37,7 +37,7 @@ export const meta = {
   writeHints: [
     "low must not exceed high. Ranges are references, not diagnoses; never write a computed status or tone.",
     "low and high describe value only. value2 is an optional paired reading, not checked against the primary range.",
-    "Leave axes null unless asked. Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.",
+    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide reading times; keep the time in each reading and retain the reference range and status.",
   ],
   region: "body",
   weight: 2,
@@ -104,7 +104,7 @@ export const examples = [
     { label: "Blood pressure", value: 118, value2: 76, unit: "mmHg", low: 90, high: 120, at: "08:10" },
     { label: "Resting pulse", value: 68, unit: "bpm", low: 60, high: 100, at: "08:12" },
   ], goto: "add_reading" },
-  { detail: "brief", surface: "outlined", readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
+  { detail: "brief", readings: [{ label: "Temperature", value: 37.8, unit: "°C", low: 36.1, high: 37.2, at: "19:30" }], goto: "add_reading" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Vitals");
 export const probes = [

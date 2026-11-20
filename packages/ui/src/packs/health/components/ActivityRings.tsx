@@ -1,7 +1,6 @@
 import { z } from "zod";
 import {
   goalLine,
-  itemVariantProps,
   numberLine,
   placeholderValue,
   probesFor,
@@ -39,15 +38,11 @@ export const meta = {
   signature: "ring_fill",
   realPath: "Totals stored on the device; phone health-store or watch imports need read permission.",
   writeHints: [
-    "Use axes only when requested. To hide target captions, use detail brief and still write each target in of. Leave ring tone null for the usual distinct colors.",
+    "Write surface null unless asked for an outline. Do not write the default surface card. To hide target captions, use detail brief and still write each target in of.",
   ],
   variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["of"] } },
-  items: {
-    key: "rings",
-    parts: ["root", "label", "value", "of", "unit"],
-    variants: { tone: ["neutral", "good", "warn"] },
-  },
+  items: { key: "rings", parts: ["root", "label", "value", "of", "unit"] },
   parts: ["root", "rings"],
   states: ["filled", "loading"],
   read: (input, state, lang?: string): string[] => {
@@ -60,7 +55,6 @@ export const props = z.strictObject({
   rings: z
     .array(
       z.strictObject({
-        ...itemVariantProps(meta.items.variants),
         label: text(16),
         value: z.number().min(0).max(1000000),
         of: z.number().positive().max(1000000),
@@ -90,6 +84,7 @@ export const examples = [
     ],
   },
   {
+    surface: "outlined",
     rings: [
       { label: "Walks", value: 9, of: 12, unit: "walks" },
       { label: "Active", value: 45, of: 60, unit: "min" },
@@ -104,10 +99,9 @@ export const examples = [
   },
   {
     detail: "brief",
-    surface: "outlined",
     rings: [
-      { tone: "good", label: "Steps", value: 8500, of: 8000, unit: "steps" },
-      { tone: "warn", label: "Water", value: 5, of: 8, unit: "glasses" },
+      { label: "Steps", value: 8500, of: 8000, unit: "steps" },
+      { label: "Water", value: 5, of: 8, unit: "glasses" },
     ],
   },
 ] satisfies z.input<typeof props>[];
@@ -136,7 +130,6 @@ const ringNumber = (value: number, count: number) =>
 // prettier-ignore
 export function ActivityRings({ rings, detail, surface }: Props<typeof props, typeof meta>) {
   const full = useVariant("detail", meta.variants.detail, detail) === "full";
-  const tones = rings.map((ring, index) => ring.tone === "neutral" ? ringTones[index]! : ring.tone);
   const { lang } = useWords();
   const loading = useComponentState() === "loading";
   return (
@@ -148,7 +141,7 @@ export function ActivityRings({ rings, detail, surface }: Props<typeof props, ty
         rings={rings.map((ring, index) => ({
           id: ring.id,
           ratio: ring.value / ring.of,
-          tone: tones[index]!,
+          tone: ringTones[index]!,
         }))}
       />
       <KitGrid columns={rings.length === 2 ? 2 : 3}>
@@ -172,7 +165,7 @@ export function ActivityRings({ rings, detail, surface }: Props<typeof props, ty
             />
           ) : (
             <KitRow key={ring.id} item={ring.id} label={ring.label} inline inset="none">
-              <KitText role="caption" tone={tones[index]!} align="center" part="label">
+              <KitText role="caption" tone={ringTones[index]!} align="center" part="label">
                 {ring.label}
               </KitText>
               <KitText {...ringNumber(ring.value, rings.length)} part="value">

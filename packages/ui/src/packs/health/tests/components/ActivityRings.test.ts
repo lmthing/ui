@@ -21,9 +21,7 @@ describe("ActivityRings schema", () => {
   );
   it("trims labels and units without changing values", () => {
     const padded = { ...ring, label: "  Move  ", unit: "  kcal  " };
-    expect(props.parse({ rings: [padded, padded] }).rings).toEqual(
-      Array(2).fill({ ...ring, tone: "neutral" }),
-    );
+    expect(props.parse({ rings: [padded, padded] }).rings).toEqual([ring, ring]);
   });
   it.each([
     {},

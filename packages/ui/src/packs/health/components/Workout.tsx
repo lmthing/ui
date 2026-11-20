@@ -19,7 +19,7 @@ export const meta = {
   tier: "phone",
   realPath: "Exercise sets stored on the device; this is a log, not medical advice.",
   writeHints: [
-    "Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
+    "Write surface null unless asked for an outline; never write the default surface card. Use detail brief only when asked to hide the elapsed-time header. Keep set controls and rest.",
   ],
   variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
@@ -102,7 +102,7 @@ export const examples = [
     exercises: [{ name: "Goblet squat", sets: [
       { weight: 25, reps: 12, done: true, remaining: 36 }, { weight: 25, reps: 10, done: false },
     ] }],
-    rest: 60, unit: "lb", elapsed: 125, surface: "outlined", detail: "brief",
+    rest: 60, unit: "lb", elapsed: 125, detail: "brief",
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Workout");

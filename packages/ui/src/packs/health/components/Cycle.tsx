@@ -46,7 +46,7 @@ export const meta = {
   pick: "A menstrual cycle with period days, today's phase and estimated next period and fertile window. Not progress toward a goal (Ring), or dates merely marked with activity (Calendar).",
   writeHints: [
     "Write the start, average length and period duration. Predictions are computed locally and are not a method of contraception.",
-    "Leave axes null unless asked. Use detail brief only to omit the estimated next-period and fertile-window captions.",
+    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief only to omit the estimated next-period and fertile-window captions.",
   ],
   region: "body",
   weight: 2,

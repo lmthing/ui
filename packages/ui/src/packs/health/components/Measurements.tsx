@@ -49,7 +49,7 @@ export const meta = {
   realPath:
     "Measurements typed on the device; a scale or health-store import needs read permission, and is not medical advice.",
   writeHints: [
-    "Leave axes null unless asked. Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.",
+    "Write surface null unless asked for an outline. Do not write the default surface card. Use detail brief to hide the change since the first reading; keep all measurement points and any supplied goal.",
   ],
   variants: { surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["change"] } },
@@ -91,7 +91,7 @@ export const examples = [
     range: "month",
     goto: "add_measurement",
   },
-  { label: "Waist", unit: "cm", points: [90, 89, 88.5, 88, 87.5], range: "quarter", goto: "add_measurement", detail: "brief", surface: "outlined" },
+  { label: "Waist", unit: "cm", points: [90, 89, 88.5, 88, 87.5], range: "quarter", goto: "add_measurement", detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Measurements");
 export const probes = [

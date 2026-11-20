@@ -32,7 +32,7 @@ export const meta = {
   tier: "phone",
   realPath: "Symptom entries stored on the device; logging symptoms is not a diagnosis or medical advice.",
   writeHints: [
-    "Leave axes null unless asked. Use detail brief to hide the separate numeric severity readouts while keeping the sliders and severity values.",
+    "Write density null unless explicitly asked to change spacing. Hiding readouts changes only detail. Use detail brief to hide the separate numeric severity readouts while keeping the sliders and severity values.",
   ],
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: indexedParts(8, ["reading"]) } },
@@ -111,7 +111,7 @@ export const examples = [
     { label: "Head", symptoms: [{ label: "Headache", severity: 2, on: true }, { label: "Dizziness", severity: 0 }] },
     { label: "Stomach", symptoms: [{ label: "Nausea", severity: 1 }, { label: "Cramping", severity: 0 }] },
   ] },
-  { detail: "brief", density: "compact", groups: [
+  { detail: "brief", groups: [
     { label: "Energy", symptoms: [{ label: "Fatigue", severity: 4 }, { label: "Weakness", severity: 1 }] },
   ] },
 ] satisfies z.input<typeof props>[];
