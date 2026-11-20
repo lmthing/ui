@@ -9,7 +9,7 @@ import { projectClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
-import { sessionActionProps, sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
+import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, itemTexts, readAffordances, type ReadSchema as Json } from "./reading";
 
@@ -37,7 +37,7 @@ function readingProps(meta: Meta, props: Props, instance: string, values: Props,
     session.kind === "rounds"
       ? { [meta.session!.items]: session.recall && session.complete ? [] : [session.item] }
       : {};
-  return { ...sessionActionProps(meta, projected, session), ...current, [sessionKey]: session };
+  return { ...projected, ...current, [sessionKey]: session };
 }
 
 function readProgress(session: SessionState | undefined, lang?: string): string[] {

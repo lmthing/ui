@@ -45,6 +45,7 @@ const quiz = fixture(
           choices: row.options,
           typed: !row.options,
           choice: answer.root,
+          feedbackLength: row.reason ? (row.solution as string).length : 0,
         }),
         grade: (row, answer) => {
           const value = row.options
