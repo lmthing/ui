@@ -79,32 +79,25 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   return { pins: pins.length ? pins : [0, 1, 2].map((index) => ({ label: placeholderTitle(index, lang) })) };
 }
 
+const shops = [
+  { label: "Greenhouse plant shop", goto: "greenhouse" },
+  { label: "Riverside nursery", goto: "riverside" },
+  { label: "Garden centre" },
+];
+const [gate, ...stops] = [
+  { label: "Park gate", goto: "park_gate" },
+  { label: "Riverside pick-up", goto: "river_pickup" },
+  { label: "Clover's front door" },
+  { label: "Pond entrance", goto: "pond" },
+  { label: "Hilltop pick-up" },
+] as const;
 export const examples = [
-  {
-    pins: [
-      { label: "Greenhouse plant shop", goto: "greenhouse" },
-      { label: "Riverside nursery", goto: "riverside" },
-      { label: "Garden centre" },
-    ],
-  },
-  {
-    trail: "none",
-    pins: [
-      { label: "Park gate", goto: "park_gate", tone: "good" },
-      { label: "Riverside pick-up", goto: "river_pickup", tone: "warn" },
-      { label: "Clover's front door", mark: "highlight" },
-      { label: "Pond entrance", goto: "pond", mark: "new" },
-      { label: "Hilltop pick-up", tone: "bad", mark: "muted" },
-    ],
-  },
-  {
-    density: "compact",
-    pins: [
-      { label: "Greenhouse plant shop", goto: "greenhouse" },
-      { label: "Riverside nursery", goto: "riverside" },
-      { label: "Garden centre" },
-    ],
-  },
+  { pins: shops },
+  { pins: [gate, ...stops] },
+  { trail: "none", pins: [gate, ...stops] },
+  { density: "compact", pins: shops },
+  ...(["good", "warn", "bad"] as const).map((tone) => ({ pins: [{ ...gate, tone }, ...stops] })),
+  ...(["highlight", "muted", "new"] as const).map((mark) => ({ pins: [{ ...gate, mark }, ...stops] })),
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("MapPins");
@@ -130,11 +123,19 @@ export function MapPins(input: Props<typeof props, typeof meta>) {
   const { pins, trail } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const state = useComponentState();
+  const inset = pins.some((pin) => pin.mark !== "none") ? "md" : "none";
   return (
     <KitCard style="inset" part="root" padded density={density}>
       <KitMapTile count={pins.length} part="map" />
       {state === "loading" ? (
-        <KitSkeleton rows={pins.length} shape="rows" lead="dot" inset="none" density={density} />
+        <KitSkeleton
+          rows={pins.length}
+          items={pins.map(({ label }) => ({ title: label }))}
+          shape="rows"
+          lead="dot"
+          inset={inset}
+          density={density}
+        />
       ) : (
         pins.map((pin, index) => (
           <KitRow
@@ -144,7 +145,7 @@ export function MapPins(input: Props<typeof props, typeof meta>) {
             goto={pin.goto}
             mark={pin.mark}
             density={density}
-            inset="none"
+            inset={inset}
             lineRole="body"
             leadingAlign="line"
             trailing={
@@ -162,7 +163,12 @@ export function MapPins(input: Props<typeof props, typeof meta>) {
               </KitText>
             }
           >
-            <KitText role="body" part="label" density={density}>
+            <KitText
+              role="body"
+              part="label"
+              density={density}
+              tone={pin.tone === "neutral" ? "text" : pin.tone}
+            >
               {pin.label}
             </KitText>
           </KitRow>
