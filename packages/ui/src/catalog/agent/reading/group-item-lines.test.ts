@@ -62,15 +62,12 @@ it("does not group on secrets or print their values", () => {
   expect(reading[1]).toContain("(secret)");
 });
 
-it("does not expose secrets wrapped in nullable fields as group names", () => {
+it.each([
+  ["inner", z.string().meta({ kind: "secret" }).nullable()],
+  ["outer", text(30).nullable().meta({ kind: "secret" })],
+])("does not expose secrets tagged on a nullable field's %s schema", (_label, group) => {
   const props = z.strictObject({
-    rows: z.array(
-      z.strictObject({
-        name: text(30),
-        group: z.string().meta({ kind: "secret" }).nullable().optional(),
-        goto: z.string(),
-      }),
-    ),
+    rows: z.array(z.strictObject({ name: text(30), group: group.optional(), goto: z.string() })),
   });
   const reading = readComponent({ ...def, props }, seed, "c");
   expect(reading).toHaveLength(6);

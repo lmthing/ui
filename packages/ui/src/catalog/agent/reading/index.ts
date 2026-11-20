@@ -16,11 +16,12 @@ export type ReadSchema = {
 };
 
 function isGroupText(field: ReadSchema | undefined): boolean {
-  if (field?.anyOf) {
+  if (!field || (field.kind !== undefined && field.kind !== "text")) return false;
+  if (field.anyOf) {
     const nonnull = field.anyOf.filter((option) => option.type !== "null");
     return nonnull.length > 0 && nonnull.every(isGroupText);
   }
-  return field?.kind === "text";
+  return field.kind === "text";
 }
 
 export function itemTexts(
