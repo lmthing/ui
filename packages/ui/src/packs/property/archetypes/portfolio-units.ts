@@ -44,7 +44,7 @@ export const probes = [
     archetype: "portfolio_units",
     layout: "property_register",
     brief:
-      "Show a Three Flats heading, a Search units box, filter chips All and Vacant, the occupancy register on 2026-11-18 (Willow Flat, ref flat_a, tenancy willow_let since 2026-10-01 by Asha at 900 monthly), and a small occupancy summary.",
+      "Show a Three Flats heading, a Search units box, filter chips All and Vacant, the occupancy register on 2026-11-18 (Willow Flat, ref flat_a, tenancy willow_let since 2026-10-01 by Asha at 900 monthly), and the supplied occupancy summary: Occupied 1, Vacant 0.",
   },
   {
     kind: "compose",

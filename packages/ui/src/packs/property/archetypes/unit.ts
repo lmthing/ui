@@ -6,6 +6,9 @@ export const unit = {
   defaultLayout: "property_unit_detail",
   layouts: {
     property_unit_detail: {
+      writeHints: [
+        "The register contains exactly one unit. A vacant unit with no agreed lets has an empty lets array. Never invent a tenancy or an occupant named Vacant.",
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["Gallery"], required: true, variant: "carousel" },
