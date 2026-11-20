@@ -83,8 +83,15 @@ function inputOf(
   return input;
 }
 
+function copySeed(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(copySeed);
+  if (value && typeof value === "object")
+    return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, copySeed(child)]));
+  return value;
+}
+
 function finishInput(def: Definition, line: DefaultLine, input: Record<string, unknown>): void {
-  Object.assign(input, line.seed);
+  if (line.seed) for (const [key, value] of Object.entries(line.seed)) input[key] = copySeed(value);
   // Fallback rows without a value must not draw a value trail. Authored rows are not rewritten.
   if (line.c === "List" && line.seed?.trail === "value" && !Object.hasOwn(line.seed, "rows"))
     input.rows = (input.rows as Record<string, unknown>[]).map((row) =>

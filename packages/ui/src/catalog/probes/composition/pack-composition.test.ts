@@ -53,6 +53,45 @@ it("uses the effective prop when a schema supplies its default", () => {
   ).toEqual([]);
 });
 
+it("rejects order rows that override the required badge trail", () => {
+  const registry = createRegistry({ packs: ["commerce"], includeDrafts: true });
+  const screen = registry.defaultLines("orders", "today", empty);
+  const list = screen.components.find(({ c }) => c === "List")!;
+  list.rows = [{ title: "Item one", value: "Ready", trail: "none" }];
+  const meta = registry.archetypes.orders!.meta;
+  expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([
+    `Layout requires List.trail = "badge" (${list.id})`,
+  ]);
+  list.rows = [{ title: "Item one", value: "Ready" }];
+  expect(scoreComposition(JSON.stringify(screen), meta, "today", components).issues).toEqual([]);
+});
+
+it("returns an independent copy of nested seed props", () => {
+  const rows = [{ title: "Item one" }];
+  const meta = packComposition({
+    id: "seed",
+    job: "Browse entries",
+    layouts: {
+      list: {
+        recipe: [
+          { allow: ["Header"], required: true },
+          { allow: ["List"], required: true },
+          { allow: ["Note"], required: true },
+        ],
+        defaults: [
+          { id: "h1", c: "Header" },
+          { id: "l1", c: "List", rows },
+          { id: "n1", c: "Note" },
+        ],
+      },
+    },
+  });
+  const first = defaultLines(meta, "list", empty, components);
+  (first.components[1]!.rows as typeof rows)[0]!.title = "Changed";
+  expect(rows[0]!.title).toBe("Item one");
+  expect(defaultLines(meta, "list", empty, components).components[1]!.rows).toEqual(rows);
+});
+
 it("rejects a pack seed that fails the merged component schema", () => {
   const meta: ArchetypeMeta = packArchetypes.commerce.find(({ id }) => id === "shop")!;
   const original = meta.layouts.menu!;

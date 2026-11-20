@@ -7,6 +7,8 @@ import { migrateScreen } from "../../migrations";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
 import { packPropIssues } from "./pack-prop-issues";
+const omitGuidance =
+  "Return compact JSON. When a layout says to omit a field the schema requires, write null for it instead.";
 export type ComposeResult = {
   archetype: string;
   layout: string;
@@ -43,7 +45,7 @@ export function composePrompt(
   return [
     "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
-    ...(brief === undefined ? [] : [`Brief: ${brief}`]),
+    ...(brief === undefined ? [] : [`Brief: ${brief}\n${omitGuidance}`]),
     `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; ${toggle}`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
     ...(offersVariants
@@ -59,7 +61,6 @@ export function composePrompt(
     "Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
   ].join("\n\n");
 }
-
 function hasToggleRows(entry: ScreenLike["components"][number], def: Definition | undefined): boolean {
   if (!def?.meta.variants?.trail && !def?.meta.items?.variants?.trail)
     return Array.isArray(entry.rows) && entry.rows.every((row) => row?.trail === "toggle");
@@ -69,7 +70,6 @@ function hasToggleRows(entry: ScreenLike["components"][number], def: Definition 
   const rows: unknown = parsed.data[def.meta.items.key];
   return Array.isArray(rows) && rows.every((row) => (row?.trail ?? parsed.data.trail) === "toggle");
 }
-
 export function scoreComposition(
   reply: string,
   meta: ArchetypeMeta,

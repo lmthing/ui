@@ -2,6 +2,13 @@ import type { CoreArchetypeMeta } from "../../archetypes";
 import type { ScreenLike } from "../../agent";
 import type { Definition } from "..";
 
+function conflictingBadgeRows(def: Definition, props: Record<string, unknown>): boolean {
+  const items = def.meta.items;
+  if (!items?.variants?.trail?.includes("badge")) return false;
+  const rows = props[items.key];
+  return Array.isArray(rows) && rows.some((row) => (row.trail ?? props.trail) !== "badge");
+}
+
 /** Scalar pack seed props specify the layout; arrays and objects may supply example content. */
 export function packPropIssues(
   screen: ScreenLike,
@@ -24,7 +31,11 @@ export function packPropIssues(
     const parsed = defs[c]?.props.safeParse(input);
     if (!parsed?.success) return []; // checkScreen already reports schema failures.
     return constraints
-      .filter(([key, value]) => parsed.data[key] !== value)
+      .filter(
+        ([key, value]) =>
+          parsed.data[key] !== value ||
+          (key === "trail" && value === "badge" && conflictingBadgeRows(defs[c]!, parsed.data)),
+      )
       .map(([key, value]) => `Layout requires ${c}.${key} = ${JSON.stringify(value)} (${id})`);
   });
 }
