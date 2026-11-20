@@ -2,8 +2,8 @@
 The types every component, pack, archetype, surface and theme file satisfies.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
-
-- `meta.ts` `Meta`, `SurfaceMeta`, `PackMeta`, `ArchetypeMeta`, `PresetMeta`, `AccentMeta`, `Slot`
+- `meta.ts` `Meta`, `SurfaceMeta`, `PackMeta`, `ArchetypeMeta`, `Slot`
+- `preset-meta.ts` `PresetMeta`, `AccentMeta`, `BaseRoles`, `AccentRoles`
 - `pack-ids.ts`, `pack-ids.test.ts`: the 27 pack ids and type checks
 - `pack-index.ts`, `pack-index.test.ts`: ordered pack names, purposes and pick lines; `PackMeta` owns only id, example and probes.
 - `props.ts` `Props<S, M>`: the schema's output plus the `id` the validator stamps on each item of `M["items"]["key"]`
