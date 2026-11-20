@@ -26,6 +26,12 @@ export type SocialWords = {
     closes: (date: string) => string;
     share: (label: string, percent: string) => string;
   };
+  stories: {
+    add: string;
+    own: string;
+    empty: string;
+    status: (name: string, seen: boolean) => string;
+  };
 };
 
 export const en = {
@@ -57,5 +63,11 @@ export const en = {
     votes: (form) => (form === "one" ? "vote" : "votes"),
     closes: (date) => `Closes ${date}`,
     share: (label, percent) => `${label} · ${percent}`,
+  },
+  stories: {
+    add: "Add your story",
+    own: "Your story",
+    empty: "No stories yet",
+    status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
   },
 } satisfies SocialWords;
