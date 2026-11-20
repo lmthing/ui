@@ -16,11 +16,13 @@ import {
   createScreenController,
   KitProvider,
   PartScope,
+  PhoneScreen,
   kitFonts,
   kitThemes,
   kitTokens,
   renderers,
 } from "@lmthing/ui/kit";
+import { exampleDeviceData as previewData } from "../src/catalog/probes/fixtures";
 
 export const config = createTamagui({
   tokens: createTokens(kitTokens),
@@ -42,12 +44,12 @@ export type RenderOptions = {
   component?: string;
   disableRootThemeClass?: boolean;
   resolvePhoto?: (reference: string) => string | undefined;
-  deviceData?: DeviceData;
+  deviceData?: DeviceData | undefined;
 };
 
 export function exampleDeviceData(def: Definition, input: Record<string, unknown>, state: StateName) {
-  if (!def.meta.deviceData?.length || !def.meta.previewDeviceData) return undefined;
-  return selectDeviceData(def.meta, def.meta.previewDeviceData({ input, state }));
+  const data = previewData(def.meta, input, state);
+  return data && selectDeviceData(def.meta, data);
 }
 
 /** Use the same parsed example and state that gallery cells pass to the declared fixture. */
@@ -61,7 +63,7 @@ export function renderExample(
   const def: Definition = components[id];
   const props = def.props.parse(input) as Record<string, unknown>;
   const deviceData = exampleDeviceData(def, props, state);
-  const html = renderInstance(id, input, state, theme, { ...options, ...(deviceData ? { deviceData } : {}) });
+  const html = renderInstance(id, input, state, theme, { ...options, deviceData });
   return { html, props, deviceData };
 }
 
@@ -72,43 +74,45 @@ export function renderInstance(
   theme: Theme,
   options: string | RenderOptions = {},
 ): string {
-  const {
-    thing,
-    lang,
-    component = "c1",
-    disableRootThemeClass = false,
-    resolvePhoto,
-    deviceData,
-  } = typeof options === "string" ? { thing: options } : options;
-  const def = components[id];
+  const settings = typeof options === "string" ? { thing: options } : options;
+  const { thing, lang, component = "c1", disableRootThemeClass = false, resolvePhoto } = settings;
+  const def: Definition = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
-  const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
+  const parsed = def.props.parse(input) as Record<string, unknown>;
+  const gated = Boolean(def.meta.deviceDataVisible);
+  // Direct view tests have no host records unless supplied; gated previews opt into their fixture.
+  const deviceData =
+    "deviceData" in settings
+      ? settings.deviceData
+      : gated
+        ? exampleDeviceData(def, parsed, state)
+        : undefined;
+  const screen = { id: "home", components: [{ ...(input as object), id: component, c: id, state }] };
+  const defs = { [id]: def };
   const controller =
-    deviceData &&
-    createScreenController({
-      screen: { id: "home", components: [{ ...(input as object), id: component, c: id, state }] },
-      defs: { [id]: def },
-      deviceData,
-      lang,
-      interactive: false,
-    });
+    deviceData && !gated
+      ? createScreenController({ screen, defs, deviceData, lang, interactive: false })
+      : undefined;
+  const frame = { config, defaultTheme: themeName(theme), disableRootThemeClass };
+  const phone = { defs, renderers, screen, theme, lang, resolvePhoto, deviceData, interactive: false };
+  const part = { screen: "home", component, rev: 1, state, ...(thing ? { thing } : {}) };
   try {
     return renderToStaticMarkup(
-      <TamaguiProvider
-        config={config}
-        defaultTheme={themeName(theme)}
-        disableRootThemeClass={disableRootThemeClass}
-      >
-        <KitProvider
-          theme={theme}
-          lang={lang}
-          controller={controller}
-          {...(resolvePhoto ? { resolvePhoto } : {})}
-        >
-          <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
-            <View {...props} />
-          </PartScope>
-        </KitProvider>
+      <TamaguiProvider {...frame}>
+        {gated ? (
+          <PhoneScreen {...phone} />
+        ) : (
+          <KitProvider
+            theme={theme}
+            lang={lang}
+            controller={controller}
+            {...(resolvePhoto ? { resolvePhoto } : {})}
+          >
+            <PartScope {...part}>
+              <View {...stampItemIds(def.meta, parsed)} />
+            </PartScope>
+          </KitProvider>
+        )}
       </TamaguiProvider>,
     );
   } finally {

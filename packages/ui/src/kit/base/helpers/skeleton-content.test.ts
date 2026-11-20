@@ -107,12 +107,18 @@ describe("skeleton loading through the real entry", () => {
       expect(html).not.toMatch(/role="(?:button|radio|slider|link)"/);
     }
   });
-  it.each(["audio", "video", "compact"] as const)("keeps %s artwork and controls", (style) => {
-    const html = renderInstance("Player", { ...components.Player.examples[0], style }, "loading", theme);
+  it.each(["audio", "video", "compact"] as const)("keeps the %s artwork and control geometry", (mode) => {
+    const appearance = mode === "compact" ? { density: "compact", detail: "brief" } : { style: mode };
+    const html = renderInstance(
+      "Player",
+      { ...components.Player.examples[0], ...appearance },
+      "loading",
+      theme,
+    );
     const css = styles(html);
-    if (style === "audio") expect(css).toMatch(/aspect-ratio:\s*1(?:;|\n|$)/);
-    if (style === "video") expect(css).toMatch(/aspect-ratio:\s*1\.777/);
-    if (style === "compact") expect(css).not.toContain("aspect-ratio:");
+    if (mode === "audio") expect(css).toMatch(/aspect-ratio:\s*1(?:;|\n|$)/);
+    if (mode === "video") expect(css).toMatch(/aspect-ratio:\s*1\.777/);
+    if (mode === "compact") expect(css).not.toContain("aspect-ratio:");
     expect(css.match(/height:44px/g)?.length).toBeGreaterThanOrEqual(4);
     expect(css).toContain(`border-top-left-radius:${radius.pill}px`);
     const root = elementAt(html, "home/c1/root");

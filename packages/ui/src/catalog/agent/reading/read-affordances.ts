@@ -4,7 +4,6 @@ import { linkedInput } from "../linked-edits";
 import {
   choiceOptions,
   controlValueKey,
-  numericSetAt,
   partTierAt,
   resolveChoice,
   selectionOffer,
@@ -13,6 +12,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
+import { setAt } from "../clocks";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -44,7 +44,7 @@ export function readAffordances(
         value,
         offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
       }));
-    const set = a.action === "set" && numericSetAt(meta, props, target);
+    const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
     const value = linked
       ? props[linked.prop]

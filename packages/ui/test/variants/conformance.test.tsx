@@ -31,7 +31,7 @@ function checkPair(
   // Vary the axis, not the host's data snapshot.
   const afterHTML = renderInstance(id, input, "filled", variantSheet, {
     ...options,
-    ...(deviceData ? { deviceData } : {}),
+    deviceData,
   });
   const before = renderedAddresses(beforeHTML);
   const after = renderedAddresses(afterHTML);

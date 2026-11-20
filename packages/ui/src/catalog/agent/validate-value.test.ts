@@ -28,6 +28,42 @@ it("requires a finite number even when no numeric bounds are declared", () => {
   for (const value of ["1", NaN, Infinity, -Infinity, undefined, null])
     expect(validateActionValue("set", value, { numeric: true })?.code).toBe("invalid_value");
   expect(validateActionValue("set", 0.5, { numeric: true })).toBeNull();
+  expect(validateActionValue("set", "1", { type: "number" })?.code).toBe("invalid_value");
+  expect(validateActionValue("set", 0.5, { type: "number" })).toBeNull();
+});
+
+it.each(["0004-02-29", "2000-02-29", "2024-02-29", "2026-12-31"])("accepts ISO date %s", (value) => {
+  expect(validateActionValue("set", value, { type: "date" })).toBeNull();
+});
+
+it.each([
+  "1900-02-29",
+  "2026-02-29",
+  "2026-02-30",
+  "2026-04-31",
+  "2026-01-00",
+  "2026-13-01",
+  "2024-2-29",
+  "2024-02-29\n",
+  "2024-02-29T00:00:00Z",
+  20240229,
+])("rejects invalid date %j", (value) => {
+  expect(validateActionValue("set", value, { type: "date" })?.code).toBe("invalid_value");
+});
+
+it("checks one-sided date bounds inclusively", () => {
+  const bound = "2024-02-29";
+  expect(validateActionValue("set", bound, { type: "date", min: bound })).toBeNull();
+  expect(validateActionValue("set", bound, { type: "date", max: bound })).toBeNull();
+  expect(validateActionValue("set", "2024-02-28", { type: "date", min: bound })?.code).toBe("invalid_value");
+  expect(validateActionValue("set", "2024-03-01", { type: "date", max: bound })?.code).toBe("invalid_value");
+});
+
+it("requires an exact string from a closed list", () => {
+  const spec = { type: "choice", choices: ["ready", "1"] } as const;
+  for (const value of spec.choices) expect(validateActionValue("set", value, spec)).toBeNull();
+  for (const value of ["Ready", "ready ", "pending", "", 1, null])
+    expect(validateActionValue("set", value, spec)?.code).toBe("invalid_value");
 });
 
 it.each([

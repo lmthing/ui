@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   affordancesOf,
   components,
+  isDeviceDataVisible,
   readComponent,
   stampItemIds,
   type ComponentName,
@@ -47,6 +48,11 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
   test.each(def.examples.map((example, index) => ({ example, index })))("example $index", ({ example }) => {
     const { html, deviceData, props: parsed } = renderExample(id, example, "filled", theme);
     const read = readComponent(def, example, "c1", "filled", {}, undefined, deviceData).join("\n");
+    if (!isDeviceDataVisible(def.meta, deviceData)) {
+      expect(read).toBe("");
+      expect(addressedElements(html).size).toBe(0);
+      return;
+    }
     const seen = visibleTexts(html);
     const named = labels(html);
     const quoted = [...read.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"'));

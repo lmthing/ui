@@ -5,6 +5,7 @@ import {
   accents,
   components,
   emptyLine,
+  isDeviceDataVisible,
   loadingLabel,
   presets,
   stampItemIds,
@@ -18,7 +19,7 @@ import {
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
-import { config, exampleDeviceData, renderExample } from "./render";
+import { addressedElements, config, exampleDeviceData, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import {
   derivedItemIds,
@@ -44,7 +45,7 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
 function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
   // Explicit empty screen reads only the state header; use the declared copy hook here.
   const lines = data && meta.read?.(input, "empty", undefined, data);
-  if (!lines?.length) return expect(html).toContain(emptyLine("walk"));
+  if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const visible = visibleTexts(html).join(" ");
   for (const line of lines) expect(visible).toContain(line);
 }
@@ -131,6 +132,10 @@ describe.each(ready)("%s conformance", (id) => {
             props: parsed,
             deviceData,
           } = renderExample(id, example, state, theme, { thing: "walk" });
+          if (!isDeviceDataVisible(meta, deviceData)) {
+            expect(addressedElements(html).size).toBe(0);
+            continue;
+          }
           expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
           if (state === "empty") expectEmptyCopy(meta, parsed, html, deviceData);
           if (state === "loading") expect(html).toContain(loadingLabel);
