@@ -7,7 +7,7 @@ import { inventoryWordsFor } from "../lang";
 // Core first: KeyValue/default cannot compute time left, next rent date or a renewal warning.
 export const meta = {
   id: "Lease",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See one rental agreement, when rent is next due and when to renew.",
   pick: "One existing rental agreement with tenant, term, rent cadence, due day, deposit and calculated time left or renewal warning. Not static facts (KeyValue), terms to sign (Agreement), a bill (Bills), or a list of rental units (Units).",

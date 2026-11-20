@@ -12,14 +12,6 @@ import {
 import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance, type AddressedElement } from "../../../../../test/render";
 
-// Exercise the view even while the live probe gate keeps Lease out of generated renderers.
-vi.mock("@lmthing/ui/kit", async (importOriginal) => {
-  const kit = await importOriginal<typeof import("@lmthing/ui/kit")>();
-  if ("Lease" in kit.renderers) return kit;
-  const { Lease } = await import("../../components");
-  return { ...kit, renderers: { ...kit.renderers, Lease: Lease.Lease } };
-});
-
 const def = components.Lease;
 const { meta, props, fallback, examples, probes } = def;
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
