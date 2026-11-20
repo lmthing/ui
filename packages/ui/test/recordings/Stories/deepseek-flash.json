@@ -1,4 +1,119 @@
 {
+  "08c39581bd27c7ac": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case }], mine: boolean }\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For explicitly hiding captions write \"detail\":\"brief\" and preserve the names. Otherwise write \"detail\":null. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Make a row of today’s plant stories: Maya’s fern update is unseen, Sam’s basil update is seen, and I can add my own from the first spot.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Stories",
+              "enum": [
+                "Stories"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "people": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "seen": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "seen",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "mine": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "people",
+            "mine"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+    "replies": [
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":null,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}"
+    ]
+  },
   "1dd38b4cd514bd09": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case }], mine: boolean }\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For circles without captions write \"detail\":\"brief\" and preserve the names. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show Maya’s new fern story and Sam’s already seen basil story, with my add button first. Show only the circles: hide the captions under them, but remember their names.",
     "format": {
@@ -254,6 +369,121 @@
       "{\"address\": \"s1/add\", \"action\": \"press\"}",
       "{\"address\": \"s1/add\", \"action\": \"press\"}",
       "{\"address\": \"s1/add\", \"action\": \"press\"}"
+    ]
+  },
+  "e4f7723f270d3701": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nStories: Tap through people’s short-lived updates and add one of your own.\nprops: { density?: comfortable|compact, surface?: plain|card=\"plain\", detail?: full|brief=\"full\", people: [1..10 { name: text≤12, photo: photo lib:<tag>|local:<n>, seen: boolean, goto: id snake_case }], mine: boolean }\nRule: For an add button set \"mine\":true. Never insert an add entry or a \"Me\" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.\nRule: For explicitly hiding captions write \"detail\":\"brief\" and preserve the names. Otherwise write \"detail\":null. If no density or surface is requested, write \"density\":null and \"surface\":null.\nexample: {\"c\":\"Stories\",\"mine\":true,\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show Maya’s new fern story and Sam’s already seen basil story, with my add button first. Show only the circles: hide the captions under them, but remember their names.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Stories",
+              "enum": [
+                "Stories"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "plain",
+                    "card"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "people": {
+              "minItems": 1,
+              "maxItems": 10,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 12
+                  },
+                  "photo": {
+                    "type": "string",
+                    "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                  },
+                  "seen": {
+                    "type": "boolean"
+                  },
+                  "goto": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*$"
+                  }
+                },
+                "required": [
+                  "name",
+                  "photo",
+                  "seen",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "mine": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "people",
+            "mine"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+    "replies": [
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}",
+      "{\"c\":\"Stories\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"people\":[{\"name\":\"Maya\",\"photo\":\"lib:people_maya\",\"seen\":false,\"goto\":\"fern_story\"},{\"name\":\"Sam\",\"photo\":\"lib:people_sam\",\"seen\":true,\"goto\":\"basil_story\"}],\"mine\":true}"
     ]
   },
   "e6b9f16b8137a2af": {

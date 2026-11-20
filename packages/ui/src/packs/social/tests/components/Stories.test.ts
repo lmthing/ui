@@ -7,7 +7,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
-import { createScreenController, renderers } from "@lmthing/ui/kit";
+import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 
 const def = components.Stories;
@@ -83,6 +83,7 @@ describe("Stories fallback and metadata", () => {
   });
   it("retains the pack gate, tiers, and core-first, write and read probes", () => {
     expect(meta).toMatchObject({
+      status: "ready",
       tier: "people",
       partTiers: { add: "ok" },
       dense: true,
@@ -105,7 +106,7 @@ describe("Stories fallback and metadata", () => {
   });
 });
 
-describe.skipIf(!Object.hasOwn(renderers, "Stories"))("Stories states, parts and read", () => {
+describe("Stories states, parts and read", () => {
   it("places the add button first and distinguishes unseen from seen stories", () => {
     const drawn = parts(example);
     expect([...drawn.keys()].indexOf("home/s1/add")).toBeLessThan(
@@ -130,8 +131,14 @@ describe.skipIf(!Object.hasOwn(renderers, "Stories"))("Stories states, parts and
     expect([...parts(brief).keys()]).toEqual(full.filter((part) => !/\/(?:add_label|name)$/.test(part)));
     expect(props.parse(brief).people[0]?.name).toBe("Maya");
     expect(readComponent(def, brief, "s1").join("\n")).toContain("[s1/r1 press→fern_story");
+  });
+  it("adds a scrolling region only to long rails without hiding any links", () => {
+    expect(parts(example).has("home/s1/scroll")).toBe(false);
     const crowded = { ...example, people: Array(10).fill(person) };
-    expect(parts(crowded).get("home/s1/r10/root")?.attributes).toContain('role="link"');
+    const drawn = parts(crowded);
+    expect(drawn.has("home/s1/scroll")).toBe(true);
+    expect(drawn.get("home/s1/r10/root")?.attributes).toContain('role="link"');
+    expect(readComponent(def, crowded, "s1").join("\n")).toContain("[s1/r10 press→fern_story");
   });
   it.each([true, false])("has an intentional empty state and keeps add conditional (mine=%s)", (mine) => {
     const input = { ...example, mine };

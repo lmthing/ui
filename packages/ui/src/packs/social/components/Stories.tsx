@@ -7,13 +7,13 @@ import { socialWordsFor } from "../lang";
 // Core first: People/roster cannot distinguish seen updates from unseen ones or add a story.
 export const meta = {
   id: "Stories",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Tap through people’s short-lived updates and add one of your own.",
   pick: "Short-lived stories from people, opened from seen or unseen avatar rings, with an optional add button first. Not a member roster (People) or a photo collection (Gallery).",
   writeHints: [
     'For an add button set "mine":true. Never insert an add entry or a "Me" story in people: the button renders separately. List only the existing stories from the brief, in order, with their goto links and seen flags.',
-    'For circles without captions write "detail":"brief" and preserve the names. If no density or surface is requested, write "density":null and "surface":null.',
+    'For explicitly hiding captions write "detail":"brief" and preserve the names. Otherwise write "detail":null. If no density or surface is requested, write "density":null and "surface":null.',
   ],
   region: "body",
   weight: 3,
@@ -23,7 +23,7 @@ export const meta = {
   realPath: "Stories in a shared app disappear after a day; adding one opens the camera.",
   variants: { density: ["comfortable", "compact"], surface: ["plain", "card"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["name", "add_label"] } },
-  parts: ["root", "add", "add_icon", "add_label", "empty"],
+  parts: ["root", "rail", "scroll", "add", "add_icon", "add_label", "empty"],
   items: { key: "people", parts: ["root", "photo", "name"] },
   states: ["filled", "empty"],
   actions: { parts: { add: ["press"] }, items: { root: ["press"] }, when: { add: { mine: true } } },
@@ -69,7 +69,7 @@ export const examples = [
     { name: "Maya", photo: "lib:people_maya", seen: false, goto: "fern_story" },
     { name: "Sam", photo: "lib:people_sam", seen: true, goto: "basil_story" },
   ] },
-  { density: "compact", surface: "card", mine: false, people: [
+  { mine: false, people: [
     { name: "Anna", photo: "lib:people_anna", seen: true, goto: "park_story" },
     { name: "Ben", photo: "lib:people_ben", seen: false, goto: "river_story" },
   ] },
@@ -98,23 +98,26 @@ export const probes = [
 
 type StoriesProps = c.Props<typeof props, typeof meta>;
 type StoryFinish = { density: c.ThemeDensity; detail: StoriesProps["detail"] };
+const shortRailLimit = 3;
 
 // prettier-ignore
 function AddStory({ density, detail }: StoryFinish) {
   const { words: { stories } } = kit.useWords(socialWordsFor);
-  return <kit.KitContent align="center" density={density}>
-    <kit.KitContent density={density}>
-      <kit.KitAction part="add" icon="plus" kind="secondary" a11y={stories.add} action="press" />
+  return <kit.KitRow part={null} label={stories.add} inset={density === "compact" ? "none" : "md"} density={density}>
+    <kit.KitContent align="center" density={density}>
+      <kit.KitContent density={density}>
+        <kit.KitAction part="add" icon="plus" kind="secondary" a11y={stories.add} action="press" />
+      </kit.KitContent>
+      {detail === "full" && <kit.KitText part="add_label" role="caption" align="center" lines={1} density={density}>{stories.own}</kit.KitText>}
     </kit.KitContent>
-    {detail === "full" && <kit.KitText part="add_label" role="caption" align="center" density={density}>{stories.own}</kit.KitText>}
-  </kit.KitContent>;
+  </kit.KitRow>;
 }
 
 // prettier-ignore
 function StoryCell({ person, density, detail }: StoryFinish & { person: StoriesProps["people"][number] }) {
   const { words: { stories } } = kit.useWords(socialWordsFor);
   const { id, name, photo, seen, goto } = person;
-  return <kit.KitRow part="root" item={id} label={name} goto={goto} inline density={density}>
+  return <kit.KitRow part="root" item={id} label={name} goto={goto} inset={density === "compact" ? "none" : "md"} density={density}>
     <kit.KitContent align="center" density={density}>
       <kit.KitPhoto part="photo" shape="round" photo={photo} label={stories.status(name, seen)} ring={seen ? "none" : "accent"} />
       {detail === "full" && <kit.KitText part="name" role="caption" align="center" lines={1} density={density}>{name}</kit.KitText>}
@@ -123,21 +126,29 @@ function StoryCell({ person, density, detail }: StoryFinish & { person: StoriesP
 }
 
 // prettier-ignore
+function StoryRail({ people, mine, density, detail }: StoryFinish & Pick<StoriesProps, "people" | "mine">) {
+  const { words: { stories } } = kit.useWords(socialWordsFor);
+  const rail = <kit.KitTrack part="rail" label={stories.rail}>
+    {mine && <AddStory {...{ density, detail }} />}
+    {people.map((person) => <StoryCell key={person.id} {...{ person, density, detail }} />)}
+  </kit.KitTrack>;
+  return people.length + Number(mine) <= shortRailLimit ? rail :
+    <kit.KitScroll part="scroll" axis="horizontal" bounded={false} label={stories.rail}>{rail}</kit.KitScroll>;
+}
+
+// prettier-ignore
 export function Stories(input: StoriesProps) {
   const state = kit.useComponentState();
-  const { words: { stories } } = kit.useWords(socialWordsFor);
+  const { lang, words: { stories } } = kit.useWords(socialWordsFor);
+  const thing = kit.useEmptyThing();
+  const empty = thing ? c.emptyLine(thing, lang) : stories.empty;
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
-  const finish = { density, detail };
-  const add = input.mine ? <AddStory {...finish} /> : null;
-  return <kit.KitCard part="root" padded {...{ density, surface }}>
-    {state === "empty" ? <>
-      <kit.KitEmpty part="empty" icon="camera" title={stories.empty} decorativeIcon />
-      {add}
-    </> : <kit.KitStrip density={density} list>
-      {add}
-      {input.people.map((person) => <StoryCell key={person.id} person={person} {...finish} />)}
-    </kit.KitStrip>}
+  return <kit.KitCard part="root" style="plain" padded {...{ density, surface }}>
+    {state !== "empty" ? <StoryRail {...{ ...input, density, detail }} /> : input.mine ? <>
+      <kit.KitText part="empty" tone="muted" align="center" density={density}>{empty}</kit.KitText>
+      <AddStory {...{ density, detail }} />
+    </> : <kit.KitEmpty part="empty" icon="camera" title={empty} decorativeIcon />}
   </kit.KitCard>;
 }

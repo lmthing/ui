@@ -28,6 +28,7 @@ export type SocialWords = {
   };
   stories: {
     add: string;
+    rail: string;
     own: string;
     empty: string;
     status: (name: string, seen: boolean) => string;
@@ -66,6 +67,7 @@ export const en = {
   },
   stories: {
     add: "Add your story",
+    rail: "Stories",
     own: "Your story",
     empty: "No stories yet",
     status: (name, seen) => (seen ? `${name}: seen story` : `${name}: new story`),
