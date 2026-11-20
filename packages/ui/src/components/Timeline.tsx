@@ -126,6 +126,14 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
+const careHours = [
+  { time: "09:00", end: "10:00", title: "Water the fern", goto: "fern" },
+  { time: "11:00", end: "12:30", title: "Repot basil" },
+  { time: "14:00", end: "15:00", title: "Check the orchid" },
+];
+const dayWalks = sampleWalks.map((walk, index) => (index === 0 ? { ...walk, title: "Park walk" } : walk));
+
+// prettier-ignore
 export const examples = [
   {
     style: "history",
@@ -134,19 +142,12 @@ export const examples = [
       { time: "Wed", title: "Repotted basil", meta: "Kitchen", done: true },
     ],
   },
-  {
-    style: "day",
-    items: sampleWalks,
-  },
-  {
-    style: "hours",
-    items: [
-      { time: "09:00", end: "10:00", title: "Water the fern", tone: "good", goto: "fern" },
-      { time: "11:00", end: "12:30", title: "Repot basil", tone: "warn" },
-      { time: "14:00", end: "15:00", title: "Check the orchid", tone: "bad" },
-    ],
-  },
-  { density: "compact", items: sampleWalks },
+  { style: "day", items: dayWalks },
+  { style: "hours", items: careHours },
+  { density: "compact", items: dayWalks },
+  ...(["good", "warn", "bad"] as const).map((tone) => ({
+    style: "hours" as const, items: careHours.map((item, index) => index === 0 ? { ...item, tone } : item),
+  })),
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Timeline");
@@ -173,13 +174,12 @@ export const probes = [
 type TimelineProps = Props<typeof props, typeof meta>;
 
 // prettier-ignore
-function Events({ style, items, density }: Pick<TimelineProps, "style" | "items" | "density">) {
+function Events({ items, density }: Pick<TimelineProps, "items" | "density">) {
   return items.map((item) => {
-    const complete = style === "history" && item.done;
     return <KitRow key={item.id} item={item.id} label={item.title} tone={item.tone} density={density}
       leading={<KitTime value={item.time} part="time" />}
-      trailing={complete ? <KitIcon name="check" decorative /> : undefined}>
-      <KitText role="body" tone={complete ? "muted" : "text"} part="title" density={density}>{item.title}</KitText>
+      trailing={item.done ? <KitIcon name="check" decorative /> : undefined}>
+      <KitText role="body" part="title" density={density}>{item.title}</KitText>
       {item.meta && <KitText role="caption" tone="muted" part="meta" density={density}>{item.meta}</KitText>}
     </KitRow>;
   });
@@ -195,6 +195,6 @@ export function Timeline({ style, items, density: requested }: TimelineProps) {
       state === "empty" ? <KitEmpty part="title" /> :
       hours ? <KitHours blocks={items.map(({ id, time, end, title, tone, goto }) => ({
         id, start: time, end: end!, title, tone, ...(goto ? { goto } : {}),
-      }))} /> : <Events {...{ items, style, density }} />}
+      }))} /> : <Events {...{ items, density }} />}
   </KitCard>;
 }

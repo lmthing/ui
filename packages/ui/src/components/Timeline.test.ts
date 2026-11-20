@@ -187,7 +187,7 @@ describe.each(["day", "history"] as const)("Timeline %s rendering", (style) => {
       };
       const html = renderInstance("Timeline", input, "filled", { preset: "calm", mode: "light", accent: "moss" });
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-      expect(html.match(/<svg\b/g) ?? []).toHaveLength(style === "history" ? Math.ceil(count / 2) : 0);
+      expect(html.match(/<svg\b/g) ?? []).toHaveLength(Math.ceil(count / 2));
       expect(html).toContain("tabular-nums");
       for (let i = 1; i <= count; i++) {
         for (const part of ["root", "time", "title"]) {
