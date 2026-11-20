@@ -38,6 +38,7 @@ describe("Spinner contract and boundaries", () => {
     expect(props.parse({ options: [{ label: "  First " }, { label: "Second" }] })).toMatchObject({
       repeat: true,
       style: "wheel",
+      detail: "full",
       options: [{ label: "First" }, { label: "Second" }],
     });
     const options = Array.from({ length: 6 }, (_, i) => ({ label: `${i}${"x".repeat(23)}` }));
@@ -75,6 +76,7 @@ describe("Spinner contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "Spinner" }),
       expect.objectContaining({ kind: "choose", expect: "Choice" }),
       expect.objectContaining({ kind: "write", expect: "Spinner" }),
+      expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
       expect.objectContaining({ kind: "read", expect: spin }),
       expect.objectContaining({ kind: "read", expect: reset, screen: 1 }),
     ]);
@@ -106,7 +108,7 @@ describe("Spinner states and parts", () => {
     const parts = addressedElements(html);
     setup.options.forEach(({ label }, i) => {
       expect(elementAt(html, address(`r${i + 1}/root`)).attributes).toContain(label);
-      expect(parts.get(address(`r${i + 1}/label`))?.text).toEqual([label]);
+      expect(parts.get(address(`r${i + 1}/label`))?.text).toEqual("detail" in setup ? undefined : [label]);
     });
     expect(elementAt(html, address("spin")).attributes).toContain('role="button"');
     expect(html.includes(address("reset"))).toBe("repeat" in setup && setup.repeat === false);

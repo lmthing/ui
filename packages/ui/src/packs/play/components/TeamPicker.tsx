@@ -1,22 +1,9 @@
 import { z } from "zod";
+// prettier-ignore
 import {
-  drawKey,
-  drawState,
-  drawStatus,
-  emptyLine,
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  type DrawState,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
+  drawKey, drawState, drawStatus, emptyLine, itemsOf, itemVariantProps, photo,
+  placeholderTitle, probesFor, text, thingOf, titleOf, variantProps,
+  type DrawState, type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { teamPickerCopy, teamPickerReading } from "../copy";
@@ -31,6 +18,7 @@ export const meta = {
   pick: "Randomly allocate every player to balanced named teams with optional locks. Not deliberate selection (Choice[multi]), one random option (Spinner), or sports positions (Squad, Lineup).",
   writeHints: [
     "Write 2–12 players and 2–4 distinct team labels, no more teams than players. Optional player.team is a zero-based locked index. Never write unlocked assignments, sizes or feasibility; impossible locks are runtime errors, not uneven teams.",
+    'Use arrange "rows" for stacked teams with group headings. Leave unrequested axes null; locked placement is not a mark.',
   ],
   region: "body",
   weight: 3,
@@ -38,8 +26,12 @@ export const meta = {
   tier: "phone",
   confirmParts: ["remake"],
   realPath: "The device saves the roster, locked placements and a random balanced allocation.",
-  items: { key: "players", parts: ["root", "name", "photo", "team"] },
-  variants: { density: ["comfortable", "compact"] },
+  items: {
+    key: "players",
+    parts: ["root", "name", "photo", "team"],
+    variants: { mark: ["none", "highlight"] },
+  },
+  variants: { density: ["comfortable", "compact"], arrange: ["strip", "rows"] },
   parts: ["root", "teams", "make", "make_label", "remake", "remake_label", "empty", "error", "sub"],
   states: ["empty", "filled", "loading", "success", "error"],
   actions: { parts: { make: ["press"], remake: ["press"] } },
@@ -63,6 +55,7 @@ export const props = z
     players: z
       .array(
         z.strictObject({
+          ...itemVariantProps(meta.items.variants),
           name: text(24),
           photo: photo.optional(),
           team: z.int().min(0).max(3).optional(),
@@ -74,7 +67,6 @@ export const props = z
       .array(z.strictObject({ label: text(16) }))
       .min(2)
       .max(4),
-    style: z.enum(["columns", "groups"]).default("columns"),
   })
   .refine(
     ({ players, teams }) =>
@@ -105,13 +97,17 @@ export const examples = [
       { name: "Kim" },
     ],
     teams: [{ label: "Leaves" }, { label: "Roots" }, { label: "Seeds" }],
-    style: "columns",
   },
   // Trot's four walkers split into pairs.
   {
     players: [{ name: "Jo" }, { name: "Lee" }, { name: "Kim" }, { name: "Sam" }],
     teams: [{ label: "North" }, { label: "South" }],
-    style: "groups",
+    arrange: "rows",
+  },
+  {
+    players: [{ name: "Lee", mark: "highlight" }, { name: "Jo" }, { name: "Kim" }, { name: "Sam" }],
+    teams: [{ label: "North" }, { label: "South" }],
+    density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TeamPicker");
@@ -121,6 +117,12 @@ export const probes = [
   write(
     "Randomly split Anna, Ben, Sam and Jo into Leaves and Roots; lock Anna into team zero. Group headings with player rows.",
   ),
+  {
+    ...write(
+      "Randomly put Anna, Ben, Sam and Jo into North and South. Stack the team groups vertically with a heading and player rows for each team.",
+    ),
+    variant: { axis: "arrange", value: "rows" },
+  },
   read("Make the random teams", { address: "t1/make", action: "press" }),
   read("Redraw the team grouping", { address: "t1/remake", action: "press" }),
 ] satisfies Probe[];
@@ -129,14 +131,14 @@ type Setup = Props<typeof props, typeof meta>;
 type Panels = ReturnType<typeof teamPickerCopy<Setup["players"][number]>>["panels"];
 
 // prettier-ignore
-function TeamColumns({ panels, style, density, loading, words }: {
-  panels: Panels; style: Setup["style"]; density: Setup["density"]; loading: boolean;
+function TeamColumns({ panels, arrange, density, loading, words }: {
+  panels: Panels; arrange: Setup["arrange"]; density: Setup["density"]; loading: boolean;
   words: ReturnType<typeof playWordsFor>["teamPicker"];
 }) {
   const columns = panels.map(({ players, ...panel }) => ({
     ...panel,
-    children: players.map(({ id, name, photo, team }) => (
-      <kit.KitRow key={id} item={id} inset="none" inline={style === "groups" || density === "compact"} density={density}
+    children: players.map(({ id, name, photo, team, mark }) => (
+      <kit.KitRow key={id} item={id} inset="none" inline={arrange === "rows" || density === "compact"} {...{ density, mark }}
         label={team === undefined ? name : words.lockedName(name)} leadingAlign="row"
         leading={<kit.KitPhoto {...(photo ? { photo } : { initials: Array.from(name)[0]! })}
           shape="round" part="photo" label={name} />}
@@ -150,7 +152,7 @@ function TeamColumns({ panels, style, density, loading, words }: {
     )),
     ...(!players.length ? { summary: <kit.KitText role="label" tone="muted" part={null}>{words.noPlayers}</kit.KitText> } : {}),
   }));
-  return <kit.KitColumns part="teams" style={style === "groups" ? "stack" : "columns"} {...{ columns, loading }} />;
+  return <kit.KitColumns part="teams" style={arrange === "rows" ? "stack" : "columns"} {...{ columns, loading }} />;
 }
 
 // prettier-ignore
@@ -180,12 +182,12 @@ export function TeamPicker(setup: Setup) {
           <kit.KitEmpty part="empty" icon="users" title={thing ? emptyLine(thing, lang) : words.empty} decorativeIcon />
           {button}
         </> : <>
-          <kit.KitContent inset={setup.style === "groups" ? "md" : "none"}>
+          <kit.KitContent inset={setup.arrange === "rows" ? "md" : "none"}>
             {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", status]]} /> :
               <kit.KitText role="heading" tone={action === "remake" ? "accent" : "text"} part={null}>{status}</kit.KitText>}
           </kit.KitContent>
           {action === "make" && button}
-          <TeamColumns style={setup.style} {...{ panels, density, loading, words }} />
+          <TeamColumns arrange={setup.arrange} {...{ panels, density, loading, words }} />
           {action === "remake" && button}
         </>}
     </kit.KitCard>

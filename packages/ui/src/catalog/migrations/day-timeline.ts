@@ -20,6 +20,9 @@ const adoptedVariants: readonly string[] = [
   "Devices",
   "Loan",
   "Payoff",
+  "ScoreSheet",
+  "TeamPicker",
+  "Trivia",
 ];
 const isBlock = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);

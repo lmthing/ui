@@ -31,7 +31,7 @@ describe("Dice contract and boundaries", () => {
   });
 
   it("defaults to two six-sided pip dice and accepts the exact limits", () => {
-    expect(props.parse({})).toEqual({ count: 2, sides: 6, style: "pips" });
+    expect(props.parse({})).toEqual({ count: 2, sides: 6, style: "pips", detail: "full", dice: [{}, {}] });
     for (const sides of [4, 6, 8, 10, 12, 20])
       for (const count of [1, 6])
         expect(props.safeParse({ count, sides, style: "numbers" }).success).toBe(true);
@@ -63,6 +63,7 @@ describe("Dice contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "Dice" }),
       expect.objectContaining({ kind: "choose", expect: "Counter" }),
       expect.objectContaining({ kind: "write", expect: "Dice" }),
+      expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
       expect.objectContaining({ kind: "read", expect: roll }),
     ]);
     expect(createRegistry({ packs: ["play"] }).ids.includes("Dice")).toBe(packReady("play"));

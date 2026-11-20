@@ -1,13 +1,13 @@
 import { z } from "zod";
 // prettier-ignore
 import {
-  digitsLine, itemsOf, numberLine, placeholderTitle, probesFor, text, thingOf, titleOf,
+  digitsLine, itemsOf, numberLine, placeholderTitle, probesFor, text, thingOf, titleOf, variantProps,
   type FallbackInput, type Meta, type Probe, type Props,
 } from "../../../catalog";
 // prettier-ignore
 import {
   KitAction, KitCard, KitChip, KitContent, KitEmpty, KitGrid, KitInput,
-  KitRow, KitSkeleton, KitTable, KitText, KitTrack, useComponentState, useWords,
+  KitRow, KitSkeleton, KitTable, KitText, KitTrack, useComponentState, useVariant, useWords,
 } from "../../../kit";
 import { scoreCopy, scoreReading } from "../copy";
 import { playWordsFor } from "../lang";
@@ -23,14 +23,14 @@ export const meta = {
   pick: "An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).",
   writeHints: [
     "Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.",
+    'Use overflow "page" only when asked to show one round at a time. Keep every round in the data. Leave unrequested axes null.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
-  partTiers: { share: "people" },
-  confirmParts: ["reset"],
-  clearItems: { reset: "score" },
+  partTiers: { share: "people" }, confirmParts: ["reset"], clearItems: { reset: "score" },
   realPath: "Round scores are saved on the device; sharing publishes a versioned snapshot to a shared app.",
-  items: {
-    key: "cells", parts: ["root", "player", "round", "score"],
+  variants: { density: ["comfortable", "compact"], overflow: ["all", "page"] },
+  variantParts: { "overflow.page": { hides: ["root", "round", "score"] } },
+  items: { key: "cells", parts: ["root", "player", "round", "score"],
     set: { score: { prop: "score", min: scoreMin, max: scoreMax, integer: true,
       matrix: { rows: "rounds", values: "points" } } },
   },
@@ -42,12 +42,12 @@ export const meta = {
     items: { score: ["set"] },
     when: { share: { share: true }, score: { editable: true } },
   },
-  read: (input, _state, lang) => scoreReading(input as z.output<typeof props>, lang),
+  read: (input, _state, lang): string[] => scoreReading(input as z.output<typeof props>, lang),
 } as const satisfies Meta;
-
 // prettier-ignore
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     players: z.array(z.strictObject({ name: text(24) })).min(2).max(6),
     rounds: z.array(z.strictObject({
       label: text(16),
@@ -55,7 +55,6 @@ export const props = z
     })).min(1).max(12),
     wins: z.enum(["high", "low"]).default("high"),
     share: z.boolean().default(false),
-    style: z.enum(["grid", "round"]).default("grid"),
     selectedRound: z.enum(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]).default("1"),
   })
   .refine(({ selectedRound, rounds }) => Number(selectedRound) <= rounds.length, {
@@ -72,11 +71,10 @@ export const props = z
         player: player.name,
         round: round.label,
         score: round.points[index],
-        editable: value.style === "grid" || roundKey(at) === value.selectedRound,
+        editable: value.overflow === "all" || roundKey(at) === value.selectedRound,
       })),
     ),
   }));
-
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const players = itemsOf(cast, 3).map((item, index) => ({
@@ -91,13 +89,13 @@ export const examples = [
   {
     players: [{ name: "Anna" }, { name: "Ben" }, { name: "Sam" }],
     rounds: [{ label: "Round 1", points: [4, 2, 4] }, { label: "Round 2", points: [3, -1, 3] }],
-    style: "grid", share: true,
+    share: true,
   },
   // Trot's walkers keep a low-score card-game round.
   {
     players: [{ name: "Jo" }, { name: "Lee" }],
-    rounds: [{ label: "First hand", points: [-2, 5] }],
-    wins: "low", style: "round",
+    rounds: [{ label: "First hand", points: [-2, 5] }, { label: "Second hand", points: [0, -1] }],
+    wins: "low", overflow: "page", density: "compact",
   },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("ScoreSheet");
@@ -106,22 +104,25 @@ export const probes = [
   choose("Enter each of three players' points in every board-game round and compute their totals"),
   choose("One running score with plus and minus, without any round or player records", "Counter"),
   write("Anna and Ben play two rounds: First has 4 and -2 points, Second has not been played. Higher total wins; no sharing."),
+  {
+    ...write("Anna and Ben play two rounds: First has 4 and -2 points, Second is unplayed. Show only the selected round's score column at a time, with controls to switch rounds and both rounds kept in the data."),
+    variant: { axis: "overflow", value: "page" },
+  },
   read("Change Anna's score in round one", { address: "s1/r1/score", action: "set" }),
   read("Reset the round scores", { address: "s1/reset", action: "press" }),
 ] satisfies Probe[];
 
 type SheetProps = Props<typeof props, typeof meta> & { cells: { id: string }[] };
 type Labels = ReturnType<typeof playWordsFor>["scoreLabels"];
-
 // The presentation can pin another round without ever reordering the underlying score addresses.
 // prettier-ignore
 function ScoreTable({ input, selected, loading, readonly }: {
   input: SheetProps; selected: number; loading: boolean; readonly: boolean;
 }) {
   const { lang, words } = useWords(playWordsFor), labels = words.scoreLabels;
-  const { players, rounds, cells, style } = input;
+  const { players, rounds, cells, overflow } = input;
   const { players: totals } = scoreCopy(input, lang);
-  const visible = [selected, ...rounds.flatMap((_, index) => style === "grid" && index !== selected ? [index] : [])];
+  const visible = [selected, ...rounds.flatMap((_, index) => overflow === "all" && index !== selected ? [index] : [])];
   const cellId = (round: number, player: number) => cells[round * players.length + player]!.id;
   const columns = visible.map((round) => ({
     id: roundKey(round), label: rounds[round]!.label,
@@ -161,7 +162,6 @@ function ScoreTable({ input, selected, loading, readonly }: {
       {line("label", labels.player, "muted")}{line("label", labels.total, "muted", "end")}
     </KitGrid></KitRow>} />;
 }
-
 // prettier-ignore
 function ScoreActions({ share, loading, labels }: {share: boolean; loading: boolean; labels: Labels}) {
   if (loading) return <KitGrid>
@@ -174,18 +174,18 @@ function ScoreActions({ share, loading, labels }: {share: boolean; loading: bool
     <KitAction kind="secondary" label={labels.share} part="share" full />
   </KitGrid>;
 }
-
 // prettier-ignore
 export function ScoreSheet(input: SheetProps) {
   const state = useComponentState();
   const { lang, words: { scoreLabels: labels } } = useWords(playWordsFor);
+  const density = useVariant("density", meta.variants.density, input.density);
   const loading = state === "loading", active = state === "filled";
   const selected = Number(input.selectedRound) - 1;
   if (state === "empty")
-    return <KitCard part="root" padded><KitEmpty part="empty" decorativeIcon /></KitCard>;
+    return <KitCard part="root" padded density={density}><KitEmpty part="empty" decorativeIcon /></KitCard>;
   const { progress } = scoreCopy(input, lang);
-  return <KitCard part={state === "success" ? "root" : "sheet"} padded>
-    <KitContent>
+  return <KitCard part={state === "success" ? "root" : "sheet"} padded density={density}>
+    <KitContent density={density}>
       {loading ? <KitSkeleton shape="figure" inset="none" content={[["heading", labels.title], ["caption", progress]]} /> :
         <><KitText role="heading" part="title">{labels.title}</KitText>
           <KitText role="caption" tone="muted" part="progress">{progress}</KitText></>}

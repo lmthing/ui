@@ -1,66 +1,53 @@
 import { z } from "zod";
+// prettier-ignore
 import {
-  itemsOf,
-  photo,
-  placeholderTitle,
-  probesFor,
-  sessionAvailable,
-  sessionKey,
-  sessionState,
-  text,
-  thingOf,
-  titleOf,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-  type SessionState,
+  itemsOf, photo, placeholderTitle, probesFor, sessionAvailable, sessionKey, sessionState,
+  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props, type SessionState,
 } from "../../../catalog";
 import * as kit from "../../../kit";
 import { turnOrderLines } from "../copy";
 import { playWordsFor } from "../lang";
 // Core first: People/default cannot track a game turn cursor, laps, skips or reversed direction.
+// prettier-ignore
 export const meta = {
-  id: "TurnOrder",
-  status: "ready",
-  group: "data",
+  id: "TurnOrder", status: "ready", group: "data",
   purpose: "Track the current game player, lap and direction with next, skip and reverse.",
   pick: "Game turns, laps and play direction. Not a plain roster (People), scheduled events (Timeline), or rotating household duties (Turns).",
   writeHints: [
     "first is a zero-based index into players. Optional laps bounds the game; omit it for open-ended rotation. Never write current player, lap, completed turns or skips.",
+    'Use detail "brief" only when asked to hide the lap and direction line. Leave unrequested axes null.',
   ],
-  region: "body",
-  weight: 2,
-  tier: "phone",
+  region: "body", weight: 2, tier: "phone",
   confirmParts: ["restart"],
   realPath: "An ordered roster and turn events live on one device without accounts or remote replies.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["lap"] } },
   items: { key: "players", parts: ["root", "name", "photo"] },
   parts: ["root", "current", "lap", "next", "skip", "reverse", "restart"],
   states: ["filled", "loading", "success"],
   session: {
-    kind: "turns",
-    items: "players",
-    first: "first",
-    direction: "direction",
-    laps: "laps",
-    next: "next",
-    skip: "skip",
-    reverse: "reverse",
-    restart: "restart",
+    kind: "turns", items: "players", first: "first", direction: "direction", laps: "laps",
+    next: "next", skip: "skip", reverse: "reverse", restart: "restart",
   },
   actions: { parts: { next: ["press"], skip: ["press"], reverse: ["press"], restart: ["press"] } },
   successActions: ["restart.press"],
-  read: (input, state, lang) => {
+  read: (input, state, lang): string[] => {
     const value = input as z.output<typeof props> & { [sessionKey]?: SessionState };
     const current = value[sessionKey];
     if (current?.kind !== "turns") return [];
     const { status, player, lap } = turnOrderLines(value, current, state === "success", lang);
     const words = playWordsFor(lang).turnOrder;
-    return [status, player, lap, ...availableParts(current, state === "success").map((part) => words[part])];
+    return [
+      status,
+      player,
+      ...(value.detail === "brief" ? [] : [lap]),
+      ...availableParts(current, state === "success").map((part) => words[part]),
+    ];
   },
 } as const satisfies Meta;
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     players: z
       .array(z.strictObject({ name: text(24), photo: photo.optional() }))
       .min(2)
@@ -89,12 +76,19 @@ export const examples = [
     style: "ring",
   },
   { players: [{ name: "Jo" }, { name: "Lee" }], first: 1, direction: "reverse", style: "queue" },
+  { players: [{ name: "Kim" }, { name: "Jo" }], first: 0, detail: "brief", density: "compact" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("TurnOrder");
 export const probes = [
   choose("Show whose game turn it is, advance or skip a turn, reverse order and stop after two laps"),
   choose("Show a plain roster of people with names and photos, without a turn cursor or game laps", "People"),
   write("Anna, Ben and Sam take turns for two laps; Ben starts, forward direction, displayed as a queue"),
+  {
+    ...write(
+      "Anna, Ben and Sam take turns for two laps. Hide the lap and direction line; keep the roster and turn controls.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Move to the next player's turn", { address: "t1/next", action: "press" }),
   read("Reverse the following play order", { address: "t1/reverse", action: "press" }),
 ] satisfies Probe[];
@@ -107,8 +101,14 @@ function PlayerAvatar({ player: { photo, name } }: { player: Setup["players"][nu
   const image = photo && photo !== "lib:people" ? { photo } : { initials: Array.from(name)[0]! };
   return <kit.KitPhoto {...image} shape="round" part="photo" label={name} />;
 }
-type Actions = { current: Turns; loading: boolean; success: boolean; queue: boolean };
-function TurnActions({ current, loading, success, queue }: Actions) {
+type Actions = {
+  current: Turns;
+  loading: boolean;
+  success: boolean;
+  queue: boolean;
+  density: Setup["density"];
+};
+function TurnActions({ current, loading, success, queue, density }: Actions) {
   const { KitAction, KitContent, KitGrid, KitRow, KitSkeleton, KitText } = kit;
   const { words } = kit.useWords(playWordsFor);
   const controls = availableParts(current, success).map((part) => {
@@ -122,7 +122,7 @@ function TurnActions({ current, loading, success, queue }: Actions) {
     const role = loading ? "text" : "button";
     const target = { role, part: loading ? null : part, label: loading ? "" : label } as const;
     return (
-      <KitRow key={part} {...target} surface="outlined" inline>
+      <KitRow key={part} {...target} surface="outlined" inline density={density}>
         <KitContent inset="md">
           {loading ? (
             <KitSkeleton shape="figure" centered inset="none" content={[["label", label]]} />
@@ -136,17 +136,19 @@ function TurnActions({ current, loading, success, queue }: Actions) {
   if (success) return controls;
   const group = queue ? "response" : "content";
   return (
-    <KitContent group={group}>
-      <KitContent group={group}>
-        <KitGrid>{controls}</KitGrid>
+    <KitContent group={group} density={density}>
+      <KitContent group={group} density={density}>
+        <KitGrid density={density}>{controls}</KitGrid>
       </KitContent>
     </KitContent>
   );
 }
 
+// prettier-ignore
 export function TurnOrder(setup: Setup) {
   const { KitContent, KitOrbit, KitSkeleton, KitText } = kit;
-  const { players, style } = setup;
+  const { players, style, detail: shown } = setup;
+  const density = kit.useVariant("density", meta.variants.density, setup.density);
   const { screen, component } = kit.usePartContext();
   const { lang } = kit.useWords(playWordsFor);
   const state = kit.useComponentState();
@@ -161,25 +163,22 @@ export function TurnOrder(setup: Setup) {
   const hero = { role: "title", tone: "text" } as const;
   const detail = { role: "label", tone: "muted" } as const;
   const count = { role: "number", numberScale: "compact", tone: "muted" } as const;
-  const loadingLines: Parameters<typeof KitSkeleton>[0]["content"] = [
-    ["label", status],
-    ["title", player],
-    ["number", lap, "center", "compact"],
-  ];
+  const loadingLines: NonNullable<Parameters<typeof KitSkeleton>[0]["content"]> = [["label", status], ["title", player]];
+  if (shown !== "brief") loadingLines.push(["number", lap, "center", "compact"]);
   return (
-    <KitContent>
-      <KitContent align="center">
+    <KitContent density={density}>
+      <KitContent align="center" density={density}>
         {loading ? (
           <KitSkeleton shape="figure" centered inset="none" content={loadingLines} />
         ) : (
           <>
             <KitText {...(success ? hero : detail)} align="center" part={null} children={status} />
             <KitText {...(success ? detail : hero)} align="center" part="current" children={player} />
-            <KitText {...count} align="center" part="lap" children={lap} />
+            {shown !== "brief" && <KitText {...count} align="center" part="lap" children={lap} />}
           </>
         )}
       </KitContent>
-      <KitContent group="response">
+      <KitContent group="response" density={density}>
         <KitOrbit
           part="root"
           nodes={players.map((player) => ({
@@ -194,7 +193,7 @@ export function TurnOrder(setup: Setup) {
           namePart
         />
       </KitContent>
-      <TurnActions current={current} loading={loading} success={success} queue={style === "queue"} />
+      <TurnActions {...{ current, loading, success, density }} queue={style === "queue"} />
     </KitContent>
   );
 }

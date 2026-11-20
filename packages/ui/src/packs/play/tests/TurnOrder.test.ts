@@ -12,7 +12,6 @@ import {
 import { createScreenController } from "@lmthing/ui/kit";
 import type { input } from "zod";
 import { addressedElements, renderInstance } from "../../../../test/render";
-
 const { props, meta, examples, fallback, probes } = components.TurnOrder;
 type Setup = input<typeof props>;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
@@ -22,11 +21,9 @@ const confirm = { address: "confirm/confirm", action: "press" };
 const cancel = { address: "confirm/cancel", action: "dismiss" };
 const controls = ["next", "skip", "reverse", "restart"];
 const turnControls = controls.slice(0, 3);
-
 function render(setup: Setup, state: StateName) {
   return addressedElements(renderInstance("TurnOrder", setup, state, theme, { component: "t1" }));
 }
-
 function game(setup: Setup, state: StateName = "filled") {
   const onAction = vi.fn();
   const screen = { id: "home", components: [{ ...setup, id: "t1", c: "TurnOrder", state }] };
@@ -34,7 +31,6 @@ function game(setup: Setup, state: StateName = "filled") {
   const progress = () => sessionState(meta, props.parse(setup), (part) => runtime.store.get(address(part)));
   return { runtime, progress, onAction };
 }
-
 describe("TurnOrder contract and boundaries", () => {
   it.each(examples)("accepts the domain example", (example) => {
     expect(props.safeParse(example).success).toBe(true);
@@ -47,6 +43,7 @@ describe("TurnOrder contract and boundaries", () => {
       first: 0,
       direction: "forward",
       style: "ring",
+      detail: "full",
     });
     const full = Array.from({ length: 6 }, () => ({ name: "n".repeat(24), photo: "local:1" }));
     expect(props.safeParse({ players: full, first: 5, laps: 12 }).success).toBe(true);
@@ -78,7 +75,8 @@ describe("TurnOrder contract and boundaries", () => {
   ])("rejects invalid, derived, or unknown fields", (input) => {
     expect(props.safeParse({ ...examples[0], ...input }).success).toBe(false);
   });
-
+});
+describe("TurnOrder probes", () => {
   it("keeps the phone tier, core-first probes, and pack readiness gate", () => {
     expect(meta.tier).toBe("phone");
     expect(meta.realPath).not.toBe("");
@@ -88,6 +86,7 @@ describe("TurnOrder contract and boundaries", () => {
       expect.objectContaining({ kind: "choose", expect: "TurnOrder" }),
       expect.objectContaining({ kind: "choose", expect: "People" }),
       expect.objectContaining({ kind: "write", expect: "TurnOrder" }),
+      expect.objectContaining({ kind: "write", variant: { axis: "detail", value: "brief" } }),
       expect.objectContaining({ kind: "read", expect: press("next") }),
       expect.objectContaining({ kind: "read", expect: press("reverse") }),
     ]);
@@ -116,7 +115,8 @@ describe("TurnOrder states and parts", () => {
       const parts = render(setup, "filled");
       expect(parts.has(address("root"))).toBe(true);
       expect(parts.get(address("current"))?.text).toEqual([setup.players[setup.first ?? 0]!.name]);
-      expect(parts.get(address("lap"))?.text.join("")).toMatch(/^Lap 1/);
+      if ("detail" in setup) expect(parts.has(address("lap"))).toBe(false);
+      else expect(parts.get(address("lap"))?.text.join("")).toMatch(/^Lap 1/);
       setup.players.forEach((player, index) => {
         const item = `r${index + 1}`;
         expect(parts.get(address(`${item}/name`))?.text).toEqual([player.name]);
