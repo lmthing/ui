@@ -5,6 +5,7 @@ import {
   accents,
   components,
   emptyLine,
+  isDeviceDataVisible,
   loadingLabel,
   presets,
   stampItemIds,
@@ -15,8 +16,9 @@ import {
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
-import { config, renderInstance } from "./render";
+import { addressedElements, config, renderInstance } from "./render";
 import { selectedIds } from "../scripts/build";
+import { exampleDeviceData } from "../src/catalog/probes/fixtures";
 import { peekForExample } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
@@ -66,7 +68,7 @@ describe("themes", () => {
 
 describe.each(ready)("%s conformance", (id) => {
   const { meta, examples } = components[id];
-  const states = (meta as { states?: readonly string[] }).states ?? ["filled"];
+  const states = (meta as Meta).states ?? ["filled"];
   const items = (meta as Meta).items;
 
   it.each(presets.flatMap((preset) => modes.map((mode) => ({ preset: preset.id, mode }))))(
@@ -75,15 +77,18 @@ describe.each(ready)("%s conformance", (id) => {
       const theme = { preset, mode, accent: accents[0]!.id } as ThemeChoice;
       for (const example of examples) {
         for (const state of states) {
-          const html = renderInstance(id, example, state as never, theme, "walk");
+          const input = components[id].props.parse(example) as Record<string, unknown>;
+          const deviceData = exampleDeviceData(meta, input, state);
+          const html = renderInstance(id, example, state, theme, { thing: "walk", deviceData });
+          if (!isDeviceDataVisible(meta, deviceData)) {
+            expect(addressedElements(html).size).toBe(0);
+            continue;
+          }
           expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
           if (state === "empty") expect(html).toContain(emptyLine("walk"));
           if (state === "loading") expect(html).toContain(loadingLabel);
           if (state === "filled" && items) {
-            const props = stampExampleItems(
-              meta,
-              components[id].props.parse(example) as Record<string, unknown>,
-            );
+            const props = stampExampleItems(meta, input);
             const rows = props[items.key] as { id: string }[];
             const { hidden, issues } = peekForExample(meta, props, html);
             expect(issues).toEqual([]);

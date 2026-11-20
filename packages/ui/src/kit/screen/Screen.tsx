@@ -1,10 +1,10 @@
 import { useWords, useKit } from "../provider";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useContext } from "react";
 import { YStack } from "tamagui";
-import { checkScreen, type Issue } from "../../catalog";
+import { checkScreen, filterDeviceDataScreen, type Issue } from "../../catalog";
 import { KitAction, KitSheet, KitOverlay } from "../base";
 import { PartScope } from "../part";
-import type { ScreenController } from "../interact";
+import { DeviceDataContext, type ScreenController } from "../interact";
 import { ScreenContent, ScreenSheet } from "./screen-parts";
 
 export type RendererMap = Record<string, (props: never) => React.ReactNode>;
@@ -24,7 +24,9 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
     const timer = setTimeout(() => onReport?.(checkScreen(screen, components)), 150);
     return () => clearTimeout(timer);
   }, [fingerprint, components, onReport]);
-  const sheet = screen.components.find((entry) => entry.id === controller.openSheet);
+  const data = useContext(DeviceDataContext) ?? controller.deviceData;
+  const visible = filterDeviceDataScreen(screen, components, data);
+  const sheet = visible.components.find((entry) => entry.id === controller.openSheet);
   const dismiss = useCallback(() => {
     controller.act(
       controller.confirmation
@@ -37,12 +39,12 @@ export function Screen({ controller, renderers, onReport }: ScreenProps) {
       <ScreenContent
         controller={controller}
         renderers={renderers}
-        screen={screen}
+        screen={visible}
         covered={Boolean(sheet || confirmation)}
       />
       {sheet && !confirmation && (
         <KitOverlay label={String(sheet.title)} onDismiss={dismiss}>
-          <ScreenSheet controller={controller} renderers={renderers} screen={screen} />
+          <ScreenSheet controller={controller} renderers={renderers} screen={visible} />
         </KitOverlay>
       )}
       {confirmation && (

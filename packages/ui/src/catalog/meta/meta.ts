@@ -137,7 +137,9 @@ export type Meta = {
   live?: LiveActionInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
-  /** Deterministic synthetic records for gallery and look cells only. */
+  /** Pure visibility rule over the declared host records. A false result hides the whole component. */
+  deviceDataVisible?: (data: DeviceData) => boolean;
+  /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
   previewDeviceData?: (cell: { input: Readonly<Record<string, unknown>>; state: StateName }) => DeviceData;
   parts?: readonly string[];
   states?: readonly StateName[];

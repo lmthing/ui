@@ -6,6 +6,7 @@ import {
   sessionKey,
   staleSession,
   migrateScreen,
+  filterDeviceDataScreen,
   resolveDefinition,
   type ActStep,
   type Definition,
@@ -102,6 +103,13 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
+function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string | undefined) {
+  return (
+    visible !== screen &&
+    screen.components.some(({ id }) => id === sheet) &&
+    !visible.components.some(({ id }) => id === sheet)
+  );
+}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs } = options;
   const screen = controllerScreen(options, standalone);
@@ -124,9 +132,10 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ),
         };
   const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    if (standalone) return screen;
-    const projected = projectScreen(screen, defs, values, at, sheet, false, false);
-    return covered
+    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
+    if (standalone) return visible;
+    const projected = projectScreen(visible, defs, values, at, sheet, false, false);
+    return covered && !hostHidesSheet(screen, visible, sheet)
       ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
       : projected;
   };

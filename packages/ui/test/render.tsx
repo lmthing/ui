@@ -3,13 +3,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider, createTamagui, createTokens } from "tamagui";
 import {
   components,
+  isDeviceDataVisible,
   stampItemIds,
   themeName,
   type ComponentName,
+  type DeviceData,
   type StateName,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitProvider, PartScope, kitFonts, kitThemes, kitTokens, renderers } from "@lmthing/ui/kit";
+import {
+  createScreenController,
+  KitProvider,
+  PartScope,
+  kitFonts,
+  kitThemes,
+  kitTokens,
+  renderers,
+} from "@lmthing/ui/kit";
+import { exampleDeviceData } from "../src/catalog/probes/fixtures";
 
 export const config = createTamagui({
   tokens: createTokens(kitTokens),
@@ -31,6 +42,7 @@ export type RenderOptions = {
   component?: string;
   disableRootThemeClass?: boolean;
   resolvePhoto?: (reference: string) => string | undefined;
+  deviceData?: DeviceData | undefined;
 };
 
 export function renderInstance(
@@ -46,17 +58,33 @@ export function renderInstance(
     component = "c1",
     disableRootThemeClass = false,
     resolvePhoto,
+    deviceData,
   } = typeof options === "string" ? { thing: options } : options;
   const def = components[id];
   const View = renderers[id as keyof typeof renderers] as (props: object) => React.ReactNode;
-  const props = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
+  const parsed = def.props.parse(input) as Record<string, unknown>;
+  const data = deviceData ?? exampleDeviceData(def.meta, parsed, state);
+  if (!isDeviceDataVisible(def.meta, data)) return "";
+  const controller = data
+    ? createScreenController({
+        screen: { id: "home", components: [{ ...parsed, c: id, id: component, state }] },
+        defs: { [id]: def },
+        deviceData: data,
+      })
+    : undefined;
+  const props = stampItemIds(def.meta, parsed);
   return renderToStaticMarkup(
     <TamaguiProvider
       config={config}
       defaultTheme={themeName(theme)}
       disableRootThemeClass={disableRootThemeClass}
     >
-      <KitProvider theme={theme} lang={lang} {...(resolvePhoto ? { resolvePhoto } : {})}>
+      <KitProvider
+        theme={theme}
+        lang={lang}
+        {...(controller ? { controller } : {})}
+        {...(resolvePhoto ? { resolvePhoto } : {})}
+      >
         <PartScope screen="home" component={component} rev={1} state={state} {...(thing ? { thing } : {})}>
           <View {...props} />
         </PartScope>

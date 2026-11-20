@@ -4,6 +4,7 @@ import { expect, it, vi } from "vitest";
 import { z } from "zod";
 import {
   components,
+  readComponent,
   themeName,
   type Definition,
   type DeviceData,
@@ -11,6 +12,8 @@ import {
 } from "@lmthing/ui/catalog";
 import {
   createAgentAccess,
+  createScreenController,
+  KitAction,
   KitProvider,
   KitText,
   PartScope,
@@ -20,6 +23,7 @@ import {
 } from "@lmthing/ui/kit";
 import { createPreviewController, previewComponent } from "../../../../../apps/gallery/app/draw";
 import { config } from "../../../test/render";
+import { exampleDeviceData } from "../../catalog/probes/fixtures";
 import { PhoneScreen } from "./PhoneScreen";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } satisfies ThemeChoice;
@@ -124,3 +128,59 @@ it("uses deterministic, state-specific out-of-band fixtures for the shared galle
   );
   expect(html).toContain("Record: 2");
 });
+
+it.each(["filled", "empty"] as const)(
+  "uses the same host gate in %s preview, read and phone actions",
+  (state) => {
+    const id = "Fixture";
+    const def: Definition = {
+      ...defs.DeviceFixture,
+      meta: {
+        ...defs.DeviceFixture.meta,
+        id,
+        deviceDataVisible: (data) => Boolean(data.readings?.length),
+        actions: { parts: { root: ["press"] } },
+      },
+      props: z.strictObject({ value: z.number(), goto: z.string() }),
+    };
+    const raw = { ...input, goto: "detail" };
+    const deviceData = exampleDeviceData(def.meta, raw, state);
+    const preview = createPreviewController(def, raw, "frame_gate", { state })!;
+    expect(preview.deviceData).toEqual(deviceData);
+    const action = { address: "f1", action: "press" };
+    const scoped = { [id]: def };
+    // Keep the wire state filled: only the host records change across the two cases.
+    const screen = { id: "home", components: [{ ...raw, c: id, id: action.address }] };
+    const View = vi.fn(() => <KitAction label="Open" part="root" />);
+    const html = renderToStaticMarkup(
+      <TamaguiProvider config={config} defaultTheme={themeName(theme)}>
+        <PhoneScreen
+          screen={screen}
+          defs={scoped}
+          renderers={{ [id]: View }}
+          theme={theme}
+          deviceData={deviceData}
+        />
+      </TamaguiProvider>,
+    );
+    const controller = createScreenController({ screen, defs: scoped, deviceData });
+    const lines = readComponent(def, raw, "f1", "filled", {}, undefined, deviceData);
+    if (state === "empty") {
+      expect(html).not.toContain('data-testid="home/f1/root"');
+      expect(View).not.toHaveBeenCalled();
+      expect(lines).toEqual([]);
+      expect(controller.read()).toBe("screen home\n");
+      expect(controller.actionsAt(action.address)).toEqual([]);
+      expect(controller.press(action.address)).toMatchObject({ ok: false, code: "not_actionable" });
+      expect(controller.act(action)).toMatchObject({ ok: false, code: "not_actionable" });
+    } else {
+      expect(html).toContain('data-testid="home/f1/root"');
+      expect(lines.join("\n")).toContain("[f1 press");
+      expect(controller.read()).toContain("[f1 press");
+      expect(controller.actionsAt(action.address)).toEqual(["press"]);
+      expect(controller.press(action.address)).toMatchObject({ ok: true });
+    }
+    expect(controller.snapshotScreen()).toEqual(screen);
+    controller.dispose();
+  },
+);

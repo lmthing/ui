@@ -37,11 +37,18 @@ it("reads the committed host records while a newer phone render is suspended", a
       await page.waitForFunction(() => document.body.dataset.attempted === "true");
       expect(await view.innerText()).toBe("Before");
       expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Fixture Before");
+      expect(await page.getByTestId("home/c2/root").isVisible()).toBe(true);
+      const press = () =>
+        page.evaluate(() => window.__lmthingUI!.act({ address: "c2", action: "press" }, { dryRun: true }));
+      expect(await press()).toMatchObject({ ok: true });
 
       await page.getByRole("button", { name: "Finish rendering" }).click();
       await view.filter({ hasText: "After" }).waitFor();
+      expect(await page.getByTestId("home/c2/root").count()).toBe(0);
+      expect(await press()).toMatchObject({ ok: false, code: "not_actionable" });
       expect(await page.evaluate(() => window.__lmthingUI!.read())).toContain("Fixture After");
       expect(await page.evaluate(() => document.body.dataset.layoutRead)).toContain("Fixture After");
+      expect(await page.evaluate(() => document.body.dataset.layoutRead)).not.toContain("GatedFixture");
       expect(await page.evaluate((previous) => window.__lmthingUI === previous, agent)).toBe(true);
     } finally {
       await browser.close();

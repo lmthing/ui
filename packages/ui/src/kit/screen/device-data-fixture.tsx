@@ -9,12 +9,18 @@ import {
   type DeviceData,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { KitText, useDeviceData, useKit } from "@lmthing/ui/kit";
+import { KitAction, KitText, useDeviceData, useKit } from "@lmthing/ui/kit";
 import { config } from "../../../../../apps/gallery";
 import { PhoneScreen } from "./PhoneScreen";
 
 const theme = { preset: "calm", accent: "moss", mode: "light" } satisfies ThemeChoice;
-const screen = { id: "home", components: [{ id: "c1", c: "Fixture" }] };
+const screen = {
+  id: "home",
+  components: [
+    { id: "c1", c: "Fixture" },
+    { id: "c2", c: "GatedFixture", goto: "detail" },
+  ],
+};
 const before = { readings: ["Before"] };
 const after = { readings: ["After"] };
 let release = () => {};
@@ -33,6 +39,16 @@ const defs = {
       read: (_input, _state, _lang, data) => [labelOf(data)],
     },
   } satisfies Definition,
+  GatedFixture: {
+    ...components.Button,
+    props: z.strictObject({ goto: z.string() }),
+    meta: {
+      ...components.Button.meta,
+      id: "GatedFixture",
+      deviceData: ["readings"],
+      deviceDataVisible: (data) => labelOf(data) === "Before",
+    },
+  } satisfies Definition,
 };
 
 function Fixture() {
@@ -47,7 +63,7 @@ function Fixture() {
   }
   return <KitText>{label}</KitText>;
 }
-const renderers = { Fixture };
+const renderers = { Fixture, GatedFixture: () => <KitAction label="Open" part="root" /> };
 
 function Scenario() {
   const [deviceData, setDeviceData] = useState(before);
