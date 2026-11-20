@@ -1,4 +1,4 @@
-import { useVariant, useWords, KitAction, KitCard, KitContent, KitText } from "../kit";
+import { useVariant, useWords, KitAction, KitCard, KitContent, KitGrid, KitText } from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -153,6 +153,8 @@ export function Timer(input: Props<typeof props, typeof meta>) {
   const controls = style !== "until";
   const value = controls ? timerLine(input, lang) : leftLine(untilMs(input), lang);
   const [amount, ...suffix] = value.split(" ");
+  const start = <KitAction label={timerLabels.start} kind="primary" part="start" full />;
+  const stop = <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />;
   return (
     <KitCard style="inset" part="root" padded density={density}>
       <KitContent density={density}>
@@ -166,8 +168,18 @@ export function Timer(input: Props<typeof props, typeof meta>) {
           {label}
         </KitText>
       </KitContent>
-      {controls && <KitAction label={timerLabels.start} kind="primary" part="start" full />}
-      {controls && <KitAction label={timerLabels.stop} kind="secondary" part="stop" full />}
+      {controls &&
+        (density === "compact" ? (
+          <KitGrid columns={2} density={density}>
+            {start}
+            {stop}
+          </KitGrid>
+        ) : (
+          <>
+            {start}
+            {stop}
+          </>
+        ))}
     </KitCard>
   );
 }
