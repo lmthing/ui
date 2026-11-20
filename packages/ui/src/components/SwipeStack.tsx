@@ -91,6 +91,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 const dogChoices = [
   { title: "Clover", photo: "lib:dogs", meta: "Ready for a group walk" },
   { title: "Pip", photo: "lib:dogs", meta: "Gentle park companion" },
+  { title: "Milo", meta: "Loves the riverside" },
 ] as const;
 export const examples = [
   {
@@ -100,9 +101,7 @@ export const examples = [
       { title: "Basil" },
     ],
   },
-  {
-    cards: [...dogChoices, { title: "Milo", meta: "Loves the riverside" }],
-  },
+  { cards: [...dogChoices] },
   { cards: [{ title: "Aloe" }, { title: "Pothos" }] },
   { detail: "brief", cards: [...dogChoices] },
   { media: "none", cards: [...dogChoices] },
@@ -145,7 +144,7 @@ export function SwipeStack({ cards, density: requestedDensity }: Props<typeof pr
             <KitCard style="plain" part="title" density={density} padded>
               {card.photo && <KitPhoto photo={card.photo} shape="wide" part="photo" label={card.title} />}
               <KitContent density={density}>
-                <KitText role="heading" part={null} density={density}>
+                <KitText role="heading" part={null} density="comfortable">
                   {card.title}
                 </KitText>
                 {card.meta && (
