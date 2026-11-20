@@ -6,3 +6,4 @@
 `Warranties.test.ts` covers purchase bounds, expiry, addressed rows and opening records.
 `Wishlist.test.ts` covers wish bounds, visible fields, row presses and acquisition confirmation.
 `Listing.test.ts` covers listing bounds, price and property parts, loading, contact and saving.
+`Request.test.ts` covers repair bounds, addressed updates, landlord status changes and completion.
