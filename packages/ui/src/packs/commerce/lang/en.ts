@@ -5,6 +5,16 @@ export type CommerceWords = {
   emptyProducts: string;
   orderComplete: string;
   priceChange: (was: string, price: string) => string;
+  product: {
+    stock: (count: string) => string;
+    stockField: string;
+    soldOut: string;
+    quantity: (count: string) => string;
+    save: string;
+    unsave: string;
+    add: string;
+    added: string;
+  };
   checkout: {
     fulfillment: string;
     payment: string;
@@ -36,6 +46,16 @@ export const en = {
   emptyProducts: "No products to show",
   orderComplete: "Order complete",
   priceChange: (was, price) => `${was} → ${price}`,
+  product: {
+    stock: (count) => `Only ${count} left`,
+    stockField: "stock",
+    soldOut: "Sold out",
+    quantity: (count) => `Quantity: ${count}`,
+    save: "Save for later",
+    unsave: "Remove from saved items",
+    add: "Add to basket",
+    added: "Added to basket",
+  },
   checkout: {
     fulfillment: "Fulfillment",
     payment: "Payment",
