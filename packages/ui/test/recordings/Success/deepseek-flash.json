@@ -615,11 +615,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\",\"undo\":false}",
+    "reply": "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\",\"undo\":true}",
     "replies": [
-      "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\",\"undo\":false}",
-      "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked\",\"sub\":\"Clover · Tomorrow 09:00\",\"icon\":\"circle_check\",\"undo\":false}",
-      "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked\",\"sub\":\"Clover · Tomorrow, 09:00\",\"icon\":\"circle_check\",\"undo\":true}"
+      "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked for Clover\",\"sub\":\"Tomorrow at 09:00\",\"icon\":\"check\",\"undo\":true}",
+      "{\"c\":\"Success\",\"style\":\"toast\",\"title\":\"Walk booked\",\"sub\":\"Clover · Tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":true}",
+      "{\"c\":\"Success\",\"style\":\"screen\",\"title\":\"Booking confirmed\",\"sub\":\"Clover, tomorrow at 09:00\",\"icon\":\"circle_check\",\"undo\":false}"
     ]
   },
   "f9785a0dd3954aee": {
