@@ -3,10 +3,16 @@ import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
 import { affordancesOf, type Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
-import { resolveKeypadValue, selectionOffer, validateActionValue } from "./validate-value";
-import { selectionAt, selectionChanges, selectionError } from "./selection";
-import { projectAdjustments } from "./clocks";
-import { controlsAreValid, keypadInput, nestedSpec, numericStep, stageValue } from "./action-input";
+import { resolveKeypadValue, validateActionValue } from "./validate-value";
+import {
+  controlsAreValid,
+  keypadInput,
+  localValues,
+  nestedSpec,
+  numericStep,
+  selectStep,
+  stageValue,
+} from "./action-input";
 import {
   deviceRandom,
   drawKey,
@@ -29,12 +35,6 @@ export type ActResult =
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
 
-function localValues(screen: string, values: Values): Values {
-  return Object.fromEntries(
-    Object.entries(values).map(([address, value]) => [address.replace(`${screen}/`, ""), value]),
-  );
-}
-
 function liveInput(def: Definition, input: Values, id: string, local: Values) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true);
@@ -46,12 +46,14 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
-    const { draw, emptyActions, session, successActions, items } = def.meta;
+    const { draw, emptyActions, session, successActions, readSuccess, items } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
     const liveState =
       (props.state as typeof state) ??
-      (draw || emptyActions || session || successActions?.length || policy ? state : undefined);
+      (draw || emptyActions || session || successActions?.length || readSuccess || policy
+        ? state
+        : undefined);
     return affordancesOf(def.meta, props, id, local, liveState, true);
   });
 }
@@ -87,8 +89,15 @@ function stageProgress(
   const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const props = liveInput(def, raw, entry.id, localValues(screen.id, next));
   if (event) {
-    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(def.meta, props, get, event);
-    return "";
+    next[`${screen.id}/${id}/${sessionKey}`] = advanceSession(
+      def.meta,
+      props,
+      get,
+      event,
+      target,
+      step.value,
+    );
+    return event === "answer" ? ` = ${JSON.stringify(step.value)}` : "";
   }
   if (!role) return;
   const outcome = performDraw(def.meta, props, get, role, target, step.value, random ?? (() => 0));
@@ -97,40 +106,6 @@ function stageProgress(
   const value =
     role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
   return ` = ${JSON.stringify(value)}`;
-}
-
-function selectStep(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  step: ActStep,
-  address: string,
-  values: Values,
-) {
-  if (step.action !== "select") return { step };
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  const target = parts.join("/") || "root";
-  const offer = def && selectionOffer(def.meta, target);
-  if (!def || (!def.meta.select && !offer)) return { step };
-  const { id: _id, c: _c, state: _state, ...raw } = entry!;
-  const get = (part: string) => values[`${screen.id}/${id}/${part}`];
-  let props = parseControlProps(def, raw, get);
-  if (Object.hasOwn(def.meta.selections ?? {}, target))
-    props = liveProps(def.meta, props, id!, localValues(screen.id, values), true);
-  else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
-  const error = selectionError(def.meta, props, target, step.value);
-  return {
-    step: { ...step, value: selectionAt(def.meta, props, target, step.value)?.value },
-    error,
-    declared: Boolean(offer),
-    changes: Object.fromEntries(
-      Object.entries(selectionChanges(def.meta, props, target, step.value)).map(([part, value]) => [
-        `${screen.id}/${id}/${part}`,
-        value,
-      ]),
-    ),
-  };
 }
 
 /**
@@ -178,7 +153,7 @@ export function planAct(
     if (found.blocked && result.value !== false)
       return { ok: false, code: found.blocked, at, hint: "Turn off an active choice first" };
     try {
-      const progress = stageProgress(screen, defs, address, step, next, random);
+      const progress = stageProgress(screen, defs, address, { ...step, value: result.value }, next, random);
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;

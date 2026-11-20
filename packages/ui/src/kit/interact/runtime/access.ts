@@ -1,4 +1,11 @@
-import { wordsFor, affordancesOf, liveProps, parseAddress, parseControlProps } from "../../../catalog";
+import {
+  wordsFor,
+  affordancesOf,
+  liveProps,
+  parseAddress,
+  parseControlProps,
+  sessionEvent,
+} from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
@@ -83,10 +90,18 @@ function press(ctx: ControllerContext, act: Act, address: string) {
       ? ctx.store.get(ctx.key(local.split("/")[0]!, "play"))
         ? "pause"
         : "play"
-      : offered.find((item) => pressActions.includes(item));
+      : offered.find((item) => isPressAction(ctx, local, item));
   return action
     ? act({ address, action })
     : actionFailure(0, "not_actionable", "No press action at this address");
+}
+function isPressAction(ctx: ControllerContext, local: string, action: string) {
+  if (pressActions.includes(action)) return true;
+  if (action !== "flip") return false;
+  const [id, ...parts] = local.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return Boolean(meta && sessionEvent(meta, parts.join("/") || "root", action));
 }
 function read(ctx: ControllerContext) {
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
@@ -120,7 +135,7 @@ export function createAccess(ctx: ControllerContext, act: Act) {
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx),
     canPress: (address: string) =>
-      actionsAt(ctx, address).some((action) => pressActions.includes(action)) ||
+      actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
       (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
     edit(address: string, text: string) {
       const result = act({ address, action: "type", value: text });
