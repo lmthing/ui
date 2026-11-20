@@ -14,7 +14,7 @@ import {
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
-import type { DeviceData } from "./device-data";
+import { filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 
 export type ActStep = { address: string; action: string; value?: unknown };
@@ -125,11 +125,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
 ): ActResult {
-  const screen = migrateScreen(input, { variantOnly: true });
   if (random && steps.length > 1) {
     const preview = planAct(input, defs, values, steps, null, clockOwner, data);
     if (!preview.ok) return preview;
   }
+  const screen = filterDeviceDataScreen(migrateScreen(input, { variantOnly: true }), defs, data);
   const next: Values = { ...values };
   const changed: string[] = [];
   const links: Extract<ActResult, { ok: true }>["links"] = [];

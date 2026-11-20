@@ -1,14 +1,16 @@
+import { useContext } from "react";
 import { ScrollView, YStack } from "tamagui";
 import { KitMotion, KitPresence } from "../motion";
 import { PartScope } from "../part";
 import { useKit } from "../provider";
-import type { ScreenController } from "../interact";
+import { DeviceDataContext, type ScreenController } from "../interact";
 import {
   space,
   stampItemIds,
   sortByRegion,
   gapBetween,
   projectAdjustments,
+  isDeviceDataVisible,
   type ScreenLike,
 } from "../../catalog";
 import type { RendererMap } from "./Screen";
@@ -26,7 +28,9 @@ function ScreenEntry({
   const { id, c, state = "filled", ...input } = entry;
   const def = controller.defs[c];
   const View = renderers[c] as ((props: object) => React.ReactNode) | undefined;
-  if (!def || !View) return null;
+  const data = useContext(DeviceDataContext) ?? controller.deviceData;
+  // Presence can keep an old entry for its exit animation; a closed gate never keeps the view.
+  if (!def || !View || !isDeviceDataVisible(def.meta, data)) return null;
   const parsed = stampItemIds(def.meta, def.props.parse(input) as Record<string, unknown>);
   const props = projectAdjustments(def.meta, parsed, (part) =>
     controller.store.get(`${screen.id}/${id}/${part}`),
