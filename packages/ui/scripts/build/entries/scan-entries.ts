@@ -55,18 +55,15 @@ function valueExports(file: string, source: string, includeNamed = false): Value
 const exportedNames = (file: string, source: string) => valueExports(file, source).map(({ name }) => name);
 
 async function scanOverride(
-  folder: string,
+  door: string,
   files: string[],
+  exports: ValueExport[],
 ): Promise<{ source?: { file: string; name: string } } | undefined> {
-  const door = join(folder, "archetypes", "index.ts");
-  if (!files.includes(door)) return;
-  const declaration = valueExports(door, await readFile(door, "utf8"), true).find(
-    ({ name }) => name === overrideName,
-  );
+  const declaration = exports.find(({ name }) => name === overrideName);
   if (!declaration) return;
   if (!declaration.from) return {};
   const { path, name } = declaration.from;
-  const file = join(folder, "archetypes", `${path.replace(/\.[jt]s$/, "")}.ts`);
+  const file = join(door, "..", `${path.replace(/\.[jt]s$/, "")}.ts`);
   if (!/^\.\/[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[jt]s)?$/.test(path) || file === door || !files.includes(file))
     throw new Error(`${door}: ${overrideName} must re-export data from a sibling archetype file`);
   return { source: { file, name } };
@@ -88,7 +85,10 @@ async function packEntry(folder: string, id: PackId) {
   const meta = files.includes(join(folder, "pack.ts"));
   if (meta && !exportedNames("pack.ts", await readFile(join(folder, "pack.ts"), "utf8")).includes("pack"))
     throw new Error(`${folder}/pack.ts is missing export: pack`);
-  const override = await scanOverride(folder, files);
+  const door = join(folder, "archetypes", "index.ts");
+  const exports = files.includes(door) ? valueExports(door, await readFile(door, "utf8"), true) : [];
+  const override = await scanOverride(door, files, exports);
+  const composeProbes = exports.filter(({ from }) => from?.name === "probes").map(({ name }) => name);
   const archetypes = await Promise.all(
     files
       .filter((file) => {
@@ -122,7 +122,7 @@ async function packEntry(folder: string, id: PackId) {
   const example = files.includes(join(folder, "example.jsonl"))
     ? await readFile(join(folder, "example.jsonl"), "utf8")
     : undefined;
-  return { id, meta, archetypes: archetypes.flat(), overrides: Boolean(override), example };
+  return { id, meta, archetypes: archetypes.flat(), overrides: Boolean(override), composeProbes, example };
 }
 
 export async function scanEntries(root: string) {

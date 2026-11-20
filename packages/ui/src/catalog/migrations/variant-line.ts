@@ -57,6 +57,11 @@ function preserveRankedTrail(props: Line): Line {
 
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Slots: [{ from: "style", values: { grid: { arrange: "grid" }, list: { arrange: "rows" } } }],
+  ServiceMenu: [
+    { from: "style", values: { rows: { surface: "card" } } },
+    { from: "style", values: { cards: { surface: "card" } }, retainStyle: true },
+  ],
   List: [
     {
       from: "style",

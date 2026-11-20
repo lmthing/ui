@@ -15,12 +15,12 @@ export function slotEndLine(time: string, minutes: number, lang?: string): strin
 export function slotDetailLine(
   time: string,
   minutes: number,
-  style: "grid" | "list",
+  arrange: "grid" | "rows",
   taken: boolean,
   lang?: string,
 ): string {
   const { slotLabels } = bookingWordsFor(lang);
-  return style === "grid"
+  return arrange === "grid"
     ? taken
       ? slotLabels.taken
       : slotLabels.free

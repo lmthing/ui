@@ -1,4 +1,4 @@
-import { packKeyValueDefaults, type ArchetypeMeta } from "../../../catalog";
+import type { ArchetypeMeta } from "../../../catalog";
 
 export const recipe = {
   id: "recipe",
@@ -17,7 +17,7 @@ export const recipe = {
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "h2", c: "Hero", style: "photo" },
-        { id: "k1", c: "KeyValue", ...packKeyValueDefaults["recipe/overview"] },
+        { id: "k1", c: "KeyValue", arrange: "grid" },
         { id: "i1", c: "Ingredients" },
         { id: "b1", c: "Button" },
       ],

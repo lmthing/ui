@@ -6,10 +6,12 @@ import {
   runProbes,
   runPackProbes,
   packs,
+  packComposeProbes,
   packOf,
   runComposeProbes,
   variantAxes,
   type PackId,
+  type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
 import { existsSync } from "node:fs";
@@ -102,6 +104,7 @@ describe.each(required)("pack component and composition probes on $id", (model) 
     if (layouts && !layouts.length) return;
     const compose = await runComposeProbes({
       archetypes: metas,
+      probes: (packComposeProbes as Partial<Record<PackId, readonly ComposeProbe[]>>)[id] ?? [],
       ...(layouts ? { only: layouts } : {}),
       defs: Object.fromEntries(registry.defs.map((def) => [def.meta.id, def])),
       cast: { things: [], items: [] },
