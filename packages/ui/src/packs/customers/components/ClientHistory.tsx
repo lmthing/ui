@@ -1,5 +1,5 @@
 // prettier-ignore
-import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, KitTrail, useComponentState, useVariant } from "../../../kit";
+import { useWords, KitCard, KitEmpty, KitIcon, KitRow, KitSkeleton, KitText, useComponentState, useVariant } from "../../../kit";
 // prettier-ignore
 import { wordsFor, changeLine, isoDate, itemVariantProps, itemsOf, placeholderTitle, probesFor, screenId, text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
@@ -101,7 +101,7 @@ export const examples = [
   },
   {
     entries: [
-      { date: "2026-11-18", kind: "payment", title: "October walks paid", amount: 120, goto: "payment" },
+      { date: "2026-11-18", kind: "payment", title: "October payment", amount: 120, goto: "payment" },
       { date: "2026-11-17", kind: "message", title: "Clover's pickup set", goto: "messages" },
     ],
   },
@@ -173,16 +173,21 @@ export function ClientHistory(input: Props<typeof props, typeof meta>) {
             {...{ density }}
             leading={lead === "icon" && <KitIcon name={kindIcons[entry.kind]} part="kind" />}
             trailing={
-              entry.amount === undefined ? (
+              <>
+                {entry.amount !== undefined && (
+                  <KitText
+                    role="number"
+                    numberScale="compact"
+                    align="end"
+                    tabular
+                    part="amount"
+                    {...{ density }}
+                  >
+                    {changeLine(entry.amount, "money", undefined, lang)}
+                  </KitText>
+                )}
                 <KitIcon name="chevron_right" decorative />
-              ) : (
-                <KitTrail
-                  kind="value"
-                  value={changeLine(entry.amount, "money", undefined, lang)}
-                  part="amount"
-                  {...{ density }}
-                />
-              )
+              </>
             }
           >
             <KitText part="title" {...{ density }}>
