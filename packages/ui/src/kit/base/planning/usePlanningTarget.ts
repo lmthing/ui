@@ -38,7 +38,8 @@ export function usePlanningTarget(
   const enabled = useContext(ValidTarget) && !loading;
   const address = usePart(enabled ? target?.part : undefined, enabled);
   if (!enabled) return {} as { testID?: never };
-  const press = kit.interactive && kit.controller ? () => kit.controller!.press(address.testID) : undefined;
+  const press =
+    kit.interactive && kit.controller ? () => void kit.controller!.press(address.testID) : undefined;
   return {
     ...address,
     accessibilityRole: "button" as const,
@@ -52,13 +53,13 @@ export function usePlanningTarget(
           cursor: "pointer" as const,
           onPress: (event: { stopPropagation?(): void }) => {
             event.stopPropagation?.();
-            return press();
+            press();
           },
-          onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
+          onKeyDown: (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
             if (event.key !== "Enter" && event.key !== " ") return;
             event.preventDefault();
             event.stopPropagation();
-            return press();
+            press();
           },
         }
       : {}),
