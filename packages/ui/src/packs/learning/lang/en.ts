@@ -1,4 +1,5 @@
 export const en = {
+  lesson: { example: "Worked example", next: "Continue" },
   quiz: {
     check: "Check answer",
     next: "Next question",
