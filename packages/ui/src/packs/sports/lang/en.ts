@@ -6,6 +6,27 @@ export const en = {
   fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
   fixtureScore: (us: string, them: string) => `${us}–${them}`,
   fixtureSeparator: " · ",
+  standings: {
+    title: "League table",
+    scroll: "Scroll for more stats",
+    position: "#",
+    team: "Team",
+    summary: "Played, goal difference",
+    results: "Won, drawn, lost",
+    pointsSuffix: "pts",
+    played: "P",
+    difference: "GD",
+    won: "W",
+    drawn: "D",
+    lost: "L",
+    form: "Form",
+    noForm: "–",
+    outcomes: { w: "W", d: "D", l: "L" },
+    separator: " · ",
+    formSeparator: " ",
+    reading: (id: string, team: string) => `${id}: ${team}`,
+    rowSummary: (position: string, points: string) => `#${position} · ${points} pts`,
+  },
 };
 
 export type SportsWords = typeof en;

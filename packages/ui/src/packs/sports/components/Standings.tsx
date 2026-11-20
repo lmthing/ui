@@ -1,5 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { resultStats, standingsCopy, standingsReading, summaryStats } from "../copy";
+import { sportsWordsFor } from "../lang";
 
 // Core first: List/lead:number ranks one value, not a table of played, wins, draws, losses and form.
 export const meta = {
@@ -20,19 +23,15 @@ export const meta = {
   realPath: "The organiser enters results on one phone; sharing the league across clubs needs a shared app.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["form"] } },
-  parts: ["root"],
+  parts: ["root", "title", "hint", "table"],
   items: {
     key: "rows",
     parts: ["root", "position", "team", "played", "won", "drawn", "lost", "difference", "points", "form"],
   },
   states: ["filled", "loading"],
+  emptyActions: [],
   actions: { items: { root: ["press"] } },
-  read: (input, _state, lang): string[] => {
-    return rankedRows(input as c.Props<typeof props, typeof meta>).map(
-      ({ id, team, played, won, drawn, lost, difference, points }, rank) =>
-        `${id}: ${team} · ${[rank + 1, played, won, drawn, lost, difference, points].map((value) => c.numberLine(value, lang)).join(" · ")}`,
-    );
-  },
+  read: (input, _state, lang): string[] => standingsReading(input as StandingsProps, lang),
 } as const satisfies c.Meta;
 
 const count = z.int().nonnegative();
@@ -62,21 +61,7 @@ export const props = z
   .refine(
     ({ rows, lines }) => new Set(lines).size === lines.length && lines.every((line) => line < rows.length),
     { path: ["lines"] },
-  )
-  .overwrite((input) =>
-    input.detail === "brief" ? { ...input, rows: input.rows.map((row) => ({ ...row, form: [] })) } : input,
   );
-
-function rankedRows({ rows, scoring }: c.Props<typeof props, typeof meta>) {
-  return rows
-    .map((row) => ({
-      ...row,
-      played: row.won + row.drawn + row.lost,
-      difference: row.for - row.against,
-      points: row.won * scoring.win + row.drawn * scoring.draw,
-    }))
-    .sort((a, b) => b.points - a.points || b.difference - a.difference || b.for - a.for);
-}
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -92,14 +77,22 @@ export const examples = [
     mine: 1,
     lines: [1, 2],
     rows: [
-      { team: "Fern House", won: 3, drawn: 1, lost: 0, for: 9, against: 2, form: ["w", "w", "d", "w"] },
-      { team: "Ledge Rovers", won: 2, drawn: 1, lost: 1, for: 7, against: 4, form: ["d", "w", "l", "w"] },
-      { team: "Garden Crew", won: 1, drawn: 1, lost: 2, for: 4, against: 6, form: ["l", "l", "w", "d"] },
+      { team: "Fern House", won: 4, drawn: 1, lost: 0, for: 11, against: 2, form: ["w", "w", "d", "w", "w"] },
+      {
+        team: "Ledge Rovers",
+        won: 3,
+        drawn: 1,
+        lost: 1,
+        for: 8,
+        against: 4,
+        form: ["d", "w", "l", "w", "w"],
+      },
+      { team: "Garden Crew", won: 1, drawn: 1, lost: 3, for: 4, against: 8, form: ["l", "l", "w", "d", "l"] },
     ],
   },
   {
-    detail: "brief",
     density: "compact",
+    scoring: { win: 2, draw: 1 },
     rows: [
       { team: "Trot Town", won: 3, drawn: 2, lost: 0, for: 9, against: 5, form: ["w", "w", "d", "d", "w"] },
       {
@@ -135,3 +128,61 @@ export const probes = [
   },
   read("Open the league table row for Ledge Rovers", { address: "s1/r2", action: "press" }),
 ] satisfies c.Probe[];
+
+type StandingsProps = c.Props<typeof props, typeof meta>;
+
+// prettier-ignore
+export function Standings(input: StandingsProps) {
+  const { lang, words: { standings: words } } = kit.useWords(sportsWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const loading = kit.useComponentState() === "loading";
+  const { rows, cuts } = standingsCopy(input, lang);
+  const head = (text: string) => <kit.KitText role="label" tone="muted" align="center" part={null}
+    density={density}>{text}</kit.KitText>;
+  const column = (id: string, label: string, stats: typeof summaryStats | typeof resultStats) => ({
+    id, label, header: loading ? head(stats.map((stat) => words[stat]).join(words.formSeparator)) :
+      <kit.KitGrid columns={stats.length} density={density}>{stats.map((stat) =>
+        <kit.KitText key={stat} role="label" tone="muted" part={null} density={density}>{words[stat]}</kit.KitText>,
+      )}</kit.KitGrid>,
+  });
+  const columns = [column("summary", words.summary, summaryStats), column("results", words.results, resultStats)];
+  if (detail === "full") columns.unshift({ id: "form", label: words.form, header: head(words.form) });
+  const tableRows = rows.map((row) => {
+    const cells = [summaryStats, resultStats].map((stats) => ({ id: String(stats[0]), content: loading
+      ? head(stats.map((stat) => row[stat]).join(words.formSeparator))
+      : <kit.KitGrid columns={stats.length} density={density}>{stats.map((stat) =>
+        <kit.KitText key={stat} part={stat} role="label" tone="muted" tabular density={density}>{row[stat]}</kit.KitText>,
+      )}</kit.KitGrid>,
+    }));
+    if (detail === "full") cells.unshift({ id: "form", content: loading ? head(row.form) :
+      <kit.KitTrail kind="badge" part="form" value={row.form} tone="text" density={density} /> });
+    return {
+      id: row.id, label: row.team, target: { item: row.id, part: "root" }, selected: row.mine,
+      heading: <>
+        <kit.KitText role="label" part={loading ? null : "team"} lines={1} density={density}>{row.team}</kit.KitText>
+        {loading ? <kit.KitText part={null} role="label" density={density}>{words.rowSummary(row.position, row.points)}</kit.KitText> :
+          <kit.KitContent density={density} lineRole="body" lead={
+            <kit.KitText role="label" part={null} tone="muted" density={density}>
+              {words.position}<kit.KitText part="position" role="label" tone="muted" density={density} tabular>{row.position}</kit.KitText>
+            </kit.KitText>
+          }>
+            <kit.KitText role="label" part={null} tone="muted" density={density} lines={1}>
+              <kit.KitText part="points" role="number" numberScale="compact" tabular
+                density={density}>{row.points}</kit.KitText> {words.pointsSuffix}
+            </kit.KitText>
+          </kit.KitContent>}
+      </>, cells,
+    };
+  });
+  return <kit.KitCard part="root" padded clip density={density}>
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
+      content={[["heading", words.title], ["label", words.scroll]]} /> :
+      <kit.KitContent density={density}>
+        <kit.KitText part="title" role="heading" density={density}>{words.title}</kit.KitText>
+        <kit.KitText part="hint" role="label" tone="muted" density={density}>{words.scroll}</kit.KitText>
+      </kit.KitContent>}
+    <kit.KitTable part="table" columns={columns} rows={tableRows} separators={loading ? [] : cuts} loading={loading}
+      corner={<kit.KitText role="label" tone="muted" part={null} density={density}>{words.team}</kit.KitText>} />
+  </kit.KitCard>;
+}
