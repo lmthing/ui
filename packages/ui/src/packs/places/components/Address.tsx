@@ -73,7 +73,7 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  read("Tap the button that puts 14 Greenhouse Lane on my clipboard", {
+  read("Press the button that puts 14 Greenhouse Lane on my clipboard. Use the button's full address.", {
     address: "a1/copy",
     action: "press",
   }),
