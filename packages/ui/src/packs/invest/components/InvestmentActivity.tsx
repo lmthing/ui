@@ -1,6 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { dateTime, distinct, recordId, seedPortfolio, seedTime } from "../seeds";
+import { compareInstants, dateTime, distinct, recordId, seedPortfolio, seedTime } from "../seeds";
 
 // Core first: Timeline/history cannot reconcile trade quantities, cost and cash or retain corrections.
 export const meta = {
@@ -74,7 +74,7 @@ export const props = z
   })
   .refine(
     ({ since, entries }) =>
-      distinct(entries, ({ id }) => id) && entries.every(({ at }) => Date.parse(at) >= Date.parse(since)),
+      distinct(entries, ({ id }) => id) && entries.every(({ at }) => compareInstants(at, since) >= 0),
     { path: ["entries"], message: "Use unique entry ids and dates at or after the opening statement" },
   )
   .overwrite((input) => ({

@@ -6,10 +6,19 @@ const offsetDateTime = z.iso.datetime({ offset: true });
 export const dateTime = z
   .string()
   .max(35)
-  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/)
-  .refine((value) => offsetDateTime.safeParse(value).success, "Use a real ISO datetime with an offset")
-  .meta({ kind: "text" });
+  .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,9})?)?(?:Z|[+-]\d{2}:\d{2})$/)
+  .refine(
+    (value) => offsetDateTime.safeParse(value).success && Number.isFinite(Date.parse(value)),
+    "Use a real ISO datetime with an offset",
+  );
 export const seedTime = "2026-01-01T00:00:00Z";
+
+/** Offset-aware ordering, including digits beyond Date's millisecond precision. */
+export function compareInstants(first: string, second: string): number {
+  const milliseconds = Date.parse(first) - Date.parse(second);
+  const remainder = (value: string) => Number((/\.(\d+)/.exec(value)?.[1] ?? "").slice(3).padEnd(6, "0"));
+  return milliseconds || remainder(first) - remainder(second);
+}
 
 export function distinct<T>(records: readonly T[], key: (record: T) => string): boolean {
   return new Set(records.map(key)).size === records.length;

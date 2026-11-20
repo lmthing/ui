@@ -39,7 +39,7 @@ const item = z
     name: c.text(32),
     symbol: c.text(12),
     price: z.number().nonnegative(),
-    quotedAt: dateTime,
+    quotedAt: dateTime.meta({ kind: "text" }),
     target: z.number().positive().optional(),
     direction: z.enum(["at_or_below", "at_or_above"]).optional(),
     goto: c.screenId.optional(),

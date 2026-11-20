@@ -14,6 +14,7 @@ import {
   packOf,
   packReady,
   packs,
+  scoreComposition,
   writerFormat,
   type ArchetypeMeta,
 } from "@lmthing/ui/catalog";
@@ -95,11 +96,29 @@ describe("invest archetypes", () => {
     expect(draft.defaultLines("holding", "invest_holding", cast).components[1]).toMatchObject({
       c: "Holdings",
       detail: "brief",
-      assetId: "item_1",
     });
     expect(draft.defaultLines("watchlist", "invest_watch", cast).components[2]).toMatchObject({
       c: "Watchlist",
       detail: "full",
     });
+  });
+
+  it("scores a one-holding layout that filters to the requested asset id", () => {
+    const layout = "invest_holding";
+    const screen = draft.defaultLines("holding", layout, cast);
+    const { positions, ...fund } = components.Holdings.examples[0]!;
+    screen.components[1] = {
+      ...screen.components[1]!,
+      ...fund,
+      assetId: "global_fund",
+      positions: [positions[0]],
+    };
+    const { issues } = scoreComposition(
+      JSON.stringify(screen),
+      draft.packComposeArchetypes.find(({ id }) => id === "holding")!,
+      layout,
+      Object.fromEntries(draft.defs.map((def) => [def.meta.id, def])),
+    );
+    expect(issues).toEqual([]);
   });
 });

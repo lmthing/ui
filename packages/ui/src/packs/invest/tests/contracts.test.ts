@@ -143,6 +143,12 @@ describe("investment cash record boundaries", () => {
 });
 
 describe("invest affordances", () => {
+  it("keeps the quote timestamp in the full read and out of the brief read", () => {
+    const input = Holdings.examples[0]!;
+    const timestamp = input.positions[0]!.quotedAt;
+    expect(readComponent(Holdings, input, "h1").join("\n")).toContain(timestamp);
+    expect(readComponent(Holdings, { ...input, detail: "brief" }, "h1").join("\n")).not.toContain(timestamp);
+  });
   it("keeps hidden positions and offline refresh out of the read surface", () => {
     const input = Holdings.examples[0]!;
     const decoded = Holdings.props.parse(input);
@@ -161,5 +167,24 @@ describe("invest affordances", () => {
     const read = readComponent(InvestmentActivity, InvestmentActivity.examples[1], "i1").join("\n");
     expect(read).toContain("[i1/r2/void press]");
     expect(read).not.toContain("[i1/r1/void");
+  });
+});
+
+describe("offset timestamps", () => {
+  const earlier = "2026-01-01T00:00:00.0001Z";
+  const later = "2026-01-01T01:00:00.0002+01:00";
+  it("accepts distinct ordered sub-millisecond samples", () => {
+    const input = Performance.examples[0]!;
+    const samples = [
+      { at: earlier, quotes: [] },
+      { at: later, quotes: [] },
+    ];
+    expect(Performance.props.safeParse({ ...input, samples }).success).toBe(true);
+    expect(Performance.props.safeParse({ ...input, samples: [...samples].reverse() }).success).toBe(false);
+  });
+  it("rejects an event fractionally before its opening statement", () => {
+    const input = InvestmentActivity.examples[0]!;
+    const entries = [{ ...input.entries[0]!, at: earlier }];
+    expect(InvestmentActivity.props.safeParse({ ...input, since: later, entries }).success).toBe(false);
   });
 });

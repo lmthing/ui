@@ -15,7 +15,7 @@ export const holding = {
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
-        { id: "h2", c: "Holdings", detail: "brief", assetId: "item_1" },
+        { id: "h2", c: "Holdings", detail: "brief" },
         { id: "k1", c: "KeyValue" },
         { id: "b1", c: "Button" },
       ],
@@ -53,7 +53,7 @@ export const probes = [
     archetype: "holding",
     layout: "invest_holding",
     brief:
-      "Back header: Global Equity Fund. Show just units and value for the one position, filter to item_1. Portfolio education opened at 2026-01-01T00:00:00Z with 10 units of Global Equity Fund (item_1, GEF, fund) at cost 80, quoted at 90 on 2026-03-01T16:00:00Z. Include one label/value fact, Asset class: Fund. Finish with View income linking to income.",
+      "Back header: Global Equity Fund. Show just units and value for the one position; filter to global_fund. Portfolio education opened at 2026-01-01T00:00:00Z with 10 units of Global Equity Fund (global_fund, GEF, fund) at cost 80, quoted at 90 on 2026-03-01T16:00:00Z. Include one label/value fact, Asset class: Fund. Finish with View income linking to income.",
   },
   {
     kind: "compose",

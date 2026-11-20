@@ -33,6 +33,12 @@ export const meta = {
     items: { root: ["press"] },
     when: { root: { linked: true }, refresh: { quote_service: true } },
   },
+  read: (input, state): string[] => {
+    const { detail, positions } = input as z.output<typeof props>;
+    return state === "filled" && detail === "full"
+      ? positions.map(({ name, quotedAt }) => `${name}: ${quotedAt}`)
+      : [];
+  },
 } as const satisfies c.Meta;
 
 const position = z.strictObject({

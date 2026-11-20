@@ -1,6 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
+import { compareInstants, dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
 
 // Core first: Timeline/history shows past dates, not per-unit distributions, eligibility or cash receipt.
 export const meta = {
@@ -60,7 +60,7 @@ const distribution = z
   .refine(
     ({ entitledAt, payOn, receivedAt }) =>
       payOn >= entitledAt.slice(0, 10) &&
-      (!receivedAt || (Date.parse(receivedAt) >= Date.parse(entitledAt) && receivedAt.slice(0, 10) >= payOn)),
+      (!receivedAt || (compareInstants(receivedAt, entitledAt) >= 0 && receivedAt.slice(0, 10) >= payOn)),
     {
       path: ["receivedAt"],
       message: "Pay on or after entitlement and record receipt on or after payment day",

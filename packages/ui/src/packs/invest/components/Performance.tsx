@@ -1,6 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
-import { dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
+import { compareInstants, dateTime, distinct, recordId, seedAssets, seedPortfolio, seedTime } from "../seeds";
 
 // Core first: Sparkline/full shows a single trend, not portfolio value and net money invested together.
 const ranges = ["all", "month", "year"] as const;
@@ -30,7 +30,7 @@ export const meta = {
 
 const quote = z.strictObject({ assetId: recordId, price: z.number().nonnegative() });
 const sample = z
-  .strictObject({ at: dateTime, quotes: z.array(quote).min(0).max(12) })
+  .strictObject({ at: dateTime.meta({ kind: "text" }), quotes: z.array(quote).min(0).max(12) })
   .refine(({ quotes }) => distinct(quotes, ({ assetId }) => assetId), { path: ["quotes"] });
 export const props = z
   .strictObject({
@@ -42,7 +42,7 @@ export const props = z
   })
   .refine(
     ({ samples }) =>
-      samples.every(({ at }, index) => index === 0 || Date.parse(samples[index - 1]!.at) < Date.parse(at)),
+      samples.every(({ at }, index) => index === 0 || compareInstants(samples[index - 1]!.at, at) < 0),
     { path: ["samples"], message: "Use unique observations in chronological order" },
   );
 
