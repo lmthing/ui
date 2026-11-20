@@ -85,9 +85,9 @@ export const examples = [
   plantChores,
   {
     chores: [
-      { title: "Wash bowl", who: "Alex", repeat: "weekly", every: 2, points: 10, goto: "clover" },
+      { title: "Wash bowl", who: "Alex", repeat: "daily", every: 1, points: 10, goto: "clover" },
       { title: "Hang leads", who: "Sam", repeat: "never", every: 1, goto: "lead_rack", mark: "highlight" },
-      { title: "Wash blanket", who: "Mia", repeat: "weekly", every: 1, points: 5, goto: "blanket" },
+      { title: "Wash bed", who: "Mia", repeat: "weekly", every: 1, points: 5, goto: "blanket" },
     ],
   },
   { ...plantChores, detail: "brief" },

@@ -579,11 +579,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"CareSchedule\",\"arrange\":\"grid\",\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}",
+    "reply": "{\"c\":\"CareSchedule\",\"arrange\":null,\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}",
     "replies": [
-      "{\"c\":\"CareSchedule\",\"arrange\":\"grid\",\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}",
-      "{\"c\":\"CareSchedule\",\"arrange\":\"grid\",\"surface\":null,\"tasks\":[{\"title\":\"Water the fern\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern_details\"},{\"title\":\"Feed Monstera\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera_details\"}]}",
-      "{\"c\":\"CareSchedule\",\"arrange\":\"grid\",\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}"
+      "{\"c\":\"CareSchedule\",\"arrange\":null,\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}",
+      "{\"c\":\"CareSchedule\",\"arrange\":null,\"surface\":null,\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}",
+      "{\"c\":\"CareSchedule\",\"arrange\":\"grid\",\"surface\":\"card\",\"tasks\":[{\"title\":\"Water\",\"for\":\"Fern\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":1,\"last\":\"2026-11-12\",\"goto\":\"fern\"},{\"title\":\"Feed\",\"for\":\"Monstera\",\"icon\":\"leaf\",\"repeat\":\"weekly\",\"every\":2,\"last\":\"2026-11-05\",\"goto\":\"monstera\"}]}"
     ]
   },
   "50ee97aa30289ec6": {
