@@ -1,11 +1,14 @@
 import type { CastLike } from "../../types";
-import { defaultLines, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
+import { defaultLines, type ComposeProbe, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
 import { checkScreen } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { buildEntry, variantVocabulary } from "../../prompt";
 import { migrateScreen } from "../../migrations";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
+import { packPropIssues } from "./pack-prop-issues";
+const omitGuidance =
+  "Return compact JSON. When a layout says to omit a field the schema requires, write null for it instead.";
 export type ComposeResult = {
   archetype: string;
   layout: string;
@@ -28,6 +31,7 @@ export function composePrompt(
   layout: string,
   cast: CastLike,
   defs: Record<string, Definition>,
+  brief?: string,
 ): string {
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
@@ -41,6 +45,7 @@ export function composePrompt(
   return [
     "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
+    ...(brief === undefined ? [] : [`Brief: ${brief}\n${omitGuidance}`]),
     `Recipe slots: ${JSON.stringify(slots)}. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; ${toggle}`,
     "Screen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.",
     ...(offersVariants
@@ -56,18 +61,15 @@ export function composePrompt(
     "Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
   ].join("\n\n");
 }
-
 function hasToggleRows(entry: ScreenLike["components"][number], def: Definition | undefined): boolean {
-  if (!def?.meta.variants?.trail && !def?.meta.items?.variants?.trail) {
+  if (!def?.meta.variants?.trail && !def?.meta.items?.variants?.trail)
     return Array.isArray(entry.rows) && entry.rows.every((row) => row?.trail === "toggle");
-  }
   const { id: _id, c: _c, state: _state, ...input } = entry;
   const parsed = def.props.safeParse(input);
   if (!parsed.success || !def.meta.items) return false;
   const rows: unknown = parsed.data[def.meta.items.key];
   return Array.isArray(rows) && rows.every((row) => (row?.trail ?? parsed.data.trail) === "toggle");
 }
-
 export function scoreComposition(
   reply: string,
   meta: ArchetypeMeta,
@@ -84,6 +86,7 @@ export function scoreComposition(
     return { issues: ["Expected a screen object with component ids"] };
   decoded = migrateScreen(compositionInput(decoded, defs), { variantOnly: true });
   const issues = checkScreen(decoded, defs).map((issue) => `${issue.code}: ${issue.message}`);
+  issues.push(...packPropIssues(decoded, meta.defaults[layout]!, defs));
   let available = [...decoded.components];
   for (const slot of meta.layouts[layout]!.slots) {
     const found = available
@@ -120,57 +123,78 @@ export function compositionRubricPrompt(screen: ScreenLike, defs: Record<string,
     readScreen(screen, defs),
   ].join("\n\n");
 }
-export async function runComposeProbes(options: {
+type ComposeOptions = {
   archetypes: readonly ArchetypeMeta[];
+  probes?: readonly ComposeProbe[];
   defs: Record<string, Definition>;
   cast: CastLike | ((archetype: string, layout: string) => CastLike);
   callModel: CallModel;
   samples?: number;
   rubric?: boolean;
   only?: readonly string[];
-}): Promise<ComposeResult[]> {
-  const results: ComposeResult[] = [],
-    samples = options.samples ?? 3;
+};
+
+export async function runComposeProbes(options: ComposeOptions): Promise<ComposeResult[]> {
+  const briefs = new Map<string, string[]>();
+  for (const { archetype, layout, brief } of options.probes ?? []) {
+    const key = `${archetype}/${layout}`;
+    if (!options.archetypes.some((meta) => meta.id === archetype && Object.hasOwn(meta.layouts, layout)))
+      throw new Error(`Unknown compose probe layout ${key}`);
+    briefs.set(key, [...(briefs.get(key) ?? []), brief]);
+  }
+  const results: ComposeResult[] = [];
   for (const meta of options.archetypes)
     for (const layout of Object.keys(meta.layouts)) {
-      if (options.only?.length && !options.only.includes(`${meta.id}/${layout}`)) continue;
-      const cast = typeof options.cast === "function" ? options.cast(meta.id, layout) : options.cast;
-      const prompt = composePrompt(meta, layout, cast, options.defs),
-        replies: string[] = [];
-      const scored: ReturnType<typeof scoreComposition>[] = [];
-      for (let sample = 0; sample < samples; sample++) {
-        const reply = await options.callModel(prompt, sample, composeFormat(meta, layout, options.defs));
-        replies.push(reply);
-        scored.push(scoreComposition(reply, meta, layout, options.defs));
-      }
-      const passed = scored.filter((result) => !result.issues.length).length;
-      const result: ComposeResult = {
-        archetype: meta.id,
-        layout,
-        status: passed * 2 > samples ? "pass" : "fail",
-        score: `${passed}/${samples}`,
-        detail: `${passed * 2 > samples && passed < samples ? "unstable: " : ""}${scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe"}`,
-        prompt,
-        replies,
-      };
-      const screen = scored.find((item) => item.screen)?.screen;
-      if (result.status === "pass" && options.rubric && screen) {
-        const rubric = decode(await options.callModel(compositionRubricPrompt(screen, options.defs), 0)) as
-          Record<string, number> | undefined;
-        const names = ["clarity", "focus", "flow", "content", "structure"];
-        const ratings = names.map((name) => rubric?.[name]);
-        if (
-          !ratings.every(
-            (rating) => typeof rating === "number" && Number.isFinite(rating) && rating >= 3.5 && rating <= 5,
-          ) ||
-          (ratings as number[]).reduce((sum, value) => sum + value, 0) / ratings.length < 4
-        ) {
-          result.status = "fail";
-          result.detail = "Composition rubric needs average 4 and no score below 3.5";
-        }
-        if (rubric) result.rubric = rubric;
-      }
-      results.push(result);
+      const key = `${meta.id}/${layout}`;
+      if (options.only?.length && !options.only.includes(key)) continue;
+      for (const brief of briefs.get(key) ?? [undefined])
+        results.push(await runComposeProbe(options, meta, layout, brief));
     }
   return results;
+}
+
+async function runComposeProbe(
+  { cast, defs, callModel, samples = 3, rubric: useRubric }: ComposeOptions,
+  meta: ArchetypeMeta,
+  layout: string,
+  brief?: string,
+): Promise<ComposeResult> {
+  const content = typeof cast === "function" ? cast(meta.id, layout) : cast;
+  const prompt = composePrompt(meta, layout, content, defs, brief);
+  const format = composeFormat(meta, layout, defs);
+  const replies: string[] = [];
+  const scored: ReturnType<typeof scoreComposition>[] = [];
+  for (let sample = 0; sample < samples; sample++) {
+    const reply = await callModel(prompt, sample, format);
+    replies.push(reply);
+    scored.push(scoreComposition(reply, meta, layout, defs));
+  }
+  const passed = scored.filter((result) => !result.issues.length).length;
+  const result: ComposeResult = {
+    archetype: meta.id,
+    layout,
+    status: passed * 2 > samples ? "pass" : "fail",
+    score: `${passed}/${samples}`,
+    detail: `${passed * 2 > samples && passed < samples ? "unstable: " : ""}${scored.find((item) => item.issues.length)?.issues.join("; ") ?? "Valid screen and recipe"}`,
+    prompt,
+    replies,
+  };
+  const screen = scored.find((item) => item.screen)?.screen;
+  if (result.status === "pass" && useRubric && screen) {
+    const rubric = decode(await callModel(compositionRubricPrompt(screen, defs), 0)) as
+      Record<string, number> | undefined;
+    const names = ["clarity", "focus", "flow", "content", "structure"];
+    const ratings = names.map((name) => rubric?.[name]);
+    if (
+      !ratings.every(
+        (rating) => typeof rating === "number" && Number.isFinite(rating) && rating >= 3.5 && rating <= 5,
+      ) ||
+      (ratings as number[]).reduce((sum, value) => sum + value, 0) / ratings.length < 4
+    ) {
+      result.status = "fail";
+      result.detail = "Composition rubric needs average 4 and no score below 3.5";
+    }
+    if (rubric) result.rubric = rubric;
+  }
+  return result;
 }

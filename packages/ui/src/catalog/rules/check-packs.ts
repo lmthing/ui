@@ -1,6 +1,8 @@
 import { packIds, packIndex, type PackId, type PackMeta, type ArchetypeMeta } from "../meta";
 import type { Definition } from "../probes";
 import { registryOf } from "../registry";
+import { archetypes, type ArchetypeOverrides } from "../archetypes";
+import { checkArchetypeOverrides } from "./check-archetypes";
 import { denseIds } from "./dense-ids";
 
 type Input = {
@@ -8,6 +10,7 @@ type Input = {
   packOf: Partial<Record<string, PackId>>;
   packs: Partial<Record<PackId, PackMeta>>;
   packArchetypes: Partial<Record<PackId, readonly ArchetypeMeta[]>>;
+  packArchetypeOverrides?: Partial<Record<PackId, ArchetypeOverrides>>;
   packExamples: Partial<Record<PackId, string>>;
 };
 
@@ -80,6 +83,9 @@ function checkOwnership(input: Input): string[] {
     if (!input.packs[owner as PackId] || input.packs[owner as PackId]!.id !== owner)
       for (const archetype of archetypes)
         issues.push(`${owner}: ${archetype.id}/-: archetype belongs to an undeclared pack`);
+  for (const owner of Object.keys(input.packArchetypeOverrides ?? {}) as PackId[])
+    if (!input.packs[owner] || input.packs[owner]!.id !== owner)
+      issues.push(`${owner}: -/-: layout overrides belong to an undeclared pack`);
   return issues;
 }
 
@@ -87,6 +93,7 @@ function checkOwnership(input: Input): string[] {
 export function checkPacks(input: Input): string[] {
   return [
     ...checkOwnership(input),
+    ...checkArchetypeOverrides({ ...input, archetypes }),
     ...Object.values(input.packs).flatMap((pack) => [
       ...checkMeta(input, pack),
       ...checkExample(input, pack),

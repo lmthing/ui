@@ -6,12 +6,12 @@ import {
   runProbes,
   runPackProbes,
   packs,
+  packComposeProbes,
   packOf,
-  packArchetypes,
-  packComposition,
   runComposeProbes,
   variantAxes,
   type PackId,
+  type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
 import { existsSync } from "node:fs";
@@ -99,13 +99,12 @@ describe.each(required)("pack component and composition probes on $id", (model) 
     expect(coreResults.filter((result) => result.status !== "pass")).toEqual([]);
     const components = await runProbes({ defs: registry.defs, only, callModel, samples: model.samples });
     expect(components.filter((result) => result.status !== "pass")).toEqual([]);
-    const metas = (
-      packArchetypes as Partial<Record<PackId, readonly import("@lmthing/ui/catalog").ArchetypeMeta[]>>
-    )[id]!.map(packComposition);
+    const metas = registry.packComposeArchetypes;
     const layouts = selectedLayouts(metas);
     if (layouts && !layouts.length) return;
     const compose = await runComposeProbes({
       archetypes: metas,
+      probes: (packComposeProbes as Partial<Record<PackId, readonly ComposeProbe[]>>)[id] ?? [],
       ...(layouts ? { only: layouts } : {}),
       defs: Object.fromEntries(registry.defs.map((def) => [def.meta.id, def])),
       cast: { things: [], items: [] },

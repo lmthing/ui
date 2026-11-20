@@ -21,9 +21,10 @@ import { advanceSession, sessionEvent, sessionKey, staleSession } from "./sessio
 
 export type ActStep = { address: string; action: string; value?: unknown };
 export type Values = Record<string, unknown>;
+type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
   | { ok: true; values: Values; changed: string[]; links: { goto: string; address: string }[] }
-  | { ok: false; code: "not_actionable" | "invalid_value" | "random_unavailable"; at: number; hint?: string };
+  | { ok: false; code: ActCode; at: number; hint?: string };
 
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
@@ -45,12 +46,13 @@ function affordancesOfScreen(screen: ScreenLike, defs: Record<string, Definition
     const def = defs[c];
     if (!def) return [];
     const props = liveInput(def, input, id, local);
-    const { draw, emptyActions, session, successActions } = def.meta;
+    const { draw, emptyActions, session, successActions, items } = def.meta;
+    const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
     const liveState =
       (props.state as typeof state) ??
-      (draw || emptyActions || session || successActions?.length ? state : undefined);
-    return affordancesOf(def.meta, props, id, local, liveState);
+      (draw || emptyActions || session || successActions?.length || policy ? state : undefined);
+    return affordancesOf(def.meta, props, id, local, liveState, true);
   });
 }
 
@@ -170,6 +172,8 @@ export function planAct(
       ? resolveKeypadValue(step.value, next[key] ?? keypad.value, keypad)
       : (validateActionValue(step.action, step.value, limits) ?? { value: step.value });
     if ("code" in result) return { ok: false, at, ...result };
+    if (found.blocked && result.value !== false)
+      return { ok: false, code: found.blocked, at, hint: "Turn off an active choice first" };
     try {
       const progress = stageProgress(screen, defs, address, step, next, random);
       if (progress !== undefined) {

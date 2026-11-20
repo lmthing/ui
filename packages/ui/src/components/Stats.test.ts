@@ -4,6 +4,7 @@ import {
   affordancesOf,
   components,
   createRegistry,
+  migrateLine,
   stampItemIds,
   type CastLike,
   type Props,
@@ -19,7 +20,7 @@ describe("Stats schema", () => {
   );
   it("applies defaults and trims text", () => {
     expect(props.parse({ tiles: [{ label: " Count ", value: " 12 ", unit: " EUR " }, tile] })).toEqual({
-      style: "tiles",
+      arrange: "grid",
       tiles: [{ label: "Count", value: "12", unit: "EUR" }, tile],
     });
   });
@@ -46,13 +47,13 @@ describe("Stats schema", () => {
     { color: "red", tiles },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("accepts exact maximum lengths, all counts, styles and trends", () => {
-    for (const style of ["tiles", "inline"])
+    for (const arrange of ["grid", "rows"])
       for (const count of [2, 3, 4])
         for (const trend of ["up", "down", "flat"]) {
           const input = { label: "a".repeat(20), value: "1".repeat(8), unit: "a".repeat(8), trend };
-          expect(props.safeParse({ style, tiles: Array.from({ length: count }, () => input) }).success).toBe(
-            true,
-          );
+          expect(
+            props.safeParse({ arrange, tiles: Array.from({ length: count }, () => input) }).success,
+          ).toBe(true);
         }
   });
   it("adds validator item ids only to view props", () => {
@@ -151,11 +152,11 @@ describe("Stats fallback and metadata", () => {
   });
 });
 
-function renderTiles(style: "tiles" | "inline", count: number, state: "filled" | "empty" | "loading") {
+function renderTiles(arrange: "grid" | "rows", count: number, state: "filled" | "empty" | "loading") {
   return renderInstance(
     "Stats",
     {
-      style,
+      arrange,
       tiles: Array.from({ length: count }, (_, index) => ({
         label: "a".repeat(20),
         value: "1".repeat(8),
@@ -167,14 +168,14 @@ function renderTiles(style: "tiles" | "inline", count: number, state: "filled" |
     { preset: "calm", mode: "light", accent: "moss" },
   );
 }
-describe.each(["tiles", "inline"] as const)("Stats rendering in %s", (style) => {
+describe.each(["grid", "rows"] as const)("Stats rendering in %s", (arrange) => {
   it.each([2, 3, 4])("renders %i tiles in every state", (count) => {
     for (const state of ["filled", "empty", "loading"] as const) {
-      const html = renderTiles(style, count, state);
+      const html = renderTiles(arrange, count, state);
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       expect(html).not.toMatch(/role="(?:link|button)"/);
       if (state === "loading")
-        expect(html.match(/aria-busy="true"/g)).toHaveLength(style === "tiles" ? count : 1);
+        expect(html.match(/aria-busy="true"/g)).toHaveLength(arrange === "grid" ? count : 1);
       if (state === "empty") expect(html).toContain("Nothing here yet");
       if (state !== "filled") continue;
       for (let index = 1; index <= count; index++) {
@@ -185,4 +186,14 @@ describe.each(["tiles", "inline"] as const)("Stats rendering in %s", (style) => 
       }
     }
   });
+});
+
+// prettier-ignore
+it.each([["tiles", "grid"], ["inline", "rows"]] as const)("migrates legacy %s to %s", (style, arrange) => {
+  const legacy = { c: "Stats", id: "s1", style, tiles };
+  const { c, id, ...raw } = migrateLine(legacy);
+  expect({ c, id }).toEqual({ c: "Stats", id: "s1" });
+  expect(props.safeParse({ style, tiles }).success).toBe(false);
+  expect(stampItemIds(meta, props.parse(raw))).toMatchObject({ arrange, tiles: [{ id: "r1" }, { id: "r2" }] });
+  expect(migrateLine({ ...legacy, arrange: "rows" })).toMatchObject({ arrange: "rows" });
 });

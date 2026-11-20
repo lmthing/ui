@@ -1,11 +1,18 @@
 import type { Meta } from "../meta";
 import type { StateName } from "../types";
-import { choiceValues, nestedControls } from "./selection";
+import { choiceValues, isNestedTarget, nestedControls, nestedRemaining } from "./selection";
 import { adjustmentAt, clockActionValid } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 
-export type Affordance = { address: string; part: string; action: string; detail: string };
+export type Affordance = {
+  address: string;
+  part: string;
+  action: string;
+  detail: string;
+  blocked?: "max_active";
+  togglePeers?: readonly string[];
+};
 type Props = Record<string, unknown>;
 
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
@@ -73,6 +80,7 @@ export function affordancesOf(
   instance: string,
   values: Props = {},
   state = (props.state as StateName | undefined) ?? "filled",
+  includeBlocked = false,
 ): Affordance[] {
   const when = meta.actions?.when as When;
   const own = ownActions(meta, props, instance, when);
@@ -88,24 +96,9 @@ export function affordancesOf(
       { ...props, $first: index === 0 },
     ),
   );
-  const controls = nestedControls(meta, props);
-  const targets = new Set(controls.map((control) => `${instance}/${control.target}`));
-  const nested = controls
-    .filter((control) => control.enabled)
-    .map(({ target, part, spec, item }) => ({
-      address: `${instance}/${target}`,
-      part,
-      action: spec.action,
-      detail:
-        spec.action === "toggle"
-          ? `:${item[spec.prop] ? "on" : "off"}`
-          : item[spec.prop] === undefined
-            ? ""
-            : ` = ${JSON.stringify(item[spec.prop])}`,
-    }));
-  const offered = [...own, ...itemActions.filter((control) => !targets.has(control.address)), ...nested];
   const runtime = values[`${instance}/$runtime`];
   const get = (part: string) => values[`${instance}/${part}`];
+  const offered = [...own, ...nestedActions(meta, props, instance, itemActions, get, includeBlocked)];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
   const session = sessionState(meta, props, get);
   const now = Number(get("$now") ?? Date.now());
@@ -124,6 +117,53 @@ export function affordancesOf(
       clockActionValid(meta, props, target, action, get, now)
     );
   });
+}
+
+function nestedActions(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  items: Affordance[],
+  get: (part: string) => unknown,
+  includeBlocked: boolean,
+) {
+  const controls = nestedControls(meta, props, get);
+  const targets = new Set(controls.map(({ target }) => `${instance}/${target}`));
+  const policy = meta.items?.nested;
+  const remaining = nestedRemaining(meta, props, controls);
+  const nested = controls.flatMap(({ enabled, target, part, spec, item, togglePeers }): Affordance[] => {
+    if (!enabled) return [];
+    const value = item[spec.prop];
+    const blocked =
+      remaining !== undefined && togglePeers && remaining < togglePeers.length && value !== true;
+    if (blocked && !includeBlocked) return [];
+    const detail =
+      spec.action === "toggle"
+        ? value
+          ? ":on"
+          : ":off"
+        : value === undefined
+          ? ""
+          : ` = ${JSON.stringify(value)}`;
+    return [
+      {
+        address: `${instance}/${target}`,
+        part,
+        action: spec.action,
+        detail,
+        ...(blocked ? { blocked: "max_active" } : {}),
+        ...(includeBlocked && togglePeers && togglePeers.length > 1
+          ? { togglePeers: togglePeers.map((peer) => `${instance}/${peer}`) }
+          : {}),
+      },
+    ];
+  });
+  const reserved = policy?.activeParent || policy?.maxActive !== undefined;
+  const ordinary = items.filter(
+    ({ address }) =>
+      !targets.has(address) && !(reserved && isNestedTarget(meta, address.slice(instance.length + 1))),
+  );
+  return [...ordinary, ...nested];
 }
 
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean) {

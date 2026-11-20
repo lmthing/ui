@@ -18,7 +18,8 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import { introducedPart, type ControllerContext, type ScreenComponent, type MediaRuntime } from "../index";
+import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
+import { introducedPart } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
