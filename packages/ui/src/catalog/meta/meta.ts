@@ -26,7 +26,9 @@ type LinkedEdits = {
   ) => Record<string, unknown>;
 };
 type RowSelection = "index" | "position" | { field: string };
-type ChoiceSource = readonly (string | number)[] | { prop: string };
+type Choice = string | number | { value: string | number; label: string };
+/** A static list or a parsed prop containing the same option shape. */
+type ChoiceSource = readonly Choice[] | { prop: string };
 type NamedSelection = { prop: string; choices: ChoiceSource } & (
   { runtime?: false; clear?: never } | { runtime: true; clear?: string }
 );
