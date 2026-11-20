@@ -130,6 +130,8 @@ describe("Assignments rendering and read/act", () => {
   it("keeps the empty state free of item parts and actions", () => {
     expect([...render(ledge, "empty").keys()]).toEqual(["home/c1/root", "home/c1/message"]);
     expect(readScreen(screen("empty"), defs)).not.toContain("/r1");
+    const result = planAct(screen("empty"), defs, {}, [{ address: "a1/r1/done", action: "check" }], null);
+    expect(result).toMatchObject({ ok: false, code: "not_actionable" });
   });
 
   it("checks and unchecks open work without navigating, and rejects checks on graded rows", () => {
@@ -138,11 +140,18 @@ describe("Assignments rendering and read/act", () => {
     expect(handedIn.ok).toBe(true);
     if (!handedIn.ok) return;
     expect(handedIn.values["homework/a1/r1/done"]).toBe(true);
+    expect(handedIn.links).toEqual([]);
     expect(readScreen(screen(), defs, handedIn.values)).toContain("[a1/r1/done check:done]");
     const undone = planAct(screen(), defs, handedIn.values, [{ ...check, value: false }], null);
     expect(undone.ok).toBe(true);
     if (undone.ok) expect(readScreen(screen(), defs, undone.values)).toContain("[a1/r1/done check:todo]");
     expect(planAct(screen(), defs, {}, [{ ...check, address: "a1/r2/done" }], null).ok).toBe(false);
     expect(readScreen(screen(), defs)).toContain("[a1/r2 press→light_log]");
+  });
+
+  it("opens assignment details without setting the hand-in check", () => {
+    const result = planAct(screen(), defs, {}, [{ address: "a1/r1", action: "press" }], null);
+    expect(result).toMatchObject({ ok: true, values: {}, links: [{ goto: "worksheet" }] });
+    if (result.ok) expect(result.values["homework/a1/r1/done"]).toBeUndefined();
   });
 });

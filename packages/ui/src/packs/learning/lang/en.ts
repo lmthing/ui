@@ -2,6 +2,7 @@ export const en = {
   assignments: {
     handedIn: "Handed in?",
     graded: "Work graded",
+    gradeSeparator: " · ",
     dueToday: (date: string) => `Today · ${date}`,
     dueIn: (days: string, plural: Intl.LDMLPluralRule, date: string) =>
       `In ${days}\u00a0${plural === "one" ? "day" : "days"} · ${date}`,

@@ -28,6 +28,7 @@ export const meta = {
   parts: ["root", "message"],
   items: { key: "items", parts: ["root", "mark", "title", "subject", "due", "status", "grade", "done"] },
   states: ["filled", "empty"],
+  emptyActions: [],
   actions: { items: { done: ["check"], root: ["press"] }, when: { done: { submission: "open" } } },
   read: (input, state, lang): string[] => {
     if (state !== "filled") return [];
@@ -88,8 +89,6 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
-    surface: "outlined",
     items: [
       { title: "Route assessment", subject: "Dog walking", due: "2026-11-18", status: "done", goto: "route_assessment" },
       { title: "Lead safety notes", subject: "Handling", due: "2026-11-22", status: "todo", goto: "lead_notes" },
@@ -135,22 +134,40 @@ function AssignmentRow({ row, density, lead }: {
   const mark = lead === "icon" ? <kit.KitIcon name="book_open" tone={assignmentSubjectTone(subject)} part="mark" /> : undefined;
   const control = graded
     ? grade === undefined ? <kit.KitTrail kind="check" part="done" tone="good" />
-      : <kit.KitTrail kind="badge" part="grade" value={grade} tone="good" density={density} />
+      : <kit.KitIcon name="check" tone="good" decorative />
     : <kit.KitCheck part="done" done={done} label={words.handInLabel(title)} />;
+  const statusTone = graded || done ? "good" : "muted";
   return (
     <kit.PartScope {...scope} item={id}>
-      <kit.KitRow part={null} label={title} leading={mark} trailing={control} density={density}>
-        <kit.KitRow part="root" label={title} goto={goto} inline density={density}>
+      <kit.KitContent density={density}>
+        <kit.KitRow
+          part="root"
+          label={title}
+          goto={goto}
+          inline
+          density={density}
+          leading={mark}
+          leadingWidth="avatar"
+          trailing={<kit.KitIcon name="chevron_right" scale="sm" decorative />}
+        >
           <kit.KitText role="body" part="title" density={density}>{title}</kit.KitText>
           <kit.KitText role="caption" part="subject" tone="muted" density={density}>{subject}</kit.KitText>
           <kit.KitText role="caption" part="due" tone={!graded && !done && due < today ? "bad" : "muted"} density={density}>
             {assignmentDue(due, status, lang, today)}
           </kit.KitText>
-          <kit.KitText role="caption" part="status" tone={graded || done ? "good" : "muted"} density={density}>
-            {graded ? words.graded : words.handedIn}
+        </kit.KitRow>
+        <kit.KitRow part={null} label={title} inline lineRole="caption" density={density} leading={control} leadingWidth="avatar">
+          <kit.KitText role="caption" part={null} tone={statusTone} density={density}>
+            <kit.KitText role="caption" part="status" tone={statusTone} density={density}>
+              {graded ? words.graded : words.handedIn}
+            </kit.KitText>
+            {grade !== undefined && <>
+              {words.gradeSeparator}
+              <kit.KitText role="label" part="grade" tone="good" density={density}>{grade}</kit.KitText>
+            </>}
           </kit.KitText>
         </kit.KitRow>
-      </kit.KitRow>
+      </kit.KitContent>
     </kit.PartScope>
   );
 }
@@ -161,7 +178,7 @@ export function Assignments(input: AssignmentsProps) {
   const lead = kit.useVariant("lead", meta.variants.lead, input.lead);
   const state = kit.useComponentState();
   return (
-    <kit.KitCard part="root" density={density} surface={surface}>
+    <kit.KitCard part="root" padded={state === "filled"} density={density} surface={surface}>
       {state === "empty" ? (
         <kit.KitEmpty part="message" icon="book_open" decorativeIcon />
       ) : (
