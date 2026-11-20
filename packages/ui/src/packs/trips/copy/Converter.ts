@@ -4,10 +4,10 @@ import {
   currencies,
   isoDate,
   localeOf,
-  moneyLine,
   numberLine,
   type Currency,
   type DeviceData,
+  type Meta,
 } from "../../../catalog";
 import { tripsWordsFor } from "../lang";
 
@@ -32,37 +32,85 @@ export function exchangeRateOf(data?: DeviceData): ExchangeRate | undefined {
   return result.success ? result.data : undefined;
 }
 
-/** The last edited amount is kept in its own currency, independent of display order. */
-export type ConverterInput = { value?: number | undefined; edited?: "home" | "local"; swapped?: boolean };
+type Linked = NonNullable<Meta["linkedEdits"]>;
+type Side = "from" | "to";
 
-export function converterAmounts(input: ConverterInput, rate?: ExchangeRate) {
-  const { value, edited = "home", swapped = false } = input;
-  const home = edited === "home" ? value : rate && value !== undefined ? value / rate.rate : undefined;
-  const local = edited === "local" ? value : rate && value !== undefined ? value * rate.rate : undefined;
-  const pair = {
-    home: { side: "home", currency: rate?.home, value: home },
-    local: { side: "local", currency: rate?.local, value: local },
-  } as const;
-  return swapped ? ([pair.local, pair.home] as const) : ([pair.home, pair.local] as const);
+function amountOf(text: string): number | undefined {
+  // A lone separator is a draft, not a zero; commas are decimal separators, never grouping.
+  const value = text.trim().replace(",", ".");
+  if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(value)) return;
+  const amount = Number(value);
+  if (Number.isFinite(amount)) return amount;
 }
 
-function currencyLine(value: number, currency: Currency, lang?: string): string {
-  const options = new Intl.NumberFormat(localeOf(lang), { style: "currency", currency }).resolvedOptions();
-  const amount = options.maximumFractionDigits === 0 ? Math.round(value) : value;
-  return moneyLine(amount, currency, undefined, lang);
+function convertedText(value: number | undefined, fromHome: boolean, rate?: ExchangeRate): string {
+  if (value === undefined || !rate) return "";
+  const opposite = fromHome ? value * rate.rate : value / rate.rate;
+  if (!Number.isFinite(opposite)) return "";
+  const currency: Currency = fromHome ? rate.local : rate.home;
+  const locale = localeOf();
+  const { maximumFractionDigits = 2 } = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+  }).resolvedOptions();
+  return new Intl.NumberFormat(locale, { useGrouping: false, maximumFractionDigits }).format(opposite);
 }
 
-export function converterReading(input: ConverterInput, lang?: string, data?: DeviceData): string[] {
+/** The shared runtime moves the exact edit to the opposite side when swapping. */
+export const projectConverter = (
+  props: Parameters<Linked["project"]>[0],
+  { edit, swapped }: Parameters<Linked["project"]>[1],
+  data: DeviceData,
+) => {
   const rate = exchangeRateOf(data);
+  const homePart: Side = swapped ? "to" : "from";
+  const source = edit?.part === "from" || edit?.part === "to" ? edit.part : homePart;
+  const seed = typeof props.value === "number" ? props.value : undefined;
+  const text = edit?.text ?? (seed === undefined ? "" : numberLine(seed));
+  const peer = convertedText(edit ? amountOf(text) : seed, source === homePart, rate);
+  return {
+    fromText: source === "from" ? text : peer,
+    toText: source === "to" ? text : peer,
+    source,
+    edited: edit !== undefined,
+    swapped,
+    rate,
+  };
+};
+
+export function converterDisplay(input: unknown, lang?: string) {
+  const { fromText, toText, source, edited, swapped, rate, detail } = input as ReturnType<
+    typeof projectConverter
+  > & { detail?: string };
   const { converter } = tripsWordsFor(lang);
+  // Keep text editable: use Latin digits, no grouping, and only localize a generated decimal separator.
+  const locale = new Intl.NumberFormat(localeOf(lang), { numberingSystem: "latn" });
+  const separator = locale.formatToParts(1.1).find(({ type }) => type === "decimal")?.value ?? ".";
+  const field = (part: Side, text: string, home: boolean) => {
+    const side = home ? "home" : "local";
+    return {
+      part,
+      label: rate ? converter.currencyLabel(rate[side], converter[side]) : converter[side],
+      text: edited && part === source ? text : text.replace(".", separator),
+    };
+  };
+  return {
+    fields: [field("from", fromText, !swapped), field("to", toText, swapped)],
+    rateDate:
+      detail === "brief"
+        ? ""
+        : rate
+          ? converter.rateDate(appointmentDate(rate.date, lang))
+          : converter.noRate,
+  };
+}
+
+export function converterReading(input: unknown, lang?: string): string[] {
+  const { converter } = tripsWordsFor(lang);
+  const { fields, rateDate } = converterDisplay(input, lang);
   return [
-    ...converterAmounts(input, rate).map(({ side, currency, value }) => {
-      const label = converter[side];
-      if (value === undefined) return label;
-      const amount = currency ? currencyLine(value, currency, lang) : numberLine(value, lang);
-      return converter.amount(label, amount);
-    }),
-    rate ? converter.rateDate(appointmentDate(rate.date, lang)) : converter.noRate,
+    ...fields.map(({ label, text }) => (text ? converter.amount(label, text) : label)),
     converter.swap,
+    ...(rateDate ? [rateDate] : []),
   ];
 }

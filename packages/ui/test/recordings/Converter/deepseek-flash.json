@@ -8,6 +8,375 @@
       "{\"address\": \"c1/swap\", \"action\": \"press\"}"
     ]
   },
+  "7484b2f96d47e4de": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 Converter Home amount: 25.5 — Local amount — Swap currencies — Exchange rate unavailable [c1/from type = \"25.5\" !needs-service] [c1/to type = \"\" !needs-service] [c1/swap press !needs-service]\n\nTask: Swap the two currencies\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}",
+      "{\"address\": \"c1/swap\", \"action\": \"press\"}"
+    ]
+  },
+  "975633a4655acf8e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nConverter: Convert between home and local currencies by entering either amount.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", value?: num 0..999999999 }\nRule: Use value for the optional starting amount. Do not write currencies, the rate, or a date; the host supplies them.\nRule: When asked to hide the rate date with no change to spacing or surface, use \"detail\":\"brief\", \"density\":null, and \"surface\":null. Do not fill in defaults for any unrequested variant.\nexample: {\"c\":\"Converter\",\"value\":25.5}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Convert between the home and destination currencies, starting with an amount of 120.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Converter",
+              "enum": [
+                "Converter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 999999999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "value"
+          ]
+        }
+      }
+    },
+    "reply": "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
+    "replies": [
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":null,\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"value\":120}"
+    ]
+  },
+  "9d866bafdfd85232": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nConverter: Convert between home and local currencies by entering either amount.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", value?: num 0..999999999 }\nRule: Use value for the optional starting amount. Do not write currencies, the rate, or a date; the host supplies them.\nRule: When asked to hide the rate date with no change to spacing or surface, use \"detail\":\"brief\", \"density\":null, and \"surface\":null. Do not fill in defaults for any unrequested variant.\nexample: {\"c\":\"Converter\",\"value\":25.5}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Start the currency converter at 25. Hide only the line saying when the rate was last updated. Keep the usual spacing and card appearance.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Converter",
+              "enum": [
+                "Converter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 999999999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "value"
+          ]
+        }
+      }
+    },
+    "reply": "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"value\":25}",
+    "replies": [
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"value\":25}",
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"value\":25}",
+      "{\"c\":\"Converter\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"value\":25}"
+    ]
+  },
+  "ad55b42b3305de99": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nConverter: Convert between home and local currencies by entering either amount.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", value?: num 0..999999999 }\nRule: Only write an optional starting numeric value. The brief supplies both currencies and a service supplies the rate and its date.\nRule: Use detail \"brief\" when the person asks not to show the rate date. Leave unrequested axes null.\nexample: {\"c\":\"Converter\",\"value\":25.5}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Let me edit either currency and swap them. Start with 25, but don't show when the rate was dated.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Converter",
+              "enum": [
+                "Converter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 999999999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "value"
+          ]
+        }
+      }
+    },
+    "reply": "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}",
+    "replies": [
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}",
+      "{\"c\":\"Converter\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}",
+      "{\"c\":\"Converter\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":25}"
+    ]
+  },
+  "bc94cb6f76b6b203": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nConverter: Convert between home and local currencies by entering either amount.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", value?: num 0..999999999 }\nRule: Only write an optional starting numeric value. The brief supplies both currencies and a service supplies the rate and its date.\nRule: Use detail \"brief\" when the person asks not to show the rate date. Leave unrequested axes null.\nexample: {\"c\":\"Converter\",\"value\":25.5}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Convert between the home and destination currencies, starting with an amount of 120.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Converter",
+              "enum": [
+                "Converter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "plain"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 999999999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "value"
+          ]
+        }
+      }
+    },
+    "reply": "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":120}",
+    "replies": [
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"value\":120}",
+      "{\"c\":\"Converter\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"full\",\"value\":120}"
+    ]
+  },
   "e57d2db73d7b9398": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nConverter: Convert between home and local currencies by entering either amount.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", value?: num 0..999999999 }\nRule: Only write an optional starting numeric value. The brief supplies both currencies and a service supplies the rate and its date.\nexample: {\"c\":\"Converter\",\"value\":25}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Convert between the home and destination currencies, starting with an amount of 120.",
     "format": {
