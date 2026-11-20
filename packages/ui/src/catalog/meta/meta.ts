@@ -13,7 +13,10 @@ type Draw =
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
-type NumericSets = Readonly<Record<string, NumericSet>>;
+type ComponentSet =
+  | (NumericSet & { type?: "number" })
+  | { prop: string; type: "date"; min?: string; max?: string }
+  | { prop: string; type: "choice"; choices: readonly string[] };
 type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
 type LinkedEdits = {
   inputs: Readonly<Record<string, { prop: string; max: number }>>;
@@ -78,8 +81,8 @@ export type Meta = {
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
-  /** Component parts with a declared `set` action and a finite numeric destination prop. */
-  set?: NumericSets;
+  /** Component parts with a declared `set` action. Omitted type means number; date bounds are inclusive ISO dates. */
+  set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
   /**

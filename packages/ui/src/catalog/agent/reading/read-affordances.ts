@@ -4,7 +4,6 @@ import { linkedInput } from "../linked-edits";
 import {
   choiceValues,
   controlValueKey,
-  numericSetAt,
   partTierAt,
   selectionOffer,
   sessionActionProps,
@@ -12,6 +11,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
+import { setAt } from "../clocks";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -35,7 +35,7 @@ export function readAffordances(
     const risk = risks[partTierAt(meta, props, a.part)] ?? "";
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const choices = a.action === "select" && choiceValues(meta, props, target);
-    const set = a.action === "set" && numericSetAt(meta, props, target);
+    const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);
     const value = linked
       ? props[linked.prop]
