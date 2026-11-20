@@ -55,8 +55,9 @@ const entry = z
     photo: c.photo.optional(),
     from: requestStatus.optional(),
     to: requestStatus.optional(),
-    who: c.text(24).optional(),
-    order: c.text(12).optional(),
+    // These event details are emitted only by the full-detail reader above.
+    who: c.text(24).meta({ kind: undefined }).optional(),
+    order: c.text(12).meta({ kind: undefined }).optional(),
     goto: c.screenId.optional(),
   })
   .refine(

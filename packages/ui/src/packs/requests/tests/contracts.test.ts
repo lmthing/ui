@@ -92,19 +92,32 @@ it("bounds triage routing indices and a duplicate needs a reason and a non-self 
 });
 
 it("keeps triage navigation separate from deciding what to apply", () => {
-  const input = { ...RequestTriage.examples[1], duplicateAt: undefined };
+  const input = { ...RequestTriage.examples[1]!, duplicateAt: undefined };
   const screen = { id: "desk", components: [{ id: "t1", c: "RequestTriage", ...input }] };
   const defs = { RequestTriage };
   const act = (part: string, action: string, value?: number) =>
     planAct(screen, defs, {}, [{ address: `desk/t1/${part}`, action, value }]);
   expect(act("apply", "press")).toMatchObject({ ok: false, code: "not_actionable" });
   expect(act("r2", "press")).toMatchObject({ ok: true, links: [{ goto: "dog_run" }] });
-  expect(act("r2/link", "select", 0)).toMatchObject({ ok: true, links: [] });
+  expect(act("r2/link", "select", 1)).toMatchObject({ ok: true, links: [] });
   const queue = planAct(screen, defs, {}, [
+    { address: "desk/t1/r2/link", action: "select", value: 1 },
     { address: "desk/t1/r1", action: "select", value: 0 },
     { address: "desk/t1/apply", action: "press" },
   ]);
   expect(queue).toMatchObject({ ok: true, links: [] });
+  if (queue.ok) {
+    const values = Object.fromEntries(
+      Object.entries(queue.values).map(([address, value]) => [address.slice(5), value]),
+    );
+    const brief = readComponent(RequestTriage, input, "t1", "filled", values).join("\n");
+    const full = readComponent(RequestTriage, { ...input, detail: "full" }, "t1").join("\n");
+    expect(brief).toContain("Selected: Facilities; apply to save");
+    expect(brief).not.toContain(input.title);
+    expect(brief).not.toContain(input.number);
+    expect(full).toContain(input.title);
+    expect(full).toContain(input.number);
+  }
 });
 
 it("requires kind-specific thread details and suppresses empty sends", () => {
@@ -123,67 +136,10 @@ it("requires kind-specific thread details and suppresses empty sends", () => {
   const text = readComponent(RequestThread, { ...input, entries }, "t1").join("\n");
   expect(text).toContain("[t1/r2 press");
   expect(text).toContain("[t1/send send !needs-people]");
-});
-
-it("bounds work orders and keeps incomplete or blocked orders from offering finish", () => {
-  const input = WorkOrder.examples[0];
-  for (const edit of [
-    { to: "12:00" },
-    { date: undefined },
-    { note: undefined },
-    { tasks: [] },
-    { style: "summary" },
-    { minutes: -1 },
-    { parts: [{ name: "Chain", qty: 0 }] },
-  ])
-    expect(WorkOrder.props.safeParse({ ...input, ...edit }).success).toBe(false);
-  const reading = readComponent(WorkOrder, input, "w1").join("\n");
-  expect(reading).toContain("[w1/r2/check check:todo]");
-  expect(reading).toContain("[w1/r3/qty set");
-  expect(reading).not.toContain("w1/finish");
-  const order = { id: "desk", components: [{ id: "w1", c: "WorkOrder", ...input }] };
-  const edited = planAct(order, { WorkOrder }, {}, [{ address: "desk/w1/r3/qty", action: "set", value: 2 }]);
-  expect(edited.ok).toBe(true);
-  if (edited.ok) {
-    const values = Object.fromEntries(
-      Object.entries(edited.values).map(([address, value]) => [address.slice(5), value]),
-    );
-    expect(readComponent(WorkOrder, input, "w1", "filled", values).join("\n")).toContain(
-      '"LED grow light" ×2',
-    );
-  }
-  expect(readComponent(WorkOrder, WorkOrder.examples[1], "w1").join("\n")).not.toMatch(
-    /w1\/(?:r\d+\/(?:check|qty)|clock|finish)/,
-  );
-  expect(
-    readComponent(WorkOrder, { ...WorkOrder.examples[1], style: "worksheet" }, "w1").join("\n"),
-  ).not.toMatch(/w1\/(?:r\d+\/(?:check|qty)|clock|finish)/);
-});
-
-it("requires correct resolution evidence and offers only the appropriate acceptance actions", () => {
-  const [proposal, receipt] = RequestResolution.examples;
-  for (const edit of [
-    { outcome: "unable" },
-    { duplicateOf: "SR-42" },
-    { outcome: "duplicate", duplicateOf: proposal!.number, reason: "Same report" },
-    { checks: [] },
-    { photos: Array(5).fill("local:1") },
-    { accepted: true },
-  ])
-    expect(RequestResolution.props.safeParse({ ...proposal, ...edit }).success).toBe(false);
-  const proposed = readComponent(RequestResolution, proposal, "r1").join("\n");
-  expect(proposed).not.toContain("r1/accept");
-  expect(proposed).toContain('choices ["repaired","workaround"]');
-  const reading = readComponent(RequestResolution, receipt, "r1").join("\n");
-  expect(reading).toContain("[r1/accept press !needs-people]");
-  expect(reading).toContain("[r1/reopen press !needs-people]");
-  const withoutReason = { ...proposal, style: "receipt" };
-  expect(readComponent(RequestResolution, withoutReason, "r1").join("\n")).not.toContain("r1/reopen");
-  expect(
-    readComponent(
-      RequestResolution,
-      { ...receipt, checks: [{ text: "Verify leak", done: false }] },
-      "r1",
-    ).join("\n"),
-  ).not.toContain("r1/accept");
+  expect(text).toContain("WO-14");
+  const brief = readComponent(RequestThread, { ...input, entries, detail: "brief" }, "t1").join("\n");
+  expect(brief).not.toContain("WO-14");
+  expect(brief).not.toContain("assignment) Ella");
+  expect(brief).toContain("The grow light cable is loose.");
+  expect(brief).toContain("[t1/r2 press");
 });

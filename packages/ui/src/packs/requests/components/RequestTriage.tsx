@@ -4,12 +4,6 @@ import { urgency } from "./RequestQueue";
 
 const maxQueues = 6,
   maxDuplicates = 6;
-const duplicateLinks = Object.fromEntries(
-  Array.from({ length: maxQueues + maxDuplicates }, (_, index) => [
-    `r${index + 1}/link`,
-    { prop: "duplicateAt", choices: { prop: `link_${index + 1}` } },
-  ]),
-);
 
 // Core first: Field/choice cannot compare reported urgency with priority or link a duplicate.
 export const meta = {
@@ -39,29 +33,24 @@ export const meta = {
       "root.select": { kind: "queue" },
       "root.press": { kind: "duplicate" },
       link: { kind: "duplicate", canLink: true },
-      apply: { canApply: true },
     },
   },
-  // Apply the selected queue to the wire before deriving whether this decision can be applied.
-  select: { prop: "at", value: "index", choices: {} },
-  selections: { priority: { prop: "priority", choices: urgency.options }, ...duplicateLinks },
+  // Stage either route in one local slot. Its presence also enables the apply part.
+  select: { prop: "apply", value: "index" },
+  selections: { priority: { prop: "priority", choices: urgency.options } },
   read: (input): string[] => {
-    const { reportedUrgency, impact, priority, queues, duplicates, detail, at, duplicateAt } =
-      input as z.output<typeof props>;
+    const { number, title, reportedUrgency, impact, priority, queues, duplicates, detail, apply } =
+      input as z.output<typeof props> & { apply?: number };
     const decision =
-      duplicateAt !== undefined
-        ? duplicates[duplicateAt]?.number
-        : at === undefined
-          ? undefined
-          : queues[at]?.label;
+      apply === undefined ? undefined : (queues[apply]?.label ?? duplicates[apply - queues.length]?.number);
     return [
-      ...(detail === "full" ? [`${reportedUrgency} / ${impact}`] : []),
+      ...(detail === "full" ? [`${number} ${JSON.stringify(title)} · ${reportedUrgency} / ${impact}`] : []),
       priority,
       ...(decision ? [`Selected: ${decision}; apply to save`] : []),
       ...queues.map(({ label }, index) => `r${index + 1} ${JSON.stringify(label)}`),
       ...duplicates.map(
         ({ number, title }, index) =>
-          `r${queues.length + index + 1} ${number} ${JSON.stringify(title)} (link index ${index})`,
+          `r${queues.length + index + 1} ${number} ${JSON.stringify(title)} (link index ${queues.length + index})`,
       ),
     ];
   },
@@ -71,8 +60,9 @@ const duplicate = z.strictObject({ number: c.text(12), title: c.text(32), goto: 
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
-    number: c.text(12),
-    title: c.text(32),
+    // The custom reader emits these only in full detail; validation is still bounded text.
+    number: c.text(12).meta({ kind: undefined }),
+    title: c.text(32).meta({ kind: undefined }),
     reportedUrgency: urgency,
     impact: z.enum(["one", "several", "site"]),
     priority: urgency.default("normal"),
@@ -105,7 +95,7 @@ export const props = z
   .overwrite((value) => ({
     ...value,
     reason: value.reason ?? "",
-    canApply: value.at !== undefined || value.duplicateAt !== undefined,
+    apply: value.duplicateAt === undefined ? value.at : value.queues.length + value.duplicateAt,
     choices: [
       ...value.queues.map((queue) => ({ ...queue, kind: "queue" })),
       ...value.duplicates.map(({ goto, ...entry }) => ({
@@ -115,12 +105,6 @@ export const props = z
         canLink: entry.number !== value.number && Boolean(value.reason),
       })),
     ],
-    ...Object.fromEntries(
-      value.duplicates.map((entry, index) => [
-        `link_${value.queues.length + index + 1}`,
-        entry.number !== value.number && value.reason ? [index] : [],
-      ]),
-    ),
   }));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {

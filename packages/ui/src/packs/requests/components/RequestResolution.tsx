@@ -54,10 +54,11 @@ export const meta = {
   successActions: ["reason.type", "reopen.press"],
   selections: { outcome: { prop: "outcome", choices: { prop: "outcome_choices" } } },
   read: (input): string[] => {
-    const { outcome, duplicateOf, checks } = input as z.output<typeof props>;
+    const { outcome, duplicateOf, checks, photos } = input as z.output<typeof props>;
     return [
       duplicateOf ? `${outcome} → ${duplicateOf}` : outcome,
       ...checks.map(({ done }, index) => `r${index + 1} ${done ? "done" : "todo"}`),
+      ...photos.map((photo) => `photo:${photo.replace(/^lib:/, "")}`),
     ];
   },
 } as const satisfies c.Meta;
