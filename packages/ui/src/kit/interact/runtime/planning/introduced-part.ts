@@ -3,6 +3,7 @@ import {
   planAct,
   sessionEvent,
   sessionKey,
+  stageReportEdit,
   type ActStep,
   type RandomSource,
   type ScreenLike,
@@ -10,6 +11,17 @@ import {
 } from "../../../../catalog";
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
+
+export function confirmReport(ctx: ControllerContext, screen: ScreenLike, values: Values, step: ActStep) {
+  return stageReportEdit(
+    screen,
+    ctx.defs,
+    values,
+    step,
+    { kind: "confirm", now: ctx.now() },
+    ctx.options.deviceData,
+  );
+}
 
 export function dispatchPlan(
   ctx: ControllerContext,
@@ -64,7 +76,7 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen) &&
+    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen || meta.items?.edits || meta.signOff) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;

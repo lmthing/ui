@@ -1,5 +1,6 @@
 import {
   drawRole,
+  reportConfirmation,
   projectAdjustments,
   sessionEvent,
   parseControlProps,
@@ -18,7 +19,7 @@ import {
   type ActionState,
 } from "../../actions";
 import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
+import { confirmReport, dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
 function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
@@ -78,6 +79,8 @@ function prepareStep(
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
+  if (confirmed && confirmReport(ctx, active, values, selected) === false)
+    return fail("invalid_value", "Confirmation conflicts with report props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     context: {
@@ -104,6 +107,7 @@ function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionCo
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));
 }

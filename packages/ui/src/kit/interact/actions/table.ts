@@ -1,9 +1,17 @@
-import { affordancesOf, liveProps, stampItemIds, type ActStep, type StateName } from "../../../catalog";
+import {
+  affordancesOf,
+  liveProps,
+  reportConfirmation,
+  stampItemIds,
+  type ActStep,
+  type StateName,
+} from "../../../catalog";
 import { controlsAction, mediaAction, showConfirmation } from "./families";
 import type { ActionContext, ActionHandler, ActionState } from "./types";
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
   const meta = ctx.defs[ctx.entry.c]!.meta;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
+  if (reportConfirmation(meta, target, action.action)) return showConfirmation(state, ctx.selected, ctx);
   if (
     action.action === "press" &&
     Object.hasOwn(meta.clearItems ?? {}, target) &&

@@ -88,7 +88,11 @@ export function projectLiveInputs(
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */
 export function withLiveInput(meta: Meta, part: string, action: string, holder: Values, row: boolean) {
-  if (!row && action === "type") {
+  if (action === "type" && row && Object.hasOwn(meta.items?.edits ?? {}, part)) {
+    const spec = meta.items!.edits![part];
+    if (spec?.action === "type") return { input: { kind: "text", max: spec.max } as const };
+  }
+  if (action === "type" && !row) {
     const text = meta.live?.text;
     const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
     if (spec) return { input: { kind: "text", max: spec.max } as const };
