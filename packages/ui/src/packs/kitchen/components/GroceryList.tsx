@@ -18,6 +18,7 @@ import {
   KitCheck,
   KitContent,
   KitEmpty,
+  KitGrid,
   KitInput,
   KitRow,
   KitText,
@@ -94,27 +95,20 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const rows = items.length ? items : [{ name: placeholderTitle(0, lang), got: false }];
   return { aisles: [{ label: placeholderDetail, items: rows }] };
 }
+// prettier-ignore
+const breakfast = { aisles: [{ label: "Breakfast", items: [
+  { name: "Oats", qty: "1 bag", got: false },
+  { name: "Milk", qty: "1 l", got: false, by: "Alex" },
+] }] } satisfies z.input<typeof props>;
+// prettier-ignore
 export const examples = [
   // Ledge: the plant keeper's household supper.
-  {
-    aisles: [
-      { label: "Produce", items: [{ name: "Tomatoes", qty: "600 g", got: false, by: "Sam" }] },
-      { label: "Dairy", items: [{ name: "Ricotta", qty: "250 g", got: true }] },
-    ],
-  },
-  // Trot: breakfast before the walking round.
-  {
-    detail: "brief",
-    aisles: [
-      {
-        label: "Breakfast",
-        items: [
-          { name: "Oats", qty: "1 bag", got: false },
-          { name: "Milk", qty: "1 l", got: false, by: "Alex" },
-        ],
-      },
-    ],
-  },
+  { aisles: [
+    { label: "Produce", items: [{ name: "Tomatoes", qty: "600 g", got: false, by: "Sam" }] },
+    { label: "Dairy", items: [{ name: "Ricotta", qty: "250 g", got: true }] },
+  ] },
+  breakfast,
+  { ...breakfast, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("GroceryList");
 export const probes = [
@@ -148,14 +142,19 @@ function GroceryItem({ row, detail }: { row: GroceryRow; detail: "full" | "brief
         <KitText role="body" tone={row.got ? "muted" : "text"} strike={row.got} part="name">
           {row.name}
         </KitText>
-        {(["qty", "by"] as const).map(
-          (part) =>
-            row[part] &&
-            (part !== "by" || detail === "full") && (
-              <KitText key={part} role="caption" tone="muted" lines={1} part={part}>
-                {row[part]}
-              </KitText>
-            ),
+        {row.qty && (
+          <KitText
+            part="qty"
+            role={detail === "brief" ? "number" : "caption"}
+            numberScale="compact"
+            tone="muted"
+            lines={1}
+          >
+            {row.qty}
+          </KitText>
+        )}
+        {detail === "full" && row.by && (
+          <KitText part="by" role="caption" tone="muted" lines={1} children={row.by} />
         )}
       </KitContent>
     </KitRow>
@@ -186,10 +185,11 @@ export function GroceryList(value: Props<typeof props, typeof meta>) {
           {aisles.map((aisle, index) => (
             <KitContent key={index} group={index ? "response" : "content"}>
               <KitText role="heading" part={null}>{aisle.label}</KitText>
-              {live
-                .filter((row) => row.aisleIndex === index)
-                .sort((a, b) => Number(a.got) - Number(b.got))
-                .map((row) => <GroceryItem key={row.id} {...{ row, detail }} />)}
+              <KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
+                {live.filter((row) => row.aisleIndex === index)
+                  .sort((a, b) => Number(a.got) - Number(b.got))
+                  .map((row) => <GroceryItem key={row.id} {...{ row, detail }} />)}
+              </KitGrid>
             </KitContent>
           ))}
         </>

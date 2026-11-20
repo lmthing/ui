@@ -119,6 +119,114 @@
       "{\"address\": \"k1/r1\", \"action\": \"start\"}"
     ]
   },
+  "5304b59babf537da": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nKitchenTimers: Run several named cooking timers at once and adjust each independently.\nprops: { arrange?: grid|rows=\"grid\", timers: [1..6 { label: text≤16, seconds: int 1..14400, remaining?: int 0..14400, finished?: boolean=false, running?: boolean }] }\nRule: Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.\nRule: If asked to stack timers one per row instead of side by side, set arrange to \"rows\"; otherwise leave arrange null.\nexample: {\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372},{\"label\":\"Oven\",\"seconds\":1120}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show two independent timers, Pasta for 420 seconds and Oven for 900 seconds. Stack them one above the other, not side by side.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "KitchenTimers",
+              "enum": [
+                "KitchenTimers"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "timers": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 14400
+                  },
+                  "remaining": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 14400
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "finished": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "running": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "seconds",
+                  "remaining",
+                  "finished",
+                  "running"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "timers"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"KitchenTimers\",\"arrange\":\"rows\",\"timers\":[{\"label\":\"Pasta\",\"seconds\":420,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":900,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+    "replies": [
+      "{\"c\":\"KitchenTimers\",\"arrange\":\"rows\",\"timers\":[{\"label\":\"Pasta\",\"seconds\":420,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":900,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+      "{\"c\":\"KitchenTimers\",\"arrange\":\"rows\",\"timers\":[{\"label\":\"Pasta\",\"seconds\":420,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":900,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+      "{\"c\":\"KitchenTimers\",\"arrange\":\"rows\",\"timers\":[{\"label\":\"Pasta\",\"seconds\":420,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":900,\"remaining\":null,\"finished\":null,\"running\":null}]}"
+    ]
+  },
   "96e4758d90169afb": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nk1 KitchenTimers Béchamel: 6:12 — Oven: 18:40 — \"Start\" — \"+1 min\"\n  r1 \"Béchamel\" [k1/r1 start !needs-ok] [k1/r1/more press]\n  r2 \"Oven\" [k1/r2 start !needs-ok] [k1/r2/more press]\n\nTask: Add a minute to the oven timer\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"k1/r2/more\", \"action\": \"press\"}",
@@ -226,6 +334,114 @@
       "KitchenTimers",
       "KitchenTimers",
       "KitchenTimers"
+    ]
+  },
+  "da8de3c0fdd6ee5f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nKitchenTimers: Run several named cooking timers at once and adjust each independently.\nprops: { arrange?: grid|rows=\"grid\", timers: [1..6 { label: text≤16, seconds: int 1..14400, remaining?: int 0..14400, finished?: boolean=false, running?: boolean }] }\nRule: Write each timer's label and seed seconds, 1–14400. Never write remaining, finished, running, progress or sorted order; the device computes them.\nRule: If asked to stack timers one per row instead of side by side, set arrange to \"rows\"; otherwise leave arrange null.\nexample: {\"c\":\"KitchenTimers\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372},{\"label\":\"Oven\",\"seconds\":1120}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Two concurrent cooking timers: Béchamel for 372 seconds and Oven for 1120 seconds",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "KitchenTimers",
+              "enum": [
+                "KitchenTimers"
+              ]
+            },
+            "arrange": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "grid",
+                    "rows"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "timers": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 14400
+                  },
+                  "remaining": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 14400
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "finished": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "running": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "seconds",
+                  "remaining",
+                  "finished",
+                  "running"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "arrange",
+            "timers"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+    "replies": [
+      "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+      "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+      "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}"
     ]
   },
   "ee0bc690828ab302": {

@@ -110,15 +110,16 @@ export const examples = [
     target: 2000, goto: "food_add",
   },
   {
-    density: "compact", detail: "brief", goto: "food_add",
+    density: "compact", goto: "food_add",
     meals: [
-      {
-        meal: "breakfast",
-        items: [{ name: "Apple porridge", kcal: 310, amount: "1 bowl" }, { name: "Milk", kcal: 90 }],
-      },
+      { meal: "breakfast", items: [{ name: "Apple porridge", kcal: 310, amount: "1 bowl" }, { name: "Milk", kcal: 90 }] },
       { meal: "lunch", items: [] },
     ],
   },
+  { detail: "brief", goto: "food_add", meals: [
+    { meal: "breakfast", items: [{ name: "Apple porridge", kcal: 310, amount: "1 bowl" }, { name: "Milk", kcal: 90 }] },
+    { meal: "lunch", items: [] },
+  ] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("FoodLog");
 export const probes = [

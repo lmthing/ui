@@ -40,7 +40,7 @@ export const meta = {
   pick: "Food in the cupboard, fridge and freezer with quantities and use-by dates. Not ordinary things to browse (List), things owned generally (Things), or groceries to buy (GroceryList).",
   writeHints: [
     "Write stored useBy dates, never expiry status, tones or sorted ranks. Dates and today's clock determine those.",
-    'If asked to hide storage locations, set detail to "brief" and keep place in the data. Highlight only explicitly requested items; leave every unrequested axis, including item mark, null.',
+    'If asked to hide storage locations, set detail to "brief" and keep place in the data. Always write mark null unless the user explicitly asks to highlight a specific item; quantities and expiry dates are not a request to highlight.',
   ],
   region: "body",
   weight: 3,
@@ -105,10 +105,8 @@ export const examples = [
     { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
     { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
   ] },
-  // Trot: breakfast before the walking round.
-  { detail: "brief", items: [
-    { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details", mark: "highlight" },
-  ] },
+  { items: [{ name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details", mark: "highlight" }] },
+  { detail: "brief", items: [{ name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Pantry");
 export const probes = [
@@ -172,11 +170,12 @@ export function Pantry({ items, detail: choice }: PantryProps) {
   const detail = useVariant("detail", meta.variants.detail, choice);
   const { words: { pantryLabels } } = useWords(kitchenWordsFor);
   if (state === "empty") return <KitCard part="root"><KitEmpty part="name" decorativeIcon /></KitCard>;
+  const inline = items.every(({ mark }) => mark === "none");
   const tiles = pantryOrder(items).map((item) => (
-    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} mark={item.mark} inline>
+    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} {...{ mark: item.mark, inline }}>
       <KitContent>
         {items.length === 1 ? (
-          <KitGrid columns={2}>
+          <KitGrid columns={2} fitLast={!inline}>
             <PantryFood {...{ item, detail }} />
             <PantryDate useBy={item.useBy} />
           </KitGrid>

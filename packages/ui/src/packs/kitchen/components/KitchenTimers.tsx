@@ -118,7 +118,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 // prettier-ignore
 export const examples = [
   { timers: [{ label: "Béchamel", seconds: 372 }, { label: "Oven", seconds: 1120 }] },
-  { arrange: "rows", timers: [{ label: "Porridge", seconds: 300 }, { label: "Tea", seconds: 180 }] },
+  { arrange: "rows", timers: [{ label: "Stock", seconds: 3599 }, { label: "Slow roast", seconds: 14400 }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("KitchenTimers");
 export const probes = [
@@ -135,43 +135,38 @@ export const probes = [
   read("Add a minute to the oven timer", { address: "k1/r2/more", action: "press" }),
 ] satisfies Probe[];
 
-function CountdownTile({ timer }: { timer: Props<typeof props, typeof meta>["timers"][number] }) {
+type Timer = Props<typeof props, typeof meta>["timers"][number];
+// prettier-ignore
+function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
   const {
     lang,
     words: { kitchenTimerLabels: labels },
   } = useWords(kitchenWordsFor);
   const remaining = countdownOf(timer);
   const control = kitchenTimerControl(timer);
+  const clock = clockLine(remaining, lang);
+  const label = <KitText part="label" role="label" tone="muted" align="center">{timer.label}</KitText>;
+  const ring = (
+    <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
+      <KitText part={stacked ? null : "seconds"} role="number" numberScale="compact" emphasis={stacked ? "hero" : "normal"} tabular align="center">{clock}</KitText>
+    </KitRing>
+  );
+  const actions = <>
+    <KitAction part="root" label={labels[control]} action={control === "pause" ? "stop" : "start"}
+      kind={stacked ? "secondary" : "primary"} disabled={control === "finished"} full />
+    <KitAction part="more" label={kitchenTimerMore(lang)} action="press" kind="quiet"
+      disabled={remaining >= kitchenTimerMax} full />
+  </>;
   return (
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
-      <KitContent>
-        <KitText part="label" role="label" tone="muted" align="center">
-          {timer.label}
-        </KitText>
-        <KitRing part="ring" value={timer.running ? remaining : 0} of={timer.seconds}>
-          <KitText part="seconds" role="number" numberScale="compact" tabular align="center">
-            {clockLine(remaining, lang)}
-          </KitText>
-        </KitRing>
-        <KitContent group="response">
-          <KitAction
-            part="root"
-            label={labels[control]}
-            action={control === "pause" ? "stop" : "start"}
-            kind="primary"
-            disabled={control === "finished"}
-            full
-          />
-          <KitAction
-            part="more"
-            label={kitchenTimerMore(lang)}
-            action="press"
-            kind="quiet"
-            disabled={remaining >= kitchenTimerMax}
-            full
-          />
-        </KitContent>
-      </KitContent>
+      {stacked ? (
+        <KitGrid columns={2}>
+          <KitContent>{label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow></KitContent>
+          <KitContent>{actions}</KitContent>
+        </KitGrid>
+      ) : (
+        <KitContent>{label}{ring}<KitContent group="response">{actions}</KitContent></KitContent>
+      )}
     </KitRow>
   );
 }
@@ -186,7 +181,9 @@ export function KitchenTimers(input: Props<typeof props, typeof meta>) {
         <KitEmpty icon="timer" part="empty" decorativeIcon />
       </KitCard>
     );
-  const tiles = kitchenTimerOrder(timers).map((timer) => <CountdownTile key={timer.id} timer={timer} />);
+  const tiles = kitchenTimerOrder(timers).map((timer) => (
+    <CountdownTile key={timer.id} timer={timer} stacked={arrange === "rows"} />
+  ));
   return (
     <KitCard part="root" padded>
       {tiles.length === 1 ? tiles : <KitGrid arrange={arrange}>{tiles}</KitGrid>}
