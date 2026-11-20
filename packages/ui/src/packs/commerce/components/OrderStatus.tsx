@@ -89,7 +89,7 @@ export const probes = [
   ),
   {
     ...write(
-      'Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. The optional secondary status sentence is "Almost there". Use the brief display that hides that sentence and shows just the track, with normal spacing and surface left unchanged.',
+      'Track Received, On its way, and Delivered for one order. On its way is current; this is for the buyer. The optional secondary status sentence is "Almost there". Use the brief display that hides that sentence and shows just the track, Do not set spacing or surface options.',
     ),
     variant: { axis: "detail", value: "brief" },
   },

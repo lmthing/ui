@@ -23,12 +23,22 @@ export const meta = {
   items: { key: "items", parts: ["root", "name", "price", "was", "photo", "badge", "sub", "add"] },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"], add: ["press"] } },
+  read: (input, state, lang): string[] => {
+    if (state !== "filled") return [];
+    const { items } = input as { items: z.output<typeof itemProps>[] };
+    return items.map(({ name, price, was }) => {
+      const current = c.moneyLine(price, undefined, undefined, lang);
+      const amount =
+        was === undefined ? current : `${c.moneyLine(was, undefined, undefined, lang)} → ${current}`;
+      return c.documentFieldLine(name, amount, lang);
+    });
+  },
 } as const satisfies c.Meta;
 
 const itemProps = z.strictObject({
   name: c.text(28),
-  price: z.number().min(0),
-  was: z.number().min(0).optional(),
+  price: z.number().min(0).multipleOf(0.01),
+  was: z.number().min(0).multipleOf(0.01).optional(),
   photo: c.photo,
   badge: c.text(12).optional(),
   sub: c.text(48).optional(),

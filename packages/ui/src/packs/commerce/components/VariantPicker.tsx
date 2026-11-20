@@ -21,13 +21,22 @@ export const meta = {
   states: ["filled"],
   actions: { items: { root: ["select"] }, when: { root: { available: true } } },
   select: { prop: "at", value: "index" },
+  read: (input, state, lang): string[] => {
+    if (state !== "filled") return [];
+    const { options } = input as { options: z.output<typeof optionProps>[] };
+    return options.flatMap(({ label, extra }) =>
+      extra === undefined
+        ? []
+        : [c.documentFieldLine(label, c.changeLine(extra, "money", undefined, lang), lang)],
+    );
+  },
 } as const satisfies c.Meta;
 
 const optionProps = z.strictObject({
   label: c.text(16),
   swatch: c.swatch.optional(),
   available: z.boolean(),
-  extra: z.number().optional(),
+  extra: z.number().multipleOf(0.01).optional(),
 });
 export const props = z
   .strictObject({

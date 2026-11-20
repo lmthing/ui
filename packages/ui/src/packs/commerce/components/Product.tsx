@@ -16,12 +16,21 @@ export const meta = {
   parts: ["root", "name", "price", "was", "description", "stock", "badge", "qty", "add", "save"],
   states: ["filled", "loading", "success"],
   actions: { parts: { qty: ["increment", "decrement"], add: ["press"], save: ["toggle"] } },
+  read: (input, state, lang): string[] => {
+    if (state !== "filled") return [];
+    const { price, was, stock } = input as { price: number; was?: number; stock?: number };
+    const current = c.moneyLine(price, undefined, undefined, lang);
+    return [
+      was === undefined ? current : `${c.moneyLine(was, undefined, undefined, lang)} → ${current}`,
+      ...(stock === undefined ? [] : [c.quantityLine(stock, lang)]),
+    ];
+  },
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
   name: c.text(32),
-  price: z.number().min(0),
-  was: z.number().min(0).optional(),
+  price: z.number().min(0).multipleOf(0.01),
+  was: z.number().min(0).multipleOf(0.01).optional(),
   description: c.text(240),
   stock: z.int().min(0).optional(),
   badge: c.text(12).optional(),

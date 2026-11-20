@@ -37,7 +37,13 @@ export const meta = {
     });
     return [
       c.totalLine(total, undefined, lang),
-      ...lines.map(({ name, qty }) => `${name}: ${c.numberLine(qty, lang)}`),
+      ...lines.map(({ name, qty, price }) =>
+        c.documentFieldLine(
+          name,
+          `${c.quantityLine(qty, lang)} · ${c.moneyLine(price, undefined, "each", lang)}`,
+          lang,
+        ),
+      ),
     ];
   },
 } as const satisfies c.Meta;
@@ -47,11 +53,11 @@ const lineProps = z.strictObject({
   variant: c.text(20).optional(),
   photo: c.photo,
   qty: z.int().min(1).max(99),
-  price: z.number().min(0),
+  price: z.number().min(0).multipleOf(0.01),
 });
 export const props = z.strictObject({
   lines: z.array(lineProps).min(1).max(8),
-  delivery: z.number().min(0).optional(),
+  delivery: z.number().min(0).multipleOf(0.01).optional(),
   ...c.variantProps(meta.variants),
 });
 
