@@ -129,6 +129,27 @@ it("names the missing root door when a third pack is scaffolded", async () => {
   await expect(generateEntries(root)).rejects.toThrow(`Missing pack door: ${door}`);
 });
 
+it("exposes authored compose probes by pack through a named door re-export", async () => {
+  const root = await mkdtemp(resolve(".entries-scale-test-"));
+  roots.push(root);
+  await put(root, "catalog/index.ts", `export * from ${JSON.stringify(resolve("src/catalog/index.ts"))};`);
+  await scaffold(root, "booking");
+  await scaffold(root, "health");
+  const probe = { kind: "compose", archetype: "detail", layout: "plain", brief: "Show a visit." };
+  await put(
+    root,
+    "packs/booking/archetypes/detail.ts",
+    `export const detail = { id: "detail" }; export const probes = ${JSON.stringify([probe])};`,
+  );
+  await put(
+    root,
+    "packs/booking/archetypes/index.ts",
+    'export { detail, probes as detailProbes } from "./detail";\nexport { overview } from "./overview";',
+  );
+  await generateEntries(root);
+  expect((await loadEntry(root, "catalog")).packComposeProbes).toEqual({ booking: [probe] });
+});
+
 it("removes obsolete generated data and view groups when regenerating a smaller scaffold", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);

@@ -6,7 +6,7 @@ export {
   type Affordance,
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
-export { validateActionValue, type ValueError } from "./validate-value";
+export { selectionOffer, validateActionValue, type ValueError } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type Values } from "./act";
 export {
   controlValueKey,
@@ -24,8 +24,15 @@ export {
   type DrawState,
   type RandomSource,
 } from "./draw";
-export { selectionAt, selectionError, selectionChanges, selectionOffer, projectSelection } from "./selection";
-export { nestedControls, nestedAt, projectNested } from "./selection";
+export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export {
+  activeParentId,
+  isNestedTarget,
+  nestedControls,
+  nestedAt,
+  nestedRemaining,
+  projectNested,
+} from "./selection";
 export {
   sessionAvailable,
   sessionEvent,
