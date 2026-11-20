@@ -10,6 +10,8 @@ export type CommerceWords = {
   orderTotal: string;
   reorder: string;
   receiptSeparator: string;
+  variantUnavailable: string;
+  variantReading: (label: string, details: readonly string[]) => string;
 };
 
 export const en = {
@@ -24,4 +26,6 @@ export const en = {
   orderTotal: "Total",
   reorder: "Reorder",
   receiptSeparator: " · ",
+  variantUnavailable: "Sold out",
+  variantReading: (label, details) => [label, ...details].join(" · "),
 } satisfies CommerceWords;

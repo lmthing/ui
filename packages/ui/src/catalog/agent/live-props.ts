@@ -3,12 +3,11 @@ import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
-import type { Values } from "./act";
+import type { DeviceData, ScreenLike, Values } from "./index";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
-import type { ScreenLike } from "./read";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -138,6 +137,7 @@ export function liveProps(
   instance: string,
   values: Values,
   wireApplied = false,
+  data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   const { draw, emptyActions, errorActions, successActions, session } = meta;
@@ -154,7 +154,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get);
+  props = projectLiveInputs(meta, props, instance, get, data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

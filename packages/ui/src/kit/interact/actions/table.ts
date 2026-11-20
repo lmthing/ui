@@ -13,7 +13,14 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
-  const props = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local, true);
+  const props = liveProps(
+    meta,
+    stampItemIds(meta, ctx.input),
+    ctx.entry.id,
+    local,
+    true,
+    ctx.options.deviceData,
+  );
   const part = affordancesOf(
     meta,
     props,
