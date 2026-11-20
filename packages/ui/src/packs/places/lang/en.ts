@@ -1,7 +1,12 @@
 export const en = {
   closed: "Closed",
-  rating: (value: string) => `Rating ${value} out of 5`,
-  priceLevel: (value: string) => `Price level ${value} out of 4`,
+  rating: (value: string, max: string) => `Rating ${value} out of ${max}`,
+  ratingSkeleton: (value: string) => `★\u2004★\u2004★\u2004★\u2004★\u2004${value}`,
+  priceLevel: (value: string, max: string) => `Price level ${value} out of ${max}`,
+  placeHours: (opens: string, closes: string) => `${opens}–${closes}`,
+  openNow: "Open now",
+  closesAt: (time: string) => `Closes ${time}`,
+  distanceAway: (value: string) => `${value} km away`,
   deliveryStep: {
     preparing: "Preparing",
     picked_up: "Picked up",

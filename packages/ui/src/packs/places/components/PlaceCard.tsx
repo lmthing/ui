@@ -1,17 +1,19 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { placeCardCopy, placeCardReading } from "../copy";
 import { placesWordsFor } from "../lang";
 
 // Core first: Card/plain cannot show structured venue rating, price level, open state and distance.
 export const meta = {
   id: "PlaceCard",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "See whether a venue is open and worth visiting.",
   pick: "One venue to visit with its opening times, distance, rating or price level. Not a compact preview of an ordinary record (Card), several places (List), a product (Product), or a rental (Listing).",
   writeHints: [
     "Supply opening and closing times together or neither. Never write open status or distance; they are computed. Leave photo null when a Gallery already shows the venue.",
-    'Use media "none" to hide supplied artwork, keeping the photo reference. Leave unrequested axes null.',
+    'To hide a supplied photo, keep its reference and write media "none"; this does not change density. Write density null unless the person explicitly asks for compact or comfortable spacing. Leave media null unless the person requests a media treatment.',
   ],
   region: "body",
   weight: 2,
@@ -22,15 +24,13 @@ export const meta = {
   parts: ["root", "photo", "name", "category", "rating", "price_level", "distance", "open_state"],
   states: ["filled", "loading"],
   actions: { parts: { root: ["press"] } },
-  read: (input, _state, lang): string[] => {
-    const { rating, priceLevel, opens, closes } = input as z.output<typeof props>;
-    const words = placesWordsFor(lang);
-    return [
-      ...(rating === undefined ? [] : [words.rating(c.numberLine(rating, lang))]),
-      ...(priceLevel === undefined ? [] : [words.priceLevel(c.numberLine(priceLevel, lang))]),
-      ...(opens && closes ? [`${c.timeOfDayLine(opens, lang)}–${c.timeOfDayLine(closes, lang)}`] : []),
-    ];
-  },
+  live: {}, // Opt into state-aware planning so loading never follows the link.
+  deviceData: ["place_details"],
+  previewDeviceData: ({ input }) => ({
+    place_details: [{ name: input.name, goto: input.goto, localTime: "13:00", distanceKm: 1.2 }],
+  }),
+  read: (input, state, lang, data): string[] =>
+    state === "filled" ? placeCardReading(input as z.output<typeof props>, data, lang) : [],
 } as const satisfies c.Meta;
 
 export const props = z
@@ -73,8 +73,9 @@ const nursery = {
 };
 export const examples = [
   nursery,
-  { name: "Juniper Café", category: "Dog-friendly café", rating: 4.5, goto: "juniper", density: "compact" },
-  { ...nursery, media: "none" },
+  { name: "Juniper Café", category: "Dog-friendly café", rating: 4.5, goto: "juniper" },
+  { ...nursery, media: "none", closes: "13:30" },
+  { ...nursery, density: "compact" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = c.probesFor("PlaceCard");
@@ -95,3 +96,94 @@ export const probes = [
   },
   read("Open Riverside Nursery", { address: "p1", action: "press" }),
 ] satisfies c.Probe[];
+
+type PlaceCardProps = c.Props<typeof props, typeof meta>;
+type PlaceCopy = ReturnType<typeof placeCardCopy>;
+type Density = NonNullable<PlaceCardProps["density"]>;
+const nameRole = (density: Density) => (density === "compact" ? "title" : "heading");
+
+// prettier-ignore
+function VenueDetail({ input, copy, density }: { input: PlaceCardProps; copy: PlaceCopy; density: Density }) {
+  const { name, category, rating } = input;
+  const { opening, price, distance } = copy;
+  const stars = rating === undefined ? undefined : (
+    <kit.KitScaleTrack style="stars" value={rating} labels={copy.ratingLabels} readonly compact />
+  );
+  const score = stars && (
+    <kit.KitContent lead={stars} lineRole="body" density={density}>
+      <kit.KitText role="number" numberScale="compact" part="rating" tabular lines={1} density={density}>{copy.rating}</kit.KitText>
+    </kit.KitContent>
+  );
+  const badge = opening && (
+    <kit.KitTrail part="open_state" kind="badge" value={opening.text} tone={opening.tone} density={density} />
+  );
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitText role={nameRole(density)} part="name" density={density}>{name}</kit.KitText>
+        <kit.KitIcon name="chevron_right" decorative />
+      </kit.KitGrid>
+      <kit.KitText part="category" tone="muted" density={density}>{category}</kit.KitText>
+      {(score || badge || price || distance) && (
+        <kit.KitContent density={density}>
+          {score && badge ? <kit.KitGrid fitLast density={density}>{score}{badge}</kit.KitGrid> : score || (
+            badge && <kit.KitContent lead={badge} leadingAlign="row" density={density}>{null}</kit.KitContent>
+          )}
+          {(price || distance) && <kit.KitGrid fitLast density={density}>
+            {price && <kit.KitText role="label" tone="muted" part="price_level" density={density}>{price}</kit.KitText>}
+            {distance && <kit.KitText role="label" tone="muted" part="distance" density={density}>{distance}</kit.KitText>}
+          </kit.KitGrid>}
+        </kit.KitContent>
+      )}
+    </kit.KitContent>
+  );
+}
+
+// prettier-ignore
+function VenueLoading({ input, copy, density }: { input: PlaceCardProps; copy: PlaceCopy; density: Density }) {
+  const { words } = kit.useWords(placesWordsFor);
+  const score = copy.rating && <kit.KitSkeleton shape="figure" inset="none" density={density}
+    content={[["number", words.ratingSkeleton(copy.rating), "start", "compact"]]} />;
+  const badge = copy.opening && <kit.KitTrail part="open_state" kind="badge" value={copy.opening.text} density={density} />;
+  return (
+    <kit.KitContent density={density}>
+      <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[[nameRole(density), input.name], ["body", input.category]]} />
+      <kit.KitContent density={density}>
+        {score && badge ? <kit.KitGrid fitLast density={density}>{score}{badge}</kit.KitGrid> : score || (
+          badge && <kit.KitContent lead={badge} leadingAlign="row" density={density}>{null}</kit.KitContent>
+        )}
+        {(copy.price || copy.distance) && <kit.KitGrid fitLast density={density}>
+          {copy.price && <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.price]]} />}
+          {copy.distance && <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.distance]]} />}
+        </kit.KitGrid>}
+      </kit.KitContent>
+    </kit.KitContent>
+  );
+}
+
+export function PlaceCard(input: PlaceCardProps) {
+  const { name, goto } = input;
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const media = kit.useVariant("media", meta.variants.media, input.media);
+  const loading = kit.useComponentState() === "loading";
+  const { resolvePhoto } = kit.useKit();
+  const { lang } = kit.useWords(placesWordsFor);
+  const copy = placeCardCopy(input, kit.useDeviceData(), lang);
+  const photo = media === "cover" && input.photo && resolvePhoto?.(input.photo) ? input.photo : undefined;
+  return (
+    <kit.KitCard part="root" padded density={density} {...(loading ? {} : { goto, label: name })}>
+      {photo &&
+        (loading ? (
+          <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />
+        ) : (
+          <kit.KitPhoto part="photo" shape="wide" photo={photo} label={name} />
+        ))}
+      {loading ? (
+        <VenueLoading input={input} {...{ copy, density }} />
+      ) : (
+        <VenueDetail input={input} {...{ copy, density }} />
+      )}
+    </kit.KitCard>
+  );
+}
