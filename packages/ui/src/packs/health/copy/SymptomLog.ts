@@ -30,7 +30,6 @@ export function symptomReading(
 
 export function symptomTargets(groups: readonly { label: string; symptoms: readonly SymptomSeed[] }[]) {
   return groups.map(
-    (group) =>
-      `${group.label}: ${group.symptoms.map((symptom, index) => `symptom_${index + 1} = ${symptom.label}`).join(", ")}`,
+    (group) => `${group.label}: ${group.symptoms.map((symptom) => symptom.label).join(", ")}`,
   );
 }

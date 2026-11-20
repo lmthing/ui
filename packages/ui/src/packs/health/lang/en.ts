@@ -1,12 +1,12 @@
 export const en = {
-  activityRing: (label: string, value: string, goal: string, unit: string) =>
-    `${label}: ${value} ${goal} ${unit}`,
+  activityRing: (label: string, value: string, goal: string | undefined, unit: string) =>
+    `${label}: ${value}${goal === undefined ? "" : ` ${goal}`} ${unit}`,
   symptomLevel: (value: string, max: string) => `${value}/${max}`,
   symptomSeverity: (label: string, level: string) => `${label} · ${level}`,
   vitalPair: (value: string) => ` / ${value}`,
   vitalUnit: (unit: string, value?: string) => (value === undefined ? unit : `/ ${value} ${unit}`),
-  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at: string) =>
-    `${label}: ${value} ${unit} · ${range} · ${status} · ${at}`,
+  vitalReading: (label: string, value: string, unit: string, range: string, status: string, at?: string) =>
+    `${label}: ${value} ${unit} · ${range} · ${status}${at === undefined ? "" : ` · ${at}`}`,
   vitalLabels: {
     add: "Add reading",
     outside: "Outside range",
@@ -31,14 +31,13 @@ export const en = {
   cycleWindow: (dates: string) => `Fertile window (est.) · ${dates}`,
   measurementChange: (value: string, unit: string) => `${value} ${unit} since first reading`,
   measurementGoal: (value: string, unit: string) => `Goal ${value} ${unit}`,
-  measurementLatest: (label: string, unit: string) => `${label} · ${unit}`,
   measurementValue: (value: string, unit: string) => `${value} ${unit}`,
   exerciseDetail: (label: string, value: string) => `${label}: ${value}`,
   exerciseStart: (label: string) => `start button: ${label}`,
   cycleLabels: {
     log: "Log period",
-    disclaimer: "Predictions are not a method of contraception.",
-    empty: "Log a period to see cycle estimates.",
+    disclaimer: "Predictions are not a method\u00a0of\u00a0contraception.",
+    empty: "Log a period to see cycle\u00a0estimates.",
     upcoming: "Upcoming period",
     period: "Period",
     follicular: "Follicular phase",
@@ -61,6 +60,7 @@ export const en = {
     year: "Year",
     start: "Start",
     latest: "Latest",
+    empty: "No measurements yet",
   },
   workout: {
     elapsed: "Elapsed time",

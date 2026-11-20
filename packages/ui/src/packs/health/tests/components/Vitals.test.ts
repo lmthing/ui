@@ -18,7 +18,6 @@ const castOf = (title: unknown): CastLike => ({
   things: [{ type: "record", fields: ["title"] }],
   items: [{ id: "one", type: "record", sample: true, title }],
 });
-
 describe("Vitals schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -29,7 +28,7 @@ describe("Vitals schema", () => {
         ...input,
         readings: [{ ...reading, label: " Blood pressure ", unit: " mmHg ", at: " 08:10 " }],
       }),
-    ).toEqual(input);
+    ).toEqual({ ...input, surface: "card", detail: "full" });
   });
   it.each([
     {},

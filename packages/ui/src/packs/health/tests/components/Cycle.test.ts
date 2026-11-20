@@ -104,8 +104,11 @@ describe("Cycle fallback", () => {
 describe("Cycle states, parts and reading", () => {
   it.each(examples)("addresses every filled part once and reads every visible line", (input) => {
     const html = renderInstance("Cycle", input, "filled", theme);
+    const hidden = input.detail === "brief" ? meta.variantParts["detail.brief"].hides : [];
     for (const part of meta.parts)
-      expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g"))).toHaveLength(1);
+      expect(html.match(new RegExp(`data-testid="home/c1/${part}"`, "g")) ?? []).toHaveLength(
+        hidden.some((name) => name === part) ? 0 : 1,
+      );
     expect(elementAt(html, "home/c1/log").attributes).toContain('role="button"');
     const reading = readComponent(components.Cycle, input, "c1").join("\n");
     for (const line of cycleReading(input)) {

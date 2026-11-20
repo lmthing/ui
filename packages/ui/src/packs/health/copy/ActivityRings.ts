@@ -5,11 +5,12 @@ import { healthWordsFor } from "../lang";
 export function activityRingLine(
   ring: { label: string; value: number; of: number; unit: string },
   lang?: string,
+  showTarget = true,
 ): string {
   return healthWordsFor(lang).activityRing(
     ring.label,
     numberLine(ring.value, lang),
-    goalLine(ring.of, lang),
+    showTarget ? goalLine(ring.of, lang) : undefined,
     ring.unit,
   );
 }
