@@ -61,7 +61,7 @@ export const props = z
     ...(input.detail === "brief"
       ? { players: input.players.map((row) => ({ ...row, reason: undefined })) }
       : {}),
-    own_answer: input.players[0]!.answer,
+    own_answer: input.players[0]?.answer,
   }));
 
 function applyOwnAnswer(input: Readonly<Record<string, unknown>>): Record<string, unknown> {

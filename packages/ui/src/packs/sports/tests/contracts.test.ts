@@ -49,6 +49,10 @@ it("rejects invalid replies and projects a reply and a coach check without touch
   expect(seed.players[1]!.picked).toBe(false);
 });
 
+it("rejects an empty squad as a validation error", () => {
+  expect(components.Squad.props.safeParse({ needed: 5, players: [] }).success).toBe(false);
+});
+
 it("checks match scores against only goals on the corresponding side", () => {
   const feed = components.MatchFeed.examples[0];
   const score = { ...components.Scoreboard.examples[0], homeScore: 1, awayScore: 0 };
