@@ -1,19 +1,32 @@
 import { z } from "zod";
-import { probesFor, stepLine, text, type CastLike, type Meta, type Probe, type Props } from "../catalog";
-import { KitBlock, KitContent, KitStepsTrack, KitText, useWords } from "../kit";
+import {
+  probesFor,
+  stepLine,
+  text,
+  variantProps,
+  type CastLike,
+  type Meta,
+  type Probe,
+  type Props,
+} from "../catalog";
+import { KitBlock, KitContent, KitStepsTrack, KitText, useVariant, useWords } from "../kit";
 
 export const meta = {
   id: "Steps",
   group: "structure",
   purpose: "Know your current place in a short ordered flow.",
   pick: "Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).",
+  writeHints: [
+    'If asked to show only the step position without the task name, set detail to "brief". Otherwise leave detail null. Density must be null unless the person specifically asks for compact spacing; do not write "comfortable" as a default.',
+  ],
   region: "top",
   weight: 1,
   tier: "phone",
   realPath: "The current position in a flow stored in the on-device app.",
+  variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   parts: ["root", "track", "label"],
   states: ["filled"],
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const { at, count } = props.parse(input);
     return [stepLine(at, count, lang)];
@@ -22,12 +35,14 @@ export const meta = {
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["dots", "bar", "numbered"]).default("dots"),
     count: z.int().min(2).max(6),
     at: z.int().min(1).max(6),
     label: text(32).optional(),
   })
-  .refine(({ count, at }) => at <= count, { path: ["at"], message: "Must not exceed count" });
+  .refine(({ count, at }) => at <= count, { path: ["at"], message: "Must not exceed count" })
+  .overwrite((value) => (value.detail === "brief" ? { ...value, label: undefined } : value));
 
 export function fallback(_input: { cast: CastLike }): z.input<typeof props> {
   return { count: 3, at: 1 };
@@ -37,6 +52,8 @@ export const examples = [
   { style: "dots", count: 3, at: 2, label: "Add your first plant" },
   { style: "numbered", count: 4, at: 3, label: "Confirm Clover's walk" },
   { style: "bar", count: 5, at: 1 },
+  { density: "compact", count: 4, at: 2, label: "Set a watering reminder" },
+  { detail: "brief", count: 4, at: 2, label: "Set a watering reminder" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write } = probesFor("Steps");
@@ -49,18 +66,36 @@ export const probes = [
   write(
     "I'm adding my first plant on the second screen of a three-screen setup; show my place and say Add your first plant",
   ),
+  {
+    ...write(
+      "I'm on the second screen of four in plant setup. Show only my position in that sequence, not the task name Set a watering reminder.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
 ] satisfies Probe[];
 
-export function Steps({ style, count, at, label }: Props<typeof props, typeof meta>) {
+export function Steps({
+  style,
+  count,
+  at,
+  label,
+  density: requestedDensity,
+}: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
+  const density = useVariant("density", meta.variants.density, requestedDensity);
 
   const position = stepLine(at, count, lang);
   return (
-    <KitBlock label={label ? `${position} · ${label}` : position}>
-      <KitContent>
+    <KitBlock label={label ? `${position} · ${label}` : position} density={density}>
+      <KitContent density={density}>
         <KitStepsTrack style={style} count={count} at={at} part="track" />
-        <KitText role={label ? "body" : "caption"} tone={label ? "text" : "muted"} part="label">
-          <KitText role="caption" tone="muted" part={null}>
+        <KitText
+          role={label ? "body" : "caption"}
+          tone={label ? "text" : "muted"}
+          part="label"
+          density={density}
+        >
+          <KitText role="caption" tone="muted" part={null} density={density}>
             {position}
           </KitText>
           {label && (
