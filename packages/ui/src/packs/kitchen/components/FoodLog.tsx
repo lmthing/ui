@@ -158,17 +158,22 @@ function FoodLogRow(row: FoodLogProps["rows"][number], lang: string, detail: Foo
     </KitRow>
   );
 }
+// prettier-ignore
 export function FoodLog(input: FoodLogProps) {
   const { meals, rows, target } = input;
   const finish = { density: useVariant("density", meta.variants.density, input.density) };
   const detail = useVariant("detail", meta.variants.detail, input.detail);
-  const grouped = finish.density === "compact" || detail === "brief";
+  const compact = finish.density === "compact", grouped = compact || detail === "brief";
   const { lang, words } = useWords(kitchenWordsFor);
   const label = words.foodLogLabels.target;
   const state = useComponentState();
-  const total = foodLogTotal(meals),
-    kcal = kcalLine(total, lang);
+  const total = foodLogTotal(meals), kcal = kcalLine(total, lang);
   const goal = target === undefined ? undefined : targetLine(target, lang);
+  const summary = <>
+    <KitText role={compact ? "title" : "number"} tabular part="total"
+      density="comfortable" children={kcal} />
+    {goal && <KitText role="caption" tone="muted" part="target" {...finish} children={goal} />}
+  </>;
   if (state === "empty")
     return (
       <KitCard style="inset" part="root">
@@ -177,19 +182,16 @@ export function FoodLog(input: FoodLogProps) {
     );
   return (
     <KitCard style="inset" part="root">
-      <KitRow label={kcal} {...finish}>
-        <KitText role="number" tabular part="total" {...finish} children={kcal} />
-        {goal && <KitText role="caption" tone="muted" part="target" {...finish} children={goal} />}
-      </KitRow>
+      <KitRow label={kcal} {...finish}>{summary}</KitRow>
       {target !== undefined && (
         <KitRow label={label} {...finish}>
-          <KitMeter label={label} amount={percentLine(total, target, lang)} ratio={total / target} />
+          <KitMeter label={label} amount={percentLine(total, target, lang)} ratio={total / target} slim={compact} />
         </KitRow>
       )}
       <KitGrid arrange="rows" list={grouped} density="compact" listRowGap="cards">
         {foodLogGroups(meals, rows).map((group, index) => (
           <KitContent key={index} inset="md" group={index > 0 && !grouped ? "response" : "content"}>
-            {group.map((row) => FoodLogRow(row, lang, detail, finish))}
+            <KitGrid arrange="rows" list={compact}>{group.map((row) => FoodLogRow(row, lang, detail, finish))}</KitGrid>
           </KitContent>
         ))}
       </KitGrid>

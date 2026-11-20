@@ -135,9 +135,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":null,\"goto\":\"food_add\"}",
+    "reply": "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":2000,\"goto\":\"food_add\"}",
     "replies": [
-      "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":null,\"goto\":\"food_add\"}",
+      "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":2000,\"goto\":\"food_add\"}",
       "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":null,\"goto\":\"food_add\"}",
       "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]}],\"target\":null,\"goto\":\"food_add\"}"
     ]
@@ -449,14 +449,14 @@
     "replies": [
       "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"full\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]},{\"meal\":\"snack\",\"items\":[]}],\"target\":2000,\"goto\":\"food_add\"}",
       "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]},{\"meal\":\"snack\",\"items\":[]}],\"target\":2000,\"goto\":\"food_add\"}",
-      "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"full\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]},{\"meal\":\"snack\",\"items\":[]}],\"target\":2000,\"goto\":\"food_add\"}"
+      "{\"c\":\"FoodLog\",\"density\":null,\"detail\":\"brief\",\"meals\":[{\"meal\":\"dinner\",\"items\":[{\"name\":\"Lasagne\",\"kcal\":520,\"amount\":\"1 slice\"}]},{\"meal\":\"snack\",\"items\":[]}],\"target\":2000,\"goto\":\"food_add\"}"
     ]
   },
   "dcec94659f4fc4bb": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nf1 FoodLog Total 520 kcal — of 2000 kcal — Daily target — 26% — r1: Dinner — r2: Lasagne 520 kcal · 1 slice — r3: Snack\n  r1 [f1/r1/add press→food_add !needs-service]\n  r2 [f1/r2 press]\n  r3 [f1/r3/add press→food_add !needs-service]\n\nTask: Add another food to dinner\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"f1/r2\", \"action\": \"press\"}",
+    "reply": "{\"address\": \"f1/r1/add\", \"action\": \"press\"}",
     "replies": [
-      "{\"address\": \"f1/r2\", \"action\": \"press\"}",
+      "{\"address\": \"f1/r1/add\", \"action\": \"press\"}",
       "{\"address\": \"f1/r1/add\", \"action\": \"press\"}",
       "{\"address\": \"f1/r1/add\", \"action\": \"press\"}"
     ]

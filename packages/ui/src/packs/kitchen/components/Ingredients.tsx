@@ -72,7 +72,10 @@ export function fallback({ cast, lang }: catalog.FallbackInput): z.input<typeof 
 // prettier-ignore
 const supper = { servings: 4, system: "metric", groups: [
   { label: "Sauce", items: [{ name: "Tomatoes", amount: 600, unit: "g", note: "Chopped" }] },
-  { label: "Layers", items: [{ name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" }] },
+  { label: "Layers", items: [
+    { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready" },
+    { name: "Mozzarella", amount: 125, unit: "g", note: "Torn" },
+  ] },
 ] } satisfies z.input<typeof props>;
 // prettier-ignore
 export const examples = [
@@ -111,34 +114,20 @@ type RowProps = Pick<ViewProps, "system" | "detail"> & {
   row: ViewProps["rows"][number];
   scale: number;
 };
+// prettier-ignore
 function IngredientRow({ row, scale, system, detail }: RowProps) {
   const { lang } = kit.useWords(kitchenWordsFor);
   const quantity = copy.ingredientAmount(row, scale, system, lang);
+  const amount = <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
+    {quantity.amount && <kit.KitText role="number" numberScale="compact" part="amount">{quantity.amount}</kit.KitText>}
+    {quantity.unit && <kit.KitText role="label" tone="muted" part={null}>{quantity.unit}</kit.KitText>}
+  </kit.KitTrack>;
   return (
-    <kit.KitRow
-      item={row.id}
-      label={row.name}
-      inline
-      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}
-    >
+    <kit.KitRow item={row.id} label={row.name} inline
+      leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}>
       <kit.KitText part="name">{row.name}</kit.KitText>
-      <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
-        {quantity.amount && (
-          <kit.KitText role="number" numberScale="compact" part="amount">
-            {quantity.amount}
-          </kit.KitText>
-        )}
-        {quantity.unit && (
-          <kit.KitText role="label" tone="muted" part={null}>
-            {quantity.unit}
-          </kit.KitText>
-        )}
-      </kit.KitTrack>
-      {detail === "full" && row.note && (
-        <kit.KitText role="label" tone="muted" part="note">
-          {row.note}
-        </kit.KitText>
-      )}
+      {amount}
+      {detail === "full" && row.note && <kit.KitText role="label" tone="muted" part="note">{row.note}</kit.KitText>}
     </kit.KitRow>
   );
 }
@@ -184,7 +173,7 @@ export function Ingredients({ servings: seed, servingsShown = seed, system: init
       {groups.map((group, groupIndex) => (
         <kit.KitContent key={`group_${groupIndex}`} inset="md" group="response">
           {group.label && <kit.KitText role="label" tone="muted" part={null} children={group.label} />}
-          <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="group">
+          <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
             {group.items.map(() => {
               const row = rows[index++]!;
               return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail }} />;

@@ -509,6 +509,170 @@
       "{\"c\":\"Ingredients\",\"detail\":\"brief\",\"servings\":4,\"groups\":[{\"label\":null,\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]}] ,\"system\":\"metric\"}"
     ]
   },
+  "775320cf27f9909e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nIngredients: Scale a recipe's grouped ingredient amounts and tick what you have while cooking.\nprops: { detail?: full|brief=\"full\", servings: int 1..24, groups: [1..3 { label?: text≤20, items: [1..16 { name: text≤28, amount?: num 0..100000, unit?: g|kg|ml|l|tsp|tbsp|cup|piece|pinch|none=\"none\", note?: text≤20 }] }], system?: metric|us=\"metric\" }\nRule: Amounts are the seed quantities for the written servings. Never write scaled amounts, conversions, item ids or check states.\nRule: If asked to hide preparation notes, set detail to \"brief\" and keep notes in the data. Otherwise leave detail null.\nexample: {\"c\":\"Ingredients\",\"servings\":4,\"system\":\"metric\",\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":\"Oven ready\"},{\"name\":\"Mozzarella\",\"amount\":125,\"unit\":\"g\",\"note\":\"Torn\"}]}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ingredients",
+              "enum": [
+                "Ingredients"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "servings": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24
+            },
+            "groups": {
+              "minItems": 1,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 16,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 28
+                        },
+                        "amount": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100000
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "unit": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "g",
+                                "kg",
+                                "ml",
+                                "l",
+                                "tsp",
+                                "tbsp",
+                                "cup",
+                                "piece",
+                                "pinch",
+                                "none"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "note": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "amount",
+                        "unit",
+                        "note"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "items"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "system": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "metric",
+                    "us"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "servings",
+            "groups",
+            "system"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ingredients\",\"detail\":\"brief\",\"servings\":4,\"groups\":[{\"label\":null,\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]}],\"system\":\"metric\"}",
+    "replies": [
+      "{\"c\":\"Ingredients\",\"detail\":\"brief\",\"servings\":4,\"groups\":[{\"label\":null,\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]}],\"system\":\"metric\"}",
+      "{\"c\":\"Ingredients\",\"detail\":\"brief\",\"servings\":4,\"groups\":[{\"label\":null,\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]}] ,\"system\":\"metric\"}",
+      "{\"c\":\"Ingredients\",\"detail\":\"brief\",\"servings\":4,\"groups\":[{\"label\":null,\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]}] ,\"system\":\"metric\"}"
+    ]
+  },
   "7cf179887641c773": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Ingredients 4 Servings — Metric — US — Add missing to groceries — Sauce — r1: Tomatoes 600 g Chopped — Layers — r2: Lasagne sheets 8 pieces [i1/servings increment] [i1/servings decrement] [i1/system select] [i1/shop press]\n  r1 [i1/r1/have check:todo]\n  r2 [i1/r2/have check:todo]\n\nTask: Tick that I have the tomatoes\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
@@ -516,6 +680,179 @@
       "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
       "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
       "{\"address\": \"i1/r1/have\", \"action\": \"check\"}"
+    ]
+  },
+  "8cf86b550092cfb2": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Ingredients 4 Servings — Metric — US — Add missing to groceries — Sauce — r1: Tomatoes 600 g Chopped — Layers — r2: Lasagne sheets 8 pieces Oven ready — r3: Mozzarella 125 g Torn [i1/servings increment] [i1/servings_less decrement] [i1/system select] [i1/shop press]\n  r1 [i1/r1/have check:todo]\n  r2 [i1/r2/have check:todo]\n  r3 [i1/r3/have check:todo]\n\nTask: Increase the recipe servings by one\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"i1/servings increment\", \"action\": \"increment\"}",
+    "replies": [
+      "{\"address\": \"i1/servings increment\", \"action\": \"increment\"}",
+      "{\"address\": \"i1/servings increment\", \"action\": \"increment\"}",
+      "{\"address\": \"i1/servings\", \"action\": \"increment\"}"
+    ]
+  },
+  "8eb3f24ecedcd3a1": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nIngredients: Scale a recipe's grouped ingredient amounts and tick what you have while cooking.\nprops: { detail?: full|brief=\"full\", servings: int 1..24, groups: [1..3 { label?: text≤20, items: [1..16 { name: text≤28, amount?: num 0..100000, unit?: g|kg|ml|l|tsp|tbsp|cup|piece|pinch|none=\"none\", note?: text≤20 }] }], system?: metric|us=\"metric\" }\nRule: Amounts are the seed quantities for the written servings. Never write scaled amounts, conversions, item ids or check states.\nRule: If asked to hide preparation notes, set detail to \"brief\" and keep notes in the data. Otherwise leave detail null.\nexample: {\"c\":\"Ingredients\",\"servings\":4,\"system\":\"metric\",\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":\"Chopped\"}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":\"Oven ready\"},{\"name\":\"Mozzarella\",\"amount\":125,\"unit\":\"g\",\"note\":\"Torn\"}]}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Ingredients",
+              "enum": [
+                "Ingredients"
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "servings": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 24
+            },
+            "groups": {
+              "minItems": 1,
+              "maxItems": 3,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "items": {
+                    "minItems": 1,
+                    "maxItems": 16,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 28
+                        },
+                        "amount": {
+                          "anyOf": [
+                            {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100000
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "unit": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "g",
+                                "kg",
+                                "ml",
+                                "l",
+                                "tsp",
+                                "tbsp",
+                                "cup",
+                                "piece",
+                                "pinch",
+                                "none"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "note": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "amount",
+                        "unit",
+                        "note"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "label",
+                  "items"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "system": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "metric",
+                    "us"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "detail",
+            "servings",
+            "groups",
+            "system"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Ingredients\",\"detail\":null,\"servings\":4,\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":null}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":null}]}],\"system\":\"metric\"}",
+    "replies": [
+      "{\"c\":\"Ingredients\",\"detail\":null,\"servings\":4,\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":null}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":null}]}],\"system\":\"metric\"}",
+      "{\"c\":\"Ingredients\",\"detail\":null,\"servings\":4,\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":null}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":null}]}],\"system\":\"metric\"}",
+      "{\"c\":\"Ingredients\",\"detail\":null,\"servings\":4,\"groups\":[{\"label\":\"Sauce\",\"items\":[{\"name\":\"Tomatoes\",\"amount\":600,\"unit\":\"g\",\"note\":null}]},{\"label\":\"Layers\",\"items\":[{\"name\":\"Lasagne sheets\",\"amount\":8,\"unit\":\"piece\",\"note\":null}]}],\"system\":\"metric\"}"
     ]
   },
   "996c46cafb6179c7": {
@@ -729,6 +1066,15 @@
   },
   "d9f53a12150e93df": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Ingredients 4 Servings — Metric — US — Add missing to groceries — Sauce — r1: Tomatoes 600 g Chopped — Layers — r2: Lasagne sheets 8 piece [i1/servings increment] [i1/servings decrement] [i1/system select] [i1/shop press]\n  r1 [i1/r1/have check:todo]\n  r2 [i1/r2/have check:todo]\n\nTask: Tick that I have the tomatoes\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
+      "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
+      "{\"address\": \"i1/r1/have\", \"action\": \"check\"}"
+    ]
+  },
+  "e1d93c50a9db1b95": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ni1 Ingredients 4 Servings — Metric — US — Add missing to groceries — Sauce — r1: Tomatoes 600 g Chopped — Layers — r2: Lasagne sheets 8 pieces Oven ready — r3: Mozzarella 125 g Torn [i1/servings increment] [i1/servings_less decrement] [i1/system select] [i1/shop press]\n  r1 [i1/r1/have check:todo]\n  r2 [i1/r2/have check:todo]\n  r3 [i1/r3/have check:todo]\n\nTask: Tick that I have the tomatoes\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",
     "replies": [
       "{\"address\": \"i1/r1/have\", \"action\": \"check\"}",

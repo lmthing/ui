@@ -163,10 +163,12 @@ function CountdownTile({ timer, stacked }: { timer: Timer; stacked: boolean }) {
   return (
     <KitRow item={timer.id} part="tile" label={timer.label} inset="none">
       {stacked ? (
-        <KitGrid columns={2} fitLast>
-          <KitContent>{label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow></KitContent>
-          <KitContent>{actions}</KitContent>
-        </KitGrid>
+        <KitContent align="center">
+          <KitContent density="compact" leadingAlign="row"
+            lead={<KitContent>{actions}</KitContent>}>
+            {label}<KitRow part="seconds" label={clock} inline>{ring}</KitRow>
+          </KitContent>
+        </KitContent>
       ) : (
         <KitContent>{label}{ring}<KitContent group="response">{actions}</KitContent></KitContent>
       )}

@@ -100,15 +100,16 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 }
 // prettier-ignore
 const berries = { name: "Frozen berries", qty: "500 g", place: "freezer", useBy: "2027-02-01", goto: "food_details" } as const;
+const oats = { name: "Oats", qty: "1 bag", place: "cupboard", goto: "food_details" } as const;
 // prettier-ignore
 export const examples = [
   { items: [
     { name: "Ricotta", qty: "250 g", place: "fridge", useBy: "2026-11-20", goto: "food_details" },
     { name: "Lasagne sheets", qty: "1 box", place: "cupboard", goto: "food_details" },
   ] },
-  { items: [{ ...berries, mark: "highlight" }] },
-  { items: [berries] },
-  { detail: "brief", items: [berries] },
+  { items: [{ ...berries, mark: "highlight" }, oats] },
+  { items: [berries, oats] },
+  { detail: "brief", items: [berries, oats] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Pantry");
 export const probes = [
@@ -152,10 +153,10 @@ function PantryFood({ item, detail }: { item: PantryProps["items"][number]; deta
   const { words } = useWords(kitchenWordsFor);
   return (
     <KitContent>
-      <KitText part="name" role="body" children={item.name} />
-      <KitText part="qty" role="number" numberScale="compact" tabular>
-        {item.qty}
+      <KitText part="name" tone={item.mark === "highlight" ? "accent" : "text"}>
+        {item.name}
       </KitText>
+      <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
       {detail === "full" && (
         <KitText part="place" role="caption" tone="muted">
           {words.pantryPlace(words.pantryLabels[item.place])}
@@ -171,9 +172,8 @@ export function Pantry({ items, detail: choice }: PantryProps) {
   const detail = useVariant("detail", meta.variants.detail, choice);
   const { words: { pantryLabels } } = useWords(kitchenWordsFor);
   if (state === "empty") return <KitCard part="root"><KitEmpty part="name" decorativeIcon /></KitCard>;
-  const highlighted = items.some(({ mark }) => mark === "highlight");
   const tiles = pantryOrder(items).map((item) => (
-    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} mark={item.mark} inline={!highlighted}>
+    <KitRow key={item.id} item={item.id} label={item.name} goto={item.goto} inline>
       <KitContent>
         {items.length === 1 ? (
           <KitGrid columns={2}>
@@ -194,7 +194,7 @@ export function Pantry({ items, detail: choice }: PantryProps) {
       </KitContent>
     </KitRow>
   ));
-  return <KitCard part="root" style={highlighted ? "plain" : "inset"} surface="card" padded={!highlighted}>
+  return <KitCard part="root" style="inset" padded>
     {tiles.length === 1 ? tiles : <KitGrid columns={2}>{tiles}</KitGrid>}
   </KitCard>;
 }

@@ -449,7 +449,7 @@
     "reply": "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
     "replies": [
       "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
-      "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
+      "{\"c\":\"KitchenTimers\",\"arrange\":\"rows\",\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}",
       "{\"c\":\"KitchenTimers\",\"arrange\":null,\"timers\":[{\"label\":\"Béchamel\",\"seconds\":372,\"remaining\":null,\"finished\":null,\"running\":null},{\"label\":\"Oven\",\"seconds\":1120,\"remaining\":null,\"finished\":null,\"running\":null}]}"
     ]
   },

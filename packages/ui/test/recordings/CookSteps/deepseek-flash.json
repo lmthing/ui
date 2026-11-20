@@ -1,9 +1,9 @@
 {
   "07f4fd2558da8e60": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nc1 CookSteps Step 1 of 3 — \"Gently simmer the tomato sauce until thickened.\" — \"Tomatoes · Olive oil\" — \"Cooking timer\" — 20:00 — \"Start\" — \"Stop\" — \"Next step\" — \"Back\" [c1/timer start] [c1/timer_stop stop] [c1/next press]\n\nTask: Start the sauce's cooking timer\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
-    "reply": "{\"address\": \"c1/timer\", \"action\": \"start\"}",
+    "reply": "{\"address\": \"c1/timer start\", \"action\": \"start\"}",
     "replies": [
-      "{\"address\": \"c1/timer\", \"action\": \"start\"}",
+      "{\"address\": \"c1/timer start\", \"action\": \"start\"}",
       "{\"address\": \"c1/timer start\", \"action\": \"start\"}",
       "{\"address\": \"c1/timer start\", \"action\": \"start\"}"
     ]
@@ -505,11 +505,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Simmer tomatoes with olive oil for 20 minutes.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Sauce\",\"Pasta\"] ,\"minutes\":null}],\"at\":1}",
+    "reply": "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce until thickened.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Lasagne sheets\"],\"minutes\":null}],\"at\":1}",
     "replies": [
-      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Simmer tomatoes with olive oil for 20 minutes.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Sauce\",\"Pasta\"] ,\"minutes\":null}],\"at\":1}",
-      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce with olive oil for 20 minutes.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Sauce\",\"Pasta\"],\"minutes\":null}],\"at\":1}",
-      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce until thickened.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Lasagne sheets\"],\"minutes\":null}],\"at\":1}"
+      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce until thickened.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Lasagne sheets\"],\"minutes\":null}],\"at\":1}",
+      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce until thickened.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Sauce\",\"Pasta\"],\"minutes\":null}],\"at\":1}",
+      "{\"c\":\"CookSteps\",\"detail\":null,\"steps\":[{\"text\":\"Gently simmer the tomato sauce with olive oil until thickened.\",\"uses\":[\"Tomatoes\",\"Olive oil\"],\"minutes\":20},{\"text\":\"Layer the sauce and pasta.\",\"uses\":[\"Lasagne sheets\"] ,\"minutes\":null}],\"at\":1}"
     ]
   },
   "eec8c84c9be95554": {

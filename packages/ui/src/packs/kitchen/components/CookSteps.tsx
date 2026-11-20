@@ -134,6 +134,7 @@ export const probes = [
   read("Start the sauce's cooking timer", { address: "c1/timer", action: "start" }),
 ] satisfies Probe[];
 
+// prettier-ignore
 export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typeof meta>) {
   const detail = useVariant("detail", meta.variants.detail, choice);
   const {
@@ -167,7 +168,8 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
           <KitText role="label" tone="muted" part={null}>
             {cookStepsLabels.timer}
           </KitText>
-          <KitText role="number" numberScale={detail === "brief" ? "compact" : "display"} tabular part={null}>
+          <KitText role="number" tabular part={null}
+            {...(detail === "brief" ? { numberScale: "compact", emphasis: "hero" } as const : {})}>
             {clockLine(step.minutes * 60, lang)}
           </KitText>
           <KitGrid columns={2}>
@@ -178,17 +180,7 @@ export function CookSteps({ steps, at, detail: choice }: Props<typeof props, typ
       )}
       {!done && (
         <KitContent group="response">
-          {detail === "brief" ? (
-            <KitGrid columns={2}>
-              {next}
-              {back}
-            </KitGrid>
-          ) : (
-            <>
-              {next}
-              {back}
-            </>
-          )}
+          {detail === "brief" ? <KitGrid columns={2}>{next}{back}</KitGrid> : <>{next}{back}</>}
         </KitContent>
       )}
     </KitCard>
