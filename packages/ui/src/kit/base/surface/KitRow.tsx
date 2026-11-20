@@ -1,8 +1,9 @@
-import { useContext, type ReactNode } from "react";
-import { XStack, YStack, styled, useThemeName } from "tamagui";
+import { useContext, useId, type ReactNode } from "react";
+import { XStack, YStack, isWeb, styled, useThemeName } from "tamagui";
 import { component, size, space, type as typography, type AxisValue } from "../../../catalog";
 import { useKit, useKitStyle, useVariantDensity } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
+import { RowLabelContext } from "../../a11y";
 import {
   CardStyleContext,
   shifted,
@@ -16,7 +17,6 @@ import {
 
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
-const Body = styled(YStack, { flex: component.base.bodyFlex });
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.
 // Taller items (a 44px touch target) overflow the line equally above and below.
 const Edge = styled(YStack, { alignSelf: "flex-start", justifyContent: "center", alignItems: "center" });
@@ -28,7 +28,7 @@ type RowProps = {
   goto?: string | undefined;
   label: string;
   lineRole?: LineRole;
-  role?: "listitem" | "text" | "button";
+  role?: "text" | "button" | "group";
   /** A row that opens in place (role `button`): whether its content is shown. */
   expanded?: boolean;
   selected?: boolean;
@@ -129,6 +129,11 @@ export function Row(props: RowProps) {
   const status = useRowStatus(semanticTone, !inline && inset === "md", surface);
   const dimmed = !selected && mark === "muted";
   const address = usePart(part ?? "root", addressed && part !== null);
+  const actionRole = goto ? "link" : role === "button" ? role : undefined;
+  const id = useId();
+  // Prefer the rendered text order for web actions; keep the caller's label as the fallback.
+  const contentId = isWeb && actionRole ? id : undefined;
+  const press = useRowPress(address.testID, part, goto);
   return (
     <Frame
       {...(addressed && part !== null ? address : {})}
@@ -136,27 +141,32 @@ export function Row(props: RowProps) {
       paddingVertical={inline ? component.base.none : space[spacing.rowPad]}
       paddingHorizontal={inline || inset === "none" ? component.base.none : space.md}
       borderRadius={shifted("md", ks.radiusShift)}
-      accessibilityRole={goto ? "link" : (role ?? "listitem")}
-      accessibilityLabel={label}
+      accessibilityRole={actionRole ?? (role === "group" && label ? "group" : undefined)}
+      data-kit-row={isWeb && actionRole ? "" : undefined}
+      accessibilityLabel={actionRole || role === "group" ? label : undefined}
+      aria-labelledby={contentId}
       aria-current={selected || undefined}
       aria-expanded={expanded}
-      onPress={useRowPress(address.testID, part, goto)}
+      onPress={actionRole ? press : undefined}
     >
       {((status && surface === undefined) || dimmed) && <RowDecoration fade />}
       <Content
+        {...(contentId ? { id: contentId } : {})}
         gap={inline ? space.xs : space[spacing.gap]}
         minHeight={inline ? line : Math.max(line, size.control.md - space[spacing.rowPad] * 2)}
       >
-        {leading && (
-          <Edge
-            {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
-            {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
-          >
-            {leading}
-          </Edge>
-        )}
-        <Body>{children}</Body>
-        {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+        <RowLabelContext.Provider value={label}>
+          {leading && (
+            <Edge
+              {...(leadingAlign === "row" ? { alignSelf: "center" as const } : { height: line })}
+              {...(leadingWidth === "avatar" ? { width: size.avatar.md } : {})}
+            >
+              {leading}
+            </Edge>
+          )}
+          <YStack flex={component.base.bodyFlex}>{children}</YStack>
+          {trailing && <RowTrailing line={line}>{trailing}</RowTrailing>}
+        </RowLabelContext.Provider>
       </Content>
       {status && <RowStatusRule tone={status} />}
       {(selected || mark === "highlight" || mark === "new") && (
@@ -181,10 +191,10 @@ type KitRowProps = Omit<RowProps, "addressed" | "rowTone" | "tone"> & {
 
 export function KitRow({ item, tone, ...props }: KitRowProps) {
   const context = usePartContext();
-  if (!item) return <Row addressed={props.part !== undefined} role="text" rowTone={tone} {...props} />;
+  if (!item) return <Row addressed={props.part !== undefined} rowTone={tone} {...props} />;
   return (
     <PartContext.Provider value={{ ...context, item }}>
-      <Row rowTone={tone} {...props} />
+      <Row role="group" rowTone={tone} {...props} />
     </PartContext.Provider>
   );
 }

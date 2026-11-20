@@ -124,7 +124,7 @@ describe("GroceryList fallback and contract", () => {
 describe("GroceryList states, parts, reading and actions", () => {
   it("draws only present optional parts and exposes check and type roles", () => {
     const html = render();
-    expect(elementAt(html, "home/g1/root").attributes).toContain('role="list"');
+    expect(elementAt(html, "home/g1/root").attributes).not.toMatch(/\srole=/);
     expect(elementAt(html, "home/g1/r1/got").attributes).toContain('role="checkbox"');
     expect(elementAt(html, "home/g1/add").attributes).toContain('role="textbox"');
     for (const part of ["qty", "by"]) {
