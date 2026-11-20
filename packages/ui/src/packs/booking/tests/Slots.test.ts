@@ -25,7 +25,7 @@ describe("Slots contract and boundaries", () => {
     expect(props.safeParse(example).success).toBe(true),
   );
   it("defaults to grid and keeps validator ids out of model input", () => {
-    expect(props.parse(seed)).toEqual({ ...seed, style: "grid" });
+    expect(props.parse(seed)).toEqual({ ...seed, arrange: "grid" });
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["times"][number]["id"]>().toEqualTypeOf<string>();
     expectTypeOf<ViewProps>().not.toBeAny();
@@ -53,6 +53,7 @@ describe("Slots contract and boundaries", () => {
     { ...seed, minutes: 30.5 },
     { ...seed, minutes: Infinity },
     { ...seed, style: "chips" },
+    { ...seed, arrange: "strip" },
     { ...seed, color: "#fff" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it.each([5, 600])("accepts all 24 unique times with %s-minute appointments", (minutes) => {
@@ -68,11 +69,11 @@ describe("Slots contract and boundaries", () => {
   });
 });
 
-it.each(["grid", "list"] as const)(
+it.each(["grid", "rows"] as const)(
   "projects repeated %s selections into at and blocks taken times",
-  (style) => {
+  (arrange) => {
     const runtime = createScreenController({
-      screen: { id: "home", components: [{ id: "s1", c: "Slots", ...examples[0], style }] },
+      screen: { id: "home", components: [{ id: "s1", c: "Slots", ...examples[0], arrange }] },
       defs: components,
     });
     try {
@@ -86,7 +87,7 @@ it.each(["grid", "list"] as const)(
       expect(runtime.read()).not.toContain('[s1/r3 select = "10:00"]');
       const html = renderInstance(
         "Slots",
-        { ...examples[0], style, at: runtime.snapshotScreen().components[0]?.at },
+        { ...examples[0], arrange, at: runtime.snapshotScreen().components[0]?.at },
         "filled",
         theme,
       );
@@ -149,9 +150,9 @@ describe("Slots states, parts and read/act", () => {
 });
 
 describe("Slots selectable item parts", () => {
-  it.each(["grid", "list"] as const)("offers only free %s item roots, including selected times", (style) => {
+  it.each(["grid", "rows"] as const)("offers only free %s item roots", (arrange) => {
     for (const taken of [false, true]) {
-      const input = { times: [free, { time: "09:30", taken }], at: "09:00", minutes: 30, style };
+      const input = { times: [free, { time: "09:30", taken }], at: "09:00", minutes: 30, arrange };
       const html = renderInstance("Slots", input, "filled", theme);
       expect(affordancesOf(meta, stampItemIds(meta, props.parse(input)), "s1")).toEqual([
         { address: "s1/r1", part: "root", action: "select", detail: "" },
@@ -178,14 +179,15 @@ describe("Slots selectable item parts", () => {
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     expect(html).not.toContain('role="button"');
     expect(html).not.toMatch(/data-testid="home\/c1\/r\d+\//);
-    expect(html).toContain(state === "empty" ? slotLabels.empty : loadingLabel);
-    if (state === "empty") expect(html).toContain(emptyLine("appointment"));
+    expect(html).toContain(state === "empty" ? emptyLine("appointment") : loadingLabel);
+    if (state === "empty")
+      expect(renderInstance("Slots", examples[0], state, theme)).toContain(slotLabels.empty);
     expect(readComponent(components.Slots, examples[0], "s1", state)).toEqual([
       `s1 Slots ${state === "empty" ? "(empty)" : "(loading)"}`,
     ]);
   });
   it("computes list end times through midnight and preserves exact duration in the reading", () => {
-    const input = examples[2]!;
+    const input = examples[3]!;
     const html = renderInstance("Slots", input, "filled", theme);
     const reading = readComponent(components.Slots, input, "s1").join("\n");
     for (const line of [durationLine(600), slotEndLine("23:59", 600), slotLabels.taken]) {

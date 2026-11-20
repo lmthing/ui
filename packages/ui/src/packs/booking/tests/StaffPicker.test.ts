@@ -25,6 +25,7 @@ describe("StaffPicker schema", () => {
     expect(props.parse({ staff: [{ ...person, name: " Anna ", role: " Care " }] })).toEqual({
       staff: [{ ...person, role: "Care" }],
       anyone: true,
+      detail: "full",
     });
   });
   it.each([

@@ -8,7 +8,15 @@ export type MigrationOptions = {
   variantOnly?: boolean;
 };
 // Enable each staged migration here in the same change that adopts the component schema.
-const adoptedVariants: readonly string[] = ["List", "Card", "People", "Gallery", "Stats"];
+const adoptedVariants: readonly string[] = [
+  "List",
+  "Card",
+  "People",
+  "Gallery",
+  "Stats",
+  "Slots",
+  "ServiceMenu",
+];
 const isBlock = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
 

@@ -22,8 +22,10 @@ describe("ServiceMenu contract and boundaries", () => {
   );
   it("defaults to rows and trims names", () => {
     expect(props.parse({ services: [{ ...service, name: " Consultation " }] })).toEqual({
-      style: "rows",
-      services: [service],
+      surface: "card",
+      detail: "full",
+      lead: "thumb",
+      services: [{ ...service, tone: "neutral", mark: "none" }],
     });
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["services"][number]["id"]>().toEqualTypeOf<string>();
@@ -111,7 +113,7 @@ describe("ServiceMenu fallback", () => {
 });
 
 describe("ServiceMenu states and parts", () => {
-  it.each(["rows", "cards"] as const)("draws optional parts and one link per service in %s", (style) => {
+  it.each([undefined, "cards"] as const)("draws optional parts and one link per service in %s", (style) => {
     const input = {
       style,
       services: [
@@ -143,17 +145,17 @@ describe("ServiceMenu states and parts", () => {
     });
     expect(html.match(/data-testid="home\/c1\/r\d+\/root"/g)).toHaveLength(12);
   });
-  it.each(["rows", "cards"] as const)("keeps empty/loading intentional and non-actionable in %s", (style) => {
+  it.each([undefined, "cards"] as const)("keeps %s empty/loading non-actionable", (style) => {
+    const input = { ...examples[0], style };
     for (const state of ["empty", "loading"] as const) {
-      const html = draw({ ...examples[0], style }, state);
+      const html = draw(input, state);
       expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
       expect(html).not.toContain('role="link"');
-      expect(readComponent(components.ServiceMenu, { ...examples[0], style }, "s1", state)).toEqual([
+      expect(html).toContain(state === "empty" ? "Nothing here yet" : "Loading");
+      expect(readComponent(components.ServiceMenu, input, "s1", state)).toEqual([
         `s1 ServiceMenu${style === "cards" ? "[cards]" : ""} (${state})`,
       ]);
     }
-    expect(draw({ ...examples[0], style }, "empty")).toContain("Nothing here yet");
-    expect(draw({ ...examples[0], style }, "loading")).toContain("Loading");
   });
 });
 
@@ -164,13 +166,10 @@ describe("ServiceMenu read/act and core-first probes", () => {
       expect(affordancesOf(meta, stampItemIds(meta, input), "s1")).toEqual([
         { address: "s1/r1", part: "root", action: "press", detail: `→${goto}` },
       ]);
-      expect(readComponent(components.ServiceMenu, input, "s1").join("\n")).toContain(
-        `[s1/r1 press→${goto}]`,
-      );
+      const reading = readComponent(components.ServiceMenu, input, "s1").join("\n");
+      expect(reading).toContain(`[s1/r1 press→${goto}]`);
     }
-    expect(meta.tier).toBe("phone");
-    expect(meta.dense).toBe(true);
-    expect(meta.weight).toBe(3);
+    expect(meta).toMatchObject({ tier: "phone", dense: true, weight: 3 });
   });
   it("reads the exact durations, formatted prices and booking cue", () => {
     const reading = readComponent(

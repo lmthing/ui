@@ -39,6 +39,17 @@ describe("booking scaffold", () => {
   it("validates metadata, archetypes and every worked-example line", () => {
     expect(checkPacks({ components, packs, packOf, packExamples, packArchetypes })).toEqual([]);
     expect(checkArchetypes({ components, packOf, packArchetypes, archetypes })).toEqual([]);
+    const workedBooking = packExamples.booking
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
+    for (const id of ["ServiceMenu", "Slots"] as const) {
+      const { c: _c, id: _id, ...input } = workedBooking.find((line) => line.c === id);
+      expect(input).not.toHaveProperty("style");
+      expect(components[id].props.parse(input)).toMatchObject(
+        id === "ServiceMenu" ? { surface: "card" } : { arrange: "grid" },
+      );
+    }
     const slots = readComponent(components.Slots, components.Slots.examples[0], "s1").join("\n");
     expect(slots).toContain("09:30 (taken)");
     expect(slots).toContain("[s1/r1 select");
