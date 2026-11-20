@@ -1,4 +1,5 @@
 export const en = {
+  lesson: { example: "Worked example", next: "Continue" },
   path: {
     status: { done: "Completed", current: "Start unit", locked: "Locked" },
     milestone: "Badge",
