@@ -103,8 +103,20 @@ describe("Product states and parts", () => {
   it("shows product details, the save heart and two directions at one qty address", () => {
     const html = renderInstance("Product", sale, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      meta.parts
-        .filter((part) => part !== "success")
+      [
+        "root",
+        "name",
+        "price",
+        "was",
+        "description",
+        "stock",
+        "badge",
+        "qty",
+        "add",
+        "add_label",
+        "save",
+        "save_icon",
+      ]
         .map((part) => `home/c1/${part}`)
         .sort(),
     );

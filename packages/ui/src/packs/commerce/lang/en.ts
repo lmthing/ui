@@ -4,6 +4,10 @@ export type CommerceWords = {
   currentOrderStage: (stage: string) => string;
   emptyProducts: string;
   orderComplete: string;
+  tracking: { copy: (id: string) => string; proof: string; pickup: (code: string) => string; here: string };
+  claimed: string;
+  deals: string;
+  offerExpired: string;
   priceChange: (was: string, price: string) => string;
   product: {
     stock: (count: string) => string;
@@ -14,6 +18,9 @@ export type CommerceWords = {
     unsave: string;
     add: string;
     added: string;
+    aisle: (aisle: string) => string;
+    storeStock: (count: string) => string;
+    scan: string;
   };
   cart: {
     empty: string;
@@ -47,6 +54,8 @@ export type CommerceWords = {
   promoEnds: string;
   copyPromoCode: (code: string) => string;
   variantUnavailable: string;
+  shadeDepth: Record<"fair" | "light" | "medium" | "deep", string>;
+  shadeUndertone: Record<"cool" | "neutral" | "warm", string>;
   variantReading: (label: string, details: readonly string[]) => string;
   sizeGuide: {
     size: string;
@@ -78,6 +87,15 @@ export const en = {
   currentOrderStage: (stage) => `Current stage: ${stage}`,
   emptyProducts: "No products to show",
   orderComplete: "Order complete",
+  tracking: {
+    copy: (id) => `Copy tracking number ${id}`,
+    proof: "Delivery proof",
+    pickup: (code) => `Pickup code: ${code}`,
+    here: "I’m here",
+  },
+  claimed: "Claimed",
+  deals: "Deals",
+  offerExpired: "Offer ended",
   priceChange: (was, price) => `${was} → ${price}`,
   product: {
     stock: (count) => `Only ${count} left`,
@@ -88,6 +106,9 @@ export const en = {
     unsave: "Remove from saved items",
     add: "Add to basket",
     added: "Added to basket",
+    aisle: (aisle) => `Aisle ${aisle}`,
+    storeStock: (count) => `${count} in store`,
+    scan: "Scan barcode",
   },
   cart: {
     empty: "Your basket is empty",
@@ -121,6 +142,8 @@ export const en = {
   promoEnds: "ends",
   copyPromoCode: (code) => `Copy ${code}`,
   variantUnavailable: "Sold out",
+  shadeDepth: { fair: "Fair", light: "Light", medium: "Medium", deep: "Deep" },
+  shadeUndertone: { cool: "Cool", neutral: "Neutral", warm: "Warm" },
   variantReading: (label, details) => [label, ...details].join(" · "),
   sizeGuide: {
     size: "Size",

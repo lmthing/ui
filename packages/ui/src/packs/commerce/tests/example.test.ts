@@ -44,12 +44,15 @@ it("validates the worked Crumb screens and their destinations", () => {
     "order",
     "apron",
     "saved",
+    "scan_barcode",
   ]);
   const used = new Set(screens.flatMap((screen) => screen.components.map(({ c }) => c)));
   for (const id of commerceIds) expect(used.has(id)).toBe(true);
   for (const screen of screens) expect(checkScreen(screen, draft)).toEqual([]);
   for (const screen of screens)
     for (const goto of linksOf(screen.components)) expect(screens.some(({ id }) => id === goto)).toBe(true);
+  const scan = screens.find(({ id }) => id === "scan_barcode");
+  expect(scan?.components).toContainEqual(expect.objectContaining({ c: "Camera", kind: "scan" }));
 
   const orders = screens.find(({ id }) => id === "orders")!;
   const rows = components.List.props.parse({
