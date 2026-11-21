@@ -122,7 +122,7 @@ it("does not take the app currency from Writer props or interaction values", () 
   );
 });
 
-const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
+const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;
 const roles: Record<string, string[]> = {
   press: ["button", "link"],
