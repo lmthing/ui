@@ -86,6 +86,13 @@ export function componentTexts(
   ];
 }
 
+function itemSchemaOf(schema: ReadSchema, key: string | undefined, host: Meta["items"]) {
+  if (!key) return;
+  return host?.deviceData
+    ? (z.toJSONSchema(host.deviceData.schema, { unrepresentable: "any" }) as ReadSchema)
+    : schema.properties?.[key]?.items;
+}
+
 export function readItems(
   meta: Meta,
   schema: ReadSchema,
@@ -100,11 +107,7 @@ export function readItems(
 ) {
   const all = key ? visibleItems(meta, props) : [];
   const host = meta.items?.deviceData;
-  const itemSchema = !key
-    ? undefined
-    : host
-      ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
-      : schema.properties?.[key]?.items;
+  const itemSchema = itemSchemaOf(schema, key, meta.items);
   const group = meta.items?.readGroupBy;
   const secrets = meta.items?.readSecrets;
   const groupBy =

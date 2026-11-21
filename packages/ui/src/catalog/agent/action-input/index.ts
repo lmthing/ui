@@ -5,7 +5,6 @@ import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
-export { secretRevealKey, secretRevealMatches, stageSecretReveal } from "./secret-reveal";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { actionValueAddress, findAction } from "./offered-actions";
 export {
@@ -17,6 +16,9 @@ export {
   privateMarkKey,
   redactPrivateMarks,
   registerPrivateMark,
+  secretRevealKey,
+  secretRevealMatches,
+  stageSecretReveal,
   type PrivateMarks,
 } from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
