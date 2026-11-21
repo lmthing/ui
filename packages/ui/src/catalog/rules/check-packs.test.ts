@@ -78,6 +78,19 @@ it("accepts optional known additions without requiring every allowed pack", () =
   };
   expect(checkPacks(input)).toEqual([]);
 });
+
+it.each(["expect", "allow"] as const)("rejects registered but unindexed pack ids in %s", (field) => {
+  const input = fixture();
+  input.packs.booking = {
+    ...pack,
+    probes: [
+      ...pack.probes,
+      { kind: "pack", idea: "Book a call", expect: ["booking"], [field]: ["booking", "comms"] },
+    ],
+  };
+  expect(checkPacks(input)).toEqual([`booking: ${field}`]);
+});
+
 const changePack = (patch: Partial<PackMeta>) => (f: Fixture) => (f.packs.booking = { ...pack, ...patch });
 const changeMeta = (patch: Partial<Definition["meta"]>) => (f: Fixture) =>
   (f.components.Slots = { ...component, meta: { ...component.meta, ...patch } });
