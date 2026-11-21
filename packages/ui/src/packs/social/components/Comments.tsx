@@ -127,12 +127,9 @@ type CommentRow = CommentsProps["comments"][number];
 type Finish = { density: c.ThemeDensity };
 
 // prettier-ignore
-function CommentToolbarIcon({ part, label, on, density }: Finish & {
-  part: "like" | "more"; label: string; on?: boolean;
-}) {
-  const icon = <kit.KitIcon name={part === "like" ? "heart" : "more"} part={`${part}_icon`}
-    tone={on ? "accent" : "muted"} />;
-  return <kit.KitRow part={part} role="button" label={label} inline density={density}
+function CommentMenu({ label, density }: Finish & { label: string }) {
+  const icon = <kit.KitIcon name="more" part="more_icon" tone="muted" />;
+  return <kit.KitRow part="more" role="button" label={label} inline density={density}
     leadingWidth="avatar" leadingAlign="row" leading={icon}>{null}</kit.KitRow>;
 }
 
@@ -141,13 +138,18 @@ function CommentActions({ row, density }: Finish & { row: CommentRow }) {
   const { lang, words: { comments } } = kit.useWords(socialWordsFor);
   const liked = kit.useControlValue(kit.usePart("like", false).testID, false);
   const { count, line } = commentLikeCopy(row.likes, lang);
-  const like = <CommentToolbarIcon part="like" label={comments.reaction(row.name, liked, line)}
-    on={liked} density={density} />;
-  const likes = <kit.KitText part="likes" role="number" numberScale="compact" tone="muted" tabular lines={1} density={density}>{count}</kit.KitText>;
+  const label = comments.reaction(row.name, liked, line);
+  const icon = <kit.KitIcon name="heart" part="like_icon" tone={liked ? "accent" : "muted"} />;
+  const like = <kit.KitRow part="like" role="button" label={label} inline density={density}>
+    <kit.KitContent inset="md" density={density}>
+      <kit.KitRow part={null} role="group" label={label} inline leading={icon} density={density}>
+        <kit.KitText part="likes" role="number" numberScale="compact" tone={liked ? "accent" : "muted"}
+          tabular lines={1} density={density}>{count}</kit.KitText>
+      </kit.KitRow>
+    </kit.KitContent>
+  </kit.KitRow>;
   return <kit.KitContent density={density} leadingAlign="row" lead={like}>
-    <kit.KitRow part={null} label="" inline density={density} leadingAlign="row" leading={likes}>
-      <kit.KitAction part="reply" label={comments.reply} kind="quiet" />
-    </kit.KitRow>
+    <kit.KitAction part="reply" label={comments.reply} kind="quiet" />
   </kit.KitContent>;
 }
 
@@ -158,19 +160,16 @@ function Comment({ row, density, parent, detail }: Finish & {
   const { words: { comments } } = kit.useWords(socialWordsFor);
   const label = parent ? comments.replyAuthor(row.name, parent) : row.name;
   const avatar = <kit.KitPhoto part="photo" photo={row.photo} label={row.name} shape="round" />;
-  const cue = row.reply ? <kit.KitIcon name="chevron_right" scale="sm" decorative /> : undefined;
-  return <kit.KitRow item={row.id} label={label} inline density={density}>
+  return <kit.KitRow item={row.id} label={label} inline indent={row.reply ? 1 : 0} density={density}>
     <kit.KitContent density={density}>
       <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
-        <kit.KitContent lead={cue} lineRole="body" density={density}>
-          <kit.KitText part="name" role="label" lines={1} density={density}>{row.name}</kit.KitText>
-          {detail !== "brief" && <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{row.time}</kit.KitText>}
-          <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
-        </kit.KitContent>
+        <kit.KitText part="name" role="label" lines={1} density={density}>{row.name}</kit.KitText>
+        {detail !== "brief" && <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{row.time}</kit.KitText>}
+        <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
       </kit.KitContent>
       <kit.KitGrid fitLast density={density}>
         <CommentActions {...{ row, density }} />
-        <CommentToolbarIcon part="more" label={comments.more(row.name)} density={density} />
+        <CommentMenu label={comments.more(row.name)} density={density} />
       </kit.KitGrid>
     </kit.KitContent>
   </kit.KitRow>;

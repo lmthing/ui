@@ -4,7 +4,7 @@ export {
   taskControls,
   taskCopy,
   taskGroups,
-  taskLoading,
+  taskPreviewComplete,
   taskReading,
 } from "./Tasks";
 export { milestoneCopies, milestoneReading } from "./Milestones";

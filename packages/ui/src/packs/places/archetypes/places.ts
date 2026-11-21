@@ -20,6 +20,9 @@ export const places = {
       ],
     },
     list: {
+      writeHints: [
+        "Put venue facts in List row meta and each venue’s own link in goto. For ordinary results leave row mark and tone null; the amenity chips are filters, not highlights on the rows.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Search"], required: true },

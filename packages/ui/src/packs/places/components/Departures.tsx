@@ -110,6 +110,7 @@ type Density = c.ThemeDensity;
 function DepartureRows({ rows, density }: { rows: DepartureCopy["rows"]; density: Density }) {
   return rows.map(({ id, line, to, label, minutes, late, delay, tone }) => (
     <kit.KitRow key={id} item={id} role="button" label={label} density={density}
+      leadingWidth="avatar"
       leading={<kit.KitTrail kind="badge" part="line" value={line} tone="text" density={density} />}
       trailing={<kit.KitText role="number" numberScale="compact" tabular part="minutes" tone={tone}
         density={density}>{minutes}{late && <kit.KitText part={null} role="label" tone="warn" density={density}>{late}</kit.KitText>}</kit.KitText>}>
@@ -126,17 +127,32 @@ function DeparturesLoading({ stop, rows, more, density }: { stop: string; rows: 
       <kit.KitRow part={null} label={stop} lineRole="title" density={density}>
         <kit.KitSkeleton shape="figure" content={[["title", stop]]} inset="none" density={density} />
       </kit.KitRow>
-      <kit.KitSkeleton lead="box" inset="md" density={density} rows={rows.length}
-        items={rows.map(({ to, delay }) => ({
-          lines: [{ role: "body", text: to }, ...(delay ? [{ role: "label" as const, text: delay }] : [])],
-          trail: "value",
-        }))}
-      />
+      {rows.map(({ id, line, to, delay, countdown }) => (
+        <kit.KitRow key={id} item={id} part={null} label={to} density={density} leadingWidth="avatar"
+          leading={<kit.KitTrail kind="badge" part="line" value={line} tone="text" density={density} />}
+          trailing={<kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", countdown, "end", "compact"]]} />}>
+          <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", to]]} />
+          {delay && <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", delay]]} />}
+        </kit.KitRow>
+      ))}
       {more && <kit.KitRow part={null} label={more} density={density}>
         <kit.KitSkeleton shape="figure" content={[["label", more]]} inset="none" density={density} />
       </kit.KitRow>}
     </>
   );
+}
+
+// prettier-ignore
+function DeparturesEmpty({ stop, message, density }: { stop: string; message: string; density: Density }) {
+  return <kit.KitRow part={null} label={stop} density={density}>
+    <kit.KitContent align="center" density={density}>
+      <kit.KitText part="stop" role="title" align="center" density={density}>{stop}</kit.KitText>
+      <kit.KitContent align="center" group="response" density={density}>
+        <kit.KitIcon name="clock" scale="lg" tone="muted" decorative />
+        <kit.KitText part="empty" tone="muted" align="center" density={density}>{message}</kit.KitText>
+      </kit.KitContent>
+    </kit.KitContent>
+  </kit.KitRow>;
 }
 
 // prettier-ignore
@@ -150,17 +166,15 @@ export function Departures(input: DeparturesProps) {
   const { rows, more } = departuresCopy({ ...input, detail }, kit.useDeviceData(), lang);
   return (
     <kit.KitCard part="root" style="inset" {...{ density, surface }}>
-      {state === "loading" ? <DeparturesLoading stop={input.stop} {...{ rows, more, density }} /> : <>
+      {state === "loading" ? <DeparturesLoading stop={input.stop} {...{ rows, more, density }} /> :
+        state === "empty" ? <DeparturesEmpty stop={input.stop} message={thing ? c.emptyLine(thing, lang) : words.departuresEmpty} density={density} /> : <>
         <kit.KitRow part={null} label={input.stop} lineRole="title" density={density}>
           <kit.KitText part="stop" role="title" density={density}>{input.stop}</kit.KitText>
         </kit.KitRow>
-        {state === "empty" ? <kit.KitEmpty icon="clock" part="empty" decorativeIcon
-          title={thing ? c.emptyLine(thing, lang) : words.departuresEmpty} /> : <>
-          <DepartureRows {...{ rows, density }} />
-          {more && <kit.KitRow part={null} label={more} density={density}>
-            <kit.KitText part="more" role="label" tone="muted" density={density}>{more}</kit.KitText>
-          </kit.KitRow>}
-        </>}
+        <DepartureRows {...{ rows, density }} />
+        {more && <kit.KitRow part={null} label={more} density={density}>
+          <kit.KitText part="more" role="label" tone="muted" density={density}>{more}</kit.KitText>
+        </kit.KitRow>}
       </>}
     </kit.KitCard>
   );
