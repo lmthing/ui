@@ -63,6 +63,20 @@ export const en = {
     owner: (name: string) => ` by ${name}`,
     reading: (item: string, fields: readonly string[]) => `${item}: ${fields.join(" · ")}`,
   },
+  seating: {
+    title: "Seating plan",
+    noGuests: "No guests at this table",
+    freeSeat: "Free seat",
+    unseated: "Unseated",
+    tray: (count: string) => `Unseated · ${count}`,
+    figures: (used: string, total: string) => `${used} of ${total}`,
+    filled: "seats filled",
+    count: (figures: string, label: string) => `${figures} ${label}`,
+    table: (id: string, label: string, count: string) => `${id}: ${label} (${count})`,
+    guest: (id: string, name: string, label: string, initials?: string) =>
+      `${id}: ${name} (${label})${initials ? ` · ${initials}` : ""}`,
+    move: (label: string) => `Move to ${label}`,
+  },
   ticket: {
     pass: "Admission ticket",
     stampSeparator: " · ",
