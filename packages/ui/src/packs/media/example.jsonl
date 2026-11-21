@@ -1,0 +1,22 @@
+{"id":"h1","c":"Header","title":"Pew","sub":"Read, listen, return"}
+{"id":"s1","c":"Stats","tiles":[{"label":"Minutes listened","value":"84","unit":"min"},{"label":"Sermons finished","value":"3"}]}
+{"id":"t1","c":"SectionTitle","text":"Latest"}
+{"id":"l1","c":"List","style":"shelf","rows":[{"title":"A Quiet Morning","photo":"lib:morning","goto":"quiet_morning"},{"title":"Work of Patience","photo":"lib:patience","goto":"patience"}]}
+{"id":"t2","c":"SectionTitle","text":"Series","link":{"label":"See all","goto":"covers"}}
+{"id":"l2","c":"List","style":"shelf","rows":[{"title":"Ordinary Time","photo":"lib:ordinary","goto":"ordinary"},{"title":"Songs for the Road","photo":"lib:songs","goto":"songs"}]}
+{"id":"h2","c":"Header","title":"Your library"}
+{"id":"s2","c":"Segmented","options":[{"label":"Series"},{"label":"Readings"}]}
+{"id":"l3","c":"Library","items":[{"title":"Ordinary Time","photo":"lib:ordinary","goto":"ordinary","by":"Rev. Ada Reed","progress":0.25,"badge":"1 new"},{"title":"Songs for the Road","photo":"lib:songs","goto":"songs"}]}
+{"id":"h3","c":"Header","title":"Ordinary Time","style":"back"}
+{"id":"c1","c":"Collection","title":"Ordinary Time","by":"Rev. Ada Reed","photo":"lib:ordinary","about":"Short sermons for the days between the busy seasons.","followed":false}
+{"id":"p1","c":"Playlist","style":"episodes","items":[{"title":"A Quiet Morning","photo":"lib:morning","goto":"quiet_morning","sub":"8 Nov · Finding stillness","seconds":1440,"played":0.25},{"title":"Work of Patience","photo":"lib:patience","goto":"patience","sub":"15 Nov · Learning to wait","seconds":1080,"played":0}]}
+{"id":"h4","c":"Header","title":"A Quiet Morning","style":"back"}
+{"id":"p2","c":"Player","title":"A Quiet Morning","media":"lib:quiet_morning","photo":"lib:morning","seconds":1440,"at":310}
+{"id":"c2","c":"ChapterList","chapters":[{"title":"Welcome","at":0},{"title":"The reading","at":76},{"title":"Reflection","at":310}],"current":2}
+{"id":"h5","c":"Header","title":"Saved lines"}
+{"id":"s3","c":"Search","hint":"Search saved lines"}
+{"id":"h6","c":"Highlights","items":[{"text":"Let the silence have its turn.","from":"A Quiet Morning","at":"05:10","note":"Read this again next week.","goto":"quiet_morning"}]}
+{"id":"h7","c":"Header","title":"In the Stillness","style":"back"}
+{"id":"a1","c":"Article","title":"In the Stillness","by":"Rev. Ada Reed","date":"2026-11-08","photo":"lib:morning","body":"## Before the day begins\n\nTake a moment to notice what is already around you. Leave the window open long enough to hear the first sounds from the street.\n\n> Let the silence have its turn.\n\nHear the [full reading](screen:quiet_morning)."}
+{"id":"t3","c":"SectionTitle","text":"Related readings"}
+{"id":"l4","c":"List","style":"shelf","rows":[{"title":"Listen Slowly","photo":"lib:listen","goto":"listen_slowly"},{"title":"A Patient Heart","photo":"lib:patience","goto":"patience"}]}

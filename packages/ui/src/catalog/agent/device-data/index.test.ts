@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
 import { components, planAct, writerFormatFor, type Definition } from "@lmthing/ui/catalog";
-import { selectDeviceData } from "./index";
+import { atDeviceTime, selectDeviceData, stageRecordSnapshot } from "./index";
 import { readComponent, readScreen } from "../read";
 
 const readings = [{ score: 4 }];
@@ -49,6 +49,36 @@ it("keeps the Writer schema, interaction values and preview fixtures separate fr
   );
   expect(readComponent(def, {}, "r1", "filled", {}, "en", { readings })[0]).toContain("en: readings = 1");
   expect(previewDeviceData).not.toHaveBeenCalled();
+});
+
+it("keeps the sampled host time when projecting a staged record for read and act", () => {
+  const gated: Definition = {
+    ...def,
+    meta: {
+      ...def.meta,
+      actions: { parts: { root: ["press"] }, when: { "root.press": { allowed: true } } },
+      deviceDataFlags: {
+        allowed: (data, _, now) =>
+          now === 10 && data.readings?.some((row) => row && (row as { score: number }).score === 9) === true,
+      },
+    },
+  };
+  const defs = { ReadingFixture: gated };
+  const screen = { id: "home", components: [{ id: "r", c: "ReadingFixture" }] };
+  const values = {};
+  const step = { address: "r", action: "press" };
+  const data = atDeviceTime({ readings }, 10);
+  expect(planAct(screen, defs, values, [step], null, "planner", data).ok).toBe(false);
+  stageRecordSnapshot(values, {
+    source: "home/source",
+    kind: "readings",
+    keys: ["score"],
+    key: "[9]",
+    row: { score: 9 },
+  });
+  expect(readScreen(screen, defs, values, "en", data)).toContain("[r press]");
+  expect(planAct(screen, defs, values, [step], null, "planner", data).ok).toBe(true);
+  expect(planAct(screen, defs, values, [step], null, "planner", atDeviceTime(data, 11)).ok).toBe(false);
 });
 
 it("omits gated text and actions and plans only against the supplied host records", () => {

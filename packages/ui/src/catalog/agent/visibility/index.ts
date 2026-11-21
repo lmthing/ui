@@ -48,10 +48,14 @@ export function matches(
   rule: Readonly<Record<string, string | boolean>> | undefined,
   holder: Values,
   outer: Values,
+  flags?: Meta["deviceDataFlags"],
 ): boolean {
   return (
     !rule ||
-    Object.entries(rule).every(([key, value]) => (key in holder ? holder[key] : outer[key]) === value)
+    Object.entries(rule).every(
+      ([key, value]) =>
+        (!Object.hasOwn(flags ?? {}, key) && key in holder ? holder[key] : outer[key]) === value,
+    )
   );
 }
 
@@ -64,7 +68,7 @@ export function addressedItems(meta: Meta, props: Values): Values[] {
 export function visibleItems<T extends Values = Values>(meta: Meta, props: Values): T[] {
   const rows = addressedItems(meta, props);
   const rule = meta.items?.visibleWhen;
-  return (rule ? rows.filter((row) => matches(rule, row, props)) : rows) as T[];
+  return (rule ? rows.filter((row) => matches(rule, row, props, meta.deviceDataFlags)) : rows) as T[];
 }
 
 export function projectVisibleItems(meta: Meta, props: Values): Values {

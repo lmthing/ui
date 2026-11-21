@@ -1,4 +1,28 @@
 import type { StateName } from "../types";
+import type { DeviceData } from "../agent";
+
+type RecordProps = Readonly<Record<string, unknown>>;
+
+/** A component elapsed clock with explicit Start and Stop appends one wire row on Stop. */
+export type ClockCommit = {
+  rows: string;
+  /** Parsed local week start (a Monday ISO date). */
+  week: string;
+  /** Clocks with the same group share one running session across the interaction store. */
+  group?: string;
+  /** Host-supplied IANA zone. Omit to use the device's zone. */
+  timeZone?: (data: DeviceData) => string | undefined;
+  /** Parsed selection fields that must still match the ones captured at Start. */
+  selection: readonly string[];
+  /** Check that the selected owner is eligible in the latest host snapshot. */
+  validTarget: (props: RecordProps, data: DeviceData) => boolean;
+  /** Return no row if the target, time window or host records no longer admit the session. */
+  record: (
+    session: { start: number; end: number },
+    props: RecordProps,
+    data: DeviceData,
+  ) => RecordProps | undefined;
+};
 
 export type ClockTrigger = {
   part: string;
@@ -29,6 +53,7 @@ export type ClockMeta = {
   start?: ClockTrigger;
   stop?: ClockTrigger;
   reset?: ClockTrigger;
+  commitOnStop?: ClockCommit;
   zero?: "stop" | { state: StateName } | { prop: string; value: string | boolean };
 };
 export type ClockState = {
@@ -40,4 +65,6 @@ export type ClockState = {
   remainder?: number;
   /** A replayable clock materialized its expiry, even if its duration is later edited. */
   expired?: true;
+  /** Selection bound to the current elapsed session. */
+  selection?: string;
 };

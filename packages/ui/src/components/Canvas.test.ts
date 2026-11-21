@@ -18,8 +18,11 @@ describe("Canvas schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-  it("trims the caption without adding other props", () => {
-    expect(props.parse({ caption: "  A drawing tool  " })).toEqual({ caption: "A drawing tool" });
+  it("trims the caption and defaults to the existing outline", () => {
+    expect(props.parse({ caption: "  A drawing tool  " })).toEqual({
+      caption: "A drawing tool",
+      surface: "outlined",
+    });
   });
   it.each([
     {},
@@ -31,6 +34,8 @@ describe("Canvas schema", () => {
     { caption: true },
     { caption: [] },
     { caption: "A drawing tool", style: "plain" },
+    { caption: "A drawing tool", surface: "card" },
+    { caption: "A drawing tool", media: "none" },
     { caption: "A drawing tool", icon: "palette" },
     { caption: "A drawing tool", color: "red" },
     { caption: "A drawing tool", pixels: 4 },
@@ -119,11 +124,12 @@ describe("Canvas metadata and probes", () => {
     expect(meta.pick).toContain("Empty");
     expect(meta.pick).toContain("Photo");
   });
-  it("has two choose probes with an Empty near miss and one write", () => {
+  it("has two choose probes with an Empty near miss and a write probe for the plain surface", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Canvas")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Empty")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Canvas" });
+    expect(probes).toContainEqual(expect.objectContaining({ variant: { axis: "surface", value: "plain" } }));
     expect(probes.map((probe) => probe.kind)).not.toContain("read");
     for (const probe of probes) {
       const wording = probe.kind === "choose" ? probe.need : probe.brief;
@@ -141,16 +147,17 @@ describe("Canvas metadata and probes", () => {
 });
 
 describe("Canvas view and reading", () => {
-  it.each(examples)("draws a tall outlined placeholder with a decorative soft icon", (example) => {
-    const view = Canvas(props.parse(example));
+  it.each(examples)("draws the selected surface with a decorative soft icon", (example) => {
+    const parsed = props.parse(example);
+    const view = Canvas(parsed);
     expect(view.type).toBe(KitCard);
-    expect(view.props).toMatchObject({ look: "outlined", part: "root", padded: true });
+    expect(view.props).toMatchObject({ surface: parsed.surface, part: "root", padded: true });
     expect(view.props.children.type).toBe(KitEmpty);
     expect(view.props.children.props).toEqual({
       title: example.caption,
       part: "caption",
       icon: "palette",
-      fill: true,
+      fill: parsed.surface === "outlined",
       decorativeIcon: true,
     });
   });

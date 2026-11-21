@@ -153,11 +153,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\",\"meta\":null}]}",
+    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\" ,\"meta\":null}]}",
     "replies": [
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\",\"meta\":null}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\",\"meta\":null}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dog\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dog\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dog\" ,\"meta\":null}]}"
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\" ,\"meta\":null}]}",
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":\"full\",\"media\":\"cover\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}",
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":\"lib:dogs\",\"meta\":\"Ready for a group walk\"},{\"title\":\"Pip\",\"photo\":\"lib:dogs\",\"meta\":\"Gentle park companion\"},{\"title\":\"Milo\",\"photo\":\"lib:dogs\",\"meta\":null}]}"
     ]
   },
   "3a930a1c125f3209": {
@@ -260,7 +260,7 @@
     "replies": [
       "Gallery",
       "Gallery",
-      "gallery"
+      "Gallery"
     ]
   },
   "7c6a9ad13393fae3": {
@@ -387,11 +387,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description of Pip\"}]}",
+    "reply": "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description of Pip\"}]}",
     "replies": [
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description of Pip\"}]}",
       "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description of Pip\"}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description\"}]}",
-      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"Description for Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"Description for Pip\"}]}"
+      "{\"c\":\"SwipeStack\",\"density\":null,\"detail\":null,\"media\":\"none\",\"cards\":[{\"title\":\"Clover\",\"photo\":null,\"meta\":\"description of Clover\"},{\"title\":\"Pip\",\"photo\":null,\"meta\":\"description of Pip\"}]}"
     ]
   },
   "aab1b740b40aa659": {
