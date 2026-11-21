@@ -23,6 +23,7 @@ export type ScreenAction = "back" | "tab" | "scroll";
 /** Store-backed inputs and derived gates, applied to parsed props, never to Writer input. */
 export type LiveActionInputs = {
   text?: Readonly<Record<string, { prop: string; max: number }>>;
+  /** Item check or toggle part → the parsed boolean projected before deriving live props. */
   checks?: Readonly<Record<string, string>>;
   /** Send part → declared text input and optional audience prop, captured at the admitted step. */
   send?: Readonly<Record<string, { field: string; audience?: string }>>;

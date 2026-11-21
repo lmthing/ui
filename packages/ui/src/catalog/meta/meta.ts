@@ -93,18 +93,18 @@ export type Meta = {
   clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
-  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
     deviceData?: LiveMeta.DeviceRows;
-    visible?: "all" | "first";
+    visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
+    toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
@@ -117,7 +117,7 @@ export type Meta = {
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
-    move?: { column: string; columns: string } | { field: string; values: readonly string[] };
+    move?: LiveMeta.ItemMove;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {

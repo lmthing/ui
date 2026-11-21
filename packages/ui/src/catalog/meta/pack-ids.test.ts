@@ -2,9 +2,9 @@ import { expect, expectTypeOf, it } from "vitest";
 import { packIds, type PackId, type PackMeta, type ArchetypeMeta } from "./index";
 import type { PackProbe, ChooseProbe } from "../probes";
 
-it("exposes exactly the 27 unique pack ids, excluding the old content id", () => {
-  expect(packIds).toHaveLength(27);
-  expect(new Set(packIds).size).toBe(27);
+it("exposes exactly 57 unique pack ids, excluding the old content id", () => {
+  expect(packIds).toHaveLength(57);
+  expect(new Set(packIds).size).toBe(packIds.length);
   expect(packIds).toContain("media");
   expect(packIds).not.toContain("content");
   expectTypeOf<PackMeta["id"]>().toEqualTypeOf<PackId>();
@@ -12,7 +12,7 @@ it("exposes exactly the 27 unique pack ids, excluding the old content id", () =>
   expectTypeOf<ArchetypeMeta["layouts"][string]["defaults"][number]["c"]>().toEqualTypeOf<string>();
 });
 
-it("includes all nine newly planned packs in the runtime list and PackId type", () => {
+it("includes the nine later Waves 1–5 packs in the runtime list and PackId type", () => {
   const newPackIds = [
     "play",
     "requests",
