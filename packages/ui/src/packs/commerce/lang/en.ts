@@ -45,6 +45,19 @@ export type CommerceWords = {
     fitWords: readonly [string, string, string];
     reference: (size: string) => string;
   };
+  savedList: {
+    move: string;
+    remove: (name: string) => string;
+    claim: string;
+    claimItem: (name: string) => string;
+    target: string;
+    alert: (name: string) => string;
+    previous: (price: string) => string;
+    priceDrop: (amount: string) => string;
+    empty: string;
+    success: string;
+    error: string;
+  };
 };
 
 export const en = {
@@ -93,5 +106,18 @@ export const en = {
     fit: "Fit",
     fitWords: ["Runs small", "True to size", "Runs large"],
     reference: (size) => `Reference size: ${size}`,
+  },
+  savedList: {
+    move: "To basket",
+    remove: (name) => `Remove ${name} from saved items`,
+    claim: "Claimed",
+    claimItem: (name) => `Claim ${name}`,
+    target: "Target price",
+    alert: (name) => `Target price for ${name}`,
+    previous: (price) => `Was ${price}`,
+    priceDrop: (amount) => `${amount} less`,
+    empty: "No saved items yet",
+    success: "Saved list updated",
+    error: "Could not update saved items",
   },
 } satisfies CommerceWords;
