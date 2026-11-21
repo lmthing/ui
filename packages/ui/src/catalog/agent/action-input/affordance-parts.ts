@@ -4,6 +4,7 @@ import { matches } from "../visibility";
 import { withLiveInput } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
 import { isSelectAll } from "../selection-binding";
+import { recordActionAt } from "../record-runtime";
 import {
   itemEditOffer,
   recordEdit,
@@ -63,7 +64,11 @@ export function partsOf(
       ? actions
           .filter((action) => {
             if (!matches(when?.[`${part}.${action}`], holder, outer, meta.deviceDataFlags)) return false;
-            if (!item) return !locked || !reportConfirmation(meta, part, action);
+            if (!item) {
+              const record = recordActionAt(meta, part, action);
+              if (record && record.target(holder) === undefined) return false;
+              return !locked || !reportConfirmation(meta, part, action);
+            }
             const edit =
               recordEditAllowed(meta, outer, holder, part, action, data) ??
               itemEditOffer(meta, holder, part, action, wire);

@@ -1,20 +1,30 @@
-import type { ScreenLike } from "../../catalog";
+import type { Issue, ScreenLike } from "../../catalog";
 import { MatchFeed, Scoreboard } from "./components";
+import { matchScore, seededMatch } from "./match-record";
 
-/** Check the two valid seeds when they appear together on a match screen. */
-export function checkMatchScore(screen: ScreenLike): string[] {
-  const scoreLine = screen.components.find(({ c }) => c === "Scoreboard");
+/** Validate that wire scores agree with the match record initialised from the feed. */
+export function checkMatchScore(screen: ScreenLike): Issue[] {
+  const scoreLines = screen.components.filter(({ c }) => c === "Scoreboard");
   const feedLine = screen.components.find(({ c }) => c === "MatchFeed");
-  if (!scoreLine || !feedLine) return [];
-  const score = Scoreboard.props.safeParse(inputOf(scoreLine));
+  if (!scoreLines.length || !feedLine) return [];
   const feed = MatchFeed.props.safeParse(inputOf(feedLine));
-  if (!score.success || !feed.success) return []; // The component schemas report invalid lines.
-  const goals = { home: 0, away: 0 };
-  for (const event of feed.data.events) if (event.kind === "goal") goals[event.side]++;
-  return [
-    ...(score.data.homeScore === goals.home ? [] : ["Home score does not match the seeded home goals."]),
-    ...(score.data.awayScore === goals.away ? [] : ["Away score does not match the seeded away goals."]),
-  ];
+  if (!feed.success) return []; // The component schemas report invalid lines.
+  const goals = matchScore(seededMatch(screen.id, feed.data.events).goals);
+  return scoreLines.flatMap((scoreLine) => {
+    const score = Scoreboard.props.safeParse(inputOf(scoreLine));
+    if (!score.success) return [];
+    return (["home", "away"] as const).flatMap((side) =>
+      score.data[`${side}Score`] === goals[`${side}Score`]
+        ? []
+        : [
+            {
+              code: "S.match_score",
+              address: `${screen.id}/${scoreLine.id}/${side}_score`,
+              message: `The ${side} score must equal the number of ${side} goals.`,
+            },
+          ],
+    );
+  });
 }
 
 function inputOf({ c: _c, id: _id, state: _state, ...input }: ScreenLike["components"][number]) {

@@ -24,7 +24,13 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
-export { isRecordJournal, isRecordPress, recordTargetAt } from "./record-runtime";
+export {
+  isRecordJournal,
+  isRecordPress,
+  recordActionAt,
+  recordTargetAt,
+  withRecordScreen,
+} from "./record-runtime";
 export {
   hasReportConfirmation,
   itemEditSpec,

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { scoreboardRecord } from "../match-runtime";
 
 const status = ["upcoming", "live", "break", "final"] as const;
 const modes = ["display", "keeper"] as const;
@@ -28,6 +29,8 @@ export const meta = {
     parts: { home: ["increment", "decrement"], away: ["increment", "decrement"], clock: ["start", "stop"] },
     when: { home: { style: "keeper" }, away: { style: "keeper" }, clock: { style: "keeper" } },
   },
+  confirmParts: ["home", "away"],
+  ...scoreboardRecord,
   clocks: [
     {
       id: "match_clock",
@@ -37,12 +40,6 @@ export const meta = {
       stop: { part: "clock", action: "stop" },
     },
   ],
-  adjust: {
-    "home.increment": { prop: "homeScore", delta: 1, min: 0 },
-    "home.decrement": { prop: "homeScore", delta: -1, min: 0 },
-    "away.increment": { prop: "awayScore", delta: 1, min: 0 },
-    "away.decrement": { prop: "awayScore", delta: -1, min: 0 },
-  },
   read: (input, _state, lang): string[] => {
     const { home, away, homeScore, awayScore, status, elapsed } = input as z.output<typeof props> & {
       elapsed?: number;
