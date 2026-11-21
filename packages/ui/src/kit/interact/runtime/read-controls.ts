@@ -10,6 +10,7 @@ import {
   readScreen,
   selectionBindingFor,
   withDisabledSelectionChecks,
+  withRecordScreen,
   type AppCurrency,
   type CanDrive,
   type Definition,
@@ -129,7 +130,7 @@ function readKeypads(
   currency?: AppCurrency,
   canDrive?: CanDrive,
 ) {
-  deviceData = captureDeviceTime(defs, deviceData);
+  deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), screen);
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
