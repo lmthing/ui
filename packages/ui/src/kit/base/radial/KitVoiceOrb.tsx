@@ -73,17 +73,17 @@ function OrbControl(props: OrbProps) {
   const kit = useKit();
   const address = usePart(props.target.part, !props.loading);
   const controller = kit.interactive ? kit.controller : undefined;
-  const disabled = Boolean(
-    controller &&
-    !props.loading &&
-    !controller
-      .actionsAt(address.testID, { ignoreDisabledPart: true })
-      .some((action) => action === "press" || action === "toggle"),
-  );
-  const actionable = !props.loading && !disabled && controller;
+  const action = props.loading
+    ? undefined
+    : controller
+        ?.actionsAt(address.testID, { ignoreDisabledPart: true })
+        .find(
+          (action) => action === "press" || action === "toggle" || action === "start" || action === "stop",
+        );
+  const disabled = Boolean(controller && !props.loading && !action);
   const press = (event: { stopPropagation?(): void }) => {
     event.stopPropagation?.();
-    return controller?.press(address.testID);
+    if (action) return controller?.act({ address: address.testID, action });
   };
   return (
     <YStack
@@ -98,7 +98,7 @@ function OrbControl(props: OrbProps) {
       accessibilityLabel={props.loading ? undefined : props.label}
       aria-disabled={disabled || undefined}
       aria-hidden={props.loading || undefined}
-      {...(actionable
+      {...(action
         ? {
             onPress: press,
             ...(isWeb

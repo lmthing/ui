@@ -176,6 +176,6 @@ it("keeps a single drawing address in loading and honors controller action gates
   expect((await output()).slice(1)).toEqual([
     { address: "home/calc", action: "type", value: "7" },
     { address: "home/letters", action: "press" },
-    { address: "home/voice", action: "toggle" },
+    { address: "home/voice", action: "start" },
   ]);
 });

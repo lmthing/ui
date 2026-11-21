@@ -51,7 +51,7 @@ const defs = {
       id: "Orb",
       parts: ["root", "orb"],
       actions: {
-        parts: { root: ["toggle"], orb: ["toggle"] },
+        parts: { root: ["start"], orb: ["toggle"] },
         when: { root: { ready: true }, orb: { ready: true } },
       },
     },
