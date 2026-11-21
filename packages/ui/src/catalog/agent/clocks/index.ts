@@ -22,10 +22,11 @@ export {
   isPlaybackAction,
 } from "./clock";
 export { clockChanges } from "./transitions";
-export { projectComponentSets } from "./component-sets";
+export { hasRuntimeSets, isRuntimeSet, projectComponentSets, projectRuntimeSets } from "./component-sets";
 export {
   adjustmentAt,
   clearItemSets,
+  hasNumericRoom,
   numericSetAt,
   projectAdjustments,
   projectMatrix,

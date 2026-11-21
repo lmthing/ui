@@ -13,6 +13,12 @@ import {
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
 
+export function drivenPartBlock(ctx: ControllerContext, address: string) {
+  if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
+  if (ctx.options.requireMounted && !ctx.mounted.has(address))
+    return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
 export function confirmReport(
   ctx: ControllerContext,
   screen: ScreenLike,

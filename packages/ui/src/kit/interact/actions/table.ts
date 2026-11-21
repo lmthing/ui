@@ -6,9 +6,12 @@ import {
   liveProps,
   parseControlProps,
   projectDeviceData,
+  projectSelectionBinding,
   recordClaimAt,
   reportConfirmation,
+  reportEditWire,
   reportRemovalAt,
+  selectionBindingFor,
   stampItemIds,
   recordTargetAt,
   type ActStep,
@@ -67,7 +70,9 @@ function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionCon
 }
 
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
-  const meta = ctx.defs[ctx.entry.c]!.meta;
+  const { id, c, state: entryState, ...raw } = ctx.entry;
+  const def = ctx.defs[c]!;
+  const { meta } = def;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
   if (reportConfirmation(meta, target, action.action))
     return isRecordPress(meta, action.address, action.action)
@@ -82,20 +87,19 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
-  const props = liveProps(
-    meta,
-    stampItemIds(meta, ctx.input),
-    ctx.entry.id,
-    local,
-    true,
-    projectDeviceData(ctx.options.deviceData, state.values),
-  );
+  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const wire = reportEditWire(def, raw, (part) => local[`${id}/${part}`]);
+  const live = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local, true, data);
+  const selection = selectionBindingFor(ctx.active, ctx.defs, meta, ctx.entry.id, local, data);
+  const props = projectSelectionBinding(meta, live, selection?.view);
   const part = affordancesOf(
     meta,
     props,
     ctx.entry.id,
     local,
-    (props.state as StateName | undefined) ?? ctx.entry.state,
+    (props.state as StateName | undefined) ?? entryState,
+    false,
+    { data, wire },
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
