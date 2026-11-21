@@ -13,6 +13,7 @@ export type NumericAdjustments = Readonly<
 type Draw =
   | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
+  | { kind: "deck"; press: string; pool: string; count: string; reset: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type ItemNumericSet = NumericSet & {
@@ -80,6 +81,8 @@ export type Meta = {
   readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: Draw;
+  /** Monotonic round timing for an item press and a component reset press. */
+  buzz?: { press: string; reset: string };
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
   /**

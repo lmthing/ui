@@ -1,5 +1,6 @@
 import {
   atDeviceTime,
+  buzzTarget,
   filterDeviceDataScreen,
   projectDeviceData,
   projectDeviceRows,
@@ -16,7 +17,14 @@ import type { ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
 
-function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+function isBuzz(ctx: ControllerContext, { address, action }: ActStep): boolean {
+  const [id, ...parts] = ctx.relative(address).split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/") || "root", action));
+}
+
+function snapshotPlanning(ctx: ControllerContext, touchNow: () => number): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
   const data = atDeviceTime(ctx.options.deviceData, at);
@@ -30,6 +38,7 @@ function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     options: { ...ctx.options, deviceData: data },
     screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projected),
     now: () => at,
+    touchNow,
     valuesOf: () => values,
     status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
@@ -55,9 +64,11 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
+    // Sample contact before projection, and reuse it if the action is planned again.
+    let touchTime = opts.dryRun ? 0 : list.some((step) => isBuzz(ctx, step)) ? ctx.touchNow() : undefined;
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = snapshotPlanning(ctx);
+    const planning = snapshotPlanning(ctx, () => (touchTime ??= ctx.touchNow()));
     const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
     if (opts.dryRun)

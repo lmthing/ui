@@ -15,6 +15,7 @@ import {
   validateStep,
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
+import { monotonicNow } from "./buzz";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import {
@@ -101,12 +102,13 @@ function stepProgress(
   random: RandomSource | null,
   snapshot: DeviceData | undefined,
   now: number,
+  touchNow: () => number,
 ) {
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
     stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+    stageProgress(screen, defs, step.address, step, next, random, snapshot, touchNow)
   );
 }
 
@@ -154,10 +156,11 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
   now = deviceTimeOf(data) ?? Date.now(),
+  touchNow = monotonicNow,
 ): ActResult {
   data = captureDeviceTime(defs, data, now);
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now, () => 0);
     if (!preview.ok) return preview;
   }
   const migrated = migrateScreen(input, { variantOnly: true });
@@ -178,7 +181,9 @@ export function planAct(
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record
+        ? ""
+        : stepProgress(screen, defs, next, resolved, found, random, snapshot, now, touchNow);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {

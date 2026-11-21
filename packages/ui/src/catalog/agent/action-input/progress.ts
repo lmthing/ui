@@ -1,6 +1,7 @@
 import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
 import { drawKey, drawRole, holdIndex, performDraw, storeDraw, type RandomSource } from "../draw";
+import { buzzKey, buzzTarget, recordBuzz } from "../buzz";
 import { advanceSession, sessionEvent, sessionKey } from "../session";
 import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
 import { localValues } from "./select-step";
@@ -12,17 +13,23 @@ export function stageProgress(
   step: ActStep,
   next: Values,
   random: RandomSource | null,
-  data?: DeviceData,
+  data: DeviceData | undefined,
+  touchNow: () => number,
 ): string | undefined {
   const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id)!;
   const def = defs[entry.c]!;
   const target = parts.join("/") || "root";
+  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
+  const buzz = buzzTarget(def.meta, target, step.action);
+  if (buzz !== null) {
+    next[`${screen.id}/${id}/${buzzKey}`] = recordBuzz(get, buzz, touchNow);
+    return "";
+  }
   const event = sessionEvent(def.meta, target, step.action);
   const role = drawRole(def.meta, target, step.action);
   if (!event && !role) return;
   const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const parsed = parseControlProps(def, raw, get);
   const props = liveProps(def.meta, parsed, entry.id, localValues(screen.id, next), true, data);
   if (event) {

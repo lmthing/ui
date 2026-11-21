@@ -25,6 +25,7 @@ type AgentOptions = {
   currency?: AppCurrency | undefined;
   store: InteractionStore;
   random?: RandomSource | undefined;
+  touchNow?: (() => number) | undefined;
   deviceData?: DeviceData | undefined;
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
@@ -40,6 +41,8 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike, currency: A
       return (
         meta &&
         (meta.recordRuntime ||
+          meta.buzz ||
+          meta.draw?.kind === "deck" ||
           hasReportConfirmation(meta) ||
           (meta.confirmParts?.length &&
             (meta.session ||

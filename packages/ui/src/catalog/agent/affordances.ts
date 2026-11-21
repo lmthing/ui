@@ -4,6 +4,7 @@ import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
+import { buzzAvailable, buzzStatus, buzzTarget } from "./buzz";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
@@ -78,6 +79,7 @@ export function affordancesOf(
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
+  state = buzzStatus(meta, state, get);
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
@@ -111,10 +113,12 @@ export function affordancesOf(
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);
+    const buzz = buzzTarget(meta, target, action);
     if (!allowedIn(meta, state, `${part}.${action}`, Boolean(role), feedback)) return false;
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
+    if (buzz !== null && !buzzAvailable(get, buzz)) return false;
     if (
       (liveClock || clockControlDeclared(meta, target, action, true)) &&
       !clockActionValid(meta, props, target, action, get, now)

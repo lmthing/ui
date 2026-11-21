@@ -51,6 +51,8 @@ export function dispatchPlan(
     random,
     ctx.standalone ? "planner" : "controller",
     ctx.options.deviceData,
+    ctx.now(),
+    ctx.touchNow,
   );
 }
 

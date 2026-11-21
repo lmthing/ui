@@ -6,6 +6,7 @@ import {
   liveProps,
   parseControlProps,
   drawStatus,
+  buzzStatus,
   hasPlaybackClock,
   sessionStatus,
   type ClockState,
@@ -119,6 +120,10 @@ function projectEntry(
   if (meta.session) {
     const { id: _id, c: _c, state: _state, ...wire } = result;
     const state = sessionStatus(meta, parseControlProps(def, wire, get), result.state ?? "filled", get);
+    if (result.state !== undefined || state !== "filled") result.state = state;
+  }
+  if (meta.buzz) {
+    const state = buzzStatus(meta, result.state ?? "filled", get);
     if (result.state !== undefined || state !== "filled") result.state = state;
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")

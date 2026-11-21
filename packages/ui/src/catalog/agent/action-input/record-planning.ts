@@ -37,6 +37,7 @@ function usesLiveState(meta: Meta) {
   const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = meta;
   return (
     draw ||
+    meta.buzz ||
     emptyActions ||
     errorActions?.length ||
     session ||

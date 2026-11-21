@@ -1,6 +1,7 @@
 import {
   drawKey,
   liveProps,
+  monotonicNow,
   stampItemIds,
   staleDraw,
   sessionKey,
@@ -39,6 +40,7 @@ export type ControllerOptions = {
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
+  touchNow?: (() => number) | undefined;
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
@@ -123,7 +125,7 @@ function projectLive(options: ControllerOptions, screen: ScreenLike, standalone:
   };
 }
 export function createControllerContext(options: ControllerOptions, standalone = false) {
-  const { defs, now = Date.now, store = createInteractionStore() } = options;
+  const { defs, now = Date.now, touchNow = monotonicNow, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
   let initial = standalone ? {} : initialValues(screen, defs, now);
@@ -147,6 +149,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     screen,
     defs,
     now,
+    touchNow,
     store,
     status,
     valuesOf,

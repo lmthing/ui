@@ -7,6 +7,7 @@ import type { DeviceData, ScreenLike, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
+import { projectBuzz } from "./buzz";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
@@ -151,6 +152,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
+  props = projectBuzz(meta, props, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
   // Reapply to rows that a live or host projection may have replaced.

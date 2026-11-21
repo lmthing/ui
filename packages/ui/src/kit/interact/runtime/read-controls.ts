@@ -38,7 +38,7 @@ export function visibleConfirmation(
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+  if (entry && (bound || meta.deviceDataFlags || meta.draw?.kind === "deck") && confirmation.step) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,

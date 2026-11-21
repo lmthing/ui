@@ -96,6 +96,7 @@ function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionCo
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (meta.draw?.kind === "deck" && drawRole(meta, part, selected.action) === "reset") return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));
