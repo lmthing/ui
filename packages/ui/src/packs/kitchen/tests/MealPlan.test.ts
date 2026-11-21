@@ -135,7 +135,8 @@ describe("MealPlan states, parts, reading and conditional actions", () => {
     const offered = affordancesOf(meta, parsed, "m1");
     expect(offered).toHaveLength(7 * count);
     const html = renderInstance("MealPlan", value, "filled", theme, { component: "m1" });
-    for (const part of meta.parts) expect(() => elementAt(html, `home/m1/${part}`)).not.toThrow();
+    for (const part of ["root", "week", "meals"])
+      expect(() => elementAt(html, `home/m1/${part}`)).not.toThrow();
     for (const row of parsedRows(parsed)) {
       const root = `home/m1/${row.id}/root`;
       expect(html.split(`data-testid="${root}"`)).toHaveLength(2);

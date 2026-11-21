@@ -60,6 +60,7 @@ export const en = {
     shop: "Add missing to groceries",
   },
   ingredientServings: (count: string, label: string) => `${count} ${label}`,
+  ingredientSwap: (swap: string) => `Swap: ${swap}`,
   ingredientUnits: {
     g: "g",
     kg: "kg",
@@ -81,6 +82,7 @@ export const en = {
   mealPlanLabels: { ...meals, add: "Add" },
   mealPlanEmpty: "No meals yet.",
   mealPlanWeek: (date: string) => `Week of ${date}`,
+  mealPlanAdd: (meal: string) => `Add ${meal.toLowerCase()}`,
   pantryLabels: {
     ...places,
     used: "Used up",
@@ -89,7 +91,10 @@ export const en = {
     dated: "Use by",
     undated: "Use-by date",
     missing: "Not set",
+    low: "Low stock",
+    restock: "Add to groceries",
   },
+  pantryOpened: (date: string) => `Opened ${date}`,
   pantryPlace: (place: string) => place.toLowerCase(),
 };
 

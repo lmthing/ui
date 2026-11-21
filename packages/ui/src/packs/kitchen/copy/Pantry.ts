@@ -25,6 +25,15 @@ export function pantryDates(useBy?: string, today = pantryToday(), lang?: string
   };
 }
 
+export function pantryIsLow(qty: string, lowAt?: number): boolean {
+  const amount = qty.match(/^(\d+(?:\.\d+)?)(?:\s|$)/)?.[1];
+  return lowAt !== undefined && amount !== undefined && Number(amount) <= lowAt;
+}
+
+export function pantryOpened(openedOn: string, lang?: string): string {
+  return kitchenWordsFor(lang).pantryOpened(appointmentDate(openedOn, lang));
+}
+
 /** Sort a copy so validator-owned ids retain their original record addresses. */
 export function pantryOrder<T extends { useBy?: string | undefined }>(items: readonly T[]): T[] {
   return [...items].sort((a, b) => (a.useBy ?? "99999").localeCompare(b.useBy ?? "99999"));
@@ -39,6 +48,8 @@ export function pantryReading(
       qty: string;
       place: "cupboard" | "fridge" | "freezer";
       useBy?: string | undefined;
+      lowAt?: number | undefined;
+      openedOn?: string | undefined;
     }[];
   },
   lang?: string,
@@ -53,6 +64,8 @@ export function pantryReading(
       expiry.label,
       expiry.date,
       ...(item.useBy ? [item.useBy] : []),
+      ...(item.openedOn ? [pantryOpened(item.openedOn, lang), item.openedOn] : []),
+      ...(pantryIsLow(item.qty, item.lowAt) ? [pantryLabels.low, pantryLabels.restock] : []),
       pantryLabels.used,
     ];
   });

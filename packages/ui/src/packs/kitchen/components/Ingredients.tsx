@@ -4,6 +4,8 @@ import * as kit from "../../../kit";
 import * as copy from "../copy";
 import { kitchenWordsFor } from "../lang";
 // Core first: Checklist/default cannot scale numeric ingredient amounts by servings or switch units.
+// prettier-ignore
+const allergenParts = ["allergen_1", "allergen_2", "allergen_3", "allergen_4", "allergen_5", "allergen_6"] as const;
 export const meta = {
   id: "Ingredients",
   status: "ready",
@@ -13,13 +15,17 @@ export const meta = {
   writeHints: [
     "Amounts are the seed quantities for the written servings. Never write scaled amounts, conversions, item ids or check states.",
     'If asked to hide preparation notes, set detail to "brief" and keep notes in the data. Otherwise leave detail null.',
+    'Write explicitly provided allergens and a swap on the ingredient they apply to. Use style "prep" only for a preparation-led layout.',
   ],
   region: "body",
   weight: 3,
   dense: true,
   tier: "phone",
   realPath: "Recipe data stored on the device.",
-  items: { key: "rows", parts: ["root", "name", "amount", "unit", "note", "have"] },
+  items: {
+    key: "rows",
+    parts: ["root", "name", "amount", "unit", "note", "have", "allergens", "swap", ...allergenParts],
+  },
   parts: ["root", "servings", "servings_less", "value", "controls", "system", "shop"],
   variants: { detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["note"] } },
@@ -40,15 +46,17 @@ const ingredient = z.strictObject({
   amount: z.number().min(0).max(100000).optional(),
   unit: z.enum(["g", "kg", "ml", "l", "tsp", "tbsp", "cup", "piece", "pinch", "none"]).default("none"),
   note: catalog.text(20).optional(),
+  allergens: z.array(catalog.text(16)).min(0).max(allergenParts.length).optional(),
+  swap: catalog.text(28).optional(),
 });
 // prettier-ignore
 export const props = z
   .strictObject({
     ...catalog.variantProps(meta.variants),
+    style: z.enum(["list", "prep"]).default("list"),
     servings: z.int().min(1).max(24),
     groups: z.array(z.strictObject({
-      label: catalog.text(20).optional(),
-      items: z.array(ingredient).min(1).max(16),
+      label: catalog.text(20).optional(), items: z.array(ingredient).min(1).max(16),
     })).min(1).max(3),
     system: z.enum(["metric", "us"]).default("metric"),
   })
@@ -89,35 +97,36 @@ export const examples = [
       { name: "Cinnamon", unit: "pinch" },
     ] }],
   },
+  { servings: 4, style: "prep", groups: [{ label: "Layers", items: [
+    { name: "Lasagne sheets", amount: 8, unit: "piece", note: "Oven ready", allergens: ["Wheat", "Egg"] },
+    { name: "Mozzarella", amount: 125, unit: "g", note: "Torn", allergens: ["Milk"], swap: "Use dairy-free cheese" },
+  ] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = catalog.probesFor("Ingredients");
+// prettier-ignore
 export const probes = [
   choose("Scale the grouped ingredients in my recipe from four servings to six and tick what I have"),
   choose("Tick off three household jobs, without quantities or serving controls", "Checklist"),
-  write(
-    "A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units",
-  ),
+  write("A four-serving lasagne with sauce: 600 g tomatoes, and layers: eight lasagne sheets; use metric units"),
   {
-    ...write(
-      "Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen.",
-    ),
+    ...write("Show ingredients for four servings: 600 g tomatoes, chopped. Keep Chopped as a preparation note but hide notes on the screen."),
     variant: { axis: "detail", value: "brief" },
   },
+  write("For two servings, list 100 g of dried pasta. On the pasta, show wheat and egg as allergen chips."),
+  write("For two servings, list 100 g of butter and show a substitution hint on it: Use olive oil."),
+  write("Use the prep layout for two servings: 100 g tomatoes, with Diced as the preparation note."),
   read("Increase the recipe servings by one", { address: "i1/servings", action: "increment" }),
   read("Tick that I have the tomatoes", { address: "i1/r1/have", action: "check" }),
 ] satisfies catalog.Probe[];
-type ViewProps = catalog.Props<typeof props, typeof meta> & {
-  rows: (z.output<typeof ingredient> & { id: string; have: boolean })[];
-  servingsShown?: number;
-};
-type RowProps = Pick<ViewProps, "system" | "detail"> & {
-  row: ViewProps["rows"][number];
-  scale: number;
-};
+type Row = z.output<typeof ingredient> & { id: string; have: boolean };
+type ViewProps = catalog.Props<typeof props, typeof meta> & { rows: Row[]; servingsShown?: number };
+type RowProps = Pick<ViewProps, "system" | "detail" | "style"> & { row: Row; scale: number };
 // prettier-ignore
-function IngredientRow({ row, scale, system, detail }: RowProps) {
-  const { lang } = kit.useWords(kitchenWordsFor);
+function IngredientRow({ row, scale, system, detail, style }: RowProps) {
+  const { lang, words } = kit.useWords(kitchenWordsFor);
   const quantity = copy.ingredientAmount(row, scale, system, lang);
+  const note = detail === "full" && row.note && <kit.KitText role="label" tone="muted" part="note">{row.note}</kit.KitText>;
+  const name = <kit.KitText part="name">{row.name}</kit.KitText>;
   const amount = <kit.KitTrack part={quantity.unit ? "unit" : "quantity"}>
     {quantity.amount && <kit.KitText role="number" numberScale="compact" part="amount">{quantity.amount}</kit.KitText>}
     {quantity.unit && <kit.KitText role="label" tone="muted" part={null}>{quantity.unit}</kit.KitText>}
@@ -125,9 +134,11 @@ function IngredientRow({ row, scale, system, detail }: RowProps) {
   return (
     <kit.KitRow item={row.id} label={row.name} inline
       leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}>
-      <kit.KitText part="name">{row.name}</kit.KitText>
-      {amount}
-      {detail === "full" && row.note && <kit.KitText role="label" tone="muted" part="note">{row.note}</kit.KitText>}
+      {style === "prep" ? <kit.KitGrid fitLast><kit.KitContent>{name}{note}</kit.KitContent>{amount}</kit.KitGrid> : <>{name}{amount}{note}</>}
+      {row.swap && <kit.KitText role="label" tone="muted" part="swap">{words.ingredientSwap(row.swap)}</kit.KitText>}
+      {!!row.allergens?.length && <kit.KitTrack part="allergens" label={words.nutritionFacts.allergens}>
+        {row.allergens.map((label, index) => <kit.KitTrail key={index} part={allergenParts[index]!} kind="badge" tone="text" value={label} />)}
+      </kit.KitTrack>}
     </kit.KitRow>
   );
 }
@@ -151,7 +162,7 @@ function Servings({ value, brief }: { value: number; brief: boolean }) {
   );
 }
 // prettier-ignore
-export function Ingredients({ servings: seed, servingsShown = seed, system: initial, groups, rows, detail: choice }: ViewProps) {
+export function Ingredients({ servings: seed, servingsShown = seed, system: initial, groups, rows, detail: choice, style }: ViewProps) {
   kit.useComponentState();
   const detail = kit.useVariant("detail", meta.variants.detail, choice);
   const { words } = kit.useWords(kitchenWordsFor);
@@ -176,7 +187,7 @@ export function Ingredients({ servings: seed, servingsShown = seed, system: init
           <kit.KitGrid arrange="rows" list={detail === "brief"} listRowGap="cards">
             {group.items.map(() => {
               const row = rows[index++]!;
-              return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail }} />;
+              return <IngredientRow key={row.id} row={row} scale={servings / seed} {...{ system, detail, style }} />;
             })}
           </kit.KitGrid>
         </kit.KitContent>
