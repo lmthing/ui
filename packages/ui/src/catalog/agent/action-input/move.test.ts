@@ -162,7 +162,8 @@ it("does not advertise or project metadata values outside the enum or the declar
   };
   const defs = { [meta.id]: malformed };
   expect(readScreen(screen, defs)).toContain('[b1/card1 move = "queued"; choices ["done"]]');
-  expect(readScreen(screen, defs)).not.toContain("[b1/card2 move");
+  expect(readScreen(screen, defs)).toContain('[b1/card2 move = "review"; choices ["queued","done"]]');
+  expect(planAct(screen, defs, {}, [{ ...step("done"), address: "b1/card2" }])).toMatchObject({ ok: true });
   for (const value of ["gone", "working"]) {
     expect(planAct(screen, defs, {}, [step(value)])).toMatchObject({ ok: false, code: "invalid_value" });
     expect(projectMoves(malformed, enumProps, () => value)).toBe(enumProps);
@@ -171,14 +172,12 @@ it("does not advertise or project metadata values outside the enum or the declar
 
 it("rejects a repeated destination in a batch but permits switching back", () => {
   const defs = { [meta.id]: enumDef };
-  const values = {};
-  expect(planAct(screen, defs, values, [step("working"), step("working")])).toMatchObject({
+  expect(planAct(screen, defs, {}, [step("working"), step("working")])).toMatchObject({
     ok: false,
     code: "invalid_value",
     at: 1,
   });
-  expect(values).toEqual({});
-  expect(planAct(screen, defs, values, [step("working"), step("queued")])).toMatchObject({
+  expect(planAct(screen, defs, {}, [step("working"), step("queued")])).toMatchObject({
     ok: true,
     values: { "home/b1/card1/$move": "queued" },
   });

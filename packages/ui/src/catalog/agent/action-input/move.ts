@@ -15,18 +15,18 @@ function unwrapOptional(schema: unknown): unknown {
   return schema;
 }
 
-function enumValues(items: Items, spec: EnumMove, schema?: Schema): string[] {
+function enumValues(items: Items, spec: EnumMove, schema?: Schema, current?: string): string[] {
   const rows = unwrapOptional(schema?.shape[items.key]);
   if (!(rows instanceof z.ZodArray) || !(rows.element instanceof z.ZodObject)) return [];
   const fieldSchema = rows.element.shape[spec.field];
   let field = unwrapOptional(fieldSchema);
   while (field instanceof z.ZodDefault || field instanceof z.ZodPrefault)
     field = unwrapOptional(field.unwrap());
-  if (!(field instanceof z.ZodEnum)) return [];
+  if (!(field instanceof z.ZodEnum) || !fieldSchema) return [];
   const allowed = new Set(field.options);
-  return [...new Set(spec.values)].filter(
-    (value) => allowed.has(value) && fieldSchema?.safeParse(value).data === value,
-  );
+  const valid = (value: string) => allowed.has(value) && fieldSchema.safeParse(value).data === value;
+  if (current !== undefined && !valid(current)) return [];
+  return [...new Set(spec.values)].filter((value) => value !== current && valid(value));
 }
 
 function columnLabels(props: Values, key: string): (string | undefined)[] {
@@ -40,10 +40,8 @@ function moveOffer(items: Items, spec: Move, props: Values, row: Values, schema?
   if ("field" in spec) {
     const current = row[spec.field];
     if (typeof current !== "string") return;
-    const values = enumValues(items, spec, schema);
-    const choices = values.filter((value) => value !== current);
-    if (choices.length && values.includes(current)) return { current, choices };
-    return;
+    const choices = enumValues(items, spec, schema, current);
+    return choices.length ? { current, choices } : undefined;
   }
   const labels = columnLabels(props, spec.columns);
   const current = row[spec.column];
