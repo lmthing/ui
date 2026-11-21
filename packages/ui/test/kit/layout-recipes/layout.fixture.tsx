@@ -7,6 +7,7 @@ import {
   KitActionFooter,
   KitCard,
   KitFigure,
+  KitGrid,
   KitHeader,
   KitLayoutText,
   KitMetaLine,
@@ -43,7 +44,7 @@ function Rows({ loading }: { loading: boolean }) {
               <KitPhoto shape="round" part={loading ? null : "photo"} initials="R" loading={loading} />
             ) : undefined
           }
-          trailing={<KitTrail kind="value" value={row.value} part={loading ? null : "value"} />}
+          trailing={<KitTrail kind="value" value={row.value} part="value" />}
         >
           <KitMetaLine
             title={{ text: row.title, part: "title" }}
@@ -61,6 +62,11 @@ function Recipes({ state }: { state: StateName }) {
     <>
       <KitHeader title={{ text: "Summary", part: "title" }} />
       <Rows loading={loading} />
+      <div data-testid="narrow-slot">
+        <KitGrid columns={3}>
+          <KitLayoutText line={{ text: "1200 appointments", part: "count" }} />
+        </KitGrid>
+      </div>
       <KitFigure
         value={{ text: "192", part: "amount" }}
         unit={{ text: "kg", part: "unit" }}

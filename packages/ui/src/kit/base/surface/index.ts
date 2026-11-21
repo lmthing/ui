@@ -4,6 +4,5 @@ export { KitStrip } from "./KitStrip";
 export { KitTile } from "./KitTile";
 export { KitBlock } from "./KitBlock";
 export { KitRow } from "./KitRow";
-export { KitRowGroup } from "./KitRowGroup";
 export { KitGrid } from "./KitGrid";
 export { KitScroll } from "./KitScroll";

@@ -12,7 +12,7 @@ type FigureProps = {
   { media: ReactNode; value?: never; unit?: never } | { value: LayoutLine; unit?: LayoutLine; media?: never }
 );
 
-/** One captioned visual; a numeric value, when used, shares its baseline with the unit. */
+/** Captioned media or a figure whose value and unit share a baseline. */
 export function KitFigure({ media, value, unit, caption, density, align = "start" }: FigureProps) {
   const spacing = useVariantDensity(density);
   const edge = align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start";

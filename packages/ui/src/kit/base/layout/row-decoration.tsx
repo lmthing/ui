@@ -7,7 +7,11 @@ export function RowDecoration({ fade = false, fresh = false }: { fade?: boolean;
   const ks = useKitStyle();
   return (
     <YStack
-      fullscreen
+      position="absolute"
+      top={component.base.none}
+      right={component.base.none}
+      bottom={component.base.none}
+      left={component.base.none}
       borderRadius={shifted("md", ks.radiusShift)}
       {...(fade
         ? { backgroundColor: "$raised", opacity: component.base.stackFade }

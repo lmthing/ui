@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import type { Browser, Locator, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { size } from "@lmthing/ui/catalog";
+import { size, type as typography } from "@lmthing/ui/catalog";
 import { launchChrome } from "../../../scripts";
 import { galleryConfig } from "../../../scripts/look";
 
@@ -62,6 +62,9 @@ it("shares a rail, leaves no placeholder for absent metadata and keeps the loadi
     second = await box(item(1));
   expect(first.height).toBeGreaterThan(second.height);
   const filled = await box(card);
+  const narrow = card.getByTestId("narrow-slot");
+  const wrapped = (await box(narrow)).height;
+  expect(wrapped).toBeGreaterThan(typography.body.lineHeight);
   await state("loading");
   expect(await recipe("save").count()).toBe(0);
   expect(await card.getByRole("button").count()).toBe(0);
@@ -69,6 +72,7 @@ it("shares a rail, leaves no placeholder for absent metadata and keeps the loadi
   expect((await box(card)).height).toBeCloseTo(filled.height);
   expect((await box(item(0))).height).toBeCloseTo(first.height);
   expect((await box(item(1))).height).toBeCloseTo(second.height);
+  expect((await box(narrow)).height).toBeCloseTo(wrapped);
 });
 
 it("uses neutral empty copy and retains the same rows on error and success", async () => {

@@ -4,15 +4,7 @@ import { RowLabelContext } from "../../a11y";
 import { useControlValue } from "../../interact";
 import { Check, ChevronRight } from "@tamagui/lucide-icons";
 import { XStack, YStack, isWeb, styled } from "tamagui";
-import {
-  component,
-  layoutType,
-  radius,
-  size,
-  space,
-  type AxisValue,
-  type ThemeDensity,
-} from "../../../catalog";
+import { component, radius, size, space, type AxisValue, type ThemeDensity } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
 
@@ -63,7 +55,7 @@ type TrailProps = {
   label?: string;
   value?: string | undefined;
   on?: boolean;
-  part?: string | null;
+  part?: string;
   disabled?: boolean;
   tone?: TextTone | undefined;
   density?: ThemeDensity | undefined;
@@ -109,7 +101,7 @@ function ValueTrail({
         : {})}
     >
       <KitText
-        role={kind === "badge" ? layoutType.meta : layoutType.figure}
+        role={kind === "badge" ? "label" : "number"}
         numberScale="compact"
         tabular
         tone={tone ?? (kind === "badge" ? "accent" : "text")}
@@ -152,8 +144,7 @@ function ValueTrail({
 /** The end of a row: chevron (goes somewhere), check (done), switch (on/off), value or badge. */
 export function KitTrail(props: TrailProps) {
   const { kind, label, value, on = false, part = "trail", disabled = false, tone, density } = props;
-  const address = usePart(part ?? undefined, part !== null && kind !== "none");
-  const target = part === null ? {} : address;
+  const address = usePart(part, kind !== "none");
   const kit = useKit();
   const rowLabel = useContext(RowLabelContext);
   const loading = useComponentState() === "loading";
@@ -165,7 +156,7 @@ export function KitTrail(props: TrailProps) {
   if (kind === "toggle") {
     return (
       <Frame
-        {...target}
+        {...address}
         accessibilityRole={loading ? undefined : "switch"}
         accessibilityLabel={loading ? undefined : (label ?? rowLabel)}
         aria-checked={loading ? undefined : active}
@@ -175,7 +166,7 @@ export function KitTrail(props: TrailProps) {
         {...(disabled || loading
           ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
           : {})}
-        {...(part !== null && kit.interactive && kit.controller && !disabled && !loading
+        {...(kit.interactive && kit.controller && !disabled && !loading
           ? {
               onPress: (event: { stopPropagation?(): void }) => {
                 event.stopPropagation?.();
@@ -190,13 +181,13 @@ export function KitTrail(props: TrailProps) {
   }
   if (kind === "value" || kind === "badge") {
     return (
-      <Frame {...target} aria-hidden={loading || undefined} aria-busy={loading || undefined}>
+      <Frame {...address} aria-hidden={loading || undefined} aria-busy={loading || undefined}>
         <ValueTrail {...{ kind, value, tone, loading, density }} />
       </Frame>
     );
   }
   return (
-    <Frame {...target} aria-hidden>
+    <Frame {...address} aria-hidden>
       {kind === "chevron" && <ChevronRight size={size.icon.md} color="$muted" />}
       {kind === "check" && <Check size={size.icon.md} color={tone ? `$${tone}` : "$accent"} />}
     </Frame>

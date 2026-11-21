@@ -3,7 +3,7 @@ import { XStack } from "tamagui";
 import { space, type ThemeDensity } from "../../../catalog";
 import { useVariantDensity } from "../../provider";
 
-/** Attach one or more actions to their group without adding another horizontal gutter. */
+/** Attach actions to their group without adding another horizontal gutter. */
 export function KitActionFooter({
   children,
   density,

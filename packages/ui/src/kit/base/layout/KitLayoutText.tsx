@@ -14,7 +14,7 @@ export type LayoutLine = {
   tabular?: boolean;
 };
 
-/** A semantic text slot with the same type settings for content and its loading placeholder. */
+/** One text slot with the same type settings for content and its loading placeholder. */
 export function KitLayoutText({
   line,
   density,
@@ -36,7 +36,7 @@ export function KitLayoutText({
     numberScale: compact ? "compact" : "display",
   } as const;
   return loading ? (
-    <SkeletonText text={text} {...style} {...{ lines, strong, tabular, baseline }} />
+    <SkeletonText text={text} {...style} {...{ lines, strong, tabular, baseline }} wrap />
   ) : (
     <KitText
       part={part}

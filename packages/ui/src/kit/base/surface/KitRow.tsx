@@ -14,8 +14,7 @@ import {
   type TextFinish,
   type TextTone,
 } from "../text";
-import { RowGroupLead } from "./KitRowGroup";
-import { RowDecoration, RowStatusRule } from "./row-decoration";
+import { RowDecoration, RowGroupLead, RowStatusRule } from "../layout";
 const Frame = styled(XStack, { alignItems: "center", minHeight: size.control.md });
 const Content = styled(XStack, { flex: component.base.bodyFlex, alignItems: "flex-start" });
 // Leading and trailing items centre on the title's first line, not on the middle of the text stack.

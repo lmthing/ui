@@ -5,7 +5,7 @@ import { useVariantDensity } from "../../provider";
 
 export const RowGroupLead = createContext<"avatar" | undefined>(undefined);
 
-/** One gutter and one optional leading rail for sibling rows, with separators between them. */
+/** Sibling rows share an optional leading rail and separators. */
 export function KitRowGroup({
   children,
   density,

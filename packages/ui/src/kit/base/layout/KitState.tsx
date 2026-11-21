@@ -17,7 +17,7 @@ type StateProps = {
   density?: ThemeDensity | undefined;
 };
 
-/** Default state frame, or inline operation feedback above retained content. */
+/** Default state treatment or inline feedback above retained content. */
 export function KitState({ children, loading, retain, message, part = null, icon, density }: StateProps) {
   const state = useComponentState();
   const { words } = useWords();
@@ -66,6 +66,7 @@ export function KitState({ children, loading, retain, message, part = null, icon
       title={text}
       {...{ part, density, tone }}
       icon={icon ?? (failed ? "alert" : "check")}
+      announce={failed ? "alert" : "status"}
       prominence="body"
       decorativeIcon
     />

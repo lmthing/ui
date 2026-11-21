@@ -11,6 +11,7 @@ export type SkeletonLine = {
   strong?: boolean | undefined;
   tabular?: boolean | undefined;
   baseline?: boolean;
+  wrap?: boolean;
 } & TextFinish;
 export type SkeletonItem = {
   lines?: SkeletonLine[];
@@ -71,6 +72,7 @@ export function SkeletonText({
   strong,
   tabular,
   baseline,
+  wrap = false,
 }: SkeletonLine) {
   const stepOf = useTextStep({ density, emphasis });
   const scale = typography[stepOf(role === "number" && numberScale === "compact" ? "body" : role)];
@@ -96,7 +98,7 @@ export function SkeletonText({
           {...(tabular ? { tabular } : {})}
           align={align}
           part={null}
-          {...(lines !== undefined || /^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text)
+          {...(lines !== undefined || (!wrap && /^\d+(?:[.,:]\d+)*(?:\s+\S+)?$/.test(text))
             ? { lines: lines ?? 1 }
             : {})}
         >

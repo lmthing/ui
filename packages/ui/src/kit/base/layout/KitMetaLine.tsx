@@ -9,7 +9,7 @@ type MetaProps = {
   density?: ThemeDensity | undefined;
 };
 
-/** Title and supporting lines form one close group; unoccupied slots never draw a spacer. */
+/** Title and supporting lines form a close group; absent slots never draw a spacer. */
 export function KitMetaLine({ title, meta, density, align = "start" }: MetaProps) {
   const lines = [title, ...(meta ? ("length" in meta ? meta : [meta]) : [])];
   if (!lines.some((line) => line.text)) return null;

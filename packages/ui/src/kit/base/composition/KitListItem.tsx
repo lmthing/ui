@@ -7,7 +7,7 @@ import { KitPhoto } from "../media";
 import { KitRank } from "../data";
 import { KitRow } from "../surface";
 import { KitCheck, KitTrail, type TrailKind } from "../helpers";
-import { KitLayoutText } from "./KitLayoutText";
+import { KitLayoutText } from "../layout";
 
 export type ListItemRow = {
   id: string;

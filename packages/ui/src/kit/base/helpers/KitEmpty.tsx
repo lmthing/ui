@@ -13,21 +13,7 @@ const Badge = styled(YStack, {
   justifyContent: "center",
 });
 
-/**
- * The empty state every component uses: a soft icon badge and one calm line ("No walks yet"),
- * centred with room around it. The line comes from shared copy and the thing type the host passes.
- */
-export function KitEmpty({
-  icon = "sparkles",
-  part = "title",
-  title,
-  sub,
-  fill = false,
-  tone = "neutral",
-  decorativeIcon = false,
-  prominence,
-  density,
-}: {
+type EmptyProps = {
   icon?: IconName;
   part?: string | null;
   /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
@@ -42,10 +28,30 @@ export function KitEmpty({
   /** Explicit copy need not imply a heading. Omit this to retain the legacy title treatment. */
   prominence?: "body" | "heading";
   density?: ThemeDensity | undefined;
-}) {
-  const { lang } = useWords();
+  announce?: "alert" | "status";
+};
 
+/** A centred state message with a soft icon badge and copy from the shared dictionary or caller. */
+export function KitEmpty({
+  icon = "sparkles",
+  part = "title",
+  title,
+  sub,
+  fill = false,
+  tone = "neutral",
+  decorativeIcon = false,
+  prominence,
+  density,
+  announce,
+}: EmptyProps) {
+  const { lang } = useWords();
   const { thing } = usePartContext();
+  const textTone =
+    tone === "bad" || (tone === "good" && prominence)
+      ? tone
+      : prominence === "body" || !title
+        ? "muted"
+        : "text";
   return (
     <YStack
       alignItems="center"
@@ -63,16 +69,10 @@ export function KitEmpty({
           decorative={decorativeIcon}
         />
       </Badge>
-      <YStack gap={space.xs} alignItems="center">
+      <YStack gap={space.xs} alignItems="center" accessibilityRole={announce}>
         <KitText
           role={prominence ?? (title ? "heading" : "body")}
-          tone={
-            tone === "bad" || (tone === "good" && prominence)
-              ? tone
-              : prominence === "body" || !title
-                ? "muted"
-                : "text"
-          }
+          tone={textTone}
           align="center"
           {...{ part, density }}
         >
