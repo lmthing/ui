@@ -33,5 +33,17 @@ export const invoice = {
         { id: "i1", c: "Invoice" },
       ],
     },
+    items: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["SavedItems"], required: true },
+        { allow: ["Button"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "s1", c: "SavedItems" },
+        { id: "b1", c: "Button" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;

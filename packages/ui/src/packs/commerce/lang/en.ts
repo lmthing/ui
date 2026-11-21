@@ -9,6 +9,10 @@ export type CommerceWords = {
   deals: string;
   offerExpired: string;
   priceChange: (was: string, price: string) => string;
+  cartBar: {
+    view: string;
+    count: (formatted: string, singular: boolean) => string;
+  };
   product: {
     stock: (count: string) => string;
     stockField: string;
@@ -97,6 +101,10 @@ export const en = {
   deals: "Deals",
   offerExpired: "Offer ended",
   priceChange: (was, price) => `${was} → ${price}`,
+  cartBar: {
+    view: "View basket",
+    count: (formatted, singular) => `${formatted} ${singular ? "item" : "items"}`,
+  },
   product: {
     stock: (count) => `Only ${count} left`,
     stockField: "stock",

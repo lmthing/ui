@@ -22,27 +22,32 @@ export type MatrixRow = {
   target?: Target;
 };
 const scrollColumnWidth = size.control.md * 3;
+const fittedColumnMin = size.control.md + space.xs * 2;
 export const MatrixSelectionContext = createContext<readonly string[]>([]);
+
+export const fittedTableWidth = (columns: number) => columns * fittedColumnMin;
 
 export function matrixColumnLayout(fit: boolean, heading: boolean): YStackProps {
   if (!fit) return { width: scrollColumnWidth, flexShrink: component.base.none };
-  if (heading) return { flexShrink: component.base.none };
+  if (heading) return { flexShrink: component.base.none, maxWidth: scrollColumnWidth };
   // Start at the intrinsic width so a column with more content gets more room than a short one.
   return {
     flexGrow: component.base.bodyFlex,
     flexShrink: component.base.bodyFlex,
-    minWidth: size.control.md + space.xs * 2,
+    minWidth: fittedColumnMin,
   };
 }
 
 export function useCompactMatrix(fit: boolean) {
-  const [compact, setCompact] = useState(false);
+  const [width, setWidth] = useState<number>();
+  const [heading, setHeading] = useState<number>();
+  const measure = (set: (value: number) => void) => (event: { nativeEvent: { layout: { width: number } } }) =>
+    set(event.nativeEvent.layout.width);
   return {
-    compact: fit && compact,
-    onLayout: fit
-      ? (event: { nativeEvent: { layout: { width: number } } }) =>
-          setCompact(event.nativeEvent.layout.width < size.control.md * 7)
-      : undefined,
+    compact: fit && width !== undefined && width < size.control.md * 7,
+    available: width !== undefined && heading !== undefined ? width - heading : undefined,
+    onLayout: fit ? measure(setWidth) : undefined,
+    onHeadingLayout: fit ? measure(setHeading) : undefined,
   };
 }
 

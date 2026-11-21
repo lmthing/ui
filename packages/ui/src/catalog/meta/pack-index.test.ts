@@ -1,8 +1,9 @@
 import { expect, it } from "vitest";
 import { packIds, packIndex, type PackMeta } from "./index";
 
-it("offers only the 27 pre-Wave 6 pack ids in their declared order", () => {
-  expect(packIndex.map(({ id }) => id)).toEqual(packIds.slice(0, 27));
+it("offers all 57 pack ids in their declared order", () => {
+  expect(packIndex).toHaveLength(57);
+  expect(packIndex.map(({ id }) => id)).toEqual(packIds);
   for (const entry of packIndex) {
     expect(Object.keys(entry)).toEqual(["id", "name", "purpose", "pick"]);
     for (const value of Object.values(entry)) expect(value.trim()).not.toBe("");

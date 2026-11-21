@@ -8,3 +8,4 @@ export { productDetailCopy, productDetailReading, productStoreLines } from "./Pr
 export { fitLine, measurementLine, sizeGuideReading } from "./SizeGuide";
 export { savedItemCopy, savedListReading } from "./SavedList";
 export { cartLineCopy, cartTotals, cartReading } from "./Cart";
+export { basketSummary, cartBarLines, cartBarReading } from "./CartBar";

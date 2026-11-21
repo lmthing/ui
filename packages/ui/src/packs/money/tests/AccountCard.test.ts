@@ -52,7 +52,7 @@ describe("AccountCard schema", () => {
       goto: "a".repeat(64),
     };
     const input = { accounts: Array.from({ length: 4 }, () => boundary) };
-    expect(props.parse(input)).toEqual({ ...input, detail: "full", surface: "card" });
+    expect(props.parse(input)).toEqual({ ...input, detail: "full", surface: "card", arrange: "strip" });
     expectTypeOf<Props<typeof props, typeof meta>["accounts"][number]["id"]>().toEqualTypeOf<string>();
   });
 });
