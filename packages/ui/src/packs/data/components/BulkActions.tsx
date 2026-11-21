@@ -7,7 +7,7 @@ import { dataWordsFor } from "../lang";
 // Core first: Actions/default offers shortcuts, not commands tied to a checked set of records.
 export const meta = {
   id: "BulkActions",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Apply an action to the checked records together.",
   pick: "Apply a command to checked records together, with a selected count and Select all. Not standalone shortcuts (Actions) or a single primary action (Button).",
