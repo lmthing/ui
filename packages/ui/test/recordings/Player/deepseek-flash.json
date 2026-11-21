@@ -445,8 +445,8 @@
     "reply": "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
     "replies": [
       "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
-      "{\"address\": \"p1/play pause\", \"action\": \"press\"}",
-      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}"
+      "{\"address\": \"p1/play pause\", \"action\": \"pause\"}",
+      "{\"address\": \"p1/play\", \"action\": \"pause\"}"
     ]
   },
   "d3cb2ccfc4852795": {
@@ -677,11 +677,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+    "reply": "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
     "replies": [
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":null,\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":245}",
-      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}"
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"brief\",\"style\":\"audio\",\"media\":\"lib:wind_down\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"lib:plants\",\"seconds\":720,\"at\":240}",
+      "{\"c\":\"Player\",\"density\":null,\"detail\":\"full\",\"style\":\"audio\",\"media\":\"local:1\",\"title\":\"Evening wind-down\",\"sub\":\"Guided breathing\",\"photo\":\"local:2\",\"seconds\":720,\"at\":245}"
     ]
   },
   "de725e4e18a1b4ec": {

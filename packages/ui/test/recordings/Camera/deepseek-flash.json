@@ -69,11 +69,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at your plant's leaves\"}",
+    "reply": "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at the leaves\"}",
     "replies": [
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Aim at your plant's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at your plant's leaves and tap to shoot\"}"
+      "{\"c\":\"Camera\",\"surface\":null,\"kind\":\"photo\",\"hint\":\"Point at the leaves\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Aim at leaves and tap to shoot\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Aim at the leaves and tap to shoot\"}"
     ]
   },
   "4b810454bca23afd": {
@@ -229,8 +229,8 @@
     "reply": "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}",
     "replies": [
       "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern to capture its leaves\"}",
-      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Take a photo of your fern\"}"
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}",
+      "{\"c\":\"Camera\",\"surface\":\"card\",\"kind\":\"photo\",\"hint\":\"Point at your fern\"}"
     ]
   },
   "bfcc7b16fbac459e": {
