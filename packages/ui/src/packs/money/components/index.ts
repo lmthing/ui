@@ -7,3 +7,4 @@ export * as PriceChart from "./PriceChart";
 export * as Loan from "./Loan";
 export * as Payoff from "./Payoff";
 export * as CardControls from "./CardControls";
+export * as MoneyTransfer from "./MoneyTransfer";

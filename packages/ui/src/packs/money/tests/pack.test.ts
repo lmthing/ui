@@ -36,7 +36,7 @@ const established = [
   "Loan",
   "Payoff",
 ];
-const ids = [...established, "CardControls"];
+const ids = [...established, "CardControls", "MoneyTransfer"];
 const definitions = components as Record<string, Definition>;
 const neutral = { things: [], items: [] };
 
