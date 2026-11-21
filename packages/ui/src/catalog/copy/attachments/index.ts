@@ -1,6 +1,6 @@
-import { numberLine, pluralForm } from "../format";
-import { localeOf, wordsFor } from "../lang";
-import { appointmentDate } from "./time";
+import { numberLine, pluralForm } from "../../format";
+import { localeOf, wordsFor } from "../../lang";
+import { appointmentDate } from "..";
 
 const units = ["byte", "kilobyte", "megabyte", "gigabyte", "terabyte", "petabyte"] as const;
 const bytesPerUnit = 1000;

@@ -1,7 +1,5 @@
-import type { Definition } from "../probes";
-import type { ActStep, Values } from "./act";
-import { parseControlProps } from "./live-props";
-import type { ScreenLike } from "./read";
+import type { Definition } from "../../probes";
+import { parseControlProps, type ActStep, type ScreenLike, type Values } from "..";
 
 const checkCredential = Symbol("checkCredential");
 type Grant = { readonly [checkCredential]: (credential: string) => boolean };

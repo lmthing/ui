@@ -1,8 +1,8 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
-import type { Definition } from "../probes";
-import type { Values } from "./act";
-import { credentialToggleOn, stageCredentialToggle } from "./credential-toggle";
+import type { Definition } from "../../probes";
+import type { Values } from "..";
+import { credentialToggleOn, stageCredentialToggle } from ".";
 
 const fixture: Definition = {
   meta: {

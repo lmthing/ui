@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { filePagesLine, fileSizeLine, maskedPassId, passExpiryLine } from "./attachments";
+import { filePagesLine, fileSizeLine, maskedPassId, passExpiryLine } from ".";
 
 it("formats sizes in decimal units without a long value at either extreme", () => {
   expect(fileSizeLine(0)).toBe("0 byte");

@@ -110,7 +110,9 @@ describe("PassCard actions and states", () => {
     expect(draw(seed, "empty").get("home/c1/message")?.text).toEqual(["Nothing here yet"]);
     expect(draw(seed, "loading").has("home/c1/code")).toBe(false);
   });
+});
 
+describe("PassCard credential replacement", () => {
   it("never reveals a replacement member ID at the same screen address or serializes the grant", () => {
     const store = createInteractionStore();
     const address = "home/c1/reveal";
