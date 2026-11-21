@@ -38,10 +38,6 @@ async function fixture(status = "draft", example = '{"c":"Ready"}\n') {
     `export const visitDetail = { id: "visit-detail", job: "Visit", layouts: {}, defaultLayout: "plain" }; export const probes = [];`,
   );
   await put("packs/booking/example.jsonl", example);
-  await put(
-    "packs/booking/components/index.ts",
-    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
-  );
   await put("packs/booking/archetypes/index.ts", 'export { visitDetail } from "./visit-detail";\n');
   await put(
     "packs/booking/index.ts",
@@ -64,16 +60,13 @@ async function loadCatalog(root: string) {
 
 it("imports pack data and views only through the root door", async () => {
   const root = await fixture();
-  await writeFile(
-    join(root, "src/packs/booking/components/index.ts"),
-    'export * as Draft from "./Draft";\nexport * as Ready from "./Ready";\n',
-  );
-  await writeFile(
-    join(root, "src/packs/booking/archetypes/index.ts"),
-    'export { visitDetail } from "./visit-detail";\n',
-  );
   const catalog = await loadCatalog(root);
   expect(catalog.createRegistry({ packs: ["booking"], includeDrafts: true }).ids).toContain("Draft");
+  const door = await readFile(join(root, "src/packs/booking/components/index.ts"), "utf8");
+  expect(door.trim().split("\n").slice(1)).toEqual([
+    'export * as Draft from "./Draft";',
+    'export * as Ready from "./Ready";',
+  ]);
   const entry = await readFile(join(root, "src/entry/packs/group-1/booking.ts"), "utf8");
   expect(entry).toContain('from "../../../packs/booking"');
   expect(entry).not.toContain('packs/booking/components"');

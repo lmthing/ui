@@ -20,7 +20,7 @@
     "build:entries": "tsx scripts/build/build-entries.ts",
     "kit:themes": "tsx scripts/build/build-themes.ts",
     "build:catalog": "pnpm build:entries && tsx scripts/build/bundle-check.ts && pnpm kit:themes",
-    "catalog:bundle-check": "tsx scripts/build/bundle-check.ts",
+    "catalog:bundle-check": "tsx scripts/build/build-entries.ts --cached && tsx scripts/build/bundle-check.ts",
     "typecheck": "tsx scripts/build/build-entries.ts --cached && tsc -p tsconfig.json --incremental",
     "test": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/build/check.ts",
     "test:browser": "tsx scripts/build/build-entries.ts && tsx scripts/build/build-themes.ts && tsx scripts/build/check.ts --browser",

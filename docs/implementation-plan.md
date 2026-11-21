@@ -37,7 +37,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
-6. **Small files, plain code.** At most 200 lines per code file and 60 per function. Lint enforcement is **pending**. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`.
+6. **Small files, plain code.** At most 200 lines per code file and 60 per function. Lint enforcement is **pending**. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`. `pnpm build:entries` generates the gitignored re-export doors for pack `components/` and `copy/`, `kit/base/` and `catalog/copy/`. Edit the source modules, not those doors. Doors with logic stay hand-written.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
 8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
 9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
@@ -97,8 +97,8 @@ archetypes, not the scaffold `kit/signature` and `kit/archetypes` folders.
 import catalog, kit and peers. Kit imports catalog and peers. Gallery imports the package; photos
 stands alone. Nothing imports from `apps/`.
 
-**Two entries from the same files.** `scripts/build-entries.ts` calls the reusable scanner/generator
-in `scripts/entries/`. It finds component data exports (`meta`, `props`, `fallback`, `examples`,
+**Two entries from the same files.** `scripts/build/build-entries.ts` calls the reusable scanner/generator
+in `scripts/build/entries/`. It finds component data exports (`meta`, `props`, `fallback`, `examples`,
 `probes`) and ready views, rejects missing exports and duplicate ids, and collects pack metadata,
 archetypes and JSON Lines examples. Generated exports include `components`, `ComponentName`, `packOf`,
 `packs`, `packArchetypes`, inlined `packExamples`, `createRegistry` and a no-argument `buildPackIndex`.
