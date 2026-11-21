@@ -8,3 +8,4 @@
 - `Product.test.ts`: product details, pinned controls, stock limits, and save/add actions.
 - `VariantPicker.test.ts`: schema, fallback, parts, variants and availability-gated selection.
 - `SizeGuide.test.ts`: measurement boundaries, states, parts, and independent unit and size selection.
+- `SavedList.test.ts`: saved item bounds, layout, live alert prices, stock, claims, and removal confirmation.

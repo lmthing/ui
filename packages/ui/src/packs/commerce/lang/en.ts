@@ -54,7 +54,8 @@ export type CommerceWords = {
     alert: (name: string) => string;
     previous: (price: string) => string;
     priceDrop: (amount: string) => string;
-    empty: string;
+    blank: string;
+    priceGap: string;
     success: string;
     error: string;
   };
@@ -116,7 +117,8 @@ export const en = {
     alert: (name) => `Target price for ${name}`,
     previous: (price) => `Was ${price}`,
     priceDrop: (amount) => `${amount} less`,
-    empty: "No saved items yet",
+    blank: "\u00a0",
+    priceGap: "\u00a0\u00a0",
     success: "Saved list updated",
     error: "Could not update saved items",
   },

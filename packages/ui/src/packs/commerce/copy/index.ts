@@ -6,3 +6,4 @@ export { promoExpiry } from "./Promo";
 export { variantExtra, variantReading } from "./VariantPicker";
 export { productDetailCopy, productDetailReading } from "./Product";
 export { fitLine, measurementLine, sizeGuideReading } from "./SizeGuide";
+export { savedItemCopy, savedListReading } from "./SavedList";

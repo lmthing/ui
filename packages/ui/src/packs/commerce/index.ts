@@ -39,4 +39,7 @@ export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
 {"id":"apron_header","c":"Header","title":"Canvas apron sizes","style":"back"}
 {"id":"apron_guide","c":"SizeGuide","unit":"cm","columns":["Width","Length"],"rows":[{"size":"Regular","values":[68,80]},{"size":"Long","values":[72,92]}],"fitScore":3}
 {"id":"apron_sizes","c":"VariantPicker","label":"Apron size","style":"size","options":[{"label":"Regular","available":true},{"label":"Long","available":true}]}
+{"id":"saved_header","c":"Header","title":"Saved for later"}
+{"id":"saved_items","c":"SavedList","items":[{"id":"sourdough","name":"Country sourdough","photo":"local:1","price":6,"savedPrice":7.5,"targetPrice":5.5,"goto":"loaf"},{"id":"croissant","name":"Almond croissant","photo":"local:2","price":4,"stock":2,"goto":"pastry"}]}
+{"id":"saved_basket","c":"CartBar","goto":"basket"}
 `;
