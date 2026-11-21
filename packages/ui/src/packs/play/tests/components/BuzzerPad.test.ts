@@ -37,9 +37,11 @@ describe("BuzzerPad draft", () => {
     expect(lines).toContain("[b1/r1/buzz press]");
     expect(lines).toContain("[b1/r2/buzz press]");
   });
-  it("declares winner and reset parts and keeps the stopwatch near miss", () => {
+  it("keeps late buzzes and the host reset offered after a winner locks", () => {
+    const lines = readComponent(components.BuzzerPad, examples[0], "b1", "success").join("\n");
     expect(meta.parts).toContain("winner");
-    expect(meta.successActions).toEqual(["reset.press"]);
+    expect(lines).toContain("[b1/r2/buzz press]");
+    expect(lines).toContain("[b1/reset press]");
     expect(probes).toContainEqual(expect.objectContaining({ kind: "choose", expect: "Timer" }));
   });
 });

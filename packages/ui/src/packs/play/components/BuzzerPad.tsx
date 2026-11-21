@@ -20,7 +20,8 @@ export const meta = {
   items: { key: "players", parts: ["root", "buzz", "name", "delta"] },
   states: ["filled", "loading", "success"],
   actions: { parts: { reset: ["press"] }, items: { buzz: ["press"] } },
-  successActions: ["reset.press"],
+  // Lock the winner, not the remaining players' chance to register a reaction time.
+  successActions: ["buzz.press", "reset.press"],
   read: (input, state, lang) =>
     state === "filled" ? buzzerPadReady((input as z.output<typeof props>).prompt, lang) : [],
 } as const satisfies c.Meta;

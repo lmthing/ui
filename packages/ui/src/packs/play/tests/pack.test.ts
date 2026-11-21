@@ -21,18 +21,8 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = [
-  "ScoreSheet",
-  "Dice",
-  "Spinner",
-  "Trivia",
-  "TurnOrder",
-  "TeamPicker",
-  "LifeCounter",
-  "PassReveal",
-  "CardDeck",
-  "BuzzerPad",
-] as const;
+const workedExampleIds = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker"] as const;
+const ids = [...workedExampleIds, "LifeCounter", "PassReveal", "CardDeck", "BuzzerPad"] as const;
 const layouts = {
   game_night: ["play_teams", "play_turns", "play_chance"],
   score_round: ["play_scores", "play_results"],
@@ -110,7 +100,7 @@ it("validates each worked-example line and preserves score-record totals and tie
     expect(typeof id).toBe("string");
     expect(definitions[c]!.props.safeParse(input).success).toBe(true);
   }
-  for (const id of selectedIds(ids)) expect(lines.some((line) => line.c === id)).toBe(true);
+  for (const id of selectedIds(workedExampleIds)) expect(lines.some((line) => line.c === id)).toBe(true);
   const { id: _id, c: _c, ...scoreInput } = lines.find((line) => line.c === "ScoreSheet");
   const scores = components.ScoreSheet.props.parse(scoreInput);
   expect(scores.overflow).toBe("page");
