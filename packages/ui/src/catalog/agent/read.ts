@@ -65,6 +65,7 @@ function readingProps(
     meta.items?.move?.derived ||
     meta.deviceDataFlags ||
     meta.items?.visibleWhen ||
+    meta.items?.toggles ||
     hasRuntimeSets(meta) ||
     meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
