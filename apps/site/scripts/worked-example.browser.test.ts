@@ -36,7 +36,7 @@ const workedFigures = {
   },
   paperwork: { "t1/r1/matched": /^1$/, "t1/r2/matched": /^5$/ },
   trips: { "w1/today": /^14° \/ 5°C$/, "c1/rate_date": /^Rate as of 19 Nov 2026$/ },
-  places: { "d2/r1/minutes": /^2 min$/ },
+  places: { "d2/r1/minutes": /^2 min$/, "m1/r3/distance": /^1\.2 km$/ },
   team: { "t1/elapsed": /^2:35:00$/, "t1/breaks": /^1 break today$/ },
   events: { "d1/arrivals": /^0 of 1$/, "d1/r1/name": /^Imani Cole$/ },
 };
@@ -73,6 +73,27 @@ describe.runIf(Boolean(process.env.CHROME))("worked examples", () => {
           const value = phone.getByTestId(`${id}_app/${part}`);
           await value.waitFor({ state: "visible", timeout: 5000 });
           expect(await value.innerText(), `${id}/${part}`).toMatch(figure);
+        }
+        if (id === "commerce") {
+          const quantity = phone.getByTestId("commerce_app/basket_items/r1/qty");
+          const total = phone.getByTestId("commerce_app/checkout_options/total");
+          await quantity.getByRole("button").last().click({ timeout: 5000 });
+          expect(await phone.getByTestId("commerce_app/basket_items/total").innerText()).toBe("$22.00");
+          await expect.poll(() => total.innerText()).toBe("$22");
+          const otherPreset = page.getByRole("figure", { name: "bold preset", exact: true });
+          expect(await otherPreset.getByTestId("commerce_app/checkout_options/total").innerText()).toBe(
+            "$16",
+          );
+          await quantity.getByRole("button").first().click({ timeout: 5000 });
+          await expect.poll(() => total.innerText()).toBe("$16");
+        }
+        if (id === "paperwork") {
+          const reviewed = phone.getByTestId("paperwork_app/r2/r5/reviewed");
+          const matched = phone.getByTestId("paperwork_app/t1/r2/matched");
+          await reviewed.click({ timeout: 5000 });
+          await expect.poll(() => matched.innerText()).toBe("6");
+          await reviewed.click({ timeout: 5000 });
+          await expect.poll(() => matched.innerText()).toBe("5");
         }
       } finally {
         await page.close();

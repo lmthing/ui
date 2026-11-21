@@ -110,31 +110,6 @@ function community(source: Source): DeviceData {
   };
 }
 
-function paperwork(source: Source): DeviceData {
-  const { defs } = source;
-  const { from, to } = read(source, defs.TaxYear);
-  const { docs } = read(source, defs.Documents);
-  const { items } = read(source, defs.Receipts);
-  const period = { from, to };
-  return {
-    paperwork_evidence: [
-      ...docs.flatMap(({ file, tags, issued }) =>
-        file ? [{ period, source: "documents", file, tags, date: issued }] : [],
-      ),
-      ...items.map(({ file, tags, date, reviewed, amount, allocation }) => ({
-        period,
-        source: "receipts",
-        file,
-        tags,
-        date,
-        reviewed,
-        amount,
-        allocation,
-      })),
-    ],
-  };
-}
-
 function mind(source: Source): DeviceData {
   const { entries } = read(source, source.defs.Entries);
   const logged = entries.filter(({ mood }) => mood !== undefined);
@@ -158,16 +133,11 @@ const snapshots: Partial<Record<PackId, (source: Source) => DeviceData>> = {
   projects,
   inventory,
   community,
-  paperwork,
   mind,
   events,
   places,
   team,
   trips,
-  commerce: (source) => {
-    const { lines } = read(source, source.defs.Cart);
-    return { basket: [{ total: lines.reduce((sum, { qty, price }) => sum + qty * price, 0) }] };
-  },
 };
 
 export function workedRecords(

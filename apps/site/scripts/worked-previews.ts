@@ -17,19 +17,21 @@ export function team(source: Source): DeviceData {
 
 export function places(source: Source): DeviceData {
   const { Departures, DeliveryTracker, MapList, PlaceCard } = source.defs;
-  const { places } = read(source, MapList);
   const { name, goto } = read(source, PlaceCard);
-  const results = places.map((row, index) => ({ ...row, distanceKm: (index + 1) * 0.4 }));
+  const map = MapList.meta.previewDeviceData({ input: read(source, MapList), state: "filled" });
+  const [result] = (map.place_results ?? []) as readonly {
+    shown: readonly { name: string; goto: string; distanceKm?: number }[];
+  }[];
   return {
     ...Departures.meta.previewDeviceData({ input: read(source, Departures), state: "filled" }),
     ...DeliveryTracker.meta.previewDeviceData({ input: read(source, DeliveryTracker), state: "filled" }),
-    place_results: [{ shown: results, total: results.length }],
+    ...map,
     place_details: [
       {
         name,
         goto,
         localTime: "13:00",
-        distanceKm: results.find((row) => row.name === name && row.goto === goto)?.distanceKm,
+        distanceKm: result?.shown.find((row) => row.name === name && row.goto === goto)?.distanceKm,
       },
     ],
   };

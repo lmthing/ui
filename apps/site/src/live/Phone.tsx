@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { TamaguiProvider } from "tamagui";
 import type { ActStep, DeviceData, ScreenLike } from "@lmthing/ui/catalog";
-import { PhoneScreen } from "@lmthing/ui/kit";
+import { PhoneScreen, type PhoneScreenProps } from "@lmthing/ui/kit";
 import { config, galleryParts } from "../../../gallery";
 import { placeholderFor } from "./placeholder";
 import "../../../gallery/app/fonts";
@@ -23,6 +23,7 @@ export type PhoneProps = {
   /** Called with the address under the pointer, or null. */
   onHover?: ((address: string | null) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
+  onChange?: PhoneScreenProps["onChange"];
   label?: string;
 };
 
@@ -55,6 +56,7 @@ export function Phone({
   highlight,
   onHover,
   onAction,
+  onChange,
   label,
 }: PhoneProps) {
   const page = useTheme();
@@ -96,6 +98,7 @@ export function Phone({
               parts={galleryParts}
               resolvePhoto={(ref) => placeholderFor(ref, choice)}
               onAction={onAction}
+              onChange={onChange}
             />
           </div>
         </TamaguiProvider>
