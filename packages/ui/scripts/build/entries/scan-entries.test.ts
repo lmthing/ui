@@ -11,6 +11,7 @@ afterEach(async () => {
 it.each([
   ["packs/content", "Unknown pack folder: content"],
   ["packs/booking", undefined],
+  ["packs/comms/README.md", undefined],
   ["packs/booking/components/nested/Draft.tsx", "Pack component must be in components/"],
   ["packs/booking/Draft.tsx", "Pack component must be in components/"],
   ["packs/booking/archetypes/BadName.ts", "Invalid archetype path"],
@@ -27,7 +28,7 @@ it.each([
       defs: [],
       packs: [
         {
-          id: "booking",
+          id: path.split("/")[1],
           meta: false,
           archetypes: [],
           overrides: false,

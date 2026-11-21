@@ -78,6 +78,7 @@ it("accepts optional known additions without requiring every allowed pack", () =
   };
   expect(checkPacks(input)).toEqual([]);
 });
+
 const changePack = (patch: Partial<PackMeta>) => (f: Fixture) => (f.packs.booking = { ...pack, ...patch });
 const changeMeta = (patch: Partial<Definition["meta"]>) => (f: Fixture) =>
   (f.components.Slots = { ...component, meta: { ...component.meta, ...patch } });
@@ -116,15 +117,14 @@ it.each<[string, (f: Fixture) => unknown]>([
   [
     "allow",
     changePack({
-      probes: [
-        ...pack.probes,
-        { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["bakery" as PackId] },
-      ],
+      probes: [...pack.probes, { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["comms"] }],
     }),
   ],
   [
     "expect",
-    changePack({ probes: [...pack.probes, { kind: "pack", idea: "Buy", expect: ["bakery" as PackId] }] }),
+    changePack({
+      probes: [...pack.probes, { kind: "pack", idea: "Book a call", expect: ["booking", "comms"] }],
+    }),
   ],
   [
     "expect",
