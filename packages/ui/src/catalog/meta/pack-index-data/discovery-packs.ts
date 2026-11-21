@@ -4,7 +4,7 @@ export const discoveryPacks = [
     name: "Ticketing",
     purpose:
       "Discover, compare, buy, present and resell passes for live shows, games or concerts, including seat prices and mobile ticket wallets.",
-    pick: "Use for an attendee or reseller finding tickets to existing live events. Local concert discovery, seat maps and venue details for tickets are ticketing alone, not a venue directory (places). Not organizing your own event (events), retail checkouts (commerce), or cinema showtimes (watch).",
+    pick: "Use ticketing alone for discovering nearby concerts, comparing seats and presenting passes. Near me is a search filter, not another job. Add places only for a separately requested venue directory, not for ticket listings or seat maps. Not organizing your own event (events), retail checkouts (commerce), or cinema showtimes (watch).",
   },
   {
     id: "dating",
@@ -31,15 +31,15 @@ export const discoveryPacks = [
     id: "puzzles",
     name: "Puzzles",
     purpose:
-      "Solo daily word, logic-grid, tile-matching and lifeline trivia games with guess histograms and specialized game keyboards.",
-    pick: "Use for a puzzle one person solves on their phone. Not group or host-led trivia and board games (play), or coursework and exam drills (learning).",
+      "Playable solo puzzles: five-letter word guesses with colored clues, Sudoku with pencil marks, logic and tile grids, and lifeline trivia.",
+    pick: "Choose puzzles even for one private daily word game or Sudoku. Guess distributions, streaks and daily cadence are part of the puzzle, not separate domains. Not group or host-led trivia and board games (play), or coursework and exam drills (learning).",
   },
   {
     id: "navigation",
     name: "Navigation",
     purpose:
       "Active routing and mobility: turn-by-turn and lane guidance, route alternatives, transit legs, road hazards, trail elevation, offline maps and passenger ride tracking.",
-    pick: "Use navigation alone for end-to-end directions, including walking or cycling to a destination and following transit transfers. Use places instead for a standalone stop departure board, venue finder or parcel map. Not holiday itineraries (trips) or a driver's job offers (dispatch).",
+    pick: "Use navigation alone to compare routes, follow turn-by-turn directions on bike or foot, or make transit transfers. A destination, stop or hazard on that route does not need places. Choose places only for a separate venue, departure-board or parcel-map workflow. Not holiday itineraries (trips) or a driver's job offers (dispatch).",
   },
   {
     id: "stays",

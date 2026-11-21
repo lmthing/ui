@@ -53,7 +53,7 @@ export const connectionPacks = [
     name: "Weather",
     purpose:
       "Dedicated forecasts and conditions: hourly curves, daily temperature ranges, air quality, UV, pollen, severe alerts, sun and moon arcs, saved cities and radar snapshots.",
-    pick: "Use for a weather app or a separately requested full forecast experience. Not weather as one detail of a trip itinerary (trips), or venue discovery (places).",
+    pick: "Only choose for actual weather, air-quality or astronomical conditions, not a daily schedule or a statistics chart. Not weather as one detail of a trip itinerary (trips), or venue discovery (places).",
   },
   {
     id: "realestate",
