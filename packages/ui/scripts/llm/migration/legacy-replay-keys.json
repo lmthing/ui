@@ -805,6 +805,9 @@
     "Pantry%2Fwrite%2FMy%20pantry%20has%20250%20g%20ricotta%20in%20the%20fridge%2C%20use%20by%202026-11-20%2C%20and%20one%20box%20of%20lasagne%20sheets%20in%20the%20cupboard%3B%20both%20open%20food_details/b4ca6612d89c852d/37330ef88a1a6d39": "fa74eb8ec774ed31",
     "Pantry%2Fwrite%2FShow%20250%20g%20ricotta%2C%20use%20by%202026-11-20%2C%20opening%20food_details.%20Keep%20fridge%20as%20its%20storage%20location%20in%20the%20data%20but%20don't%20show%20storage%20locations./401a78dfac21c70a/0012c2f9b4f263a8": "142550f762289506"
   },
+  "PassCard/deepseek-flash": {
+    "PassCard%2Fread%2FCopy%20the%20QR%20payload%20to%20my%20clipboard./e64152f3008a38d7/67b4556a4c8f625b": "144ae4b9c8e0e640"
+  },
   "Path/deepseek-flash": {
     "Path%2Fchoose%2FShow%20my%20course%20as%20a%20winding%20map.%20Completed%20and%20current%20units%20can%20open%2C%20future%20units%20are%20locked%2C%20and%20milestones%20have%20trophies./d0172f13179e8ef7/7a6198a96160597c": "545aa9a550b5fa0d",
     "Path%2Fchoose%2FShow%20only%20that%20I%20am%20on%20step%20two%20of%20four%20in%20a%20short%20setup%20flow.%20No%20unit%20links%20or%20locks./78c47e0978c602ad/e67973bf2e971804": "afa5c4cae9e83dbc",
