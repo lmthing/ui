@@ -10,6 +10,6 @@ hook timeouts in milliseconds, or `UI_TEST_WORKERS` to cap parallel workers. For
 UI_TEST_TIMEOUT=15000 UI_TEST_WORKERS=4 pnpm test:changed main
 ```
 
-Use positive decimal integers (up to `2147483647` ms and `Number.MAX_SAFE_INTEGER` workers,
-respectively). Invalid values warn once per variable and are ignored. Unset values keep the Vitest
-defaults. Browser tests do not use either variable.
+Use positive decimal integers (up to `2147483647` ms and `256` workers, respectively). Invalid values
+warn once per variable and are ignored. Unset values keep the Vitest defaults. Browser tests do not
+use either variable.
