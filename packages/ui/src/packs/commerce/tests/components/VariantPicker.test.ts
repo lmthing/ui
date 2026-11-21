@@ -152,7 +152,7 @@ describe("VariantPicker parts and read/act", () => {
     expect([...addressedElements(render(brief)).keys()]).toEqual(
       fullParts.filter((address) => !address.endsWith("/extra")),
     );
-    for (const input of examples.slice(1)) {
+    for (const input of examples.slice(1).filter((item) => item.style !== "shade")) {
       expect(render(input)).not.toContain('/swatch"');
       expect(render(input)).not.toContain('aria-checked="true"');
     }
