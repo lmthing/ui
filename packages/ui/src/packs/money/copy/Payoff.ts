@@ -1,6 +1,6 @@
 import { compactMoneyLine, dateLocaleOf, numberLine } from "../../../catalog";
 import { moneyWordsFor } from "../lang";
-import { projectPayoff, type PayoffSource, type PayoffStrategy } from "./PayoffProjection";
+import { projectPayoff, type PayoffSource, type PayoffStrategy } from "./projections";
 
 export const payoffStrategies = ["high_rate", "small_balance"] as const;
 const { choice } = moneyWordsFor().payoff;

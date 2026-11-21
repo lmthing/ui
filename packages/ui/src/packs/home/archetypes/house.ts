@@ -52,6 +52,30 @@ export const house = {
         { id: "n1", c: "Note" },
       ],
     },
+    cameras: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["CameraFeed"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "c1", c: "CameraFeed" },
+        { id: "n1", c: "Note" },
+      ],
+    },
+    routines: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Routines"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "r1", c: "Routines" },
+        { id: "n1", c: "Note" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
 export const probes = [
@@ -72,5 +96,17 @@ export const probes = [
     archetype: "house",
     layout: "home_scenes",
     brief: "Saved household scenes above the room devices, with lock scenes confirmed",
+  },
+  {
+    kind: "compose",
+    archetype: "house",
+    layout: "cameras",
+    brief: "A connected greenhouse camera with arming controls and recent events, marked as a preview",
+  },
+  {
+    kind: "compose",
+    archetype: "house",
+    layout: "routines",
+    brief: "A schedule for grow lights and a humidity-triggered fan, with enable switches and manual runs",
   },
 ] satisfies ComposeProbe[];

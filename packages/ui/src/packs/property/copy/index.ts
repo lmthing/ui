@@ -11,6 +11,7 @@ export {
   validMeterSeries,
 } from "./Meters";
 export * from "./RentRoll";
+export { exclusiveLets, unitReading, unitSnapshot } from "./Units";
 export {
   orderedViewings,
   outcomes,

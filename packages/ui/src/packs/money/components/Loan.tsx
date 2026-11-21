@@ -1,17 +1,19 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { loanCopy, loanReading } from "../copy";
+import { isLoanDue, loanCadences, loanCopy, loanReading } from "../copy";
 import { moneyWordsFor } from "../lang";
 export const meta = {
   id: "Loan",
   status: "ready",
   group: "data",
   purpose: "Understand one debt's terms, remaining principal and projected repayment schedule.",
-  pick: "One debt's terms and calculated principal, interest and monthly instalment forecast, including interest-free borrowing. Not one amount owed (Amount), recorded repayment progress (Progress), a recent balance trend (Sparkline), reminders (Bills), belongings (Loans), or debt priority (Payoff).",
+  pick: "One debt's terms and calculated principal, interest and installment forecast, including interest-free borrowing and Pay-in-4. Not one amount owed (Amount), recorded repayment progress (Progress), a recent balance trend (Sparkline), reminders (Bills), belongings (Loans), or debt priority (Payoff).",
   writeHints: [
-    "Write opening principal > 0, nominal annual rate 0–100, monthly payment > 0, firstDue YYYY-MM-DD, and at most six recorded payments with due and positive amount. No currency, balance, interest totals, schedule or finish date.",
+    "Write opening principal > 0, nominal annual rate 0–100, payment per period > 0, firstDue YYYY-MM-DD, and at most six recorded payments with due and positive amount. No currency, balance, interest totals, schedule or finish date.",
     "Use detail full only when asked to list upcoming installments; otherwise leave detail null for a summary. For a schedule without a spacing request, density must be null, not comfortable.",
+    'If asked for a Pay-in-4 or installments plan, use style "installments" and leave detail null. Set cadence to weekly, biweekly (every two weeks) or monthly when specified; null otherwise. Do not invent a payment cadence.',
+    "For recorded payments, use the scheduled installment due date for the cadence, not the day the money was paid.",
   ],
   region: "body",
   weight: 2,
@@ -40,8 +42,18 @@ export const loanSource = z.strictObject({
 export const props = loanSource
   .extend({
     goto: c.screenId.optional(),
+    cadence: z.enum(loanCadences).optional(),
+    style: z.enum(["installments"]).optional(),
     ...c.variantProps(meta.variants),
   })
+  .refine(
+    ({ firstDue, cadence, payments }) =>
+      !cadence || payments.every(({ due }) => isLoanDue(firstDue, due, cadence)),
+    {
+      path: ["payments"],
+      message: "Recorded payments must use scheduled due dates",
+    },
+  )
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
@@ -72,6 +84,9 @@ export const examples = [
     payments: [{ due: "2026-11-01", amount: 40 }], goto: "friend_terms", detail: "full",
   },
   { ...carLoan, detail: "full", density: "compact" },
+  { name: "Trot rain gear", principal: 120, rate: 0, payment: 30, firstDue: "2026-12-14",
+    payments: [], cadence: "biweekly", style: "installments" },
+  { ...carLoan, name: "Trot van loan", cadence: "weekly", payment: 70 },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Loan");
 // prettier-ignore
@@ -87,6 +102,8 @@ export const probes = [
     ...write("For my car loan of 6000 at 6% with monthly payments of 250 starting 2026-12-01 and no payments yet, list the upcoming installments, not just the next one."),
     variant: { axis: "detail", value: "full" },
   },
+  { ...write("My equipment loan started at 1200, 6% APR, with a 50 payment every week starting 2026-12-01. None recorded. Show the balance and next payment."), expectProps: { cadence: "weekly" } },
+  { ...write("Show my zero-interest Pay-in-4 plan as installments: 120 originally, 30 every two weeks, first due 2026-12-14, no payments yet."), expectProps: { style: "installments", rate: 0, cadence: "biweekly" } },
   read("Edit the Ledge supplies card terms", { address: "l1/edit", action: "press" }),
 ] satisfies c.Probe[];
 type LoanCopy = ReturnType<typeof loanCopy>;
@@ -110,11 +127,11 @@ function LoanLine({ role, part = null, children, density, ...props }: LineProps)
 }
 type ForecastProps = { copy: LoanCopy; words: LoanWords; loading: boolean; density: c.ThemeDensity };
 function Forecast({ copy, words, loading, density }: ForecastProps) {
-  const { loanLabels } = words;
+  const { installments } = copy;
   // prettier-ignore
   return (
     <>
-      <kit.KitContent density={density} group="response">
+      {!installments && <kit.KitContent density={density} group="response">
         {copy.next && (
           <kit.KitRow density={density} inline part={loading ? null : "next"} label={loading ? "" : copy.next.headline} lineRole="label">
             <LoanLine density={density} role="label" children={copy.next.headline} />
@@ -122,24 +139,26 @@ function Forecast({ copy, words, loading, density }: ForecastProps) {
           </kit.KitRow>
         )}
         <LoanLine density={density} role="label" part="finish" children={copy.finish} />
-      </kit.KitContent>
+      </kit.KitContent>}
       {copy.schedule.length > 0 && (
         <kit.KitContent density={density} group="response">
-          <LoanLine density={density} role="label" part="schedule" children={loanLabels.schedule} />
-          {copy.schedule.map(({ due, date, remaining, split }) => (
-            <kit.KitRow density={density} key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split)}>
+          <LoanLine density={density} role="label" part="schedule" children={copy.scheduleLabel} />
+          {copy.schedule.map(({ due, date, payment, remaining, split }) => (
+            <kit.KitRow density={density} key={due} inline={!installments} inset={installments ? "none" : "md"} lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split, payment)}>
               <kit.KitGrid density={density} fitLast>
                 <LoanLine density={density} role="caption" children={date} />
                 <LoanLine density={density} role="label" tabular children={remaining} />
               </kit.KitGrid>
-              <LoanLine density={density} role="caption" tone="muted" children={split} />
+              {payment && <LoanLine density={density} role="caption" tone="muted" children={payment} />}
+              {split && <LoanLine density={density} role="caption" tone="muted" children={split} />}
             </kit.KitRow>
           ))}
           {copy.more && <LoanLine density={density} role="caption" tone="muted" children={copy.more} />}
         </kit.KitContent>
       )}
       <kit.KitContent density={density} group={copy.schedule.length ? "response" : "content"}>
-        <LoanLine density={density} role="caption" tone="muted" children={loanLabels.estimate} />
+        {installments && <LoanLine density={density} role="label" part="finish" children={copy.finish} />}
+        <LoanLine density={density} role="caption" tone="muted" children={words.loanLabels.estimate} />
       </kit.KitContent>
     </>
   );
