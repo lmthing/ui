@@ -529,9 +529,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"BulkActions\",\"density\":null,\"surface\":null,\"arrange\":null,\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}",
+    "reply": "{\"c\":\"BulkActions\",\"density\":null,\"surface\":\"card\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}",
     "replies": [
-      "{\"c\":\"BulkActions\",\"density\":null,\"surface\":null,\"arrange\":null,\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}",
+      "{\"c\":\"BulkActions\",\"density\":null,\"surface\":\"card\",\"arrange\":\"rows\",\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}",
       "{\"c\":\"BulkActions\",\"density\":null,\"surface\":null,\"arrange\":\"rows\",\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}",
       "{\"c\":\"BulkActions\",\"density\":null,\"surface\":null,\"arrange\":\"rows\",\"items\":[{\"icon\":\"check\",\"label\":\"Mark watered\",\"danger\":false},{\"icon\":\"close\",\"label\":\"Delete plants\",\"danger\":true}]}"
     ]
