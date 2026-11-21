@@ -82,8 +82,8 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
       : confirmReportAction(state, ctx, target);
   if (
     action.action === "press" &&
-    Object.hasOwn(meta.clearItems ?? {}, target) &&
-    meta.confirmParts?.includes(target)
+    (meta.items?.reset === target ||
+      (Object.hasOwn(meta.clearItems ?? {}, target) && meta.confirmParts?.includes(target)))
   )
     return showConfirmation(state, ctx.selected, ctx);
   const local = Object.fromEntries(

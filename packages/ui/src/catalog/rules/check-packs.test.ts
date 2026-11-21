@@ -117,13 +117,13 @@ it.each<[string, (f: Fixture) => unknown]>([
   [
     "allow",
     changePack({
-      probes: [...pack.probes, { kind: "pack", idea: "Reserve", expect: ["booking"], allow: ["comms"] }],
+      probes: [...pack.probes, { kind: "pack", idea: "Book", expect: ["booking"], allow: ["x" as PackId] }],
     }),
   ],
   [
     "expect",
     changePack({
-      probes: [...pack.probes, { kind: "pack", idea: "Book a call", expect: ["booking", "comms"] }],
+      probes: [...pack.probes, { kind: "pack", idea: "Book a call", expect: ["booking", "x" as PackId] }],
     }),
   ],
   [

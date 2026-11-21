@@ -226,6 +226,113 @@
       "{\"c\":\"Counter\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
     ]
   },
+  "4cbe84ca2209e8f6": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCounter: Increase or decrease one running count by a fixed step with each tap.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", label: text≤24, value?: int 0..9007199254740991=0, unit?: text≤8, step?: int 1..100=1 }\nRule: Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures \"short\", never density; preserve the exact value and step.\nexample: {\"c\":\"Counter\",\"label\":\"Water glasses for fern\",\"value\":2}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nAbbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.\nBrief: Show a count of 1,200 walks that I can add to or subtract from one at a time. Display 1.2K, but keep the exact count and the default spacing, with no density override.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Counter",
+              "enum": [
+                "Counter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "step": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "figures",
+            "label",
+            "value",
+            "unit",
+            "step"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":null}",
+    "replies": [
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":null}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks count\",\"value\":1200,\"unit\":null,\"step\":1}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}"
+    ]
+  },
   "4fcddbc1448b25d8": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCounter: Increase or decrease one running count by a fixed step with each tap.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", label: text≤24, value?: int 0..9007199254740991=0, unit?: text≤8, step?: int 1..100=1 }\nRule: Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures \"short\", never density; preserve the exact value and step.\nexample: {\"c\":\"Counter\",\"label\":\"Water glasses for fern\",\"value\":2}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Show a count of 1,200 walks that I can add to or subtract from one at a time. Display 1.2K, but keep the exact count and the default spacing, with no density override.",
     "format": {
@@ -567,6 +674,113 @@
       "{\"address\": \"c1/plus\", \"action\": \"increment\"}",
       "{\"address\": \"c1/plus\", \"action\": \"increment\"}",
       "{\"address\": \"c1/plus\", \"action\": \"press\"}"
+    ]
+  },
+  "ba2c5aa936372b7b": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nCounter: Increase or decrease one running count by a fixed step with each tap.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", label: text≤24, value?: int 0..9007199254740991=0, unit?: text≤8, step?: int 1..100=1 }\nRule: Write JSON null for unrequested axes, not the default values. An abbreviated count sets only figures \"short\", never density; preserve the exact value and step.\nexample: {\"c\":\"Counter\",\"label\":\"Water glasses for fern\",\"value\":2}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nAbbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.\nBrief: Show three dogs walked today, with dogs as the unit and one more or less per tap",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Counter",
+              "enum": [
+                "Counter"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "step": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "figures",
+            "label",
+            "value",
+            "unit",
+            "step"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
+    "replies": [
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
     ]
   },
   "bf5ca6fe5f1ebb78": {

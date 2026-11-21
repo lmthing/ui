@@ -4,10 +4,10 @@ import { migrateScreen } from "../migrations";
 import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
+  actionValueAddress,
   controlsAreValid,
   findAction,
   localValues,
-  moveKey,
   type selectStep,
   stageProgress,
   stageRecord,
@@ -166,7 +166,7 @@ export function planAct(
     if (action.error) return action.error;
     const { address, selected, found, drive, step } = action;
     if (drive) (plan.driven ??= []).push(drive);
-    const key = `${screen.id}/${found.move ? moveKey(address) : address}`;
+    const key = `${screen.id}/${actionValueAddress(address, found)}`;
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };

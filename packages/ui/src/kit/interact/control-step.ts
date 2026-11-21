@@ -5,6 +5,7 @@ import {
   pickerAt,
   stampItemIds,
   isAdjustOnlyItem,
+  itemCounterReset,
   nestedAt,
   adjustmentAt,
   clearItemSets,
@@ -51,11 +52,13 @@ export function stageConfirmedClear(
   step: ActStep,
   values: Values,
 ): Values | undefined {
-  if (step.action !== "press" || !def.meta.clearItems) return values;
+  if (step.action !== "press" || (!def.meta.clearItems && !def.meta.items?.reset)) return values;
   const target = step.address.split("/").slice(1).join("/") || "root";
   const changes = Object.entries(clearItemSets(def.meta, input, target));
-  if (!changes.length) return values;
+  const reset = def.meta.items?.reset === target ? Object.entries(itemCounterReset(def.meta, input)) : [];
+  if (!changes.length && !reset.length) return values;
   const next = { ...values };
+  for (const [part, value] of reset) next[valueKey(screen, entry.id, part)] = value;
   for (const [part, value] of changes) next[valueKey(screen, entry.id, controlValueKey(def, part))] = value;
   const { id: _id, c: _c, state: _state, ...wire } = entry;
   const get = (part: string) => next[valueKey(screen, entry.id, part)];

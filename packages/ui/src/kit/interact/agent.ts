@@ -41,6 +41,7 @@ function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
     if (!meta) return false;
     return (
       meta.recordRuntime ||
+      meta.items?.reset ||
       hasReportConfirmation(meta) ||
       (meta.confirmParts?.length &&
         (meta.session ||
