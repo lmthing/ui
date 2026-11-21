@@ -28,7 +28,7 @@ export type ControlChange = {
 };
 /** Infer addressed row values, but require an explicit value for declared choice lists. */
 export function selectedStep(step: ActStep, entry: Entry, input: Values, def: Definition): ActStep {
-  if (step.action !== "select" || step.value !== undefined) return step;
+  if (step.action !== "select" || step.value !== undefined || def.meta.select?.runtime) return step;
   const local = (step.address === entry.id ? "root" : step.address.replace(`${entry.id}/`, "")).replace(
     /\/root$/,
     "",
