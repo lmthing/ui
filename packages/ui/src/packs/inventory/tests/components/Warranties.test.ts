@@ -2,6 +2,7 @@ import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import {
   components,
   createRegistry,
+  emptyLine,
   packReady,
   partTierAt,
   placeholderTitle,
@@ -26,8 +27,14 @@ const filled = {
   ],
 };
 const at = (part: string) => `home/w1/${part}`;
-const render = (value: unknown, state: StateName = "filled") =>
-  addressedElements(renderInstance("Warranties", value, state, theme, { component: "w1", lang: "en-US" }));
+const render = (value: unknown, state: StateName = "filled", thing?: string) =>
+  addressedElements(
+    renderInstance("Warranties", value, state, theme, {
+      component: "w1",
+      lang: "en-US",
+      ...(thing && { thing }),
+    }),
+  );
 
 function onLeapDay(run: () => void) {
   vi.useFakeTimers({ toFake: ["Date"] });
@@ -146,10 +153,11 @@ describe("Warranties states and parts", () => {
     );
   });
 
-  it("names the empty state without showing rows or controls", () => {
-    const parts = render(filled, "empty");
+  it.each([undefined, "walk"])("uses shared empty copy for %s and hides rows", (thing) => {
+    const parts = render(filled, "empty", thing);
     expect([...parts.keys()]).toEqual([at("root"), at("empty")]);
-    expect(parts.get(at("empty"))?.text).toEqual(["No warranties yet"]);
+    expect(parts.get(at("empty"))?.text).toEqual([emptyLine(thing, "en-US")]);
+    expect(meta.read(props.parse(filled), "empty", "en-US")).toEqual([]);
   });
 });
 

@@ -122,10 +122,10 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
   return (
     <kit.KitRow item={row.id} part="root" role="button" label={row.thing} {...{ density, surface }}>
       <kit.KitContent density={density}>
-        <kit.KitRow part={null} inline surface="plain" label={row.thing} lineRole="heading" density={density}
+        <kit.KitRow part={null} inline surface="plain" label={row.thing} lineRole="body" density={density}
           trailing={<kit.KitTrail part="trail" kind="chevron" />}>
           <kit.KitContent density={density} lead={leading} leadingAlign="row">
-            <kit.KitText part="thing" role="heading" density={density}>{row.thing}</kit.KitText>
+            <kit.KitText part="thing" role="body" density={density}>{row.thing}</kit.KitText>
             {shop && <kit.KitText part="shop" role="caption" tone="muted" density={density}>{shop}</kit.KitText>}
             {bought && <kit.KitText part="bought" role="caption" tone="muted" density={density}>{bought}</kit.KitText>}
             {price && <kit.KitText part="price" role="number" numberScale="compact" tone="muted" emphasis="quiet" density={density}>{price}</kit.KitText>}
@@ -145,14 +145,13 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
 
 export function Warranties(input: WarrantiesProps) {
   const state = kit.useComponentState();
-  const { words } = kit.useWords(inventoryWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   if (state === "empty")
     return (
       <kit.KitCard part="root" {...{ density, surface }}>
-        <kit.KitEmpty part="empty" icon="receipt" title={words.warranties.empty} decorativeIcon />
+        <kit.KitEmpty part="empty" icon="receipt" decorativeIcon />
       </kit.KitCard>
     );
   const today = new Date();
