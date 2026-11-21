@@ -7,3 +7,4 @@ export {
   taskLoading,
   taskReading,
 } from "./Tasks";
+export { milestoneCopies, milestoneReading } from "./Milestones";
