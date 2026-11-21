@@ -14,6 +14,10 @@ type Draw =
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
+type ItemNumericSet = NumericSet & {
+  /** Addressed items flatten this wire matrix in row-major order. */
+  matrix?: { rows: string; values: string };
+};
 type ComponentSet =
   | (NumericSet & { type?: "number" })
   | { prop: string; type: "date"; min?: string; max?: string }
@@ -114,15 +118,7 @@ export type Meta = {
     /** Item-root move: the row's column index and the component's array of { label } columns. */
     move?: { column: string; columns: string };
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
-    set?: Readonly<
-      Record<
-        string,
-        NumericSet & {
-          /** Addressed items flatten this wire matrix in row-major order. */
-          matrix?: { rows: string; values: string };
-        }
-      >
-    >;
+    set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
       key: string;
       /** Show only the row selected by `select`; before selection, use the first row. */
