@@ -1,5 +1,5 @@
 import { useSignatureProgress } from "../../motion";
-import { YStack } from "tamagui";
+import { YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { useKit } from "../../provider";
 import { PartContext, usePart, usePartContext } from "../../part";
@@ -42,7 +42,7 @@ function Day({
       backgroundColor={inSpan ? "$accentSoft" : undefined}
       accessibilityRole="button"
       aria-disabled={disabled || undefined}
-      accessibilityState={disabled ? { disabled: true } : undefined}
+      {...(!isWeb && disabled ? { accessibilityState: { disabled: true } } : {})}
       {...({ "data-dense": true } as object)}
       aria-pressed={selected}
       accessibilityLabel={name}
