@@ -89,7 +89,7 @@ export const examples = [
   { items: [{ ...berries, mark: "highlight" }, oats] },
   { items: [berries, oats] },
   { detail: "brief", items: [berries, oats] },
-  { items: [{ ...oats, lowAt: 1, openedOn: "2026-11-17" }] },
+  { items: [{ ...oats, lowAt: 1, openedOn: "2026-11-17", useBy: "2027-02-01" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Pantry");
 export const probes = [
@@ -113,7 +113,7 @@ export const probes = [
   write("Keep 1 bag of oats in the cupboard, opening food_details. I opened it on 2026-11-17."),
   read("Mark the ricotta as used up", { address: "p1/r1/used", action: "press" }),
 ] satisfies Probe[];
-function PantryDate({ useBy }: { useBy?: string | undefined }) {
+function PantryDate({ useBy, openedOn }: { useBy?: string | undefined; openedOn?: string | undefined }) {
   const { lang } = useWords(kitchenWordsFor);
   const expiry = pantryDates(useBy, undefined, lang);
   return (
@@ -125,6 +125,11 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
         <KitText part={null} role="caption" tone={expiry.tone} tabular>
           {expiry.date}
         </KitText>
+        {openedOn && (
+          <KitText part="opened_on" role="caption" tone="muted">
+            {pantryOpened(openedOn, lang)}
+          </KitText>
+        )}
       </KitContent>
     </KitRow>
   );
@@ -133,7 +138,10 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
 type PantryProps = Props<typeof props, typeof meta>;
 // prettier-ignore
 function PantryFood({ item, detail }: { item: PantryProps["items"][number]; detail: PantryProps["detail"] }) {
-  const { lang, words } = useWords(kitchenWordsFor);
+  const { words } = useWords(kitchenWordsFor);
+  const low = pantryIsLow(item.qty, item.lowAt);
+  const place = detail === "full" && <KitText part="place" role="caption" tone="muted">
+    {words.pantryPlace(words.pantryLabels[item.place])}</KitText>;
   return (
     <KitRow label={item.name} inline lineRole="label" density="compact"
       trailing={<KitIcon name="chevron_right" scale="sm" decorative />}>
@@ -141,13 +149,8 @@ function PantryFood({ item, detail }: { item: PantryProps["items"][number]; deta
         {item.name}
       </KitText>
       <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
-      {detail === "full" && (
-        <KitText part="place" role="caption" tone="muted">
-          {words.pantryPlace(words.pantryLabels[item.place])}
-        </KitText>
-      )}
-      {item.openedOn && <KitText part="opened_on" role="caption" tone="muted">{pantryOpened(item.openedOn, lang)}</KitText>}
-      {pantryIsLow(item.qty, item.lowAt) && <KitText part="low" role="caption" tone="warn">{words.pantryLabels.low}</KitText>}
+      {low && <KitText part="low" role="caption" tone="warn">{words.pantryLabels.low}</KitText>}
+      {low && place ? <KitContent group="response">{place}</KitContent> : place}
     </KitRow>
   );
 }
@@ -162,12 +165,12 @@ export function Pantry({ items, detail: choice }: PantryProps) {
     <KitRow key={item.id} item={item.id} part={null} label={item.name} inline>
       <KitContent>
         <KitRow part="root" label={item.name} goto={item.goto} inline>
-          {items.length === 1 ? (
+          {items.length === 1 && !item.openedOn && !pantryIsLow(item.qty, item.lowAt) ? (
             <KitGrid columns={2}><PantryFood {...{ item, detail }} /><PantryDate useBy={item.useBy} /></KitGrid>
           ) : (
             <KitContent>
               <PantryFood {...{ item, detail }} />
-              <KitContent group="response"><PantryDate useBy={item.useBy} /></KitContent>
+              <KitContent group="response"><PantryDate useBy={item.useBy} openedOn={item.openedOn} /></KitContent>
             </KitContent>
           )}
         </KitRow>

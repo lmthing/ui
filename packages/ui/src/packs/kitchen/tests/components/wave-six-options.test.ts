@@ -40,7 +40,7 @@ describe("Ingredients preparation options", () => {
     expect(partText(parts.get("home/c1/r1/allergen_2")!)).toEqual(["Egg"]);
     expect(addressedElements(html).get("home/c1/r1/swap")?.text).toEqual(["Swap: Use rice pasta"]);
     expect(html).not.toContain("/r2/allergens");
-    expect(readComponent(def, input, "i1").join("\n")).toContain("Swap: Use rice pasta Contains: Wheat, Egg");
+    expect(readComponent(def, input, "i1").join("\n")).toContain("Contains: Wheat, Egg Swap: Use rice pasta");
   });
   it("limits allergen labels, count and swap length and rejects unsupported styles", () => {
     const parse = (extra: object) =>

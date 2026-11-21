@@ -79,9 +79,9 @@ export function ingredientsReading(
             quantity.amount,
             quantity.unit,
             input.detail !== "brief" && item.note,
-            item.swap && ingredientSwap(item.swap),
             item.allergens?.length &&
               nutritionFacts.line(nutritionFacts.allergens, nutritionFacts.list(item.allergens)),
+            item.swap && ingredientSwap(item.swap),
           ]
             .filter(Boolean)
             .join(" "),

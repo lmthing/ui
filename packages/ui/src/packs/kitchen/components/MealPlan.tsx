@@ -104,7 +104,7 @@ export const probes = [
     variant: { axis: "media", value: "none" },
   },
   write("Week starting Monday 2026-11-16. Thursday's lunch is Soup (200 kcal) and dinner is Pasta (450 kcal), both opening recipe_overview. Show the daily calorie total."),
-  write("Use the day agenda instead of a weekly grid, for Monday 2026-11-16's week. Plan dinners only, with lasagne on Thursday opening recipe_overview."),
+  write("Use a day agenda instead of a weekly grid for the week starting Monday 2026-11-16. Dinners only: Thursday lasagne opens recipe_overview; leave every other day empty."),
   read("Open Thursday's dinner recipe", { address: "m1/r8", action: "press" }),
   read("Add a meal for Monday lunch", { address: "m1/r1/add", action: "press" }),
 ] satisfies c.Probe[];
@@ -115,13 +115,8 @@ type Cell = { id: string } & (
 function MatrixLabel({ label }: { label: string }) {
   return <kit.KitText role="caption" tone="muted" part={null} children={label} />;
 }
-type MealCellProps = {
-  cell: Cell;
-  compact?: boolean;
-  stackPhoto: boolean;
-  showPhoto: boolean;
-  agenda?: boolean;
-};
+// prettier-ignore
+type MealCellProps = { cell: Cell; compact?: boolean; stackPhoto: boolean; showPhoto: boolean; agenda?: boolean };
 // prettier-ignore
 function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProps) {
   const { lang, words } = kit.useWords(kitchenWordsFor);
@@ -136,9 +131,9 @@ function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProp
   const meal = words.mealPlanLabels[cell.meal];
   const add = agenda ? words.mealPlanAdd(meal) : words.mealPlanLabels.add;
   return (
-    <kit.KitRow {...target} inline leading={leading} leadingAlign="row">
+    <kit.KitRow {...target} inline leading={!agenda && leading} leadingAlign="row">
       {stackPhoto && photo}
-      {cell.filled && (agenda ? <><MatrixLabel label={meal} />{title}</>
+      {cell.filled && (agenda ? <kit.KitContent lead={leading} leadingAlign="row"><MatrixLabel label={meal} />{title}</kit.KitContent>
         : leading ? <kit.KitRow inline label={cell.title} children={title} /> : title)}
       {!cell.filled && (
         <kit.KitRow part="add" role="button" label={add} inline>
@@ -184,13 +179,13 @@ export function MealPlan(input: c.Props<typeof props, typeof meta>) {
       <kit.KitRow part="week" label={heading}><kit.KitText role="heading" part={null} children={heading} /></kit.KitRow>
       {input.style === "day" ? (
         <kit.KitRow part="meals" label={heading} role="group">
-          <kit.KitGrid arrange="rows" list listRowGap="group">
+          <kit.KitGrid arrange="rows" list listRowGap="cards">
             {days.map((day, index) => <kit.KitContent key={day.id} group="response">
               <kit.KitRow part={null} label={day.label} inline trailing={day.badge}>
                 <kit.KitText part={null} role="label" emphasis="strong" tone={day.id === today ? "accent" : "text"}>{day.label}</kit.KitText>
               </kit.KitRow>
-              <kit.KitGrid columns={2}>{rows.filter((row) => row.day === index).map((cell) =>
-                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />)}</kit.KitGrid>
+              {rows.filter((row) => row.day === index).map((cell) =>
+                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />)}
             </kit.KitContent>)}
           </kit.KitGrid>
         </kit.KitRow>
