@@ -1,7 +1,7 @@
 import type { Meta } from "../meta";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared } from "./clocks";
+import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
@@ -78,7 +78,8 @@ export function affordancesOf(
   if (meta.errorActions) props = { ...props, state };
   const { parts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if (a.action === "move" && meta.items?.move) return [];
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;

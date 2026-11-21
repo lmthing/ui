@@ -4,6 +4,7 @@ import { affordancesOf, type Affordance } from "../affordances";
 import {
   hasPlaybackClock,
   hasRecordClock,
+  hasRuntimeSets,
   recordClockInput,
   recordClockOffer,
   stageRecordClock,
@@ -52,6 +53,7 @@ export function affordancesOfScreen(
       def.meta.drives ||
       def.meta.linkedEdits ||
       def.meta.selectionBinding ||
+      hasRuntimeSets(def.meta) ||
       items?.edits ||
       items?.move ||
       items?.records ||

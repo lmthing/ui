@@ -129,21 +129,21 @@ export function projectParsedControls(
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
-  props: Values,
+  validated: Values,
   instance: string,
   values: Values,
   wireApplied = false,
   data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  props = projectRecordIds(meta, props, get);
+  const addressed = projectRecordIds(meta, validated, get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
-  if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
-  else {
-    props = projectControls(meta, props, get);
-    if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
-  }
+  let props = wireApplied
+    ? projectParsedControls(meta, addressed, get, runtime)
+    : projectControls(meta, addressed, get);
+  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
+    props = projectAdjustments(meta, props, get);
   const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
@@ -151,7 +151,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get, data);
+  props = projectLiveInputs(meta, props, instance, get, data, validated);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

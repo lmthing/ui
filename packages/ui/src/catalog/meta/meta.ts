@@ -3,9 +3,11 @@ import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
-import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
+import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
+import type { LinkedEdits, LiveInputs } from "./live";
+
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -19,20 +21,11 @@ type ItemNumericSet = NumericSet & {
   matrix?: { rows: string; values: string };
 };
 type ComponentSet =
-  | (NumericSet & { type?: "number" })
+  | (NumericSet & { type?: "number" } & (
+        { runtime?: false } | { runtime: true; maxProp: string; initial: number }
+      ))
   | { prop: string; type: "date"; min?: string; max?: string }
   | { prop: string; type: "choice"; choices: readonly string[] };
-type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
-type LinkedEdits = {
-  inputs: Readonly<Record<string, { prop: string; max: number }>>;
-  swap: { part: string; sides: readonly [string, string] };
-  /** Project display text and related props from the exact source edit and current order. */
-  project: (
-    props: Readonly<Record<string, unknown>>,
-    state: LinkedEditState,
-    data: DeviceData,
-  ) => Record<string, unknown>;
-};
 type RowSelection = "index" | "position" | { field: string };
 type Choice = string | number | { value: string | number; label: string };
 /** A static list or a parsed prop containing the same option shape. */
@@ -89,7 +82,10 @@ export type Meta = {
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
-  /** Component parts with a declared `set` action. Omitted type means number; date bounds are inclusive ISO dates. */
+  /**
+   * Component `set` parts. Omitted type means number; date bounds are inclusive ISO dates.
+   * Runtime numeric destinations never enter Writer props; `maxProp` is parsed.
+   */
   set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
@@ -103,6 +99,8 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     visible?: "all" | "first";
+    /** Read visible rows sharing the value of this readable text field on one addressed line. */
+    readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
     variants?: ItemVariants;
@@ -156,7 +154,7 @@ export type Meta = {
   selections?: Readonly<Record<string, NamedSelection>>;
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
   linkedEdits?: LinkedEdits;
-  live?: LiveActionInputs;
+  live?: LiveInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */

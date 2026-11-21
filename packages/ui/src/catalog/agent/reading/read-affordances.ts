@@ -12,7 +12,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
-import { setAt } from "../clocks";
+import { isRuntimeSet, setAt } from "../clocks";
 import { itemEditAt } from "../report-edits";
 
 const risks: Record<string, string> = {
@@ -64,9 +64,9 @@ export function readAffordances(
           : choices
             ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
             : set
-              ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-                ? undefined
-                : set.value
+              ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+                ? set.value
+                : undefined
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);

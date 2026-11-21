@@ -4,7 +4,7 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
-import { projectLiveClocks, recordClockOffer } from "./clocks";
+import { hasRuntimeSets, projectLiveClocks, recordClockOffer } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
@@ -51,6 +51,7 @@ function readingProps(
     meta.linkedEdits ||
     meta.selectionBinding ||
     meta.items?.visibleWhen ||
+    hasRuntimeSets(meta) ||
     meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
