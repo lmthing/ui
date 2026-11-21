@@ -1,4 +1,4 @@
-export type { Meta, NumericAdjustments, PackMeta, ArchetypeMeta, Slot } from "./meta";
+export type { Meta, NumericAdjustments, PackMeta, PackScreenValidator, ArchetypeMeta, Slot } from "./meta";
 export type { PresetMeta, AccentMeta, BaseRoles, AccentRoles } from "./preset-meta";
 export type { Props } from "./props";
 export type { ClockMeta, ClockTrigger, ClockState } from "./clocks";

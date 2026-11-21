@@ -22,6 +22,8 @@ describe("Scale schema", () => {
       label: "How did it go?",
       value: 0,
       readonly: false,
+      detail: "full",
+      emphasis: "normal",
     });
   });
   it.each([
@@ -38,6 +40,9 @@ describe("Scale schema", () => {
     { label: "Rating", value: Infinity },
     { label: "Rating", value: null },
     { label: "Rating", style: "slider" },
+    { label: "Rating", density: "airy" },
+    { label: "Rating", detail: "hidden" },
+    { label: "Rating", emphasis: "bold" },
     { label: "Rating", color: "red" },
     { label: "Rating", pixels: 44 },
     { label: "Rating", levels: [] },
@@ -160,7 +165,7 @@ describe("Scale fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Scale")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Segmented")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Scale" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -176,4 +181,17 @@ describe("Scale fallback and metadata", () => {
     expect(registry.resolve("s-c-a-l-e")).toBe("Scale");
     expect(registry.resolve("unknown")).toBeUndefined();
   });
+});
+
+it("keeps a brief readonly rating but hides its note from the drawing and the reader", () => {
+  const rating = { label: "Park rating", style: "stars", value: 4.5, readonly: true, meta: "212 walkers" };
+  const brief = { ...rating, detail: "brief" };
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  const html = renderInstance("Scale", brief, "filled", theme);
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["meta"]);
+  expect(props.parse(rating).density).toBeUndefined();
+  expect(html).not.toContain('data-testid="home/c1/meta"');
+  expect(html).toContain('aria-label="4.5 of 5"');
+  expect(readComponent(components.Scale, brief, "s1")[0]).not.toContain("212 walkers");
+  expect(affordancesOf(meta, props.parse(brief), "s1")).toEqual([]);
 });
