@@ -628,6 +628,165 @@
       "{\"c\":\"People\",\"density\":\"comfortable\",\"surface\":\"card\",\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}"
     ]
   },
+  "4244904d7b2d8905": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPeople: Who else is involved, with their names and roles.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: text≤?, more?: int 1..999, members: [1..6 { name: text≤24, role?: text≤24, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }] }\nRule: Keep \"density\":null and \"surface\":null unless their appearance is requested. Set \"detail\":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means \"detail\":\"brief\"; keep those roles in role. If asked to show roles, never use brief. Use style \"stack\" only for overlapping avatars.\nexample: {\"c\":\"People\",\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show Anna, Clover's owner, and Ben, Pip's owner, with a way to open each person's page",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "People",
+              "enum": [
+                "People"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "stack"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "more": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "members": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "role",
+                  "photo",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "more",
+            "members"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
+    "replies": [
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}"
+    ]
+  },
   "51b011f73061c4b3": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nPeople: Who else is involved, with their names and roles.\nprops: { style?: rows|stack=\"rows\", more?: int 1..999, members: [1..6 { name: text≤24, role?: text≤24, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }] }\nexample: {\"c\":\"People\",\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\"}]}\n\nBrief: Show Anna, Clover's owner, and Ben, Pip's owner, with a way to open each person's page",
     "format": {
@@ -1108,6 +1267,165 @@
       "{\"address\": \"p1/r1\", \"action\": \"press\"}"
     ]
   },
+  "87335ec5cd5f6381": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPeople: Who else is involved, with their names and roles.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: text≤?, more?: int 1..999, members: [1..6 { name: text≤24, role?: text≤24, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }] }\nRule: Keep \"density\":null and \"surface\":null unless their appearance is requested. Set \"detail\":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means \"detail\":\"brief\"; keep those roles in role. If asked to show roles, never use brief. Use style \"stack\" only for overlapping avatars.\nexample: {\"c\":\"People\",\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show the three people going to the walk as small overlapping pictures, and that 3 more are going too",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "People",
+              "enum": [
+                "People"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "stack"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "more": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "members": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "role",
+                  "photo",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "more",
+            "members"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+    "replies": [
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}"
+    ]
+  },
   "9c75eb4860e6b273": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 People\n  r1 \"Anna\" · \"Clover's owner\" · photo:anna [p1/r1 press→anna !needs-people]\n  r2 \"Ben\" · \"Pip's owner\" [p1/r2 press→ben !needs-people]\n\nTask: Open Anna\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/r1\", \"action\": \"press\"}",
@@ -1309,6 +1627,165 @@
       "{\"address\": \"p1/r1\", \"action\": \"press\"}",
       "{\"address\": \"p1/r1\", \"action\": \"press\"}",
       "{\"address\": \"p1/r1\", \"action\": \"press\"}"
+    ]
+  },
+  "d7d7b8e917936547": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPeople: Who else is involved, with their names and roles.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: text≤?, more?: int 1..999, members: [1..6 { name: text≤24, role?: text≤24, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }] }\nRule: Keep \"density\":null and \"surface\":null unless their appearance is requested. Set \"detail\":null even when role is absent or when drawing a stack. Only an explicit request to hide existing roles means \"detail\":\"brief\"; keep those roles in role. If asked to show roles, never use brief. Use style \"stack\" only for overlapping avatars.\nexample: {\"c\":\"People\",\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: List Maya and Anna by name, but keep their roles (weekend watering and weekday watering) out of the display.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "People",
+              "enum": [
+                "People"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "stack"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "more": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 999
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "members": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "role": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 24
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "photo": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^(lib:[a-z][a-z0-9_]*|local:[1-9][0-9]*)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "role",
+                  "photo",
+                  "goto"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "style",
+            "more",
+            "members"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
+    "replies": [
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"more\":null,\"members\":[{\"name\":\"Maya\",\"role\":\"Waters on weekends\",\"photo\":null,\"goto\":null},{\"name\":\"Anna\",\"role\":\"Waters on weekdays\",\"photo\":null,\"goto\":null}]}"
     ]
   },
   "dbf98b3e8eb58fb1": {
