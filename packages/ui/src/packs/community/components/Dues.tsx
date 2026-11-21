@@ -99,13 +99,14 @@ export const props = schema
   }));
 
 function ledgerReading({ assessments, receipts }: z.output<typeof schema>, lang?: string): string[] {
+  const members = new Map(assessments.map(({ id, memberId }) => [id, memberId]));
   return [
     ...assessments.map(
       (row, i) => `r${i + 1}: ${row.memberId} · ${c.numberLine(row.amount, lang)} · ${row.due}`,
     ),
     ...receipts.map(
       (row, i) =>
-        `r${assessments.length + i + 1}: ${row.method} · ${c.numberLine(row.amount, lang)} · ${row.date}`,
+        `r${assessments.length + i + 1}: ${members.get(row.assessmentId)} · ${row.id} · ${row.method} · ${c.numberLine(row.amount, lang)} · ${row.date}`,
     ),
   ];
 }
@@ -158,5 +159,5 @@ export const probes = [
   write(
     "Show the treasurer's 2026 subscriptions: assessment ana_2026 for member ana, 25 due 2026-04-01, and cash receipt receipt_1 for ana_2026, 10 on 2026-03-10.",
   ),
-  read("Void the first, cash receipt, without deleting it.", { address: "d1/r3/void", action: "press" }),
+  read("Void Ana's cash receipt without deleting it.", { address: "d1/r3/void", action: "press" }),
 ] satisfies c.Probe[];

@@ -88,7 +88,7 @@ it("holds claim and release actions until the host supplies permissions", () => 
 it("identifies the ledger receipt and motion link in the draft reader", () => {
   if (Dues.meta.status === "draft") {
     const reading = readComponent(Dues, Dues.examples[0], "d1").join("\n");
-    expect(reading).toMatch(/r3: cash · 10 · 2026-03-10/);
+    expect(reading).toMatch(/r3: ana · receipt_1 · cash · 10 · 2026-03-10/);
     expect(reading).toContain("[d1/r3/void press]");
     expect(reading).not.toContain("[d1/r4/void press]");
   }
@@ -96,6 +96,19 @@ it("identifies the ledger receipt and motion link in the draft reader", () => {
     const reading = readComponent(Minutes, Minutes.examples[0], "m1").join("\n");
     expect(reading).toContain('r1: "Buy a shared tool shed"');
     expect(reading).toContain("[m1/r1 press");
+  }
+});
+
+it("distinguishes otherwise identical cash receipts by member and receipt reference", () => {
+  if (Dues.meta.status === "draft") {
+    const input = Dues.examples[0]!;
+    const ana = input.receipts[0]!;
+    const receipts = [ana, { ...ana, id: "receipt_2", assessmentId: "lee_2026" }];
+    const reading = readComponent(Dues, { ...input, receipts }, "d1").join("\n");
+    expect(reading).toContain("r3: ana · receipt_1 · cash · 10 · 2026-03-10");
+    expect(reading).toContain("r4: lee · receipt_2 · cash · 10 · 2026-03-10");
+    expect(reading).toContain("[d1/r3/void press]");
+    expect(reading).toContain("[d1/r4/void press]");
   }
 });
 

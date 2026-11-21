@@ -11,7 +11,7 @@ export const meta = {
   pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
   writeHints: [
     "Use unique snake_case slot ids. Claims must name an existing slot and be unique per member per slot; never exceed capacity. Do not write claimed or remaining counts.",
-    'Use style "compact" only for rows that expand to reveal claimants, not simply for tighter spacing (density).',
+    'Use detail "brief" for rows that initially hide claimants and expand to reveal them. Use density "compact" only for tighter spacing.',
   ],
   region: "body",
   weight: 3,
@@ -19,7 +19,8 @@ export const meta = {
   tier: "people",
   realPath:
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["claimants"] } },
   parts: ["root", "title"],
   items: {
     key: "slots",
@@ -28,7 +29,7 @@ export const meta = {
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
     items: { root: ["toggle"], claim: ["press"], release: ["press"] },
-    when: { root: { style: "compact" }, claim: { can_claim: true }, release: { own_claim: true } },
+    when: { root: { detail: "brief" }, claim: { can_claim: true }, release: { own_claim: true } },
   },
   confirmParts: ["release"],
 } as const satisfies c.Meta;
@@ -46,7 +47,6 @@ export const props = z
     title: c.text(40),
     slots: z.array(slot).min(1).max(12),
     claims: z.array(claim).min(0).max(48),
-    style: z.enum(["slots", "compact"]).default("slots"),
   })
   .refine(({ slots }) => distinct(slots, (row) => row.id), { path: ["slots"] })
   .refine(
@@ -86,7 +86,7 @@ export const examples: z.input<typeof props>[] = [
   },
   {
     title: "Choir open evening",
-    style: "compact",
+    detail: "brief",
     density: "compact",
     surface: "outlined",
     slots: [{ id: "tea", title: "Bring refreshments", capacity: 3 }],
@@ -106,5 +106,11 @@ export const probes = [
   write(
     "Make the Seed swap contributions sign-up sheet: tables means Bring a folding table, capacity 2, with one place already claimed by ana.",
   ),
+  {
+    ...write(
+      "On the seed swap contribution sheet, two people can bring folding tables and Ana already took one place. Keep her claim, but show compact summaries that expand to reveal who signed up.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Expand the refreshments slot to see who has signed up.", { address: "s1/r1", action: "toggle" }, 1),
 ] satisfies c.Probe[];
