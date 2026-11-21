@@ -137,7 +137,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
     return { id: cellId(selected, player), label: name,
     heading: <KitRow inline part="player" label={name}><KitGrid fitLast>
       <KitContent>{line("label", name)}{standing ? line("caption", standing, winner ? "good" : "muted") : showBids && spacer}</KitContent>
-      {showBids ? <KitRow inline>{amount}{spacer}</KitRow> : amount}
+      {showBids ? <KitRow inline label={labels.total}>{amount}{spacer}</KitRow> : amount}
     </KitGrid></KitRow>,
     cells: visible.map((round) => {
       const { label: roundLabel, points, bids } = rounds[round]!;
