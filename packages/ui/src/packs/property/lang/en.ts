@@ -1,3 +1,5 @@
+import type { LDMLPluralRule } from "../../../catalog";
+
 export const en = {
   inspections: {
     kind: { move_in: "Move-in", move_out: "Move-out", periodic: "Periodic" },
@@ -19,10 +21,11 @@ export const en = {
     finalised: "Report finalised",
     signedOff: (date: string) => `Signed off ${date}`,
     dateTime: (date: string, time: string) => `${date} at ${time}`,
-    completion: (recorded: string, total: string) => `${recorded} of ${total} checks recorded`,
-    previous: (ref: string) => `Previous report: ${ref}`,
+    completion: (recorded: string, total: string, form: LDMLPluralRule) =>
+      `${recorded} of ${total} ${form === "one" ? "check" : "checks"} recorded`,
+    previous: "Previous report referenced",
     error: "Couldn’t update the report",
-    errorDetail: "Check the conditions and photo evidence, then try again.",
+    errorDetail: "Review conditions and photos.",
   },
   rentRoll: {
     assessed: "Assessed",

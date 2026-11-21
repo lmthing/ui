@@ -1,4 +1,11 @@
-import { appointmentDate, numberLine, timeOfDayLine, type StateName, type Values } from "../../../catalog";
+import {
+  appointmentDate,
+  numberLine,
+  pluralForm,
+  timeOfDayLine,
+  type StateName,
+  type Values,
+} from "../../../catalog";
 import { propertyWordsFor, type PropertyWords } from "../lang";
 
 type Words = PropertyWords["inspections"];
@@ -81,8 +88,12 @@ export function inspectionSummary(input: Report, lang?: string) {
   return {
     date: appointmentDate(input.date, lang),
     kind: words.kind[input.kind],
-    completion: words.completion(numberLine(recorded, lang), numberLine(total, lang)),
-    previous: input.detail === "full" && input.previousRef ? words.previous(input.previousRef) : undefined,
+    completion: words.completion(
+      numberLine(recorded, lang),
+      numberLine(total, lang),
+      pluralForm(total, lang),
+    ),
+    previous: input.detail === "full" && input.previousRef ? words.previous : undefined,
     signed: at
       ? words.signedOff(
           words.dateTime(appointmentDate(at.slice(0, 10), lang), timeOfDayLine(at.slice(11, 16), lang)),
@@ -101,6 +112,7 @@ export function readInspection(raw: unknown, state: StateName, lang?: string): s
   return [
     ...(state === "success" || input.finalisedAt ? [words.finalised] : []),
     ...Object.values(inspectionSummary(input, lang)).filter((line): line is string => Boolean(line)),
+    ...(input.finalisedAt ? [input.finalisedAt] : []),
     ...input.entries.map((row) =>
       row.entryKind === "room"
         ? `${row.id} ${row.title}`

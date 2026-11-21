@@ -12,7 +12,7 @@ const recordRef = ref.meta({ kind: "ref" });
 // prettier-ignore
 export const meta = {
   id: "Inspections",
-  status: "ready",
+  status: "draft",
   group: "input",
   purpose: "Record and sign off dated room conditions and evidence for a unit.",
   pick: "Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).",
@@ -117,30 +117,41 @@ type InspectionProps = c.Props<typeof props, typeof meta> & { roomRef?: string }
 type Entry = InspectionProps["entries"][number];
 type Check = Extract<Entry, { entryKind: "check" }>;
 type Density = c.AxisValue<"density">;
-
+const conditionTone = {
+  good: "good",
+  worn: "warn",
+  damaged: "bad",
+  unrecorded: "muted",
+  not_applicable: "text",
+} as const;
 // prettier-ignore
-function CheckDetails({ row, edit, density }: { row: Check; edit: boolean; density: Density }) {
+function CheckDetails({ row, edit, density, loading }: { row: Check; edit: boolean; density: Density; loading: boolean }) {
   const { lang, words: { inspections: words } } = kit.useWords(propertyWordsFor);
-  return <kit.KitContent {...{ density }}>
-    <kit.KitText part="title" role="body" emphasis="strong" {...{ density }}>{row.title}</kit.KitText>
-    {edit ? <>
-      <kit.KitTrack part="condition" role="radiogroup" label={words.conditionFor(row.title)}>
-        {inspectionConditions.map((value) => <kit.KitChip key={value} item={null} role="radio" value={value} on={value === row.condition} label={words.condition[value]} />)}
-      </kit.KitTrack>
-      <kit.KitTextArea lines={1} part="note" value={row.note} hint={words.note} label={words.noteFor(row.title)} maxLength={inspectionNoteLimit} />
-    </> : <>
-      <kit.KitText part="condition" role="label" tone="muted" {...{ density }}>{words.condition[row.condition]}</kit.KitText>
-      {row.note && <kit.KitText part="note" role="body" {...{ density }}>{row.note}</kit.KitText>}
-    </>}
-    {row.hasPhoto && <kit.KitGrid columns={3} {...{ density }}>
-      {row.photos.map((photo, index) => <kit.KitPhoto key={index} part={inspectionPhotoParts[index]!}
-        photo={photo} shape="square" label={words.photoFor(row.title, c.numberLine(index + 1, lang))} />)}
-    </kit.KitGrid>}
-    {edit && row.canAddPhoto && <kit.KitAction part="photo" label={words.addPhoto} kind="secondary" full />}
-    {edit && row.hasPhoto && <kit.KitAction part="remove_photo" label={words.removePhoto} kind="quiet" full />}
+  const chips = inspectionConditions.map((value) => <kit.KitContent key={value} align="center">
+    <kit.KitChip item={null} role="radio" disabled={false} value={value} on={value === row.condition} label={words.condition[value]} /></kit.KitContent>);
+  const choices = <><kit.KitGrid columns={3} {...{ density }}>{chips.slice(0, 3)}</kit.KitGrid>
+    <kit.KitGrid columns={2} {...{ density }}>{chips.slice(3)}</kit.KitGrid></>;
+  const photo = (reference: string, index: number, shape: "thumb" | "square") => loading ?
+    (shape === "thumb" ? <kit.KitSkeleton rows={1} inset="none" items={[{ photo: reference }]} /> :
+      <kit.KitSkeleton key={index} shape="media" aspect="square" lines={[]} />) :
+    <kit.KitPhoto key={index} part={inspectionPhotoParts[index]!} photo={reference} shape={shape} label={words.photoFor(row.title, c.numberLine(index + 1, lang))} />;
+  const actions = <>{row.canAddPhoto && (loading ? <kit.KitSkeleton shape="control" kind="secondary" label={words.addPhoto} full /> :
+    <kit.KitAction part="photo" label={words.addPhoto} kind="secondary" full />)}
+    {row.hasPhoto && (loading ? <kit.KitSkeleton shape="control" kind="quiet" label={words.removePhoto} /> :
+    <kit.KitAction part="remove_photo" label={words.removePhoto} kind="quiet" full />)}</>;
+  const paired = edit && row.photos.length === 1;
+  return <kit.KitContent {...{ density }}>{loading ?
+    <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["body", row.title], ["body", edit ? undefined : words.condition[row.condition]], ["label", edit ? undefined : row.note]]} /> :
+    <kit.KitText part="title" role="body" emphasis="strong" {...{ density }}>{row.title}</kit.KitText>}
+    {edit ? <>{loading ? choices : <kit.KitTrack part="condition" role="radiogroup" label={words.conditionFor(row.title)}>{choices}</kit.KitTrack>}
+      {loading ? <kit.KitRow part={null} label={words.note} tone="muted" inset="none" {...{ density }}><kit.KitSkeleton shape="control" kind="quiet" label={words.note} full /></kit.KitRow> :
+        <kit.KitTextArea lines={1} part="note" value={row.note} hint={words.note} label={words.noteFor(row.title)} maxLength={inspectionNoteLimit} />}</> :
+      !loading && <><kit.KitText part="condition" role="body" tone={conditionTone[row.condition]} {...{ density }}>{words.condition[row.condition]}</kit.KitText>
+        {row.note && <kit.KitText part="note" role="body" tone="muted" {...{ density }}>{row.note}</kit.KitText>}</>}
+    {paired ? <kit.KitRow part={null} inline label={words.addPhoto} leadingWidth="avatar" leading={photo(row.photos[0]!, 0, "thumb")} leadingAlign="row" {...{ density }}>{actions}</kit.KitRow> :
+      <>{row.hasPhoto && <kit.KitGrid columns={3} {...{ density }}>{row.photos.map((ref, i) => photo(ref, i, "square"))}</kit.KitGrid>}{edit && actions}</>}
   </kit.KitContent>;
 }
-
 // prettier-ignore
 function InspectionReport({ input, density, state, lang }: { input: InspectionProps; density: Density; state: c.StateName; lang: string }) {
   const { words: { inspections: words } } = kit.useWords(propertyWordsFor);
@@ -148,32 +159,30 @@ function InspectionReport({ input, density, state, lang }: { input: InspectionPr
   const rooms = input.entries.filter((row) => row.entryKind === "room");
   const current = input.roomRef ?? rooms[0]?.roomRef;
   const visible = input.entries.filter((row) => row.visible);
-  const edit = state === "filled";
-  return <>
-    {(state === "success" || signed) && <kit.KitText part="message" role="label" tone="good">{words.finalised}</kit.KitText>}
-    <kit.KitContent {...{ density }}>
+  const loading = state === "loading", edit = state !== "success", selector = input.style === "rooms" && edit;
+  return <>{(!loading && (state === "success" || signed)) && <kit.KitText part="message" role="label" tone="good">{words.finalised}</kit.KitText>}
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["title", input.unit], ["label", kind], ["label", date], ["number", completion, "start", "compact"], ["label", signed], ["label", previous]]} /> : <kit.KitContent {...{ density }}>
       <kit.KitText part="unit" role="title" {...{ density }}>{input.unit}</kit.KitText>
       <kit.KitText part="kind" role="label" tone="muted" {...{ density }}>{kind}</kit.KitText>
       <kit.KitText part="date" role="label" tone="muted" {...{ density }}>{date}</kit.KitText>
-      <kit.KitText part="completion" role="label" {...{ density }}>{completion}</kit.KitText>
+      <kit.KitText part="completion" role="number" numberScale="compact" tabular {...{ density }}>{completion}</kit.KitText>
       {signed && <kit.KitText part="signed" role="label" tone="good" {...{ density }}>{signed}</kit.KitText>}
       {previous && <kit.KitText part="previous" role="label" tone="muted" {...{ density }}>{previous}</kit.KitText>}
-    </kit.KitContent>
-    {input.style === "rooms" && edit && <kit.KitTrack part="rooms" role="radiogroup" label={words.rooms}>
-      {rooms.map((row) => <kit.KitChip key={row.id} item={row.id} role="radio" labelPart="room_name" label={row.title} on={row.roomRef === current} />)}
-    </kit.KitTrack>}
-    {visible.map((row) => row.entryKind === "room" ?
-      (input.style === "report" || (!edit && row.roomRef === current)) &&
-        <kit.KitRow key={row.id} item={row.id} inline label={row.title} {...{ density }}>
-          <kit.KitText part="title" role="label" tone="muted" {...{ density }}>{row.title}</kit.KitText>
-        </kit.KitRow> :
-      <kit.KitRow key={row.id} item={row.id} inline label={row.title} {...{ density }}>
-        <CheckDetails {...{ row, density }} edit={edit && row.editable} />
-      </kit.KitRow>)}
-    {edit && input.canFinalise && <kit.KitAction part="finalise" label={words.finalise} full />}
+    </kit.KitContent>}
+    {selector && <kit.KitTrack part="rooms" role="radiogroup" label={words.rooms}>{rooms.map((row) =>
+      <kit.KitChip key={row.id} item={row.id} role="radio" disabled={false} labelPart="room_name" label={row.title} on={row.roomRef === current} />)}</kit.KitTrack>}
+    {rooms.filter((room) => input.style === "report" || room.roomRef === current).map((room) =>
+      <kit.KitContent key={room.id} group={selector ? "content" : "response"} {...{ density }}>
+        {!selector && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", room.title]]} /> :
+          <kit.KitText item={room.id} part="root" role="label" tone="muted" {...{ density }}><kit.KitText item={room.id} part="title" role="label" tone="muted" {...{ density }}>{room.title}</kit.KitText></kit.KitText>)}
+        {visible.filter((row): row is Check => row.entryKind === "check" && row.roomRef === room.roomRef).map((row) =>
+          <kit.KitRow key={row.id} item={row.id} part={loading ? null : "root"} label={row.title} inline {...{ density }}>
+            <CheckDetails {...{ row, density, loading }} edit={edit && row.editable} /></kit.KitRow>)}
+      </kit.KitContent>)}
+    {edit && input.canFinalise && (loading ? <kit.KitSkeleton shape="control" kind="primary" label={words.finalise} full /> :
+      <kit.KitAction part="finalise" label={words.finalise} full />)}
   </>;
 }
-
 // prettier-ignore
 export function Inspections(input: InspectionProps) {
   const state = kit.useComponentState();
@@ -184,11 +193,6 @@ export function Inspections(input: InspectionProps) {
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty part="message" decorativeIcon /> :
-      state === "loading" ? <><kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["title", input.unit], ["label"], ["label"], ["label"]]} />
-        <kit.KitSkeleton shape="control" kind="quiet" label={words.rooms} />
-        <kit.KitSkeleton rows={2} inset="none" {...{ density }} />
-        <kit.KitSkeleton shape="control" kind="secondary" label={words.addPhoto} full />
-        <kit.KitSkeleton shape="control" kind="primary" label={words.finalise} full /></> :
       state === "error" ? <kit.KitContent><kit.KitText part="message" role="heading" tone="bad">{words.error}</kit.KitText>
         <kit.KitText part="help" role="label" tone="muted">{words.errorDetail}</kit.KitText></kit.KitContent> :
       <InspectionReport {...{ input: { ...visible, detail }, density, state, lang }} />}

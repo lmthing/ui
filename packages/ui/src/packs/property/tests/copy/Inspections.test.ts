@@ -41,7 +41,7 @@ describe("inspection copy and projection", () => {
       date: "17 Nov 2026",
       kind: "Move-out",
       completion: "2 of 2 checks recorded",
-      previous: "Previous report: cabin_move_in",
+      previous: "Previous report referenced",
       signed: "Signed off 17 Nov 2026 at 11:15",
     });
     expect(inspectionSummary(props.parse({ ...signed, detail: "brief" })).previous).toBeUndefined();

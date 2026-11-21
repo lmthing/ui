@@ -3,7 +3,8 @@ import type { z } from "zod";
 // prettier-ignore
 import { affordancesOf, components, createRegistry, packReady, readComponent, stampItemIds, type CastLike, type Props } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements } from "../../../../../test/render";
+import { renderInspection, renderInspectionScreen } from "./Inspections.render";
 
 const def = components.Inspections;
 const { props, meta, examples, fallback, probes } = def;
@@ -15,7 +16,6 @@ type Input = z.input<typeof props>;
 // prettier-ignore
 const edit = (changes: Partial<Input["rooms"][number]["checks"][number]>): Input =>
   ({ ...draft!, rooms: [{ ...room, checks: [{ ...check, ...changes }] }, draft!.rooms[1]!] });
-const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const read = (input: unknown) => readComponent(def, input, "i1").join("\n");
 const accept = { address: "confirm/confirm", action: "press" };
 const cancel = { address: "confirm/cancel", action: "dismiss" };
@@ -112,12 +112,12 @@ describe("Inspections fallback and probes", () => {
 
 describe("Inspections states and parts", () => {
   it.each([
-    ["empty", "No walks yet"],
+    ["empty", "Nothing here yet"],
     ["loading", "Loading"],
     ["success", "Report finalised"],
     ["error", "Couldn’t update the report"],
   ] as const)("draws %s without editing controls", (state, message) => {
-    const html = renderInstance("Inspections", draft, state, theme, "walk");
+    const html = renderInspection(draft, state);
     const parts = addressedElements(html);
     expect(parts.has("home/c1/root")).toBe(true);
     expect([...parts.keys()]).not.toContain("home/c1/finalise");
@@ -125,7 +125,7 @@ describe("Inspections states and parts", () => {
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(draft)), "i1", {}, state)).toEqual([]);
   });
   it("draws addressed edit controls only in the active room and reports the correct photo tier", () => {
-    const parts = addressedElements(renderInstance("Inspections", draft, "filled", theme));
+    const parts = addressedElements(renderInspection(draft, "filled"));
     expect(parts.get("home/c1/r1/root")?.attributes).toContain('role="radio"');
     expect(parts.get("home/c1/r2/condition")?.attributes).toContain('role="radiogroup"');
     expect(parts.get("home/c1/r2/note")?.attributes).toMatch(/\bmaxlength="100"/i);
@@ -139,7 +139,7 @@ describe("Inspections states and parts", () => {
     const full = { ...draft, style: "report", previousRef: report!.inspectionRef };
     for (const detail of ["full", "brief"]) {
       const input = { ...full, detail };
-      const parts = addressedElements(renderInstance("Inspections", input, "filled", theme));
+      const parts = addressedElements(renderInspection(input, "filled"));
       expect(parts.has("home/c1/r4/title")).toBe(true);
       expect(parts.has("home/c1/r2/evidence_one")).toBe(true);
       expect(parts.has("home/c1/r2/note")).toBe(true);
@@ -159,6 +159,7 @@ describe("Inspections shared read and act", () => {
     expect(controller.act({ address: "i1/r2/condition", action: "select", value: "Unknown" }).ok).toBe(false);
     expect(controller.act({ address: "i1/r2/condition", action: "select", value: "Good" }).ok).toBe(true);
     expect(controller.press("i1/r3/root").ok).toBe(true);
+    expect(addressedElements(renderInspectionScreen(controller)).has("home/i1/r4/note")).toBe(true);
     expect(controller.read()).toContain("Skirting");
     expect(controller.read()).not.toContain("Worktop");
     expect(controller.act({ address: "i1/r4/note", action: "type", value: "x".repeat(101) }).ok).toBe(false);
@@ -170,7 +171,7 @@ describe("Inspections shared read and act", () => {
     expect(controller.press("i1/finalise").ok).toBe(true);
     expect(controller.act(accept).ok).toBe(true);
     expect(controller.snapshotScreen().components[0]?.finalisedAt).toBe(now);
-    expect(controller.read()).toContain("Signed off");
+    expect(controller.read()).toMatch(/Signed off.*2026-11-20T11:00:00\.000Z/);
     expect(controller.act({ address: "i1/r4/note", action: "type", value: "Too late" }).ok).toBe(false);
     for (const part of ["r2/photo", "finalise"]) expect(controller.press(`i1/${part}`).ok).toBe(false);
     controller.dispose();
