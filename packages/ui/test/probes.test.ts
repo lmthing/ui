@@ -11,40 +11,54 @@ import {
   runComposeProbes,
   variantAxes,
   type PackId,
+  type PackMeta,
   type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
 import { existsSync } from "node:fs";
 import { probeModels, replayCall } from "../scripts";
-import { selectedIds, selectedLayouts } from "../scripts/build";
+import { componentFilter, selectedIds, selectedLayouts, wholePack } from "../scripts/build";
 
 const known = (id: string) => existsSync(`${import.meta.dirname}/known/${id}.md`);
 
 const registry = createRegistry({ includeDrafts: true });
 const required = probeModels.filter((model) => model.required);
-const selectedPacks = (Object.keys(packs) as PackId[]).filter(
-  (id) =>
-    !process.env.UI_TEST_COMPONENTS ||
-    selectedIds(Object.keys(packOf)).some((name) => (packOf as Record<string, PackId>)[name] === id),
+const suite = import.meta.url;
+const filter = componentFilter(suite);
+const packMembers = packOf as Record<string, PackId>;
+const packMeta = packs as Partial<Record<PackId, PackMeta>>;
+const ids = Object.keys(packs) as PackId[];
+const selectedPacks = ids.filter(
+  (id) => wholePack(id, suite) || filter?.some((name) => packMembers[name] === id),
 );
+const compositionPacks = ids.filter((id) => {
+  if (selectedPacks.includes(id)) return true;
+  if (packMeta[id]?.probes.some((probe) => probe.kind === "choose" && filter?.includes(probe.expect)))
+    return true;
+  const { packComposeArchetypes } = createRegistry({ packs: [id], includeDrafts: true });
+  return Boolean(selectedLayouts(packComposeArchetypes, suite)?.length);
+});
 
 describe.each(required)("shared variant probes on $id", (model) => {
-  it("replays every requested and plain brief with a passing majority", async () => {
-    const results = await runProbes({
-      defs: registry.defs,
-      only: ["variants"],
-      samples: model.samples,
-      callModel: replayCall("variants", model.id),
-    });
-    expect(results).toHaveLength(Object.keys(variantAxes).length * 2);
-    expect(
-      results.filter(({ status }) => status !== "pass").map(({ probe, detail }) => ({ probe, detail })),
-    ).toEqual([]);
-  });
+  it.runIf(selectedIds(["variants", ...registry.ids], suite).length > 0)(
+    "replays every requested and plain brief with a passing majority",
+    async () => {
+      const results = await runProbes({
+        defs: registry.defs,
+        only: ["variants"],
+        samples: model.samples,
+        callModel: replayCall("variants", model.id),
+      });
+      expect(results).toHaveLength(Object.keys(variantAxes).length * 2);
+      expect(
+        results.filter(({ status }) => status !== "pass").map(({ probe, detail }) => ({ probe, detail })),
+      ).toEqual([]);
+    },
+  );
 });
 
 describe.each(required)("probes on $id", (model) => {
-  it.each(selectedIds(registry.ids))("%s passes its probes", async (id) => {
+  it.each(selectedIds(registry.ids, suite))("%s passes its probes", async (id) => {
     if (known(id)) return; // open problem in test/known/<Id>.md: llm:check shows it, the fixer clears it
     const results = await runProbes({
       defs: registry.defs,
@@ -59,7 +73,7 @@ describe.each(required)("probes on $id", (model) => {
 });
 
 describe.each(required)("pack probes on $id", (model) => {
-  it("replays every pack probe with a passing majority", async () => {
+  it.runIf(selectedPacks.length > 0)("replays every pack probe with a passing majority", async () => {
     const results = [];
     for (const id of selectedPacks)
       results.push(
@@ -80,13 +94,13 @@ describe.each(required)("pack probes on $id", (model) => {
 });
 
 describe.each(required)("pack component and composition probes on $id", (model) => {
-  it.each(selectedPacks)("%s passes every component and every layout", async (id) => {
+  it.each(compositionPacks)("%s passes every component and every layout", async (id) => {
     const registry = createRegistry({ packs: [id], includeDrafts: true });
     const callModel = replayCall(`pack/${id}`, model.id);
-    const only = selectedIds(registry.ids.filter((name) => (packOf as Record<string, PackId>)[name] === id));
-    const core = (packs as Partial<Record<PackId, import("@lmthing/ui/catalog").PackMeta>>)[
-      id
-    ]!.probes.filter((probe) => probe.kind === "choose");
+    const all = wholePack(id, suite);
+    const members = registry.ids.filter((name) => packMembers[name] === id);
+    const only = all ? members : selectedIds(members, suite);
+    const core = packMeta[id]!.probes.filter((probe) => probe.kind === "choose");
     const coreResults = await runProbes({
       defs: registry.defs.map((def) => ({
         ...def,
@@ -94,13 +108,13 @@ describe.each(required)("pack component and composition probes on $id", (model) 
       })),
       callModel,
       samples: model.samples,
-      ...(process.env.UI_TEST_COMPONENTS ? { only } : {}),
+      ...(all || !filter ? {} : { only: filter }),
     });
     expect(coreResults.filter((result) => result.status !== "pass")).toEqual([]);
     const components = await runProbes({ defs: registry.defs, only, callModel, samples: model.samples });
     expect(components.filter((result) => result.status !== "pass")).toEqual([]);
     const metas = registry.packComposeArchetypes;
-    const layouts = selectedLayouts(metas);
+    const layouts = all ? undefined : selectedLayouts(metas, suite);
     if (layouts && !layouts.length) return;
     const compose = await runComposeProbes({
       archetypes: metas,
