@@ -34,6 +34,10 @@ it("refreshes declared ranges on mounted controls, snaps human edits, and focuse
       await slider.waitFor({ timeout: 10000 }).catch((error: Error) => {
         throw new Error(errors.join("\n") || error.message);
       });
+      await page.getByRole("button", { name: "Go to note" }).click();
+      expect(
+        await page.getByRole("textbox", { name: "Note" }).evaluate((node) => node === document.activeElement),
+      ).toBe(true);
       await slider.press("End");
       expect(await input.inputValue()).toBe("0.3");
       expect(await input.getAttribute("aria-valuemax")).toBe("0.3");
@@ -48,10 +52,6 @@ it("refreshes declared ranges on mounted controls, snaps human edits, and focuse
       expect(await wholeInput.getAttribute("aria-valuemin")).toBe("1");
       await wholeInput.fill("2.6");
       expect(await wholeSlider.getAttribute("aria-valuenow")).toBe("3");
-      await page.getByRole("button", { name: "Go to note" }).click();
-      expect(
-        await page.getByRole("textbox", { name: "Note" }).evaluate((node) => node === document.activeElement),
-      ).toBe(true);
     } finally {
       await browser.close();
     }

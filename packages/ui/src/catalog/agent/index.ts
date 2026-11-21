@@ -70,6 +70,7 @@ export {
   parseControlProps,
   projectControlInput,
   projectControls,
+  projectLiveControlInput,
   wireAdjustmentKey,
 } from "./live-props";
 export {

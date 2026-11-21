@@ -66,50 +66,59 @@ it("keeps an active journal writable after the displayed clock caps and commits 
   }
 });
 
-it("starts mounted passive ticks when an edit selects a trusted timestamp", () => {
-  vi.useFakeTimers();
-  vi.setSystemTime(8000);
-  const passive: Definition = {
-    ...def,
-    meta: {
-      ...def.meta,
-      deviceData: ["starts"],
-      clocks: [
-        {
-          id: "elapsed",
-          kind: "up",
-          prop: "seconds",
-          timestamp: (data, { slot }) =>
-            typeof slot === "number" && typeof data.starts?.[slot] === "number"
-              ? data.starts[slot]
-              : undefined,
-        },
-      ],
-      actions: { parts: { slot: ["set"] } },
-      set: { slot: { prop: "slot", integer: true } },
-    },
-    props: z.strictObject({ slot: z.int() }),
-  };
-  const screen = { id: "s", components: [{ id: "j", c: "Session", slot: 0 }] };
-  const runtime = createScreenController({
-    screen,
-    defs: { Session: passive },
-    deviceData: { starts: [null, 5000] },
-  });
-  const onChange = vi.fn();
-  const unsubscribe = runtime.store.subscribe(onChange);
-  try {
-    runtime.mount();
-    expect(runtime.read()).toContain("0s");
-    expect(runtime.act({ address: "j/slot", action: "set", value: 1 }).ok).toBe(true);
-    expect(runtime.read()).toContain("3s");
-    onChange.mockClear();
-    vi.advanceTimersByTime(1000);
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(runtime.read()).toContain("4s");
-  } finally {
-    unsubscribe();
-    runtime.dispose();
-    vi.useRealTimers();
-  }
-});
+it.each(["set", "increment"])(
+  "starts mounted passive ticks when %s selects a trusted timestamp",
+  (action) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(8000);
+    const passive: Definition = {
+      ...def,
+      meta: {
+        ...def.meta,
+        deviceData: ["starts"],
+        clocks: [
+          {
+            id: "elapsed",
+            kind: "up",
+            prop: "seconds",
+            timestamp: (data, { slot }) =>
+              typeof slot === "number" && typeof data.starts?.[slot] === "number"
+                ? data.starts[slot]
+                : undefined,
+          },
+        ],
+        ...(action === "set"
+          ? { actions: { parts: { slot: ["set"] as const } }, set: { slot: { prop: "slot", integer: true } } }
+          : {
+              actions: { parts: { slot: ["increment"] as const } },
+              adjust: { "slot.increment": { prop: "slot", delta: 1, bounds: () => ({ min: 0, max: 1 }) } },
+            }),
+      },
+      props: z.strictObject({ slot: z.int() }),
+    };
+    const screen = { id: "s", components: [{ id: "j", c: "Session", slot: 0 }] };
+    const runtime = createScreenController({
+      screen,
+      defs: { Session: passive },
+      deviceData: { starts: [null, 5000] },
+    });
+    const onChange = vi.fn();
+    const unsubscribe = runtime.store.subscribe(onChange);
+    try {
+      runtime.mount();
+      expect(runtime.read()).toContain("0s");
+      expect(runtime.act({ address: "j/slot", action, ...(action === "set" ? { value: 1 } : {}) }).ok).toBe(
+        true,
+      );
+      expect(runtime.read()).toContain("3s");
+      onChange.mockClear();
+      vi.advanceTimersByTime(1000);
+      expect(onChange).toHaveBeenCalledTimes(1);
+      expect(runtime.read()).toContain("4s");
+    } finally {
+      unsubscribe();
+      runtime.dispose();
+      vi.useRealTimers();
+    }
+  },
+);

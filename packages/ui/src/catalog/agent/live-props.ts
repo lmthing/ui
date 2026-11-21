@@ -125,6 +125,25 @@ export function projectParsedControls(meta: Meta, props: Values, get: Get, runti
     ? projectAdjustments(meta, nested, get)
     : nested;
 }
+
+/** Compose addressed rows and staged edits before resolving clock inputs. */
+export function projectLiveControlInput(
+  meta: Meta,
+  validated: Values,
+  get: Get,
+  wireApplied: boolean,
+  data?: DeviceData,
+) {
+  const moved = projectDerivedMoves(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
+  const runtime = Boolean(get("$runtime"));
+  if (wireApplied) return projectParsedControls(meta, addressed, get, runtime);
+  const props = projectControls(meta, addressed, get);
+  return meta.items?.set || meta.items?.adjust || runtime || hasLiveAdjustments(meta)
+    ? projectAdjustments(meta, props, get)
+    : props;
+}
+
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
@@ -136,15 +155,9 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const moved = projectDerivedMoves(meta, validated, get);
-  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
-  let props = wireApplied
-    ? projectParsedControls(meta, addressed, get, runtime)
-    : projectControls(meta, addressed, get);
-  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime || hasLiveAdjustments(meta)))
-    props = projectAdjustments(meta, props, get);
+  let props = projectLiveControlInput(meta, validated, get, wireApplied, data);
   const timed = projectLiveClocks(
     meta,
     props,

@@ -11,8 +11,10 @@ import {
   isDeviceDataVisible,
   liveProps,
   projectDeviceData,
+  projectLiveControlInput,
   selectDeviceData,
   type ClockState,
+  type DeviceData,
   type Meta,
   type Values,
 } from "../../../catalog";
@@ -23,17 +25,20 @@ function tickInput(
   ctx: ControllerContext,
   entry: ControllerContext["screen"]["components"][number],
   get: (part: string) => unknown,
+  data?: DeviceData,
 ) {
   const def = ctx.defs[entry.c]!;
   const { meta } = def;
+  const timestamp = hasTimestampClock(meta);
   if (
-    hasTimestampClock(meta) ||
+    timestamp ||
     [meta.clocks, meta.items?.clocks, meta.items?.nested?.clocks].some((clocks) =>
       clocks?.some(({ liveDuration }) => liveDuration),
     )
   ) {
     const { id: _id, c: _c, state: _state, ...input } = entry;
-    return parseControlProps(def, input, get);
+    const parsed = parseControlProps(def, input, get);
+    return timestamp ? projectLiveControlInput(meta, parsed, get, true, data) : parsed;
   }
   return ctx.inputOf(entry);
 }
@@ -47,7 +52,7 @@ function needsClock(ctx: ControllerContext) {
     const get = (part: string) => values[ctx.key(entry.id, part)];
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") return false;
     const { meta } = ctx.defs[entry.c]!;
-    return clockTargets(meta, tickInput(ctx, entry, get)).some((clock) => {
+    return clockTargets(meta, tickInput(ctx, entry, get, data)).some((clock) => {
       if (clock.spec.timestamp)
         return timestampReading(clock, selectDeviceData(meta, data), now, clockMax(clock))?.running;
       const state = get(clockKey(clock)) as ClockState | undefined;
@@ -81,7 +86,7 @@ function tickValues(ctx: ControllerContext) {
     const get = (part: string) => values[ctx.key(entry.id, part)];
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") continue;
     const { meta } = ctx.defs[entry.c]!;
-    const input = tickInput(ctx, entry, get);
+    const input = tickInput(ctx, entry, get, data);
     const ticked = noteReplayExpiry(meta, input, tickClocks(meta, input, get, now, data));
     for (const [part, value] of Object.entries(ticked)) changes[ctx.key(entry.id, part)] = value;
   }
