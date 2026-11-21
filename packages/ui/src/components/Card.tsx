@@ -185,7 +185,7 @@ export function Card(input: CardProps) {
           {badge ? (
             <kit.KitRow part={null} inline label={title} lineRole="heading" leading={lead}
               leadingAlign={thumbnail ? "row" : "line"} {...finish}
-              trailing={<kit.KitTrail kind="badge" value={badge} part="badge" tone="text" density={density} />}>
+              trailing={<kit.KitTrail kind="badge" value={badge} part="badge" tone="muted" density={density} />}>
               <kit.KitContent {...finish}><CardText {...input} density={density} /></kit.KitContent>
             </kit.KitRow>
           ) : <kit.KitContent {...{ lead }} leadingAlign={thumbnail ? "row" : "line"} {...finish}>

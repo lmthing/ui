@@ -17,6 +17,7 @@ const roles: Record<string, string[]> = {
   stop: ["button"],
   dismiss: ["button"],
   send: ["button"],
+  copy: ["button"],
   play: ["button"],
   pause: ["button"],
   seek: ["slider"],

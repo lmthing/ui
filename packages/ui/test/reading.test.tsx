@@ -15,6 +15,7 @@ import {
   stampItemIds,
   themeName,
   writerFormatFor,
+  wordsFor,
   type AppCurrency,
   type ComponentName,
   type Definition,
@@ -170,7 +171,10 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const seen = visibleTexts(html);
     const named = labels(html);
     const quoted = [...read.matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((m) => m[1]!.replace(/\\"/g, '"'));
-    for (const text of seen) expect(read, `visible text missing from the read: "${text}"`).toContain(text);
+    for (const text of seen) {
+      const mask = (def as Definition).meta.items?.readSecrets && text === wordsFor().secretValue.mask;
+      expect(read, `visible text missing from the read: "${text}"`).toContain(mask ? "(secret)" : text);
+    }
     for (const text of quoted) {
       const shown = seen.some((s) => s.includes(text)) || named.includes(text);
       expect(shown, `read offers text that is not on screen: "${text}"`).toBe(true);
