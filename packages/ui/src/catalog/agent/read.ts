@@ -7,6 +7,7 @@ import { affordancesOf, formatAffordance } from "./affordances";
 import { projectLiveClocks, recordClockOffer } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
+import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
@@ -41,6 +42,7 @@ function readingProps(
   const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
+    meta.recordRuntime ||
     meta.linkedEdits ||
     meta.items?.visibleWhen ||
     meta.items?.records ||
@@ -90,7 +92,9 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ): string[] {
+  const appCurrency = parseAppCurrency(currency);
   const { meta } = def;
   deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
@@ -123,24 +127,15 @@ export function readComponent(
       state,
       lang,
       selectDeviceData(meta, deviceData),
+      appCurrency,
     ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
     ...componentTexts(schema, props, key, roundKey, round?.item),
   ];
-  return readItems(
-    meta,
-    schema,
-    visibleNestedProps(meta, props, get),
-    instance,
-    key,
-    head,
-    own,
-    affordances,
-    get("more") === true,
-    lang,
-  );
+  const visible = visibleNestedProps(meta, props, get);
+  return readItems(meta, schema, visible, instance, key, head, own, affordances, get("more") === true, lang);
 }
 
 export type ScreenLike = {
@@ -156,7 +151,9 @@ export function readScreen(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ): string {
+  const appCurrency = parseAppCurrency(currency);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -164,7 +161,9 @@ export function readScreen(
   const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
     ({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
+      return def
+        ? readComponent(def, props, id, state, local, lang, deviceData, appCurrency)
+        : [`${id} ${c} (unknown)`];
     },
   );
   return [header, ...lines].join("\n");
