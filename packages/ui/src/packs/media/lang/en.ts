@@ -11,6 +11,10 @@ export const en = {
     ordinal: (number: string) => `${number}. `,
     quote: ["“", "”"] as [string, string],
   },
+  chapterList: {
+    line: (time: string, title: string, current: boolean) =>
+      `${time} ${title}${current ? " · Current chapter" : ""}`,
+  },
   collection: {
     playAll: "Play all",
     follow: "Follow",
