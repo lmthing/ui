@@ -152,12 +152,12 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
   const loading = state === "loading";
   const active = state === "filled";
   const card = input.style === "card";
-  const date = appointmentDate(input.date, lang);
   const badge = state === "success" ? appointmentLabels.booked : appointmentLabels[input.status];
   const compact = input.style === "compact";
   const change = card ? "reschedule" : "edit";
   const density = useVariant("density", meta.variants.density, input.density);
   const finish = { loading, density };
+  const date = <AppointmentLine value={appointmentDate(input.date, lang)} part="date" {...finish} />;
   const line = ({ part, text }: { part: string; text: string }) => (
     <AppointmentLine key={part} value={text} part={part} {...finish} />
   );
@@ -166,21 +166,20 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
   const status = <KitTrail kind="badge" part="status" value={loading ? words.loadingLabel : badge} />;
   const join = appointmentCanJoin(input.status, input.locationKind, input.meetingUrl) &&
     <KitAction label={appointmentJoin} part="join" disabled={!active} full />;
+  const time = <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact={compact || Boolean(join)} {...finish} />;
   return (
     <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service} density={density}>
       {compact ? <><KitGrid fitLast density={density}>
         <KitContent>
           <AppointmentLine value={input.service} part="service" {...finish} />
-          <KitContent lead={<AppointmentLine value={date} part="date" {...finish} />} leadingAlign="row" density={density}>
-            <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact {...finish} />
-          </KitContent>
+          <KitContent lead={date} leadingAlign="row" density={density}>{time}</KitContent>
           {location && line(location)}
         </KitContent>
         {status}
       </KitGrid>{join}</> : <>
-        <AppointmentLine value={date} part="date" {...finish} />
+        {!join && date}
         <KitGrid fitLast density={density}>
-          <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact={Boolean(join)} {...finish} />
+          {join ? <KitContent density={density}>{date}{time}</KitContent> : time}
           {card && status}
         </KitGrid>
         <KitContent>
