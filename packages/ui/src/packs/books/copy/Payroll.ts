@@ -144,7 +144,7 @@ export function payrollDisplay<T extends Payee>(input: Run<T>, data?: DeviceData
   const total = input.payees.length ? totalFigures(amounts) : undefined;
   const status = input.voided
     ? words.voided
-    : input.payees.length > 0 && input.payees.every(({ paidAt }) => paidAt)
+    : input.style === "run" && input.payees.length > 0 && input.payees.every(({ paidAt }) => paidAt)
       ? words.paid
       : input.finalizedAt
         ? words.finalized

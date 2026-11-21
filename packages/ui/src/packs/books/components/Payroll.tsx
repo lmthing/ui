@@ -9,14 +9,14 @@ import { dateTime, distinct, periodFields, ref, seedPeriod, seedTitle, validPeri
 // Core first: People/rows cannot calculate or freeze pay runs, record net payments or send payslips.
 // prettier-ignore
 export const meta = {
-  id: "Payroll", status: "draft", group: "data",
+  id: "Payroll", status: "ready", group: "data",
   purpose: "Calculate, finalise and retain a small business's pay run.",
   pick: "A business pay run with hourly or salary inputs, adjustments, deductions and employer costs; finalise it or open payslips. Not a people directory (People), a staff time record (Timesheet), clock-in (TimeClock), or project time (TimeLog).",
   writeHints: [
     "Use unique snake_case employeeRefs and one to six payees. Hourly payees require hours (0–744); omit hours for salary and use the period salary as rate.",
     "Do not write computed gross, deductions, net pay or employer costs. A paidAt requires a finalizedAt, with offset datetimes, and a run with a recorded payment cannot be voided.",
     'Use style "payslip" for the payee selected by the host, never by row position; otherwise use "run".',
-    'Use detail "brief" only when asked to hide pay basis, rate and hours; keep those input fields. Write surface and density null unless asked for an outline or compact spacing.',
+    'Use detail "brief" only when asked to hide pay basis, rate and hours; keep those input fields. A detail request does not request a surface or density. Leave surface and density null unless asked for an outline or compact spacing; do not write the defaults "card" or "comfortable".',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Payroll uses local pay records and rules; sending payslips needs messaging, not a bank.",
@@ -126,7 +126,7 @@ function PayFigures({ figures, density, loading }: Finish & { figures: Display["
 // prettier-ignore
 function PayeeRow({ row, style, loading, density, activeFinal }: Finish & { row: Display["rows"][number]; style: PayrollProps["style"]; activeFinal: boolean }) {
   const { words: { payroll: words } } = kit.useWords(booksWordsFor);
-  const { payee, figures, adjustments, paid, detail } = row, run = style === "run";
+  const { payee, figures, adjustments, paid, detail, basisLine } = row, run = style === "run";
   const net = figures[0]!;
   return <kit.KitRow item={payee.id} part={null} inline label={payee.name} {...{ density }}><kit.KitContent group="response" {...{ density }}>
       <kit.KitRow part={loading ? null : "root"} role={!loading && run ? "button" : "text"} inline label={payee.name}
@@ -138,10 +138,11 @@ function PayeeRow({ row, style, loading, density, activeFinal }: Finish & { row:
               {run && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", net.value, "end", "compact"]]} /> :
                 <kit.KitText part="net_pay" role="number" numberScale="compact" tabular>{net.value}</kit.KitText>)}
             </kit.KitGrid>
-            {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }}
-              content={[...Object.values(detail ?? {}).map((value): ["caption", string | undefined] => ["caption", value]), ["caption", paid]]} /> : <>
-              {detail && Object.entries(detail).map(([part, value]) => value && <kit.KitText key={part}
-                {...{ part }} role="caption" tone="muted" tabular>{value}</kit.KitText>)}
+            {loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ density }} content={[["caption", basisLine], ["caption", paid]]} /> : <>
+              {detail && <kit.KitText part="rate" role="caption" tone="muted" tabular>
+                <kit.KitText part="basis" role="caption" tone="muted">{detail.basis}</kit.KitText>{words.separator}{detail.rate}
+                {detail.hours && <>{words.separator}<kit.KitText part="hours" role="caption" tone="muted" tabular>{detail.hours}</kit.KitText></>}
+              </kit.KitText>}
               {paid && <kit.KitText part="paid" role="caption" tone="good">{paid}</kit.KitText>}
             </>}
           </kit.KitContent>
@@ -176,7 +177,6 @@ export function Payroll(input: PayrollProps) {
   const payees = c.visibleItems<PayrollRow>(meta, live);
   const { heading, status, from, to, payDate, totals, rows, notice } = payrollDisplay({ ...input, ...payrollLifecycle(input, data), payees, detail }, data, lang);
   const actions: PayButton[] = state !== "success" && live.canFinalize && live.validFrozenRun ? [["finalize", words.finalize, "primary"]] : [];
-  if (live.canVoid) actions.push(["void", words.void, "danger"]);
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     {state === "empty" ? <kit.KitEmpty decorativeIcon /> :
       state === "error" ? <kit.KitEmpty decorativeIcon icon="file_text" title={words.errorTitle} sub={words.errorDetail} /> : <>
@@ -193,6 +193,7 @@ export function Payroll(input: PayrollProps) {
         {input.style === "run" && <PayFigures figures={totals} {...{ density, loading }} />}
         {rows.map((row) => <PayeeRow key={row.payee.id} {...{ row, density, loading }} style={input.style} activeFinal={Boolean(live.validFrozenRun)} />)}
         <PayButtons {...{ actions, loading, density }} />
+        {live.canVoid && <PayButtons {...{ loading, density }} actions={[["void", words.void, "danger"]]} />}
       </>}
   </kit.KitCard>;
 }

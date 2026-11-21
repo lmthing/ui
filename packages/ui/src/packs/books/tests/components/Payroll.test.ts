@@ -144,14 +144,20 @@ describe("Payroll parts and states", () => {
   });
 
   it("shows the run totals, dates, and selected payslip breakdown at their declared parts", () => {
-    const run = screen(draft).parts;
-    const slip = screen(paid).parts;
+    const { parts: run, read: runRead } = screen(draft);
+    const { parts: slip, read: slipRead } = screen(paid);
     expect(run.get("home/c1/net_pay")?.text).toContain("£646");
     expect(run.get("home/c1/r1/hours")?.text.join("").trim()).toContain("10 h");
+    expect(run.get("home/c1/r1/basis")?.text).toContain("Hourly");
+    expect(run.get("home/c1/r1/rate")?.text.join("")).toContain("£12/hr");
+    expect(runRead).toContain("Hourly · £12/hr · 10 h");
     for (const part of ["from", "to", "pay_date", "gross", "deductions", "employer_cost"])
       expect(run.has(`home/c1/${part}`)).toBe(true);
     for (const part of ["adjustments", "gross", "deductions", "net_pay", "employer_cost", "paid"])
       expect(slip.has(`home/c1/r1/${part}`)).toBe(true);
+    expect(slip.get("home/c1/status")?.text).toContain("Finalised");
+    expect(slip.get("home/c1/r1/paid")?.text).toContain("Payment recorded: 1 Dec 2026");
+    expect(slipRead.match(/Payment recorded/g)).toHaveLength(1);
   });
 
   it.each(["empty", "loading", "error"] as const)("omits payroll content and controls in %s", (state) => {

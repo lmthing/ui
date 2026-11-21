@@ -8,6 +8,233 @@
       "{\"address\": \"p1/finalize\", \"action\": \"press\"}"
     ]
   },
+  "2e9db8ba98873f55": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPayroll: Calculate, finalise and retain a small business's pay run.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", runRef: id snake_case, from: date YYYY-MM-DD, to: date YYYY-MM-DD, payDate: date YYYY-MM-DD, payees: [1..6 { employeeRef: id snake_case, name: text≤24, basis: hourly|salary, rate: num 0.., hours?: num 0..744, ruleRef: id snake_case, paidAt?: id snake_case, adjustments: [0..3 { label: text≤20, amount: number }] }], finalizedAt?: id snake_case, voided?: boolean=false, style?: run|payslip=\"run\" }\nRule: Use unique snake_case employeeRefs and one to six payees. Hourly payees require hours (0–744); omit hours for salary and use the period salary as rate.\nRule: Do not write computed gross, deductions, net pay or employer costs. A paidAt requires a finalizedAt, with offset datetimes, and a run with a recorded payment cannot be voided.\nRule: Use style \"payslip\" for the payee selected by the host, never by row position; otherwise use \"run\".\nRule: Use detail \"brief\" only when asked to hide pay basis, rate and hours; keep those input fields. A detail request does not request a surface or density. Leave surface and density null unless asked for an outline or compact spacing; do not write the defaults \"card\" or \"comfortable\".\nexample: {\"c\":\"Payroll\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"adjustments\":[],\"ruleRef\":\"sample_pay\"},{\"employeeRef\":\"mira\",\"name\":\"Mira Cole\",\"basis\":\"salary\",\"rate\":640,\"adjustments\":[],\"ruleRef\":\"sample_pay\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft run nov_care for November 2026, pay date December 1. Jo Lin (jo) worked 10 hours at 12, no adjustments, rule sample_pay. Keep all inputs, but don't show pay basis, rate or hours in the preview.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Payroll",
+              "enum": [
+                "Payroll"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "runRef": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "payDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "payees": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "employeeRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "basis": {
+                    "type": "string",
+                    "enum": [
+                      "hourly",
+                      "salary"
+                    ]
+                  },
+                  "rate": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hours": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 744
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "ruleRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "paidAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "adjustments": {
+                    "minItems": 0,
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        },
+                        "amount": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "amount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "employeeRef",
+                  "name",
+                  "basis",
+                  "rate",
+                  "hours",
+                  "ruleRef",
+                  "paidAt",
+                  "adjustments"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "finalizedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "voided": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "run",
+                    "payslip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "runRef",
+            "from",
+            "to",
+            "payDate",
+            "payees",
+            "finalizedAt",
+            "voided",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+    "replies": [
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":null,\"style\":\"run\"}"
+    ]
+  },
   "58aa2a2c45ab653a": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Payroll[payslip] Payslip — 1 Nov 2026 – 30 Nov 2026 — Pay date: 1 Dec 2026 — Payment recorded — Sam Moss — Salary · £850 — Payment recorded: 1 Dec 2026 — Adjustments — Weekend cover: £45 — Net pay — £760.75 — Gross pay — £895 — Deductions — £134.25 — Employer cost — £984.50 — Send payslip\n  r1 \"Sam Moss\" [p1/r1/send press !needs-service]\n\nTask: Send Sam's payslip.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"p1/r1/send\", \"action\": \"press\"}",
@@ -255,11 +482,247 @@
         }
       }
     },
-    "reply": "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+    "reply": "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
     "replies": [
-      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
       "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
-      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}"
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}"
+    ]
+  },
+  "ccf90ff66604ce5a": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\np1 Payroll[payslip] Payslip — 1 Nov 2026 – 30 Nov 2026 — Pay date: 1 Dec 2026 — Finalised — Sam Moss — Salary · £850 — Payment recorded: 1 Dec 2026 — Adjustments — Weekend cover: £45 — Net pay — £760.75 — Gross pay — £895 — Deductions — £134.25 — Employer cost — £984.50 — Send payslip\n  r1 \"Sam Moss\" [p1/r1/send press !needs-service]\n\nTask: Send Sam's payslip.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"p1/r1/send\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"p1/r1/send\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1/send\", \"action\": \"press\"}",
+      "{\"address\": \"p1/r1/send\", \"action\": \"press\"}"
+    ]
+  },
+  "cd1a8b10d6347223": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nPayroll: Calculate, finalise and retain a small business's pay run.\nprops: { density?: comfortable|compact, surface?: card|outlined=\"card\", detail?: full|brief=\"full\", runRef: id snake_case, from: date YYYY-MM-DD, to: date YYYY-MM-DD, payDate: date YYYY-MM-DD, payees: [1..6 { employeeRef: id snake_case, name: text≤24, basis: hourly|salary, rate: num 0.., hours?: num 0..744, ruleRef: id snake_case, paidAt?: id snake_case, adjustments: [0..3 { label: text≤20, amount: number }] }], finalizedAt?: id snake_case, voided?: boolean=false, style?: run|payslip=\"run\" }\nRule: Use unique snake_case employeeRefs and one to six payees. Hourly payees require hours (0–744); omit hours for salary and use the period salary as rate.\nRule: Do not write computed gross, deductions, net pay or employer costs. A paidAt requires a finalizedAt, with offset datetimes, and a run with a recorded payment cannot be voided.\nRule: Use style \"payslip\" for the payee selected by the host, never by row position; otherwise use \"run\".\nRule: Use detail \"brief\" only when asked to hide pay basis, rate and hours; keep those input fields. A detail request does not request a surface or density. Leave surface and density null unless asked for an outline or compact spacing; do not write the defaults \"card\" or \"comfortable\".\nexample: {\"c\":\"Payroll\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"adjustments\":[],\"ruleRef\":\"sample_pay\"},{\"employeeRef\":\"mira\",\"name\":\"Mira Cole\",\"basis\":\"salary\",\"rate\":640,\"adjustments\":[],\"ruleRef\":\"sample_pay\"}]}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Draft run nov_care for November 2026, pay date December 1. Jo Lin (jo) worked 10 hours at 12, no adjustments, rule sample_pay.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Payroll",
+              "enum": [
+                "Payroll"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "runRef": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+            },
+            "from": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "to": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "payDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "payees": {
+              "minItems": 1,
+              "maxItems": 6,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "employeeRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "basis": {
+                    "type": "string",
+                    "enum": [
+                      "hourly",
+                      "salary"
+                    ]
+                  },
+                  "rate": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "hours": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 744
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "ruleRef": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9]+(?:_[a-z0-9]+)*$"
+                  },
+                  "paidAt": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "adjustments": {
+                    "minItems": 0,
+                    "maxItems": 3,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 20
+                        },
+                        "amount": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "amount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "employeeRef",
+                  "name",
+                  "basis",
+                  "rate",
+                  "hours",
+                  "ruleRef",
+                  "paidAt",
+                  "adjustments"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "finalizedAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "voided": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "run",
+                    "payslip"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "runRef",
+            "from",
+            "to",
+            "payDate",
+            "payees",
+            "finalizedAt",
+            "voided",
+            "style"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+    "replies": [
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":null,\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}"
     ]
   },
   "f53b9a5db77e8799": {
@@ -486,7 +949,7 @@
     "replies": [
       "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
       "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}",
-      "{\"c\":\"Payroll\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]},{\"employeeRef\":\"mira\",\"name\":\"Mira Cole\",\"basis\":\"salary\",\"rate\":640,\"hours\":null,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}"
+      "{\"c\":\"Payroll\",\"density\":null,\"surface\":\"card\",\"detail\":\"brief\",\"runRef\":\"nov_care\",\"from\":\"2026-11-01\",\"to\":\"2026-11-30\",\"payDate\":\"2026-12-01\",\"payees\":[{\"employeeRef\":\"jo\",\"name\":\"Jo Lin\",\"basis\":\"hourly\",\"rate\":12,\"hours\":10,\"ruleRef\":\"sample_pay\",\"paidAt\":null,\"adjustments\":[]}],\"finalizedAt\":null,\"voided\":false,\"style\":\"run\"}"
     ]
   }
 }
