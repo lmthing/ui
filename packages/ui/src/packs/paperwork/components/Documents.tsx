@@ -154,7 +154,7 @@ function DocumentFile({ row, density, surface, now }: {
       <kit.KitRow part={loading ? null : "root"} inline surface="plain" label={loading ? "" : row.title}
         goto={loading ? undefined : row.goto} role={!loading && row.file ? "button" : "text"} density={density}
         trailing={canOpen && (loading ? dot : <kit.KitIcon name="chevron_right" tone="muted" decorative />)}
-        leading={loading ? dot : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} />}>
+        leading={loading ? dot : <kit.KitContent lead={<kit.KitIcon name="file_text" tone="muted" decorative />} children={null} />}>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", row.title]]} />
           : <kit.KitText part="title" density={density}>{row.title}</kit.KitText>}
         {draw("owner", "kind")}{draw("issuer", "number")}
