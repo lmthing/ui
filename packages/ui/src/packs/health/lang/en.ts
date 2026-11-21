@@ -1,4 +1,20 @@
 export const en = {
+  training: {
+    weeks: "Training weeks",
+    week: (week: string) => `Week ${week}`,
+    program: "Plan progress",
+    completed: (done: string, total: string) => `${done} of ${total} completed`,
+    minutes: (value: string) => `${value} min`,
+    rest: "Rest",
+    done: "Complete",
+    pending: "Not complete",
+    check: (name: string) => `Mark ${name} complete`,
+    emptyWeek: "No workouts planned for this week.",
+    success: "Workout marked complete",
+    error: "Progress not saved",
+    errorDetail: "Try marking the workout again.",
+    line: (parts: readonly string[]) => parts.join(" · "),
+  },
   cardio: {
     activity: { run: "Run", ride: "Ride", walk: "Walk", swim: "Swim", hike: "Hike" },
     elapsed: "Elapsed time",

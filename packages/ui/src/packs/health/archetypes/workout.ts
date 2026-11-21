@@ -30,6 +30,18 @@ export const workout = {
         { id: "n1", c: "Note" },
       ],
     },
+    plan: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["TrainingPlan"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "p1", c: "TrainingPlan" },
+        { id: "n1", c: "Note" },
+      ],
+    },
     exercise: {
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },

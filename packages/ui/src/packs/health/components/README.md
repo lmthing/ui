@@ -14,7 +14,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Cycle.tsx`
 - `ActivityRings.tsx`
 - `CardioSession.tsx`
-
+- `TrainingPlan.tsx`
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
 - Draft files (`status: "draft"`) have no view yet.
