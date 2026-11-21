@@ -6,3 +6,4 @@
 - `LineChart.test.ts`: Line chart schema, fallback, states, parts and point selection.
 - `FilterBar.test.ts`: Search and picker bounds, fallback, parts and the atomic clear action.
 - `Board.test.ts`: Stage and card bounds, parts, computed totals and moves with stable card ids.
+- `BulkActions.test.ts`: Live Table selection, command parts and destructive confirmation.
