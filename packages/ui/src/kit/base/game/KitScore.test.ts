@@ -59,6 +59,10 @@ const sides = [
     }),
   },
 ] as const;
+const addressedSides = [
+  { ...sides[0], valuePart: "home_score" },
+  { ...sides[1], valuePart: "away_score" },
+] as const;
 
 describe("KitScore filled and empty", () => {
   it("draws aligned caller scores and center at the requested root, without invented item parts", () => {
@@ -104,12 +108,35 @@ describe("KitScore filled and empty", () => {
   });
 });
 
+describe("KitScore value parts", () => {
+  it.each(["display", "keeper"] as const)("addresses values without changing the %s drawing", (style) => {
+    const html = render({ sides: addressedSides, center, style });
+    const parts = addressedElements(html);
+    expect(parts.get("home/c1/home_score")?.text).toEqual(["0"]);
+    expect(parts.get("home/c1/away_score")?.text).toEqual(["120"]);
+    expect(html.replace(/ data-testid="home\/c1\/(?:home|away)_score"/g, "")).toBe(
+      render({ sides, center, style }),
+    );
+  });
+
+  it("does not address a missing score or a slot explicitly left unaddressed", () => {
+    const html = render({
+      sides: [
+        { ...addressedSides[0], value: "" },
+        { ...addressedSides[1], valuePart: null },
+      ],
+      center,
+    });
+    expect([...addressedElements(html).keys()]).toEqual(["home/c1/root", "home/c1/clock"]);
+  });
+});
+
 describe("KitScore loading", () => {
   it.each(["display", "keeper"] as const)(
     "keeps %s geometry in loading and does not mount caller content",
     (style) => {
       const filled = render({ sides, center, style });
-      const html = render({ sides, center, style, loading: true });
+      const html = render({ sides: addressedSides, center, style, loading: true });
       const root = elementAt(html, "home/c1/root");
       expect(root.attributes).toContain('aria-busy="true"');
       expect([...addressedElements(html).keys()]).toEqual(["home/c1/root"]);

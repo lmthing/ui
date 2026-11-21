@@ -13,7 +13,14 @@ import {
   type Target,
 } from "./diagram-drawing";
 
-type Player = { id: string; label: string; number: string; target?: Target };
+type Player = {
+  id: string;
+  label: string;
+  number: string;
+  namePart?: string | null;
+  numberPart?: string | null;
+  target?: Target;
+};
 type Line = { id: string; players: readonly Player[] };
 type PitchProps = Drawing & {
   lines: readonly Line[];
@@ -22,11 +29,12 @@ type PitchProps = Drawing & {
   style?: "pitch" | "list";
 };
 
-function PlayerLabel({ label, list, loading }: { label: string; list: boolean; loading: boolean }) {
+function PlayerLabel({ player, list, loading }: { player: Player; list: boolean; loading: boolean }) {
+  const { label, namePart = null } = player;
   if (loading) return <DiagramBar width={list ? "50%" : size.avatar.sm} />;
   if (list)
     return (
-      <KitText part={null} lines={1}>
+      <KitText part={namePart} lines={1}>
         {label}
       </KitText>
     );
@@ -41,7 +49,7 @@ function PlayerLabel({ label, list, loading }: { label: string; list: boolean; l
         aria-hidden
       />
       <YStack position="relative">
-        <KitText role="caption" align="center" lines={1} part={null}>
+        <KitText role="caption" align="center" lines={1} part={namePart}>
           {label}
         </KitText>
       </YStack>
@@ -79,7 +87,7 @@ function PitchPlayer({ player, list, loading }: { player: Player; list: boolean;
         justifyContent="center"
       >
         {!loading && (
-          <KitText role="number" numberScale="compact" tabular part={null}>
+          <KitText role="number" numberScale="compact" tabular part={player.numberPart ?? null}>
             {player.number}
           </KitText>
         )}
@@ -90,7 +98,7 @@ function PitchPlayer({ player, list, loading }: { player: Player; list: boolean;
         justifyContent="center"
         {...(list ? { flex: component.base.bodyFlex } : { width: "100%", alignItems: "center" })}
       >
-        <PlayerLabel label={player.label} {...{ list, loading }} />
+        <PlayerLabel {...{ player, list, loading }} />
       </YStack>
     </YStack>
   );
