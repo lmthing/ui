@@ -1,6 +1,6 @@
-import { XStack, YStack } from "tamagui";
+import { XStack, YStack, isWeb } from "tamagui";
 import { component, size, space } from "../../../catalog";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { PartContext, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 import { KeyButton, type KeyFinish } from "./PadKey";
 import { useKeypadTarget } from "./use-keypad-target";
@@ -71,12 +71,40 @@ function CalcGrid({ keys, scientific = false, loading = false, disabled = false,
   const kit = useKit();
   const address = useKeypadTarget(target.part, !loading, disabled);
   const { standard, drawer } = calcKeys(keys, scientific);
+  const controller = kit.interactive ? kit.controller : undefined;
+  const inactive =
+    disabled ||
+    Boolean(
+      controller &&
+      !loading &&
+      !controller.actionsAt(address.testID, { ignoreDisabledPart: true }).includes("type"),
+    );
   const dispatch =
-    kit.interactive && kit.controller && !loading && !disabled
-      ? (value: string) => void kit.controller?.act({ address: address.testID, action: "type", value })
+    controller && !loading && !inactive
+      ? (value: string) => void controller.act({ address: address.testID, action: "type", value })
       : undefined;
+  const visible = [...drawer, ...standard];
+  const onKeyDown = (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
+    const hit = visible.find((key) => !key.disabled && key.value === event.key);
+    if (!hit || !dispatch) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dispatch(hit.value);
+  };
   return (
-    <YStack {...(!loading ? address : {})} accessibilityRole={loading ? undefined : "group"}>
+    <YStack
+      {...(!loading ? address : {})}
+      {...(!loading && isWeb
+        ? {
+            role: "textbox" as never,
+            "aria-label": new Intl.ListFormat(kit.lang).format(visible.map(({ label }) => label)),
+            "aria-disabled": inactive || undefined,
+            "aria-readonly": dispatch ? undefined : true,
+            tabIndex: dispatch ? 0 : -1,
+            ...(dispatch ? { onKeyDown } : {}),
+          }
+        : {})}
+    >
       {drawer.length > 0 && (
         <YStack
           borderBottomWidth={component.base.borderWidth}
@@ -84,10 +112,10 @@ function CalcGrid({ keys, scientific = false, loading = false, disabled = false,
           paddingBottom={space.xs}
           marginBottom={space.xs}
         >
-          <KeyRows keys={drawer} {...{ loading, disabled, dispatch }} />
+          <KeyRows keys={drawer} loading={loading} disabled={inactive} dispatch={dispatch} />
         </YStack>
       )}
-      <KeyRows keys={standard} {...{ loading, disabled, dispatch }} />
+      <KeyRows keys={standard} loading={loading} disabled={inactive} dispatch={dispatch} />
     </YStack>
   );
 }
@@ -96,11 +124,12 @@ function CalcGrid({ keys, scientific = false, loading = false, disabled = false,
 export function KitCalcPad({ part = "root", ...props }: CalcProps) {
   const scope = usePartContext();
   const item = props.target.item ?? scope.item;
-  const separate = part !== props.target.part || item !== scope.item;
-  const address = usePart(part, separate);
+  const coincident = part === props.target.part && item === scope.item;
+  const stampRoot = props.loading || !coincident;
+  const address = useKeypadTarget(part, Boolean(stampRoot), Boolean(props.loading && coincident));
   return (
-    <YStack {...(separate ? address : {})} aria-busy={props.loading || undefined}>
-      <PartContext.Provider value={item === scope.item ? scope : { ...scope, item }}>
+    <YStack {...(stampRoot ? address : {})} aria-busy={props.loading || undefined}>
+      <PartContext.Provider value={item === undefined || item === scope.item ? scope : { ...scope, item }}>
         <CalcGrid {...props} />
       </PartContext.Provider>
     </YStack>

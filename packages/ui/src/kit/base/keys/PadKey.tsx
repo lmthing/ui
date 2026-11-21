@@ -23,7 +23,7 @@ function keyHandlers(press: (() => void) | undefined, inactive: boolean, disable
     onPress: press,
     tabIndex: 0,
     cursor: "pointer" as const,
-    onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation?(): void }) => {
+    onKeyDown: (event: { key?: string; preventDefault(): void; stopPropagation?(): void }) => {
       if (event.key !== "Enter" && event.key !== " ") return;
       event.preventDefault();
       event.stopPropagation?.();
@@ -34,6 +34,7 @@ function keyHandlers(press: (() => void) | undefined, inactive: boolean, disable
 
 export function KeyButton({
   label,
+  glyph = label,
   loading,
   disabled,
   press,
@@ -42,6 +43,7 @@ export function KeyButton({
   address,
 }: {
   label: string;
+  glyph?: string;
   loading: boolean;
   disabled: boolean;
   press?: (() => void) | undefined;
@@ -70,9 +72,9 @@ export function KeyButton({
       aria-hidden={loading || undefined}
       {...keyHandlers(press, loading || disabled, disabled)}
     >
-      <YStack opacity={loading ? component.base.none : undefined} aria-hidden>
+      <YStack opacity={loading ? component.base.none : undefined} aria-hidden={loading || undefined}>
         <KitText role="number" numberScale="compact" tone={tone} part={null}>
-          {label}
+          {glyph}
         </KitText>
       </YStack>
     </YStack>

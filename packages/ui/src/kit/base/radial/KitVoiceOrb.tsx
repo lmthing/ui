@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { isWeb, YStack } from "tamagui";
 import { component, radius, size, space, type IconName } from "../../../catalog";
 import { useAnimatedValue } from "../../motion";
@@ -72,10 +72,18 @@ function OrbDrawing({ children, loading, state, level }: OrbProps) {
 function OrbControl(props: OrbProps) {
   const kit = useKit();
   const address = usePart(props.target.part, !props.loading);
-  const actionable = !props.loading && kit.interactive && kit.controller;
+  const controller = kit.interactive ? kit.controller : undefined;
+  const disabled = Boolean(
+    controller &&
+    !props.loading &&
+    !controller
+      .actionsAt(address.testID, { ignoreDisabledPart: true })
+      .some((action) => action === "press" || action === "toggle"),
+  );
+  const actionable = !props.loading && !disabled && controller;
   const press = (event: { stopPropagation?(): void }) => {
     event.stopPropagation?.();
-    return kit.controller?.press(address.testID);
+    return controller?.press(address.testID);
   };
   return (
     <YStack
@@ -88,6 +96,7 @@ function OrbControl(props: OrbProps) {
       justifyContent="center"
       accessibilityRole={props.loading ? undefined : "button"}
       accessibilityLabel={props.loading ? undefined : props.label}
+      aria-disabled={disabled || undefined}
       aria-hidden={props.loading || undefined}
       {...(actionable
         ? {
@@ -96,7 +105,7 @@ function OrbControl(props: OrbProps) {
               ? {
                   cursor: "pointer" as const,
                   tabIndex: 0 as const,
-                  onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation(): void }) => {
+                  onKeyDown: (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
                     if (event.key !== "Enter" && event.key !== " ") return;
                     event.preventDefault();
                     press(event);
@@ -104,7 +113,7 @@ function OrbControl(props: OrbProps) {
                 }
               : { accessible: true }),
           }
-        : {})}
+        : { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled } } : {}) })}
     >
       <OrbDrawing {...props} />
     </YStack>
@@ -114,12 +123,18 @@ function OrbControl(props: OrbProps) {
 /** Muted sessions use idle with zero level and caller-supplied muted content and label. */
 export function KitVoiceOrb({ part = "root", ...props }: OrbProps) {
   const scope = usePartContext();
+  const { controller } = useKit();
   const item = props.target.item ?? scope.item;
-  const separate = part !== props.target.part || item !== scope.item;
-  const address = usePart(part, separate);
+  const coincident = part === props.target.part && item === scope.item;
+  const stampRoot = props.loading || !coincident;
+  const address = usePart(part, stampRoot);
+  useEffect(
+    () => (props.loading && coincident ? controller?.registerDisabledPart(address.testID) : undefined),
+    [props.loading, coincident, controller, address.testID],
+  );
   return (
-    <YStack {...(separate ? address : {})} aria-busy={props.loading || undefined}>
-      <PartContext.Provider value={item === scope.item ? scope : { ...scope, item }}>
+    <YStack {...(stampRoot ? address : {})} aria-busy={props.loading || undefined}>
+      <PartContext.Provider value={item === undefined || item === scope.item ? scope : { ...scope, item }}>
         <OrbControl {...props} />
       </PartContext.Provider>
     </YStack>

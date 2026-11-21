@@ -49,24 +49,28 @@ afterAll(async () => {
 });
 
 const button = (name: string) => page.getByRole("button", { name, exact: true });
+const output = async () =>
+  (await page.locator("output").textContent())!
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
 
 it("opens the scientific drawer, dispatches literal keypad entries once, and keeps loading slots", async () => {
   const pad = page.getByTestId("home/calc/root");
-  const target = page.getByTestId("home/calc/r1/keys");
+  const target = page.getByTestId("home/calc/keys");
+  expect(await target.getAttribute("role")).toBe("textbox");
+  expect(await target.getAttribute("aria-label")).toContain("Add");
   await button("7").click();
   await button("Add").press("Enter");
   await button("Equals").press("Space");
+  await target.press("7");
   expect(await button("Sine").count()).toBe(0);
   await button("Scientific").click();
   expect(await button("Root").isDisabled()).toBe(true);
   await button("Sine").click();
-  expect(
-    (await page.locator("output").textContent())!
-      .trim()
-      .split("\n")
-      .map((line) => JSON.parse(line)),
-  ).toEqual(
-    ["7", "+", "=", "sin("].map((value) => ({ address: "home/calc/r1/keys", action: "type", value })),
+  expect(await output()).toEqual(
+    ["7", "+", "=", "7", "sin("].map((value) => ({ address: "home/calc/keys", action: "type", value })),
   );
   const height = (await pad.boundingBox())?.height;
   await button("Disabled").click();
@@ -82,20 +86,24 @@ it("retains full-size key targets on a 390-wide keyboard and places the required
   const board = page.getByTestId("home/letters/root");
   const keyAt = (item: string, part = "root") => page.getByTestId(`home/letters/${item}/${part}`);
   const [unused, correct, present, absent] = await Promise.all(
-    ["Q", "W", "E", "R"].map((letter) =>
+    ["Q", "W, correct", "E, present", "R, absent"].map((letter) =>
       button(letter).evaluate((element) => getComputedStyle(element).backgroundColor),
     ),
   );
   expect(new Set([unused, correct, present, absent]).size).toBe(4);
   expect((await keyAt("r26").boundingBox())!.width).toBe(size.control.md);
-  await button("P").click();
-  await button("W").press("Space");
-  expect((await page.locator("output").textContent())?.trim()).toBe(
-    'press home/letters/r10/root\n{"address":"home/letters/r2/type","action":"type","value":"w"}',
-  );
+  await button("P, correct").click();
+  expect(await keyAt("r2", "letter").getAttribute("role")).toBe("button");
+  await keyAt("r2", "letter").press("w");
+  expect(await output()).toEqual([
+    { address: "home/letters/r10", action: "press" },
+    { address: "home/letters/r2/letter", action: "press" },
+  ]);
   await button("Hive").click();
   const center = (await keyAt("r3").boundingBox())!;
   const box = (await board.boundingBox())!;
+  expect(await keyAt("r3").getAttribute("aria-label")).toBe("E, present, required");
+  expect(await keyAt("r3").textContent()).toBe("E");
   expect(center.x + center.width / 2).toBeCloseTo(box.x + box.width / 2);
   expect(center.y + center.height / 2).toBeCloseTo(box.y + box.height / 2);
   await button("Disabled").click();
@@ -130,7 +138,7 @@ it("renders live radial updates, caller-muted content, and inert loading at a fi
   expect((await halo.boundingBox())!.width).toBe(idle);
   expect(await orb.getByText("Muted").count()).toBe(1);
   await button("Resume voice").press("Enter");
-  expect((await page.locator("output").textContent())?.trim()).toBe("press home/voice/orb");
+  expect(await output()).toEqual([{ address: "home/voice/orb", action: "toggle" }]);
   await button("Loading").click();
   expect(await orb.count()).toBe(0);
   expect(await marker.count()).toBe(0);
@@ -138,4 +146,36 @@ it("renders live radial updates, caller-muted content, and inert loading at a fi
   expect((await dial.boundingBox())!.height).toBe(height);
   expect((await orbRoot.boundingBox())!.height).toBe(orbHeight);
   expect(errors).toEqual([]);
+});
+
+it("keeps a single drawing address in loading and honors controller action gates", async () => {
+  await button("Block actions").click();
+  for (const name of ["7", "Q", "Interrupt voice"]) {
+    expect(await button(name).isDisabled()).toBe(true);
+    await button(name).press("Enter");
+  }
+  expect(await output()).toEqual([]);
+  await button("Block actions").click();
+  await button("Coincident").click();
+  for (const component of ["calc", "letters", "voice"]) {
+    expect(await page.getByTestId(`home/${component}/root`).count()).toBe(1);
+  }
+  await button("Q").click();
+  expect(await output()).toEqual([{ address: "home/letters", action: "press" }]);
+  await button("Loading").click();
+  for (const component of ["calc", "letters", "voice"]) {
+    const root = page.getByTestId(`home/${component}/root`);
+    expect(await root.count()).toBe(1);
+    expect(await root.getAttribute("aria-busy")).toBe("true");
+    expect(await root.getAttribute("role")).toBeNull();
+  }
+  await button("Loading").click();
+  await button("7").click();
+  await button("Q").click();
+  await button("Interrupt voice").click();
+  expect((await output()).slice(1)).toEqual([
+    { address: "home/calc", action: "type", value: "7" },
+    { address: "home/letters", action: "press" },
+    { address: "home/voice", action: "toggle" },
+  ]);
 });

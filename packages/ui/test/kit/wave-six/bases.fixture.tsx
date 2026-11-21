@@ -9,9 +9,9 @@ import {
   KitText,
   KitVoiceOrb,
   PartScope,
-  type ScreenController,
 } from "@lmthing/ui/kit";
 import { config } from "../../render";
+import { useFixtureController } from "./fixture-controller";
 
 const theme = { preset: "calm", mode: "light", accent: "moss", motion: "lively" } as const;
 const calc = [
@@ -21,23 +21,19 @@ const calc = [
   { id: "r4", label: "Root", value: "sqrt(", role: "fn", disabled: true },
   { id: "r5", label: "Sine", value: "sin(", role: "fn" },
 ] as const;
-const letters = Array.from("QWERTYUIOPASDFGHJKLZXCVBNM", (label, i) => ({
+const letters = Array.from("QWERTYUIOPASDFGHJKLZXCVBNM", (value, i) => ({
   id: `r${i + 1}`,
-  label,
-  value: label.toLowerCase(),
+  label: [`${value}`, `${value}, correct`, `${value}, present`, `${value}, absent`][i % 4]!,
+  value,
   state: (["unused", "correct", "present", "absent"] as const)[i % 4]!,
   center: i === 2,
-  target: i === 1 ? { item: "r2", part: "type" } : { part: "root" },
+  target: i === 1 ? { item: "r2", part: "letter" } : { part: "root" },
 }));
 
-function fixtureController(record: (value: string) => void) {
-  return {
-    actionsAt: (address: string) => (address.endsWith("/type") ? ["type"] : ["press"]),
-    act: (step: object) => record(JSON.stringify(step)),
-    press: (address: string) => record(`press ${address}`),
-    registerPart: () => () => {},
-    registerDisabledPart: () => () => {},
-  } as unknown as ScreenController;
+function keyFixture(hive: boolean, coincident: boolean) {
+  if (coincident) return [{ id: "letter-q", label: "Q", value: "Q", target: { part: "root" } }];
+  if (!hive) return letters;
+  return letters.slice(0, 8).map((key) => (key.center ? { ...key, label: `${key.label}, required` } : key));
 }
 
 function Radial({
@@ -45,11 +41,13 @@ function Radial({
   level,
   muted,
   thinking,
+  coincident,
 }: {
   loading: boolean;
   level: number;
   muted: boolean;
   thinking: boolean;
+  coincident: boolean;
 }) {
   const state = muted
     ? "idle"
@@ -68,7 +66,7 @@ function Radial({
           state={state}
           level={muted ? 0 : level}
           label={muted ? "Resume voice" : "Interrupt voice"}
-          target={{ part: "orb" }}
+          target={{ part: coincident ? "root" : "orb" }}
         >
           {muted ? <KitText part={null}>Muted</KitText> : undefined}
         </KitVoiceOrb>
@@ -95,8 +93,11 @@ function Fixture() {
   const [level, setLevel] = useState(0);
   const [muted, setMuted] = useState(false);
   const [thinking, setThinking] = useState(false);
+  const [coincident, setCoincident] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [action, setAction] = useState("");
-  const controller = fixtureController((value) => setAction((old) => `${old}\n${value}`));
+  const record = React.useCallback((value: string) => setAction((old) => `${old}\n${value}`), []);
+  const controller = useFixtureController(!blocked, letters, record);
   const toggles = [
     ["Loading", () => setLoading(!loading)],
     ["Scientific", () => setScientific(!scientific)],
@@ -105,6 +106,8 @@ function Fixture() {
     ["Update level", () => setLevel((old) => (old >= 1 ? 0 : old + 0.5))],
     ["Mute", () => setMuted(!muted)],
     ["Think", () => setThinking(!thinking)],
+    ["Coincident", () => setCoincident(!coincident)],
+    ["Block actions", () => setBlocked(!blocked)],
   ] as const;
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
@@ -118,18 +121,18 @@ function Fixture() {
         <PartScope screen="home" component="calc" rev={1} state="filled">
           <KitCalcPad
             keys={calc}
-            target={{ item: "r1", part: "keys" }}
+            target={{ part: coincident ? "root" : "keys" }}
             {...{ scientific, loading, disabled }}
           />
         </PartScope>
         <PartScope screen="home" component="letters" rev={1} state="filled">
           <KitLetterKeys
             layout={hive ? "hive" : "qwerty"}
-            keys={hive ? letters.slice(0, 8) : letters}
+            keys={keyFixture(hive, coincident)}
             {...{ loading, disabled }}
           />
         </PartScope>
-        <Radial {...{ loading, level, muted, thinking }} />
+        <Radial {...{ loading, level, muted, thinking, coincident }} />
       </KitProvider>
     </TamaguiProvider>
   );

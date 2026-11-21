@@ -1,6 +1,6 @@
-import { ScrollView, XStack, YStack } from "tamagui";
-import { component, size, space } from "../../../catalog";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { ScrollView, XStack, YStack, isWeb } from "tamagui";
+import { component, formatAddress, parseAddress, size, space } from "../../../catalog";
+import { PartContext, usePartContext } from "../../part";
 import { useKit } from "../../provider";
 import { KeyButton, type KeyFinish } from "./PadKey";
 import { useKeypadTarget } from "./use-keypad-target";
@@ -34,7 +34,7 @@ const hiveCenter = (hiveBox - size.control.md) / 2;
 const orbit = hiveCenter - space.sm;
 
 export function letterRows(keys: LetterProps["keys"]) {
-  const rows = [];
+  const rows: (readonly Letter[])[] = [];
   let offset = 0;
   while (offset < keys.length) {
     const count = rowLengths[rows.length] ?? rowLengths[0];
@@ -42,6 +42,12 @@ export function letterRows(keys: LetterProps["keys"]) {
     offset += count;
   }
   return rows;
+}
+
+function letterItem(letter: Letter, scope: ReturnType<typeof usePartContext>) {
+  const { id, target } = letter;
+  const inferred = parseAddress(`${scope.screen}/${scope.component}/${id}/${target.part}`);
+  return target.item ?? (inferred?.item === id ? id : scope.item);
 }
 
 export function hivePositions(keys: LetterProps["keys"]) {
@@ -70,28 +76,34 @@ function LetterButton({
 }) {
   const kit = useKit();
   const address = useKeypadTarget(letter.target.part, !loading, disabled);
-  const dispatch = () => {
-    if (kit.controller?.actionsAt(address.testID).includes("type"))
-      kit.controller.act({ address: address.testID, action: "type", value: letter.value });
-    else kit.controller?.press(address.testID);
-  };
+  const controller = kit.interactive ? kit.controller : undefined;
+  const inactive =
+    disabled ||
+    Boolean(
+      controller &&
+      !loading &&
+      !controller.actionsAt(address.testID, { ignoreDisabledPart: true }).includes("press"),
+    );
   const finish =
     center && (!letter.state || letter.state === "unused") ? "accent" : finishes[letter.state ?? "unused"];
   return (
     <KeyButton
       label={letter.label}
-      {...{ loading, disabled, finish }}
+      glyph={letter.value}
+      {...{ loading, finish }}
+      disabled={inactive}
       round={hive}
       address={loading ? undefined : address}
-      press={kit.interactive && kit.controller ? dispatch : undefined}
+      press={controller ? () => void controller.act({ address: address.testID, action: "press" }) : undefined}
     />
   );
 }
 
 function LetterSlot({ letter, ...props }: Parameters<typeof LetterButton>[0]) {
   const scope = usePartContext();
+  const item = letterItem(letter, scope);
   return (
-    <PartContext.Provider value={{ ...scope, item: letter.target.item ?? letter.id }}>
+    <PartContext.Provider value={item === undefined || item === scope.item ? scope : { ...scope, item }}>
       <LetterButton letter={letter} {...props} />
     </PartContext.Provider>
   );
@@ -149,11 +161,33 @@ export function KitLetterKeys({
   disabled = false,
 }: LetterProps) {
   const View = layout === "hive" ? Hive : Qwerty;
-  const { item } = usePartContext();
-  const separate = !keys.some((key) => (key.target.item ?? key.id) === item && key.target.part === part);
-  const address = usePart(part, separate);
+  const scope = usePartContext();
+  const { controller, interactive, lang } = useKit();
+  const coincident = keys.some((key) => letterItem(key, scope) === scope.item && key.target.part === part);
+  const stampRoot = loading || !coincident;
+  const address = useKeypadTarget(part, stampRoot, loading && coincident);
+  const onKeyDown = (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
+    const input = event.key?.toLocaleLowerCase(lang);
+    const hit = keys.find((key) => key.value.toLocaleLowerCase(lang) === input);
+    if (!hit) return;
+    const item = letterItem(hit, scope);
+    const target = formatAddress({
+      ...scope,
+      ...(item !== undefined ? { item } : {}),
+      part: hit.target.part,
+    });
+    if (!controller?.actionsAt(target).includes("press")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    controller.act({ address: target, action: "press" });
+  };
   return (
-    <YStack {...(separate ? address : {})} minWidth={component.base.none} aria-busy={loading || undefined}>
+    <YStack
+      {...(stampRoot ? address : {})}
+      minWidth={component.base.none}
+      aria-busy={loading || undefined}
+      {...(isWeb && interactive && controller && !loading && !disabled ? { onKeyDown } : {})}
+    >
       <View {...{ keys, loading, disabled }} />
     </YStack>
   );
