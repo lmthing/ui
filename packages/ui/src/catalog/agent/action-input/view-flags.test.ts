@@ -14,7 +14,7 @@ const second = "home/f1/r2";
 const details = { address: `${second}/details`, action: "press" };
 const toggle = { address: second, action: "toggle" };
 
-function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select") {
+function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select", confirm = false) {
   const key = source === "wire" ? "rows" : "viewRows";
   const meta = {
     id: "Fixture",
@@ -26,7 +26,15 @@ function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select"
     tier: "phone",
     realPath: "Local disclosure",
     items: { key, parts: ["root", "details"] },
-    actions: { items: { root: [action], details: ["press"] }, when: { details: { expanded: true } } },
+    actions: {
+      items: { root: [action], details: ["press"] },
+      when: { details: { expanded: true, hasExpanded: true } },
+    },
+    deviceDataFlags: {
+      hasExpanded: (_data, props) =>
+        (props[key] as { expanded?: boolean }[] | undefined)?.some(({ expanded }) => expanded) ?? false,
+    },
+    ...(confirm ? { confirmParts: ["details"] } : {}),
     select: { prop: "expanded", value: { field: "label" }, mode: "flags", runtime: true },
     read: (input) => {
       const items = (input as Record<string, { id: string; expanded: boolean }[]>)[key]!;
@@ -45,16 +53,18 @@ function fixture(source: "wire" | "parsed" | "live", action: "toggle" | "select"
   } satisfies Definition;
   const screen = { id: "home", components: [{ id: "f1", c: meta.id, rows }] };
   const onChange = vi.fn();
+  const onAction = vi.fn();
   const controller = createScreenController({
     screen,
     defs: { Fixture: def },
     onChange,
+    onAction,
     requireMounted: true,
   });
   controller.registerPart("home/f1/r1");
   controller.registerPart(second);
   const view = () => controller.liveControls(meta, parseControlProps(def, { rows }), "f1")[key];
-  return { controller, def, onChange, screen, view };
+  return { controller, def, onAction, onChange, screen, view };
 }
 
 it.each(["wire", "parsed", "live"] as const)("keeps %s flag rows out of wire snapshots", (source) => {
@@ -91,10 +101,27 @@ it("selects a derived row and clears the previous flag without persisting either
   const { controller, screen, view } = fixture("live", "select");
   expect(controller.act({ address: second, action: "select" }).ok).toBe(true);
   expect(controller.read()).toContain("opened r2");
+  expect(controller.read()).toContain('[f1/r2 select = "Second"]');
+  expect(controller.act({ address: second, action: "select", value: "Second" }).ok).toBe(true);
   expect(controller.act({ address: "home/f1/r1", action: "select", value: "First" }).ok).toBe(true);
   expect(view()).toMatchObject([{ expanded: true }, { expanded: false }]);
   expect(controller.read()).toContain("opened r1");
   expect(controller.read()).not.toContain("opened r2");
+  expect(controller.read()).toContain("[f1/r2 select]");
+  expect(controller.snapshotScreen()).toEqual(screen);
+  controller.dispose();
+});
+
+it("confirms an action that a presentation-only flag enables", () => {
+  const { controller, onAction, screen } = fixture("parsed", "toggle", true);
+  controller.registerPart(details.address);
+  expect(controller.act(toggle).ok).toBe(true);
+  onAction.mockClear();
+  expect(controller.act(details).ok).toBe(true);
+  expect(controller.read()).toContain("[confirm/confirm press]");
+  expect(onAction).not.toHaveBeenCalled();
+  expect(controller.act({ address: "confirm/confirm", action: "press" }).ok).toBe(true);
+  expect(onAction).toHaveBeenCalledExactlyOnceWith(details);
   expect(controller.snapshotScreen()).toEqual(screen);
   controller.dispose();
 });

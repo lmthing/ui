@@ -90,14 +90,8 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
 
-export function projectSelection(
-  meta: Meta,
-  props: Values,
-  get: GetValue,
-  target: "live" | "wire" = "live",
-): Values {
-  const selected =
-    target === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get);
+export function projectSelection(meta: Meta, props: Values, get: GetValue, mode?: "live" | "wire"): Values {
+  const selected = mode === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get);
   return projectNamedSelections(meta, selected, get, "wire");
 }
 

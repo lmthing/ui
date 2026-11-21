@@ -19,6 +19,7 @@ import {
   projectLiveClocks,
   projectMatrix,
 } from "./clocks";
+type Get = (part: string) => unknown;
 function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
@@ -113,22 +114,12 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
 /** Keep runtime-only selection flags out of the kit screen's wire projection. */
-export function projectControls(
-  meta: Meta,
-  props: Values,
-  get: (part: string) => unknown,
-  target: "live" | "wire" = "live",
-): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get, target), get);
+export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
+  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
   return projectComponentSets(meta, projected, get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
-export function projectParsedControls(
-  meta: Meta,
-  props: Values,
-  get: (part: string) => unknown,
-  runtime: boolean,
-): Values {
+export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
   const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
@@ -159,12 +150,11 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  const key = meta.items?.key;
-  const rows = key && props[key];
   props = projectLiveInputs(meta, props, instance, get, data, validated);
-  props = projectDeviceFlags(meta, projectRecordRuntime(meta, props, instance, values, data, now), data);
-  if (meta.select?.runtime && key && Array.isArray(props[key]) && props[key] !== rows)
-    props = projectLegacySelection(meta, props, get);
+  props = projectRecordRuntime(meta, props, instance, values, data, now);
+  // Reapply to rows that a live or host projection may have replaced.
+  if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
+  props = projectDeviceFlags(meta, props, data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
@@ -172,6 +162,7 @@ export function liveProps(
     if (value !== undefined && props.kind !== "repeat" && props.kind !== "photo")
       props = { ...props, value: String(value) };
   }
+  const key = meta.items?.key;
   if (!key || !Array.isArray(props[key])) return props;
   let items = props[key] as Values[];
   if (meta.items?.visible === "first") items = items.slice(Number(values[`${instance}/$cursor`] ?? 0));

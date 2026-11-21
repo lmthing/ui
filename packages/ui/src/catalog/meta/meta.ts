@@ -36,13 +36,7 @@ type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
 } & (
-  | {
-      value: RowSelection;
-      mode: "flags";
-      choices?: never;
-      /** Project the row flag only on live props, never into the wire snapshot. */
-      runtime?: true;
-    }
+  | { value: RowSelection; mode: "flags"; choices?: never; runtime?: true }
   | {
       value?: RowSelection;
       mode?: "one";
@@ -149,7 +143,7 @@ export type Meta = {
       >;
     };
   };
-  select?: SelectMeta;
+  select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */
