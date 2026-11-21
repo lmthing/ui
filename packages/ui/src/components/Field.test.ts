@@ -22,6 +22,7 @@ describe("Field schema", () => {
       value: "Fern",
       hint: "Required",
       mode: "input",
+      detail: "full",
     });
   });
   it.each([
@@ -33,6 +34,8 @@ describe("Field schema", () => {
     { label: "Name", value: "a".repeat(41) },
     { label: "Name", hint: "a".repeat(61) },
     { label: "Name", kind: "email" },
+    { label: "Name", density: "airy" },
+    { label: "Name", detail: "hidden" },
     { label: "Name", options: ["A", "B"] },
     { label: "Length", kind: "choice" },
     { label: "Length", kind: "choice", options: ["A"] },
@@ -66,6 +69,20 @@ describe("Field schema", () => {
       ).toBe(true);
     }
   });
+});
+
+it("hides the hint in both the view data and the read without hiding the control", () => {
+  const field = { label: "Plant name", hint: "Use a short name" };
+  const brief = { ...field, detail: "brief", density: "compact" };
+  expect(meta.variantParts["detail.brief"].hides).toEqual(["hint"]);
+  expect(props.parse(field)).toMatchObject({ detail: "full", hint: field.hint });
+  expect(props.parse(field).density).toBeUndefined();
+  expect(props.parse(brief)).toMatchObject({ density: "compact", hint: undefined });
+  expect(readComponent(components.Field, field, "f1").join("\n")).toContain(field.hint);
+  expect(readComponent(components.Field, brief, "f1").join("\n")).not.toContain(field.hint);
+  expect(affordancesOf(meta, props.parse(brief), "f1")).toEqual(
+    affordancesOf(meta, props.parse(field), "f1"),
+  );
 });
 
 describe("Field schema", () => {
