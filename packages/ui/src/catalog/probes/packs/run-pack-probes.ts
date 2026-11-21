@@ -4,6 +4,15 @@ import { packSelectionProbes } from "./pack-selection-probes";
 import { scorePack } from "./score-pack";
 import type { CallModel, ProbeResult } from "..";
 
+const selectionInstructions = [
+  "Choose the domain packs this app needs from the index below.",
+  "Match the app's purpose to the pack's purpose and pick line.",
+  "Include a matching domain even when core components cover some screens.",
+  "Choose [] only for a core-only app with no matching domain.",
+  "Use the best matching pack for each independently requested job.",
+  "Do not add another pack for details the chosen pack already covers.",
+].join(" ");
+
 /** Director probes use the complete index, even when only one pack's probes are selected. */
 export async function runPackProbes(options: {
   packs: Partial<Record<PackId, PackMeta>>;
@@ -16,7 +25,7 @@ export async function runPackProbes(options: {
   const index = probePackIndex(packs);
   for (const id of index.ids.filter((id) => (only?.length ? only.includes(id) : packs[id]))) {
     for (const probe of packSelectionProbes(id, packs[id])) {
-      const prompt = `Choose the domain packs this app needs from the index below. For each independently requested workflow choose only its most specific matching pack. Do not add overlapping packs or infer workflows from incidental details. Include a matching domain even for a private, single-screen app or when core components cover some screens. Choose [] only if no domain matches.\n\n${index.prompt}\n\nIdea: ${probe.idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
+      const prompt = `${selectionInstructions}\n\n${index.prompt}\n\nIdea: ${probe.idea}\nReply with a JSON array of up to 3 pack ids, or [] when none fit.`;
       const runs = [];
       for (let sample = 0; sample < samples; sample++) {
         const reply = await callModel(prompt, sample);
