@@ -3,12 +3,15 @@ import { isWeb } from "tamagui";
 import {
   activeParentId,
   emptyDeviceData,
+  hasNestedCollectionControls,
   linkedEditKey,
   liveProps,
   nestedControls,
+  nestedCapacityBlocked,
   nestedRemaining,
   projectControls,
   projectLiveInputs,
+  visibleItems,
   type DeviceData,
   type Meta,
   type Values,
@@ -57,7 +60,7 @@ export function useLiveControls(meta: Meta, props: Values): Values {
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime
+    (meta.select?.runtime || meta.collections
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );
@@ -76,21 +79,25 @@ export function useNestedControls(meta: Meta, props: Values) {
   const { controller } = useKit();
   const { screen, component } = usePartContext();
   const get = (part: string) => controller?.store.get(`${screen}/${component}/${part}`);
-  const live = projectControls(meta, props, get);
+  const grouped = hasNestedCollectionControls(meta);
+  const live =
+    grouped && controller
+      ? controller.liveControls(meta, props, component)
+      : projectControls(meta, props, get);
+  const visible =
+    grouped && meta.items?.visibleWhen ? new Set(visibleItems(meta, live).map((row) => row.id)) : undefined;
   const controls = nestedControls(meta, live, get);
   const remaining = nestedRemaining(meta, live, controls);
   return {
     parent: activeParentId(meta, live, get),
     remaining,
     controls: controls
-      .filter(({ enabled }) => enabled)
+      .filter(({ enabled, target }) => enabled && (!visible || visible.has(target.split("/")[0])))
       .map((control) => ({
         ...control,
         disabled:
           (control.step !== undefined && control.step.next === undefined) ||
-          (remaining !== undefined &&
-            remaining < (control.togglePeers?.length ?? 0) &&
-            control.item[control.spec.prop] !== true),
+          nestedCapacityBlocked(control, remaining),
       })),
   };
 }

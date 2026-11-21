@@ -26,6 +26,7 @@ export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export { itemMoveOffer } from "./action-input";
+export { slotMoveOffer } from "./collections";
 export {
   isRecordJournal,
   isRecordPress,
@@ -74,7 +75,7 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
-export { itemCounterReset } from "./nested";
+export { hasNestedCollectionControls, itemCounterReset, nestedCapacityBlocked } from "./nested";
 export {
   projectSelectionBinding,
   selectionBindingFor,
@@ -84,6 +85,7 @@ export {
 export {
   activeParentId,
   isNestedTarget,
+  nestedPart,
   nestedControls,
   nestedAt,
   nestedRemaining,

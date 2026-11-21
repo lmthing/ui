@@ -25,6 +25,13 @@ export function localValues(screen: string, values: Values): Values {
   );
 }
 
+export type SelectedStep = {
+  step: ActStep;
+  error?: string | undefined;
+  changes?: Values | undefined;
+  declared?: boolean;
+};
+
 export function selectStep(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -33,7 +40,7 @@ export function selectStep(
   values: Values,
   data?: DeviceData,
   now?: number,
-) {
+): SelectedStep {
   if (step.action !== "select") return { step };
   const [id, ...parts] = address.split("/");
   const entry = screen.components.find((item) => item.id === id);

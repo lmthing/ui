@@ -1,2 +1,9 @@
 export { itemCounterReset } from "./counter-reset";
-export { hasWireNestedControls, isNestedStep, nestedStepAt, nestedStepKey } from "./nested-step";
+export {
+  hasNestedCollectionControls,
+  hasWireNestedControls,
+  isNestedStep,
+  nestedStepAt,
+  nestedStepKey,
+} from "./nested-step";
+export { nestedAt, nestedCapacityBlocked, nestedChoices, nestedControls, nestedRemaining } from "./controls";

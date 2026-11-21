@@ -18,6 +18,7 @@ import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
 import { hostOnlyAddresses, isPrivateMark } from "./host-actions";
+import { hasNestedCollectionControls } from "../nested";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -45,6 +46,7 @@ function usesLiveState(meta: Meta) {
     readSuccess ||
     items?.nested?.activeParent ||
     items?.nested?.maxActive !== undefined ||
+    hasNestedCollectionControls(meta) ||
     live ||
     meta.drives ||
     meta.recordRuntime ||
@@ -57,6 +59,7 @@ function usesLiveState(meta: Meta) {
     items?.move ||
     items?.records ||
     items?.pickers ||
+    meta.collections ||
     meta.clear ||
     meta.signOff ||
     hasPlaybackClock(meta) ||

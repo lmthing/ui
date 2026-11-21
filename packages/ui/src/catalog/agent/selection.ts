@@ -2,13 +2,14 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { choiceOptions, resolveChoice, selectionOffer } from "./validate-value";
 import { projectNamedSelections } from "./live-inputs";
-import { isNestedStep, nestedStepAt, nestedStepKey } from "./nested";
+import { isNestedStep, nestedChoices, nestedStepKey } from "./nested";
+export { nestedAt, nestedControls, nestedRemaining } from "./nested";
 
 type GetValue = (part: string) => unknown;
 const parentSlot = "$nested/parent";
-const rowsOf = (meta: Meta, props: Values): Values[] =>
+export const rowsOf = (meta: Meta, props: Values): Values[] =>
   meta.items?.key && Array.isArray(props[meta.items.key]) ? (props[meta.items.key] as Values[]) : [];
-const idOf = (meta: Meta, row: Values, index: number) =>
+export const idOf = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
 const rowValue = (value: NonNullable<NonNullable<Meta["select"]>["value"]>, row: Values, index: number) =>
   value === "index" ? index : value === "position" ? index + 1 : row[value.field];
@@ -118,49 +119,14 @@ export function activeParentId(meta: Meta, props: Values, get?: GetValue): strin
   return row && idOf(meta, row, index);
 }
 
-export function isNestedTarget(meta: Meta, target: string): boolean {
+export function nestedPart(meta: Meta, target: string) {
   const [row, part, extra] = target.split("/");
   const name = part?.match(/^(.+)_[1-9]\d*$/)?.[1];
-  return Boolean(row && name && extra === undefined && Object.hasOwn(meta.items?.nested?.parts ?? {}, name));
+  if (row && name && extra === undefined && Object.hasOwn(meta.items?.nested?.parts ?? {}, name))
+    return meta.items!.nested!.parts[name];
 }
 
-/** Enumerate controls from real sub-items, never from a fixed maximum count. */
-export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
-  const nested = meta.items?.nested;
-  if (!nested) return [];
-  const activeParent = activeParentId(meta, props, get);
-  const parts = Object.entries(nested.parts);
-  return rowsOf(meta, props).flatMap((row, index) => {
-    const id = idOf(meta, row, index);
-    const children = row[nested.key];
-    if (!Array.isArray(children)) return [];
-    return (children as Values[]).flatMap((item, at) =>
-      parts.map(([name, spec]) => {
-        const part = `${name}_${at + 1}`;
-        const when = spec.when;
-        const matches =
-          typeof when === "object"
-            ? item[when.prop] === when.equals
-            : !when || item[nested.parts[when]?.prop ?? ""] === true;
-        const peers =
-          nested.maxActive !== undefined && spec.action === "toggle"
-            ? parts.filter(([, peer]) => peer.action === "toggle" && peer.prop === spec.prop)
-            : undefined;
-        const togglePeers = peers?.map(([peer]) => `${id}/${peer}_${at + 1}`);
-        const enabled = (!nested.activeParent || id === activeParent) && matches;
-        const step = nestedStepAt(spec, item, id, at);
-        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled, ...(step ? { step } : {}) };
-      }),
-    );
-  });
-}
-
-export function nestedRemaining(meta: Meta, props: Values, controls = nestedControls(meta, props)) {
-  const limit = meta.items?.nested?.maxActive;
-  if (limit === undefined) return undefined;
-  const on = controls.filter(({ spec, item }) => spec.action === "toggle" && item[spec.prop] === true);
-  return Math.max(0, limit - on.length);
-}
+export const isNestedTarget = (meta: Meta, target: string) => nestedPart(meta, target) !== undefined;
 
 /** Keep inactive children out of read callbacks, but never discard them from live state. */
 export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Values {
@@ -174,10 +140,6 @@ export function visibleNestedProps(meta: Meta, props: Values, get: GetValue): Va
   return { ...props, [items.key]: rows };
 }
 
-export function nestedAt(meta: Meta, props: Values, target: string) {
-  return nestedControls(meta, props).find((control) => control.target === target);
-}
-
 /** Keep wire data immutable while replacing only declared sub-item props. */
 export function projectNested(meta: Meta, props: Values, get: GetValue): Values {
   const items = meta.items;
@@ -189,7 +151,10 @@ export function projectNested(meta: Meta, props: Values, get: GetValue): Values 
     const id = idOf(meta, row, index);
     const projected = (children as Values[]).map((item, at) => {
       for (const [part, spec] of Object.entries(nested.parts)) {
+        if (spec.action === "press") continue;
         const value = get(isNestedStep(spec) ? nestedStepKey(id, at, spec.prop) : `${id}/${part}_${at + 1}`);
+        const choices = nestedChoices(spec, row, item);
+        if (choices && !choices.some((choice) => choice.value === value)) continue;
         if (value !== undefined && value !== item[spec.prop]) item = { ...item, [spec.prop]: value };
       }
       return item;

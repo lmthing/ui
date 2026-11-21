@@ -70,7 +70,11 @@ function checkComponents(input: Input): string[] {
   return Object.values(input.components).flatMap(({ meta }) => {
     if (!input.packOf[meta.id]) return [];
     const issues: string[] = [];
-    const parts = new Set([...(meta.parts ?? ["root"]), ...(meta.items?.parts ?? [])]);
+    const parts = new Set([
+      ...(meta.parts ?? ["root"]),
+      ...(meta.items?.parts ?? []),
+      ...Object.values(meta.collections ?? {}).flatMap(({ parts }) => parts),
+    ]);
     if ([...(meta.confirmParts ?? []), ...Object.keys(meta.partTiers ?? {})].some((part) => !parts.has(part)))
       issues.push(`${meta.id}: parts`);
     if (denseIds.includes(meta.id) && !meta.dense) issues.push(`${meta.id}: dense`);

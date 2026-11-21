@@ -135,7 +135,25 @@ export function selectionOffer(meta: Meta, target: string) {
     return { prop: meta.select!.prop, choices: choices[target]!, runtime: false as const, clear: undefined };
 }
 
-type ChoiceOption = { value: string | number; label?: string };
+export type ChoiceOption = { value: string | number; label?: string };
+
+export function normalizeChoices(allowed: unknown): ChoiceOption[] {
+  if (!Array.isArray(allowed)) return [];
+  return (allowed as unknown[]).flatMap((option): ChoiceOption[] => {
+    if (isChoiceValue(option)) return [{ value: option }];
+    if (
+      option &&
+      typeof option === "object" &&
+      "value" in option &&
+      isChoiceValue(option.value) &&
+      "label" in option &&
+      typeof option.label === "string" &&
+      option.label.length > 0
+    )
+      return [{ value: option.value, label: option.label }];
+    return [];
+  });
+}
 
 /** Undefined means no explicit offer declaration; an empty list means there are no offered choices. */
 export function choiceOptions(meta: Meta, props: Values, target: string): ChoiceOption[] | undefined {
@@ -147,22 +165,7 @@ export function choiceOptions(meta: Meta, props: Values, target: string): Choice
   if ("row" in source && !meta.items?.deviceData) return [];
   const allowed =
     "row" in source ? item?.row[source.row] : "prop" in source ? (picker?.row ?? props)[source.prop] : source;
-  const choices: ChoiceOption[] = [];
-  if (Array.isArray(allowed)) {
-    for (const option of allowed as unknown[]) {
-      if (isChoiceValue(option)) choices.push({ value: option });
-      else if (
-        option &&
-        typeof option === "object" &&
-        "value" in option &&
-        isChoiceValue(option.value) &&
-        "label" in option &&
-        typeof option.label === "string" &&
-        option.label.length > 0
-      )
-        choices.push({ value: option.value, label: option.label });
-    }
-  }
+  const choices = normalizeChoices(allowed);
   if (
     "clear" in offer &&
     typeof offer.clear === "string" &&

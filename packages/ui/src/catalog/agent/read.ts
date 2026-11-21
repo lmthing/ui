@@ -30,12 +30,12 @@ import {
 } from "./device-data";
 import { withRecordScreen } from "./record-runtime";
 import { redactPrivateMarks } from "./action-input";
+import { hasNestedCollectionControls } from "./nested";
 
 type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
 const variantKeys = ["style", "kind", "tone"];
-
 function variantsOf(schema: Json, props: Props): string {
   return variantKeys
     .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)
@@ -69,6 +69,8 @@ function readingProps(
     meta.items?.toggles ||
     hasRuntimeSets(meta) ||
     meta.items?.records ||
+    meta.collections ||
+    hasNestedCollectionControls(meta) ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,

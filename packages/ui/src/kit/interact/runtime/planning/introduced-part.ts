@@ -1,6 +1,7 @@
 import {
   drawRole,
   isNestedTarget,
+  hasNestedCollectionControls,
   planAct,
   privateMarkKey,
   reportConfirmation,
@@ -132,6 +133,8 @@ export function introducedPart(
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
     (meta.live?.derive ||
+      meta.collections ||
+      (hasNestedCollectionControls(meta) && isNestedTarget(meta, target)) ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
       meta.linkedEdits ||

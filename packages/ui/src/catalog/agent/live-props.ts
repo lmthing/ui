@@ -10,7 +10,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectDerivedMoves, projectMoves } from "./action-input";
+import { projectCollections, projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
 import {
@@ -150,9 +150,9 @@ export function liveProps(
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };
   }
-  props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get, data, validated);
+  props = projectLiveInputs(meta, projectDraw(meta, props, get), instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
+  props = projectCollections(meta, props, get);
   // Reapply to rows that a live or host projection may have replaced.
   if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
   props = projectDeviceFlags(meta, props, data);

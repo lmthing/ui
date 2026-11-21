@@ -5,9 +5,25 @@ type Part = NonNullable<NonNullable<Meta["items"]>["nested"]>["parts"][string];
 type Step = Extract<Part, { action: "increment" | "decrement" }>;
 export const isNestedStep = (spec: Part): spec is Step =>
   spec.action === "increment" || spec.action === "decrement";
+
+export function hasNestedCollectionControls(meta: Meta) {
+  const nested = meta.items?.nested;
+  return Boolean(
+    nested &&
+    (nested.groups ||
+      Object.values(nested.parts).some(({ action }) => action === "select" || action === "press")),
+  );
+}
+
 export function hasWireNestedControls(meta: Meta) {
   const nested = meta.items?.nested;
-  return nested && (meta.select || meta.set || Object.values(nested.parts).some(isNestedStep));
+  return (
+    nested &&
+    (meta.select ||
+      meta.set ||
+      nested.groups ||
+      Object.values(nested.parts).some((part) => isNestedStep(part) || part.action === "select"))
+  );
 }
 export const nestedStepKey = (id: string, index: number, prop: string) => `${id}/$nested/${index}/${prop}`;
 

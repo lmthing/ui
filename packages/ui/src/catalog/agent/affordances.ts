@@ -1,7 +1,7 @@
 import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
-import { choiceValues } from "./validate-value";
+import { choiceValues, type ChoiceOption } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
@@ -10,6 +10,7 @@ import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
+import { collectionOffers } from "./collections";
 import type { DeviceData } from "./device-data";
 
 export type Affordance = {
@@ -24,6 +25,11 @@ export type Affordance = {
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
   move?: { current: string | null; choices: string[] };
+  slotMove?: { key: string; orders: ReadonlyMap<string, string[]> };
+  rowSelection?: { key: string; id: string; value: string | number };
+  flagKey?: string;
+  nestedChoice?: { options: ChoiceOption[]; current: unknown };
+  replaceToggles?: readonly string[];
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -106,7 +112,7 @@ export function affordancesOf(
   const now = Number(get("$now") ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  return [...own, ...visibleNested, ...collectionOffers(meta, props, instance)].filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);

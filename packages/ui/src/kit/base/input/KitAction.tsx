@@ -72,6 +72,7 @@ type ActionProps = {
     | "start"
     | "stop"
     | "send"
+    | "move"
     | "scan";
   value?: string | number | boolean;
   disabled?: boolean;
@@ -123,7 +124,6 @@ function ActionContent({
     </XStack>
   );
 }
-
 function useActionPress(props: ActionProps, address: string, inactive: boolean) {
   const kit = useKit();
   if (!kit.interactive || inactive) return {};
