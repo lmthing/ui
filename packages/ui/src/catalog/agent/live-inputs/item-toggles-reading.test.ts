@@ -46,7 +46,8 @@ const meta = {
       };
     },
   },
-  read: (input) => (input.rows as Row[]).filter(({ overlap }) => overlap).map(({ id }) => `overlap ${id}`),
+  read: (input) =>
+    (input as { rows: Row[] }).rows.filter(({ overlap }) => overlap).map(({ id }) => `overlap ${id}`),
 } satisfies Meta;
 const defs = {
   Fixture: { meta, props, fallback: () => ({ rows }), examples: [], probes: [] },
