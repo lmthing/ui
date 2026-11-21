@@ -102,21 +102,10 @@ describe("Product fallback and metadata", () => {
 describe("Product states and parts", () => {
   it("shows product details, the save heart and two directions at one qty address", () => {
     const html = renderInstance("Product", sale, "filled", theme);
+    const original = "root name price was description stock badge qty add add_label save save_icon";
     expect([...addressedElements(html).keys()].sort()).toEqual(
-      [
-        "root",
-        "name",
-        "price",
-        "was",
-        "description",
-        "stock",
-        "badge",
-        "qty",
-        "add",
-        "add_label",
-        "save",
-        "save_icon",
-      ]
+      original
+        .split(" ")
         .map((part) => `home/c1/${part}`)
         .sort(),
     );

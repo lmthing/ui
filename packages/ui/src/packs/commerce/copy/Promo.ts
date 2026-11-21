@@ -1,4 +1,10 @@
-import { appointmentDate, documentFieldLine, leftLine, timeOfDayLine } from "../../../catalog";
+import {
+  appointmentDate,
+  documentFieldLine,
+  leftLine,
+  timeOfDayLine,
+  type ClockMeta,
+} from "../../../catalog";
 import { commerceWordsFor } from "../lang";
 
 export function promoExpiry(ends: string | undefined, lang?: string, endsAt?: string): string | undefined {
@@ -8,14 +14,16 @@ export function promoExpiry(ends: string | undefined, lang?: string, endsAt?: st
   return stamp && documentFieldLine(commerceWordsFor(lang).promoEnds, stamp, lang);
 }
 
-export const offerClock = {
-  id: "offer",
-  kind: "until",
-  from: "ends",
-  at: "endsAt",
-  prop: "remainingMs",
-  when: { has_deadline: true },
-} as const;
+export function offerClock(): ClockMeta {
+  return {
+    id: "offer",
+    kind: "until",
+    from: "ends",
+    at: "endsAt",
+    prop: "remainingMs",
+    when: { has_deadline: true },
+  };
+}
 
 export function offerRemaining(
   {

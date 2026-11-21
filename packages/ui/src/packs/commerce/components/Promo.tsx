@@ -28,7 +28,7 @@ export const meta = {
   variantParts: { "media.none": { hides: ["photo"] } },
   parts: ["root", "offer", "title", "code", "code_label", "code_icon", "ends", "photo", "countdown"],
   states: ["filled"],
-  clocks: [offerClock],
+  clocks: [offerClock()],
   actions: {
     parts: { root: ["press"], code: ["press"] },
     when: { code: { has_code: true } },

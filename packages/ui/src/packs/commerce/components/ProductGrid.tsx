@@ -27,7 +27,7 @@ export const meta = {
   // prettier-ignore
   items: { key: "items", parts: ["tile", "root", "name", "price", "was", "photo", "badge", "sub", "add", "add_icon", "claimed", "claim_label", "claim_value", "claim_track"] },
   states: ["filled", "empty", "loading"],
-  clocks: [offerClock],
+  clocks: [offerClock()],
   actions: { items: { root: ["press"], add: ["press"] }, noGoto: { items: ["add"] } },
   read: (input, state, lang): string[] =>
     state === "filled" ? dealsReading(input as z.output<typeof props>, lang) : [],

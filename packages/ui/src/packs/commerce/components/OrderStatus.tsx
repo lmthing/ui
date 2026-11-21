@@ -116,7 +116,7 @@ export const probes = [
     expectProps: { style: "pickup", bay: "Locker 12", pickupCode: "FERN42", seller: false },
   },
   read("As the seller, advance the order to its next stage", { address: "o1/next", action: "press" }),
-  read("Copy the Parcel Post tracking number", { address: "o1/tracking", action: "press" }, 1),
+  read('Press the "Copy tracking number PP450981" button for Parcel Post.', { address: "o1/tracking", action: "press" }, 1),
   read("Tell the shop I am here for pickup", { address: "o1/here", action: "press" }, 2),
 ] satisfies c.Probe[];
 
