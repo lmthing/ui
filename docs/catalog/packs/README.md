@@ -125,6 +125,9 @@ mood and sleep apart from workouts and medicine.
 
 ## Rules every pack follows
 
+- Use `copy` on a declared part with the exact nonempty text as its value. The kit defers clipboard
+  writes to the host and only shows success after a successful write.
+
 - **Ids are unique** across the core and all packs, and a pack id is never reused as a component id
   (`trips` has `Reservation`, not `Booking`).
 - **A pack never depends on another pack.** What three or more packs need moves to the core (`Amount`,

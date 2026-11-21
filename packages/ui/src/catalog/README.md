@@ -12,6 +12,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 Rules:
 
 - Pure and synchronous. No React, no Tamagui, no `node:*` (that is for `scripts/` only), no I/O.
+- `copy` accepts nonempty text at a declared part; the catalog validates it but the kit host writes the clipboard.
 - Nothing runs at import time. All checks live in `scripts/check.ts`.
 - Importing the built catalog stays under 50 ms in Node.
 - Every folder has an `index.ts`. Only `catalog/index.ts` is public.

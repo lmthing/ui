@@ -83,7 +83,7 @@ function actionsAt(
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local)
+      .filter((item) => item.address === local && (item.action !== "copy" || ctx.clipboard.available()))
       .map((item) => item.action);
   } catch {
     return [];

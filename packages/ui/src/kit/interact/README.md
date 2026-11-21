@@ -14,3 +14,5 @@ Human touches and agent actions share `createScreenController` (plan 5.9).
 
 Batches validate in order before committing; failed batches and dry runs run no effects.
 Hosts own navigation, photo requests and media I/O. Preview and unmounted controls refuse actions.
+Clipboard writes run after commit via `writeClipboard` or the browser Clipboard API. A copy target
+shows success only after the write resolves; rejected batches and dry runs never touch the clipboard.

@@ -25,6 +25,7 @@ export type ActionContext = {
   now: () => number;
   key: ControllerContext["key"];
   options: ControllerContext["options"];
+  clipboard?: ControllerContext["clipboard"];
   playMedia(id: string, playing: boolean): void;
   seekMedia(id: string, target: number): void;
   requestPhoto(id: string, target: string): void;

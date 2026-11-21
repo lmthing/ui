@@ -71,6 +71,7 @@ const isChoiceValue = (value: unknown): value is string | number =>
 const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> = {
   flip: [none, "flip takes no value"],
   scan: [none, "scan takes no value"],
+  copy: [(v) => typeof v === "string" && v.length > 0, "copy takes nonempty text"],
   move: [(v) => typeof v === "string", "move takes a label"],
   press: [none, "press takes no value"],
   start: [none, "start takes no value"],
@@ -98,7 +99,7 @@ export function validateActionValue(
   value: unknown,
   limits?: NumericLimits | StringLimits,
 ): ValueError | null {
-  const rule = rules[action];
+  const rule = Object.hasOwn(rules, action) ? rules[action] : undefined;
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };
   if (limits?.type === "date") {

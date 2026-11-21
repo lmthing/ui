@@ -62,11 +62,11 @@ export function useLiveControls(meta: Meta, props: Values): Values {
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );
 }
-export function useControlValue<T>(address: string, fallback: T): T {
-  const { controller } = useKit();
+export function useControlValue<T>(address: string | undefined, fallback: T): T {
+  const controller = useKit().controller;
   return useSyncExternalStore(
-    controller?.store.subscribe ?? subscribeNone,
-    () => (controller?.store.get(address) as T) ?? fallback,
+    (address && controller?.store.subscribe) || subscribeNone,
+    () => (address ? (controller?.store.get(address) as T) : undefined) ?? fallback,
     () => fallback,
   );
 }

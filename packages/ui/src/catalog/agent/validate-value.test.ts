@@ -18,6 +18,14 @@ it.each([
   ["move", "Done", true],
   ["move", 1, false],
   ["move", undefined, false],
+  ["copy", "  two\nlines  ", true],
+  ["copy", " ", true],
+  ["copy", "", false],
+  ["copy", 123, false],
+  ["copy", false, false],
+  ["copy", undefined, false],
+  ["copy", null, false],
+  ["copy", { text: "nested" }, false],
   ["unknown", undefined, false],
 ])("validates %s value %j", (action, value, valid) => {
   expect(validateActionValue(action as string, value) === null).toBe(valid);

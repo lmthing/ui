@@ -11,6 +11,7 @@ import {
 } from "../../catalog";
 import { createStandaloneAccess, readControls } from "./runtime";
 import { deliverSend, type SendHandler } from "./actions";
+import type { ClipboardWriter } from "./clipboard";
 import type { InteractionStore } from "./store";
 
 export type ActOptions = { dryRun?: boolean; agent?: boolean };
@@ -29,28 +30,46 @@ type AgentOptions = {
   current: () => ScreenLike;
   onLink?: (goto: string, address: string) => void;
   onSend?: SendHandler;
+  writeClipboard?: ClipboardWriter;
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
-/** Opted-in confirmations work without a mounted phone, keeping the agent's data-only dispatch. */
-function standaloneAccess(options: AgentOptions, screen: ScreenLike, currency: AppCurrency | undefined) {
-  if (
-    screen.components.some(({ c }) => {
-      const meta = options.defs[c]?.meta;
-      return (
-        meta &&
-        (meta.recordRuntime ||
-          hasReportConfirmation(meta) ||
-          (meta.confirmParts?.length &&
-            (meta.session ||
-              meta.successActions?.length ||
-              meta.errorActions?.length ||
-              meta.live?.derive ||
-              meta.linkedEdits)))
-      );
-    })
-  )
+function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
+  return screen.components.some(({ c }) => {
+    const meta = options.defs[c]?.meta;
+    if (!meta) return false;
+    const copyConfirmation = meta.confirmParts?.some((part) =>
+      [meta.actions?.parts?.[part], meta.actions?.items?.[part]].some((actions) => actions?.includes("copy")),
+    );
+    return (
+      copyConfirmation ||
+      meta.recordRuntime ||
+      hasReportConfirmation(meta) ||
+      (meta.confirmParts?.length &&
+        (meta.session ||
+          meta.successActions?.length ||
+          meta.errorActions?.length ||
+          meta.live?.derive ||
+          meta.linkedEdits))
+    );
+  });
+}
+
+/** Opted-in confirmations and copy work without a mounted phone. */
+function standaloneAccess(
+  options: AgentOptions,
+  screen: ScreenLike,
+  currency: AppCurrency | undefined,
+  copy = false,
+) {
+  if (copy || requiresStandalone(options, screen))
     return createStandaloneAccess({ ...options, screen }, currency);
+}
+
+function logStep(step: ActStep): ActLogEntry {
+  return step.action === "copy"
+    ? { address: step.address, action: step.action, at: Date.now() }
+    : { ...step, at: Date.now() };
 }
 
 /** Every step is checked before commit. Dry runs and rejected batches leave the store untouched. */
@@ -58,6 +77,13 @@ export function createAgentAccess(options: AgentOptions) {
   const { defs, store, current, onLink } = options;
   const currency = parseAppCurrency(options.currency);
   const log: ActLogEntry[] = [];
+  const detached = (screen: ScreenLike, steps: ActStep[]) =>
+    standaloneAccess(
+      options,
+      screen,
+      currency,
+      steps.some(({ action }) => action === "copy"),
+    );
   return {
     read: () => {
       if (options.runtime) return options.runtime.read();
@@ -76,15 +102,14 @@ export function createAgentAccess(options: AgentOptions) {
       );
     },
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
+      const list = Array.isArray(steps) ? steps : [steps];
       const screen = options.runtime ? undefined : current();
-      const runtime = options.runtime ?? (screen && standaloneAccess(options, screen, currency));
+      const runtime = options.runtime ?? (screen && detached(screen, list));
       if (runtime) {
         const reply = runtime.act(steps, { ...opts, agent: true });
-        if (reply.ok && !opts.dryRun)
-          for (const step of Array.isArray(steps) ? steps : [steps]) log.push({ ...step, at: Date.now() });
+        if (reply.ok && !opts.dryRun) for (const step of list) log.push(logStep(step));
         return reply;
       }
-      const list = Array.isArray(steps) ? steps : [steps];
       const plan = planAct(
         screen!,
         defs,
@@ -100,7 +125,7 @@ export function createAgentAccess(options: AgentOptions) {
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);
       for (const send of plan.sends ?? []) deliverSend(send, options.onSend);
-      for (const step of list) log.push({ ...step, at: Date.now() });
+      for (const step of list) log.push(logStep(step));
       return { ...reply, dryRun: false };
     },
     log: () => [...log],

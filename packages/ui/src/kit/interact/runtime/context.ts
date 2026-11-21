@@ -18,8 +18,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import { createInteractionStore, projectScreen, valueKey } from "../index";
-import type { InteractionStore, MediaAdapter } from "../index";
+import { clipboardRuntime, createInteractionStore, projectScreen, valueKey } from "../index";
+import type { ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
@@ -42,6 +42,7 @@ export type ControllerOptions = {
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
+  writeClipboard?: ClipboardWriter | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
@@ -148,6 +149,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     defs,
     now,
     store,
+    clipboard: clipboardRuntime(store, () => status.disposed, options.writeClipboard),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),
