@@ -17,6 +17,7 @@ import { projectParsedControls } from "../live-props";
 import { nestedRemaining, visibleNestedProps } from "../selection";
 import { projectVisibleItems } from "../visibility";
 import { componentTexts, type ReadSchema } from "./index";
+import { redactSecretProps, roundHide, sessionForRead } from "./secret-props";
 
 type Props = Values;
 
@@ -69,17 +70,6 @@ function readProgress(session: SessionState | undefined, lang?: string): string[
   return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
-const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;
-
-/** Visible feedback and private reveals can still omit fields from the agent's read. */
-function sessionForRead(meta: Meta, session: SessionState | undefined) {
-  const mode = meta.session?.kind === "rounds" ? meta.session : undefined;
-  const hidden = roundHide(meta) ? mode?.hidden : mode?.assessment?.readHidden;
-  if (!hidden?.length || session?.kind !== "rounds") return session;
-  const item = Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)));
-  return { ...session, item };
-}
-
 type Content = {
   props: Props;
   validated: Props;
@@ -104,14 +94,14 @@ export function readContent(
   },
 ) {
   const get = (part: string) => values[`${instance}/${part}`];
-  const readable = sessionForRead(meta, session);
+  const readable = sessionForRead(meta, schema, session);
   const round = readable?.kind === "rounds" ? readable : undefined;
   const roundKey = round && meta.session?.items;
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
     ...(meta.read?.(
-      readingProps(meta, validated, instance, values, props, readable),
+      redactSecretProps(schema, readingProps(meta, validated, instance, values, props, readable)),
       state,
       lang,
       selectDeviceData(meta, deviceData),

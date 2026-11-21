@@ -76,7 +76,7 @@ export function driveAffordances(
   if (meta.drives === undefined) return offered;
   const rows = new Map(addressedItems(meta, props).map((row) => [`${id}/${String(row.id)}`, row]));
   return offered.flatMap((a) => {
-    if (a.hostIntent) return [a];
+    if (a.hostIntent || a.hostReveal) return [a];
     const row = a.action === "press" && a.part === "root" && rows.get(a.address);
     if (!row) return [a];
     const value = row.at;

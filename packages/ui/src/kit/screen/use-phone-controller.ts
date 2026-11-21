@@ -7,7 +7,7 @@ import {
 } from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
 
-type HostSnapshot = Pick<PhoneScreenProps, "deviceData" | "hostCommands">;
+type HostSnapshot = Pick<PhoneScreenProps, "deviceData" | "hostCommands" | "authenticateReveal">;
 function useCommittedHost(
   source: { controller: ScreenController; committed: { snapshot: HostSnapshot } },
   snapshot: HostSnapshot,
@@ -26,13 +26,16 @@ function useCommittedHost(
 
 export function usePhoneController(props: PhoneScreenProps) {
   const { screen, defs, interaction, interactive = true, media } = props;
-  const { requestPhoto, deviceData, hostCommands, parentGate } = props;
+  const { requestPhoto, deviceData, hostCommands, parentGate, authenticateReveal } = props;
   const callbacks = useRef(props);
   callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
   const hasMediaResolver = Boolean(props.resolveMedia);
-  const snapshot = useMemo(() => ({ deviceData, hostCommands }), [deviceData, hostCommands]);
+  const snapshot = useMemo(
+    () => ({ deviceData, hostCommands, authenticateReveal }),
+    [deviceData, hostCommands, authenticateReveal],
+  );
   const source = useMemo(() => {
     const committed = { snapshot };
     const controller = createScreenController({
@@ -46,6 +49,9 @@ export function usePhoneController(props: PhoneScreenProps) {
       },
       get hostCommands() {
         return committed.snapshot.hostCommands;
+      },
+      get authenticateReveal() {
+        return committed.snapshot.authenticateReveal;
       },
       store,
       parentGate,

@@ -27,6 +27,7 @@ export type Affordance = {
   move?: { current: string | null; choices: string[] };
   hostIntent?: HostIntent;
   localEvent?: Omit<LocalStateEvent, "value">;
+  hostReveal?: true;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {

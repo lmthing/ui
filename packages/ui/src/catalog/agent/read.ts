@@ -14,6 +14,7 @@ import {
   readContent,
   readItems,
   readOffers,
+  redactSecretProps,
   type ReadSchema as Json,
 } from "./reading";
 import {
@@ -68,7 +69,7 @@ export function readComponent(
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
-  const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
+  const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
   const offered = readOffers(def, migrated, instance, props, state, values, {

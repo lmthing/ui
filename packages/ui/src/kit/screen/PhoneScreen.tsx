@@ -15,6 +15,7 @@ import { KitProvider, useEnvironment, type NativeHost } from "../provider";
 import {
   createAgentAccess,
   DeviceDataContext,
+  type AuthenticateReveal,
   type HostCommandAdapter,
   type InteractionStore,
   type MediaAdapter,
@@ -40,6 +41,7 @@ export type PhoneScreenProps = {
   parts?: PartRegistry | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActStep) => void) | undefined;
+  authenticateReveal?: AuthenticateReveal | undefined;
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;

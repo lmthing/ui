@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { XStack, styled, isWeb } from "tamagui";
 import { useAnimatedValue } from "../../motion";
-import { useCopyFeedback } from "../../interact";
+import { useActionPress, useCopyFeedback, useRevealControl } from "../../interact";
 import {
   component,
   layoutType,
@@ -118,30 +118,6 @@ function ActionContent({
   );
 }
 
-function useActionPress(props: ActionProps, address: string, inactive: boolean) {
-  const kit = useKit();
-  const [pressed, setPressed] = useState(false);
-  const still = kit.environment.reduceMotion || kit.environment.agentMode;
-  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
-  if (!kit.interactive || inactive) return { scale };
-  const feedback = { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) };
-  if (kit.controller)
-    return {
-      ...feedback,
-      onPress: () =>
-        props.action
-          ? kit.controller!.act({
-              address,
-              action: props.action,
-              ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
-            })
-          : kit.controller!.press(address),
-    };
-  return props.goto && props.action !== "copy"
-    ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) }
-    : feedback;
-}
-
 export function KitAction({
   label,
   icon,
@@ -161,13 +137,17 @@ export function KitAction({
   const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
-  const inactive = part === null || unavailable || noCopyValue;
+  const reveal = useRevealControl(address.testID, part === null ? "none" : action, disabled || loading);
+  const inactive = part === null || disabled || loading || noCopyValue || (!reveal && unavailable);
   const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
   const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
   const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
+  const [pressed, setPressed] = useState(false);
+  const still = kit.environment.reduceMotion || kit.environment.agentMode;
+  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  const handlers = useActionPress({ action, value, goto }, address.testID, inactive, reveal);
   return (
     <Frame
       {...(part === null ? {} : address)}
@@ -183,6 +163,10 @@ export function KitAction({
       {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
       accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
       aria-live={action === "copy" ? "polite" : undefined}
+      scale={scale}
+      {...(kit.interactive && !inactive
+        ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
+        : {})}
       {...handlers}
     >
       <ActionContent

@@ -14,7 +14,6 @@ import { registerPart } from "./part-registration";
 import { drivenPartBlock } from "./planning";
 import { actionsAt } from "./offers";
 import { commandForConfirmation } from "./host";
-import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
 const pressActions = [
@@ -106,7 +105,12 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
   const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
+export function createAccess(
+  ctx: ControllerContext,
+  act: Act,
+  currency?: AppCurrency,
+  revokeReveal?: (address: string) => void,
+) {
   return {
     registerCopyTarget: ctx.clipboard.register,
     copiedAt: ctx.clipboard.copiedAt,
@@ -133,8 +137,12 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       }
       return result;
     },
-    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address)),
-    registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
-    registerPrivateMarkPart: privateMarkRegistration(ctx, act),
+    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address), revokeReveal),
+    registerDisabledPart(address: string) {
+      const local = ctx.relative(address);
+      const remove = registerPart(ctx.disabledParts, local);
+      revokeReveal?.(local);
+      return remove;
+    },
   };
 }

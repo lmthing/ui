@@ -4,6 +4,8 @@ import {
   createMediaRuntime,
   createAct,
   createAccess,
+  createReveal,
+  privateMarkRegistration,
   discardHiddenConfirmation,
   bindParentGatePart,
   type ControllerContext,
@@ -69,12 +71,14 @@ function lifecycle(
   ctx: ControllerContext,
   clock: ReturnType<typeof createClock>,
   media: ReturnType<typeof createMediaRuntime>,
+  reveal: ReturnType<typeof createReveal>,
 ) {
   let unwatchAdmission: (() => void) | undefined;
   return {
     mount() {
       unwatchAdmission ??= ctx.options.parentGate?.subscribe(() => {
         ctx.hosts.prune();
+        reveal.reconcile();
         discardHiddenConfirmation(ctx);
         ctx.store.setMany({});
         clock.scheduleClock();
@@ -90,6 +94,7 @@ function lifecycle(
       ctx.status.openSheet = undefined;
       ctx.status.confirmation = undefined;
       ctx.hosts.reset();
+      reveal.clear();
       media.reset();
       ctx.store.reset(ctx.screen.id);
       ctx.resetValues();
@@ -100,6 +105,7 @@ function lifecycle(
       ctx.status.disposed = true;
       unwatchAdmission?.();
       ctx.hosts.reset();
+      reveal.clear();
       clock.dispose();
       media.dispose();
     },
@@ -112,7 +118,9 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const ctx = createControllerContext(options);
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
-  const act = createAct(ctx, media, clock.scheduleClock);
+  const reveal = createReveal(ctx);
+  const dispatch = createAct(ctx, media, clock.scheduleClock);
+  const act = reveal.dispatch(dispatch);
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -134,13 +142,15 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     mountMedia: media.mountMedia,
     tick: clock.tick,
-    ...createAccess(ctx, act, currency),
+    ...createAccess(ctx, act, currency, reveal.revoke),
+    registerPrivateMarkPart: privateMarkRegistration(ctx, dispatch),
+    ...reveal.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {
       return options.deviceData;
     },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
-    ...lifecycle(ctx, clock, media),
+    ...lifecycle(ctx, clock, media, reveal),
     get openSheet() {
       return ctx.status.openSheet;
     },
@@ -151,6 +161,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     discardHiddenConfirmation: () => {
       ctx.hosts.prune();
       discardHiddenConfirmation(ctx);
+      reveal.reconcile();
       clock.scheduleDeviceWake();
     },
     snapshotScreen: () => {

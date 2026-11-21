@@ -20,19 +20,19 @@ import {
 import type { ControllerContext } from "../index";
 import { drivenPartBlock, inactive } from "../planning";
 
-export function actionsAt(
+function offersAt(
   ctx: ControllerContext,
   address: string,
   includeBlocked = false,
   ignoreDisabledPart = false,
-): string[] {
+): { action: string; hostReveal?: true }[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
   if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
   if (ctx.confirmationFor()) {
-    if (local === "confirm/confirm") return ["press"];
-    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
+    if (local === "confirm/confirm") return [{ action: "press" }];
+    return ["confirm/cancel", "confirm/close"].includes(local) ? [{ action: "dismiss" }] : [];
   }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
@@ -67,10 +67,22 @@ export function actionsAt(
     if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
-    return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local && (item.action !== "copy" || ctx.clipboard.available()))
-      .map((item) => item.action);
+    return driveAffordances(def.meta, props, id, offered, target).filter(
+      (item) => item.address === local && (item.action !== "copy" || ctx.clipboard.available()),
+    );
   } catch {
     return [];
   }
+}
+
+export function actionsAt(
+  ctx: ControllerContext,
+  address: string,
+  includeBlocked = false,
+  ignoreDisabledPart = false,
+) {
+  return offersAt(ctx, address, includeBlocked, ignoreDisabledPart).map(({ action }) => action);
+}
+export function offersReveal(ctx: ControllerContext, address: string, ignoreDisabledPart = false) {
+  return offersAt(ctx, address, false, ignoreDisabledPart).some(({ hostReveal }) => hostReveal === true);
 }

@@ -22,6 +22,7 @@ import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
 import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
+import type { AuthenticateReveal } from "./reveal";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -45,6 +46,7 @@ export type ControllerOptions = {
   writeClipboard?: ClipboardWriter | undefined;
   resolveClipboardText?: ClipboardText | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
+  authenticateReveal?: AuthenticateReveal | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;

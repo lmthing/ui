@@ -47,4 +47,6 @@ export type ActionSpec = {
   credentialToggles?: Readonly<Record<string, string>>;
   /** These presses ignore their component/item's inherited `goto`, but not a link on the part itself. */
   noGoto?: { parts?: readonly string[]; items?: readonly string[] };
+  /** Declared presses that require local host authentication before the view may reveal a secret. */
+  reveal?: { parts?: readonly string[]; items?: readonly string[] };
 };
