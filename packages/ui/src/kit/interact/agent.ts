@@ -9,7 +9,7 @@ import {
   type RandomSource,
   type ScreenLike,
 } from "../../catalog";
-import { createStandaloneAccess, readControls } from "./runtime";
+import { createStandaloneAccess, readControls, type Confirmation } from "./runtime";
 import { deliverSend, type SendHandler } from "./actions";
 import type { ClipboardText, ClipboardWriter } from "./clipboard";
 import type { InteractionStore } from "./store";
@@ -35,15 +35,6 @@ type AgentOptions = {
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
-function hasCopyConfirmation(options: AgentOptions, screen: ScreenLike) {
-  return screen.components.some(({ c }) => {
-    const meta = options.defs[c]?.meta;
-    return meta?.confirmParts?.some((part) =>
-      [meta.actions?.parts?.[part], meta.actions?.items?.[part]].some((actions) => actions?.includes("copy")),
-    );
-  });
-}
-
 function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
   return screen.components.some(({ c }) => {
     const meta = options.defs[c]?.meta;
@@ -68,9 +59,10 @@ function standaloneAccess(
   currency: AppCurrency | undefined,
   copy = false,
 ) {
-  const needsEffects = copy || hasCopyConfirmation(options, screen);
+  const pending = options.store.get(`${screen.id}/$confirmation`) as Confirmation | undefined;
+  const needsEffects = copy || pending?.step?.action === "copy";
   if (needsEffects || requiresStandalone(options, screen))
-    return createStandaloneAccess({ ...options, screen }, currency, !needsEffects);
+    return createStandaloneAccess({ ...options, screen }, currency, needsEffects);
 }
 
 function detachedRead(options: AgentOptions, currency: AppCurrency | undefined) {

@@ -153,12 +153,8 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-export function createStandaloneAccess(
-  options: ControllerOptions,
-  currency?: AppCurrency,
-  standalone = true,
-) {
-  const ctx = createControllerContext(options, standalone);
+export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency, full = false) {
+  const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
