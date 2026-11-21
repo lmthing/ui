@@ -8,7 +8,7 @@ const record = matchRecord.parse({ matchId: "match", goals: [opening, equalizer]
 
 it("adds one goal and derives the score without changing the input record", () => {
   const after = replayMatch(record, [{ kind: "add", goal: winner }])!;
-  expect(after.goals).toEqual([opening, equalizer, winner]);
+  expect(after.goals).toEqual([opening, equalizer, { ...winner, local: true }]);
   expect(matchScore(after.goals)).toEqual({ homeScore: 2, awayScore: 1 });
   expect(record.goals).toEqual([opening, equalizer]);
 });
@@ -44,7 +44,30 @@ it("replays acknowledged changes and never removes a different goal with the sam
     { kind: "undo", target: opening },
     { kind: "undo", target: equalizer },
   ]);
-  expect(after).toEqual({ goals: [replacement, winner], nextId: 4 });
+  expect(after).toEqual({ goals: [replacement, { ...winner, local: true }], nextId: 4 });
+});
+
+it("keeps a local add when the refreshed feed and journal use the same numeric ID", () => {
+  const baseline = seededMatch("match", [
+    { kind: "goal", side: "home", minute: 21, text: "Another home goal" },
+    { kind: "goal", side: "home", minute: 8, text: "Opening home goal" },
+  ]);
+  const after = replayMatch(baseline, [{ kind: "add", goal: equalizer }])!;
+  expect(matchScore(after.goals)).toEqual({ homeScore: 2, awayScore: 1 });
+  expect(after.goals).toContainEqual({ ...equalizer, local: true });
+});
+
+it("does not project an unsafe legacy score after the aggregate seed refreshes", () => {
+  const seed = (homeScore: number) => ({
+    matchId: "match",
+    goals: [],
+    unlisted: { homeScore, awayScore: 0 },
+  });
+  const journal = [{ kind: "add", goal: opening }];
+  for (const score of [Number.MAX_SAFE_INTEGER - 1, Number.MAX_SAFE_INTEGER]) {
+    const after = replayMatch(seed(score), journal)!;
+    expect(matchScore(after.goals, after.unlisted).homeScore).toBe(Number.MAX_SAFE_INTEGER);
+  }
 });
 
 it("takes only goal incidents from the wire and keeps their descriptions without guessing a scorer", () => {
@@ -53,6 +76,6 @@ it("takes only goal incidents from the wire and keeps their descriptions without
     { kind: "note", side: "home", minute: 1, text: "Kickoff" },
   ]);
   expect(seeded.goals).toEqual([
-    { id: 2, side: "away", minute: 32, scorer: null, description: "Rivers heads in" },
+    { id: 1, side: "away", minute: 32, scorer: null, description: "Rivers heads in", seedOccurrence: 1 },
   ]);
 });

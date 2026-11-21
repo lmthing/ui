@@ -1,15 +1,15 @@
 import type { Meta, RecordContext, RecordRuntime } from "../../catalog";
 import { sportsWordsFor } from "./lang";
 import {
-  type Goal,
+  type MatchGoal,
   type MatchRecord,
   goalEvents,
+  goalRowId,
   matchMinute,
   matchRecord,
   matchRecordKind,
   matchScore,
   maxMatchMinute,
-  maxSeedEvents,
   replayMatch,
   scoreSeed,
   seededMatch,
@@ -54,9 +54,13 @@ function history(context: RecordContext) {
 }
 
 type History = NonNullable<ReturnType<typeof history>>;
-function undoTarget({ goals, unlisted, seed }: History, side: Goal["side"]) {
+function undoTarget({ goals, unlisted, seed }: History, side: MatchGoal["side"]) {
   for (let index = goals.length - 1; index >= 0; index--) {
-    if (goals[index]?.side === side) return goals[index];
+    const candidate = goals[index]!;
+    if (candidate.side === side) {
+      const { local: _local, ...target } = candidate;
+      return target;
+    }
   }
   const key = `${side}Score` as const;
   const remaining = unlisted?.[key];
@@ -64,7 +68,7 @@ function undoTarget({ goals, unlisted, seed }: History, side: Goal["side"]) {
 }
 
 type KeeperAction = NonNullable<NonNullable<RecordRuntime["actions"]>[`${string}.${string}`]>;
-function keeper(side: Goal["side"], kind: "add" | "undo"): KeeperAction {
+function keeper(side: MatchGoal["side"], kind: "add" | "undo"): KeeperAction {
   return {
     target(props) {
       if (kind === "add")
@@ -72,7 +76,13 @@ function keeper(side: Goal["side"], kind: "add" | "undo"): KeeperAction {
           ? side
           : undefined;
       const goal = side === "home" ? props.$undoHome : props.$undoAway;
-      return goal ? JSON.stringify(goal) : undefined;
+      if (!goal) return;
+      // A seeded undo should survive the addition of unrelated events before confirmation, too.
+      if (typeof goal === "object" && "seedOccurrence" in goal && "id" in goal) {
+        const { id: _id, ...identity } = goal;
+        return JSON.stringify(identity);
+      }
+      return JSON.stringify(goal);
     },
     plan(context) {
       const record = history(context);
@@ -130,12 +140,12 @@ export const matchFeedRecord = {
           event.kind === "goal" ? [] : [{ ...event, id: `r${index + 1}` }],
         ),
         ...record.goals
-          .map(({ id, side, minute, scorer, description }) => ({
-            id: `r${BigInt(id) + BigInt(maxSeedEvents)}`,
-            minute,
-            side,
+          .map((goal) => ({
+            id: goalRowId(goal),
+            minute: goal.minute,
+            side: goal.side,
             kind: "goal" as const,
-            text: description ?? scorer ?? sportsWordsFor().matchGoal,
+            text: goal.description ?? goal.scorer ?? sportsWordsFor().matchGoal,
           }))
           .reverse(),
       ].sort((a, b) => b.minute - a.minute);

@@ -32,7 +32,7 @@ it("commits only on confirmation and projects the same record in the reader and 
   expect(store.get(journal)).toBeUndefined();
   expect(runtime.act([add, confirm]).ok).toBe(true);
   expect(store.get(journal)).toEqual([
-    { kind: "add", goal: { id: 4, side: "away", minute: 51, scorer: null } },
+    { kind: "add", goal: { id: 2, side: "away", minute: 51, scorer: null } },
   ]);
   const added = runtime.read();
   expect(added).toContain("Ledge Rovers 1–1 Fern House");
@@ -52,16 +52,16 @@ it("commits only on confirmation and projects the same record in the reader and 
     runtime.liveControls(feedDef.meta, feedDef.props.parse(feedDef.examples[0]), "m1").events;
   expect(score()).toMatchObject({ homeScore: 1, awayScore: 1 });
   expect(feed()).toMatchObject([
-    { id: "r16", minute: 51 },
+    { id: "r20", minute: 51 },
     { text: "Reed scores from the edge" },
     { text: "Caution for Birch" },
     { text: "Moss replaces Gardner" },
   ]);
   expect(runtime.act([undo, confirm]).ok).toBe(true);
-  expect(store.get(journal)).toMatchObject([{ kind: "add" }, { kind: "undo", target: { id: 3 } }]);
+  expect(store.get(journal)).toMatchObject([{ kind: "add" }, { kind: "undo", target: { id: 1 } }]);
   expect(score()).toMatchObject({ homeScore: 0, awayScore: 1 });
   expect(feed()).toMatchObject([
-    { id: "r16", minute: 51 },
+    { id: "r20", minute: 51 },
     { text: "Caution for Birch" },
     { text: "Moss replaces Gardner" },
   ]);
@@ -105,6 +105,20 @@ it("keeps replacement seeds after remount and after the old goal was undone", ()
   const agent = createAgentAccess({ defs: components, store, current: () => current });
   expect(agent.act([undo, confirm]).ok).toBe(true);
   expect(agent.read()).toContain("Ledge Rovers 0–0 Fern House");
+  const incidents = components.MatchFeed.examples[0]!.events;
+  current = {
+    ...screen,
+    components: [
+      screen.components[0]!,
+      {
+        id: "m1",
+        c: "MatchFeed",
+        events: [...incidents, { kind: "note", side: "home", minute: 0, text: "Kickoff" }],
+      },
+    ],
+  };
+  expect(agent.read()).toContain("Ledge Rovers 0–0 Fern House");
+  expect(agent.read()).not.toContain("Reed scores");
   current = {
     ...screen,
     components: [
@@ -128,9 +142,9 @@ it("keeps both projections live when a host snapshot includes a confirmed add an
     deviceData: { [matchRecordKind]: [record] },
   });
   expect(runtime.act([add, confirm]).ok).toBe(true);
-  record.goals.push({ id: 5, side: "away", minute: 0, scorer: "Banks" });
+  record.goals.push({ id: 5, side: "away", minute: 0, scorer: null });
   expect(runtime.read()).toContain("Ledge Rovers 1–1 Fern House");
-  expect(runtime.read()).toContain("0′ away goal: Banks");
+  expect(runtime.read()).toContain("0′ away goal: Goal");
   expect(runtime.act([undo, confirm]).ok).toBe(true);
   record.goals.shift();
   expect(runtime.read()).toContain("Ledge Rovers 0–1 Fern House");

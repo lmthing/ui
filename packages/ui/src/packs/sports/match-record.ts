@@ -24,28 +24,33 @@ const goal = z.strictObject({
 export const matchRecord = z.strictObject({ matchId: z.string().min(1), goals: z.array(goal) });
 const tally = z.int().nonnegative();
 export const scoreSeed = z.object({ homeScore: tally, awayScore: tally });
+const addressedGoal = goal.extend({ seedOccurrence: goalId.optional() });
 const unlistedGoal = z.strictObject({ side: goalSide, seed: tally, remaining: tally });
 const operation = z.discriminatedUnion("kind", [
   z.strictObject({ kind: z.literal("add"), goal }),
-  z.strictObject({ kind: z.literal("undo"), target: z.union([goal, unlistedGoal]) }),
+  z.strictObject({ kind: z.literal("undo"), target: z.union([addressedGoal, unlistedGoal]) }),
 ]);
-export type Goal = z.output<typeof goal>;
+type Goal = z.output<typeof addressedGoal>;
+export type MatchGoal = Goal & { local?: true };
 type Score = z.output<typeof scoreSeed>;
-export type MatchRecord = z.output<typeof matchRecord> & {
+export type MatchRecord = { matchId: string; goals: readonly Goal[] } & {
   /** Legacy boards without a feed know the score, but not the individual goals. */
   unlisted?: Score;
 };
 const emptyScore: Score = { homeScore: 0, awayScore: 0 };
 
 export function seededMatch(matchId: string, events: readonly z.output<typeof matchEvent>[]): MatchRecord {
-  return {
-    matchId,
-    goals: [...events]
-      .reverse()
-      .flatMap(({ side, kind, minute, text }, index) =>
-        kind === "goal" ? [{ id: index + 1, side, minute, scorer: null, description: text }] : [],
-      ),
-  };
+  const occurrences = new Map<string, number>();
+  const goals = events
+    .filter(({ kind }) => kind === "goal")
+    .reverse()
+    .map(({ side, minute, text }, i) => {
+      const key = JSON.stringify([side, minute, text]);
+      const seedOccurrence = (occurrences.get(key) ?? 0) + 1;
+      occurrences.set(key, seedOccurrence);
+      return { id: i + 1, side, minute, scorer: null, description: text, seedOccurrence };
+    });
+  return { matchId, goals };
 }
 
 function sameGoal(left: Goal | undefined, right: Goal) {
@@ -57,12 +62,25 @@ function sameGoal(left: Goal | undefined, right: Goal) {
   );
 }
 
-/** Already-applied changes are no-ops on a refreshed baseline. Conflicts leave the baseline goal intact. */
+const seedKey = ({ side, minute, description, seedOccurrence }: Goal) =>
+  JSON.stringify([side, minute, description, seedOccurrence]);
+const recordKey = (goal: Goal) => (goal.seedOccurrence ? seedKey(goal) : `host:${goal.id}`);
+const localKey = (goal: Goal) => `local:${goal.id}`;
+
+function removeGoal(goals: Map<string, MatchGoal>, target: Goal) {
+  const key = [localKey(target), recordKey(target)].find(
+    (key) => sameGoal(goals.get(key), target) && goals.get(key)?.seedOccurrence === target.seedOccurrence,
+  );
+  return key !== undefined && goals.delete(key);
+}
+
+/** Fold confirmed changes onto the current baseline without confusing collisions with acknowledgments. */
 export function replayMatch(record: MatchRecord, journal: readonly unknown[]) {
-  const goals = new Map(record.goals.map((goal) => [goal.id, goal]));
+  const goals = new Map<string, MatchGoal>(record.goals.map((goal) => [recordKey(goal), goal]));
   if (goals.size !== record.goals.length) return;
   const unlisted = record.unlisted;
   const activeUnlisted = record.unlisted ? { ...record.unlisted } : undefined;
+  const total = matchScore(record.goals, activeUnlisted);
   let highestId = record.goals.reduce((highest, { id }) => Math.max(highest, id), 0);
   let lastAdded = 0;
   for (const entry of journal) {
@@ -70,23 +88,30 @@ export function replayMatch(record: MatchRecord, journal: readonly unknown[]) {
     if (!op.success) return;
     if (op.data.kind === "undo") {
       const { target } = op.data;
+      const key = `${target.side}Score` as const;
       if ("id" in target) {
-        if (sameGoal(goals.get(target.id), target)) goals.delete(target.id);
+        if (removeGoal(goals, target)) total[key]--;
       } else if (activeUnlisted) {
-        const key = `${target.side}Score` as const;
         if (
           target.remaining > 0 &&
           unlisted?.[key] === target.seed &&
           activeUnlisted[key] === target.remaining
-        )
+        ) {
           activeUnlisted[key]--;
+          total[key]--;
+        }
       }
     } else {
       const { goal } = op.data;
       if (goal.id <= lastAdded) return;
       lastAdded = goal.id;
       highestId = Math.max(highestId, goal.id);
-      if (!goals.has(goal.id)) goals.set(goal.id, goal);
+      const key = `${goal.side}Score` as const;
+      // Exact host echoes retain the local row identity without counting the goal twice.
+      if (sameGoal(goals.get(recordKey(goal)), goal)) goals.delete(recordKey(goal));
+      else if (total[key] < Number.MAX_SAFE_INTEGER) total[key]++;
+      else continue;
+      goals.set(localKey(goal), { ...goal, local: true });
     }
   }
   return {
@@ -94,6 +119,11 @@ export function replayMatch(record: MatchRecord, journal: readonly unknown[]) {
     nextId: highestId < Number.MAX_SAFE_INTEGER ? highestId + 1 : undefined,
     ...(activeUnlisted && { unlisted: activeUnlisted, seed: record.unlisted }),
   };
+}
+
+export function goalRowId({ id, local, seedOccurrence }: MatchGoal) {
+  const namespace = local ? 2n : seedOccurrence ? 0n : 1n;
+  return `r${BigInt(maxSeedEvents) + 3n * BigInt(id) + namespace}`;
 }
 
 export function matchScore(goals: readonly Goal[], unlisted: Score = emptyScore) {
