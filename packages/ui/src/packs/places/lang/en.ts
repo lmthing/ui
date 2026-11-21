@@ -34,6 +34,14 @@ export const en = {
     `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
   departureReading: (line: string, to: string, time: string, delay?: string) =>
     `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${time}${delay ? `, ${delay}` : ""}`,
+  deliveryEta: "Estimated arrival",
+  deliveryEtaMinutes: (minutes: string) => `${minutes} min`,
+  deliveryEtaNow: "Arriving now",
+  deliveryEtaUnknown: "Estimate unavailable",
+  deliveryCourier: "Courier",
+  deliveryCourierMarker: "Courier location",
+  deliveryDestinationMarker: "Delivery destination",
+  deliveryCall: "Call courier",
   deliveryStep: {
     preparing: "Preparing",
     picked_up: "Picked up",
