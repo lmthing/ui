@@ -521,6 +521,20 @@ There is no `meta.aliases`, alias lookup step, `R2.alias`, `R2.off_pack` or alia
 `registry.resolve` tries exact id, case/separator-insensitive id, then migration aliases through
 `legacyTarget`, restricted to the scope. Migration aliases for renamed/merged components stay.
 
+**Renderer reuse for packs.** A pack may use a core component's internal kit renderer without
+adding a catalog entry. The owning component adapts parsed and projected view data to a typed
+slot map (such as date, time, title, byline and status). The renderer uses the owning component's
+part context and the supplied stamped item ids and part names. Nested targets are finite named
+parts derived from the owner's bounded arrays; they do not create another level of item ids.
+The owner alone defines fallback, reading, actions, live state, tiers and host data. The renderer
+draws those values and binds existing targets through kit bases; it does not register a component
+or own another controller or store.
+
+Writer lines remain flat. Neither renderer slots nor nested component JSON appear in the Writer
+schema. The first adapters are Agenda's dated event list and Itinerary's foldable day rails over
+Timeline's event renderer. Keep their legacy ids, parts, action verbs and recipes, including the
+distinction between all-day events and untimed stops. Renderer adoption does not retire an id.
+
 ### 4.7 Lookups for repairs
 
 **Pending:** `nearestIcon(name)` (edit distance and synonyms, else neutral `dot`),
