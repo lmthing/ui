@@ -75,6 +75,9 @@ function sample() {
     "src/packs/other/tests/pack.test.ts": 'import { components } from "@lmthing/ui/catalog";',
     "src/packs/other/tests/Standalone.test.ts": 'import { KitInput } from "@lmthing/ui/kit";',
     "src/kit/controller.test.ts": 'import { components } from "@lmthing/ui/catalog"; components.Card;',
+    "src/components/List.tsx": "",
+    "src/components/List.test.ts":
+      'import { createRegistry } from "@lmthing/ui/catalog"; createRegistry().defs.find((d) => d.meta.id === "List");',
     "src/catalog/registry/scoped-archetypes.test.ts":
       'import { components, registryOf } from "@lmthing/ui/catalog"; registryOf(components);',
     "test/probes.test.ts": "",
@@ -100,6 +103,7 @@ it("keeps a foreign pack's real import while excluding noise from an aggregate r
   expect(selected.tests).toContain("src/packs/other/tests/Standalone.test.ts");
   expect(selected.tests).not.toContain("src/packs/other/tests/pack.test.ts");
   expect(selected.tests).not.toContain("src/kit/controller.test.ts");
+  expect(selected.tests).not.toContain("src/components/List.test.ts");
   expect(selected.tests).toContain("src/catalog/registry/scoped-archetypes.test.ts");
 });
 

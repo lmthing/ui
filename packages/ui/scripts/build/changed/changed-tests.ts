@@ -124,15 +124,18 @@ export function relatedSelection(root: string, files: readonly string[]) {
   const narrowRegistries = ids.length && files.every((file) => file.startsWith("src/"));
   const tests = globSync(nodeTests, { cwd: root, exclude: ["**/*.browser.test.{ts,tsx}"] }).filter((test) => {
     const pack = test.match(packPath)?.[1];
-    if (pack || test.startsWith("src/components/")) {
-      const id = test.match(componentTest)?.[1];
-      if (id && owners.has(id) ? ids.includes(id) : pack && touchedPacks.has(pack)) return true;
+    const componentFolder = pack || test.startsWith("src/components/");
+    const id = componentFolder ? test.match(componentTest)?.[1] : undefined;
+    const named = id !== undefined && owners.has(id);
+    if (componentFolder) {
+      if (named ? ids.includes(id) : pack && touchedPacks.has(pack)) return true;
     } else if (!narrowRegistries || caseSuites.includes(test)) return true;
     const source = graph.source(test);
     if (reached(test).length || idReference?.test(source)) return true;
     // Keep true registry-wide assertions, even without a literal component name.
     return (
       !pack &&
+      !named &&
       /\b(?:createRegistry|registryOf|buildPackIndex|import\.meta\.glob|Object\.(?:keys|values|entries)\((?:components|renderers))\b/.test(
         source,
       )
