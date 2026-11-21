@@ -14,6 +14,7 @@ import {
   atDeviceTime,
   emptyDeviceData,
   liveProps,
+  projectDeviceData,
   selectDeviceData,
   type Meta,
   type Values,
@@ -22,13 +23,21 @@ import {
 function liveControls(ctx: ControllerContext, meta: Meta, props: Values, component: string) {
   const prefix = `${ctx.screen.id}/`;
   const now = ctx.now();
+  const values = ctx.valuesOf(now);
   const local = Object.fromEntries(
-    Object.entries(ctx.valuesOf(now))
+    Object.entries(values)
       .filter(([key]) => key.startsWith(prefix))
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  return liveProps(definition, props, component, local, true, atDeviceTime(ctx.options.deviceData, now));
+  return liveProps(
+    definition,
+    props,
+    component,
+    local,
+    true,
+    atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now),
+  );
 }
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
@@ -47,7 +56,7 @@ export function createScreenController(options: ControllerOptions) {
     deviceDataFor(component: string, data = options.deviceData) {
       const source = ctx.sourceOf(component);
       const def = source && ctx.defs[source.c];
-      return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
+      return def ? selectDeviceData(def.meta, projectDeviceData(data, ctx.valuesOf())) : emptyDeviceData;
     },
     get deviceData() {
       return options.deviceData;

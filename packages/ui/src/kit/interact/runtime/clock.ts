@@ -7,6 +7,7 @@ import {
   parseControlProps,
   isDeviceDataVisible,
   liveProps,
+  projectDeviceData,
   selectDeviceData,
   type ClockState,
   type Meta,
@@ -79,10 +80,11 @@ function tickValues(ctx: ControllerContext) {
 function nextDeviceWake(ctx: ControllerContext, now: number): number | undefined {
   const candidates = ctx.screen.components.filter(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
   if (!candidates.length) return;
-  const data = atDeviceTime(ctx.options.deviceData, now);
+  const values = ctx.valuesOf(now);
+  const data = atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now);
   const prefix = `${ctx.screen.id}/`;
   const local = Object.fromEntries(
-    Object.entries(ctx.valuesOf(now))
+    Object.entries(values)
       .filter(([key]) => key.startsWith(prefix))
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );

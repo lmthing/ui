@@ -2,6 +2,14 @@ import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import { stampItemIds } from "../../lines";
 import type { ScreenLike, Values } from "../index";
+export { inLocalWeek } from "./local-week";
+export {
+  projectDeviceData,
+  recordKey,
+  recordSnapshotKey,
+  resetRecordSnapshots,
+  stageRecordSnapshot,
+} from "./record-snapshot";
 
 const deviceTime = Symbol("deviceTime");
 
@@ -10,21 +18,23 @@ export type DeviceData = Readonly<Partial<Record<string, readonly unknown[]>>> &
   readonly [deviceTime]?: number;
 };
 export const emptyDeviceData: DeviceData = Object.freeze({});
+export const deviceTimeOf = (data?: DeviceData) => data?.[deviceTime];
 
 /** Bind a host clock sample to a snapshot without adding a record kind or touching interaction values. */
 export function atDeviceTime(data: DeviceData | undefined, now: number): DeviceData {
   return Object.create(null, {
     ...Object.getOwnPropertyDescriptors(data ?? emptyDeviceData),
-    [deviceTime]: { value: now },
+    [deviceTime]: { value: now, enumerable: true },
   });
 }
 
 export function captureDeviceTime(
   defs: Record<string, Definition>,
   data?: DeviceData,
+  now = Date.now(),
 ): DeviceData | undefined {
   return data?.[deviceTime] === undefined && Object.values(defs).some(({ meta }) => meta.deviceDataFlags)
-    ? atDeviceTime(data, Date.now())
+    ? atDeviceTime(data, now)
     : data;
 }
 

@@ -1,5 +1,4 @@
 import {
-  atDeviceTime,
   drawKey,
   liveProps,
   stampItemIds,
@@ -8,7 +7,7 @@ import {
   staleSession,
   migrateScreen,
   filterDeviceDataScreen,
-  projectDeviceRows,
+  projectDeviceData,
   resolveDefinition,
   type ActStep,
   type Definition,
@@ -109,14 +108,12 @@ function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string |
   );
 }
 function projectLive(options: ControllerOptions, screen: ScreenLike, standalone: boolean, now: () => number) {
-  return (
-    values: Values,
-    sheet: string | undefined,
-    covered = false,
-    at = now(),
-    data = options.deviceData,
-  ) => {
-    const visible = filterDeviceDataScreen(screen, options.defs, data);
+  return (values: Values, sheet: string | undefined, covered = false, at = now()) => {
+    const visible = filterDeviceDataScreen(
+      screen,
+      options.defs,
+      projectDeviceData(options.deviceData, values),
+    );
     if (standalone) return visible;
     const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
     return covered && !hostHidesSheet(screen, visible, sheet)
@@ -176,21 +173,3 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
-  const data = atDeviceTime(ctx.options.deviceData, at);
-  return {
-    ...ctx,
-    options: { ...ctx.options, deviceData: data },
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, data),
-    now: () => at,
-    valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
-    mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at, data),
-    inputOf: (entry) => projectDeviceRows(ctx.defs[entry.c]!.meta, ctx.inputOf(entry), data),
-    expiredProgress: (next) => ctx.expiredProgress(next, at),
-  };
-}

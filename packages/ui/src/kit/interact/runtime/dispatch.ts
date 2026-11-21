@@ -1,9 +1,42 @@
-import { hasPlaybackClock, wordsFor, type ActStep, type Values } from "../../../catalog";
+import {
+  atDeviceTime,
+  filterDeviceDataScreen,
+  projectDeviceData,
+  projectDeviceRows,
+  hasPlaybackClock,
+  hasRecordClock,
+  wordsFor,
+  type ActStep,
+  type Values,
+} from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
-import { snapshotPlanning, type ControllerContext } from "./context";
+import type { ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
+
+function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+  const at = ctx.now();
+  const values = ctx.valuesOf(at);
+  const data = atDeviceTime(ctx.options.deviceData, at);
+  const projected = projectDeviceData(data, values);
+  if (ctx.standalone)
+    for (const { c, id } of ctx.screen.components)
+      if (ctx.defs[c] && hasRecordClock(ctx.defs[c]!.meta)) values[ctx.key(id, "$now")] = at;
+  return {
+    ...ctx,
+    options: { ...ctx.options, deviceData: data },
+    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projected),
+    now: () => at,
+    valuesOf: () => values,
+    status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
+    mounted: new Map(ctx.mounted),
+    disabledParts: new Map(ctx.disabledParts),
+    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    inputOf: (entry) => projectDeviceRows(ctx.defs[entry.c]!.meta, ctx.inputOf(entry), projected),
+    expiredProgress: (next) => ctx.expiredProgress(next, at),
+  };
+}
 
 export function discardHiddenConfirmation(ctx: ControllerContext) {
   if (ctx.status.confirmation && !ctx.confirmationFor()) {
@@ -48,9 +81,12 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!ctx.standalone) {
       state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
       state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
-      // A mounted action's planning timestamp must not freeze subsequent detached playback reads.
-      for (const { c, id } of ctx.screen.components)
-        if (ctx.defs[c] && hasPlaybackClock(ctx.defs[c]!.meta)) state.values[ctx.key(id, "$now")] = undefined;
+    }
+    // Planning timestamps must not freeze subsequent detached reads.
+    for (const { c, id } of ctx.screen.components) {
+      const meta = ctx.defs[c]?.meta;
+      if (meta && (hasRecordClock(meta) || (!ctx.standalone && hasPlaybackClock(meta))))
+        state.values[ctx.key(id, "$now")] = undefined;
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;

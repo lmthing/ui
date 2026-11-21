@@ -1,11 +1,12 @@
-import type { z } from "zod";
 import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
-type ProjectionProps = Readonly<Record<string, unknown>>;
+import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { Issue } from "../rules";
+import type { DeviceDataMeta, DeviceRows } from "./device-data";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -48,7 +49,7 @@ type SelectMeta = {
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
 );
-export type Meta = {
+export type Meta = DeviceDataMeta & {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
   purpose: string;
@@ -88,6 +89,8 @@ export type Meta = {
   set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
+  /** Component press part → live text and item picker parts to reset together. */
+  clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
   /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
@@ -96,10 +99,7 @@ export type Meta = {
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
-    deviceData?: {
-      rows: (data: DeviceData, props: ProjectionProps) => readonly unknown[];
-      schema: z.ZodObject;
-    };
+    deviceData?: DeviceRows;
     visible?: "all" | "first";
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
@@ -108,6 +108,10 @@ export type Meta = {
     adjust?: NumericAdjustments;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
+    /** Confirmed edits of whole wire records in the item collection. */
+    records?: RecordEdits;
+    /** Inline press/select parts; a choice source prop belongs to the addressed item. */
+    pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
@@ -149,14 +153,6 @@ export type Meta = {
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
   linkedEdits?: LinkedEdits;
   live?: LiveActionInputs;
-  /** Record kinds this component may read from the host, never from Writer props. */
-  deviceData?: readonly string[];
-  /** Trusted boolean props for `actions.when`. `now` is epoch milliseconds, not a stored value. */
-  deviceDataFlags?: Readonly<
-    Record<string, (data: DeviceData, props: ProjectionProps, now: number) => boolean>
-  >;
-  /** Next future epoch millisecond when a mounted projection needs to be read again. */
-  deviceDataWake?: (data: DeviceData, props: ProjectionProps, now: number) => number | undefined;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
@@ -171,10 +167,14 @@ export type Meta = {
   codeOwned?: boolean;
 };
 
+/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
+export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
+
 export type PackMeta = {
   id: PackId;
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
+  screenValidators?: readonly PackScreenValidator[];
 };
 export type Slot = {
   allow: readonly ComponentId[];

@@ -3,6 +3,7 @@ import {
   isDeviceDataVisible,
   migrateScreen,
   planAct,
+  projectDeviceData,
   readComponent,
   readScreen,
   type Definition,
@@ -26,16 +27,19 @@ export function visibleConfirmation(
     : confirmation.source;
   const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
   const meta = entry && defs[entry.c]?.meta;
-  if (meta && !isDeviceDataVisible(meta, data)) return;
+  if (!meta) return confirmation;
+  const values = valuesOf(at);
+  if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   if (entry && meta?.deviceDataFlags && confirmation.step) {
     const plan = planAct(
       { ...screen, components: [entry] },
       defs,
-      valuesOf(at),
+      values,
       [confirmation.step],
       null,
       "controller",
       atDeviceTime(data, at),
+      at,
     );
     if (!plan.ok) return;
   }
