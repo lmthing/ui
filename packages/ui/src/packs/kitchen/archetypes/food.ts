@@ -1,4 +1,4 @@
-import { packListDefaults, type ArchetypeMeta } from "../../../catalog";
+import { packListDefaults, placeholderTitle, wordsFor, type ArchetypeMeta } from "../../../catalog";
 
 export const food = {
   id: "food",
@@ -18,6 +18,7 @@ export const food = {
       ],
     },
     item: {
+      writeHints: ['Use List style "expand" and give every row a body.'],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["NutritionFacts"], required: true },
@@ -27,7 +28,12 @@ export const food = {
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "n1", c: "NutritionFacts" },
-        { id: "l1", c: "List", style: "expand" },
+        {
+          id: "l1",
+          c: "List",
+          style: "expand",
+          rows: [{ title: placeholderTitle(0), body: wordsFor().placeholderDetail }],
+        },
         { id: "b1", c: "Button" },
       ],
     },

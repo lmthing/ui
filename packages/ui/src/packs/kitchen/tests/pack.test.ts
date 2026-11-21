@@ -57,6 +57,7 @@ it("publishes the ready pack to the Director and only the selected Writer", () =
   const live = createRegistry({ packs: ["kitchen"] });
   const other = createRegistry({ packs: ["booking"] });
   const ready = defsReady();
+  for (const id of exampleIds) expect(definitions[id]!.meta.status).toBe("ready");
   expect(packReady("kitchen")).toBe(ready);
   expect(/^- kitchen:/m.test(buildPackIndex())).toBe(ready);
   expect(live.ids.filter((id) => !core.ids.includes(id)).sort()).toEqual(ready ? [...ids].sort() : []);
