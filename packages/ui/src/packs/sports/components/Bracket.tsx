@@ -1,15 +1,19 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { bracketDrawing, bracketReading } from "../copy";
+import { sportsWordsFor } from "../lang";
 
 // Core first: List/lead:number orders entrants, not head-to-head ties and winners advancing across rounds.
 export const meta = {
   id: "Bracket",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Follow knockout ties and see who advances to the next round.",
   pick: "A knockout cup as paired teams per round, with winners advancing. Only use it for actual head-to-head ties; a top-scorers ranking is List, even in a cup. Not a league table (Standings) or a sequence of matches (Fixtures).",
   writeHints: [
     "Write rounds earliest to latest, and ties in bracket order. Do not write winners or connectors. Later rounds use the team names already known to advance; omit scores for ties not played.",
+    'For team names and winner markers without printed scores, write "detail":"brief" and keep the known scores in data. Otherwise write "detail":null. Always write "density":null and "surface":null unless the person specifically requests a change to spacing or the card treatment.',
   ],
   region: "body",
   weight: 3,
@@ -17,18 +21,21 @@ export const meta = {
   tier: "phone",
   partTiers: { root: "people" },
   realPath: "The organiser records results on one phone; others follow the cup in a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: ["root"],
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["card", "outlined"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["a_score", "b_score"] } },
+  parts: ["root", "title", "bracket"],
   items: { key: "ties", parts: ["root", "round", "a", "b", "a_score", "b_score"] },
   states: ["filled", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, _state, lang): string[] => {
-    const { ties } = input as c.Props<typeof props, typeof meta>;
-    const score = (value: number | undefined) => (value === undefined ? "" : ` ${c.numberLine(value, lang)}`);
-    return ties.map(
-      ({ id, round, a, b, aScore, bScore }) => `${id}: ${round}, ${a}${score(aScore)} · ${b}${score(bScore)}`,
-    );
-  },
+  emptyActions: [],
+  read: (input, _state, lang): string[] => [
+    sportsWordsFor(lang).bracket.title,
+    ...bracketReading(input as BracketProps, lang),
+  ],
 } as const satisfies c.Meta;
 
 const score = z.int().nonnegative().optional();
@@ -93,5 +100,38 @@ export const probes = [
   write(
     "Show the semifinal results Ledge Rovers 3–1 Fern House and Garden Crew 0–2 Oakfield, then the unplayed final Ledge Rovers versus Oakfield. Highlight Ledge Rovers.",
   ),
+  {
+    ...write(
+      "Show the cup final, Trot Town 2 to River Rovers 4. Keep the result so you can mark the winner, but show the team names and winner marker without printing the score numbers.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Open the final tie between Ledge Rovers and Oakfield", { address: "b1/r3", action: "press" }),
 ] satisfies c.Probe[];
+
+type BracketProps = c.Props<typeof props, typeof meta>;
+
+export function Bracket(input: BracketProps) {
+  const { lang, words } = kit.useWords(sportsWordsFor);
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  return (
+    <kit.KitCard
+      part="root"
+      padded
+      {...{ density, surface }}
+      {...(state === "loading" ? { label: c.wordsFor(lang).loadingLabel } : {})}
+    >
+      <kit.KitText part="title" role="heading" emphasis="quiet" tone="muted" density={density}>
+        {words.bracket.title}
+      </kit.KitText>
+      <kit.KitBracket
+        part="bracket"
+        loading={state === "loading"}
+        {...bracketDrawing({ ...input, detail }, lang)}
+      />
+    </kit.KitCard>
+  );
+}
