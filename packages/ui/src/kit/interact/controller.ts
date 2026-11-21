@@ -14,7 +14,10 @@ import {
   emptyDeviceData,
   liveProps,
   projectDeviceData,
+  projectSelectionBinding,
   selectDeviceData,
+  selectionBindingFor,
+  withDisabledSelectionChecks,
   type Meta,
   type Values,
 } from "../../catalog";
@@ -28,14 +31,14 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  return liveProps(
-    definition,
-    props,
-    component,
-    local,
-    true,
-    projectDeviceData(ctx.options.deviceData, values),
-  );
+  const data = projectDeviceData(ctx.options.deviceData, values);
+  const live = liveProps(definition, props, component, local, true, data);
+  if (!definition.selectionBinding) return live;
+  const sheet = ctx.status.openSheet;
+  const visible = ctx.liveScreen(values, sheet, Boolean(sheet));
+  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
+  const selection = selectionBindingFor(screen, ctx.defs, definition, component, local, data);
+  return projectSelectionBinding(definition, live, selection?.view);
 }
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */

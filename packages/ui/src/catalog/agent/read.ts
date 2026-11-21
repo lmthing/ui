@@ -13,6 +13,12 @@ import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import { isDeviceDataVisible, projectDeviceData, selectDeviceData, type DeviceData } from "./device-data";
+import {
+  disabledSelectionChecks,
+  projectSelectionBinding,
+  selectionBindingFor,
+  type BoundSelection,
+} from "./selection-binding";
 
 type Props = Record<string, unknown>;
 
@@ -42,6 +48,7 @@ function readingProps(
   const useLive =
     meta.live ||
     meta.linkedEdits ||
+    meta.selectionBinding ||
     meta.items?.visibleWhen ||
     meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
@@ -81,6 +88,20 @@ function migrateInput(component: string, input: unknown) {
   return props;
 }
 
+function readInput(
+  def: Definition,
+  input: unknown,
+  instance: string,
+  values: Props,
+  data: DeviceData | undefined,
+  selection: BoundSelection | undefined,
+) {
+  const migrated = migrateInput(def.meta.id, input);
+  const validated = parseControlProps(def, migrated, (part) => values[`${instance}/${part}`]);
+  const live = liveProps(def.meta, validated, instance, values, true, data);
+  return { migrated, validated, props: projectSelectionBinding(def.meta, live, selection) };
+}
+
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -90,14 +111,13 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  selection?: BoundSelection,
 ): string[] {
   const { meta } = def;
   deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
-  const migrated = migrateInput(meta.id, input);
-  const validated = parseControlProps(def, migrated, get);
-  const props = liveProps(meta, validated, instance, values, true, deviceData);
+  const { migrated, validated, props } = readInput(def, input, instance, values, deviceData, selection);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
@@ -147,6 +167,7 @@ export type ScreenLike = {
   id: string;
   title?: string;
   components: ({ id: string; c: string; state?: StateName } & Props)[];
+  [disabledSelectionChecks]?: Pick<ReadonlySet<string>, "has">;
 };
 
 /** A whole screen as text, for a model to read before acting. */
@@ -157,15 +178,17 @@ export function readScreen(
   lang?: string,
   deviceData?: DeviceData,
 ): string {
+  const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
-    ({ id, c, state, ...props }) => {
-      const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
-    },
-  );
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
+    const def = defs[c];
+    if (!def) return [`${id} ${c} (unknown)`];
+    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot);
+    return readComponent(def, props, id, state, local, lang, deviceData, selection?.view);
+  });
   return [header, ...lines].join("\n");
 }

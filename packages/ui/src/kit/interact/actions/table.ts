@@ -5,9 +5,11 @@ import {
   liveProps,
   parseControlProps,
   projectDeviceData,
+  projectSelectionBinding,
   recordClaimAt,
   reportConfirmation,
   reportRemovalAt,
+  selectionBindingFor,
   stampItemIds,
   type ActStep,
   type StateName,
@@ -58,20 +60,18 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
-  const props = liveProps(
-    meta,
-    stampItemIds(meta, ctx.input),
-    ctx.entry.id,
-    local,
-    true,
-    projectDeviceData(ctx.options.deviceData, state.values),
-  );
+  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const live = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local, true, data);
+  const selection = selectionBindingFor(ctx.active, ctx.defs, meta, ctx.entry.id, local, data);
+  const props = projectSelectionBinding(meta, live, selection?.view);
   const part = affordancesOf(
     meta,
     props,
     ctx.entry.id,
     local,
     (props.state as StateName | undefined) ?? ctx.entry.state,
+    false,
+    data,
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)

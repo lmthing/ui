@@ -114,7 +114,7 @@ function stageControl(
   defs: Record<string, Definition>,
   next: Values,
   resolved: ActStep,
-  found: Affordance,
+  found: ReturnType<typeof affordancesOfScreen>[number],
   links: Extract<ActResult, { ok: true }>["links"],
   clockOwner: "planner" | "controller",
   snapshot: DeviceData | undefined,

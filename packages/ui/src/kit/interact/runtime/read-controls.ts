@@ -1,7 +1,10 @@
 import {
   migrateScreen,
+  projectDeviceData,
   readComponent,
   readScreen,
+  selectionBindingFor,
+  withDisabledSelectionChecks,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -60,11 +63,12 @@ export function readControls(
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
 ): string {
-  const migrated = migrateScreen(screen, { variantOnly: true });
+  const source = withDisabledSelectionChecks(screen, disabled);
+  const migrated = migrateScreen(source, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(screen, defs, values, lang, deviceData);
+    : readScreen(source, defs, values, lang, deviceData);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
@@ -77,6 +81,7 @@ function readKeypads(
   lang?: string,
   deviceData?: DeviceData,
 ) {
+  const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -85,9 +90,18 @@ function readKeypads(
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
-        : [`${id} ${c} (unknown)`];
+      if (!def) return [`${id} ${c} (unknown)`];
+      const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
+      return readComponent(
+        withKeypadDrafts(def, id, local),
+        props,
+        id,
+        state,
+        local,
+        lang,
+        deviceData,
+        selection?.view,
+      );
     }),
   ].join("\n");
 }

@@ -3,6 +3,7 @@ import type { DeviceData } from "../device-data";
 import { matches } from "../visibility";
 import { withLiveInput } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
+import { isSelectAll } from "../selection-binding";
 import {
   itemEditOffer,
   recordEdit,
@@ -67,6 +68,7 @@ export function partsOf(
                 meta.linkedEdits?.swap.part === part ||
                 reportConfirmation(meta, part, action));
             const suppressLink = Boolean(
+              isSelectAll(meta, part, action, item) ||
               itemControl ||
               (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
             );
@@ -76,9 +78,7 @@ export function partsOf(
               action,
               detail:
                 record?.action === "check"
-                  ? holder[record.date] === undefined
-                    ? ":todo"
-                    : ":done"
+                  ? `:${holder[record.date] === undefined ? "todo" : "done"}`
                   : detailOf(action, nested, suppressLink),
               ...withLiveInput(meta, part, action, holder, item),
             };

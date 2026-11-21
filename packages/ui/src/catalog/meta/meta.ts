@@ -147,6 +147,14 @@ export type Meta = {
     };
   };
   select?: SelectMeta;
+  /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
+  selectionBinding?: {
+    component: string;
+    source?: string;
+    check: string;
+    all: string;
+    requireSelection?: true;
+  };
   /** Named component parts with independent destinations and explicit offers. */
   selections?: Readonly<Record<string, NamedSelection>>;
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
@@ -170,7 +178,6 @@ export type Meta = {
 
 /** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
-
 export type PackMeta = {
   id: PackId;
   example: string;

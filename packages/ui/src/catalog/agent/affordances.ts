@@ -7,6 +7,7 @@ import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessi
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
+import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
 
@@ -91,15 +92,14 @@ export function affordancesOf(
   const runtime = values[`${instance}/$runtime`];
   const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
   const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  const offered = [
-    ...own,
-    ...nested.filter(
-      ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
-    ),
-  ];
+  const visibleNested = nested.filter(
+    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+  );
   const now = Number(get("$now") ?? Date.now());
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return offered.filter(({ address, action, part }) => {
+  return [...own, ...visibleNested].filter((offer) => {
+    const { address, action, part } = offer;
+    if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
     const event = sessionEvent(meta, target, action);

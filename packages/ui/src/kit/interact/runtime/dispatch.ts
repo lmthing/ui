@@ -3,6 +3,7 @@ import {
   projectDeviceData,
   hasPlaybackClock,
   hasRecordClock,
+  withDisabledSelectionChecks,
   wordsFor,
   type ActStep,
   type Values,
@@ -19,6 +20,7 @@ function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   if (ctx.standalone)
     for (const { c, id } of ctx.screen.components)
       if (ctx.defs[c] && hasRecordClock(ctx.defs[c]!.meta)) values[ctx.key(id, "$now")] = at;
+  const disabledParts = new Map(ctx.disabledParts);
   return {
     ...ctx,
     screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projectDeviceData(ctx.options.deviceData, values)),
@@ -26,8 +28,9 @@ function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     valuesOf: () => values,
     status: { ...ctx.status, confirmation: ctx.confirmationFor() },
     mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
+    disabledParts,
+    liveScreen: (next, sheet, covered) =>
+      withDisabledSelectionChecks(ctx.liveScreen(next, sheet, covered, at), disabledParts),
     expiredProgress: (next) => ctx.expiredProgress(next, at),
   };
 }

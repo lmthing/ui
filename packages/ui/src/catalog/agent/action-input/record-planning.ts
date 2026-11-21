@@ -1,6 +1,6 @@
 import type { Definition } from "../../probes";
 import type { ActStep, Values } from "../act";
-import { affordancesOf } from "../affordances";
+import { affordancesOf, type Affordance } from "../affordances";
 import {
   hasPlaybackClock,
   hasRecordClock,
@@ -12,7 +12,10 @@ import type { DeviceData } from "../device-data";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
 import { isRecordAction, recordRequestAllowed } from "../report-edits";
+import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
+
+type PlannedAffordance = Affordance & { checks?: readonly Affordance[] };
 
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
@@ -30,7 +33,8 @@ export function affordancesOfScreen(
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveInput(def, input, id, local, data);
+    const selection = selectionBindingFor(screen, defs, def.meta, id, local, data);
+    const props = projectSelectionBinding(def.meta, liveInput(def, input, id, local, data), selection?.view);
     const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
@@ -45,6 +49,7 @@ export function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      def.meta.selectionBinding ||
       items?.edits ||
       items?.move ||
       items?.records ||
@@ -57,7 +62,11 @@ export function affordancesOfScreen(
         : undefined);
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
-    return affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
+    const offered = affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
+    if (!selection) return offered;
+    return offered.map((a): PlannedAffordance =>
+      isSelectAll(def.meta, a.part, a.action, isItemOffer(id, a)) ? { ...a, checks: selection.checks } : a,
+    );
   });
 }
 

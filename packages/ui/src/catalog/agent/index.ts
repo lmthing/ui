@@ -60,6 +60,12 @@ export {
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
 export {
+  projectSelectionBinding,
+  selectionBindingFor,
+  withDisabledSelectionChecks,
+  type BoundSelection,
+} from "./selection-binding";
+export {
   activeParentId,
   isNestedTarget,
   nestedControls,
