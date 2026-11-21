@@ -65,7 +65,7 @@ export const performanceSample = z.strictObject({ at, quotes: z.array(quote) });
 const receipt = { id, at, revision: z.number().int().positive() };
 export const ledgerOperation = z.union([
   z.strictObject({ ...receipt, kind: z.literal("receive"), basis: z.string().optional() }),
-  z.strictObject({ ...receipt, kind: z.literal("reverse") }),
+  z.strictObject({ ...receipt, kind: z.literal("reverse"), receiptAt: at }),
   z.strictObject({ kind: z.literal("void"), id, at }),
 ]);
 

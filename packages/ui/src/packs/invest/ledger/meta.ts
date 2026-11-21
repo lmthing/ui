@@ -3,7 +3,6 @@ import { numberLine, type Meta, type RecordContext, type RecordRuntime } from ".
 import { buildHistory, planLedgerOperation } from "./history";
 import { activity, dividends, holdings, performance } from "./projections";
 import { invalid, performanceSample, time, type LedgerOperation, type LedgerResult } from "./records";
-
 export const portfolioKind = "investment_portfolios";
 const base = { kind: portfolioKind, scope: "portfolioId" } as const;
 const deviceData = [portfolioKind] as const;
@@ -29,7 +28,6 @@ function view<T>(key: string, result: LedgerResult<T>, format: (value: T) => Row
 function rows(key: string, entries: readonly Row[], empty = !entries.length) {
   return { [key]: entries, ...(empty ? { state: "empty" } : {}) };
 }
-
 function readRows(key: string, describe: (row: Row, props: Row, lang?: string) => string) {
   return (input: unknown, _state: string, lang?: string) => {
     const props = input as Row;
@@ -130,10 +128,13 @@ function press(kind: LedgerOperation["kind"]): NonNullable<RecordRuntime["presse
       if (!ledger.ok) return ledger;
       const id = String(row.recordId);
       const at = new Date(context.now).toISOString();
-      const op =
-        kind === "void"
-          ? ({ kind, id, at } as const)
-          : { kind, id, at, revision: Number(row.revision) + (kind === "receive" ? 1 : 0) };
+      const revision = Number(row.revision);
+      const op: LedgerOperation =
+        kind === "reverse"
+          ? { kind, id, at, revision, receiptAt: String(row.receivedAt) }
+          : kind === "receive"
+            ? { kind, id, at, revision: revision + 1 }
+            : { kind, id, at };
       const plan = planLedgerOperation(ledger.value.portfolio, context.journal, op, context.now);
       return plan.ok ? { operation: plan.value } : plan;
     },
@@ -169,7 +170,6 @@ export const dividendsLedger = {
       `${r.payOn}: entitled units ${measured(r.entitledUnits, lang)}, gross ${measured(r.gross, lang)}, net ${measured(r.net, lang)}${r.receivedAt ? `, received ${r.receivedAt}` : ""}`,
   ),
 } satisfies Declaration;
-
 export const activityLedger = {
   deviceData,
   recordRuntime: {

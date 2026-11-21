@@ -26,7 +26,13 @@ export const receive = {
   revision: 1,
   basis: JSON.stringify(["fund", Date.parse(date(3)), "2026-01-05", 1, 2, "10/1"]),
 } satisfies LedgerOperation;
-export const reverse = { kind: "reverse", id: "income", at: date(9), revision: 1 } satisfies LedgerOperation;
+export const reverse = {
+  kind: "reverse",
+  id: "income",
+  at: date(9),
+  revision: 1,
+  receiptAt: receive.at,
+} satisfies LedgerOperation;
 export function unwrap<T>(result: { ok: true; value: T } | { ok: false; error: string }) {
   if (!result.ok) throw new Error(result.error);
   return result.value;

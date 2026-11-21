@@ -181,3 +181,15 @@ it("applies host-acknowledged voids at the journal time", () => {
   expect(dividends(ledger)).toMatchObject([{ entitledUnits: 10, net: 8 }]);
   expect(unwrap(holdings(ledger))).toMatchObject({ cash: 1008, positions: [] });
 });
+
+it("rejects a saved reversal if the host replaces the original receipt", () => {
+  const host = (receivedAt: string) => ({
+    ...statement,
+    distributions: [{ ...statement.distributions[0]!, receivedAt }],
+  });
+  const approved = unwrap(planLedgerOperation(host(receive.at), [], reverse, now));
+  expect(approved).toEqual(reverse);
+  expect(buildHistory(host(date(6)), [approved], now)).toMatchObject({
+    error: "The original receipt no longer matches",
+  });
+});

@@ -13,7 +13,9 @@ import type { Decimal } from "./decimal";
 const keyOf = (op: LedgerOperation) => `${op.kind}/${op.id}/${"revision" in op ? op.revision : ""}`;
 const basisOf = (op: LedgerOperation) => (op.kind === "receive" ? op.basis : undefined);
 export const matchingOperation = (a: LedgerOperation, b: LedgerOperation) =>
-  time(a.at) === time(b.at) && (!basisOf(a) || !basisOf(b) || basisOf(a) === basisOf(b));
+  time(a.at) === time(b.at) &&
+  (!basisOf(a) || !basisOf(b) || basisOf(a) === basisOf(b)) &&
+  (a.kind !== "reverse" || b.kind !== "reverse" || time(a.receiptAt) === time(b.receiptAt));
 
 /** Retain the exact inputs to deposited dividend cash, not rounded display amounts. */
 export function receiptBasis(d: Distribution, [n, denominator]: Decimal) {

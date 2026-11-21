@@ -96,6 +96,7 @@ function stage(draft: Draft, op: LedgerOperation): LedgerResult<Draft> {
   if (op.kind === "reverse") {
     if (!last || last.revision !== op.revision || last.reversedAt || time(op.at) < time(last.at))
       return invalid("No matching receipt to reverse");
+    if (time(last.at) !== time(op.receiptAt)) return invalid("The original receipt no longer matches");
     const receipts = draft.receipts.map((r) => (r === last ? { ...r, reversedAt: op.at } : r));
     return valid({ ...draft, receipts });
   }
