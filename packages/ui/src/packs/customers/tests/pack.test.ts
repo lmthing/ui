@@ -30,6 +30,7 @@ const ids = [
   "Loyalty",
   "Agreement",
   "FollowUpQueue",
+  "SavedItems",
 ];
 const defs: Record<string, Definition> = components;
 const casts: CastLike[] = [
@@ -186,6 +187,6 @@ describe("customers archetype layouts", () => {
         }
       }
     }
-    expect(layouts).toBe(8);
+    expect(layouts).toBe(9);
   });
 });

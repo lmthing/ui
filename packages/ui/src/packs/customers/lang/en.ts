@@ -39,6 +39,16 @@ export const en = {
     success: "Follow-up updated",
     error: "Reminder wasn’t sent",
   },
+  savedItemLabels: {
+    taxable: "Taxable",
+    taxExempt: "Not taxable",
+    uncategorized: "Uncategorized",
+    rate: (amount: string, unit: string) => `${amount} / ${unit}`,
+    add: (title: string) => `Add ${title} to the invoice`,
+    remove: (title: string) => `Remove ${title} from saved items`,
+    success: "Billing item updated",
+    error: "Billing item wasn’t saved",
+  },
 };
 
 export type CustomersWords = typeof en;
