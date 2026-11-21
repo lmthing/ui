@@ -24,6 +24,7 @@ import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { registerPart } from "./part-registration";
 import { drivenPartBlock } from "./planning";
 import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
@@ -159,13 +160,6 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .filter((entry) => ctx.store.get(ctx.key(entry.id, "error")))
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
-}
-function registerPart(parts: Map<string, symbol>, local: string) {
-  const token = Symbol(local);
-  parts.set(local, token);
-  return () => {
-    if (parts.get(local) === token) parts.delete(local);
-  };
 }
 export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency, full = false) {
   const ctx = createControllerContext(options, !full);
