@@ -16,6 +16,7 @@ function unwrapOptional(schema: unknown): unknown {
 }
 
 function enumValues(items: Items, spec: EnumMove, schema?: Schema, current?: string): string[] {
+  // A defaulted collection can show rows with no editable wire slot.
   const rows = unwrapOptional(schema?.shape[items.key]);
   if (!(rows instanceof z.ZodArray) || !(rows.element instanceof z.ZodObject)) return [];
   const fieldSchema = rows.element.shape[spec.field];

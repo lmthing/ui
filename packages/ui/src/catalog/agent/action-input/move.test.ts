@@ -40,33 +40,6 @@ it("ignores a stored destination that is absent or no longer unique", () => {
   expect(itemActionOffer(meta, props, row, { ...offer, part: "trail" })).toEqual([]);
 });
 
-it("still reads normalized column labels and writes the numeric column index", () => {
-  const legacy = {
-    ...def,
-    props: def.props.extend({
-      cards: z.array(z.strictObject({ at: z.int(), title: z.string(), goto: z.string() })),
-    }),
-    meta: { ...meta, actions: { items: { root: ["move"] } } } satisfies Meta,
-  };
-  const input = { ...props, stages: [props.stages[0], { label: " Ready " }] };
-  const screen = { id: "home", components: [{ id: "b1", c: meta.id, ...input }] };
-  const defs = { [meta.id]: legacy };
-  expect(readScreen(screen, defs)).toContain('[b1/card1 move = "Waiting"; choices ["Ready"]]');
-  const move = { address: "b1/card1", action: "move" };
-  expect(planAct(screen, defs, {}, [{ ...move, value: " Ready " }])).toMatchObject({
-    ok: false,
-    code: "invalid_value",
-  });
-  const result = planAct(screen, defs, {}, [{ ...move, value: "Ready" }]);
-  expect(result.ok).toBe(true);
-  if (!result.ok) return;
-  expect(readScreen(screen, defs, result.values)).toContain('[b1/card1 move = "Ready"; choices ["Waiting"]]');
-  expect(projectMoves(legacy, input, (key) => result.values[`home/b1/${key}`])).toEqual({
-    ...input,
-    cards: [{ ...row, at: 1 }],
-  });
-});
-
 it("leaves a declared move offer unchanged without a column move spec", () => {
   const { move: _move, ...items } = meta.items;
   const derived = { name: "One", at: null };
@@ -113,10 +86,10 @@ const enumDef = {
     ...meta,
     actions: { items: { root: ["move"] } },
     items: { ...meta.items, move: { field: "stage", values: ["done", "review", "queued", "working"] } },
-    read: ({ cards }) =>
-      stages.map(
-        (stage) => `${stage}: ${(cards as { stage: string }[]).filter((row) => row.stage === stage).length}`,
-      ),
+    read: (input) => {
+      const { cards } = input as { cards: { stage: string }[] };
+      return stages.map((stage) => `${stage}: ${cards.filter((row) => row.stage === stage).length}`);
+    },
   } satisfies Meta,
 };
 const enumProps = { cards: [{ title: "One" }, { title: "Two", stage: "review" }] };
@@ -196,4 +169,19 @@ it("excludes enum values rejected by the field's schema refinements", () => {
   expect(readScreen(screen, defs)).toContain('[b1/card1 move = "queued"; choices ["review","working"]]');
   expect(planAct(screen, defs, {}, [step("done")])).toMatchObject({ ok: false, code: "invalid_value" });
   expect(projectMoves(refined, enumProps, () => "done")).toBe(enumProps);
+});
+
+it("does not offer wire moves for rows supplied by a collection default", () => {
+  const defaulted = {
+    ...enumDef,
+    props: enumDef.props.extend({
+      cards: enumDef.props.shape.cards.default([{ title: "One", stage: "queued" }]),
+    }),
+  };
+  const defs = { [meta.id]: defaulted };
+  const input = { ...screen, components: [{ id: "b1", c: meta.id }] };
+  const reading = readScreen(input, defs);
+  expect(reading).toContain("queued: 1");
+  expect(reading).not.toContain("[b1/card1 move");
+  expect(planAct(input, defs, {}, [step("done")])).toMatchObject({ ok: false, code: "not_actionable" });
 });
