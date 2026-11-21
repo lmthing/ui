@@ -1,5 +1,5 @@
-export { diceFaceLabel, diceSetupLine, diceSumLine } from "./Dice";
-export { scoreCopy, scoreReading } from "./ScoreSheet";
+export { diceDroppedIndex, diceFaceLabel, diceRulesLine, diceSetupLine, diceSumLine } from "./Dice";
+export { scoreBidLine, scoreCopy, scoreGoalCopy, scoreReading } from "./ScoreSheet";
 export { spinnerLines } from "./Spinner";
 export { triviaPointsCopy } from "./Trivia";
 export { turnOrderLines } from "./TurnOrder";
