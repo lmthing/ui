@@ -93,9 +93,7 @@ function stageControl(
   resolved: ActStep,
   found: Parameters<typeof stageValue>[2],
   links: Extract<ActResult, { ok: true }>["links"],
-  clockOwner: "planner" | "controller",
-  snapshot: DeviceData | undefined,
-  now: number,
+  timing: { owner: "planner" | "controller"; snapshot: DeviceData | undefined; now: number },
   {
     key,
     edit,
@@ -105,6 +103,7 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
+  const { owner, snapshot, now } = timing;
   let adjusted = edit
     ? undefined
     : stageItemAdjustment(screen, defs, address, action, next, found.adjustment);
@@ -114,7 +113,7 @@ function stageControl(
       next[`${base}/${part}`] = amount;
     next[key] = found.adjustment.next;
     adjusted = true;
-  } else if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
+  } else if (owner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
     return { ok: false, code: "not_actionable" };
   stageInlinePress(screen, defs, resolved, next);
@@ -181,18 +180,8 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const failure = stageControl(
-      screen,
-      defs,
-      next,
-      resolved,
-      found,
-      links,
-      clockOwner,
-      snapshot,
-      now,
-      validated,
-    );
+    const timing = { owner: clockOwner, snapshot, now };
+    const failure = stageControl(screen, defs, next, resolved, found, links, timing, validated);
     if (failure) return { ...failure, at };
     expireProgress(screen, defs, next, snapshot);
     if (found.send)

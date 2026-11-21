@@ -42,17 +42,18 @@ export function effectiveLimits(
   data?: DeviceData,
 ) {
   const related = Object.values(adjustments ?? {}).filter(
-    (adjust) => adjust !== undefined && adjust.prop === set.prop,
+    (adjust): adjust is NonNullable<typeof adjust> => adjust !== undefined && adjust.prop === set.prop,
   );
   const range = resolveRange(meta, [set, ...related], holder, props, data);
   const { min } = range;
   const cap = set.runtime && set.maxProp !== undefined ? props[set.maxProp] : Infinity;
   const max = Math.min(range.max, cap === Infinity || finite(cap) ? cap : -Infinity);
+  const whole = set.integer && (set.runtime || range.declared);
   return {
     ...set,
     ...range,
-    min: set.runtime && set.integer && !range.step ? Math.ceil(min) : min,
-    max: set.runtime && set.integer ? Math.floor(max) : max,
+    min: whole && !range.step ? Math.ceil(min) : min,
+    max: whole ? Math.floor(max) : max,
   };
 }
 

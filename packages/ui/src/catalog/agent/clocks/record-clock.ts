@@ -31,7 +31,11 @@ export function resetRecordClockOwners(values: Values, screen: string) {
 export const hasRecordClock = (meta: Definition["meta"]) =>
   Boolean(meta.clocks?.some(({ commitOnStop, journal }) => commitOnStop || journal));
 
-function clockOperation(clock: ClockMeta, target: string, action: string) {
+type Operation = "start" | "stop" | "reset" | "lap";
+type Transition = { clock: ClockMeta; group: string | undefined; state: ClockState; op: Operation };
+type Append = Transition & { row: Values; patch: Values };
+
+function clockOperation(clock: ClockMeta, target: string, action: string): Operation | undefined {
   return (
     journalOperation(clock, target, action) ??
     (["start", "stop", "reset"] as const).find(
@@ -40,7 +44,11 @@ function clockOperation(clock: ClockMeta, target: string, action: string) {
   );
 }
 
-function recordClockStep(context: Context, target: string, action: string) {
+function recordClockStep(
+  context: Context,
+  target: string,
+  action: string,
+): Transition | Append | false | undefined {
   const { def, props, get, now, data, owners } = context;
   const matching = (def.meta.clocks ?? []).filter(
     (clock) => (clock.commitOnStop || clock.journal) && clockOperation(clock, target, action),
@@ -157,7 +165,8 @@ export function stageRecordClock(
   values[`${base}/$${clock.id}`] = state;
   if (clock.prop && op !== "lap")
     values[`${base}/$${clock.prop}${clock.prop === clock.id ? "/seconds" : ""}`] = state.seconds;
-  if (op !== "lap" && clock[op]?.state) values[`${base}/$state`] = clock[op].state;
+  const nextState = op === "lap" ? undefined : clock[op]?.state;
+  if (nextState) values[`${base}/$state`] = nextState;
   return true;
 }
 

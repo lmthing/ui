@@ -16,7 +16,13 @@ import {
 } from "../../../../catalog";
 import { planHostAct } from "../../../../catalog/agent/action-input";
 import type { ControllerContext, ScreenComponent } from "../index";
-import { deliverSend, type ActionContext } from "../../actions";
+import {
+  actionFailure,
+  deliverSend,
+  type ActionContext,
+  type ActionResult,
+  type ActionState,
+} from "../../actions";
 
 export function drivenPartBlock(ctx: ControllerContext, address: string, action?: string) {
   if (ctx.privateMarks.has(address) || ctx.store.get(privateMarkKey(ctx.screen.id, address)))
@@ -48,6 +54,19 @@ export function confirmReport(
     { kind: "confirm", now: ctx.now(), removal },
     ctx.options.deviceData,
   );
+}
+
+export function runAnchor(
+  ctx: ControllerContext,
+  before: ActionState,
+  state: ActionState,
+  address: string,
+  action: "focus" | "jump",
+  at: number,
+): ActionResult {
+  const block = drivenPartBlock(ctx, address, action);
+  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
 }
 
 export function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {

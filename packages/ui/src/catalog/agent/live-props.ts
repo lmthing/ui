@@ -12,7 +12,13 @@ import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-ed
 import { projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
-import { projectAdjustments, projectComponentSets, projectLiveClocks, projectMatrix } from "./clocks";
+import {
+  hasLiveAdjustments,
+  projectAdjustments,
+  projectComponentSets,
+  projectLiveClocks,
+  projectMatrix,
+} from "./clocks";
 type Get = (part: string) => unknown;
 function unwrapField(field: unknown, wire = false): unknown {
   while (
@@ -115,7 +121,9 @@ export function projectControls(meta: Meta, props: Values, get: Get, mode?: "liv
 export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
   const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
-  return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
+  return runtime || meta.items?.set || meta.items?.adjust || hasLiveAdjustments(meta)
+    ? projectAdjustments(meta, nested, get)
+    : nested;
 }
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
@@ -135,7 +143,7 @@ export function liveProps(
   let props = wireApplied
     ? projectParsedControls(meta, addressed, get, runtime)
     : projectControls(meta, addressed, get);
-  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
+  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime || hasLiveAdjustments(meta)))
     props = projectAdjustments(meta, props, get);
   const timed = projectLiveClocks(
     meta,

@@ -5,6 +5,7 @@ import {
   clockTime,
   clockEnded,
   clockMax,
+  hasTimestampClock,
   timestampReading,
   parseControlProps,
   isDeviceDataVisible,
@@ -26,6 +27,7 @@ function tickInput(
   const def = ctx.defs[entry.c]!;
   const { meta } = def;
   if (
+    hasTimestampClock(meta) ||
     [meta.clocks, meta.items?.clocks, meta.items?.nested?.clocks].some((clocks) =>
       clocks?.some(({ liveDuration }) => liveDuration),
     )

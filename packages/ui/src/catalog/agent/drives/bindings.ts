@@ -1,10 +1,12 @@
 import type { DriveBindings, DriveCommand, Meta } from "../../meta";
 import { controlsAreValid, selectStep, stageValue, validateStep } from "../action-input";
 import { isItemOffer } from "../selection-binding";
+import { linkedInput } from "../linked-edits";
 import { addressedItems } from "../visibility";
 import {
   reportConfirmation,
   partTierAt,
+  selectionOffer,
   validateActionValue,
   type ActStep,
   type Affordance,
@@ -22,7 +24,10 @@ function destination(ctx: DriveContext, command: DriveCommand, source: string, p
     target.offer.detail.startsWith("→") ||
     ctx.canDrive?.(target.address, undefined, command.action) === false ||
     target.meta.confirmParts?.includes(part) ||
-    reportConfirmation(target.meta, part, command.action)
+    reportConfirmation(target.meta, part, command.action) ||
+    (command.action === "select" && !selectionOffer(target.meta, part)) ||
+    (command.action === "set" && !Object.hasOwn(target.meta.set ?? {}, part)) ||
+    (command.action === "type" && target.offer.input?.kind !== "text" && target.meta.id !== "Composer")
   )
     return;
   return { ...target, offer: target.offer };
@@ -40,7 +45,7 @@ function payload(
   if (typeof value !== "string" && typeof value !== "number") return;
   if (command.action !== "type" || !command.append || typeof value !== "string") return value;
   const part = command.to.part;
-  const prop = target.meta.live?.text?.[part]?.prop;
+  const prop = (linkedInput(target.meta, part) ?? target.meta.live?.text?.[part])?.prop;
   const before = prop ? target.props[prop] : (values[target.address] ?? target.props.value);
   return `${typeof before === "string" ? before : ""}${value}`;
 }
@@ -75,6 +80,7 @@ export function routeBinding(
     ({ scope, part }) => part === offer.part && (scope === "item") === item,
   );
   if (!command) return offer;
+  if (ctx.canDrive?.(offer.address, undefined, "press") === false) return;
   if (partTierAt(meta, props, offer.part) !== "phone" || meta.confirmParts?.includes(offer.part)) return;
   const target = destination(ctx, command, id, props);
   if (!target) return;

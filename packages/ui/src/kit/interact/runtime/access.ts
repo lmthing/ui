@@ -102,11 +102,27 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
-function registerPart(parts: Map<string, symbol>, local: string) {
-  const token = Symbol(local);
-  parts.set(local, token);
+function registerPart<T>(parts: Map<string, T>, local: string, registration: T, refresh: () => void) {
+  const existed = parts.has(local);
+  parts.set(local, registration);
+  if (!existed) refresh();
   return () => {
-    if (parts.get(local) === token) parts.delete(local);
+    if (parts.get(local) !== registration) return;
+    parts.delete(local);
+    refresh();
+  };
+}
+
+function driveRefresh(ctx: ControllerContext) {
+  const bound = ctx.screen.components.some(({ c }) => typeof ctx.defs[c]?.meta.drives === "object");
+  let pending = false;
+  return () => {
+    if (!bound || pending || ctx.status.disposed) return;
+    pending = true;
+    queueMicrotask(() => {
+      pending = false;
+      if (!ctx.status.disposed) ctx.store.setMany({});
+    });
   };
 }
 export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
@@ -114,6 +130,7 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
+  const refresh = driveRefresh(ctx);
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
@@ -135,15 +152,12 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       }
       return result;
     },
-    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address)),
-    registerAnchor(address: string, handler: (action: "focus" | "jump") => void) {
-      const local = ctx.relative(address);
-      ctx.anchors.set(local, handler);
-      return () => {
-        if (ctx.anchors.get(local) === handler) ctx.anchors.delete(local);
-      };
-    },
-    registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
+    registerPart: (address: string) =>
+      registerPart(ctx.mounted, ctx.relative(address), Symbol(address), refresh),
+    registerAnchor: (address: string, handler: (action: "focus" | "jump") => void) =>
+      registerPart(ctx.anchors, ctx.relative(address), handler, refresh),
+    registerDisabledPart: (address: string) =>
+      registerPart(ctx.disabledParts, ctx.relative(address), Symbol(address), refresh),
     registerPrivateMarkPart: privateMarkRegistration(ctx, act),
   };
 }

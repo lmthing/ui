@@ -20,6 +20,7 @@ import {
   isDraw,
   isRevealRelease,
   needsConfirmation,
+  runAnchor,
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
@@ -98,19 +99,6 @@ function runControl(
     { ...selected, address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
   );
-}
-
-function runAnchor(
-  ctx: ControllerContext,
-  before: ActionState,
-  state: ActionState,
-  address: string,
-  action: "focus" | "jump",
-  at: number,
-): ActionResult {
-  const block = drivenPartBlock(ctx, address, action);
-  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
-  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
 }
 
 function stepRunner(

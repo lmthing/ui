@@ -24,4 +24,11 @@ export { hasTimestampClock, timestampReading, projectClocks, projectLiveClocks }
 export { clockMax } from "./clock";
 export { hasRuntimeSets, isRuntimeSet, projectComponentSets, projectRuntimeSets } from "./component-sets";
 export { adjustmentAt, clearItemSets, projectAdjustments, projectMatrix } from "./adjustment";
-export { declaresNumericLimits, numericError, numericSetAt, setAt, snapNumber } from "./numeric";
+export {
+  declaresNumericLimits,
+  hasLiveAdjustments,
+  numericError,
+  numericSetAt,
+  setAt,
+  snapNumber,
+} from "./numeric";

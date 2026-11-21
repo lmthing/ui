@@ -25,10 +25,15 @@ it("refreshes declared ranges on mounted controls, snaps human edits, and focuse
     const browser = await launchChrome();
     try {
       const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-      await page.addInitScript("globalThis.process ??= { env: {} }");
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name ??= (fn) => fn");
       await page.goto(`${server.resolvedUrls!.local[0]}runtime-controls`);
       const slider = page.getByRole("slider", { name: "Amount slider" });
-      const input = page.getByRole("spinbutton", { name: "Amount" });
+      const input = page.getByRole("spinbutton", { name: "Amount", exact: true });
+      await slider.waitFor({ timeout: 10000 }).catch((error: Error) => {
+        throw new Error(errors.join("\n") || error.message);
+      });
       await slider.press("End");
       expect(await input.inputValue()).toBe("0.3");
       expect(await input.getAttribute("aria-valuemax")).toBe("0.3");
@@ -36,6 +41,13 @@ it("refreshes declared ranges on mounted controls, snaps human edits, and focuse
       expect(await slider.getAttribute("aria-valuemax")).toBe("0.5");
       await input.fill("0.46");
       expect(await slider.getAttribute("aria-valuenow")).toBe("0.5");
+      const wholeInput = page.getByRole("spinbutton", { name: "Whole amount" });
+      const wholeSlider = page.getByRole("slider", { name: "Whole slider" });
+      await wholeSlider.press("End");
+      expect(await wholeInput.inputValue()).toBe("4");
+      expect(await wholeInput.getAttribute("aria-valuemin")).toBe("1");
+      await wholeInput.fill("2.6");
+      expect(await wholeSlider.getAttribute("aria-valuenow")).toBe("3");
       await page.getByRole("button", { name: "Go to note" }).click();
       expect(
         await page.getByRole("textbox", { name: "Note" }).evaluate((node) => node === document.activeElement),

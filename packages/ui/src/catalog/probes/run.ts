@@ -25,6 +25,7 @@ async function runOne(
       undefined,
       readFixtureFor(def.meta.id, probe),
       probe.at,
+      probe.siblings ? { siblings: probe.siblings, defs } : undefined,
     );
     const reply = await callModel(prompt);
     const { pass, detail } = scoreRead(reply, probe.expect);

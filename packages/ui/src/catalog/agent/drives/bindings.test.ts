@@ -1,100 +1,14 @@
 import { expect, it } from "vitest";
-import { z } from "zod";
 import {
   components,
   hostOnlyParts,
   planAct,
   readScreen,
+  runProbes,
   type Definition,
-  type Values,
 } from "@lmthing/ui/catalog";
-
-const seed = {
-  group: "input",
-  region: "body",
-  weight: 1,
-  tier: "phone",
-  purpose: "",
-  pick: "",
-  realPath: "",
-} as const;
-const Draft: Definition = {
-  meta: {
-    ...seed,
-    id: "Draft",
-    parts: ["entry", "field", "choice"],
-    actions: { parts: { entry: ["focus", "jump"], field: ["type"], choice: ["select"] } },
-    live: { text: { field: { prop: "draft", max: 4 } } },
-    selections: { choice: { prop: "selected", choices: ["one", "two"], runtime: true } },
-    read: (props) => {
-      const { draft, selected } = props as Values;
-      return [`${JSON.stringify(draft ?? "")} ${selected ?? "none"}`];
-    },
-  },
-  props: z.strictObject({}),
-  fallback: () => ({}),
-  examples: [],
-  probes: [],
-};
-const Keys: Definition = {
-  ...Draft,
-  meta: {
-    ...seed,
-    id: "Keys",
-    parts: ["jump", "pick"],
-    items: { key: "keys", parts: ["root", "fill"] },
-    actions: { parts: { jump: ["press"], pick: ["press"] }, items: { root: ["press"], fill: ["press"] } },
-    drives: {
-      commands: [
-        {
-          scope: "item",
-          part: "root",
-          to: { component: "Draft", instance: { prop: "target" }, part: "field" },
-          action: "type",
-          payload: { from: "letter" },
-          append: true,
-        },
-        {
-          scope: "item",
-          part: "fill",
-          to: { component: "Draft", instance: { prop: "target" }, part: "field" },
-          action: "type",
-          payload: { from: "letter" },
-        },
-        {
-          scope: "component",
-          part: "jump",
-          to: { component: "Draft", instance: { prop: "target" }, part: "entry" },
-          action: "jump",
-        },
-        {
-          scope: "component",
-          part: "pick",
-          to: { component: "Draft", part: "choice" },
-          action: "select",
-          payload: { value: "two" },
-        },
-      ],
-      observe: { from: { component: "Player", part: "scrubber" }, at: "playhead", playing: "following" },
-    },
-    read: (props) => {
-      const { playhead, following } = props as Values;
-      return [`playhead ${playhead ?? "-"} ${following ?? false}`];
-    },
-  },
-  props: z.strictObject({ target: z.string(), keys: z.array(z.strictObject({ letter: z.string() })) }),
-};
-const defs = { Keys, Draft, Player: components.Player };
-const keys = {
-  id: "keys",
-  c: "Keys",
-  target: "d",
-  keys: [{ letter: "A" }, { letter: "B" }, { letter: "large" }],
-};
-const draft = { id: "d", c: "Draft" };
-const player = { id: "p", c: "Player", title: "Recording", media: "lib:fixture", seconds: 30 };
-const screen = { id: "s", components: [keys, draft, player] };
-const press = (part: string) => ({ address: `keys/${part}`, action: "press" });
+import { createScreenController } from "@lmthing/ui/kit";
+import { Draft, Keys, defs, draft, keys, player, press, screen } from "./bindings.fixture";
 
 it("routes typed presses in sequence, checks the destination value, and leaves the wire input alone", () => {
   expect(readScreen(screen, defs)).not.toContain("[keys/r3 press]");
@@ -154,4 +68,76 @@ it("observes the same Player's sampled playhead without issuing a command", () =
   expect(
     readScreen({ ...screen, components: [...screen.components, { ...player, id: "p2" }] }, defs),
   ).toContain("playhead - false");
+});
+
+it("hides a mounted binding when its source is disabled", () => {
+  const runtime = createScreenController({ screen, defs, requireMounted: true });
+  const source = "keys/r1";
+  try {
+    runtime.registerPart(source);
+    runtime.registerPart("d/field");
+    expect(runtime.read()).toContain("[keys/r1 press]");
+    const enable = runtime.registerDisabledPart(source);
+    expect(runtime.read()).not.toContain("[keys/r1 press]");
+    expect(runtime.act(press("r1"))).toMatchObject({ ok: false, code: "disabled" });
+    enable();
+    expect(runtime.read()).toContain("[keys/r1 press]");
+  } finally {
+    runtime.dispose();
+  }
+});
+
+it("appends to the linked projection rather than the raw address slot", () => {
+  const linked: Definition = {
+    ...Draft,
+    meta: {
+      ...Draft.meta,
+      linkedEdits: {
+        inputs: { field: { prop: "draft", max: 12 } },
+        swap: { part: "swap", sides: ["field", "other"] },
+        project: (_, state) => ({ draft: state.edit?.text ?? "seed" }),
+      },
+    },
+  };
+  const result = planAct(screen, { ...defs, Draft: linked }, {}, [press("r1"), press("r2")]);
+  expect(result).toMatchObject({ ok: true, values: { "s/d/$linked": { edit: { text: "seedAB" } } } });
+});
+
+it("does not redirect to an implicit selection with a mounted-only value contract", () => {
+  const source: Definition = {
+    ...Keys,
+    meta: {
+      ...Keys.meta,
+      drives: {
+        commands: [
+          {
+            scope: "component",
+            part: "pick",
+            to: { component: "Scale", part: "l1" },
+            action: "select",
+            payload: { value: 2 },
+          },
+        ],
+      },
+    },
+  };
+  const input = { id: "s", components: [keys, { id: "scale", c: "Scale", label: "Rating" }] };
+  const definitions = { Keys: source, Scale: components.Scale };
+  expect(readScreen(input, definitions)).not.toContain("[keys/pick press]");
+  expect(planAct(input, definitions, {}, [press("pick")]).ok).toBe(false);
+});
+
+it("composes an explicit typed sibling into a real read probe", async () => {
+  const source: Definition = {
+    ...Keys,
+    examples: [{ target: keys.target, keys: keys.keys }],
+    probes: [{ kind: "read", screen: 0, task: "Use the first key.", siblings: [draft], expect: press("r1") }],
+  };
+  const [result] = await runProbes({
+    defs: [source, Draft],
+    only: ["Keys"],
+    callModel: async (prompt) => (prompt.includes("[keys/r1 press]") ? JSON.stringify(press("r1")) : ""),
+  });
+  expect(result).toMatchObject({ status: "pass" });
+  expect(result?.prompt).toContain("d Draft");
 });

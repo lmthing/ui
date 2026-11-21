@@ -43,3 +43,5 @@ export function declaresNumericLimits(meta: Meta, part: string, item: boolean) {
     Object.values(adjustments ?? {}).some((a) => a?.prop === spec.prop && tracksBounds(a))
   );
 }
+
+export const hasLiveAdjustments = (meta: Meta) => Object.values(meta.adjust ?? {}).some(tracksBounds);

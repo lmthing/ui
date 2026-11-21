@@ -75,3 +75,24 @@ it("uses current staged props and record limits in reads, direct sets, and item 
   expect(planAct(screen, defs, {}, [set("r1/amount", 0.32)], null, "planner", data).ok).toBe(false);
   expect(planAct(screen, defs, {}, [set("size", 0.2)], null, "planner", data).ok).toBe(false);
 });
+
+it("projects a detached adjustment without a setter before deriving the next step's bounds", () => {
+  const definition: Definition = {
+    ...def,
+    props: z.strictObject({ cap: z.int(), value: z.int() }),
+    meta: {
+      ...def.meta,
+      actions: { parts: { more: ["increment"], value: ["set"] } },
+      adjust: { "more.increment": { prop: "cap", delta: 1, bounds: () => ({ min: 1, max: 3 }) } },
+      set: { value: { prop: "value", bounds: (_, { cap }) => ({ min: 1, max: Number(cap) }) } },
+      read: (input) => [`cap ${(input as { cap: number }).cap}`],
+    },
+  };
+  const input = { id: "s", components: [{ id: "q", c: "Quantities", cap: 1, value: 1 }] };
+  const definitions = { Quantities: definition };
+  const more = { address: "q/more", action: "increment" };
+  expect(planAct(input, definitions, {}, [set("value", 2)]).ok).toBe(false);
+  const result = planAct(input, definitions, {}, [more, set("value", 2)]);
+  expect(result).toMatchObject({ ok: true, values: { "s/q/$adjust/cap": 2, "s/q/$adjust/value": 2 } });
+  if (result.ok) expect(readScreen(input, definitions, result.values)).toContain("cap 2");
+});
