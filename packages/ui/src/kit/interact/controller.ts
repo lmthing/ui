@@ -96,6 +96,12 @@ export function createScreenController(options: ControllerOptions & { currency?:
     get deviceData() {
       return options.deviceData;
     },
+    get openSheet() {
+      return ctx.status.openSheet;
+    },
+    get confirmation() {
+      return ctx.confirmationFor();
+    },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
     ...lifecycle(ctx, clock, sequence, media, schedule),
   };
@@ -117,12 +123,6 @@ function lifecycle(
       if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
       clock.scheduleClock();
       sequence.mount();
-    },
-    get openSheet() {
-      return ctx.status.openSheet;
-    },
-    get confirmation() {
-      return ctx.confirmationFor();
     },
     confirmationFor: ctx.confirmationFor,
     discardHiddenConfirmation: () => {
