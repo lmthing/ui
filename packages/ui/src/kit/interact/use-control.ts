@@ -9,7 +9,6 @@ import {
 import { isWeb } from "tamagui";
 import {
   activeParentId,
-  dateSpanKey,
   emptyDeviceData,
   linkedEditKey,
   liveProps,
@@ -64,8 +63,12 @@ export function useLiveControls(meta: Meta, props: Values): Values {
       ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
       : undefined;
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
-  const spanSnapshot = () =>
-    meta.dateSpan ? controller?.store.get(`${screen}/${component}/${dateSpanKey}`) : undefined;
+  const spanSnapshot = () => {
+    const span = meta.dateSpan;
+    if (!span || !controller) return;
+    const live = controller.liveControls(meta, props, component);
+    return JSON.stringify([live[span.start], live[span.end], span.when && live[span.when.prop]]);
+  };
   useSyncExternalStore(subscribe, spanSnapshot, spanSnapshot);
   return (
     host?.liveControls(meta, props, component) ??

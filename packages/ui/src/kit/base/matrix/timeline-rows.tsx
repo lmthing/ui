@@ -20,12 +20,20 @@ type TimelineProps = {
   separators?: readonly string[];
 };
 
+function timelineCells(row: MatrixRow, count: number) {
+  return timelineLayout(row.cells, count).flatMap((slot) =>
+    slot.cell
+      ? [slot]
+      : Array.from({ length: slot.span }, (_, at) => ({ ...slot, start: slot.start + at, span: 1 })),
+  );
+}
+
 export function TimelineRows(props: TimelineProps) {
   const { rows, columns, heights, activeColumn, loading, separators } = props;
   const selected = useContext(MatrixSelectionContext);
   return rows.map((row) => (
     <XStack key={row.id}>
-      {timelineLayout(row.cells, columns.length).map(({ cell, start, span }) => {
+      {timelineCells(row, columns.length).map(({ cell, start, span }) => {
         const active = columns
           .slice(start, start + span)
           .some(({ id }) => id === activeColumn || selected.includes(id));

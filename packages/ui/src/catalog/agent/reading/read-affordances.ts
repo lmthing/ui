@@ -72,10 +72,10 @@ export function readAffordances(
   props = sessionActionProps(meta, props, session);
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
+    if (a.dateSpan) return { ...a, detail: risks[partTierAt(meta, props, a.part)] ?? "" };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
-    const item = itemEditAt(meta, props, target);
-    const picker = pickerAt(meta, props, target);
+    const [item, picker] = [itemEditAt(meta, props, target), pickerAt(meta, props, target)];
     const selected = options
       ? picker
         ? picker.row[picker.spec.prop]

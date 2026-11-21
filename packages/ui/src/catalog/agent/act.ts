@@ -40,9 +40,9 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      datePicks?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
   screen: ScreenLike,
@@ -74,7 +74,6 @@ function liveInput(def: Definition, input: Values, id: string, local: Values, da
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
 }
-
 function expireProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -170,8 +169,8 @@ export function planAct(
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
-    // Clipboard text is a host effect, not a value to persist or echo back.
     if (step.action === "copy") {
+      // Clipboard text stays in the host.
       changed.push(`${address} copy`);
       continue;
     }
@@ -191,6 +190,7 @@ export function planAct(
     }
     const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
     if (failure) return { ...failure, at };
+    if (found.dateSpan) (plan.datePicks ??= []).push(resolved);
     expireProgress(screen, defs, next, snapshot);
     if (found.send)
       (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });

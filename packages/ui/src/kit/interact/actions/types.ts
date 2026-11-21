@@ -19,6 +19,7 @@ export type ActionContext = {
   input: Values;
   defs: Record<string, Definition>;
   selected: ActStep;
+  plannedDate?: ActStep | undefined;
   links: { goto: string; address: string }[];
   send?: SendDraft | undefined;
   at: number;

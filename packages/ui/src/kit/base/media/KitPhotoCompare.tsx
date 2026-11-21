@@ -2,10 +2,9 @@ import { useState } from "react";
 import { XStack, YStack } from "tamagui";
 import { component, radius, space, variants, type AxisValue } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
-import { useKit } from "../../provider";
 import { KitSlider } from "../slider";
 import { KitText } from "../text";
-import { PhotoLayer } from "./photo-layer";
+import { PhotoLayer, usePhotoLayer, type PhotoLayerSource } from "./photo-layer";
 
 type CompareProps = {
   beforePhoto?: string;
@@ -20,7 +19,7 @@ type CompareProps = {
   disabled?: boolean;
 };
 
-function ClippedBefore({ source, width, clip }: { source: string; width: number; clip: number }) {
+function ClippedBefore({ layer, width, clip }: { layer: PhotoLayerSource; width: number; clip: number }) {
   return (
     <YStack
       position="absolute"
@@ -30,7 +29,7 @@ function ClippedBefore({ source, width, clip }: { source: string; width: number;
       overflow="hidden"
       pointerEvents="none"
     >
-      <PhotoLayer source={source} width={width} />
+      <PhotoLayer key={layer.source} {...layer} width={width} />
     </YStack>
   );
 }
@@ -75,12 +74,11 @@ export function KitPhotoCompare({
   aspect = "wide",
   disabled = false,
 }: CompareProps) {
-  const { resolvePhoto } = useKit();
   const loading = useComponentState() === "loading";
   const address = usePart(part);
   const [width, setWidth] = useState(0);
-  const before = !loading && beforePhoto ? resolvePhoto?.(beforePhoto) : undefined;
-  const after = !loading && afterPhoto ? resolvePhoto?.(afterPhoto) : undefined;
+  const before = usePhotoLayer(loading ? undefined : beforePhoto);
+  const after = usePhotoLayer(loading ? undefined : afterPhoto);
   const value = Number.isFinite(split) ? Math.min(100, Math.max(0, split)) : 50;
   return (
     <YStack
@@ -96,8 +94,10 @@ export function KitPhotoCompare({
         setWidth(event.nativeEvent.layout.width);
       }}
     >
-      {after && <PhotoLayer source={after} />}
-      {before && width > 0 && <ClippedBefore source={before} width={width} clip={after ? value : 100} />}
+      {after.layer && <PhotoLayer key={after.layer.source} {...after.layer} />}
+      {before.layer && width > 0 && (
+        <ClippedBefore layer={before.layer} width={width} clip={after.ready ? value : 100} />
+      )}
       {!loading && <CompareLabels before={beforeLabel} after={afterLabel} />}
       {!loading && (
         <KitSlider
@@ -107,7 +107,7 @@ export function KitPhotoCompare({
           value={value}
           label={label}
           part={sliderPart}
-          disabled={disabled || !before || !after}
+          disabled={disabled || !before.ready || !after.ready}
         />
       )}
     </YStack>

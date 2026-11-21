@@ -78,7 +78,7 @@ export function dateSpanOffer(meta: Meta, props: Values, part: string, action: s
 
 export function dateSpanItem(meta: Meta, props: Values, target: string) {
   const rows = meta.items && props[meta.items.key];
-  if (!activeDateSpan(meta, props) || target.includes("/") || !Array.isArray(rows)) return;
+  if (!meta.dateSpan || target.includes("/") || !Array.isArray(rows)) return;
   return (rows as Values[]).find(({ id }) => id === target);
 }
 

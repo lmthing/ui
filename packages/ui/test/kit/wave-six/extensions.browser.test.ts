@@ -64,11 +64,24 @@ it("gives a spanned program one target and keeps its channel pinned through huma
   ).toBe(true);
   expect(await page.evaluate(() => window.extensionController.store.get("home/guide/now/$jump"))).toBe(2);
   await expect.poll(scrollPosition).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.extensionEvents)).not.toContain("opened details");
+  await button("Open details").click();
+  expect(await page.evaluate(() => window.extensionEvents)).toContain("opened details");
   await program.press("Enter");
   expect(await page.evaluate(() => window.extensionEvents)).toContain("home/guide/r1 press");
   await button("Loading").click();
   expect(await program.count()).toBe(0);
   expect(await page.getByTestId("home/guide/r1/root").count()).toBe(0);
+});
+
+it("tints only the current empty time slot rather than the whole gap", async () => {
+  const fills = await button("Weather bulletin").evaluate((node) => {
+    const row = node.parentElement!.parentElement!;
+    return Array.from(row.children).map((slot) => getComputedStyle(slot.firstElementChild!).backgroundColor);
+  });
+  expect(fills).toHaveLength(7);
+  expect(fills[2]).not.toBe(fills[0]);
+  expect(fills.filter((fill) => fill !== fills[0])).toEqual([fills[2]]);
 });
 
 it("keeps both image rectangles aligned while pointer, keyboard and agent update the clip", async () => {
@@ -77,6 +90,7 @@ it("keeps both image rectangles aligned while pointer, keyboard and agent update
   const before = frame.locator('img[src$="#before"]');
   const after = frame.locator('img[src$="#after"]');
   await before.waitFor({ state: "attached" });
+  await expect.poll(() => slider.isEnabled()).toBe(true);
   const box = (await frame.boundingBox())!;
   expect((await before.boundingBox())!.width).toBeCloseTo(box.width);
   expect((await after.boundingBox())!.width).toBeCloseTo(box.width);
@@ -91,15 +105,21 @@ it("keeps both image rectangles aligned while pointer, keyboard and agent update
   expect(await slider.getAttribute("aria-valuenow")).toBe("75");
   expect(
     await page.evaluate(
-      () => window.extensionController.act({ address: "photo/split", action: "set", value: 30 }).ok,
+      () => window.extensionController.act({ address: "photo/scrubber", action: "set", value: 30 }).ok,
     ),
   ).toBe(true);
   await expect.poll(() => slider.getAttribute("aria-valuenow")).toBe("30");
   const clip = frame.locator(":scope > div").filter({ has: page.locator('img[src$="#before"]') });
   expect((await clip.boundingBox())!.width).toBeCloseTo(box.width * 0.3, 0);
   expect(await clip.evaluate((node) => getComputedStyle(node).overflow)).toBe("hidden");
-  await button("Missing photo").click();
+  await button("Break images").click();
+  await expect.poll(() => frame.locator("img").count()).toBe(1);
   expect(await slider.isDisabled()).toBe(true);
+  expect(
+    await page.evaluate(
+      () => window.extensionController.act({ address: "photo/scrubber", action: "set", value: 10 }).ok,
+    ),
+  ).toBe(false);
   await slider.press("End");
   expect(await slider.getAttribute("aria-valuenow")).toBe("30");
   await button("Loading").click();
@@ -118,10 +138,16 @@ it("swaps the host radar frame without moving its marker or adding another addre
       return { left: pin.left - bounds.left, top: pin.top - bounds.top };
     });
   const bounds = await origin();
+  const streets = map.locator(":scope > svg");
+  await expect.poll(() => streets.count()).toBe(0);
   await button("Next frame").click();
   await map.locator('img[src$="#next"]').waitFor({ state: "attached" });
   expect(await origin()).toEqual(bounds);
   expect(await map.locator("[data-testid]").count()).toBe(1);
+  await button("Break images").click();
+  await expect.poll(() => streets.count()).toBe(1);
+  await expect.poll(() => map.locator("img").count()).toBe(0);
+  expect(await origin()).toEqual(bounds);
   await button("Loading").click();
   expect(await map.locator("img").count()).toBe(0);
   expect(await pin.count()).toBe(0);
@@ -130,6 +156,19 @@ it("swaps the host radar frame without moving its marker or adding another addre
 it("uses the same date gates for mounted day buttons and agent selection", async () => {
   const range = page.getByLabel("Selected range");
   expect(await button("April 2").isDisabled()).toBe(true);
+  await button("April 3").click();
+  const read = () => page.evaluate(() => window.extensionController.read());
+  expect(await read()).toContain("[dates/r3 select = 2]");
+  await button("Date range").click();
+  expect(await read()).toContain("[dates/r3 select]");
+  const offered = (await read()).match(/\[(dates\/r3) (select)\]/)!;
+  expect(
+    await page.evaluate(
+      ([address, action]) => window.extensionController.act({ address: address!, action: action! }).ok,
+      offered.slice(1),
+    ),
+  ).toBe(true);
+  await button("Clear dates").click();
   await button("April 1").click();
   expect(await range.textContent()).toBe("2026-04-01");
   expect(await button("April 4").isDisabled()).toBe(true);
@@ -142,5 +181,7 @@ it("uses the same date gates for mounted day buttons and agent selection", async
   expect(await selectFromAgent("dates/r5")).toBe(true);
   expect(await range.textContent()).toBe("2026-04-03 to 2026-04-05");
   await button("Clear dates").click();
+  await button("Single date").click();
+  await expect.poll(() => button("Date range").count()).toBe(1);
   expect(await range.textContent()).toBe("");
 });

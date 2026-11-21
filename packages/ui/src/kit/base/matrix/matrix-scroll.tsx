@@ -1,7 +1,7 @@
 import { useRef, type ReactNode, type RefObject } from "react";
 import { ScrollView, XStack, isWeb, type TamaguiElement } from "tamagui";
 import { component } from "../../../catalog";
-import { useKit } from "../../provider";
+import { useKit, type NativeHost } from "../../provider";
 import { useAddressedJump } from "../../interact";
 import { matrixKey } from "./matrix-layout";
 
@@ -11,18 +11,28 @@ type ScrollNode = {
   scrollTo?: (options: { x: number; y: number; animated: boolean }) => void;
 };
 
+export function revealMatrixAnchor(
+  offset: number,
+  anchor: unknown,
+  scroll: ScrollNode | null,
+  web: boolean,
+  host?: Pick<NativeHost, "ensureVisible" | "focusAccessibility">,
+) {
+  if (!anchor) return;
+  scroll?.scrollTo?.({ x: offset, y: 0, animated: false });
+  if (web) (anchor as HTMLElement).focus({ preventScroll: true });
+  else {
+    host?.ensureVisible?.(anchor);
+    if (host?.focusAccessibility) host.focusAccessibility(anchor);
+    else (anchor as { focus?: () => void }).focus?.();
+  }
+}
+
 function JumpEffect({ jump, scroll }: { jump: MatrixJump; scroll: RefObject<ScrollNode | null> }) {
   const kit = useKit();
-  useAddressedJump(jump.part, () => {
-    const anchor = jump.anchor.current;
-    if (!anchor) return;
-    scroll.current?.scrollTo?.({ x: jump.offset, y: 0, animated: false });
-    if (isWeb) (anchor as HTMLElement).focus({ preventScroll: true });
-    else {
-      (anchor as { focus?: () => void }).focus?.();
-      kit.nativeHost?.ensureVisible?.(anchor);
-    }
-  });
+  useAddressedJump(jump.part, () =>
+    revealMatrixAnchor(jump.offset, jump.anchor.current, scroll.current, isWeb, kit.nativeHost),
+  );
   return null;
 }
 

@@ -14,6 +14,7 @@ export type NativeHost = {
   listenBack?(listener: () => void): () => void;
   focusModal?(element: unknown): (() => void) | void;
   ensureVisible?(element: unknown): void;
+  focusAccessibility?(element: unknown): void;
 };
 export const defaultEnvironment: Environment = {
   insets: { top: 0, right: 0, bottom: 0, left: 0 },

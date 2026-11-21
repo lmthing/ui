@@ -32,7 +32,7 @@ function useCellTarget({ target, disabled, selected, loading, label, anchor }: C
           anchor.current = node;
           address.ref.current = node;
         },
-        ...(!target ? { tabIndex: -1 as const, accessibilityLabel: label } : {}),
+        ...(!target ? { tabIndex: -1 as const, accessible: true, accessibilityLabel: label } : {}),
       }
     : {};
   return !target || loading

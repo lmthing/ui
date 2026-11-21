@@ -1,5 +1,4 @@
 import {
-  dateSpanItem,
   pickerAt,
   selectionAt,
   selectionError,
@@ -14,7 +13,6 @@ export function selectControl(ctx: ControlContext): ControlChange {
   // The planner resolves runtime flags against live rows, which may not exist in this input.
   if (step.action !== "select" || !def.meta.select || def.meta.select.runtime) return { values };
   if (
-    (def.meta.dateSpan && dateSpanItem(def.meta, stampItemIds(def.meta, input), target)) ||
     Object.hasOwn(def.meta.selections ?? {}, target) ||
     (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), target)) ||
     sessionEvent(def.meta, target, step.action) === "answer"

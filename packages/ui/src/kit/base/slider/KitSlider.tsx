@@ -103,6 +103,7 @@ export function KitSlider({
     step,
     disabled: inactive,
     inset: appearance === "wipe" ? component.base.none : size.icon.lg,
+    action: appearance === "wipe" ? "set" : undefined,
   });
   const clamped = Math.min(max, Math.max(min, value));
   const share = max > min ? (clamped - min) / (max - min) : 0;

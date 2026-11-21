@@ -83,7 +83,7 @@ function componentActions(meta: Meta, props: Props, instance: string): Affordanc
       return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
-    if (a.action === "press" && meta.jump?.includes(a.part)) return [{ ...a, jump: true }];
+    if (a.action === "press" && meta.jump?.includes(a.part)) return [{ ...a, detail: "", jump: true }];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
   });

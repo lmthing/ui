@@ -7,7 +7,7 @@ import { useKit } from "../../provider";
 import { KitText } from "../text";
 import { Streets } from "../map";
 import { KitPhoto } from "./KitPhoto";
-import { PhotoLayer } from "./photo-layer";
+import { PhotoLayer, usePhotoLayer } from "./photo-layer";
 import {
   centerOf,
   markSizeOf,
@@ -139,9 +139,10 @@ function PlacedPin({ pin, width, height, loading, pins, imageSpace }: PlacedProp
 export function KitMapTile({ count, pins, part = "map", underlay }: TileProps) {
   const context = usePartContext();
   const address = usePart(part);
-  const { resolvePhoto } = useKit();
   const [width, setWidth] = useState(0);
   const height = Math.round(width / component.base.wideRatio);
+  const loading = (pins !== undefined || underlay !== undefined) && context.state === "loading";
+  const photo = usePhotoLayer(loading || context.state === "empty" ? undefined : underlay);
   const emptyBadge = { alignSelf: "center", alignItems: "center", justifyContent: "center" } as const;
   if ((pins || underlay) && context.state === "empty")
     return (
@@ -149,8 +150,6 @@ export function KitMapTile({ count, pins, part = "map", underlay }: TileProps) {
         <MapPin size={size.icon.md} color="$muted" />
       </YStack>
     );
-  const loading = (pins !== undefined || underlay !== undefined) && context.state === "loading";
-  const source = !loading && underlay ? resolvePhoto?.(underlay) : undefined;
   const imageSpace = Boolean(underlay);
   return (
     <YStack
@@ -169,11 +168,8 @@ export function KitMapTile({ count, pins, part = "map", underlay }: TileProps) {
         setWidth(event.nativeEvent.layout.width);
       }}
     >
-      {source ? (
-        <PhotoLayer source={source} stretch />
-      ) : (
-        width > 0 && <Streets {...{ width, height }} count={pins ? 0 : (count ?? 0)} />
-      )}
+      {width > 0 && !photo.ready && <Streets {...{ width, height }} count={pins ? 0 : (count ?? 0)} />}
+      {photo.layer && <PhotoLayer key={photo.layer.source} {...photo.layer} stretch />}
       {width > 0 &&
         pins?.map((pin) => (
           <PartContext.Provider key={pin.id} value={{ ...context, item: pin.target?.item ?? pin.id }}>

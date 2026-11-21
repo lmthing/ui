@@ -73,6 +73,7 @@ function prepareStep(
       input,
       defs: ctx.defs,
       selected,
+      plannedDate: plan.datePicks?.[0],
       links: plan.links,
       send: plan.sends?.[0],
       at,
@@ -94,7 +95,7 @@ function runControl(
   const { links, screen } = context;
   return handlerFor(selected.action)(
     state,
-    { ...selected, address },
+    { ...(context.plannedDate ?? selected), address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
   );
 }

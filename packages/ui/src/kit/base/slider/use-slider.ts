@@ -12,6 +12,7 @@ type SliderControl = {
   step?: number;
   disabled?: boolean;
   inset?: number;
+  action?: "set" | "seek" | undefined;
 };
 function webHandlers(
   { min, max, value, step = 1, inset = size.icon.lg }: SliderControl,
@@ -69,7 +70,7 @@ export function useSlider(control: SliderControl) {
   const drag = useRef<(() => void) | null>(null);
   useEffect(
     () => () => drag.current?.(),
-    [address, disabled, kit.controller, kit.interactive, min, max, step, control.inset],
+    [address, disabled, kit.controller, kit.interactive, min, max, step, control.inset, control.action],
   );
   const dispatch = (next: number) => {
     if (disabled || !Number.isFinite(next)) return;
@@ -78,7 +79,7 @@ export function useSlider(control: SliderControl) {
     const index = Math.min(last, Math.max(0, Math.round((next - min) / interval)));
     return kit.controller?.act({
       address,
-      action: part === "scrubber" ? "seek" : "set",
+      action: control.action ?? (part === "scrubber" ? "seek" : "set"),
       value: Number((min + index * interval).toPrecision(15)),
     });
   };

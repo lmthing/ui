@@ -262,7 +262,8 @@ an earlier available pick moves a pending start, while an invalid end leaves it 
 For an in-screen jump, declare the named part as a normal component `press` and add it to `meta.jump`.
 Mount its addressed button and pass that part to the drawing's jump option, or use `useAddressedJump`
 for another local anchor. The planner emits a runtime cue only on acceptance. Use `actions.when` if the
-destination can be absent. Do not send a `goto` for a local jump. Keep board marks in `meta.read`, and
+destination can be absent. A local jump does not inherit the component's `goto`. Native hosts supply
+`NativeHost.focusAccessibility(element)` to move the screen reader to a revealed anchor. Keep board marks in `meta.read`, and
 gate unavailable seat and cell actions using the same facts that determine their drawing.
 
 ## Tests: `<Id>.test.ts`
