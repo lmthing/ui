@@ -38,7 +38,7 @@ One agreement and an advertised property remain inventory `Lease` and `Listing`;
 `requests`, even when an inspection finds damage. Clients, invoices and general payment tracking remain
 `customers`; personal bills and bank transactions remain `money`. None is a dependency.
 
-## Components (5)
+## Components (7)
 
 ### `Units` · planned · data · phone
 
@@ -136,6 +136,24 @@ Selecting a meter opens its dated history; adding a reading validates it against
 - Real path: manually recorded meter series on the device; no smart-meter service or bill calculation.
 - Metadata: `meta.dense: true`, weight 3; dated reading histories exceed six rows.
 
+### `RentalApplication` · planned · input · phone
+A prospective tenant screening dossier displaying the applicant and any co-applicants, target unit, requested move-in date, stated monthly income against unit rent with a code-computed income-to-rent ratio, and screening verification pills for credit, background, income, and references. The manager can waitlist, approve, or decline the application, confirming before approving or declining.
+- Pick: screening and deciding on prospective tenants between a viewing and lease start. Not job recruiting (`hiring/Candidate`), scheduling viewings (`Viewings`), or active tenancy registers (`Units`).
+- Writes: `applicationRef` text(32), `unitRef` text(32), `unit` text(32), `monthlyRent` number > 0, `applicants` of `name` text(24), `monthlyIncome` number ≥ 0, `goto` optional, 1–4; `moveIn` date, `checks` of `kind` (`credit`, `background`, `income`, `refs`), `status` (`pending`, `passed`, `flagged`, `missing`), `note` text(60) optional, 1–4; `decision` (`pending` default, `waitlisted`, `approved`, `declined`), `note` text(120) optional, `style`. Total household income and income-to-rent ratio are computed by code.
+- Styles: `dossier` (default, applicant summary, computed ratio, screening pills, and decision actions), `compact` (summary row with ratio and check status pills).
+- Parts → actions: checks `root press` (when linked via `goto`), `waitlist press`, `approve press`, `decline press`, `note type`. `meta.confirmParts: ["approve", "decline"]`.
+- States: filled, empty (no application loaded), loading, success (decision saved), error (screening verification failed).
+- Real path: screening records and decisions stored on the manager's device; pulling external screening reports or notifying applicants uses `service` / `people` host adapters.
+
+### `LeaseRenewal` · planned · input · people
+A landlord-to-tenant lease renewal proposal comparing current monthly rent against the proposed rent with a code-computed percentage delta, selectable renewal term options such as 6-month, 12-month, or month-to-month, and a response deadline. The tenant can accept the renewal, type a counter-proposal note, or decline with confirmation.
+- Pick: proposing, comparing, and responding to lease renewal terms for an occupied unit. Not generic policy expiry reminders (`paperwork/Renewals`), monthly rent ledgers (`RentRoll`), or static single-lease terms (`inventory/Lease`).
+- Writes: `renewalRef` text(32), `unitRef` text(32), `unit` text(32), `tenant` text(24), `currentRent` number > 0, `proposedRent` number > 0, `options` of `label` text(16), `months` integer 0–36 (0 for month-to-month), `rent` number > 0 optional, 1–4; `selectedOption` index (default 0), `deadline` date, `status` (`sent` default, `accepted`, `countered`, `declined`), `counterNote` text(120) optional, `style`. Rent difference and percentage change are computed by code from `currentRent` and the chosen option.
+- Styles: `offer` (default, current vs proposed rent, term cards, deadline, and tenant actions), `summary` (read-only accepted or declined outcome).
+- Parts → actions: options `root select`, `accept press`, `counter press`, `decline press`, `note type`. `meta.confirmParts: ["accept", "decline"]`.
+- States: filled, loading, success (renewal accepted or response recorded), error (deadline passed or send failed).
+- Real path: renewal proposal shared between landlord and resident in a shared app (`people`); counter-offers record the tenant's preference without silently altering legal lease contracts.
+
 ## Archetypes (4)
 
 | Archetype         | Job                                | Layouts                                                                 | Recipe                                                                                                                                                                                                       |
@@ -170,9 +188,11 @@ No current part silently sends a tenant acceptance, takes payment or creates a m
 
 ## Build notes
 
-- Order: `Units`, `RentRoll`, `Viewings`, `Inspections`, `Meters`; all remain planned.
+- Order: `Units`, `RentRoll`, `Viewings`, `Inspections`, `Meters`; Wave 6 additions follow in order: `RentalApplication`, `LeaseRenewal`.
   Future files include two domain examples and probes per component, kit-only renderers and an
-  `example.jsonl` covering all five, validating and rendering in three presets.
+  `example.jsonl` covering all components, validating and rendering in three presets.
+- Wave 6 option upgrades on existing components: `RentRoll` adds `style: "tenant"` (signed-in resident's own charges, receipts, autopay badge, and `pay press` with `meta.partTiers: { pay: "service" }`); `Units` adds `style: "vacancies"` (surfaces vacant/notice-given units); `Inspections` adds optional tenant co-sign / dispute comment per check (`meta.partTiers: { sign: "people" }`).
+- Wave 6 boundaries: consumer home-buying search and PITI mortgage calculators belong in `realestate`, repair work orders stay in `requests`, and community building notices compose from Core `Banner` + `List[expand]`.
 - Strict `writerFormat(registry)` permits only core plus selected packs, with bounded schemas and no
   aliases. Host-issued refs are snake_case text(32), separate from validator item ids; references resolve
   and repeated seeds agree. Each component works without any sibling component mounted or another pack.
