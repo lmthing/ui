@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import type { Affordance } from "@lmthing/ui/catalog";
+import type { Affordance, Meta } from "@lmthing/ui/catalog";
 import { hasStepTarget, type AddressedElement } from "../../render";
 import { hasColumnTarget } from "../column-target";
 
@@ -24,15 +24,22 @@ const roles: Record<string, string[]> = {
   set: ["slider", "spinbutton"],
 };
 
-export function expectTarget(read: string, addressed: Map<string, AddressedElement>, offer: Affordance) {
+export function expectTarget(
+  read: string,
+  addressed: Map<string, AddressedElement>,
+  offer: Affordance,
+  meta?: Meta,
+) {
   const { address, action, part } = offer;
   expect(read, `${address} is missing from the read`).toContain(`[${address} ${action}`);
   const element = addressed.get(`home/${address}${part === "root" ? "/root" : ""}`);
   expect(element, `${address} offers ${action} but is not on screen`).toBeDefined();
   if (element && (hasStepTarget(element, action) || hasColumnTarget(element, action))) return;
   const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
+  const target = address.split("/").slice(1).join("/") || "root";
   if (
     action === "set" &&
+    meta?.set?.[target]?.type === "date" &&
     role === "textbox" &&
     element?.tag === "input" &&
     /\bdata-set-kind="date"/.test(element.attributes) &&

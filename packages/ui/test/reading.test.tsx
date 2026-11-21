@@ -139,9 +139,13 @@ it("accepts a named, addressed date textbox for the date set offered in the read
   const offers = affordancesOf(dateDefinition.meta, dateDefinition.examples[0]!, "c1", {});
   expect(offers.map(({ address, action }) => [address, action])).toEqual([["c1/date", "set"]]);
   const read = readScreen(dateScreen, dateDefs);
-  expectTarget(read, addressedElements(html), offers[0]!);
+  const meta = dateDefinition.meta;
+  expectTarget(read, addressedElements(html), offers[0]!, meta);
   expect(() =>
-    expectTarget(read, addressedElements(html.replace('data-set-kind="date"', "")), offers[0]!),
+    expectTarget(read, addressedElements(html.replace('data-set-kind="date"', "")), offers[0]!, meta),
+  ).toThrow("c1/date has role textbox");
+  expect(() =>
+    expectTarget(read, addressedElements(html), offers[0]!, { ...meta, set: { date: { prop: "on" } } }),
   ).toThrow("c1/date has role textbox");
 });
 
@@ -180,7 +184,8 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const addressed = addressedElements(html);
     const offers = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
     for (const affordance of offers) {
-      if (!hidden.includes(affordance.address.split("/")[1]!)) expectTarget(read, addressed, affordance);
+      if (!hidden.includes(affordance.address.split("/")[1]!))
+        expectTarget(read, addressed, affordance, def.meta);
     }
   });
 });

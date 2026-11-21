@@ -1,5 +1,5 @@
 import { useControlValue, useDateEdit } from "../../interact";
-import { Input, XStack, YStack } from "tamagui";
+import { Input, isWeb, XStack, YStack } from "tamagui";
 import { component, fontFamilies, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
@@ -123,7 +123,7 @@ function TextControl({
         max: options.max,
         step: options.step,
       } as object)}
-      {...(dateSet && !loading ? { dataSet: { setKind: "date" } } : {})}
+      {...(isWeb && dateSet && !loading ? { "data-set-kind": "date" } : {})}
       {...(loading ? ({ opacity: component.base.none, pointerEvents: "none" } as object) : {})}
     />
   );

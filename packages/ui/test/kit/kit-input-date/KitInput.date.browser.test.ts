@@ -71,6 +71,7 @@ it("keeps sequential keyboard edits local until a real date is complete", async 
     ).toMatchObject({ ok: true });
     expect(await field.inputValue()).toBe("2027-01-31");
     await expectDate("2027-01-31");
+    expect(await field.getAttribute("data-set-kind")).toBe("date");
   } finally {
     await page.close();
   }
