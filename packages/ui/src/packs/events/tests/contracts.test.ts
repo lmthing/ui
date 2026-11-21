@@ -19,6 +19,7 @@ const contracts = [
   [components.Door, "Camera", "ok", 2],
   [components.Registry, "Checklist", "people", 3],
   [components.FindDate, "Calendar", "people", 3],
+  [components.Sessions, "Timeline", "phone", 3],
 ] as const;
 const casts: CastLike[] = [
   { things: [], items: [] },

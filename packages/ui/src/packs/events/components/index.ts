@@ -6,3 +6,4 @@ export * as Ticket from "./Ticket";
 export * as Door from "./Door";
 export * as Registry from "./Registry";
 export * as FindDate from "./FindDate";
+export * as Sessions from "./Sessions";

@@ -4,5 +4,6 @@ export * from "./GuestList";
 export * from "./Registry";
 export * from "./RSVP";
 export * from "./Seating";
+export * from "./Sessions";
 export * from "./Ticket";
 export * from "./Vendors";
