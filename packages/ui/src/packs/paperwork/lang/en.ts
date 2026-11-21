@@ -1,4 +1,14 @@
 export const en = {
+  receipts: {
+    allocation: (percent: string) => `Assigned ${percent}`,
+    allocated: (amount: string) => `Assigned share ${amount}`,
+    attached: "Receipt attached",
+    privateFile: "(private file)",
+    unavailable: "Receipt attachment unavailable",
+    review: (payee: string) => `Review receipt from ${payee}`,
+    remove: (payee: string) => `Remove receipt from ${payee}`,
+    separator: " · ",
+  },
   renewals: {
     due: (date: string) => `Ends ${date}`,
     notice: (date: string) => `Notice by ${date}`,
