@@ -8,12 +8,13 @@ import {
   text,
   thingOf,
   titleOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
-import { KitCard, KitOption, KitSkeleton, KitText, useComponentState } from "../kit";
+import { KitCard, KitOption, KitSkeleton, KitText, useComponentState, useVariant } from "../kit";
 
 export const meta = {
   id: "Choice",
@@ -24,6 +25,13 @@ export const meta = {
   weight: 2,
   tier: "phone",
   realPath: "The chosen option is stored on one record in the on-device database.",
+  variants: { surface: ["card", "plain"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["sub"] } },
+  writeHints: [
+    'Leave axes null unless asked. For unboxed rows with radio buttons or checkboxes use surface "plain".',
+    'To hide the option explanations, keep them in sub and set detail to "brief"; badges and values stay visible.',
+    "Set surface to null unless the person explicitly asks for unboxed rows. A request to hide explanations changes only detail, not surface.",
+  ],
   items: { key: "options", parts: ["root", "icon", "title", "badge", "sub", "value"] },
   select: { prop: "at", value: "index" },
   parts: ["root", "question"],
@@ -37,7 +45,7 @@ export const meta = {
 
 export const props = z
   .strictObject({
-    style: z.enum(["cards", "list"]).default("cards"),
+    ...variantProps(meta.variants),
     question: text(60).optional(),
     options: z
       .array(
@@ -69,6 +77,7 @@ export const props = z
       ...value,
       options: value.options.map((option, index) => ({
         ...option,
+        ...(value.detail === "brief" ? { sub: undefined } : {}),
         on: value.multi ? (option.on ?? false) : index === at,
       })),
     };
@@ -82,12 +91,19 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
     return title ? [{ title, ...(sub ? { sub } : {}) }] : [];
   });
   while (options.length < 2) options.push({ title: placeholderTitle(options.length, lang) });
-  return { style: "cards", options };
+  return { options };
 }
 
+const days = {
+  question: "Which days suit you?",
+  multi: true,
+  options: [
+    { title: "Weekdays", sub: "Monday to Friday", on: true },
+    { title: "Weekends", sub: "Saturday and Sunday" },
+  ],
+};
 export const examples = [
   {
-    style: "cards",
     question: "How often should it be watered?",
     options: [
       { title: "Every week", sub: "Good for ferns and anything in a bright room.", icon: "drop" },
@@ -97,7 +113,7 @@ export const examples = [
     at: 0,
   },
   {
-    style: "list",
+    surface: "plain",
     question: "Pick a walk plan",
     options: [
       { title: "Single walk", sub: "One 30 minute walk.", value: "£15" },
@@ -106,15 +122,8 @@ export const examples = [
     ],
     at: 1,
   },
-  {
-    style: "cards",
-    question: "Which days suit you?",
-    multi: true,
-    options: [
-      { title: "Weekdays", sub: "Monday to Friday", on: true },
-      { title: "Weekends", sub: "Saturday and Sunday" },
-    ],
-  },
+  days,
+  { ...days, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Choice");
@@ -126,15 +135,23 @@ export const probes = [
   write(
     "Ask how often to water the fern, with the answers every week, every two weeks and only when dry, each with a short reason, starting on every week",
   ),
+  {
+    ...write(
+      "Ask which walk plan to book: Single walk or Weekly pack. Store a short explanation for each option. Hide just the explanations without changing any styling.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Choose every two weeks", { address: "c1/r2", action: "select" }),
 ] satisfies Probe[];
 
-export function Choice({ style, question, options, multi }: Props<typeof props, typeof meta>) {
+export function Choice({ surface, detail, question, options, multi }: Props<typeof props, typeof meta>) {
   const state = useComponentState();
+  const look = useVariant("surface", meta.variants.surface, surface) === "plain" ? "list" : "cards";
+  const shown = detail === "brief" ? options.map((option) => ({ ...option, sub: undefined })) : options;
   if (state === "loading") {
     return (
       <KitCard style="plain" padded inset="none">
-        <KitSkeleton shape="options" question={question} look={style} items={options} />
+        <KitSkeleton shape="options" question={question} look={look} items={shown} />
       </KitCard>
     );
   }
@@ -145,7 +162,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
           {question}
         </KitText>
       )}
-      {options.map((option) => (
+      {shown.map((option) => (
         <KitOption
           key={option.id}
           item={option.id}
@@ -156,7 +173,7 @@ export function Choice({ style, question, options, multi }: Props<typeof props, 
           badge={option.badge}
           on={option.on === true}
           multi={multi}
-          look={style}
+          look={look}
           reserveIcon={options.some((entry) => entry.icon !== undefined)}
         />
       ))}
