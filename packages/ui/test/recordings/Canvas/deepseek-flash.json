@@ -181,11 +181,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"🐕 Guess the Dog Breed — earn points for correct answers!\"}",
+    "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the dog breed! Tap a photo, type your answer, and earn points for each win\"}",
     "replies": [
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"🐕 Guess the Dog Breed — earn points for correct answers!\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the Dog Breed Game\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the Dog Breed — tap a photo, type your answer, and earn points!\"}"
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Guess the dog breed! Tap a photo, type your answer, and earn points for each win\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"outlined\",\"caption\":\"Guess the dog breed game\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Dog breed guessing game\"}"
     ]
   },
   "d7f7ecb22cb024bc": {
@@ -255,7 +255,7 @@
     "reply": "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}",
     "replies": [
       "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}",
-      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}",
+      "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Plant placement sketchpad\"}",
       "{\"c\":\"Canvas\",\"surface\":\"plain\",\"caption\":\"Sketch where each plant goes\"}"
     ]
   },

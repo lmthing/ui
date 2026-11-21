@@ -160,8 +160,8 @@
     "reply": "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":null,\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
     "replies": [
       "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":null,\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
-      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"full\",\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}",
-      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"brief\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}"
+      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":\"full\",\"photo\":\"local:1\",\"caption\":\"Fern in morning light\"}",
+      "{\"c\":\"Photo\",\"aspect\":\"wide\",\"bleed\":null,\"detail\":null,\"photo\":\"lib:fern\",\"caption\":\"Fern in morning light\"}"
     ]
   },
   "69928ef16da6954c": {

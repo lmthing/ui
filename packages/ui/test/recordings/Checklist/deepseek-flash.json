@@ -116,7 +116,7 @@
     "reply": "{\"c\":\"Checklist\",\"density\":null,\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
     "replies": [
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
-      "{\"c\":\"Checklist\",\"density\":null,\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}",
+      "{\"c\":\"Checklist\",\"density\":null,\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the bathroom fern\",\"done\":false,\"meta\":\"Today · Ledge\"},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":\"Living room\"},{\"mark\":null,\"text\":\"Turn the kitchen basil\",\"done\":false,\"meta\":null}]}",
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":null,\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null},{\"mark\":null,\"text\":\"Turn the basil\",\"done\":false,\"meta\":null}]}"
     ]
   },
@@ -362,7 +362,7 @@
     "reply": "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
     "replies": [
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
-      "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}",
+      "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}"
     ]
   },

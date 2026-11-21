@@ -586,10 +586,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":false,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":false,\"icon\":\"drop\"}]}",
+    "reply": "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":true,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":true,\"icon\":\"drop\"}]}",
     "replies": [
-      "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":false,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":false,\"icon\":\"drop\"}]}",
-      "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":true,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":false,\"icon\":\"drop\"}]}",
+      "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":true,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":true,\"icon\":\"drop\"}]}",
+      "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":true,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":true,\"icon\":\"drop\"}]}",
       "{\"c\":\"Chips\",\"lead\":\"none\",\"style\":\"filter\",\"items\":[{\"label\":\"Park with dog\",\"on\":false,\"icon\":\"dog\"},{\"label\":\"River with drop\",\"on\":false,\"icon\":\"drop\"}]}"
     ]
   },

@@ -148,7 +148,7 @@
     "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
     "replies": [
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
-      "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"text\",\"label\":\"Plant name\",\"value\":\"Fern\",\"repeat\":null,\"hint\":null,\"options\":null}"
     ]
   },
@@ -1564,11 +1564,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
+    "reply": "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
     "replies": [
+      "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
       "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
-      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}",
-      "{\"c\":\"Field\",\"density\":null,\"detail\":\"full\",\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}"
+      "{\"c\":\"Field\",\"density\":null,\"detail\":null,\"kind\":\"repeat\",\"label\":\"Water it\",\"value\":null,\"repeat\":\"weekly\",\"hint\":null,\"options\":null}"
     ]
   },
   "92d9460312056869": {

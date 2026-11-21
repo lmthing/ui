@@ -143,11 +143,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":\"warn\",\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}"
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":\"warn\",\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":\"warn\",\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Watered this week\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Fed this month\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}"
     ]
   },
   "44de1b7351d193f1": {

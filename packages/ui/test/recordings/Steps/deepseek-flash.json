@@ -95,11 +95,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}",
+    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"count\":4,\"at\":2,\"label\":null}",
     "replies": [
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}",
       "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"count\":4,\"at\":2,\"label\":null}",
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}"
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":4,\"at\":2,\"label\":null}",
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"count\":4,\"at\":2,\"label\":null}"
     ]
   },
   "246385fb864b4ad8": {
@@ -425,7 +425,7 @@
     "replies": [
       "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
       "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
     ]
   },
   "51107c4ff765a9ea": {

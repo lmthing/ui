@@ -224,11 +224,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\":\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\": \"Type a reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
     "replies": [
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\":\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\": \"Write a reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\":\",\"max\":600,\"value\":\"Thanks, see you at nine\"}"
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\": \"Type a reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\": \"Write your reply...\",\"max\":600,\"value\":\"Thanks, see you at nine\"}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"reply\",\"label\":\"Reply to Anna\",\"hint\":\".\",\"max\":600,\"value\":\"Thanks, see you at nine\"}"
     ]
   },
   "5471fe4fec9c49cc": {
@@ -673,11 +673,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\"What did you see on your walk?\",\"max\":400,\"value\":null}",
+    "reply": "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}",
     "replies": [
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\"What did you see on your walk?\",\"max\":400,\"value\":null}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\"How did the walk go?\",\"max\":400,\"value\":null}",
-      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}"
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\".\",\"max\":400,\"value\":null}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":\"Walk notes\",\"hint\":\"What did you see or notice?\",\"max\":400,\"value\":null}",
+      "{\"c\":\"Composer\",\"detail\":\"brief\",\"style\":\"entry\",\"label\":null,\"hint\": \"Walk notes\",\"max\":400,\"value\":null}"
     ]
   },
   "a3aab7c1fcae2f3a": {

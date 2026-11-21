@@ -100,11 +100,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18]}",
+    "reply": "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18]}",
     "replies": [
-      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18]}",
-      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28]}",
-      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18]}"
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18]}"
     ]
   },
   "2b8b39559f3eb411": {

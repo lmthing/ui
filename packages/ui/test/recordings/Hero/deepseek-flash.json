@@ -165,11 +165,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}",
+    "reply": "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":\"brief\",\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}",
     "replies": [
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":\"brief\",\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}",
       "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}"
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":\"brief\",\"media\":\"cover\",\"tone\":null,\"style\":null,\"title\":\"Morning walk\",\"sub\":\"Clover and Pip at 09:00\",\"photo\":\"lib:dogs\"}"
     ]
   },
   "1686b9cb8fe1c381": {
@@ -748,11 +748,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"plants need water\",\"photo\":null}",
+    "reply": "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":\"warn\",\"style\":\"number\",\"title\":\"Two\",\"sub\":\"Plants need water\",\"photo\":\"local:1\"}",
     "replies": [
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":\"cover\",\"tone\":\"warn\",\"style\":\"number\",\"title\":\"Two\",\"sub\":\"Plants need water\",\"photo\":\"local:1\"}",
       "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"plants need water\",\"photo\":null}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"Plants need water\",\"photo\":null}",
-      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":\"number\",\"title\":\"2\",\"sub\":\"plants need water\",\"photo\":null}"
+      "{\"c\":\"Hero\",\"density\":null,\"emphasis\":null,\"align\":null,\"detail\":null,\"media\":null,\"tone\":\"warn\",\"style\":null,\"title\":\"2\",\"sub\":\"plants need water\",\"photo\":null}"
     ]
   },
   "8e33e84773719e43": {

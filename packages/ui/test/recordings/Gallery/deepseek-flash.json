@@ -301,7 +301,7 @@
     "replies": [
       "{\"c\":\"Gallery\",\"arrange\":\"grid\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:plants\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}",
       "{\"c\":\"Gallery\",\"arrange\":\"grid\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:plants\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}",
-      "{\"c\":\"Gallery\",\"arrange\":\"grid\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:plants\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}"
+      "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":\"fern\"},{\"photo\":\"lib:plants\",\"caption\":\"Monstera\",\"goto\":\"monstera\"},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}"
     ]
   },
   "3c74654e983bdc9f": {
@@ -581,10 +581,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"local:1\",\"caption\":\"Front room\",\"goto\":null},{\"photo\":\"local:2\",\"caption\":\"Kitchen\",\"goto\":null},{\"photo\":\"local:3\",\"caption\":\"Garden\",\"goto\":null}]}",
+    "reply": "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:apartment\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:apartment\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:apartment\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
     "replies": [
-      "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"local:1\",\"caption\":\"Front room\",\"goto\":null},{\"photo\":\"local:2\",\"caption\":\"Kitchen\",\"goto\":null},{\"photo\":\"local:3\",\"caption\":\"Garden\",\"goto\":null}]}",
-      "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:flat\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:flat\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
+      "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:apartment\",\"caption\":\"Front room\",\"goto\":\"front_room\"},{\"photo\":\"lib:apartment\",\"caption\":\"Kitchen\",\"goto\":\"kitchen\"},{\"photo\":\"lib:apartment\",\"caption\":\"Garden\",\"goto\":\"garden\"}]}",
+      "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat\",\"caption\":\"Front room\",\"goto\":null},{\"photo\":\"lib:flat\",\"caption\":\"Kitchen\",\"goto\":null},{\"photo\":\"lib:flat\",\"caption\":\"Garden\",\"goto\":null}]}",
       "{\"c\":\"Gallery\",\"arrange\":null,\"aspect\":null,\"detail\":null,\"style\":\"carousel\",\"photos\":[{\"photo\":\"lib:flat\",\"caption\":\"Front room\",\"goto\":null},{\"photo\":\"lib:flat\",\"caption\":\"Kitchen\",\"goto\":null},{\"photo\":\"lib:flat\",\"caption\":\"Garden\",\"goto\":null}]}"
     ]
   },
@@ -727,11 +727,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:fern\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:basil\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:aloe\",\"caption\":\"Aloe\",\"goto\":null}]}",
+    "reply": "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:fern\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:basil\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:aloe\",\"caption\":\"Aloe\",\"goto\":null}]}",
       "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}",
-      "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}"
+      "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:plants\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:plants\",\"caption\":\"Aloe\",\"goto\":null}]}",
+      "{\"c\":\"Gallery\",\"arrange\":\"strip\",\"aspect\":null,\"detail\":null,\"style\":null,\"photos\":[{\"photo\":\"lib:fern\",\"caption\":\"Fern\",\"goto\":null},{\"photo\":\"lib:basil\",\"caption\":\"Basil\",\"goto\":null},{\"photo\":\"lib:aloe\",\"caption\":\"Aloe\",\"goto\":null}]}"
     ]
   },
   "66e59e5aeaf47364": {

@@ -75,9 +75,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Search\",\"density\":\"comfortable\",\"hint\":\"Search plants\"}",
+    "reply": "{\"c\":\"Search\",\"density\":null,\"hint\":\"Search plants\"}",
     "replies": [
-      "{\"c\":\"Search\",\"density\":\"comfortable\",\"hint\":\"Search plants\"}",
+      "{\"c\":\"Search\",\"density\":null,\"hint\":\"Search plants\"}",
       "{\"c\":\"Search\",\"density\":null,\"hint\":\"Search plants\"}",
       "{\"c\":\"Search\",\"density\":null,\"hint\":\"Search plants\"}"
     ]

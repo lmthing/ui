@@ -99,11 +99,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
+    "reply": "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
     "replies": [
+      "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
       "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":null,\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
+      "{\"c\":\"Counter\",\"density\":\"comfortable\",\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
     ]
   },
   "269dadc5031523bc": {
@@ -330,7 +330,7 @@
     "replies": [
       "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}",
       "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}"
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":\"walks\",\"step\":1}"
     ]
   },
   "61aee26e362ecfc5": {

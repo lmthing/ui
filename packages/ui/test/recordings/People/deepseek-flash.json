@@ -1083,11 +1083,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}",
+    "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
     "replies": [
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":2,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}",
-      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben\"}]}",
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":null,\"more\":null,\"members\":[{\"name\":\"Anna\",\"role\":\"Clover's owner\",\"photo\":null,\"goto\":\"anna_page\"},{\"name\":\"Ben\",\"role\":\"Pip's owner\",\"photo\":null,\"goto\":\"ben_page\"}]}"
     ]
   },
   "7decd7fa6b3c4d37": {
@@ -1276,8 +1276,8 @@
     "reply": "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
     "replies": [
       "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
-      "{\"c\":\"People\",\"density\":\"compact\",\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Person 1\",\"role\":null,\"photo\":null,\"goto\":null},{\"name\":\"Person 2\",\"role\":null,\"photo\":null,\"goto\":null},{\"name\":\"Person 3\",\"role\":null,\"photo\":null,\"goto\":null}]}"
+      "{\"c\":\"People\",\"density\":null,\"surface\":null,\"detail\":null,\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":\"local:1\",\"goto\":null},{\"name\":\"Jamie\",\"role\":null,\"photo\":\"local:2\",\"goto\":null},{\"name\":\"Sam\",\"role\":null,\"photo\":\"local:3\",\"goto\":null}]}",
+      "{\"c\":\"People\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"brief\",\"style\":\"stack\",\"more\":3,\"members\":[{\"name\":\"Alex\",\"role\":null,\"photo\":null,\"goto\":null},{\"name\":\"Taylor\",\"role\":null,\"photo\":null,\"goto\":null},{\"name\":\"Jordan\",\"role\":null,\"photo\":null,\"goto\":null}]}"
     ]
   },
   "be1f4927c0ff11e7": {

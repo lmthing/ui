@@ -393,11 +393,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+    "reply": "{\"c\":\"MapPins\",\"density\":\"comfortable\",\"trail\":\"none\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":\"neutral\",\"mark\":\"none\"}]}",
     "replies": [
-      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":\"comfortable\",\"trail\":\"none\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":\"neutral\",\"mark\":\"none\"}]}",
       "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"MapPins\",\"density\":\"comfortable\",\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":\"neutral\",\"mark\":\"none\"},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":\"neutral\",\"mark\":\"none\"}]}"
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
     ]
   },
   "d8fe6c15dc45598e": {
