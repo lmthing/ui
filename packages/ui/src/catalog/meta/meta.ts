@@ -116,8 +116,8 @@ export type Meta = {
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
-    /** Item-root move: the row's column index and the component's array of { label } columns. */
-    move?: { column: string; columns: string };
+    /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
+    move?: { column: string; columns: string } | { field: string; values: readonly string[] };
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
