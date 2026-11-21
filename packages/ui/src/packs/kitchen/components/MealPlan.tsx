@@ -186,11 +186,11 @@ export function MealPlan(input: c.Props<typeof props, typeof meta>) {
         <kit.KitRow part="meals" label={heading} role="group">
           <kit.KitGrid arrange="rows" list listRowGap="group">
             {days.map((day, index) => <kit.KitContent key={day.id} group="response">
-              <kit.KitRow part={null} label={day.label} selected={day.id === today} inline trailing={day.badge}>
-                <kit.KitText part={null} role="label" emphasis="strong">{day.label}</kit.KitText>
+              <kit.KitRow part={null} label={day.label} inline trailing={day.badge}>
+                <kit.KitText part={null} role="label" emphasis="strong" tone={day.id === today ? "accent" : "text"}>{day.label}</kit.KitText>
               </kit.KitRow>
-              {rows.filter((row) => row.day === index).map((cell) =>
-                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />)}
+              <kit.KitGrid columns={2}>{rows.filter((row) => row.day === index).map((cell) =>
+                <MealCell key={cell.id} cell={cell} agenda showPhoto={showPhoto} stackPhoto={false} />)}</kit.KitGrid>
             </kit.KitContent>)}
           </kit.KitGrid>
         </kit.KitRow>

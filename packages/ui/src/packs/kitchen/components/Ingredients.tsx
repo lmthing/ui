@@ -134,7 +134,7 @@ function IngredientRow({ row, scale, system, detail, style }: RowProps) {
   return (
     <kit.KitRow item={row.id} label={row.name} inline
       leading={<kit.KitCheck done={row.have} part="have" label={row.name} />}>
-      {style === "prep" ? <kit.KitGrid fitLast><kit.KitContent>{name}{note}</kit.KitContent>{amount}</kit.KitGrid> : <>{name}{amount}{note}</>}
+      {style === "prep" ? <kit.KitGrid columns={2}><kit.KitContent>{name}{note}</kit.KitContent>{amount}</kit.KitGrid> : <>{name}{amount}{note}</>}
       {row.swap && <kit.KitText role="label" tone="muted" part="swap">{words.ingredientSwap(row.swap)}</kit.KitText>}
       {!!row.allergens?.length && <kit.KitTrack part="allergens" label={words.nutritionFacts.allergens}>
         {row.allergens.map((label, index) => <kit.KitTrail key={index} part={allergenParts[index]!} kind="badge" tone="text" value={label} />)}

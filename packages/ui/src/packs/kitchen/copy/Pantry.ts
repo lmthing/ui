@@ -65,7 +65,7 @@ export function pantryReading(
       expiry.date,
       ...(item.useBy ? [item.useBy] : []),
       ...(item.openedOn ? [pantryOpened(item.openedOn, lang), item.openedOn] : []),
-      ...(pantryIsLow(item.qty, item.lowAt) ? [pantryLabels.low, pantryLabels.restock] : []),
+      ...(pantryIsLow(item.qty, item.lowAt) ? [pantryLabels.low] : []),
       pantryLabels.used,
     ];
   });

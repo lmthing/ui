@@ -1,6 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { affordancesOf, components, readComponent, stampItemIds } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
 import {
   addressedElements,
   elementAt,
@@ -72,6 +71,7 @@ describe("MealPlan agenda and daily calories", () => {
         { ...cell, meal: "dinner", kcal: 450 },
         { ...cell, day: 1, kcal: 0 },
         { ...cell, day: 2 },
+        { ...cell, day: 2, meal: "dinner", kcal: 450 },
       ],
     };
     const week = draw("MealPlan", input);
@@ -109,16 +109,18 @@ describe("Pantry stock and opened date", () => {
     ["several", 2, false],
     ["1/2 bag", 2, false],
     ["0", 0, true],
-  ] as const)("uses the same rule in the view, reader and actions for %s at %s", (qty, lowAt, low) => {
-    const input = { items: [{ ...item, qty, lowAt }] };
-    const html = draw("Pantry", input);
-    const reading = readComponent(def, input, "p1").join("\n");
-    const actions = affordancesOf(def.meta, stampItemIds(def.meta, def.props.parse(input)), "p1");
-    expect(html.includes('data-testid="home/c1/r1/restock"')).toBe(low);
-    expect(html.includes('data-testid="home/c1/r1/low"')).toBe(low);
-    expect(reading.includes("Low stock")).toBe(low);
-    expect(actions.some((action) => action.part === "restock")).toBe(low);
-  });
+  ] as const)(
+    "uses the same rule in the view and reader for %s at %s without adding actions",
+    (qty, lowAt, low) => {
+      const input = { items: [{ ...item, qty, lowAt }] };
+      const html = draw("Pantry", input);
+      const reading = readComponent(def, input, "p1").join("\n");
+      const actions = affordancesOf(def.meta, stampItemIds(def.meta, def.props.parse(input)), "p1");
+      expect(html.includes('data-testid="home/c1/r1/low"')).toBe(low);
+      expect(reading.includes("Low stock")).toBe(low);
+      expect(actions.map((action) => action.part)).toEqual(["root", "used"]);
+    },
+  );
   it("validates opened dates and shows them independently of expiry and detail", () => {
     const input = { detail: "brief", items: [{ ...item, openedOn: "2024-02-29", useBy: "2024-03-02" }] };
     const html = addressedElements(draw("Pantry", input));
@@ -128,36 +130,5 @@ describe("Pantry stock and opened date", () => {
     expect(readComponent(def, input, "p1").join("\n")).toContain("2024-02-29");
     for (const extra of [{ openedOn: "2026-02-29" }, { lowAt: -1 }, { restock: true }])
       expect(def.props.safeParse({ items: [{ ...item, ...extra }] }).success).toBe(false);
-  });
-  it("dispatches restock for the original item after sorting, without navigation or confirmation", () => {
-    const onAction = vi.fn(),
-      onLink = vi.fn();
-    const runtime = createScreenController({
-      screen: {
-        id: "home",
-        components: [
-          {
-            id: "p1",
-            c: "Pantry",
-            items: [
-              { ...item, lowAt: 1 },
-              { ...item, useBy: "2026-11-18" },
-            ],
-          },
-        ],
-      },
-      defs: components,
-      onAction,
-      onLink,
-    });
-    try {
-      expect(runtime.press("p1/r2/restock").ok).toBe(false);
-      expect(runtime.press("p1/r1/restock").ok).toBe(true);
-      expect(onAction).toHaveBeenCalledExactlyOnceWith({ address: "home/p1/r1/restock", action: "press" });
-      expect(runtime.confirmation).toBeUndefined();
-      expect(onLink).not.toHaveBeenCalled();
-    } finally {
-      runtime.dispose();
-    }
   });
 });

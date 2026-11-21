@@ -92,7 +92,6 @@ export const en = {
     undated: "Use-by date",
     missing: "Not set",
     low: "Low stock",
-    restock: "Add to groceries",
   },
   pantryOpened: (date: string) => `Opened ${date}`,
   pantryPlace: (place: string) => place.toLowerCase(),

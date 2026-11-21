@@ -3,7 +3,7 @@ import { z } from "zod";
 import { detailOf, isoDate, itemVariantProps, itemsOf, placeholderTitle, wordsFor, probesFor, screenId,
   text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
 // prettier-ignore
-import { KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText, KitTrail,
+import { KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
   useComponentState, useVariant, useWords } from "../../../kit";
 import { pantryDates, pantryIsLow, pantryOpened, pantryOrder, pantryReading } from "../copy";
 import { kitchenWordsFor } from "../lang";
@@ -17,7 +17,7 @@ export const meta = {
   writeHints: [
     "Write stored useBy dates, never expiry status, tones or sorted ranks. Dates and today's clock determine those.",
     'If asked to hide storage locations, set detail to "brief" and keep place in the data. Always write mark null unless the user explicitly asks to highlight a specific item; quantities and expiry dates are not a request to highlight.',
-    "Write openedOn as a date only if supplied. Set lowAt to a numeric restock threshold only if supplied; qty must start with a plain number in the same units. Never write low-stock status or the restock action.",
+    "Write openedOn as a date only if supplied. Set lowAt to a numeric stock threshold only if supplied; qty must start with a plain number in the same units. Never write computed low-stock status.",
   ],
   region: "body",
   weight: 3,
@@ -28,16 +28,13 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["place"] } },
   items: {
     key: "items",
-    parts: ["root", "name", "qty", "place", "use_by", "used", "low", "opened_on", "restock"],
+    parts: ["root", "name", "qty", "place", "use_by", "used", "low", "opened_on"],
     variants: { mark: ["none", "highlight"] },
   },
   parts: ["root"],
   states: ["filled", "empty"],
   confirmParts: ["used"],
-  actions: {
-    items: { root: ["press"], used: ["press"], restock: ["press"] },
-    when: { restock: { canRestock: true } },
-  },
+  actions: { items: { root: ["press"], used: ["press"] } },
   read: (input, state, lang?: string): string[] =>
     state === "filled" ? pantryReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies Meta;
@@ -62,13 +59,8 @@ export const props = z
   })
   .overwrite((value) => ({
     ...value,
-    // Item controls do not inherit the details link.
-    items: value.items.map((item) => ({
-      ...item,
-      use_by: item.useBy,
-      used: {},
-      ...(pantryIsLow(item.qty, item.lowAt) ? { canRestock: true, restock: {} } : {}),
-    })),
+    // The destructive part must not inherit the item's details navigation.
+    items: value.items.map((item) => ({ ...item, use_by: item.useBy, used: {} })),
   }));
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderValue } = wordsFor(lang);
@@ -119,9 +111,6 @@ export const probes = [
   },
   write("Keep 1 bag of oats in the cupboard, opening food_details. The low-stock threshold is 2 bags."),
   write("Keep 1 bag of oats in the cupboard, opening food_details. I opened it on 2026-11-17."),
-  write(
-    "Keep 1 bag of oats in the cupboard, opening food_details. At 1 bag or fewer, let me add oats to the grocery list to restock.",
-  ),
   read("Mark the ricotta as used up", { address: "p1/r1/used", action: "press" }),
 ] satisfies Probe[];
 function PantryDate({ useBy }: { useBy?: string | undefined }) {
@@ -158,7 +147,7 @@ function PantryFood({ item, detail }: { item: PantryProps["items"][number]; deta
         </KitText>
       )}
       {item.openedOn && <KitText part="opened_on" role="caption" tone="muted">{pantryOpened(item.openedOn, lang)}</KitText>}
-      {pantryIsLow(item.qty, item.lowAt) && <KitTrail part="low" kind="badge" tone="warn" value={words.pantryLabels.low} />}
+      {pantryIsLow(item.qty, item.lowAt) && <KitText part="low" role="caption" tone="warn">{words.pantryLabels.low}</KitText>}
     </KitRow>
   );
 }
@@ -182,10 +171,6 @@ export function Pantry({ items, detail: choice }: PantryProps) {
             </KitContent>
           )}
         </KitRow>
-        {pantryIsLow(item.qty, item.lowAt) && <KitRow part="restock" label={pantryLabels.restock} role="button" inline
-          lineRole="label" leading={<KitIcon name="plus" scale="sm" tone="accent" decorative />}>
-          <KitText part={null} role="label" tone="accent">{pantryLabels.restock}</KitText>
-        </KitRow>}
         <KitRow part="used" label={pantryLabels.used} role="button" inline
           lineRole="label" leading={<KitIcon name="trash" scale="sm" tone="bad" decorative />}>
           <KitText part={null} role="label" tone="muted">{pantryLabels.used}</KitText>
