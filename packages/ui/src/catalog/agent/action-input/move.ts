@@ -27,7 +27,8 @@ function moveOffer(meta: Meta, props: Values, row: Values) {
 
 export function itemActionOffer(meta: Meta, props: Values, row: Values, offer: Affordance): Affordance[] {
   const { part, action } = offer;
-  if (action === "move") {
+  // Other declarations (such as moving a guest to a table) keep their existing offer.
+  if (action === "move" && meta.items?.move) {
     const move = part === "root" && moveOffer(meta, props, row);
     return move ? [{ ...offer, move }] : [];
   }

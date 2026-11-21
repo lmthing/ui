@@ -38,3 +38,9 @@ it("ignores a stored destination that is absent or no longer unique", () => {
   expect(itemActionOffer(meta, duplicate, row, offer)).toEqual([]);
   expect(itemActionOffer(meta, props, row, { ...offer, part: "trail" })).toEqual([]);
 });
+
+it("leaves a declared move offer unchanged without a column move spec", () => {
+  const { move: _move, ...items } = meta.items;
+  const derived = { name: "One", at: null };
+  expect(itemActionOffer({ ...meta, items }, {}, derived, offer)).toEqual([offer]);
+});
