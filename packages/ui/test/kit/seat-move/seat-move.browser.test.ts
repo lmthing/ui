@@ -105,10 +105,9 @@ it("seats a tray guest by keyboard, preserves its address and hides the newly fu
     const option = (name: string) => page.getByRole("button", { name, exact: true });
     expect(await guest.textContent()).toBe("Cam Cole");
     await guest.press("Space");
-    expect(await option("Move Cam Cole to Oak").evaluate((node) => node === document.activeElement)).toBe(
+    expect(await option("Move Cam Cole to Birch").evaluate((node) => node === document.activeElement)).toBe(
       true,
     );
-    await page.keyboard.press("Tab");
     await page.keyboard.press("Enter");
     expect(await guest.textContent()).toBe("CC");
     expect(await guest.count()).toBe(1);
@@ -120,9 +119,12 @@ it("seats a tray guest by keyboard, preserves its address and hides the newly fu
       window.__lmthingUI!.act({ address: "c1/r4", action: "move", value: "Birch" }),
     );
     expect(act).toMatchObject({ ok: false, code: "invalid_value" });
-    await option("Move Dee Park to Cherry").click();
+    await page.keyboard.press("Enter");
     expect(await next.textContent()).toBe("DP");
     expect(await page.getByTestId("home/c1/tray").count()).toBe(0);
+    // The last seat leaves no destination. The new marker can receive restored focus but is not tabbable.
+    expect(await next.evaluate((node) => node === document.activeElement)).toBe(true);
+    expect(await next.getAttribute("tabindex")).toBe("-1");
   } finally {
     await page.close();
   }

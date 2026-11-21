@@ -54,7 +54,7 @@ function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray:
     >
       {!loading &&
         (tray || seat.initials ? (
-          <KitText role="label" part={null} align={tray ? "left" : "center"} lines={1}>
+          <KitText role="label" part={null} align={tray ? "start" : "center"} lines={1}>
             {tray ? seat.label : seat.initials}
           </KitText>
         ) : (

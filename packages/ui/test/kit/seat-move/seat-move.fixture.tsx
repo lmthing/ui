@@ -58,9 +58,9 @@ export const seatMoveScreen: ScreenLike = {
       id: "c1",
       c: "SeatMoveFixture",
       tables: [
-        { label: "Oak", capacity: 2, seated: [{ name: "Ari Shah", initials: "AS" }] },
+        { label: "Oak", capacity: 1, seated: [{ name: "Ari Shah", initials: "AS" }] },
         { label: "Birch", capacity: 2, seated: [{ name: "Bea Gray", initials: "BG" }] },
-        { label: "Cherry", capacity: 2, seated: [] },
+        { label: "Cherry", capacity: 1, seated: [] },
       ],
       waiting: [
         { name: "Cam Cole", initials: "CC" },

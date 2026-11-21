@@ -19,7 +19,7 @@ type NativeTarget = {
 
 it.each([
   ["r1", "Ari Shah", "Cherry", ["Birch", "Cherry"], ["Oak", "Birch"]],
-  ["r3", "Cam Cole", "Birch", ["Oak", "Birch", "Cherry"], ["Oak", "Cherry"]],
+  ["r3", "Cam Cole", "Birch", ["Birch", "Cherry"], ["Cherry"]],
 ] as const)(
   "dispatches the native move action at %s with the exact destination label",
   async (row, name, destination, choices, next) => {
@@ -40,7 +40,10 @@ it.each([
       );
       guest!.onAccessibilityAction!({ nativeEvent: { actionName: "unknown" } });
       expect(act).not.toHaveBeenCalled();
-      guest!.onAccessibilityAction!({ nativeEvent: { actionName: guest!.accessibilityActions![1]!.name } });
+      const choice = guest!.accessibilityActions!.find(
+        ({ label }) => label === `Move ${name} to ${destination}`,
+      )!;
+      guest!.onAccessibilityAction!({ nativeEvent: { actionName: choice.name } });
       expect(act).toHaveBeenCalledExactlyOnceWith({ address, action: "move", value: destination });
       expect(controller.read()).toContain(
         `[c1/${row} move = "${destination}"; choices ${JSON.stringify(next)}]`,

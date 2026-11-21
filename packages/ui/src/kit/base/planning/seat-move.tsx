@@ -38,7 +38,6 @@ function useSeatMoveState() {
 }
 
 const SeatMoveContext = createContext<ReturnType<typeof useSeatMoveState> | null>(null);
-
 export function SeatMoveScope({ children }: { children: ReactNode }) {
   const state = useSeatMoveState();
   return <SeatMoveContext.Provider value={state}>{children}</SeatMoveContext.Provider>;
@@ -76,8 +75,10 @@ export function useSeatMoveTarget(address: Address, seat: Seat) {
   useMoveFocus(focus, address?.testID ?? "", address?.ref ?? noRef);
   if (!address || !seat.move) return {};
   const { destinations, label } = seat.move;
-  if (!destinations.length)
-    return { ...address, accessibilityRole: "image" as const, accessibilityLabel: seat.label };
+  if (!destinations.length) {
+    const image = { ...address, accessibilityRole: "image" as const, accessibilityLabel: seat.label };
+    return isWeb ? { ...image, tabIndex: -1 as const } : image;
+  }
   const press = active ? toggle : undefined;
   return {
     ...address,
