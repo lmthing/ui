@@ -23,7 +23,7 @@ const meta = {
   deviceData: ["cached"],
   deviceDataFlags: { stale: (data) => cached(data)?.stale ?? true },
   actions: {
-    parts: { unit: ["toggle"], fresh: ["press"], add: ["increment"], undo: ["press"] },
+    parts: { unit: ["toggle"], fresh: ["press"], add: ["increment"], undo: ["press"], subtract: ["press"] },
     when: { fresh: { stale: false }, undo: { canUndo: true } },
   },
   live: {
@@ -37,7 +37,7 @@ const meta = {
   localState: defineLocalState({
     schema: z.strictObject({ count: z.number().int().min(0).max(2), score: z.number().int().min(0).max(4) }),
     initial: () => ({ count: 0, score: 0 }),
-    events: ["add.increment", "undo.press"],
+    events: ["add.increment", "undo.press", "subtract.press"],
     reduce: ({ count, score }, { part }) => {
       const delta = part === "add" ? 1 : -1;
       return { state: { count: count + delta, score: score + delta * 2 } };
@@ -113,6 +113,25 @@ it("publishes one complete transition and none for dry runs or failed batches", 
     expect(runtime.read()).toContain("[c/unit toggle:off]");
   } finally {
     unsubscribe();
+    runtime.dispose();
+  }
+});
+
+it.each(["not_mounted", "disabled"])("does not bypass %s for an already offered event", (code) => {
+  const subtract = { address: "home/c/subtract", action: "press" };
+  const runtime = createScreenController({ screen, defs, requireMounted: true });
+  try {
+    runtime.registerPart(add.address);
+    if (code === "disabled") {
+      runtime.registerPart(subtract.address);
+      runtime.registerDisabledPart(subtract.address);
+    }
+    expect(runtime.read()).toContain("[c/subtract press]");
+    expect(planAct(screen, defs, {}, [subtract])).toMatchObject({ ok: false, code: "invalid_value" });
+    expect(planAct(screen, defs, {}, [add, subtract]).ok).toBe(true);
+    expect(runtime.act([add, subtract])).toMatchObject({ ok: false, at: 1, code });
+    expect(runtime.read()).toContain("count 0 score 0");
+  } finally {
     runtime.dispose();
   }
 });

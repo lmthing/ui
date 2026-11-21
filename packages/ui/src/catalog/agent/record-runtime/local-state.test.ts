@@ -79,8 +79,18 @@ it("reduces declared component and addressed row events together, without links 
   expect(read).toContain('b LocalFixture count 0 — last ""');
   expect(read).not.toContain("private answer");
   expect(read).not.toContain("→away");
+});
+
+it("reads a different seed without mutation and replaces progress on its first commit", () => {
+  const before = planAct(screen, defs, {}, [type("kept")]);
+  if (!before.ok) throw new Error(before.code);
   const refreshed = { ...screen, components: screen.components.map((entry) => ({ ...entry, start: 1 })) };
-  expect(readScreen(refreshed, defs, result.values)).toContain('a LocalFixture count 1 — last ""');
+  expect(readScreen(refreshed, defs, before.values)).toContain('a LocalFixture count 1 — last ""');
+  expect(readScreen(screen, defs, before.values)).toContain('a LocalFixture count 1 — last "kept"');
+  const after = planAct(refreshed, defs, before.values, [add]);
+  if (!after.ok) throw new Error(after.code);
+  expect(readScreen(refreshed, defs, after.values)).toContain('a LocalFixture count 2 — last ""');
+  expect(readScreen(screen, defs, after.values)).toContain('a LocalFixture count 0 — last ""');
 });
 
 it("rejects invalid state and projection without committing any earlier event", () => {
