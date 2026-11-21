@@ -10,3 +10,4 @@
 {"id":"n1","c":"Note","text":"Leaves and Seeds tie on four points. The host records awards after revealing each answer."}
 {"id":"l2","c":"LifeCounter","players":[{"name":"Leaves","swatch":"green"},{"name":"Roots"},{"name":"Seeds"}]}
 {"id":"p1","c":"PassReveal","players":[{"name":"Leaves","role":"Clue keeper"},{"name":"Roots","role":"Time keeper"},{"name":"Seeds","role":"Word keeper"}]}
+{"id":"c1","c":"CardDeck","title":"Table Night challenges","cards":[{"title":"Name a leaf"},{"title":"Name three animals"},{"title":"Sing a tune"},{"title":"Find a rhyme"},{"title":"Mime a job"},{"title":"Name a capital"}]}

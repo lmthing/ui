@@ -6,5 +6,6 @@ Wave 6 drafts export metadata, bounded props, a neutral fallback, examples and p
 
 - `LifeCounter`: live table totals and resource counters.
 - `PassReveal`: private roles on a shared phone.
+- `CardDeck`: finite random draws and discard piles.
 
 Tests live in the sibling `tests/` folder.

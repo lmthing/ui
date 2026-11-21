@@ -12,6 +12,13 @@ export const en = {
     ready: "Round ready",
     restart: "Restart round",
   },
+  cardDeck: {
+    remaining: (count: string) => `Draw pile: ${count}`,
+    discarded: (count: string) => `Discard pile: ${count}`,
+    draw: "Draw cards",
+    reshuffle: "Reshuffle deck",
+    exhausted: "The draw pile is empty",
+  },
   teamPicker: {
     ready: "Ready to split",
     empty: "No teams drawn yet",
