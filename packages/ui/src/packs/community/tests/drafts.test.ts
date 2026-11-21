@@ -3,7 +3,9 @@ import {
   components,
   createRegistry,
   liveProps,
+  planAct,
   readComponent,
+  readScreen,
   stampItemIds,
   type CastLike,
   type Definition,
@@ -83,6 +85,21 @@ it("holds claim and release actions until the host supplies permissions", () => 
     const reading = readComponent(SignUpSheet, SignUpSheet.examples[0], "s1").join("\n");
     expect(reading).not.toMatch(/\/(?:claim|release) press/);
   }
+});
+
+it("reveals claimant names only on expanded rows in the brief sheet", () => {
+  if (SignUpSheet.meta.status !== "draft") return;
+  const input = { ...SignUpSheet.examples[1]!, c: "SignUpSheet", id: "s1" };
+  const screen = { id: "home", components: [input] };
+  const defs = { SignUpSheet };
+  expect(readScreen(screen, defs)).not.toContain(" · jo");
+  const step = { address: "home/s1/r1", action: "toggle" };
+  const expanded = planAct(screen, defs, {}, [step]);
+  if (!expanded.ok) throw new Error(expanded.code);
+  expect(readScreen(screen, defs, expanded.values)).toContain("r1: 1/3 · jo");
+  const collapsed = planAct(screen, defs, expanded.values, [step]);
+  if (!collapsed.ok) throw new Error(collapsed.code);
+  expect(readScreen(screen, defs, collapsed.values)).not.toContain(" · jo");
 });
 
 it("identifies the ledger receipt and motion link in the draft reader", () => {

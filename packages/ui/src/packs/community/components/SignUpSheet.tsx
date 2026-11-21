@@ -31,7 +31,9 @@ export const meta = {
     items: { root: ["toggle"], claim: ["press"], release: ["press"] },
     when: { root: { detail: "brief" }, claim: { can_claim: true }, release: { own_claim: true } },
   },
+  select: { prop: "expanded", value: "index", mode: "flags" },
   confirmParts: ["release"],
+  read: (input, _state, lang): string[] => slotsReading(input as SlotReading, lang),
 } as const satisfies c.Meta;
 
 const slot = z.strictObject({
@@ -61,8 +63,22 @@ export const props = z
     slots: input.slots.map((row) => ({
       ...row,
       slotId: row.id,
+      expanded: false,
     })),
   }));
+
+type SlotReading = z.output<typeof props> & {
+  slots: { id: string; slotId: string; capacity: number; expanded: boolean }[];
+};
+
+function slotsReading({ slots, claims, detail }: SlotReading, lang?: string): string[] {
+  return slots.map(({ id, slotId, capacity, expanded }) => {
+    const claimants = claims.filter((claim) => claim.slotId === slotId).map(({ memberId }) => memberId);
+    const counts = `${c.numberLine(claimants.length, lang)}/${c.numberLine(capacity, lang)}`;
+    const visible = detail !== "brief" || expanded ? claimants : [];
+    return `${id}: ${[counts, ...visible].join(" · ")}`;
+  });
+}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -90,7 +106,7 @@ export const examples: z.input<typeof props>[] = [
     density: "compact",
     surface: "outlined",
     slots: [{ id: "tea", title: "Bring refreshments", capacity: 3 }],
-    claims: [],
+    claims: [{ slotId: "tea", memberId: "jo" }],
   },
 ] satisfies z.input<typeof props>[];
 
