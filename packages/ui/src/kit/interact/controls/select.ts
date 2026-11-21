@@ -1,11 +1,20 @@
-import { selectionAt, selectionError, selectionChanges, sessionEvent } from "../../../catalog";
+import {
+  pickerAt,
+  selectionAt,
+  selectionError,
+  selectionChanges,
+  sessionEvent,
+  stampItemIds,
+} from "../../../catalog";
 import type { ControlChange } from "../index";
 import type { ControlContext } from "./types";
 export function selectControl(ctx: ControlContext): ControlChange {
   const { step, def, input, target, put, bad, values } = ctx;
-  if (step.action !== "select" || !def.meta.select) return { values };
+  // The planner resolves runtime flags against live rows, which may not exist in this input.
+  if (step.action !== "select" || !def.meta.select || def.meta.select.runtime) return { values };
   if (
     Object.hasOwn(def.meta.selections ?? {}, target) ||
+    (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), target)) ||
     sessionEvent(def.meta, target, step.action) === "answer"
   )
     return { values };

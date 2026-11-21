@@ -9,7 +9,11 @@ export const meta = createMeta(
   },
   {
     short: [
-      "When records are supplied, edit one of them. Name it in Header.title, e.g. Edit Fern. Header.sub tells the person to change the prefilled details and tap Save changes. Leave action and axes null. Prefill three distinct facts from the same record with recognizable labels, such as Plant name, Room and Watering interval. Finish with one primary Save changes button for that record, not a generic navigation action.",
+      "Edit one supplied record. Use a Header that names it (e.g. Edit Fern) and the short subtitle Update details, then save. Leave Header.action and all axes null.",
+      "Prefill three distinct Fields for that same record, in reading order. For plant care: Plant name and Room are text, then Watering interval (days) is a number with the supplied interval as digits in a string. Finish with one primary Save changes button that goes to the record's detail screen after saving (e.g. fern_detail).",
+    ],
+    stepped: [
+      "Show the first step of editing one supplied record. Use its actual name in Header.title; the subtitle says to check the details before reviewing. Steps starts at 1 of 2, labelled Details. Prefill three Fields with the current record's actual values, with specific labels and units where known. The only Button says Review changes and goes to review_changes. Leave Field and Button axes null.",
     ],
   },
 ) satisfies ArchetypeMeta;

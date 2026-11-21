@@ -22,7 +22,7 @@ calorie or protein log (with `health`), baby food planner, batch-cooking helper,
 - One kitchen timer: `Timer`; a cooking video: `Player` style `video`.
 - Rating a recipe: `Scale` style `stars`; notes on it: `Composer` style `entry`.
 
-## Components (7)
+## Components (8)
 
 ### `Ingredients` · planned · input · phone
 A recipe's ingredients with amounts that scale with a servings stepper at the top, grouped (for the dough,
@@ -35,6 +35,7 @@ for the filling), each tickable while cooking, with a metric or US switch.
 - Parts → actions: `servings increment`, `servings decrement`, items `have check`, `system select`,
   `shop press` (adds the unticked ones to the grocery list). · States: filled.
 - Real path: recipe data on the device.
+- Wave 6 options: add optional `allergens` chips, `swap` text(28) substitution hint, and `style: "list" | "prep"`.
 
 ### `CookSteps` · planned · action · phone
 Cooking mode: one step at a time in large type, the ingredients that step uses, a timer button when the
@@ -44,6 +45,7 @@ step has a time, and next and back; the screen stays awake.
 - Writes: `steps` of `text` text(200), `uses` text(20) each 0–4, `minutes` number optional, 1–20; `at`.
 - Parts → actions: `next press`, `back press`, `timer start`, `timer stop`. · States: filled, success (done).
 - Real path: steps on the device; the screen is kept awake while cooking.
+- Wave 6 options: add optional `photo` per step and `style: "paged" | "overview"`.
 
 ### `MealPlan` · planned · input · phone
 The week as rows of days and columns of meals (breakfast, lunch, dinner), each cell a recipe name with a
@@ -55,6 +57,7 @@ small photo or an add button, today highlighted.
 - Parts → actions: cells `root press`, empty cells `add press`. · States: filled, empty.
 - Real path: plans stored on the device; sharing with a household needs a shared app.
 - Kit: `KitWeekMatrix`.
+- Wave 6 options: add computed daily `kcal` badge and `style: "week" | "day"`.
 
 ### `GroceryList` · planned · input · phone
 The shopping list grouped by aisle (produce, dairy, bakery…), each item with a quantity, ticked items
@@ -67,6 +70,7 @@ sliding to the bottom, and who added it when shared.
 - Signature: `check_burst` (the same moment as core `Checklist`).
 - Real path: the list on the device; a shared list needs the household on a shared app (`by` and others'
   additions are `people`).
+- Wave 6 options: add `style: "aisles" | "by_recipe"` and optional `estPrice` per item.
 
 ### `Pantry` · planned · data · phone
 What is in the cupboard, fridge and freezer: each item with a quantity, where it is, and its use-by date,
@@ -77,6 +81,7 @@ items expiring soon at the top in `warn` and expired ones in `bad`.
   date optional, `goto`, 1–20. The order and tones are computed from `useBy`. · Dense.
 - Parts → actions: items `root press`, items `used press` (in `confirmParts`: it removes the item). · States: filled, empty.
 - Real path: items typed in or scanned with `Camera` kind `scan`; dates on the device.
+- Wave 6 options: add `lowAt` threshold, `restock press` action (feeds `GroceryList`), and `openedOn` date.
 
 ### `FoodLog` · planned · input · phone
 Today's food by meal: each meal with its items and calories, an add button per meal, and the day's total
@@ -88,6 +93,7 @@ against the target at the top.
   screen). Calorie totals are computed; macros belong in a `Progress` above it. · Dense.
 - Parts → actions: meals `add press` (goes to `goto`), items `root press`. · States: filled, empty.
 - Real path: entries on the device; a food database to look items up is a `service`.
+- Wave 6 options: add optional `protein`, `carbs`, `fat` (grams) per item, `scan press` per meal (`Camera[scan]`, `meta.partTiers: { scan: "ok" }`), `waterMl` quick-add counter strip, and `style: "meals" | "summary"`.
 
 ### `KitchenTimers` · planned · action · phone
 Several named timers running at once (pasta 6:12, oven 18:40), each with its own progress ring, pause and
@@ -98,14 +104,23 @@ add a minute, the one finishing soonest first.
 - Parts → actions: timers `root start`, timers `root stop`, timers `more press` (adds a minute). · States: filled, empty.
 - Real path: timers on the device with an alarm (notifications, `ok`).
 
+### `NutritionFacts` · planned · data · phone
+Per-serving nutritional composition for one food item or recipe displaying a serving multiplier stepper, headline calories and a macro share bar across protein, carbohydrates and fat. Secondary rows list fiber, sugar and sodium with optional rating tones alongside allergen pills.
+- Pick: displaying or scaling the nutrition breakdown of one food item or recipe per serving. Not daily intake against targets (`Progress`), a whole day's meals (`FoodLog`), or flat facts (`KeyValue`).
+- Writes: `title` text(32), `servingLabel` text(24), `servings` number 0.25–12 (default 1), `calories` number ≥ 0, `protein` number ≥ 0, `carbs` number ≥ 0, `fat` number ≥ 0, `nutrients` of `label` text(20), `amount` number ≥ 0, `unit` text(8), `tone` (`neutral`, `good`, `warn`, `bad`) optional, 0–8; `allergens` text(16) each 0–6; `style`. Scaled calories, macro grams and macro percentage shares are computed by code.
+- Styles: `label` (default, full nutrition facts panel with macro share bar, nutrient rows and allergen chips), `compact` (serving multiplier, calories and macro share bar only).
+- Parts → actions: `servings increment`, `servings decrement`, `log press` (adds scaled serving to `FoodLog`).
+- States: filled, empty, loading, success (logged to food diary).
+- Real path: recipe nutrition calculated locally on the device, or looked up by barcode from an external food database (`service`).
+
 ## Archetypes (5)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `recipe` | One recipe | `overview`, `cook` | `overview`: Header[back], Hero[photo], KeyValue[grid], Ingredients, Button · `cook`: Header[back], CookSteps, KitchenTimers |
+| `recipe` | One recipe | `overview`, `nutrition`, `cook` | `overview`: Header[back], Hero[photo], KeyValue[grid], Ingredients, Button · `nutrition`: Header[back], NutritionFacts, Note · `cook`: Header[back], CookSteps, KitchenTimers |
 | `mealweek` | The week's meals | `week` | Header, MealPlan, Button |
 | `groceries` | Buying food | `list`, `pantry` | `list`: Header, GroceryList, Button · `pantry`: Header, Segmented, Pantry, Button |
-| `food` | What I ate | `day`, `add` | `day`: Header, Progress, FoodLog · `add`: Header, Search, List, Button |
+| `food` | What I ate | `day`, `item`, `add` | `day`: Header, Progress, FoodLog · `item`: Header[back], NutritionFacts, List[expand], Button · `add`: Header, Search, List, Button |
 | `recipes` | My recipe box | `browse` | Header, Search, Chips, List[cards] |
 
 ## Worked example: Supper
@@ -122,8 +137,11 @@ tomorrow. Signature: `check_burst` on the grocery list.
 
 ## Build notes
 
-- Order: `Ingredients`, `CookSteps`, `GroceryList`, `MealPlan`, `Pantry`, `KitchenTimers`, `FoodLog`.
+- Order: `Ingredients`, `CookSteps`, `GroceryList`, `MealPlan`, `Pantry`, `KitchenTimers`, `FoodLog`, then Wave 6 addition `NutritionFacts`.
 - Unit conversion and scaling are code with fixed rules; fractions show as ½ and ¼, never 0.5.
+- **Wave 6 additions & options:**
+  - Added `NutritionFacts` (`data`, `phone`) for per-serving calories, macro share bars, nutrient rows and allergen pills.
+  - Option/style upgrades: `FoodLog` gains optional `protein`, `carbs`, `fat` (grams), `scan press` (`Camera[scan]`, `ok`), `waterMl` quick-add counter strip and `style: "meals" | "summary"`; `Ingredients` gains `allergens`, `swap` hint and `style: "list" | "prep"`; `CookSteps` gains optional step `photo` and `style: "paged" | "overview"`; `GroceryList` gains `style: "aisles" | "by_recipe"` and `estPrice`; `Pantry` gains `lowAt`, `restock press` and `openedOn`; `MealPlan` gains computed daily `kcal` badge and `style: "week" | "day"`.
 
 ## Open questions
 

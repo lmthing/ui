@@ -1,15 +1,62 @@
 import {
+  drawRole,
   isNestedTarget,
   planAct,
+  privateMarkKey,
+  reportConfirmation,
   sessionEvent,
   sessionKey,
+  stageReportEdit,
   type ActStep,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../../catalog";
+import { planHostAct } from "../../../../catalog/agent/action-input";
 import type { ControllerContext, ScreenComponent } from "../index";
 import { deliverSend, type ActionContext } from "../../actions";
+
+export function drivenPartBlock(ctx: ControllerContext, address: string) {
+  if (ctx.privateMarks.has(address) || ctx.store.get(privateMarkKey(ctx.screen.id, address)))
+    return { code: "not_actionable", hint: "Private control" };
+  if (ctx.disabledParts.has(address)) return { code: "disabled", hint: "This control is disabled" };
+  if (ctx.options.requireMounted && !ctx.mounted.has(address))
+    return { code: "not_mounted", hint: "This control is not mounted" };
+}
+
+export function confirmReport(
+  ctx: ControllerContext,
+  screen: ScreenLike,
+  values: Values,
+  step: ActStep,
+  removal: ReportRemoval | undefined,
+) {
+  return stageReportEdit(
+    screen,
+    ctx.defs,
+    values,
+    step,
+    { kind: "confirm", now: ctx.now(), removal },
+    ctx.options.deviceData,
+  );
+}
+
+export function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
+  if (!ctx.standalone) return true;
+  const meta = ctx.defs[entry.c]!.meta;
+  const { successActions, errorActions, live } = meta;
+  const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (reportConfirmation(meta, part, selected.action)) return true;
+  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
+  return Boolean(sessionEvent(meta, part, selected.action));
+}
+
+export function isDraw({ entry, defs, selected }: ActionContext) {
+  const target = selected.address.split("/").slice(1).join("/") || "root";
+  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
+  return role === "draw" || role === "redraw";
+}
 
 export function dispatchPlan(
   ctx: ControllerContext,
@@ -17,7 +64,12 @@ export function dispatchPlan(
   values: Values,
   step: ActStep,
   random: RandomSource | null | undefined,
+  markToken?: symbol,
 ) {
+  if (markToken) {
+    if (!ctx.mounted.has(step.address)) return { ok: false as const, code: "not_mounted" as const, at: 0 };
+    return planHostAct(screen, ctx.defs, values, step, ctx.privateMarks, markToken, ctx.options.deviceData);
+  }
   return planAct(
     screen,
     ctx.defs,
@@ -27,6 +79,11 @@ export function dispatchPlan(
     ctx.standalone ? "planner" : "controller",
     ctx.options.deviceData,
   );
+}
+
+/** The planner has staged the mark already; don't send its canonical address through other controls. */
+export function hostCaptureEffects({ selected, screen, options }: ActionContext) {
+  return [() => options.onAction?.({ ...selected, address: `${screen.id}/${selected.address}` })];
 }
 
 export function standaloneEffects({ links, send, options }: ActionContext) {
@@ -64,7 +121,12 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen) &&
+    (meta.live?.derive ||
+      meta.select?.runtime ||
+      meta.linkedEdits ||
+      meta.items?.visibleWhen ||
+      meta.items?.edits ||
+      meta.signOff) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;

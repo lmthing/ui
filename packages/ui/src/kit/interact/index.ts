@@ -4,9 +4,11 @@ export { createInteractionStore, type InteractionStore } from "./store";
 export { createAgentAccess, type ActOptions, type ActReply, type ActLogEntry } from "./agent";
 export {
   DeviceDataContext,
+  useAppCurrency,
   useControlValue,
   useDeviceData,
   useLiveControls,
+  useMoveFocus,
   useNestedControls,
 } from "./use-control";
 export { useSwipe, swipeDirection } from "./use-swipe";

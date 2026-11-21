@@ -1,6 +1,9 @@
 import {
   selectionAt,
   selectionOffer,
+  itemEditSpec,
+  pickerAt,
+  stampItemIds,
   isAdjustOnlyItem,
   nestedAt,
   adjustmentAt,
@@ -25,15 +28,17 @@ export type ControlChange = {
 };
 /** Infer addressed row values, but require an explicit value for declared choice lists. */
 export function selectedStep(step: ActStep, entry: Entry, input: Values, def: Definition): ActStep {
-  if (step.action !== "select" || step.value !== undefined) return step;
+  if (step.action !== "select" || step.value !== undefined || def.meta.select?.runtime) return step;
   const local = (step.address === entry.id ? "root" : step.address.replace(`${entry.id}/`, "")).replace(
     /\/root$/,
     "",
   );
-  if (selectionOffer(def.meta, local)) return step;
+  if (selectionOffer(def.meta, local) || itemEditSpec(def.meta, local)?.action === "select") return step;
+  if (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), local)) return step;
+  const found = selectionAt(def.meta, input, local);
+  if (found?.row && def.meta.items?.deviceData) return { ...step, value: found.value };
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
-  const found = selectionAt(def.meta, input, local);
   return found ? { ...step, value: found.value } : step;
 }
 
@@ -70,6 +75,11 @@ export function controlStep(
   const next = { ...values };
   const parts = step.address.replace(`${screen.id}/`, "").split("/");
   const target = parts.slice(1).join("/") || "root";
+  const edit = itemEditSpec(defs[entry.c]!.meta, target);
+  if (edit?.action === "photo" && step.action === "press")
+    return { values: next, requestPhoto: valueKey(screen.id, entry.id, target) };
+  if (edit?.action === step.action)
+    return { values: next, value: next[valueKey(screen.id, entry.id, target)] };
   const ctx: ControlContext = {
     screen,
     entry,

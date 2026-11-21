@@ -1,9 +1,11 @@
-import { XStack, YStack } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import { XStack, YStack, isWeb, styled } from "tamagui";
+import { ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import { component, pickerKey, radius, size, space, type as typography } from "../../../catalog";
+import type { IconName } from "../../../catalog";
+import { useControlValue } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
-import { PartContext, usePart, usePartContext } from "../../part";
+import { PartContext, useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
-
 type OptionProps = {
   title: string;
   sub?: string | undefined;
@@ -122,13 +124,77 @@ function Option(props: OptionProps) {
     </YStack>
   );
 }
-
-/** A card or row option, addressed as one item with title, sub, value and badge parts. */
-export function KitOption({ item, ...props }: { item: string } & OptionProps) {
-  const context = usePartContext();
+type PickerProps = { title: string; choices: readonly string[]; selected?: string | undefined };
+const PickerRow = styled(XStack, {
+  alignItems: "center",
+  justifyContent: "space-between",
+  minHeight: size.control.md,
+  paddingHorizontal: space.md,
+  gap: space.sm,
+  borderWidth: component.base.none,
+  backgroundColor: "transparent",
+});
+const button = isWeb
+  ? ({ tag: "button", type: "button", outlineOffset: -component.base.strongBorder } as const)
+  : {};
+function Picker({ title, choices, selected }: PickerProps) {
+  const { screen, component: instance, item } = usePartContext();
+  const kit = useKit();
+  const corners = shifted("md", useKitStyle().radiusShift);
+  const loading = useComponentState() === "loading";
+  const address = usePart("root", !loading);
+  const open = useControlValue<string | undefined>(`${screen}/${instance}/${pickerKey}`, undefined);
+  if (loading) return <PickerRow aria-hidden backgroundColor="$line" borderRadius={corners} />;
+  const actions = kit.interactive && choices.length ? kit.controller?.actionsAt(address.testID) : undefined;
+  const enabled = !!actions?.includes("press");
+  const canChoose = !!actions?.includes("select");
+  const expanded = Boolean(actions && open === item);
+  const Chevron = expanded ? ChevronUp : ChevronDown;
+  const press = () => kit.controller!.act({ address: address.testID, action: "press" });
+  const choose = (value: string) => {
+    if (kit.controller!.act({ address: address.testID, action: "select", value }).ok)
+      (address.ref.current as { focus?: () => void } | null)?.focus?.();
+  };
   return (
-    <PartContext.Provider value={{ ...context, item }}>
-      <Option {...props} />
-    </PartContext.Provider>
+    <YStack borderRadius={corners} backgroundColor="$raised" overflow="hidden">
+      <PickerRow
+        {...button}
+        {...address}
+        backgroundColor={selected ? "$accentSoft" : "transparent"}
+        accessibilityRole="button"
+        aria-expanded={expanded}
+        {...(!isWeb ? { accessibilityState: { disabled: !enabled, expanded } } : {})}
+        disabled={!enabled}
+        onPress={enabled ? press : undefined}
+      >
+        <KitText role="label" part={null} children={selected ? `${title}: ${selected}` : title} />
+        <Chevron color="$muted" size={size.icon.sm} aria-hidden />
+      </PickerRow>
+      {expanded && (
+        <YStack role="group" aria-label={title}>
+          {choices.map((label) => (
+            <PickerRow
+              key={label}
+              {...button}
+              accessibilityRole="button"
+              aria-pressed={label === selected}
+              {...(!isWeb
+                ? { accessibilityState: { disabled: !canChoose, selected: label === selected } }
+                : {})}
+              disabled={!canChoose}
+              onPress={canChoose ? () => choose(label) : undefined}
+            >
+              <KitText role="label" part={null} children={label} />
+              {label === selected && <KitIcon name="check" tone="accent" scale="sm" decorative />}
+            </PickerRow>
+          ))}
+        </YStack>
+      )}
+    </YStack>
   );
+}
+export function KitOption({ item, ...props }: { item: string } & (OptionProps | PickerProps)) {
+  const context = usePartContext();
+  const child = "choices" in props ? <Picker {...props} /> : <Option {...props} />;
+  return <PartContext.Provider value={{ ...context, item }}>{child}</PartContext.Provider>;
 }

@@ -1,16 +1,73 @@
 import {
+  atDeviceTime,
+  captureDeviceTime,
+  driveTarget,
+  isDeviceDataVisible,
   migrateScreen,
+  parseAddress,
+  planAct,
+  projectDeviceData,
   readComponent,
   readScreen,
+  redactPrivateMarks,
+  selectionBindingFor,
+  withDisabledSelectionChecks,
+  withRecordScreen,
+  type AppCurrency,
+  type CanDrive,
   type Definition,
   type DeviceData,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
+import type { Confirmation, ControllerContext } from "./context";
+import type { PrivateMarks } from "../../../catalog/agent/action-input";
+
+export function isKeypad(ctx: ControllerContext, full: string) {
+  const address = parseAddress(full);
+  const entry = address?.component && ctx.sourceOf(address.component);
+  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
+  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
+
+export function visibleConfirmation(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  confirmation: Confirmation | undefined,
+  data: DeviceData | undefined,
+  at: number,
+  valuesOf: (at: number) => Values,
+): Confirmation | undefined {
+  if (!confirmation) return;
+  const source = confirmation.source.startsWith(`${screen.id}/`)
+    ? confirmation.source.slice(screen.id.length + 1)
+    : confirmation.source;
+  const entry = screen.components.find(({ id }) => id === source.split("/")[0]);
+  const meta = entry && defs[entry.c]?.meta;
+  if (!meta) return confirmation;
+  const values = valuesOf(at);
+  if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
+  const bound = meta.selectionBinding || meta.drives;
+  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+    const sourceScreen = bound ? screen : { ...screen, components: [entry] };
+    const plan = planAct(
+      sourceScreen,
+      defs,
+      values,
+      [confirmation.step],
+      null,
+      "controller",
+      atDeviceTime(data, at),
+      at,
+    );
+    if (!plan.ok) return;
+  }
+  return confirmation;
+}
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:type(?: = "(?:\\.|[^"\\])*")?|increment|decrement)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|set(?: = "(?:\\.|[^"\\])*")?)(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -29,12 +86,12 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
     ...def,
     meta: {
       ...def.meta,
-      read: (input, state, lang, deviceData) => {
+      read: (input, state, lang, deviceData, currency) => {
         const own = Object.keys(def.meta.actions?.parts ?? {}).filter((part) => parts.includes(part));
         const projected = projectValue(input as Values, address, own, values);
         const items = def.meta.items?.key;
         const rows = items && projected[items];
-        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData);
+        if (!items || !Array.isArray(rows)) return read(projected, state, lang, deviceData, currency);
         const itemParts = Object.keys(def.meta.actions?.items ?? {}).filter((part) => parts.includes(part));
         return read(
           {
@@ -46,6 +103,7 @@ function withKeypadDrafts(def: Definition, address: string, values: Values): Def
           state,
           lang,
           deviceData,
+          currency,
         );
       },
     },
@@ -59,14 +117,20 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
+  canDrive?: CanDrive,
+  privateMarks?: PrivateMarks,
 ): string {
-  const migrated = migrateScreen(screen, { variantOnly: true });
+  const source = withDisabledSelectionChecks(screen, disabled);
+  const migrated = migrateScreen(source, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(screen, defs, values, lang, deviceData);
-  return disabled?.size
-    ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
+    ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
+    : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
+  return disabled?.size || privateMarks?.size
+    ? read.replace(controlTokens, (token, address, action) =>
+        disabled?.has(address) || (action?.startsWith("set") && privateMarks?.has(address)) ? "" : token,
+      )
     : read;
 }
 
@@ -76,18 +140,35 @@ function readKeypads(
   values: Values,
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
+  canDrive?: CanDrive,
 ) {
+  deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), screen);
+  const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const { values: safe, addresses } = redactPrivateMarks(local);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def
-        ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData)
-        : [`${id} ${c} (unknown)`];
+      if (!def) return [`${id} ${c} (unknown)`];
+      const selection = selectionBindingFor(screen, defs, def.meta, id, safe, snapshot, addresses);
+      const target = driveTarget(def.meta, screen, defs, safe, snapshot, canDrive, addresses);
+      return readComponent(
+        withKeypadDrafts(def, id, safe),
+        props,
+        id,
+        state,
+        local,
+        lang,
+        deviceData,
+        currency,
+        selection?.view,
+        target,
+      );
     }),
   ].join("\n");
 }

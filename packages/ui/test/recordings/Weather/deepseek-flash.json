@@ -334,8 +334,8 @@
     "reply": "{\"c\":\"Weather\",\"density\":null,\"surface\":null,\"detail\":null,\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}",
     "replies": [
       "{\"c\":\"Weather\",\"density\":null,\"surface\":null,\"detail\":null,\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}",
-      "{\"c\":\"Weather\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}",
-      "{\"c\":\"Weather\",\"density\":\"compact\",\"surface\":\"card\",\"detail\":\"full\",\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}"
+      "{\"c\":\"Weather\",\"density\":null,\"surface\":null,\"detail\":\"full\",\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}",
+      "{\"c\":\"Weather\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"place\":\"Tokyo\",\"from\":\"2027-03-04\",\"to\":\"2027-03-13\"}"
     ]
   },
   "f13f8a79fd22eedb": {

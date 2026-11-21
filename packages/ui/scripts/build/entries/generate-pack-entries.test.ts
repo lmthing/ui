@@ -88,6 +88,23 @@ async function loadEntry(root: string, name: string) {
   return import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0]!.text).toString("base64")}`);
 }
 
+async function expectCompactTypes(root: string) {
+  const source = async (entry: string) =>
+    (await readFile(join(root, "src/entry", entry), "utf8")).replace(/\s+/g, " ");
+  const catalog = await source("catalog.ts");
+  expect(catalog).toContain(
+    "export const components: typeof coreComponents & typeof packComponents & typeof surfaceComponents",
+  );
+  expect(catalog).toContain("export type ComponentName = keyof typeof components;");
+  expect(catalog).toContain("ReturnType<typeof registryOf<typeof components>>");
+  expect(await source("packs/index.ts")).toContain(
+    "export const components: typeof group1.components & typeof group2.components & typeof group3.components",
+  );
+  expect(await source("packs/group-1/index.ts")).toMatch(
+    /export const components: (?:& )?typeof booking\.components & typeof books\.components/,
+  );
+}
+
 it("keeps all generated files and doors bounded with 45 core components and all 27 packs", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);
@@ -102,6 +119,7 @@ it("keeps all generated files and doors bounded with 45 core components and all 
   const files = await auditEntries(join(root, "src/entry"), metrics);
   expect(files.filter((file) => /group-\d+\/(?!index)[a-z]+\.ts$/.test(file))).toHaveLength(27);
   expect(await checkRules(root)).toEqual([]);
+  await expectCompactTypes(root);
   const catalog = await loadEntry(root, "catalog");
   expect(Object.keys(catalog.components)).toEqual([...coreNames, ...names, "Surface"]);
   expect(Object.keys(catalog.packs)).toEqual([...packIds].sort());
@@ -150,16 +168,25 @@ it("exposes authored compose probes by pack through a named door re-export", asy
   expect((await loadEntry(root, "catalog")).packComposeProbes).toEqual({ booking: [probe] });
 });
 
-it("removes obsolete generated data and view groups when regenerating a smaller scaffold", async () => {
+it("prunes obsolete pack files and groups during overlapping rebuilds of a smaller scaffold", async () => {
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);
   const ids = [...packIds].sort().slice(0, 10);
-  for (const id of ids) await scaffold(root, id);
+  const names = await Promise.all(ids.map((id) => scaffold(root, id)));
   await generateEntries(root);
   expect(await readdir(join(root, "src/entry/views"))).toContain("group-2.ts");
-  await rm(join(root, "src/packs", ids[9]!), { recursive: true });
-  await generateEntries(root);
+  await put(root, "entry/packs/group-1.ts", "// Obsolete flat group\n");
+  await rm(join(root, "src/packs", ids[0]!), { recursive: true });
+  const rebuildAndRead = async () => {
+    await generateEntries(root);
+    return Object.keys((await loadEntry(root, "renderers")).renderers);
+  };
+  const result = { status: "fulfilled", value: names.slice(1).flat() };
+  expect(await Promise.allSettled([rebuildAndRead(), rebuildAndRead()])).toEqual([result, result]);
   expect((await readdir(join(root, "src/entry/packs"))).sort()).toEqual(["README.md", "group-1", "index.ts"]);
+  expect((await readdir(join(root, "src/entry/packs/group-1"))).sort()).toEqual(
+    ["README.md", "index.ts", ...ids.slice(1).map((id) => `${id}.ts`)].sort(),
+  );
   expect((await readdir(join(root, "src/entry/views"))).sort()).toEqual([
     "README.md",
     "group-1.ts",

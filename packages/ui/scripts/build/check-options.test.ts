@@ -1,14 +1,6 @@
-import { afterEach, expect, it, vi } from "vitest";
-import {
-  changeSelection,
-  checkOptions,
-  relatedIncludes,
-  selectedIds,
-  selectedEntries,
-  selectedLayouts,
-} from "./check-options";
+import { expect, it, vi } from "vitest";
+import { checkOptions, nodeTestOptions } from "./check-options";
 
-afterEach(() => vi.unstubAllEnvs());
 it("separates real changed/browser options from file filters", () => {
   expect(checkOptions(["--changed"])).toEqual({ changed: "main", browser: false, filters: [] });
   expect(checkOptions(["--changed", "origin/main", "List"])).toEqual({
@@ -25,62 +17,61 @@ it("separates real changed/browser options from file filters", () => {
   expect(() => checkOptions(["--browser", "--changed"])).toThrow("cannot be combined");
   expect(() => checkOptions(["--unknown"])).toThrow("Unknown test option");
 });
-it("derives component ids from views, copy, recordings and component-named tests", () => {
-  expect(
-    changeSelection([
-      "packages/ui/src/components/List.tsx",
-      "packages/ui/src/packs/health/components/Cycle.tsx",
-      "packages/ui/src/packs/health/copy/Cycle.ts",
-      "packages/ui/test/recordings/Cycle/model.json",
-      "packages/ui/src/packs/booking/tests/Appointment.loading.test.ts",
-      "docs/spec.md",
-    ]),
-  ).toEqual({ full: false, ids: ["Appointment", "Cycle", "List"], packs: ["booking", "health"] });
-});
-it.each([
-  "src/kit/base/input/KitInput.tsx",
-  "src/kit/base/input/KitInput.test.ts",
-  "src/kit/interact/controller.ts",
-  "src/catalog/agent/read.ts",
-  "src/catalog/meta/pack.ts",
-  "src/entry/catalog.ts",
-  "scripts/build/check.ts",
-  "test/render.tsx",
-  "test/fixtures/cast.ts",
-  "src/packs/health/pack.ts",
-  "tsconfig.json",
-  "package.json",
-])("falls back to every Node test for shared or unclassified code: %s", (path) => {
-  expect(changeSelection([`packages/ui/${path}`]).full).toBe(true);
-});
-it("includes cross-cutting and touched-pack checks without other packs", () => {
-  const include = relatedIncludes(["Cycle"], ["health"]);
-  expect(include).toContain("src/**/Cycle.test.{ts,tsx}");
-  expect(include).toContain("src/packs/health/tests/**/[a-z]*.test.{ts,tsx}");
-  expect(include.join(" ")).not.toContain("booking");
-  expect(include.join(" ")).toContain("variants/conformance");
-});
-it("filters ids, entries and individual layouts, and restores full coverage without an env list", () => {
-  const metas = [
-    {
-      id: "sample",
-      layouts: {
-        first: { slots: [{ allow: ["List"] }] },
-        second: { slots: [{ allow: ["Cycle"] }] },
-      },
-    },
-  ];
-  expect(selectedIds(["List", "Cycle"])).toEqual(["List", "Cycle"]);
-  expect(selectedLayouts(metas)).toBeUndefined();
-  vi.stubEnv("UI_TEST_COMPONENTS", "Cycle");
-  expect(selectedIds(["List", "Cycle"])).toEqual(["Cycle"]);
-  expect(selectedEntries({ List: 1, Cycle: 2 })).toEqual([["Cycle", 2]]);
-  expect(selectedLayouts(metas)).toEqual(["sample/second"]);
+
+it("preserves Vitest defaults when neither Node override is set", () => {
+  const warn = vi.fn();
+  expect(nodeTestOptions({}, warn)).toEqual({});
+  expect(warn).not.toHaveBeenCalled();
 });
 
-it.each(["src/packs/home/lang/en.ts", "src/packs/home/copy/index.ts", "src/packs/home/device-contract.ts"])(
-  "runs only the pack's tests for a pack file with no component id: %s",
-  (path) => {
-    expect(changeSelection([path])).toEqual({ full: false, ids: [], packs: ["home"] });
+it("maps each Node override independently to Vitest settings", () => {
+  const warn = vi.fn();
+  expect(nodeTestOptions({ UI_TEST_TIMEOUT: "15000" }, warn)).toEqual({
+    testTimeout: 15_000,
+    hookTimeout: 15_000,
+  });
+  expect(nodeTestOptions({ UI_TEST_WORKERS: "04" }, warn)).toEqual({ maxWorkers: 4 });
+  expect(warn).not.toHaveBeenCalled();
+});
+
+it.each(["", " ", "0", "-2", "2.5", "2e3", "0x10", "2workers", "2\n", "Infinity"])(
+  "warns once per invalid Node override and ignores it: %j",
+  (value) => {
+    const warn = vi.fn();
+    expect(nodeTestOptions({ UI_TEST_TIMEOUT: value, UI_TEST_WORKERS: value }, warn)).toEqual({});
+    expect(warn.mock.calls).toEqual([
+      [expect.stringMatching(/^Ignoring UI_TEST_TIMEOUT:[^\n]+$/)],
+      [expect.stringMatching(/^Ignoring UI_TEST_WORKERS:[^\n]+$/)],
+    ]);
+  },
+);
+
+it("accepts both overrides at the upper bounds", () => {
+  const warn = vi.fn();
+  expect(nodeTestOptions({ UI_TEST_TIMEOUT: "2147483647", UI_TEST_WORKERS: "256" }, warn)).toEqual({
+    testTimeout: 2_147_483_647,
+    hookTimeout: 2_147_483_647,
+    maxWorkers: 256,
+  });
+  expect(warn).not.toHaveBeenCalled();
+});
+
+it("ignores an overflowing timeout without discarding a valid worker count", () => {
+  const warn = vi.fn();
+  expect(nodeTestOptions({ UI_TEST_TIMEOUT: "2147483648", UI_TEST_WORKERS: "1" }, warn)).toEqual({
+    maxWorkers: 1,
+  });
+  expect(warn.mock.calls).toEqual([[expect.stringContaining("UI_TEST_TIMEOUT")]]);
+});
+
+it.each(["257", "4294967296"])(
+  "ignores oversized worker count %s without discarding a valid timeout",
+  (workers) => {
+    const warn = vi.fn();
+    expect(nodeTestOptions({ UI_TEST_TIMEOUT: "15000", UI_TEST_WORKERS: workers }, warn)).toEqual({
+      testTimeout: 15_000,
+      hookTimeout: 15_000,
+    });
+    expect(warn.mock.calls).toEqual([[expect.stringContaining("UI_TEST_WORKERS")]]);
   },
 );

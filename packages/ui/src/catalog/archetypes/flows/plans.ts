@@ -8,7 +8,7 @@ export const meta = createMeta(
   },
   {
     plans: [
-      "Choice style is cards or list, never prices or plans. Each option has a short price in value. Optional icons use only the enum; use star, check or info, or omit them. Do not invent plan-switching policies. Use the supplied plan names, descriptions and prices.",
+      "Keep Choice axes null. Each option has a short price in value. Optional icons use only the enum; use star, check or info, or omit them. Do not invent plan-switching policies. Use the supplied plan names, descriptions and prices.",
     ],
   },
 ) satisfies ArchetypeMeta;

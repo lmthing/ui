@@ -1,6 +1,12 @@
 import { confirmLabel, type ActStep } from "../../../../catalog";
 import { rejected, type ActionContext, type ActionResult, type ActionState } from "../index";
-export function showConfirmation(state: ActionState, action: ActStep, ctx: ActionContext): ActionResult {
+type Confirmation = NonNullable<ActionState["confirmation"]>;
+export function showConfirmation(
+  state: ActionState,
+  action: ActStep,
+  ctx: ActionContext,
+  removal?: Confirmation["removal"],
+): ActionResult {
   const { input, entry, key } = ctx;
   const source = action.address === entry.id ? key(entry.id, "root") : `${ctx.screen.id}/${action.address}`;
   const kind = ["primary", "secondary", "quiet", "danger"].includes(String(input.kind))
@@ -14,6 +20,7 @@ export function showConfirmation(state: ActionState, action: ActStep, ctx: Actio
         kind,
         source,
         ...(input.goto ? { goto: String(input.goto) } : {}),
+        ...(removal ? { removal } : {}),
         step: { ...action, address: source },
       },
     },
@@ -24,7 +31,7 @@ export function confirmationAction(
   state: ActionState,
   action: ActStep,
   ctx: Pick<ActionContext, "screen" | "at" | "options">,
-  resume?: (state: ActionState, step: ActStep) => ActionResult,
+  resume?: (state: ActionState, step: ActStep, confirmation: Confirmation) => ActionResult,
 ): ActionResult {
   const accepting = action.address === "confirm/confirm" && action.action === "press";
   const cancelling = action.address === "confirm/cancel" && action.action === "dismiss";
@@ -41,6 +48,7 @@ export function confirmationAction(
         changes: [...state.changes, `${action.address} ${action.action}`],
       },
       pending.step,
+      pending,
     );
   let sheet = state.sheet;
   const effects: (() => void)[] = [];

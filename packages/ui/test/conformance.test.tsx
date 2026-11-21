@@ -12,16 +12,24 @@ import {
   themeName,
   themeRoles,
   type ComponentName,
+  type Definition,
+  type DeviceData,
   type Meta,
+  type StateName,
   type ThemeChoice,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
-import { addressedElements, config, renderInstance } from "./render";
+import { addressedElements, config, exampleDeviceData, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
-import { exampleDeviceData } from "../src/catalog/probes/fixtures";
-import { peekForExample } from "./variants";
+import {
+  derivedItemIds,
+  derivedItemIssues,
+  peekForExample,
+  renderedAddresses,
+  visibleTexts,
+} from "./variants";
 
-const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
+const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const modes = ["light", "dark"] as const;
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
@@ -32,6 +40,18 @@ function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
     props = { ...props, [items.key]: rows };
   }
   return stampItemIds(meta, props);
+}
+
+function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: string, data?: DeviceData) {
+  // Explicit empty screen reads only the state header; use the declared copy hook here.
+  const lines = data && meta.read?.(input, "empty", undefined, data);
+  if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
+  const visible = visibleTexts(html).join(" ");
+  for (const line of lines) expect(visible).toContain(line);
+}
+
+function isExampleHidden(meta: Meta, state: StateName, data?: DeviceData) {
+  return (meta.selectionBinding?.requireSelection && state === "empty") || !isDeviceDataVisible(meta, data);
 }
 
 it("stamps runtime faces from the declared count without a Writer item array", () => {
@@ -51,6 +71,38 @@ it("stamps runtime faces from the declared count without a Writer item array", (
   ]);
 });
 
+it("supplies parsed props and state to fixtures, without leaking undeclared records", () => {
+  const def: Definition = {
+    ...components.List,
+    meta: {
+      ...components.List.meta,
+      deviceData: ["allowed"],
+      previewDeviceData: ({ input, state }) => ({ allowed: [input, state], other: ["hidden"] }),
+    },
+  };
+  const parsed = def.props.parse({ rows: [{ title: " Fern " }] }) as Record<string, unknown>;
+  expect(exampleDeviceData(def, parsed, "empty")).toEqual({
+    allowed: [
+      expect.objectContaining({ surface: "card", rows: [expect.objectContaining({ title: "Fern" })] }),
+      "empty",
+    ],
+  });
+  expect(exampleDeviceData(components.List, parsed, "empty")).toBeUndefined();
+});
+
+it("validates noncontiguous derived IDs, their item roots, and declared parts", () => {
+  const meta: Meta = { ...components.List.meta, items: { key: "derived", parts: ["root", "value"] } };
+  const root = "home/c1/r2/root",
+    value = "home/c1/r2/value";
+  expect(derivedItemIds([root, value])).toEqual(["r2"]);
+  expect(derivedItemIssues(meta, {}, [root, value])).toEqual([]);
+  expect(derivedItemIssues(meta, {}, [value, value, "home/c1/r2/colour"])).toEqual([
+    "Duplicate part address",
+    "Undeclared item part: home/c1/r2/colour",
+    "Missing item root: home/c1/r2/root",
+  ]);
+});
+
 describe("themes", () => {
   it("generates every preset × mode × accent with all roles", () => {
     expect(Object.keys(kitThemes)).toHaveLength(presets.length * modes.length * accents.length);
@@ -67,43 +119,62 @@ describe("themes", () => {
 });
 
 describe.each(ready)("%s conformance", (id) => {
-  const { meta, examples } = components[id];
-  const states = (meta as Meta).states ?? ["filled"];
-  const items = (meta as Meta).items;
+  const { meta, examples }: Definition = components[id];
+  const states: readonly StateName[] = meta.states ?? ["filled"];
+  const { items } = meta;
 
   it.each(presets.flatMap((preset) => modes.map((mode) => ({ preset: preset.id, mode }))))(
     "renders every example and state in $preset $mode",
     ({ preset, mode }) => {
       const theme = { preset, mode, accent: accents[0]!.id } as ThemeChoice;
+      let derivedExample = false,
+        drawnRows = 0;
       for (const example of examples) {
         for (const state of states) {
-          const input = components[id].props.parse(example) as Record<string, unknown>;
-          const deviceData = exampleDeviceData(meta, input, state);
-          const html = renderInstance(id, example, state, theme, { thing: "walk", deviceData });
-          if (!isDeviceDataVisible(meta, deviceData)) {
+          const {
+            html,
+            props: parsed,
+            deviceData,
+          } = renderExample(id, example, state, theme, { thing: "walk", previewSelection: true });
+          if (isExampleHidden(meta, state, deviceData)) {
             expect(addressedElements(html).size).toBe(0);
             continue;
           }
           expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
-          if (state === "empty")
-            expect(html).toContain(emptyLine((meta as Meta).deviceDataVisible ? undefined : "walk"));
+          if (state === "empty") expectEmptyCopy(meta, parsed, html, deviceData);
           if (state === "loading") expect(html).toContain(loadingLabel);
+          if (
+            items &&
+            meta.deviceData?.length &&
+            !Array.isArray(parsed[items.key]) &&
+            meta.draw?.kind !== "faces"
+          ) {
+            const addresses = renderedAddresses(html);
+            expect(derivedItemIssues(meta, parsed, addresses)).toEqual([]);
+            if (state === "filled") {
+              expect(deviceData, "Derived item examples need a declared device fixture").toBeDefined();
+              derivedExample = true;
+              drawnRows += derivedItemIds(addresses).length;
+            }
+            continue;
+          }
           if (state === "filled" && items) {
-            const props = stampExampleItems(meta, input);
+            const props = stampExampleItems(meta, parsed);
             const rows = props[items.key] as { id: string }[];
             const { hidden, issues } = peekForExample(meta, props, html);
             expect(issues).toEqual([]);
             if (items.visible === "first")
               expect(html).not.toContain(`data-testid="home/c1/${items.prefix ?? "r"}2/root"`);
             const pageHidesRoots =
-              props.overflow === "page" &&
-              (meta as Meta).variantParts?.["overflow.page"]?.hides?.includes("root");
+              props.overflow === "page" && meta.variantParts?.["overflow.page"]?.hides?.includes("root");
             if (!pageHidesRoots)
               for (const { id } of items.visible === "first" ? rows.slice(0, 1) : rows)
                 if (!hidden.includes(id)) expect(html).toContain(`data-testid="home/c1/${id}/root"`);
           }
         }
       }
+      if (derivedExample)
+        expect(drawnRows, "At least one filled device fixture must render items").toBeGreaterThan(0);
     },
   );
 });
