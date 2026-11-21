@@ -98,6 +98,9 @@ export const en = {
     heating: "Heating set point",
     heatTarget: "Heat target",
     coolTarget: "Cool target",
+    adjustHeat: "Adjust heat target",
+    increase: "Increase heating set point",
+    decrease: "Decrease heating set point",
     cooling: (value: string) => `Cooling set point: ${value}`,
   },
   devicePanel: {

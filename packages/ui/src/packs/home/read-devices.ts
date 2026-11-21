@@ -8,7 +8,7 @@ type Input = z.output<typeof deviceProps>;
 type Entry = Input["entries"][number] & { id?: string };
 
 function readEntry(row: Entry, enlarged: boolean, grouped: boolean, lang?: string) {
-  const { deviceLabels, devicePanel, deviceUnits } = homeWordsFor(lang);
+  const { deviceLabels, devicePanel, deviceUnits, thermostat: words } = homeWordsFor(lang);
   if (row.entryKind === "scene")
     return [
       [row.id, row.name].filter(Boolean).join(" "),
@@ -33,6 +33,7 @@ function readEntry(row: Entry, enlarged: boolean, grouped: boolean, lang?: strin
     row.coolTemp === undefined
       ? undefined
       : devicePanel.measure(thermostat.coolingCaption, deviceUnits.celsius),
+    row.coolTemp === undefined ? undefined : words.adjustHeat,
     enlarged && row.reading !== undefined
       ? devicePanel.measure(deviceLabels.reading, deviceUnits[unit])
       : undefined,

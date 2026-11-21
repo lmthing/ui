@@ -63,6 +63,13 @@ it.each([
   else {
     const cooling = `Cooling set point: ${coolTemp} °C`;
     expect(html).toContain("Cool target · °C");
+    expect(html).toContain("Adjust heat target");
+    expect(elementAt(html, "home/c1/r1/minus").attributes).toContain(
+      'aria-label="Decrease heating set point"',
+    );
+    expect(elementAt(html, "home/c1/r1/plus").attributes).toContain(
+      'aria-label="Increase heating set point"',
+    );
     expect(textAt(html, "home/c1/r1/cool_temp")).toEqual([String(coolTemp)]);
     expect(read).toContain(cooling);
   }
@@ -76,6 +83,7 @@ it("renders cooling without mode and preserves existing output when neither is s
   expect(html).not.toContain("home/c1/r1/mode");
   const old = renderInstance("Devices", room(heat), "filled", theme);
   expect(old).toContain("Set point · °C");
+  expect(elementAt(old, "home/c1/r1/plus").attributes).toContain('aria-label="Increase set point"');
   expect(old).not.toMatch(/home\/c1\/r1\/(?:mode|cool_temp)/);
   expect(readComponent(Devices, room(heat), "d1").join("\n")).toContain("Set point 21 °C");
 });

@@ -34,18 +34,15 @@ function DeviceText({ children, ...props }: ComponentProps<typeof KitText> & { c
 function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactNode }) {
   const { lang, words } = useWords(homeWordsFor);
   const { min, max } = home.thermostatBounds;
-  const value = row.temp!;
+  const value = row.temp!, coolTemp = row.coolTemp, hasCooling = coolTemp !== undefined;
   const step = meta.items.adjust["plus.increment"].delta;
-  const { decrease, increase } = words.devicePanel;
+  const { decrease, increase } = hasCooling ? words.thermostat : words.devicePanel;
   const { setPoint, mode, heatingCaption, coolingCaption } = thermostatCopy(row, lang);
   const measure = (label: string) => words.devicePanel.measure(label, words.deviceUnits.celsius);
-  const { coolTemp } = row;
-  const hasCooling = coolTemp !== undefined;
-  const number = numberLine(value, lang);
   const target = (
     <kit.KitContent>
       <DeviceText role="label" tone="muted" part={null} children={measure(heatingCaption)} />
-      <DeviceText role="number" numberScale={focused ? "display" : "compact"} part={null} children={number} />
+      <DeviceText role="number" numberScale={focused ? "display" : "compact"} part={null} children={numberLine(value, lang)} />
     </kit.KitContent>
   );
   return (
@@ -61,6 +58,7 @@ function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactN
           </kit.KitContent>
         )}
       </kit.KitGrid>
+      {hasCooling && <kit.KitContent group="response"><DeviceText role="label" part={null} children={words.thermostat.adjustHeat} /></kit.KitContent>}
       <kit.KitSlider part="temp" label={setPoint} {...{ min, max, step, value, disabled }} />
       <kit.KitGrid>
         <KitAction part="minus" action="decrement" icon="minus" a11y={decrease} kind="secondary" full disabled={disabled || value <= min} />
