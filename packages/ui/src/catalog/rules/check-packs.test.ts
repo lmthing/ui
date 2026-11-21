@@ -38,18 +38,21 @@ it("checks today's pack catalog and a fixture with a competing pack", () => {
   expect(checkPacks(catalog)).toEqual([]);
   expect(checkPacks(fixture())).toEqual([]);
 });
-const coreExclusionFixture = (
-  id: "media" | "data",
-  miss: Pick<PackProbe, "expect" | "allow">,
-  player = false,
-) => {
+const coreExclusionFixture = (id: "media" | "data", miss: Pick<PackProbe, "expect" | "allow">) => {
+  if (id === "media") {
+    const media: PackMeta = catalog.packs.media;
+    const positives = media.probes.filter((probe) => probe.kind === "pack" && probe.expect.includes(id));
+    const probes: PackMeta["probes"] = [...positives, { kind: "pack", idea: "Play one recording", ...miss }];
+    return { ...catalog, packs: { ...catalog.packs, media: { ...media, probes } } };
+  }
   const input = fixture();
-  const ideas =
-    id === "media" ? ["Browse podcasts", "Save highlights"] : ["Sort requests", "Summarize records"];
-  const probes: PackProbe[] = ideas.map((idea) => ({ kind: "pack", idea, expect: [id] }));
-  probes.push({ kind: "pack", idea: id === "media" ? "Play one recording" : "Track books I read", ...miss });
+  const probes: PackProbe[] = [
+    { kind: "pack", idea: "Sort requests", expect: [id] },
+    { kind: "pack", idea: "Summarize records", expect: [id] },
+    { kind: "pack", idea: "Track books I read", ...miss },
+  ];
   return {
-    components: player ? { ...input.components, Player: catalog.components.Player } : input.components,
+    components: input.components,
     packOf: { Slots: id },
     packs: { [id]: { id, example: pack.example, probes } },
     packArchetypes: { [id]: input.packArchetypes.booking },
@@ -57,15 +60,15 @@ const coreExclusionFixture = (
   };
 };
 it.each(["media", "data"] as const)("requires a core-only miss for %s", (id) => {
-  const check = (miss: Pick<PackProbe, "expect" | "allow">) =>
-    checkPacks(coreExclusionFixture(id, miss, id === "media"));
+  const check = (miss: Pick<PackProbe, "expect" | "allow">) => checkPacks(coreExclusionFixture(id, miss));
   expect(check({ expect: [], allow: [] })).toEqual([]);
   expect(check({ expect: [] })).toEqual([]);
   expect(check({ expect: ["social"] })).toEqual([`${id}: probes`]);
   expect(check({ expect: [], allow: ["social"] })).toEqual([`${id}: probes`]);
 });
 it("requires the named core component to exist", () => {
-  expect(checkPacks(coreExclusionFixture("media", { expect: [] }))).toContain("media: purpose/pick");
+  const { Player: _player, ...components } = catalog.components;
+  expect(checkPacks({ ...catalog, components })).toContain("media: purpose/pick");
 });
 it("accepts optional known additions without requiring every allowed pack", () => {
   const input = fixture();
@@ -155,7 +158,6 @@ const overridesFixture = () => {
   const input = fixture();
   return { ...input, components: { ...input.components, Header: catalog.components.Header } };
 };
-
 it("checks an override of a core layout and a new layout under the same core archetype", () => {
   expect(
     checkPacks({
@@ -164,7 +166,6 @@ it("checks an override of a core layout and a new layout under the same core arc
     }),
   ).toEqual([]);
 });
-
 it("checks recipe alternatives and defaults against the owning pack", () => {
   const input = overridesFixture();
   const issues = checkPacks({
@@ -185,7 +186,6 @@ it("checks recipe alternatives and defaults against the owning pack", () => {
   expect(issues).toContain("booking: journal/month: recipe names unknown component Missing");
   expect(issues).toContain("booking: journal/month: recipe names commerce component Cart");
 });
-
 it.each<[NonNullable<Parameters<typeof checkPacks>[0]["packArchetypeOverrides"]>, string]>([
   [{ booking: { fixture0: { entries: layout } } as ArchetypeOverrides }, "unknown core archetype"],
   [{ booking: { journal: {} } }, "no layout overrides"],
