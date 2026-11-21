@@ -1,6 +1,7 @@
 import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
+import { knownFailureReporter } from "./known-failures";
 import { checkOptions, nodeTests, browserTests, nodeTestOptions } from "./check-options";
 
 function changedSummary(started: number, count: number) {
@@ -24,6 +25,7 @@ export async function check() {
     {
       config: false,
       run: true,
+      reporters: ["default", knownFailureReporter()],
       passWithNoTests: Boolean(selection),
       ...(selection?.plan ? { related: selection.plan.related, forceRerunTriggers: [] } : {}),
       ...(options.browser
