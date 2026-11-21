@@ -19,6 +19,18 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
 
 ## The file, in order
 
+For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from `packages/ui`
+(or `pnpm --filter @lmthing/ui gen:component <pack|core> <Name>` from the workspace root).
+It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
+creates component-specific copy and English label keys. It leaves existing components,
+including their probes, alone. For a pack, it also wires the component through the pack door.
+The command reports unsupported declarations rather than guessing their schema.
+
+Check the draft against the full entry before building the view: supply real examples,
+replace the probe prompts and check the read address, implement conditional actions and
+variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+The generated view is only a placeholder, not evidence for the model or visual gates.
+
 1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
