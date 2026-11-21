@@ -130,7 +130,9 @@ describe("KitTable dispatch", () => {
     expect(press.mock.calls).toEqual(Array.from({ length: 3 }, () => ["home/c1/r1/first"]));
     expect(handlers.get("home/c1/r1/second")?.onPress).toBeUndefined();
   });
+});
 
+describe("KitTable jump anchors", () => {
   it("makes addressed and plain jump headers accessible without removing the addressed press", async () => {
     const press = vi.fn();
     const controller = { press } as unknown as ScreenController;
