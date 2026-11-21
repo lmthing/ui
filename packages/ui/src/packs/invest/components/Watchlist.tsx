@@ -11,7 +11,7 @@ export const meta = {
   pick: "Investment quotes compared with personal price thresholds, with no trade or ownership implied. Not owned positions (Holdings), plain saved names (List), or physical things to buy (Wishlist).",
   writeHints: [
     "Write a dated quote for each item. Provide direction only when there is a target; the target and direction are stored preferences, not a trade. Do not write a computed gap or threshold status.",
-    'Default detail is "brief" (quotes). Use detail "full" when asked to show targets and signed gaps beside the quotes.',
+    'For targets and signed gaps beside quotes, write "detail":"full","density":null. A request for more detail is not a spacing request. Leave density null unless spacing is explicitly requested, and leave detail null for the default quotes view.',
   ],
   region: "body",
   weight: 2,

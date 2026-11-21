@@ -11,7 +11,8 @@ export const meta = {
   pick: "Owned investment positions with units, cost basis, dated quotes and unrealised gain. Not account balances (AccountCard), plain rows (List), things in storage (Things), or unowned investments (Watchlist).",
   writeHints: [
     "Use short snake_case record ids and ISO datetimes with offsets. Write opening units and unit cost, not computed value or gain. Zero opening units register an instrument for later activity.",
-    'A single-position filter uses an assetId from the portfolio. To show just units and value rather than the cost, quote and gain details, set detail to "brief"; retain the seed data.',
+    'To show just units and value, write "detail":"brief","density":null and retain the seed data. Only an explicit spacing request sets density; never fill in "comfortable".',
+    "A single-position filter uses an assetId from the portfolio.",
   ],
   region: "body",
   weight: 2,

@@ -6,6 +6,9 @@ export const goals = {
   defaultLayout: "invest_goal",
   layouts: {
     invest_goal: {
+      writeHints: [
+        "The Ring is the focus and is the only component that may use hero emphasis. Set emphasis to null on Amount, Header and Note; the Amount below the ring is a supporting number.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Ring"], required: true },
