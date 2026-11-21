@@ -168,6 +168,10 @@ Hosts can carry those fields, but the current kit and reader do not consume them
 One file per component, `src/components/<Id>.tsx`, holds its data and view. Pack components follow
 the same shape. [The component guide](component-guide.md) and `List.tsx` / `List.test.ts` are binding.
 
+Core and pack component folders (`src/components` and `src/packs/<pack>/components`) are exempt from
+the 12-file folder limit. So are the pack per-component test folders, `src/packs/<pack>/tests` and
+`src/packs/<pack>/tests/components`. These exemptions do not extend to other subfolders.
+
 | Export     | What it is                                                                                                    |
 | ---------- | ------------------------------------------------------------------------------------------------------------- |
 | `meta`     | A plain object, `as const satisfies Meta`                                                                     |
