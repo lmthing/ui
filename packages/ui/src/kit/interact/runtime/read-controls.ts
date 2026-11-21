@@ -3,6 +3,7 @@ import {
   captureDeviceTime,
   driveTarget,
   isDeviceDataVisible,
+  isLocalAnchorAction,
   migrateScreen,
   parseAddress,
   planAct,
@@ -67,7 +68,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement|focus|jump)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?:; (?:min|max|step) [-+\de.]+(?:, (?:min|max|step) [-+\de.]+)*)?(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -127,9 +128,13 @@ export function readControls(
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
-  return disabled?.size || privateMarks?.size
+  return disabled?.size || privateMarks?.size || canDrive
     ? read.replace(controlTokens, (token, address, action) =>
-        disabled?.has(address) || (action === "set" && privateMarks?.has(address)) ? "" : token,
+        disabled?.has(address) ||
+        (action === "set" && privateMarks?.has(address)) ||
+        (isLocalAnchorAction(action) && canDrive?.(address, undefined, action) === false)
+          ? ""
+          : token,
       )
     : read;
 }

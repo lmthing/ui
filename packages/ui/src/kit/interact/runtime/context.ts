@@ -47,6 +47,7 @@ export type ControllerOptions = {
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
+  onAnchor?: ((address: string, action: "focus" | "jump") => void) | undefined;
   onAction?: ((step: ActionEvent) => void) | undefined;
 };
 export type ScreenComponent = ScreenLike["components"][number];
@@ -166,6 +167,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
       initial = initialValues(screen, defs, now);
     },
     mounted: new Map<string, symbol>(),
+    anchors: new Map<string, (action: "focus" | "jump") => void>(),
     disabledParts,
     privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),

@@ -3,9 +3,26 @@ import type { Meta } from "../../meta";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
-import { formatAffordance, visibleItems, type Affordance } from "../index";
+import { formatAffordance, visibleItems, type Affordance, type SessionState } from "../index";
 import { groupItemLines } from "./group-item-lines";
 export { readAffordances, readOffers } from "./read-affordances";
+
+const variantKeys = ["style", "kind", "tone"];
+
+export function variantsOf(schema: ReadSchema, props: Props): string {
+  return variantKeys
+    .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)
+    .filter((key) => !(key === "tone" && props[key] === "neutral"))
+    .map((key) => `[${String(props[key])}]`)
+    .join("");
+}
+
+export function readProgress(session: SessionState | undefined, lang?: string): string[] {
+  const assessment = session?.kind === "rounds" && session.assessment;
+  if (!assessment || assessment.correct === undefined) return [];
+  const { right, of } = assessment.score;
+  return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
+}
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {

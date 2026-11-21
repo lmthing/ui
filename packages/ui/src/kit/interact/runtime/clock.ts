@@ -4,6 +4,8 @@ import {
   clockKey,
   clockTime,
   clockEnded,
+  clockMax,
+  timestampReading,
   parseControlProps,
   isDeviceDataVisible,
   liveProps,
@@ -35,16 +37,24 @@ function tickInput(
 }
 
 function needsClock(ctx: ControllerContext) {
-  const values = ctx.valuesOf();
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const data = projectDeviceData(ctx.options.deviceData, values);
   return ctx.screen.components.some((entry) => {
     if (!ctx.defs[entry.c]) return false;
     const get = (part: string) => values[ctx.key(entry.id, part)];
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") return false;
-    return clockTargets(ctx.defs[entry.c]!.meta, tickInput(ctx, entry, get)).some((clock) => {
+    const { meta } = ctx.defs[entry.c]!;
+    return clockTargets(meta, tickInput(ctx, entry, get)).some((clock) => {
+      if (clock.spec.timestamp)
+        return timestampReading(clock, selectDeviceData(meta, data), now, clockMax(clock))?.running;
       const state = get(clockKey(clock)) as ClockState | undefined;
       return clock.spec.kind === "until"
         ? clockTime(clock, undefined, undefined, ctx.now()) > 0
-        : Boolean(state?.running);
+        : Boolean(
+            state?.running &&
+            (!clock.spec.journal || !clockEnded(clock, clockTime(clock, state, undefined, now))),
+          );
     });
   });
 }
@@ -60,7 +70,9 @@ function noteReplayExpiry(meta: Meta, input: Values, changes: Values) {
 }
 
 function tickValues(ctx: ControllerContext) {
-  const values = ctx.valuesOf();
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const data = projectDeviceData(ctx.options.deviceData, values);
   const changes: Record<string, unknown> = {};
   for (const entry of ctx.screen.components) {
     if (!ctx.defs[entry.c]) continue;
@@ -68,7 +80,7 @@ function tickValues(ctx: ControllerContext) {
     if (get("$dismissed") || (get("$state") ?? entry.state ?? "filled") !== "filled") continue;
     const { meta } = ctx.defs[entry.c]!;
     const input = tickInput(ctx, entry, get);
-    const ticked = noteReplayExpiry(meta, input, tickClocks(meta, input, get, ctx.now()));
+    const ticked = noteReplayExpiry(meta, input, tickClocks(meta, input, get, now, data));
     for (const [part, value] of Object.entries(ticked)) changes[ctx.key(entry.id, part)] = value;
   }
   if (Object.keys(changes).length) {

@@ -103,7 +103,7 @@ function mountSeekTarget(
   data?: DeviceData,
 ) {
   const c = def.meta.drives;
-  if (c === undefined) return;
+  if (typeof c !== "string") return;
   if (Object.hasOwn(defs, c)) throw new Error(`Conflicting seek target for ${def.meta.id} read fixture`);
   let id = "target";
   for (let n = 2; screen.components.some((entry) => entry.id === id); n++) id = `target${n}`;

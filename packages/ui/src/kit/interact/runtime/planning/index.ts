@@ -1,4 +1,4 @@
-import type { ActStep, RandomSource } from "../../../../catalog";
+import { isLocalAnchorAction, type ActStep, type RandomSource } from "../../../../catalog";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import {
   actionFailure,
@@ -23,7 +23,7 @@ import {
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
-export { drivenPartBlock } from "./introduced-part";
+export { driveAccess } from "./introduced-part";
 
 type PreparedStep =
   | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
@@ -74,6 +74,7 @@ function prepareStep(
       defs: ctx.defs,
       selected,
       links: plan.links,
+      anchors: plan.anchors,
       send: plan.sends?.[0],
       at,
       now: ctx.now,
@@ -97,6 +98,19 @@ function runControl(
     { ...selected, address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
   );
+}
+
+function runAnchor(
+  ctx: ControllerContext,
+  before: ActionState,
+  state: ActionState,
+  address: string,
+  action: "focus" | "jump",
+  at: number,
+): ActionResult {
+  const block = drivenPartBlock(ctx, address, action);
+  if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+  return { state, effects: [() => ctx.anchors.get(address)?.(action)] };
 }
 
 function stepRunner(
@@ -128,7 +142,7 @@ function stepRunner(
     }
     if (pending) return pending;
     if (!ctx.standalone && prepared.drive) {
-      const block = drivenPartBlock(ctx, prepared.drive.address);
+      const block = drivenPartBlock(ctx, prepared.drive.address, prepared.drive.action);
       if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
       return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
     }
@@ -149,6 +163,8 @@ function stepRunner(
         state: prepared.state,
         effects: standaloneEffects(prepared.context),
       };
+    if (isLocalAnchorAction(selected.action))
+      return runAnchor(ctx, before, prepared.state, selected.address, selected.action, at);
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
     return runControl(prepared, selected, address);
   };

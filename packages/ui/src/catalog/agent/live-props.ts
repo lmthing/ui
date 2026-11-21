@@ -3,9 +3,8 @@ import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
-import type { DeviceData, ScreenLike, Values } from "./index";
+import type { DeviceData, Values } from "./index";
 import { projectDeviceFlags, projectDeviceRows } from "./device-data";
-import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
@@ -13,13 +12,7 @@ import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-ed
 import { projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
-import {
-  adjustmentAt,
-  projectAdjustments,
-  projectComponentSets,
-  projectLiveClocks,
-  projectMatrix,
-} from "./clocks";
+import { projectAdjustments, projectComponentSets, projectLiveClocks, projectMatrix } from "./clocks";
 type Get = (part: string) => unknown;
 function unwrapField(field: unknown, wire = false): unknown {
   while (
@@ -38,7 +31,7 @@ function defaultInput(field: unknown) {
 }
 const fieldOf = (schema: unknown, key: string) =>
   schema instanceof z.ZodObject ? schema.shape[key] : undefined;
-function wireAdjustmentKey(def: Definition, key: string) {
+export function wireAdjustmentKey(def: Definition, key: string) {
   const rows = unwrapField(fieldOf(def.props, def.meta.items!.key));
   if (rows instanceof z.ZodPipe) return; // A collection transform can change stamped row positions.
   const prop = key.slice(key.lastIndexOf("/") + 1);
@@ -144,7 +137,13 @@ export function liveProps(
     : projectControls(meta, addressed, get);
   if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
     props = projectAdjustments(meta, props, get);
-  const timed = projectLiveClocks(meta, props, get, runtime || !!(meta.live || meta.recordRuntime?.actions));
+  const timed = projectLiveClocks(
+    meta,
+    props,
+    get,
+    runtime || !!(meta.live || meta.recordRuntime?.actions),
+    data,
+  );
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");
@@ -172,29 +171,4 @@ export function liveProps(
       values[`${instance}/${String(item.id)}`] === false ? { ...item, body: undefined } : item,
     );
   return { ...props, [key]: items };
-}
-export function stageItemAdjustment(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  address: string,
-  action: string,
-  values: Values,
-): boolean | undefined {
-  if (action !== "increment" && action !== "decrement") return;
-  const [id, ...parts] = address.split("/");
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && defs[entry.c];
-  if (!entry || !def?.meta.items?.adjust) return;
-  const { id: _id, c: _c, state: _state, ...raw } = entry;
-  const base = `${screen.id}/${id}`;
-  const get = (part: string) => values[`${base}/${part}`];
-  const props = parseControlProps(def, raw, get);
-  const now = Number(get("$now") ?? Date.now());
-  const adjustment = adjustmentAt(def.meta, props, parts.join("/"), action, get, now);
-  if (!isAdjustOnlyItem(adjustment, action)) return;
-  const slot = wireAdjustmentKey(def, adjustment.key);
-  if (adjustment.next === undefined || !slot) return false;
-  values[`${base}/${slot}`] = adjustment.next;
-  values[`${screen.id}/${address}`] = adjustment.next;
-  return true;
 }

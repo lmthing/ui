@@ -5,7 +5,14 @@ export {
   partTierAt,
   type Affordance,
 } from "./affordances";
-export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
+export {
+  checkDriveDeclaration,
+  driveAffordances,
+  driveTarget,
+  isLocalAnchorAction,
+  projectDriveObservation,
+  type CanDrive,
+} from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
@@ -63,6 +70,7 @@ export {
   parseControlProps,
   projectControlInput,
   projectControls,
+  wireAdjustmentKey,
 } from "./live-props";
 export {
   drawKey,
@@ -101,6 +109,9 @@ export {
 } from "./session";
 export {
   clockTargets,
+  clockMax,
+  hasTimestampClock,
+  timestampReading,
   clockKey,
   clockPropKey,
   clockSeed,
@@ -108,6 +119,8 @@ export {
   clockEnded,
   clockTriggerTarget,
   numericSetAt,
+  declaresNumericLimits,
+  snapNumber,
   adjustmentAt,
   clearItemSets,
   projectAdjustments,

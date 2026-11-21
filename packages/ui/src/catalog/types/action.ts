@@ -14,6 +14,8 @@ export type ActionName =
   | "play"
   | "pause"
   | "seek"
+  | "focus"
+  | "jump"
   | "flip"
   | "move"
   | "send"

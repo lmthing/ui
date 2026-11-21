@@ -1,4 +1,4 @@
-import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
+import { liveProps, parseControlProps } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
 import type { Affordance } from "./affordances";
@@ -10,13 +10,14 @@ import {
   localValues,
   type selectStep,
   stageProgress,
+  stageItemAdjustment,
   stageRecord,
   stageValue,
   validateStep,
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
-import { clockChanges, clockControlDeclared } from "./clocks";
+import { adjustmentChanges, stageStandaloneClock } from "./clocks";
 import {
   captureDeviceTime,
   deviceTimeOf,
@@ -28,6 +29,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { isLocalAnchorAction } from "./drives";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -40,35 +42,9 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      anchors?: { address: string; action: "focus" | "jump" }[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
-/** A mounted controller already stages clocks through its action table. */
-function stageStandaloneClock(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  address: string,
-  step: ActStep,
-  data?: DeviceData,
-) {
-  const [id, ...parts] = address.split("/");
-  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
-  const def = defs[c]!;
-  const { meta } = def;
-  const legacy =
-    (meta.live?.derive || meta.recordRuntime?.actions) &&
-    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
-  const target = parts.join("/") || "root";
-  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
-  const props = legacy
-    ? liveInput(def, input, id!, localValues(screen.id, next), data)
-    : parseControlProps(def, input, get);
-  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
-  const changes = clockChanges(meta, props, get, target, step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
-}
 
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
@@ -119,6 +95,7 @@ function stageControl(
   links: Extract<ActResult, { ok: true }>["links"],
   clockOwner: "planner" | "controller",
   snapshot: DeviceData | undefined,
+  now: number,
   {
     key,
     edit,
@@ -128,15 +105,26 @@ function stageControl(
   }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
-  const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
-  if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
+  let adjusted = edit
+    ? undefined
+    : stageItemAdjustment(screen, defs, address, action, next, found.adjustment);
+  if (!edit && adjusted === undefined && found.adjustment) {
+    const base = `${screen.id}/${address.split("/")[0]}`;
+    for (const [part, amount] of Object.entries(adjustmentChanges(found.adjustment, now)))
+      next[`${base}/${part}`] = amount;
+    next[key] = found.adjustment.next;
+    adjusted = true;
+  } else if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
     return { ok: false, code: "not_actionable" };
   stageInlinePress(screen, defs, resolved, next);
   Object.assign(next, changes);
   if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, snapshot) === false)
     return { ok: false, code: "invalid_value", hint: "Value conflicts with report props" };
-  if ((limits || edit?.adjustment || adjusted || declared) && !controlsAreValid(screen, defs, address, next))
+  if (
+    (limits || edit?.adjustment || adjusted || declared || found.adjustment) &&
+    !controlsAreValid(screen, defs, address, next)
+  )
     return { ok: false, code: "invalid_value", hint: "Value conflicts with component props" };
 }
 
@@ -175,6 +163,11 @@ export function planAct(
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
+    if (isLocalAnchorAction(step.action)) {
+      (plan.anchors ??= []).push({ address: `${screen.id}/${address}`, action: step.action });
+      changed.push(`${address} ${step.action}`);
+      continue;
+    }
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
@@ -188,7 +181,18 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
+    const failure = stageControl(
+      screen,
+      defs,
+      next,
+      resolved,
+      found,
+      links,
+      clockOwner,
+      snapshot,
+      now,
+      validated,
+    );
     if (failure) return { ...failure, at };
     expireProgress(screen, defs, next, snapshot);
     if (found.send)

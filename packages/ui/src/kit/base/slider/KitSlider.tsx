@@ -1,6 +1,7 @@
 import { XStack, YStack, isWeb } from "tamagui";
 import { component, radius, size, space } from "../../../catalog";
 import { useComponentState, usePart } from "../../part";
+import { useNumericControl } from "../../interact";
 import { useSlider } from "./use-slider";
 
 type SliderProps = {
@@ -53,6 +54,12 @@ export function KitSlider({
 }: SliderProps) {
   const address = usePart(part);
   const loading = useComponentState() === "loading";
+  const numeric = useNumericControl(address.testID, part !== "scrubber" && !loading);
+  min = numeric?.min ?? min;
+  max = numeric?.max ?? max;
+  step = numeric?.step ?? step;
+  value = numeric?.value ?? value;
+  disabled ||= numeric === null;
   const inactive = disabled || loading;
   const { width, handlers } = useSlider({
     address: address.testID,
@@ -62,6 +69,7 @@ export function KitSlider({
     max,
     step,
     disabled: inactive,
+    declared: !!numeric,
   });
   const clamped = Math.min(max, Math.max(min, value));
   const share = max > min ? (clamped - min) / (max - min) : 0;

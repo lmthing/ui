@@ -4,14 +4,22 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { formatAffordance } from "./affordances";
-import { hasRuntimeSets, projectLiveClocks } from "./clocks";
+import { hasRecordClock, hasRuntimeSets, hasTimestampClock, projectLiveClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateScreen } from "../migrations";
-import { componentTexts, migrateInput, readAffordances, readItems, readOffers } from "./reading";
+import {
+  componentTexts,
+  migrateInput,
+  readAffordances,
+  readItems,
+  readOffers,
+  readProgress,
+  variantsOf,
+} from "./reading";
 import type { ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
 import {
@@ -20,7 +28,7 @@ import {
   selectionBindingFor,
   type BoundSelection,
 } from "./selection-binding";
-import { driveTarget, type CanDrive } from "./drives";
+import { driveTarget, projectDriveObservation, type CanDrive } from "./drives";
 import {
   captureDeviceTime,
   isDeviceDataVisible,
@@ -34,15 +42,6 @@ import { redactPrivateMarks } from "./action-input";
 type Props = Record<string, unknown>;
 
 const quote = (value: string) => JSON.stringify(value);
-const variantKeys = ["style", "kind", "tone"];
-
-function variantsOf(schema: Json, props: Props): string {
-  return variantKeys
-    .filter((key) => props[key] !== undefined && props[key] !== schema.properties?.[key]?.default)
-    .filter((key) => !(key === "tone" && props[key] === "neutral"))
-    .map((key) => `[${String(props[key])}]`)
-    .join("");
-}
 
 function readingProps(
   meta: Meta,
@@ -55,7 +54,6 @@ function readingProps(
   const get = (part: string) => values[`${instance}/${part}`];
   const runtime = Boolean(get("$runtime"));
   const reading = projectParsedControls(meta, props, get, runtime);
-  const timed = projectLiveClocks(meta, reading, get, runtime);
   const useLive =
     meta.live ||
     meta.select?.runtime ||
@@ -68,11 +66,18 @@ function readingProps(
     meta.items?.visibleWhen ||
     meta.items?.toggles ||
     hasRuntimeSets(meta) ||
+    hasRecordClock(meta) ||
+    hasTimestampClock(meta) ||
+    (typeof meta.drives === "object" && meta.drives.observe) ||
     meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
-    visibleNestedProps(meta, useLive ? live : projectDraw(meta, timed, get), get),
+    visibleNestedProps(
+      meta,
+      useLive ? live : projectDraw(meta, projectLiveClocks(meta, reading, get, runtime), get),
+      get,
+    ),
   );
   if (!session) return projected;
   const current =
@@ -83,13 +88,6 @@ function readingProps(
         }
       : {};
   return { ...projected, ...current, [sessionKey]: session };
-}
-
-function readProgress(session: SessionState | undefined, lang?: string): string[] {
-  const assessment = session?.kind === "rounds" && session.assessment;
-  if (!assessment || assessment.correct === undefined) return [];
-  const { right, of } = assessment.score;
-  return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
 const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;
@@ -125,9 +123,13 @@ export function readComponent(
   const migrated = migrateInput(meta.id, input);
   const validated = parseControlProps(def, migrated, get);
   const live = liveProps(meta, validated, instance, values, true, deviceData);
-  const props = projectSelectionBinding(meta, live, selection);
-  const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
-  state = sessionStatus(meta, props, base, get);
+  const props = projectDriveObservation(
+    meta,
+    projectSelectionBinding(meta, live, selection),
+    instance,
+    target,
+  );
+  state = sessionStatus(meta, props, drawStatus(meta, props, (props.state as StateName) ?? state, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),

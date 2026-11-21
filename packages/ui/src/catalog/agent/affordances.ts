@@ -2,7 +2,7 @@ import type { Meta } from "../meta";
 import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
-import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
+import { adjustmentAt, clockActionValid, clockControlDeclared, numericSetAt } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
@@ -10,7 +10,8 @@ import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
-import type { DeviceData } from "./device-data";
+import { deviceTimeOf, type DeviceData } from "./device-data";
+import { isLocalAnchorAction } from "./drives";
 
 export type Affordance = {
   address: string;
@@ -24,6 +25,8 @@ export type Affordance = {
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
   move?: { current: string | null; choices: string[] };
+  numeric?: NonNullable<ReturnType<typeof numericSetAt>>;
+  adjustment?: Adjustment;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -31,6 +34,7 @@ type OfferContext = {
   wire?: Props | undefined;
   schema?: Definition["props"];
   clock?: ((target: string, action: string) => boolean) | undefined;
+  now?: number | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
@@ -67,6 +71,17 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
+function actionsForComponent(meta: Meta, props: Props, instance: string) {
+  const { parts, when } = meta.actions ?? {};
+  return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if (a.action === "move" && meta.items?.move) return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
+}
+
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
@@ -82,15 +97,6 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, when } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
-    if (send !== undefined) return send ? [{ ...a, send }] : [];
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
   const items = addressedItems(meta, props);
   const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
@@ -103,11 +109,16 @@ export function affordancesOf(
   const visibleNested = nested.filter(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
   );
-  const now = Number(get("$now") ?? Date.now());
+  const now = Number(get("$now") ?? context.now ?? deviceTimeOf(context.data) ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  const available = [...actionsForComponent(meta, props, instance), ...visibleNested].filter((offer) => {
     const { address, action, part } = offer;
+    if (
+      isLocalAnchorAction(action) &&
+      (isItemOffer(instance, offer) || partTierAt(meta, props, part) !== "phone")
+    )
+      return false;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
     const role = drawRole(meta, target, action);
@@ -121,12 +132,40 @@ export function affordancesOf(
       !clockActionValid(meta, props, target, action, get, now)
     )
       return false;
-    if (!runtime && !meta.set && !meta.items?.set && !meta.items?.adjust) return true;
-    const adjustment = adjustmentAt(meta, props, target, action, get, now);
-    if (!runtime)
-      return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
-    return !adjustment || adjustment.next !== undefined;
+    return true;
   });
+  return available.flatMap((offer) =>
+    numericOffer(meta, props, instance, offer, get, now, runtime, context.data),
+  );
+}
+
+function numericOffer(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  offer: Affordance,
+  get: (part: string) => unknown,
+  now: number,
+  runtime: unknown,
+  data?: DeviceData,
+): Affordance[] {
+  const { address, action } = offer;
+  const target = address === instance ? "root" : address.slice(instance.length + 1);
+  if (action === "set") {
+    const numeric = numericSetAt(meta, props, target, data);
+    if (!numeric) return [offer];
+    const { spec } = numeric;
+    if ((spec.declared || spec.runtime) && !(spec.min <= spec.max)) return [];
+    return [{ ...offer, numeric }];
+  }
+  const adjustment = adjustmentAt(meta, props, target, action, get, now, data);
+  if (
+    adjustment &&
+    (adjustment.declared || runtime || adjustment.atSet || isAdjustOnlyItem(adjustment, action)) &&
+    adjustment.next === undefined
+  )
+    return [];
+  return [adjustment?.declared ? { ...offer, adjustment } : offer];
 }
 
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {

@@ -24,6 +24,23 @@ export type ClockCommit = {
   ) => RecordProps | undefined;
 };
 
+export type ClockSession = {
+  start: number;
+  end: number;
+  durationMs: number;
+  laps: readonly number[];
+  count: number;
+};
+
+/** A local elapsed journal, independent of the calendar. Lap values are absolute epoch milliseconds. */
+export type ClockJournal = {
+  rows: string;
+  selection?: readonly string[];
+  validTarget?: (props: RecordProps, data: DeviceData) => boolean;
+  lap?: { part: string; max: number; prop?: string };
+  record: (session: ClockSession, props: RecordProps, data: DeviceData) => RecordProps | undefined;
+};
+
 export type ClockTrigger = {
   part: string;
   action: "start" | "stop" | "play" | "pause" | "press" | "toggle" | "check";
@@ -40,6 +57,8 @@ export type ClockMeta = {
   /** Optional boolean prop that distinguishes a ticking clock from a paused or finished clock. */
   runningProp?: string;
   at?: string;
+  /** Passive up/until time source from trusted host records, not Writer props. */
+  timestamp?: (data: DeviceData, holder: RecordProps, outer: RecordProps) => string | number | undefined;
   /** Cap in whole seconds, or compute it from the parsed holder and component props. */
   max?:
     | number
@@ -54,6 +73,7 @@ export type ClockMeta = {
   stop?: ClockTrigger;
   reset?: ClockTrigger;
   commitOnStop?: ClockCommit;
+  journal?: ClockJournal;
   zero?: "stop" | { state: StateName } | { prop: string; value: string | boolean };
 };
 export type ClockState = {
@@ -67,4 +87,5 @@ export type ClockState = {
   expired?: true;
   /** Selection bound to the current elapsed session. */
   selection?: string;
+  laps?: readonly number[];
 };

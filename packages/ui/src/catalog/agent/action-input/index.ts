@@ -4,6 +4,7 @@ import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageRecord } from "./record-planning";
+export { stageItemAdjustment } from "./item-adjustment";
 export { stageProgress } from "./progress";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { actionValueAddress, findAction } from "./offered-actions";
@@ -41,7 +42,7 @@ export function validateStep(
   values: Values,
   key: string,
 ) {
-  const edit = setStep(screen, defs, found.address, step.action, values);
+  const edit = setStep(screen, defs, found, step.action, values);
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
@@ -73,12 +74,12 @@ export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>,
 function setStep(
   screen: ScreenLike,
   defs: Record<string, Definition>,
-  address: string,
+  found: Affordance,
   action: string,
   values: Values,
 ) {
   if (!["set", "increment", "decrement"].includes(action)) return;
-  const [id, ...parts] = address.split("/");
+  const [id, ...parts] = found.address.split("/");
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && defs[entry.c];
   if (!def || (!def.meta.items?.set && !def.meta.set)) return;
@@ -87,10 +88,11 @@ function setStep(
   const props = parseControlProps(def, raw, get);
   const target = parts.join("/") || "root";
   if (action === "set") {
-    const set = setAt(def.meta, props, target);
+    const set = found.numeric ?? setAt(def.meta, props, target);
     if (set) return { id, set, slot: controlValueKey(def, set.key) };
   }
-  const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
+  const adjustment =
+    found.adjustment ?? adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
   if (adjustment?.atSet) return { id, adjustment, slot: controlValueKey(def, adjustment.key) };
 }
 
