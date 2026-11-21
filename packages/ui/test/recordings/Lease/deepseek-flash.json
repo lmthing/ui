@@ -236,6 +236,238 @@
       "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":null,\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}"
     ]
   },
+  "53081fd7beb26043": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLease: See one rental agreement, when rent is next due and when to renew.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", tenant: text≤24, place: text≤32, start: date YYYY-MM-DD, end: date YYYY-MM-DD, rent: num 0.., per: month|week, due: int 1..31, deposit?: num 0.. }\nRule: End must be after start. For monthly rent write the due day of the month (1–31); for weekly rent write the weekday (Monday 1, Sunday 7). Never write the computed next due date, progress or renewal status.\nRule: Keep the start date and deposit in the record even when hidden. To hide them without any other presentation change, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. With no presentation request, use {\"density\":null,\"surface\":null,\"detail\":null}.\nRule: Set density only for an explicit request for tighter or roomier spacing; null inherits app spacing. Set surface only for an explicit change to the container treatment; a reference to the existing card is not a change. Write null for any unrequested variant.\nexample: {\"c\":\"Lease\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Ana rents Patio flat from 2026-01-01 until 2026-12-30, at 950 per month due on day 12, with a 950 deposit.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lease",
+              "enum": ["Lease"]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["comfortable", "compact"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["card", "plain"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["full", "brief"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tenant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "end": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "rent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": ["month", "week"]
+            },
+            "due": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 31
+            },
+            "deposit": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tenant",
+            "place",
+            "start",
+            "end",
+            "rent",
+            "per",
+            "due",
+            "deposit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":null,\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+    "replies": [
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":null,\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":null,\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":null,\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}"
+    ]
+  },
+  "86b9a3b75826d9a6": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nLease: See one rental agreement, when rent is next due and when to renew.\nprops: { density?: comfortable|compact, surface?: card|plain=\"card\", detail?: full|brief=\"full\", tenant: text≤24, place: text≤32, start: date YYYY-MM-DD, end: date YYYY-MM-DD, rent: num 0.., per: month|week, due: int 1..31, deposit?: num 0.. }\nRule: End must be after start. For monthly rent write the due day of the month (1–31); for weekly rent write the weekday (Monday 1, Sunday 7). Never write the computed next due date, progress or renewal status.\nRule: Keep the start date and deposit in the record even when hidden. To hide them without any other presentation change, use {\"density\":null,\"surface\":null,\"detail\":\"brief\"}. With no presentation request, use {\"density\":null,\"surface\":null,\"detail\":null}.\nRule: Set density only for an explicit request for tighter or roomier spacing; null inherits app spacing. Set surface only for an explicit change to the container treatment; a reference to the existing card is not a change. Write null for any unrequested variant.\nexample: {\"c\":\"Lease\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Ana rents Patio flat from 2026-01-01 to 2026-12-30 for 950 a month due on the 12th, with a 950 deposit. Keep the start date and deposit in the record, but hide both on the card.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Lease",
+              "enum": ["Lease"]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["comfortable", "compact"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["card", "plain"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": ["full", "brief"]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tenant": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "place": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "start": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "end": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "rent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "per": {
+              "type": "string",
+              "enum": ["month", "week"]
+            },
+            "due": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 31
+            },
+            "deposit": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "surface",
+            "detail",
+            "tenant",
+            "place",
+            "start",
+            "end",
+            "rent",
+            "per",
+            "due",
+            "deposit"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+    "replies": [
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}",
+      "{\"c\":\"Lease\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"tenant\":\"Ana\",\"place\":\"Patio flat\",\"start\":\"2026-01-01\",\"end\":\"2026-12-30\",\"rent\":950,\"per\":\"month\",\"due\":12,\"deposit\":950}"
+    ]
+  },
   "9af9a066880ba639": {
     "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nl1 Lease Patio flat — Tenant: Ana — Starts 1 Jan 2026 — Ends 30 Dec 2026 — Time left: 39 days — Renewal soon — Rent $950 / month — Next due 12 Dec 2026 — Deposit $950 — \"Ana\" — \"Patio flat\" [l1 press]\n\nTask: Open Ana's rental agreement terms for Patio flat\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
     "reply": "{\"address\": \"l1\", \"action\": \"press\"}",

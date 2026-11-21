@@ -19,6 +19,13 @@ export type SocialWords = {
     image: (position: string, total: string) => string;
     withCount: (action: string, count: string) => string;
   };
+  comments: {
+    reply: string;
+    replyAuthor: (author: string, parent: string) => string;
+    replyTarget: (author: string) => string;
+    more: (author: string) => string;
+    reaction: (author: string, liked: boolean, count: string) => string;
+  };
   poll: {
     voteFor: (label: string) => string;
     chosen: (label: string) => string;
@@ -36,7 +43,7 @@ export type SocialWords = {
   event: {
     going: string;
     interested: string;
-    attending: (count: string) => string;
+    attending: CountCopy;
     attendees: string;
     photo: string;
     response: Record<"none" | "going" | "interested", string>;
@@ -76,7 +83,7 @@ export const en = {
     skeleton: {
       author: "Author name",
       time: "A moment ago",
-      excerpt: "An excerpt from a recent update with room for a second line.",
+      excerpt: "An excerpt from a recent update.",
       likes: "Likes",
       comments: "Comments",
     },
@@ -87,6 +94,13 @@ export const en = {
     share: "Share this post",
     image: (position, total) => `Post photo ${position} of ${total}`,
     withCount: (action, count) => `${action} · ${count}`,
+  },
+  comments: {
+    reply: "Reply",
+    replyAuthor: (author, parent) => `${author} replying to ${parent}`,
+    replyTarget: (author) => `Reply on this row answers ${author}’s comment`,
+    more: (author) => `More actions for ${author}’s comment`,
+    reaction: (author, liked, count) => `${liked ? "Unlike" : "Like"} ${author}’s comment · ${count}`,
   },
   poll: {
     voteFor: (label) => `Vote for ${label}`,
@@ -105,7 +119,7 @@ export const en = {
   event: {
     going: "Going",
     interested: "Interested",
-    attending: (count) => `${count} going`,
+    attending: { after: " going" },
     attendees: "Attendees",
     photo: "Event cover photo",
     response: { none: "RSVP", going: "You’re going", interested: "You’re interested" },

@@ -32,7 +32,7 @@ quorum and a decision rule. `SignUpSheet` reserves counted contributions atomica
 Posts and comments belong to `social`; one gathering's invitations and guests to `events`; scheduled
 staff or volunteer cover to `team`; arbitrary back-office tables and reports to `data`.
 
-## Components (5)
+## Components (6)
 
 ### `Members` · planned · data · phone
 The membership register: names and roles, joining and leaving dates, voting rights, and a dues badge from
@@ -48,6 +48,7 @@ the ledger. Opening a member shows their record; ending membership keeps their h
 - States: filled, empty, loading, success (membership ended), error (save failed).
 - Real path: records on the secretary's device; members viewing their own records need a shared app.
 - Density: `meta.dense: true`, weight 3; a membership register needs more than six records.
+- Wave 6 options: add optional `badge` text(16) (such as `"Verified Neighbor"` or `"Keyholder"`) and `committee` tag.
 
 ### `Dues` · planned · data · phone
 One subscription period: each member's assessment, receipts and amount still owed, with collected and
@@ -67,6 +68,7 @@ outstanding totals. The treasurer records payments; a member can pay only throug
 - Real path: a local ledger with numeric receipt amounts; reminders use messaging, payments a payment
   service. Only its confirmed receipt changes the ledger; pressing pay never marks an assessment paid.
 - Density: `meta.dense: true`, weight 3; assessments and receipt lines form one reconciled document.
+- Wave 6 options: add `cadence` (`annual`, `monthly`, `one_off`), `waived` boolean, and optional `householdId` grouping.
 
 ### `Vote` · planned · input · people
 One formal motion with for, against and abstain, the person's ballot, participation against quorum, and
@@ -88,6 +90,7 @@ the decision after closing. Before closing it shows participation, not a winning
   needs more for than against; `two_thirds` needs at least two thirds for; `unanimous` needs no against.
   Every pass needs quorum and at least one non-abstaining ballot; a tie fails. Counts are code-owned.
 - Weight: 2; ballots are seed records, not a rendered member list; aggregate results and own choice only.
+- Wave 6 options: add `style: "motion" | "election"` (plus optional `candidates` and `seats` `1–5`) for multi-candidate board or officer elections under quorum rules.
 
 ### `SignUpSheet` · planned · input · people
 A group's contribution slots: what is needed, places remaining, who has claimed each, and claim or
@@ -124,6 +127,17 @@ done marks. Members approve the record; approved decision text stays fixed while
   closed and not cancelled, and later edits never rewrite its frozen result.
 - Density: `meta.dense: true`, weight 3; a structured document of decisions and linked action lines.
 - Signature: `check_burst` on action completion, reusing the core moment; no new signature.
+- Wave 6 options: add `attendance` (`presentIds`, `apologiesIds`) computed against `Members`.
+
+### `ModQueue` · planned · action · people
+A volunteer moderation queue showing pending member join applications with screening answers and eligibility status alongside flagged posts or comments. Moderators can approve, decline or remove items and record a community rule reason.
+- Pick: reviewing incoming join applications or flagged posts and comments under community rules. Not the member register (`Members`), repair tickets (requests `RequestTriage`), or job candidates (hiring `ApplicantPipeline`).
+- Writes: `items` of `id` text(24), `kind` (`join`, `flagged_post`, `flagged_comment`), `author` text(24), `photo` optional, `summary` text(120), `detail` text(200) optional, `reason` text(32) optional, `submittedAt` ISO datetime with offset, `status` (`pending`, `approved`, `declined`, `removed`), `goto` optional, 0–12; `rules` text(32) each 1–6; `style`. Pending count is computed by code.
+- Styles: `all` (default, join applications and flagged content together with rule pickers and decision buttons), `joins` (pending membership applications with screening answers only).
+- Parts → actions: items `root press` (linked), items `approve press`, items `decline press`, items `remove press`, items `reason select`. `meta.confirmParts: ["decline", "remove"]`.
+- States: filled, empty, loading, success (moderation decision saved), error (item already resolved or save failed).
+- Real path: pending applications, flagged content and moderator decisions synced in a shared community app (`people`).
+- Density: `meta.dense: true`, weight 3; active moderation queues may hold up to 12 pending items.
 
 ## Archetypes (3)
 
@@ -131,7 +145,7 @@ done marks. Members approve the record; approved decision text stays fixed while
 | --- | --- | --- | --- |
 | `noticeboard` | Group news and contributions | `community_board`, `community_contributions` | `community_board`: Header, Card (pinned notice), SectionTitle, List[expand], Button · `community_contributions`: Header, SignUpSheet, Note |
 | `meeting` | Decide and record | `community_motion`, `community_record` | `community_motion`: Header[back], Vote, Note · `community_record`: Header[back], Minutes |
-| `membership` | Register and subscriptions | `community_register`, `community_dues` | `community_register`: Header, Search, Chips, Members · `community_dues`: Header, Dues, Note |
+| `membership` | Register and subscriptions | `community_register`, `community_dues`, `community_mod` | `community_register`: Header, Search, Chips, Members · `community_dues`: Header, Dues, Note · `community_mod`: Header, ModQueue, Note |
 
 The first listed layout is each archetype's `defaultLayout`; layout ids carry the pack prefix to avoid
 the repeated `list`, `record` and `overview` names elsewhere. Recipes use only core and this pack.
@@ -155,7 +169,7 @@ The showcase uses sample records and explains these limits; it does not claim to
 
 ## Build notes
 
-- Order: `Members`, `Dues`, `Vote`, `SignUpSheet`, `Minutes`; all remain planned, no runtime files yet.
+- Order: `Members`, `Dues`, `Vote`, `SignUpSheet`, `Minutes`, then Wave 6 addition `ModQueue`; all remain planned, no runtime files yet.
 - Writers use strict `writerFormat(registry)` for core plus chosen packs; no aliases or off-pack ids.
   Id references are unique snake_case values; member, assessment, slot, decision and vote references
   must resolve. The host keeps one group store; it works even when a sibling component is not on screen.
@@ -170,6 +184,9 @@ The showcase uses sample records and explains these limits; it does not claim to
 - Build acceptance: two domain examples and probes per component, pack positives and near misses,
   and `example.jsonl` validating and rendering in three presets; test tied/all-abstain votes, exact
   quorum, concurrent claims, partial/voided receipts and approved minutes with partly completed actions.
+- **Wave 6 additions & options:**
+  - Added `ModQueue` (`action`, `people`) for reviewing join applications and flagged posts/comments with rule-reason selection and confirmed decline/remove actions.
+  - Option/style upgrades: `Vote` gains `style: "motion" | "election"` (optional `candidates` and `seats` `1–5`) for board/officer elections; `Dues` gains `cadence` (`annual`, `monthly`, `one_off`), `waived` boolean and optional `householdId`; `Members` gains optional `badge` and `committee` tag; `Minutes` gains `attendance` (`presentIds`, `apologiesIds`) computed against `Members`.
 
 ## Open questions
 
