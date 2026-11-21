@@ -145,7 +145,7 @@ type MenuProps = Props<typeof props, typeof meta>;
 function ServiceDetails({ service, density, lang }: { service: MenuProps["services"][number]; density: ThemeDensity; lang: string }) {
   const duration = <ServiceText {...{ density }} value={durationLine(service.minutes, lang)} role="number" tone="muted" part="minutes" />;
   const content = <>
-    <ServiceText {...{ density }} value={service.name} part="name" />
+    <ServiceText {...{ density }} value={service.name} part="name" role={service.capacity > 1 || service.deposit !== undefined || service.portfolio ? "heading" : "body"} />
     {service.price === undefined ? duration : (
       <KitContent lead={duration} leadingAlign="row" density={density}>
         <ServiceText {...{ density }} value={servicePrice(service.price, lang)} role="number" tone="muted" part="price" />
@@ -164,37 +164,37 @@ function ServiceRows({ services, density, style, surface }: MenuProps & { densit
   const loading = useComponentState() === "loading";
   const photos = services.some((service) => service.photo);
   const context = usePartContext();
-  return services.flatMap((service, index) => [
-        ...(service.group && service.group !== services[index - 1]?.group ? [
-          <PartContext.Provider key={`${service.id}/group`} value={{ ...context, item: service.id }}>
-            <KitRow part={null} label={service.group}>
-              <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
-            </KitRow>
-          </PartContext.Provider>,
-        ] : []),
-        <KitRow key={service.id} item={service.id} tone={service.tone} mark={service.mark}
-          surface={style === "cards" ? surface : undefined} label={loading ? words.loadingLabel : service.name}
-          goto={loading ? undefined : service.goto} leadingAlign="row"
-          leadingWidth={photos ? "avatar" : undefined}
-          leading={service.photo && <KitPhoto photo={service.photo} label={service.name} part="photo" />}
-          trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}
-        >
-          <ServiceDetails {...{ service, density, lang }} />
-        </KitRow>,
-        service.portfolio && <KitRow key={`${service.id}/portfolio`} item={service.id} part="portfolio"
-          label={servicePortfolio} goto={loading ? undefined : service.portfolio.goto} {...{ density }}>
-          <ServiceText {...{ density }} value={servicePortfolio} role="label" tone="accent" part={null} />
-        </KitRow>,
-  ]);
+  return services.flatMap((service, index) => {
+    const { id, name, portfolio } = service;
+    const grouped = Boolean(portfolio) && style === "cards";
+    const row = <KitRow key={id} item={id} tone={service.tone} mark={service.mark}
+      surface={grouped ? "plain" : style === "cards" ? surface : undefined}
+      label={loading ? words.loadingLabel : name} goto={loading ? undefined : service.goto} leadingAlign="row"
+      leadingWidth={photos ? "avatar" : undefined}
+      leading={service.photo && <KitPhoto photo={service.photo} label={name} part="photo" />}
+      trailing={<ServiceText {...{ density }} value={bookLabel} role="caption" tone="accent" part={null} />}>
+      <ServiceDetails {...{ service, density, lang }} />
+    </KitRow>;
+    const link = portfolio && <KitRow key={`${id}/portfolio`} item={id} part="portfolio"
+      surface={grouped ? "plain" : undefined} label={servicePortfolio} goto={loading ? undefined : portfolio.goto} {...{ density }}>
+      <ServiceText {...{ density }} value={servicePortfolio} role="label" tone="accent" part={null} />
+    </KitRow>;
+    const group = service.group && service.group !== services[index - 1]?.group &&
+      <PartContext.Provider key={`${id}/group`} value={{ ...context, item: id }}>
+        <KitRow part={null} label={service.group}>
+          <ServiceText {...{ density }} value={service.group} role="caption" tone="muted" part="group" />
+        </KitRow>
+      </PartContext.Provider>;
+    return [group, grouped ? <KitRow key={id} part={null} inline label={name} {...{ surface }}>{row}{link}</KitRow>
+      : row, !grouped && link];
+  });
 }
 // prettier-ignore
 export function ServiceMenu(input: MenuProps) {
   const state = useComponentState();
   const { style, surface } = input;
   const density = useVariant("density", meta.variants.density, input.density);
-  return (
-    <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface={surface} density={density}>
+  return <KitCard style={state === "empty" ? "inset" : (style ?? "inset")} surface={surface} density={density}>
       {state === "empty" ? <KitEmpty decorativeIcon part="empty" /> : <ServiceRows {...input} density={density} />}
-    </KitCard>
-  );
+  </KitCard>;
 }

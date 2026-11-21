@@ -5,7 +5,14 @@ import { KitCard, KitContent, KitGrid, KitInput, KitRow, KitText, KitTrail,
 import { clock, isoDate, probesFor, variantProps, type CastLike, type Meta, type Probe, type Props } from "../../../catalog";
 import { z } from "zod";
 import { bookingWordsFor } from "../lang";
-import { availabilityDefaults, availabilityReading, breakLine, bufferLine, dateOverrideLine } from "../copy";
+import {
+  availabilityDefaults,
+  availabilityReading,
+  breakLine,
+  breakRange,
+  bufferLine,
+  dateOverrideLine,
+} from "../copy";
 // Core first: Field/time edits one time, not a seven-day working week with switches and breaks.
 export const meta = {
   id: "Availability",
@@ -125,11 +132,11 @@ export const probes = [
   read("Change Monday's booking finish to 16:00", { address: "a1/r1/to", action: "type" }),
   { ...write("Take bookings weekdays 09:00 to 17:00, weekends off. Allow a 15-minute gap between consecutive bookings."),
     expectProps: { bufferMinutes: 15 } },
-  { ...write("Take bookings weekdays 09:00 to 17:00, weekends off. Block 2026-12-24 and mark 2026-12-25 as a holiday."),
+  { ...write("Take bookings weekdays 09:00 to 17:00, weekends off. Block 2026-12-24 and mark 2026-12-25 as a holiday. List those exceptions in chronological order."),
     expectProps: { dateOverrides: [{ date: "2026-12-24", kind: "blocked" }, { date: "2026-12-25", kind: "holiday" }] } },
 ] satisfies Probe[];
 // prettier-ignore
-function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][number] }) {
+function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["days"][number]; enhanced: boolean }) {
   const {
     lang,
     words: { weekdayNames },
@@ -144,7 +151,7 @@ function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][numb
         label={weekdayNames[weekdays.indexOf(day.day)]!}
         trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}
       >
-        <KitText role="label" part="day">
+        <KitText role={enhanced ? "heading" : "label"} part="day">
           {weekdayNames[weekdays.indexOf(day.day)]}
         </KitText>
       </KitRow>
@@ -164,7 +171,8 @@ function DayFields({ day }: { day: Props<typeof props, typeof meta>["days"][numb
       </KitGrid>
       {day.breakFrom && day.breakTo && (
         <KitText role="caption" tone="muted" part="break">
-          {breakLine(day.breakFrom, day.breakTo, lang)}
+          {enhanced ? <>{availabilityLabels.break} <KitText role="number" numberScale="compact" tabular part={null}>
+            {breakRange(day.breakFrom, day.breakTo)}</KitText></> : breakLine(day.breakFrom, day.breakTo, lang)}
         </KitText>
       )}
     </>
@@ -180,7 +188,7 @@ export function Availability(input: Props<typeof props, typeof meta>) {
     <KitCard style="inset" part="root">
       {days.map((day) => (
         <KitRow key={day.id} item={day.id} label={day.day} density={density}>
-          <DayFields day={day} />
+          <DayFields day={day} enhanced={bufferMinutes !== undefined || !!dateOverrides?.length} />
         </KitRow>
       ))}
       {bufferMinutes !== undefined && <KitRow part={null} label={bufferLine(bufferMinutes, lang)} density={density}>

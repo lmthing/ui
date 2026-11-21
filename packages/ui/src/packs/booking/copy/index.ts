@@ -17,6 +17,7 @@ export {
   availabilityLabels,
   availabilityReading,
   breakLine,
+  breakRange,
   bufferLine,
   dateOverrideLine,
 } from "./Availability";

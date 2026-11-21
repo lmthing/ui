@@ -168,7 +168,7 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
     <KitAction label={appointmentJoin} part="join" disabled={!active} full />;
   return (
     <KitCard padded part="root" goto={active ? input.goto : undefined} label={input.service} density={density}>
-      {compact ? <KitGrid fitLast density={density}>
+      {compact ? <><KitGrid fitLast density={density}>
         <KitContent>
           <AppointmentLine value={input.service} part="service" {...finish} />
           <KitContent lead={<AppointmentLine value={date} part="date" {...finish} />} leadingAlign="row" density={density}>
@@ -177,10 +177,10 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
           {location && line(location)}
         </KitContent>
         {status}
-      </KitGrid> : <>
+      </KitGrid>{join}</> : <>
         <AppointmentLine value={date} part="date" {...finish} />
         <KitGrid fitLast density={density}>
-          <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" {...finish} />
+          <AppointmentLine value={timeOfDayLine(input.time, lang)} part="time" compact={Boolean(join)} {...finish} />
           {card && status}
         </KitGrid>
         <KitContent>
@@ -191,10 +191,10 @@ export function Appointment(input: Props<typeof props, typeof meta>) {
           </KitGrid>
           {input.policy && <AppointmentLine value={input.policy} part="policy" {...finish} />}
         </KitContent>
+        {join}
         <KitAction label={appointmentLabels[change]} kind="secondary" part={change} goto={input.goto} disabled={!active} full />
         {card && <KitAction label={words.cancelLabel} kind="quiet" part="cancel" disabled={!active} full />}
       </>}
-      {join}
     </KitCard>
   );
 }

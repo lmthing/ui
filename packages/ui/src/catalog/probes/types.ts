@@ -7,8 +7,8 @@ export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 type VariantExpectation = {
   [A in Axis]: { axis: A; value: AxisValue<A> | null; item?: number; itemTitles?: readonly string[] };
 }[Axis];
-type ExpectedProp = string | number | boolean | null | readonly ExpectedProp[] | ExpectedProps;
-type ExpectedProps = { readonly [field: string]: ExpectedProp };
+export type ExpectedProp = string | number | boolean | null | readonly ExpectedProp[] | ExpectedProps;
+export type ExpectedProps = { readonly [field: string]: ExpectedProp };
 export type WriteProbe = {
   kind: "write";
   brief: string;

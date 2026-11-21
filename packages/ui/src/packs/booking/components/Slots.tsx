@@ -1,5 +1,5 @@
 // prettier-ignore
-import { KitCard, KitEmpty, KitSkeleton, KitSlotGrid, KitText, KitTrail, useWords,
+import { KitCard, KitContent, KitEmpty, KitSkeleton, KitSlotGrid, KitText, KitTrail, useWords,
   useComponentState, useEmptyThing, useVariant } from "../../../kit";
 import { bookingWordsFor } from "../lang";
 import { z } from "zod";
@@ -117,7 +117,7 @@ export const examples = [
     at: "00:00",
     minutes: 600,
   },
-  { ...plantCareStarts, style: "ranges", minutes: 45, timezone: "America/New_York" },
+  { ...plantCareStarts, style: "ranges", minutes: 45, timezone: "New York time" },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Slots");
 export const probes = [
@@ -146,6 +146,7 @@ export const probes = [
   },
 ] satisfies Probe[];
 
+// prettier-ignore
 export function Slots(input: Props<typeof props, typeof meta>) {
   const { times, at, minutes, timezone } = input;
   const ranges = input.style === "ranges";
@@ -180,7 +181,8 @@ export function Slots(input: Props<typeof props, typeof meta>) {
   const selected = times.find(({ time }) => time === at);
   return (
     <KitCard style="inset" padded part="root">
-      {timezone && <KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}
+      {timezone && <KitContent leadingAlign="row"
+        lead={<KitTrail kind="badge" part="timezone" tone="muted" value={timezone} />}>{null}</KitContent>}
       <KitSlotGrid
         times={slots}
         {...(selected ? { at: selected.id } : {})}
@@ -188,13 +190,8 @@ export function Slots(input: Props<typeof props, typeof meta>) {
         loading={state === "loading"}
         part="times"
       />
-      {state === "loading" ? (
-        <KitSkeleton shape="figure" inset="none" content={[["caption", duration]]} />
-      ) : (
-        <KitText role="caption" tone="muted" tabular part="minutes">
-          {duration}
-        </KitText>
-      )}
+      {state === "loading" ? <KitSkeleton shape="figure" inset="none" content={[["caption", duration]]} /> :
+        <KitText role="caption" tone="muted" tabular part="minutes">{duration}</KitText>}
     </KitCard>
   );
 }

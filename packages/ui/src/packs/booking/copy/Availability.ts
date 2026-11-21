@@ -3,8 +3,9 @@ import { bookingWordsFor } from "../lang";
 /** Neutral working-week defaults and labels for paired time controls. */
 export const availabilityDefaults = { from: "09:00", to: "17:00" } as const;
 export const { availabilityLabels } = bookingWordsFor();
+export const breakRange = (from: string, to: string): string => `${from}–${to}`;
 export const breakLine = (from: string, to: string, lang?: string): string =>
-  `${bookingWordsFor(lang).availabilityLabels.break} ${from}–${to}`;
+  `${bookingWordsFor(lang).availabilityLabels.break} ${breakRange(from, to)}`;
 
 export const bufferLine = (minutes: number, lang?: string): string =>
   bookingWordsFor(lang).availabilityBuffer(durationLine(minutes, lang));
