@@ -92,6 +92,17 @@ it("rejects unordered, duplicate and pre-opening samples and duplicate quotes", 
     expect(performance(ledger, samples)).toMatchObject({ ok: false });
 });
 
+it("rejects a sample quote that conflicts with the shared quote at the same instant", () => {
+  const ledger = unwrap(buildHistory(statement, [], now));
+  const at = "2026-01-02T19:00:00-05:00";
+  expect(performance(ledger, [{ at, quotes: [{ assetId: "fund", price: 91 }] }])).toMatchObject({
+    error: "Conflicting quotes at the same time",
+  });
+  expect(unwrap(performance(ledger, [{ at, quotes: [{ assetId: "fund", price: 90 }] }]))[0]?.value).toBe(
+    1100,
+  );
+});
+
 it("combines reversed and active receipts with manual rows without reassigning their addresses", () => {
   const again = { ...receive, at: date(10), revision: 2 };
   const ledger = unwrap(buildHistory(statement, [receive, reverse, again], now));

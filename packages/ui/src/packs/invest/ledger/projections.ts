@@ -1,7 +1,16 @@
 import { add, decimal, div, mul, negative, numeric, positive, sub } from "./decimal";
 import { distributionCash, type History } from "./history";
 import { cashMovement, compareEvents, replay, type Balance } from "./replay";
-import { invalid, latestReceipt, ledgerDay, performanceSample, time, valid, type Sample } from "./records";
+import {
+  invalid,
+  latestReceipt,
+  ledgerDay,
+  performanceSample,
+  quoteKey,
+  time,
+  valid,
+  type Sample,
+} from "./records";
 
 const row = (index: number) => `r${index + 1}`;
 const ownedUnits = ({ owned }: Balance) =>
@@ -89,6 +98,15 @@ export function performance(history: History, samples: readonly Sample[]) {
     )
   )
     return invalid("Duplicate or unknown sample quote");
+  const stored = new Map(
+    portfolio.quotes.map((quote) => [quoteKey(quote.assetId, quote.quotedAt), quote.price]),
+  );
+  for (const sample of samples) {
+    for (const quote of sample.quotes) {
+      const known = stored.get(quoteKey(quote.assetId, sample.at));
+      if (known !== undefined && known !== quote.price) return invalid("Conflicting quotes at the same time");
+    }
+  }
   const replayed = replay(portfolio, events, times);
   if (!replayed.ok) return replayed;
   return valid(

@@ -1,5 +1,11 @@
 import { decimal, mul, negative, sub, zero, type Decimal } from "./decimal";
-import { collectOperations, existingOperation, matchingTime } from "./journal";
+import {
+  collectOperations,
+  existingOperation,
+  matchingOperation,
+  receiptBasis,
+  withJournalVoids,
+} from "./journal";
 import { replay, type Event } from "./replay";
 import {
   invalid,
@@ -9,6 +15,7 @@ import {
   portfolioRecord,
   time,
   valid,
+  validateSeed,
   type Distribution,
   type LedgerOperation,
   type LedgerResult,
@@ -25,29 +32,6 @@ export type History = {
   now: number;
 };
 type Draft = Omit<History, "events" | "now" | "operations"> & { voids: ReadonlySet<string> };
-
-function unique<T>(rows: readonly T[], key: (row: T) => string) {
-  return new Set(rows.map(key)).size === rows.length;
-}
-
-function validateSeed(portfolio: Portfolio, now: number) {
-  const { positions, entries, distributions, quotes, since } = portfolio;
-  if (time(since) > now) return "Opening statement is in the future";
-  if (!unique(positions, (p) => p.assetId) || !unique([...entries, ...distributions], (r) => r.id))
-    return "Duplicate ledger record";
-  const assets = new Set(positions.map((p) => p.assetId));
-  const outOfBounds = (at: string) => time(at) < time(since) || time(at) > now;
-  if (entries.some((e) => outOfBounds(e.at))) return "Trade or cash entry is outside the statement";
-  if (entries.some((e) => "assetId" in e && !assets.has(e.assetId))) return "Unknown trade instrument";
-  if (distributions.some((d) => !assets.has(d.assetId))) return "Unknown dividend instrument";
-  const seen = new Map<string, number>();
-  for (const quote of quotes) {
-    if (!assets.has(quote.assetId)) return "Unknown quote instrument";
-    const key = `${quote.assetId}/${time(quote.quotedAt)}`;
-    if (seen.has(key) && seen.get(key) !== quote.price) return "Conflicting quotes at the same time";
-    seen.set(key, quote.price);
-  }
-}
 
 export function distributionCash(distribution: Distribution, units: Decimal) {
   const gross = mul(units, decimal(distribution.perUnit));
@@ -122,6 +106,8 @@ function stage(draft: Draft, op: LedgerOperation): LedgerResult<Draft> {
   if (!units || time(op.at) < time(distribution.entitledAt)) return invalid("Entitlement is not known");
   if (ledgerDay(time(op.at)) < distribution.payOn) return invalid("Receipt precedes the payment day");
   if (negative(distributionCash(distribution, units).net)) return invalid("Withholding exceeds gross");
+  if (op.basis !== undefined && receiptBasis(distribution, units) !== op.basis)
+    return invalid("Recorded entitlement conflicts with the host statement");
   const receipt = { id: op.id, at: op.at, revision: op.revision };
   return valid({ ...draft, receipts: [...draft.receipts, receipt] });
 }
@@ -140,7 +126,8 @@ export function buildHistory(
   if (error) return invalid(error);
   const journal = collectOperations(portfolio, operations, now);
   if (!journal.ok) return journal;
-  let draft: Draft = { portfolio, receipts: [], frozen: new Map(), voids: new Set() };
+  const opening = withJournalVoids(portfolio, journal.value.timeline);
+  let draft: Draft = { portfolio: opening, receipts: [], frozen: new Map(), voids: new Set() };
   for (const op of journal.value.timeline) {
     const entitled = atEntitlement(draft, time(op.at));
     if (!entitled.ok) return entitled;
@@ -178,7 +165,19 @@ export function planLedgerOperation(
     return invalid("Invalid ledger operation");
   const previous = existingOperation(current.value.operations, parsed.data);
   if (previous)
-    return matchingTime(previous, op) ? valid(undefined) : invalid("Conflicting ledger operation");
-  const candidate = buildHistory(input, [...journal, op], now);
-  return candidate.ok ? valid(op) : candidate;
+    return matchingOperation(previous, op) ? valid(undefined) : invalid("Conflicting ledger operation");
+  if (
+    op.kind === "void" &&
+    current.value.events.some((e) => e.kind !== "dividend" && e.id === op.id && e.voided)
+  )
+    return invalid("Manual entry is already voided");
+  let operation = parsed.data;
+  if (operation.kind === "receive" && operation.basis === undefined) {
+    const distribution = input.distributions.find((d) => d.id === op.id);
+    const units = current.value.frozen.get(op.id);
+    if (!distribution || !units) return invalid("Entitlement is not known");
+    operation = { ...operation, basis: receiptBasis(distribution, units) };
+  }
+  const candidate = buildHistory(input, [...journal, operation], now);
+  return candidate.ok ? valid(operation) : candidate;
 }

@@ -155,3 +155,29 @@ it("does not collapse sub-millisecond host events into insertion-order ties", ()
     error: "Invalid portfolio statement or time",
   });
 });
+
+it("stamps a receipt and rejects refreshes that change its entitlement", () => {
+  const { basis: _basis, ...request } = receive;
+  const approved = unwrap(planLedgerOperation(statement, [], request, now));
+  expect(approved).toEqual(receive);
+  const refreshed: Portfolio = {
+    ...statement,
+    entries: [
+      ...statement.entries,
+      { id: "another_buy", kind: "buy", at: date(2), assetId: "fund", units: 1, unitPrice: 50 },
+    ],
+  };
+  expect(buildHistory(refreshed, [approved], now)).toMatchObject({
+    error: "Recorded entitlement conflicts with the host statement",
+  });
+});
+
+it("applies host-acknowledged voids at the journal time", () => {
+  const acknowledged = {
+    ...statement,
+    entries: statement.entries.map((e) => (e.id === voidBuy.id ? { ...e, voided: true } : e)),
+  };
+  const ledger = unwrap(buildHistory(acknowledged, [receive, voidBuy], now));
+  expect(dividends(ledger)).toMatchObject([{ entitledUnits: 10, net: 8 }]);
+  expect(unwrap(holdings(ledger))).toMatchObject({ cash: 1008, positions: [] });
+});

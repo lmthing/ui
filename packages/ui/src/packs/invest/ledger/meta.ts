@@ -124,7 +124,7 @@ export const performanceLedger = {
 
 function press(kind: LedgerOperation["kind"]): NonNullable<RecordRuntime["presses"]>[string] {
   return {
-    target: (row) => JSON.stringify([row.recordId, kind === "reverse" ? row.revision : null]),
+    target: (row) => JSON.stringify([row.recordId, row.revision, time(String(row.receivedAt ?? row.at))]),
     plan(context, row) {
       const ledger = history(context);
       if (!ledger.ok) return ledger;

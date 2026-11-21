@@ -62,13 +62,10 @@ export const portfolioRecord = z.strictObject({
   distributions: z.array(distribution),
 });
 export const performanceSample = z.strictObject({ at, quotes: z.array(quote) });
+const receipt = { id, at, revision: z.number().int().positive() };
 export const ledgerOperation = z.union([
-  z.strictObject({
-    kind: z.enum(["receive", "reverse"]),
-    id,
-    at,
-    revision: z.number().int().positive(),
-  }),
+  z.strictObject({ ...receipt, kind: z.literal("receive"), basis: z.string().optional() }),
+  z.strictObject({ ...receipt, kind: z.literal("reverse") }),
   z.strictObject({ kind: z.literal("void"), id, at }),
 ]);
 
@@ -82,6 +79,7 @@ export function latestReceipt(receipts: readonly Receipt[], id: string) {
   for (let i = receipts.length - 1; i >= 0; i--) if (receipts[i]!.id === id) return receipts[i];
 }
 export const time = (date: string) => Date.parse(date);
+export const quoteKey = (assetId: string, at: string) => `${assetId}/${time(at)}`;
 export const ledgerDay = (instant: number) => new Date(instant).toISOString().slice(0, 10);
 export const ordered = <T extends { at: string }>(events: readonly T[]) =>
   [...events].sort((a, b) => time(a.at) - time(b.at));
@@ -89,3 +87,26 @@ export const ordered = <T extends { at: string }>(events: readonly T[]) =>
 export type LedgerResult<T> = { ok: true; value: T } | { ok: false; error: string };
 export const invalid = (error: string): LedgerResult<never> => ({ ok: false, error });
 export const valid = <T>(value: T): LedgerResult<T> => ({ ok: true, value });
+
+function unique<T>(rows: readonly T[], key: (row: T) => string) {
+  return new Set(rows.map(key)).size === rows.length;
+}
+
+export function validateSeed(portfolio: Portfolio, now: number) {
+  const { positions, entries, distributions, quotes, since } = portfolio;
+  if (time(since) > now) return "Opening statement is in the future";
+  if (!unique(positions, (p) => p.assetId) || !unique([...entries, ...distributions], (r) => r.id))
+    return "Duplicate ledger record";
+  const assets = new Set(positions.map((p) => p.assetId));
+  const outOfBounds = (at: string) => time(at) < time(since) || time(at) > now;
+  if (entries.some((e) => outOfBounds(e.at))) return "Trade or cash entry is outside the statement";
+  if (entries.some((e) => "assetId" in e && !assets.has(e.assetId))) return "Unknown trade instrument";
+  if (distributions.some((d) => !assets.has(d.assetId))) return "Unknown dividend instrument";
+  const seen = new Map<string, number>();
+  for (const quote of quotes) {
+    if (!assets.has(quote.assetId)) return "Unknown quote instrument";
+    const key = quoteKey(quote.assetId, quote.quotedAt);
+    if (seen.has(key) && seen.get(key) !== quote.price) return "Conflicting quotes at the same time";
+    seen.set(key, quote.price);
+  }
+}

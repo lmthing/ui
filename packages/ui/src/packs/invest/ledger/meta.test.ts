@@ -171,3 +171,28 @@ it("uses parsed defaults to bind a confirmed standalone receipt reversal", () =>
   expect(agent.act(press("confirm/confirm")).ok).toBe(true);
   expect(store.get(journalKey)).toHaveLength(2);
 });
+
+it("does not reverse a replacement host receipt with the same revision", () => {
+  const store = createInteractionStore();
+  const current = () => screen("Dividends");
+  const open = (receivedAt: string) =>
+    createAgentAccess({
+      defs,
+      store,
+      current,
+      deviceData: {
+        [portfolioKind]: [
+          {
+            ...statement,
+            distributions: [{ ...statement.distributions[0]!, receivedAt }],
+          },
+        ],
+      },
+    });
+  expect(open(date(5)).act(press("record/r1/void")).ok).toBe(true);
+  expect(open(date(6)).act(press("confirm/confirm"))).toMatchObject({
+    ok: false,
+    hint: "The record changed after confirmation opened",
+  });
+  expect(store.get(journalKey)).toBeUndefined();
+});

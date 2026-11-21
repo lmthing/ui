@@ -19,7 +19,13 @@ export const statement: Portfolio = {
     { id: "income", assetId: "fund", entitledAt: date(3), payOn: "2026-01-05", perUnit: 1, withheld: 2 },
   ],
 };
-export const receive = { kind: "receive", id: "income", at: date(5), revision: 1 } satisfies LedgerOperation;
+export const receive = {
+  kind: "receive",
+  id: "income",
+  at: date(5),
+  revision: 1,
+  basis: JSON.stringify(["fund", Date.parse(date(3)), "2026-01-05", 1, 2, "10/1"]),
+} satisfies LedgerOperation;
 export const reverse = { kind: "reverse", id: "income", at: date(9), revision: 1 } satisfies LedgerOperation;
 export function unwrap<T>(result: { ok: true; value: T } | { ok: false; error: string }) {
   if (!result.ok) throw new Error(result.error);
