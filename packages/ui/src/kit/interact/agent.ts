@@ -36,7 +36,8 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
       const meta = options.defs[c]?.meta;
       return (
         meta &&
-        (hasReportConfirmation(meta) ||
+        (meta.recordRuntime ||
+          hasReportConfirmation(meta) ||
           (meta.confirmParts?.length &&
             (meta.session ||
               meta.successActions?.length ||

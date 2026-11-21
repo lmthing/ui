@@ -12,6 +12,7 @@ export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
 import {
   emptyDeviceData,
+  isRecordJournal,
   liveProps,
   projectDeviceData,
   selectDeviceData,
@@ -24,8 +25,8 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
   const values = ctx.valuesOf();
   const local = Object.fromEntries(
     Object.entries(values)
-      .filter(([key]) => key.startsWith(prefix))
-      .map(([key, value]) => [key.slice(prefix.length), value]),
+      .filter(([key]) => key.startsWith(prefix) || isRecordJournal(key))
+      .map(([key, value]) => [key.startsWith(prefix) ? key.slice(prefix.length) : key, value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
   return liveProps(

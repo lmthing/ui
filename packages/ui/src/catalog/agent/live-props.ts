@@ -9,6 +9,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
+import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -132,6 +133,7 @@ export function liveProps(
   values: Values,
   wireApplied = false,
   data?: DeviceData,
+  now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
   props = projectRecordIds(meta, props, get);
@@ -150,6 +152,8 @@ export function liveProps(
   }
   props = projectDraw(meta, props, get);
   props = projectLiveInputs(meta, props, instance, get, data);
+  if (meta.recordRuntime)
+    props = projectRecordRuntime(meta, props, values, Number(get("$now") ?? now ?? Date.now()), data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

@@ -6,6 +6,7 @@ import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
+import type { RecordRuntime } from "./record-runtime";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -152,6 +153,8 @@ export type Meta = {
   live?: LiveActionInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
+  /** Runtime projections and row presses backed by declared host records and a staged journal. */
+  recordRuntime?: RecordRuntime;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */

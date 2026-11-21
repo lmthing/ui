@@ -20,8 +20,8 @@ import { filterDeviceDataScreen, projectDeviceData, type DeviceData } from "./de
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
-
-export type ActStep = { address: string; action: string; value?: unknown };
+import { stageRecordPress } from "./record-runtime";
+export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
@@ -34,7 +34,6 @@ export type ActResult =
       sends?: SendDraft[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 const relative = (screen: string, address: string) =>
   address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
@@ -162,7 +161,7 @@ export function planAct(
     const screen = filterDeviceDataScreen(migrated, defs, snapshot);
     const offered = affordancesOfScreen(screen, defs, next, snapshot, now);
     const address = relative(screen.id, original.address);
-    const selected = selectStep(screen, defs, original, address, next, snapshot);
+    const selected = selectStep(screen, defs, original, address, next, snapshot, now);
     const step = selected.step;
     const found = offered.find((a) => a.address === address && a.action === step.action);
     if (!found) return notOffered(offered, address, at);
@@ -172,8 +171,10 @@ export function planAct(
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
+    const record = stageRecordPress(screen, defs, next, resolved, now, snapshot);
+    if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
