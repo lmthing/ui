@@ -54,3 +54,21 @@ it("does not activate a microphone whose target was disabled while permission wa
   expect(session.close).toHaveBeenCalledExactlyOnceWith("cancel");
   controller.dispose();
 });
+
+it("closes a root-part microphone even when the component itself is named root", async () => {
+  const session = { close: vi.fn() };
+  const open = vi.fn(() => session);
+  const controller = createScreenController({
+    screen: { ...screen, components: [{ id: "root", c: "ControlsFixture" }] },
+    defs,
+    micCapture: { open },
+  });
+  const root = "test/root/root";
+  await controller.startMicCapture(root);
+  expect(open).toHaveBeenCalledExactlyOnceWith(root, expect.any(AbortSignal));
+  expect(controller.micCapturePhase(root)).toBe("recording");
+  expect(controller.act({ address: root, action: "stop" }).ok).toBe(true);
+  expect(session.close).toHaveBeenCalledExactlyOnceWith("stop");
+  expect(controller.micCapturePhase(root)).toBe("idle");
+  controller.dispose();
+});

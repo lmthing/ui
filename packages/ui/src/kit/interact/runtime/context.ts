@@ -150,7 +150,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     defs,
     now,
     store,
-    micCapture: createMicCapture(options.micCapture),
+    micCapture: createMicCapture(options.micCapture, (address) => relativeAddress(screen.id, address)),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),

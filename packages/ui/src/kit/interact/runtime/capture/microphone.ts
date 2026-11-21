@@ -7,8 +7,7 @@ export type MicCaptureAdapter = {
   ): MicCaptureSession | undefined | Promise<MicCaptureSession | undefined>;
 };
 type Phase = "idle" | "pending" | "recording" | "unavailable";
-type Capture = { address: string; request: AbortController; session?: MicCaptureSession };
-const localRoot = (address: string) => address.replace(/\/root$/, "");
+type Capture = { address: string; key: string; request: AbortController; session?: MicCaptureSession };
 
 function close(session: MicCaptureSession | undefined, reason: "stop" | "cancel") {
   try {
@@ -26,13 +25,16 @@ function admitted(admit: () => boolean) {
   }
 }
 
-export function createMicCapture(adapter: MicCaptureAdapter | undefined) {
+export function createMicCapture(
+  adapter: MicCaptureAdapter | undefined,
+  keyOf = (address: string) => address,
+) {
   const listeners = new Set<() => void>();
   const unavailable = new Set<string>();
   let capture: Capture | undefined;
   const notify = () => listeners.forEach((listener) => listener());
   const release = (address: string, reason: "stop" | "cancel") => {
-    if (!capture || localRoot(capture.address) !== localRoot(address)) return;
+    if (capture?.key !== keyOf(address)) return;
     const current = capture;
     capture = undefined;
     if (!current.session) current.request.abort();
@@ -41,9 +43,9 @@ export function createMicCapture(adapter: MicCaptureAdapter | undefined) {
   };
   async function start(address: string, admit: () => boolean) {
     if (!adapter || capture) return;
-    const opening: Capture = { address, request: new AbortController() };
+    const opening: Capture = { address, key: keyOf(address), request: new AbortController() };
     capture = opening;
-    unavailable.delete(address);
+    unavailable.delete(opening.key);
     notify();
     let session: MicCaptureSession | undefined;
     try {
@@ -60,14 +62,14 @@ export function createMicCapture(adapter: MicCaptureAdapter | undefined) {
     close(session, "cancel");
     if (capture !== opening) return;
     capture = undefined;
-    if (!session) unavailable.add(address);
+    if (!session) unavailable.add(opening.key);
     notify();
   }
   return {
     available: Boolean(adapter),
     phase(address: string): Phase {
-      if (!adapter || unavailable.has(address)) return "unavailable";
-      if (capture?.address === address) return capture.session ? "recording" : "pending";
+      if (!adapter || unavailable.has(keyOf(address))) return "unavailable";
+      if (capture?.key === keyOf(address)) return capture.session ? "recording" : "pending";
       return "idle";
     },
     subscribe(listener: () => void) {

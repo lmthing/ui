@@ -1,15 +1,16 @@
 import { useLayoutEffect, useRef } from "react";
 import { isWeb } from "tamagui";
 
-type Press = { begin(): void; end(released: boolean): void };
+type Press = { begin(at: number): void; end(releasedAt?: number): void };
 type Input = { type: "pointer"; pointer: number } | { type: "keyboard"; key: string } | { type: "native" };
-type Key = {
+type Timed = { timeStamp?: number | undefined };
+type Key = Timed & {
   key?: string;
   repeat?: boolean;
   preventDefault(): void;
   stopPropagation(): void;
 };
-type Pointer = { button: number; pointerId: number; isPrimary?: boolean };
+type Pointer = Timed & { button: number; pointerId: number; isPrimary?: boolean };
 type Move = Pointer & {
   clientX: number;
   clientY: number;
@@ -40,20 +41,28 @@ function outside({ clientX, clientY, currentTarget }: Move) {
   return clientX < left || clientX > right || clientY < top || clientY > bottom;
 }
 
+function inputTime({ timeStamp }: Timed) {
+  const now = performance.now();
+  if (timeStamp === undefined || !Number.isFinite(timeStamp)) return now;
+  const origin = performance.timeOrigin || Date.now() - now;
+  return Math.min(now, timeStamp >= origin ? timeStamp - origin : timeStamp);
+}
+
 function pointerEvents(
-  begin: (input: Input) => void,
+  begin: (input: Input, at: number) => void,
   isPointer: (e: Pointer) => boolean,
-  finish: (released: boolean) => void,
+  finish: (releasedAt?: number) => void,
 ) {
   const cancel = (e: Pointer) => {
-    if (isPointer(e)) finish(false);
+    if (isPointer(e)) finish();
   };
   return {
     onPointerDown: (e: Pointer) => {
-      if (e.isPrimary !== false && e.button === 0) begin({ type: "pointer", pointer: e.pointerId });
+      if (e.isPrimary !== false && e.button === 0)
+        begin({ type: "pointer", pointer: e.pointerId }, inputTime(e));
     },
     onPointerUp: (e: Move) => {
-      if (isPointer(e)) finish(!outside(e));
+      if (isPointer(e)) finish(outside(e) ? undefined : inputTime(e));
     },
     // Touch can implicitly capture the pointer, suppressing pointerleave.
     onPointerMove: (e: Move) => {
@@ -84,17 +93,17 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
   const source = useRef<Input | null>(null);
   const latest = useRef(press);
   latest.current = press;
-  const finish = (released: boolean) => {
+  const finish = (releasedAt?: number) => {
     if (!source.current) return;
     source.current = null;
-    latest.current.end(released);
+    latest.current.end(releasedAt);
   };
-  const cancel = () => finish(false);
+  const cancel = () => finish();
   useCancelPress(enabled, scope, address, cancel);
-  const begin = (input: Input) => {
+  const begin = (input: Input, at: number) => {
     if (!enabled || source.current) return;
     source.current = input;
-    latest.current.begin();
+    latest.current.begin(at);
   };
   const isPointer = (e: Pointer) =>
     source.current?.type === "pointer" && source.current.pointer === e.pointerId;
@@ -105,15 +114,15 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
           onBlur: cancel,
           onContextMenu: (event: { preventDefault(): void }) => event.preventDefault(),
           onKeyDown: (e: Key) => {
-            if (stopKey(e) && !e.repeat) begin({ type: "keyboard", key: e.key });
+            if (stopKey(e) && !e.repeat) begin({ type: "keyboard", key: e.key }, inputTime(e));
           },
           onKeyUp: (e: Key) => {
             if (stopKey(e) && source.current?.type === "keyboard" && source.current.key === e.key)
-              finish(true);
+              finish(inputTime(e));
           },
         }
       : {
-          onPressIn: () => begin({ type: "native" }),
+          onPressIn: (e: Timed) => begin({ type: "native" }, inputTime(e)),
           onPressOut: () => {
             const input = source.current;
             // Native Pressability emits onPress for release, but only onPressOut for cancellation.
@@ -121,7 +130,7 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
               if (input === source.current) cancel();
             });
           },
-          onPress: () => finish(true),
+          onPress: (e: Timed) => finish(inputTime(e)),
           onBlur: cancel,
         }
     : {};

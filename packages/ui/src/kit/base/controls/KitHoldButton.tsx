@@ -70,8 +70,7 @@ function useCountdown(enabled: boolean, address: string) {
   };
   const settled = environment.reduceMotion || environment.agentMode || motion === "calm";
   const events = useContinuousPress(enabled, controller, address, {
-    begin() {
-      const began = performance.now();
+    begin(began) {
       start.current = began;
       const step = (at: number) => {
         const ratio = ratioOf((at - began) / holdMs);
@@ -87,10 +86,11 @@ function useCountdown(enabled: boolean, address: string) {
       setLocal(0);
       frame.current = requestAnimationFrame(step);
     },
-    end(released) {
+    end(releasedAt) {
       if (frame.current !== undefined) cancelAnimationFrame(frame.current);
       frame.current = undefined;
-      if (released && start.current !== undefined && performance.now() - start.current >= holdMs) finish();
+      if (releasedAt !== undefined && start.current !== undefined && releasedAt - start.current >= holdMs)
+        finish();
       start.current = undefined;
       setLocal(undefined);
     },

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
-import type { Browser, Page } from "playwright-core";
+import type { Browser, Locator, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
 import { launchChrome } from "../../../scripts";
 import { galleryConfig } from "../../../scripts/look";
@@ -38,15 +38,14 @@ beforeEach(async () => {
   const record = (error: Error) => errors.push(error.message);
   page.on("pageerror", record);
   try {
-    await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
-    await page.getByRole("button", { name: "Hold", exact: true }).waitFor({ timeout: 12000 });
-    await page.clock.install();
+    await page.goto(new URL(route, server.resolvedUrls!.local[0]).href, { waitUntil: "commit" });
+    await page.getByRole("button", { name: "Hold", exact: true }).waitFor({ timeout: 40000 });
   } catch (error) {
     throw new Error(`Controls fixture did not mount: ${errors.join("; ")}`, { cause: error });
   } finally {
     page.off("pageerror", record);
   }
-}, 20000);
+}, 45000);
 
 afterAll(async () => {
   await browser?.close();
@@ -63,36 +62,54 @@ it("cancels taps and pointer exit, then fires exactly once for a full hold", asy
   await hold.hover();
   await page.mouse.down();
   await page.mouse.move(1, 1);
-  await page.clock.runFor(3100);
+  await page.waitForTimeout(3050);
   await page.mouse.up();
   expect(await log()).toEqual([]);
   await hold.hover();
   await page.mouse.down();
-  await page.clock.runFor(3100);
-  await expect.poll(() => hold.getAttribute("aria-label")).toBe("Ready");
-  await page.clock.runFor(3100);
+  await expect.poll(() => hold.getAttribute("aria-label"), { timeout: 6000 }).toBe("Ready");
+  await page.waitForTimeout(100);
   await page.mouse.up();
   expect(await log()).toEqual(["test/hold/hold press"]);
 });
 
-it("uses the release timestamp when no frame runs at the hold boundary", async () => {
+async function deliverDelayedEarlyRelease(hold: Locator) {
+  await hold.evaluate((el) => {
+    el.addEventListener(
+      "pointerdown",
+      (event) => {
+        const { pointerId, clientX, clientY, timeStamp } = event as PointerEvent;
+        const release = new PointerEvent("pointerup", { pointerId, clientX, clientY, bubbles: true });
+        Object.defineProperty(release, "timeStamp", { value: timeStamp + 2990 });
+        setTimeout(() => {
+          el.dispatchEvent(release);
+          el.setAttribute("data-release-delivered", "true");
+        }, 3100);
+      },
+      { once: true },
+    );
+  });
+  await page.mouse.down();
+  await expect.poll(() => hold.getAttribute("data-release-delivered"), { timeout: 7000 }).toBe("true");
+  await page.mouse.up();
+}
+
+it("uses input time at the hold boundary, even when release delivery is delayed", async () => {
   const hold = page.getByTestId("test/hold/hold");
   await page.evaluate(() => {
     window.requestAnimationFrame = () => 1;
   });
   await hold.hover();
-  await page.mouse.down();
-  await page.clock.runFor(2900);
-  await page.mouse.up();
+  await deliverDelayedEarlyRelease(hold);
   expect(await log()).toEqual([]);
   await page.mouse.down();
-  await page.clock.runFor(3005);
+  await page.waitForTimeout(3050);
   await page.mouse.move(1, 1);
   await page.mouse.up();
   expect(await log()).toEqual([]);
   await hold.hover();
   await page.mouse.down();
-  await page.clock.runFor(3005);
+  await page.waitForTimeout(3050);
   await page.mouse.up();
   expect(await log()).toEqual(["test/hold/hold press"]);
 });
@@ -103,7 +120,7 @@ it("holds with the keyboard and uses separate remote actions, then disables all 
   await page.keyboard.press("Enter");
   expect(await log()).toEqual([]);
   await page.keyboard.down("Space");
-  await page.clock.runFor(3100);
+  await expect.poll(() => hold.getAttribute("aria-label"), { timeout: 6000 }).toBe("Ready");
   await page.keyboard.up("Space");
   await page.getByRole("button", { name: "Up", exact: true }).click();
   await page.getByRole("button", { name: "Volume down" }).press("Enter");

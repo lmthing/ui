@@ -14,12 +14,13 @@ export const defs = {
       tier: "phone",
       realPath: "Test only.",
       weight: 1,
-      partTiers: { record: "ok" },
+      partTiers: { record: "ok", root: "ok" },
       actions: {
         parts: {
           hold: ["press"],
           record: ["start", "stop"],
           record_other: ["start", "stop"],
+          root: ["start", "stop"],
           ok: ["press"],
           up: ["press"],
           down: ["press"],
