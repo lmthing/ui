@@ -1,17 +1,15 @@
 import type { Definition } from "../../probes";
 import { parseControlProps, type ActStep, type ScreenLike, type Values } from "..";
 
-const checkCredential = Symbol("checkCredential");
+// Catalog and kit can be loaded from different entry bundles in one host process.
+const checkCredential = Symbol.for("@lmthing/ui:credential-toggle");
 type Grant = { readonly [checkCredential]: (credential: string) => boolean };
 
 /** A grant is memory-only. Snapshots and action replies must never serialize the credential. */
 export function credentialToggleOn(grant: unknown, credential: unknown): boolean {
-  return (
-    typeof credential === "string" &&
-    !!grant &&
-    typeof grant === "object" &&
-    (grant as Partial<Grant>)[checkCredential]?.(credential) === true
-  );
+  if (typeof credential !== "string" || !grant || typeof grant !== "object") return false;
+  const check = (grant as Partial<Grant>)[checkCredential];
+  return typeof check === "function" && check(credential) === true;
 }
 
 export function stageCredentialToggle(
