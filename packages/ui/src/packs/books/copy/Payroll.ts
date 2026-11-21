@@ -1,23 +1,21 @@
 import { z } from "zod";
-import {
-  appointmentDate,
-  currencies,
-  defaultCurrency,
-  localeOf,
-  moneyLine,
-  numberLine,
-  type DeviceData,
-} from "../../../catalog";
+// prettier-ignore
+import { appointmentDate, appCurrencySchema, defaultCurrency, moneyFractionDigits, moneyLine, numberLine, type DeviceData, type AppCurrency } from "../../../catalog";
 import { booksWordsFor } from "../lang";
 
 const configuration = z.object({
-  currency: z.enum(currencies),
+  currency: appCurrencySchema,
   rates: z.record(
     z.string(),
     z.object({ deductionRate: z.number().min(0).max(1), employerRate: z.number().nonnegative() }),
   ),
 });
 type Config = z.output<typeof configuration>;
+export const payrollConfig = (data?: DeviceData) =>
+  data?.books_payroll_rules?.length === 1
+    ? configuration.safeParse(data.books_payroll_rules[0]).data
+    : undefined;
+export const payrollScale = (currency: AppCurrency) => 10 ** moneyFractionDigits(currency);
 type Payee = {
   name: string;
   basis: "hourly" | "salary";
@@ -26,6 +24,9 @@ type Payee = {
   adjustments: readonly { label: string; amount: number }[];
   ruleRef: string;
   paidAt?: string | undefined;
+  frozen?: { ruleRef: string; currency: AppCurrency; figures: Figures } | undefined;
+  canRecord?: boolean;
+  canSend?: boolean;
 };
 type Run<T extends Payee> = {
   from: string;
@@ -37,21 +38,6 @@ type Run<T extends Payee> = {
   finalizedAt?: string | undefined;
   voided: boolean;
 };
-
-export function payrollGates<R extends Run<Payee>>(input: R) {
-  const activeFinal = input.finalizedAt !== undefined && !input.voided;
-  return {
-    ...input,
-    activeFinal,
-    canFinalize: input.finalizedAt === undefined && !input.voided,
-    canVoid: !input.voided && input.payees.every(({ paidAt }) => paidAt === undefined),
-    payees: input.payees.map((row: R["payees"][number], index) => ({
-      ...row,
-      visible: input.style === "run" || index === 0,
-      canRecord: activeFinal && row.paidAt === undefined,
-    })),
-  };
-}
 
 function earnings({ rate, hours }: Payee) {
   return rate * (hours ?? 1);
@@ -68,6 +54,17 @@ export function validGross(payee: Payee): boolean {
 const figureParts = ["net_pay", "gross", "deductions", "employer_cost"] as const;
 type Figures = Record<(typeof figureParts)[number], number>;
 
+// prettier-ignore
+export function frozenPayroll(payee: Payee, config: Config | undefined) {
+  const { frozen, ruleRef } = payee;
+  if (!config || !frozen || frozen.ruleRef !== ruleRef || frozen.currency !== config.currency ||
+    !Object.hasOwn(config.rates, ruleRef)) return;
+  const { gross, deductions, net_pay, employer_cost } = frozen.figures;
+  return deductions <= gross && net_pay === gross - deductions && employer_cost >= gross
+    ? frozen.figures
+    : undefined;
+}
+
 function roundMinor(value: number) {
   const absolute = Math.abs(value);
   const whole = Math.floor(absolute);
@@ -75,7 +72,11 @@ function roundMinor(value: number) {
   return Math.sign(value) * (whole + Number(roundUp));
 }
 
-function calculate(payee: Payee, config: Config | undefined, scale: number): Figures | undefined {
+export function calculatePayroll(
+  payee: Payee,
+  config: Config | undefined,
+  scale: number,
+): Figures | undefined {
   const rule = config && Object.hasOwn(config.rates, payee.ruleRef) && config.rates[payee.ruleRef];
   if (!rule) return undefined;
   const lines = [earnings(payee), ...payee.adjustments.map(({ amount }) => amount)];
@@ -126,10 +127,9 @@ function payeeCopy<T extends Payee>(
 
 export function payrollDisplay<T extends Payee>(input: Run<T>, data?: DeviceData, lang?: string) {
   const words = booksWordsFor(lang).payroll;
-  const { data: config } = configuration.safeParse(data?.books_payroll_rules?.[0]);
+  const config = payrollConfig(data);
   const currency = config?.currency ?? defaultCurrency;
-  const format = new Intl.NumberFormat(localeOf(lang), { style: "currency", currency });
-  const scale = 10 ** format.resolvedOptions().maximumFractionDigits!;
+  const scale = payrollScale(currency);
   const money = (amount: number) =>
     config ? moneyLine(amount, currency, undefined, lang) : numberLine(amount, lang);
   const figures = (amounts: Figures | undefined) =>
@@ -138,11 +138,13 @@ export function payrollDisplay<T extends Payee>(input: Run<T>, data?: DeviceData
       label: words[part],
       value: amounts ? money(amounts[part] / scale) : words.unavailable,
     }));
-  const amounts = input.payees.map((payee) => calculate(payee, config, scale));
-  const total = totalFigures(amounts);
+  const amounts = input.payees.map((payee) =>
+    input.finalizedAt ? frozenPayroll(payee, config) : calculatePayroll(payee, config, scale),
+  );
+  const total = input.payees.length ? totalFigures(amounts) : undefined;
   const status = input.voided
     ? words.voided
-    : input.payees.every(({ paidAt }) => paidAt)
+    : input.payees.length > 0 && input.payees.every(({ paidAt }) => paidAt)
       ? words.paid
       : input.finalizedAt
         ? words.finalized
@@ -163,7 +165,7 @@ export function payrollDisplay<T extends Payee>(input: Run<T>, data?: DeviceData
 }
 
 export function payrollRead<T extends Payee>(
-  input: Run<T> & { canFinalize?: boolean; canVoid?: boolean },
+  input: Run<T> & { canFinalize?: boolean; canVoid?: boolean; validFrozenRun?: boolean },
   state: string,
   data?: DeviceData,
   lang?: string,
@@ -188,10 +190,10 @@ export function payrollRead<T extends Payee>(
           ]
         : [figures[0]!.value]),
     ]),
-    input.canFinalize && state === "filled" && words.finalize,
+    input.canFinalize && input.validFrozenRun && state === "filled" && words.finalize,
     input.canVoid && words.void,
-    input.finalizedAt && !input.voided && words.send,
-    input.finalizedAt && !input.voided && rows.some(({ payee }) => !payee.paidAt) && words.record,
+    input.validFrozenRun && rows.some(({ payee }) => payee.canSend) && words.send,
+    input.validFrozenRun && rows.some(({ payee }) => payee.canRecord) && words.record,
   ];
   return lines.filter((line): line is string => Boolean(line));
 }

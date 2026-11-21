@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { z } from "zod";
 import * as c from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderExample } from "../../../../../test/render";
+import { addressedElements } from "../../../../../test/render";
+import { renderPayrollExample } from "./payroll-fixture";
 
 const def = c.components.Payroll;
 const { meta, props, examples, fallback, probes } = def;
@@ -10,7 +11,6 @@ type Input = z.input<typeof props>;
 const draft: Input = examples[0]!;
 const paid: Input = examples[1]!;
 const hourly = draft.payees[0]!;
-const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 describe("Payroll contract and boundaries", () => {
   it.each(examples)("parses each example", (example) => {
@@ -88,7 +88,7 @@ describe("Payroll metadata and fallback", () => {
 });
 
 function screen(input: Input, state: c.StateName = "filled") {
-  const { html, deviceData } = renderExample(meta.id, input, state, theme);
+  const { html, deviceData } = renderPayrollExample(input, state);
   const parts = addressedElements(html);
   const read = c.readComponent(def, input, "c1", state, {}, undefined, deviceData).join("\n");
   return { html, parts, read };
@@ -103,7 +103,7 @@ describe("Payroll screen and read/act parity", () => {
 
   it.each([
     ["draft", draft, "filled", ["finalize", "void", "r1", "r2"]],
-    ["draft success", draft, "success", ["void", "r1", "r2"]],
+    ["draft success", draft, "success", ["void", "r1", "r1/record", "r1/send", "r2", "r2/record", "r2/send"]],
     ["finalised", final, "success", ["void", "r1", "r1/record", "r1/send", "r2", "r2/record", "r2/send"]],
     ["partly paid", partlyPaid, "filled", ["r1", "r1/send", "r2", "r2/record", "r2/send"]],
     ["paid payslip", paid, "success", ["r1/send"]],
@@ -132,15 +132,15 @@ describe("Payroll parts and states", () => {
     const input = { ...final, style: "payslip", detail: "brief" } as const;
     const { parts, read } = screen(input);
     expect(props.parse(input).payees).toHaveLength(2);
-    expect(parts.has("home/c1/r1/root")).toBe(true);
-    expect([...parts.keys()].some((id) => id.startsWith("home/c1/r2/"))).toBe(false);
-    expect(parts.has("home/c1/r1/basis")).toBe(false);
-    expect(parts.has("home/c1/r1/rate")).toBe(false);
-    expect(parts.has("home/c1/r1/hours")).toBe(false);
-    expect(parts.get("home/c1/r1/net_pay")?.text).toContain("£102");
-    expect(read).toContain("£102");
+    expect(parts.has("home/c1/r2/root")).toBe(true);
+    expect([...parts.keys()].some((id) => id.startsWith("home/c1/r1/"))).toBe(false);
+    expect(parts.has("home/c1/r2/basis")).toBe(false);
+    expect(parts.has("home/c1/r2/rate")).toBe(false);
+    expect(parts.has("home/c1/r2/hours")).toBe(false);
+    expect(parts.get("home/c1/r2/net_pay")?.text).toContain("£544");
+    expect(read).toContain("£544");
     expect(read).not.toContain("£12/hr");
-    expect(read).not.toContain("r2");
+    expect(read).not.toContain("r1");
   });
 
   it("shows the run totals, dates, and selected payslip breakdown at their declared parts", () => {
@@ -167,9 +167,11 @@ describe("Payroll parts and states", () => {
 
 it.each(["finalize", "void"])("dispatches %s only after confirmation", (part) => {
   const onAction = vi.fn();
+  const { deviceData } = renderPayrollExample(draft, "filled");
   const run = createScreenController({
     screen: { id: "home", components: [{ ...draft, c: meta.id, id: "c1" }] },
     defs: { Payroll: def },
+    deviceData,
     onAction,
   });
   try {

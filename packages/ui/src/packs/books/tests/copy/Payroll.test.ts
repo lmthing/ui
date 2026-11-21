@@ -25,7 +25,23 @@ describe("Payroll calculation and copy", () => {
   });
 
   it("uses the period salary plus adjustments, never salary times hours", () => {
-    const result = payrollDisplay(props.parse(examples[1]!), rules);
+    const paid = props.parse(examples[1]!);
+    const result = payrollDisplay(
+      {
+        ...paid,
+        payees: [
+          {
+            ...paid.payees[0]!,
+            frozen: {
+              ruleRef: "sample_pay",
+              currency: "GBP",
+              figures: { gross: 89500, deductions: 13425, net_pay: 76075, employer_cost: 98450 },
+            },
+          },
+        ],
+      },
+      rules,
+    );
     expect(result.totals.map(({ value }) => value)).toEqual(["£760.75", "£895", "£134.25", "£984.50"]);
     expect(result.rows[0]?.paid).toBe("Payment recorded: 1 Dec 2026");
   });
@@ -68,8 +84,27 @@ describe("Payroll host rules and language", () => {
       ],
     };
     const finalizedAt = "2026-12-01T09:00:00Z";
-    const result = payrollDisplay({ ...draft, finalizedAt }, data);
-    expect(result.totals).toEqual(payrollDisplay({ ...draft, finalizedAt }, rules).totals);
+    const frozen = {
+      ...draft,
+      finalizedAt,
+      payees: [
+        {
+          ...hourly,
+          rate: 99,
+          frozen: {
+            ruleRef: "sample_pay",
+            currency: "GBP" as const,
+            figures: { gross: 12000, deductions: 1800, net_pay: 10200, employer_cost: 13200 },
+          },
+        },
+      ],
+    };
+    const result = payrollDisplay(frozen, data);
+    expect(result.totals.map(({ value }) => value)).toEqual(["£102", "£120", "£18", "£132"]);
+    expect(result.totals).toEqual(payrollDisplay(frozen, rules).totals);
+    expect(payrollDisplay({ ...draft, finalizedAt }, rules).totals.map(({ value }) => value)).toEqual(
+      Array(4).fill("—"),
+    );
   });
 
   it("passes the language to money, number and date formatting", () => {

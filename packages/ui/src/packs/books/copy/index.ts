@@ -12,7 +12,18 @@ export {
   type SplitRow,
 } from "./Expenses";
 export { ledgerDisplay, ledgerRead, validTransfers } from "./Ledger";
-export { payrollDisplay, payrollGates, payrollRead, validGross } from "./Payroll";
+export { payrollDisplay, payrollRead, validGross } from "./Payroll";
+export {
+  canFinalizePayroll,
+  canVoidPayroll,
+  payrollLifecycle,
+  payrollPayee,
+  payrollRow,
+  payrollRows,
+  previewPayroll,
+  validFrozenRun,
+  type PayrollRow,
+} from "./PayrollHost";
 export {
   previewProfit,
   profitDates,
