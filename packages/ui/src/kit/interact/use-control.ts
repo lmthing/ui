@@ -1,4 +1,5 @@
-import { createContext, useContext, useSyncExternalStore } from "react";
+import { createContext, useContext, useLayoutEffect, useSyncExternalStore, type RefObject } from "react";
+import { isWeb } from "tamagui";
 import {
   activeParentId,
   emptyDeviceData,
@@ -16,6 +17,11 @@ import { useKit } from "../provider";
 const subscribeNone = () => () => {};
 export const DeviceDataContext = createContext<DeviceData | undefined>(undefined);
 
+/** Host currency, if configured on the same controller that reads this screen. */
+export function useAppCurrency() {
+  return useKit().controller?.currency;
+}
+
 /** Get the host's declared records for the current component, outside its parsed props. */
 export function useDeviceData() {
   const { component } = usePartContext();
@@ -28,7 +34,7 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller: host } = useKit();
   const { screen, component } = usePartContext();
-  const controller = meta.linkedEdits ? host : undefined;
+  const controller = meta.linkedEdits || meta.selectionBinding ? host : undefined;
   const data = useContext(DeviceDataContext);
   const subscribe = controller?.store.subscribe ?? subscribeNone;
   useSyncExternalStore(
@@ -42,6 +48,12 @@ export function useLiveControls(meta: Meta, props: Values): Values {
     () => controller?.deviceData,
     () => controller?.deviceData,
   );
+  // Compare the resolved selection by value; its row array is rebuilt on each projection.
+  const selectionSnapshot = () =>
+    meta.selectionBinding
+      ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
+      : undefined;
+  useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
     projectLiveInputs(meta, props, component, () => undefined, data)
@@ -76,5 +88,24 @@ export function useNestedControls(meta: Meta, props: Values) {
           remaining < (control.togglePeers?.length ?? 0) &&
           control.item[control.spec.prop] !== true,
       })),
+  };
+}
+
+/** Reparenting a card replaces its DOM nodes; restore focus only for a focused human control. */
+export function useMoveFocus(pending: RefObject<string | null>, testID: string, ref: RefObject<unknown>) {
+  const node = () => ref.current as HTMLElement | null;
+  useLayoutEffect(() => {
+    if (!isWeb || pending.current !== testID) return;
+    pending.current = null;
+    const card = node();
+    (
+      card?.querySelector<HTMLElement>('[role="link"]') ??
+      card?.querySelector<HTMLElement>('[data-step-action="move"][tabindex="0"]') ??
+      card
+    )?.focus();
+  });
+  return (move: () => { ok: boolean }) => {
+    if (isWeb && node()?.contains(document.activeElement)) pending.current = testID;
+    if (!move().ok && pending.current === testID) pending.current = null;
   };
 }
