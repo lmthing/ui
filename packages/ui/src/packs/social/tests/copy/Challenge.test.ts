@@ -22,6 +22,7 @@ describe("Challenge copy", () => {
     expect(challengeCopy(goal, "filled", "en", Date.parse(now))).toMatchObject({
       ends: "Deadline: 1 Mar 2028",
       daysLeft,
+      ended: now.startsWith("2028-03-02"),
     });
   });
 

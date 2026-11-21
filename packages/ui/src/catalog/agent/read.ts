@@ -62,6 +62,7 @@ function readingProps(
     meta.linkedEdits ||
     meta.selectionBinding ||
     meta.items?.deviceData ||
+    meta.items?.move?.derived ||
     meta.deviceDataFlags ||
     meta.items?.visibleWhen ||
     hasRuntimeSets(meta) ||
