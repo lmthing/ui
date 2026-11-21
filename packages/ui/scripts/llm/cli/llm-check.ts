@@ -2,6 +2,7 @@ import { checkCoreComposition } from "../core-compose";
 import { checkCoreMerges } from "../core-merges";
 import { packProbes } from "./pack-probes";
 import { checkDirector } from "./director-probes";
+import { directorMode } from "./director-mode";
 // pnpm llm:check [--component List,Header | --director] [--replay]
 // Runs component probes live on every model in llm.config.ts, records replies, prints results.
 // Exits 1 if any probe fails on a required model.
@@ -96,7 +97,7 @@ const packMode = process.argv.includes("--pack");
 const only = (arg(packMode ? "--pack" : "--component") ?? "").split(",").filter(Boolean);
 const replay = process.argv.includes("--replay");
 let failed = 0;
-if (process.argv.includes("--director")) {
+if (directorMode(process.argv.slice(2))) {
   for (const model of probeModels) {
     const failures = await checkDirector(model, replay);
     if (model.required) failed += failures;

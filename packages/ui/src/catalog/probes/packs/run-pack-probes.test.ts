@@ -67,7 +67,7 @@ it.each(packIndex.slice(27))("covers the $id pick and a near miss before scaffol
   expect(positives.length).toBeGreaterThanOrEqual(2);
   expect(
     negatives.some(({ expect: ids }) =>
-      ids.length ? ids.some((other) => pick.includes(`(${other})`)) : pick.includes("(core)"),
+      ids.length ? ids.some((other) => new RegExp(`\\b${other}\\b`).test(pick)) : pick.includes("(core)"),
     ),
   ).toBe(true);
   expect(new Set(cases.map(({ idea }) => idea)).size).toBe(cases.length);
