@@ -1,9 +1,10 @@
 import { Path, Svg } from "react-native-svg";
 import { isWeb, YStack, useTheme } from "tamagui";
 import { component, emptyLine, radius, size, space, type IconName } from "../../../catalog";
-import { useEmptyThing, usePart } from "../../part";
+import { PartContext, useEmptyThing, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle, useWords } from "../../provider";
 import { KitIcon, KitText, shifted } from "../text";
+import { bracketHeadingHeight } from "./bracket-layout";
 
 export type Drawing = { part?: string; loading?: boolean };
 export type Target = { item?: string; part: string };
@@ -121,5 +122,48 @@ export function DiagramBar({ width, height = space.sm }: { width: number | `${nu
       aria-hidden
       accessibilityElementsHidden
     />
+  );
+}
+
+function HeadingPart({ part }: { part: string }) {
+  const address = usePart(part);
+  return <YStack {...address} fullscreen pointerEvents="none" aria-hidden accessibilityElementsHidden />;
+}
+
+type Heading = {
+  label: string;
+  ties: readonly { id: string; target?: Target; roundPart?: string | null }[];
+};
+
+/** Draw the heading once; all of its tie addresses measure the same heading. */
+export function BracketHeading({ round, top, loading }: { round: Heading; top: number; loading: boolean }) {
+  const context = usePartContext();
+  return (
+    <YStack
+      position="absolute"
+      top={top}
+      width="100%"
+      height={bracketHeadingHeight}
+      paddingHorizontal={space.md + component.base.strongBorder}
+      backgroundColor="$raised"
+      justifyContent="center"
+    >
+      {loading ? (
+        <DiagramBar width="54%" height={space.md} />
+      ) : (
+        <>
+          <KitText role="heading" lines={1} part={null}>
+            {round.label}
+          </KitText>
+          {round.ties.map(({ id, target, roundPart }) =>
+            roundPart == null ? null : (
+              <PartContext.Provider key={id} value={{ ...context, item: target?.item ?? id }}>
+                <HeadingPart part={roundPart} />
+              </PartContext.Provider>
+            ),
+          )}
+        </>
+      )}
+    </YStack>
   );
 }
