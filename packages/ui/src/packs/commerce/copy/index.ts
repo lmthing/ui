@@ -5,3 +5,4 @@ export { receiptCopy, receiptLine, receiptReading } from "./OrderSummary";
 export { promoExpiry } from "./Promo";
 export { variantExtra, variantReading } from "./VariantPicker";
 export { productDetailCopy, productDetailReading } from "./Product";
+export { fitLine, measurementLine, sizeGuideReading } from "./SizeGuide";

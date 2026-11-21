@@ -42,6 +42,7 @@ it("validates the worked Crumb screens and their destinations", () => {
     "orders",
     "ready_order",
     "order",
+    "apron",
   ]);
   const used = new Set(screens.flatMap((screen) => screen.components.map(({ c }) => c)));
   for (const id of commerceIds) expect(used.has(id)).toBe(true);

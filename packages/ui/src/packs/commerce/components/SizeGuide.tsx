@@ -1,18 +1,22 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { fitLine, measurementLine, sizeGuideReading } from "../copy";
+import { commerceWordsFor } from "../lang";
 
 const units = ["cm", "in"] as const;
 
 // Core first: KeyValue/rows lists facts for one record, not a selectable size matrix with convertible units.
 export const meta = {
   id: "SizeGuide",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Compare product measurements and fit across sizes before choosing one.",
   pick: "Compare garment or footwear measurements across sizes, switch centimetres and inches, and check how the product fits. Not facts about a single item (KeyValue), a generic data grid (Table), or choosing a purchasable option (VariantPicker).",
   writeHints: [
     "Use the unit of the supplied measurements. Keep each row's numbers in the same order as the columns; never write converted values separately.",
-    'Use style "fit" only if fit and model information should come before the measurements. Use detail "brief" to hide the model note without dropping it from the data.',
+    'Use style "fit" only if fit and model information belong before the measurements. Fit scores: 1 runs small, 3 true to size, 5 runs large.',
+    'Use detail "brief" to hide the model note but keep modelNote in the data. Use null for every unrequested variant, including density and surface. Do not write surface "card" unless requested.',
   ],
   region: "body",
   weight: 3,
@@ -25,17 +29,19 @@ export const meta = {
     detail: ["full", "brief"],
   },
   variantParts: { "detail.brief": { hides: ["model_note"] } },
-  parts: ["root", "unit", "table", "fit", "model_note"],
+  parts: ["root", "unit", "table", "fit", "model_note", "empty"],
   items: { key: "rows", parts: ["root", "size"] },
   states: ["filled", "empty", "loading"],
   actions: { parts: { unit: ["select"] }, items: { root: ["select"] } },
-  selections: { unit: { prop: "unit", choices: units } },
+  selections: { unit: { prop: "displayUnit", choices: units, runtime: true } },
   select: { prop: "at", value: "index" },
+  read: (input, state, lang): string[] =>
+    state === "filled" ? sizeGuideReading(input as GuideProps, lang) : [],
 } as const satisfies c.Meta;
 
 const row = z.strictObject({
   size: c.text(10),
-  values: z.array(z.number().nonnegative()).min(2).max(6),
+  values: z.array(z.number().min(0).max(9999)).min(2).max(6),
 });
 
 export const props = z
@@ -53,15 +59,15 @@ export const props = z
     path: ["rows"],
   })
   .refine(({ at, rows }) => at === undefined || at < rows.length, { path: ["at"] })
-  .overwrite((value) => ({ ...value, measurementUnit: value.unit }));
+  .overwrite((value) => (value.detail === "brief" ? { ...value, modelNote: undefined } : value));
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);
-  const items = c.itemsOf(cast, 3);
+  const titles = c.itemsOf(cast, 3).map((item) => c.titleOf(item, 10, thing));
   return {
-    columns: [c.placeholderTitle(0, lang), c.placeholderTitle(1, lang)],
-    rows: Array.from({ length: Math.max(2, items.length) }, (_, i) => ({
-      size: (items[i] && c.titleOf(items[i], 10, thing)) || c.clip(c.placeholderTitle(i, lang), 10),
+    columns: [0, 1].map((i) => c.clip(c.placeholderTitle(i, lang), 12)),
+    rows: Array.from({ length: Math.max(2, titles.length) }, (_, i) => ({
+      size: titles[i] || c.clip(c.placeholderTitle(i, lang), 10),
       values: [0, 0],
     })),
   };
@@ -76,12 +82,13 @@ export const examples = [
       { size: "Large", values: [22.9, 20.3] },
     ],
     at: 1,
+    fitScore: 3,
+    modelNote: "The fern in the display uses a medium pot.",
   },
   {
     unit: "in",
     style: "fit",
     surface: "outlined",
-    density: "compact",
     columns: ["Chest", "Neck"],
     rows: [
       { size: "Small", values: [18, 12] },
@@ -114,10 +121,78 @@ export const probes = [
   read("Switch the measurement chart to inches without changing the reference size", {
     address: "s1/unit",
     action: "select",
-    value: "in",
   }),
   read("Highlight Large as the reference size without changing the units", {
     address: "s1/r3",
     action: "select",
   }),
 ] satisfies c.Probe[];
+
+type GuideProps = c.Props<typeof props, typeof meta> & { displayUnit?: (typeof units)[number] };
+
+// prettier-ignore
+function Measurements({ input, loading, density }: { input: GuideProps; loading: boolean; density: c.ThemeDensity }) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const copy = words.sizeGuide, unit = input.displayUnit ?? input.unit;
+  const cell = (label: string, role: "label" | "number", align: "start" | "end", part: "size" | null = null) =>
+    <kit.KitContent inset="md">{loading
+      ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[role, label, align, "compact"]]} />
+      : <kit.KitText {...{ part, role, align, density }} lines={1}
+        tone={role === "label" && !part ? "muted" : "text"} numberScale="compact" tabular={role === "number"}>
+        {label}
+      </kit.KitText>}</kit.KitContent>;
+  const columns = input.columns.map((label, i) => ({ id: String(i), label, header: cell(label, "label", "end") }));
+  const rows = input.rows.map(({ id, size, values }, i) => ({
+    id, label: size, ...(!loading && { target: { item: id, part: "root" }, selected: input.at === i }),
+    heading: cell(size, "label", "start", "size"),
+    cells: values.map((value, j) => ({
+      id: String(j), content: cell(measurementLine(value, input.unit, unit, lang), "number", "end"),
+    })),
+  }));
+  const fitted = columns.length <= 2 || (columns.length === 3 && columns.every(({ label }) => label.length <= 8));
+  return <kit.KitTable part="table" corner={cell(copy.size, "label", "start")} fitColumns={fitted} {...{ columns, rows }} />;
+}
+
+// prettier-ignore
+function FitDetails({ input, loading, density }: { input: GuideProps; loading: boolean; density: c.ThemeDensity }) {
+  const { lang, words } = kit.useWords(commerceWordsFor);
+  const { fitScore, modelNote, detail } = input;
+  const showNote = detail !== "brief" && modelNote;
+  if (fitScore === undefined && !showNote) return null;
+  return <kit.KitContent density={density} group={input.style === "table" ? "response" : "content"}>
+    {fitScore !== undefined && <kit.KitRangeBand part="fit" label={words.sizeGuide.fit}
+      min={1} max={5} low={2.5} high={3.5} value={fitScore} loading={loading}
+      reading={<kit.KitText role="label" part={null} density={density}>{fitLine(fitScore, lang)}</kit.KitText>} />}
+    {showNote && (loading
+      ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[ "caption", modelNote ]]} />
+      : <kit.KitText part="model_note" role="caption" tone="muted" density={density}>{modelNote}</kit.KitText>)}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+export function SizeGuide(input: GuideProps) {
+  const { words } = kit.useWords(commerceWordsFor);
+  const state = kit.useComponentState();
+  const loading = state === "loading";
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const live = kit.useLiveControls(meta, input) as GuideProps;
+  const unit = live.displayUnit ?? live.unit;
+  const copy = words.sizeGuide;
+  const fit = <FitDetails input={live} {...{ loading, density }} />;
+  const startsWithFit = input.style === "fit" && (live.fitScore !== undefined || Boolean(live.modelNote));
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> : <>
+      {input.style === "fit" && fit}
+      <kit.KitContent density={density} group={startsWithFit ? "response" : "content"}>
+        <kit.KitTrack part="unit" look="segments" role="radiogroup" label={copy.unit}>
+          {units.map((value) => <kit.KitChip key={value} item={null} role="radio"
+            look="segment" label={copy.units[value]} value={value} on={unit === value}
+            {...(loading ? { disabled: false, part: null } : {})} />)}
+        </kit.KitTrack>
+      </kit.KitContent>
+      <Measurements input={live} {...{ loading, density }} />
+      {input.style === "table" && fit}
+    </>}
+  </kit.KitCard>;
+}

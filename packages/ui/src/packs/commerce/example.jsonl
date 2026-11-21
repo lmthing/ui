@@ -32,3 +32,6 @@
 {"id":"order_header","c":"Header","style":"back","title":"Order CR-024"}
 {"id":"order_track","c":"OrderStatus","seller":true,"steps":[{"label":"Received","time":"07:10"},{"label":"Preparing","time":"08:30"},{"label":"Ready"},{"label":"Collected"}],"at":1}
 {"id":"order_receipt","c":"OrderSummary","number":"CR-024","date":"2026-11-20","lines":[{"name":"Almond croissant","qty":2,"price":4}],"mode":"pickup","place":"Crumb counter"}
+{"id":"apron_header","c":"Header","title":"Canvas apron sizes","style":"back"}
+{"id":"apron_guide","c":"SizeGuide","unit":"cm","columns":["Width","Length"],"rows":[{"size":"Regular","values":[68,80]},{"size":"Long","values":[72,92]}],"fitScore":3}
+{"id":"apron_sizes","c":"VariantPicker","label":"Apron size","style":"size","options":[{"label":"Regular","available":true},{"label":"Long","available":true}]}

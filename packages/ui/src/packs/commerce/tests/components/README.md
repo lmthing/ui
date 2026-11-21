@@ -7,3 +7,4 @@
 - `Promo.test.ts`: schema, fallback, rendering, reading, and dispatch for offers and discount codes.
 - `Product.test.ts`: product details, pinned controls, stock limits, and save/add actions.
 - `VariantPicker.test.ts`: schema, fallback, parts, variants and availability-gated selection.
+- `SizeGuide.test.ts`: measurement boundaries, states, parts, and independent unit and size selection.
