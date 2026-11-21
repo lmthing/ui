@@ -60,6 +60,11 @@ describe("hiring draft examples and probes", () => {
 });
 
 describe("hiring draft bounds", () => {
+  it("leaves criteria unreviewed without a recorded finding", () => {
+    const input = { ...Candidate.examples[0], criteria: [{ label: "Recorded criterion" }] };
+    expect(Candidate.props.parse(input).criteria[0]?.finding).toBe("unreviewed");
+  });
+
   it("rejects invalid openings, applicants and criteria", () => {
     const job = JobPost.examples[0]!;
     const pipe = ApplicantPipeline.examples[0]!;

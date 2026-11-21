@@ -80,7 +80,7 @@ export const props = z.strictObject({
     .array(
       z.strictObject({
         label: c.text(32),
-        finding: z.enum(findings),
+        finding: z.enum(findings).default("unreviewed"),
         evidence: c.text(80).optional(),
       }),
     )
