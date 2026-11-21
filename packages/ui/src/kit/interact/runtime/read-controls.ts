@@ -1,6 +1,7 @@
 import {
   driveTarget,
   migrateScreen,
+  projectDeviceData,
   readComponent,
   readScreen,
   type CanDrive,
@@ -85,11 +86,12 @@ function readKeypads(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const snapshot = projectDeviceData(deviceData, values);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
-      const target = def && driveTarget(def.meta, screen, defs, local, deviceData, canDrive);
+      const target = def && driveTarget(def.meta, screen, defs, local, snapshot, canDrive);
       return def
         ? readComponent(withKeypadDrafts(def, id, local), props, id, state, local, lang, deviceData, target)
         : [`${id} ${c} (unknown)`];

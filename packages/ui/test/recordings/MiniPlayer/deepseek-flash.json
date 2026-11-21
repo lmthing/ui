@@ -1,0 +1,83 @@
+{
+  "27b8d5fbc887bb56": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer Playing — 0:45 · -7:15 — \"The Fern Shelf\" — photo:plants [m1 press→fern_shelf] [m1/play pause]\n\nTask: Pause the current recording. Keep me on this screen.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}"
+    ]
+  },
+  "2c7e74358c9dd3ad": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer 0:45 — -7:15 — \"Morning on the Fern Shelf\" — photo:plants [m1 press→fern_shelf] [m1/play pause]\n\nTask: Pause the recording using the playback control. Use the offered playback action, not a press that opens the full player.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+    "replies": [
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"play pause\"}",
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}"
+    ]
+  },
+  "37497baa522d29a1": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer 0:12 — -4:23 — \"The Slow Walk\" — photo:dogs [m1 press→slow_walk] [m1/play play]\n\nTask: Resume the recording without opening the full player\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play\", \"action\": \"play\"}",
+    "replies": [
+      "{\"address\": \"m1/play\", \"action\": \"play\"}",
+      "{\"address\": \"m1/play\", \"action\": \"play\"}",
+      "{\"address\": \"m1/play\", \"action\": \"play\"}"
+    ]
+  },
+  "4988d3f4d79cd852": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer Paused — 0:12 · -4:23 — \"The Slow Walk\" — photo:dogs [m1 press→slow_walk] [m1/play play]\n\nTask: Resume the recording without opening the full player\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play\", \"action\": \"play\"}",
+    "replies": [
+      "{\"address\": \"m1/play\", \"action\": \"play\"}",
+      "{\"address\": \"m1/play\", \"action\": \"play\"}",
+      "{\"address\": \"m1/play\", \"action\": \"play\"}"
+    ]
+  },
+  "8d6f207cc987f22e": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer Paused — 0:12 · -4:23 — \"The Slow Walk\" — photo:dogs [m1 press→slow_walk] [m1/play play]\n\nTask: Open the full player without changing playback\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"m1\", \"action\": \"press\"}",
+      "{\"address\": \"m1\", \"action\": \"press\"}",
+      "{\"address\": \"m1\", \"action\": \"press\"}"
+    ]
+  },
+  "90ff02c10b9e3d39": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer Playing — 0:45 · -7:15 — \"The Fern Shelf\" — photo:plants [m1 press→fern_shelf] [m1/play pause]\n\nTask: Pause this audio and stay on this screen. Use the playback control, not the navigation link. Give its address with no spaces and use one playback verb (play or pause), not press.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+    "replies": [
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"pause\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"pause\"}"
+    ]
+  },
+  "d3d7abc6764a7963": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer 0:45 — -7:15 — \"The Fern Shelf\" — photo:plants [m1 press→fern_shelf] [m1/play pause]\n\nTask: Pause the current recording. Keep me on this screen.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}"
+    ]
+  },
+  "d82b21c4e76026ce": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer 0:12 — -4:23 — \"The Slow Walk\" — photo:dogs [m1 press→slow_walk] [m1/play play]\n\nTask: Open the full player without changing playback\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"m1\", \"action\": \"press\"}",
+      "{\"address\": \"m1\", \"action\": \"press\"}",
+      "{\"address\": \"m1\", \"action\": \"press\"}"
+    ]
+  },
+  "ffe5e4dd69185c3a": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nm1 MiniPlayer Playing — 0:45 · -7:15 — \"The Fern Shelf\" — photo:plants [m1 press→fern_shelf] [m1/play pause]\n\nTask: Pause the current recording without opening the full player. Copy the slash-separated control address without its following action word; put that word in the action field.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}",
+      "{\"address\": \"m1/play\", \"action\": \"pause\"}",
+      "{\"address\": \"m1/play pause\", \"action\": \"press\"}"
+    ]
+  }
+}

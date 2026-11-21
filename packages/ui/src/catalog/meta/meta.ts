@@ -2,8 +2,10 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
+import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { Issue } from "../rules";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -104,6 +106,8 @@ export type Meta = {
     adjust?: NumericAdjustments;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
+    /** Confirmed edits of whole wire records in the item collection. */
+    records?: RecordEdits;
     /** Inline press/select parts; a choice source prop belongs to the addressed item. */
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
@@ -163,10 +167,14 @@ export type Meta = {
   codeOwned?: boolean;
 };
 
+/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
+export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
+
 export type PackMeta = {
   id: PackId;
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
+  screenValidators?: readonly PackScreenValidator[];
 };
 export type Slot = {
   allow: readonly ComponentId[];

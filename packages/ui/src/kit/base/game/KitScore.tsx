@@ -5,7 +5,7 @@ import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, useTextStep } from "../text";
 
-type Side = { label: string; value: string; controls?: ReactNode };
+type Side = { label: string; value: string; valuePart?: string | null; controls?: ReactNode };
 type ScoreProps = {
   part?: string;
   loading?: boolean;
@@ -17,13 +17,14 @@ type ScoreProps = {
 const centerWidth = size.avatar.lg;
 const sideLayout = { flex: component.base.bodyFlex, minWidth: component.base.none } as const;
 
-function ScoreValue({ value, loading, end = false }: { value: string; loading: boolean; end?: boolean }) {
+function ScoreValue({ side, loading, end = false }: { side: Side; loading: boolean; end?: boolean }) {
+  const { value, valuePart = null } = side;
   return (
     <YStack {...sideLayout} alignItems="center" x={centerWidth / (end ? -4 : 4)}>
       {loading || !value ? (
         <ScoreBar width={loading ? size.control.md : size.icon.md} tall={loading} />
       ) : (
-        <KitText role="number" tabular align="center" lines={1} part={null}>
+        <KitText role="number" tabular align="center" lines={1} part={valuePart}>
           {value}
         </KitText>
       )}
@@ -119,7 +120,7 @@ function ScoreDrawing({
     <>
       <YStack gap={space.xs}>
         <XStack alignItems="center" minHeight={typography[step("number")].lineHeight}>
-          <ScoreValue value={sides[0].value} loading={loading} />
+          <ScoreValue side={sides[0]} loading={loading} />
           <YStack width={centerWidth} justifyContent="center" alignItems="center" gap={space.xs}>
             {loading ? (
               <>
@@ -134,7 +135,7 @@ function ScoreDrawing({
               center
             )}
           </YStack>
-          <ScoreValue value={sides[1].value} loading={loading} end />
+          <ScoreValue side={sides[1]} loading={loading} end />
         </XStack>
         <XStack>
           <ScoreLabel label={sides[0].label} loading={loading} />

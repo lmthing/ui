@@ -8,6 +8,8 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  projectDeviceData,
+  recordClockOffer,
   sessionEvent,
 } from "../../../catalog";
 import type { ActStep, StateName } from "../../../catalog";
@@ -68,18 +70,14 @@ function actionsAt(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
-    const offered = affordancesOf(
-      def.meta,
-      props,
-      id,
-      localValues,
-      (props.state as StateName | undefined) ?? entry.state,
-      includeBlocked,
-    );
+    const get = (part: string) => localValues[`${id}/${part}`];
+    const data = projectDeviceData(ctx.options.deviceData, values);
+    const props = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
+    const clock = recordClockOffer(def, raw, props, get, data, now, values);
+    const state = (props.state as StateName | undefined) ?? entry.state;
+    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, data, clock);
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
-    const target = driveTarget(def.meta, screen, ctx.defs, localValues, ctx.options.deviceData, canDrive);
+    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
       .filter((item) => item.address === local)
       .map((item) => item.action);
@@ -152,12 +150,10 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-
 export function createStandaloneAccess(options: ControllerOptions) {
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
 }
-
 export function createAccess(ctx: ControllerContext, act: Act) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>

@@ -51,6 +51,17 @@ const rounds = [
   },
   { id: "final", label: "Final", ties: [{ id: "r5", sides: [{ label: "Yew" }, { label: "Cedar" }] }] },
 ] as const;
+const addressedRounds = rounds.map((round) => ({
+  ...round,
+  ties: round.ties.map((tie) => ({
+    ...tie,
+    roundPart: "round",
+    sides: [
+      { ...tie.sides[0], labelPart: "a", scorePart: "a_score" },
+      { ...tie.sides[1], labelPart: tie.id === "r3" ? null : "b", scorePart: "b_score" },
+    ] as const,
+  })),
+}));
 const links = [
   { from: "r1", to: "r5" },
   { from: "r2", to: "r5" },
@@ -82,8 +93,35 @@ it("draws unplayed, partial, tied and decided ties without computing winners", (
   expect(html.match(/ d="M\d+ \d+H/g)).toHaveLength(2);
 });
 
+it("addresses tie text and gives each tie an alias to its one visible round heading", () => {
+  const html = renderDiagram(createElement(KitBracket, { rounds: addressedRounds, links }));
+  const parts = addressedElements(html);
+  const tie = elementAt(html, "home/c1/r4/open");
+  expect(tie.attributes).toContain('aria-label="Elm, 3, Yew, 2, Yew advances"');
+  expect(tie.attributes).toContain('role="button"');
+  expect(parts.get("home/c1/r4/a")?.text).toEqual(["Elm"]);
+  expect(parts.get("home/c1/r4/b")?.text).toEqual(["Yew"]);
+  expect(parts.get("home/c1/r4/a_score")?.text).toEqual(["3"]);
+  expect(parts.get("home/c1/r4/b_score")?.text).toEqual(["2"]);
+  expect(parts.get("home/c1/r1/a_score")?.text).toEqual(["0"]);
+  expect(parts.has("home/c1/r3/b")).toBe(false);
+  expect(parts.has("home/c1/r3/b_score")).toBe(false);
+  expect(parts.has("home/c1/r5/a_score")).toBe(false);
+  expect(parts.has("home/c1/r5/b_score")).toBe(false);
+  expect(parts.has("home/c1/r2/round")).toBe(false);
+  for (const id of ["r1", "r4", "r3", "r5"]) {
+    const alias = elementAt(html, `home/c1/${id}/round`);
+    expect(alias.attributes).toContain('aria-hidden="true"');
+    expect(alias.attributes).not.toMatch(/role=|tabindex=/);
+    expect(styleAt(html, alias)).toContain("position:absolute");
+    expect(styleAt(html, alias)).toContain("pointer-events:none");
+  }
+  expect(html.match(/>Semifinals</g)).toHaveLength(1);
+  expect(html.match(/>Final</g)).toHaveLength(1);
+});
+
 it("retains links in loading without exposing scores, ties or scroll focus", () => {
-  const html = renderDiagram(createElement(KitBracket, { rounds, links, loading: true }));
+  const html = renderDiagram(createElement(KitBracket, { rounds: addressedRounds, links, loading: true }));
   expect(html).toContain('aria-busy="true"');
   expect(html.match(/ d="M\d+ \d+H/g)).toHaveLength(2);
   expect([...addressedElements(html).keys()]).toEqual(["home/c1/root"]);

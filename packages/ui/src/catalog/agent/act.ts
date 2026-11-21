@@ -1,19 +1,22 @@
 import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
+import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
   controlsAreValid,
   findAction,
   localValues,
+  type selectStep,
   stageProgress,
+  stageRecord,
   stageValue,
   validateStep,
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared } from "./clocks";
-import { filterDeviceDataScreen, type DeviceData } from "./device-data";
+import { filterDeviceDataScreen, projectDeviceData, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
@@ -80,6 +83,49 @@ function expireProgress(
   }
 }
 
+function stepProgress(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  step: ActStep,
+  found: Affordance,
+  random: RandomSource | null,
+  snapshot: DeviceData | undefined,
+  now: number,
+) {
+  const record = stageRecord(screen, defs, next, step, snapshot, now);
+  if (record !== undefined) return record ? "" : false;
+  return (
+    stageLinkedEdit(screen, defs, next, found, step.value) ??
+    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+  );
+}
+
+function stageControl(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  resolved: ActStep,
+  found: Affordance,
+  links: Extract<ActResult, { ok: true }>["links"],
+  clockOwner: "planner" | "controller",
+  snapshot: DeviceData | undefined,
+  { edit, limits, changes, declared }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep>,
+): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
+  const { address, action, value } = resolved;
+  const key = `${screen.id}/${address}`;
+  const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
+  if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
+  if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
+    return { ok: false, code: "not_actionable" };
+  stageInlinePress(screen, defs, resolved, next);
+  Object.assign(next, changes);
+  if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, snapshot) === false)
+    return { ok: false, code: "invalid_value", hint: "Value conflicts with report props" };
+  if ((limits || edit?.adjustment || adjusted || declared) && !controlsAreValid(screen, defs, address, next))
+    return { ok: false, code: "invalid_value", hint: "Value conflicts with component props" };
+}
+
 /**
  * Plans a list of steps against a screen without changing anything: every step must name an offered
  * action with a valid value. All or nothing: the first bad step returns its index and no values, so
@@ -93,27 +139,31 @@ export function planAct(
   random: RandomSource | null = deviceRandom,
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
+  now = Date.now(),
 ): ActResult {
   if (random && steps.length > 1) {
-    const preview = planAct(input, defs, values, steps, null, clockOwner, data);
+    const preview = planAct(input, defs, values, steps, null, clockOwner, data, now);
     if (!preview.ok) return preview;
   }
-  const screen = filterDeviceDataScreen(migrateScreen(input, { variantOnly: true }), defs, data);
+  const migrated = migrateScreen(input, { variantOnly: true });
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
   const { values: next, changed, links } = plan;
   for (const [at, original] of steps.entries()) {
-    const action = findAction(screen, defs, next, original, at, data);
+    const snapshot = projectDeviceData(data, next);
+    const screen = filterDeviceDataScreen(migrated, defs, snapshot);
+    const action = findAction(screen, defs, next, original, at, snapshot, now);
     if (action.error) return action.error;
     const { address, selected, found, drive, step } = action;
     if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${address}`;
-    const { result, edit, limits } = validateStep(screen, defs, found, step, next, key);
+    const validated = { ...selected, ...validateStep(screen, defs, found, step, next, key) };
+    const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
     try {
-      const progress =
-        stageLinkedEdit(screen, defs, next, found, result.value) ??
-        stageProgress(screen, defs, address, resolved, next, random, data);
+      const progress = stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      if (progress === false)
+        return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {
         changed.push(`${address} ${step.action}${progress}`);
         continue;
@@ -121,18 +171,9 @@ export function planAct(
     } catch {
       return { ok: false, code: "random_unavailable", at, hint: "Cannot generate a random result" };
     }
-    const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, step.action, next);
-    if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, data);
-    if (!(adjusted ?? stageValue(next, key, found, result.value, edit, screen.id, links)))
-      return { ok: false, code: "not_actionable", at };
-    stageInlinePress(screen, defs, resolved, next);
-    Object.assign(next, selected.changes);
-    if (stageReportEdit(screen, defs, next, resolved, { kind: "input" }, data) === false)
-      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with report props" };
-    const validate = limits || edit?.adjustment || adjusted || selected.declared;
-    if (validate && !controlsAreValid(screen, defs, address, next))
-      return { ok: false, code: "invalid_value", at, hint: "Value conflicts with component props" };
-    expireProgress(screen, defs, next, data);
+    const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
+    if (failure) return { ...failure, at };
+    expireProgress(screen, defs, next, snapshot);
     if (found.send)
       (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);

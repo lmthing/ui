@@ -12,12 +12,20 @@ import {
   bracketTieHeight,
 } from "./bracket-layout";
 import { BracketLinks, BracketScroll } from "./bracket-scroll";
-import { DiagramBar, DiagramEmpty, useDiagramTarget, type Drawing, type Target } from "./diagram-drawing";
+import {
+  BracketHeading,
+  DiagramBar,
+  DiagramEmpty,
+  useDiagramTarget,
+  type Drawing,
+  type Target,
+} from "./diagram-drawing";
 
-type Side = { label: string; score?: string };
+type Side = { label: string; score?: string; labelPart?: string | null; scorePart?: string | null };
 type Tie = {
   id: string;
   sides: readonly [Side, Side];
+  roundPart?: string | null;
   selected?: boolean;
   target?: Target;
 } & ({ winner?: undefined; winnerLabel?: undefined } | { winner: 0 | 1; winnerLabel: string });
@@ -43,7 +51,7 @@ function TieSide({ side, winner, loading }: { side: Side; winner: boolean; loadi
             role="label"
             tone={winner ? "accent" : side.score === undefined ? "muted" : "text"}
             lines={1}
-            part={null}
+            part={side.labelPart ?? null}
           >
             {side.label}
           </KitText>
@@ -54,7 +62,13 @@ function TieSide({ side, winner, loading }: { side: Side; winner: boolean; loadi
         {loading ? (
           <DiagramBar width={size.icon.sm} />
         ) : (
-          <KitText role="number" numberScale="compact" tone={winner ? "accent" : "text"} tabular part={null}>
+          <KitText
+            role="number"
+            numberScale="compact"
+            tone={winner ? "accent" : "text"}
+            tabular
+            part={side.score ? (side.scorePart ?? null) : null}
+          >
             {side.score}
           </KitText>
         )}
@@ -108,23 +122,7 @@ function RoundColumn({
       position="relative"
       {...(isWeb ? { style: { scrollSnapAlign: "start" } as never } : {})}
     >
-      <YStack
-        position="absolute"
-        top={tops[0] ?? component.base.none}
-        width="100%"
-        height={bracketHeadingHeight}
-        paddingHorizontal={space.md + component.base.strongBorder}
-        backgroundColor="$raised"
-        justifyContent="center"
-      >
-        {loading ? (
-          <DiagramBar width="54%" height={space.md} />
-        ) : (
-          <KitText role="heading" lines={1} part={null}>
-            {round.label}
-          </KitText>
-        )}
-      </YStack>
+      <BracketHeading {...{ round, loading }} top={tops[0] ?? component.base.none} />
       {round.ties.map((tie, index) => (
         <PartContext.Provider key={tie.id} value={{ ...context, item: tie.target?.item ?? tie.id }}>
           <TieCard {...{ tie, loading }} top={tops[index]! + bracketHeadingHeight} />
