@@ -2,9 +2,10 @@ import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } 
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
+import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData } from "../agent";
-
+import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { Issue } from "../rules";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -13,7 +14,10 @@ type Draw =
   | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
   | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
-type NumericSets = Readonly<Record<string, NumericSet>>;
+type ComponentSet =
+  | (NumericSet & { type?: "number" })
+  | { prop: string; type: "date"; min?: string; max?: string }
+  | { prop: string; type: "choice"; choices: readonly string[] };
 type LinkedEditState = Readonly<{ swapped: boolean; edit?: Readonly<{ part: string; text: string }> }>;
 type LinkedEdits = {
   inputs: Readonly<Record<string, { prop: string; max: number }>>;
@@ -80,14 +84,15 @@ export type Meta = {
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
   session?: Session;
-  /** Component parts with a declared `set` action and a finite numeric destination prop. */
-  set?: NumericSets;
+  /** Component parts with a declared `set` action. Omitted type means number; date bounds are inclusive ISO dates. */
+  set?: Readonly<Record<string, ComponentSet>>;
   /** Confirmed component press part → item set part whose nullable values are cleared. */
   clearItems?: Readonly<Record<string, string>>;
-  /**
-   * `visible: "first"` when only the first item is drawn (a card stack): the reader shows it and
-   * counts the rest ("+2 more"), and conformance expects only the first item on screen.
-   */
+  /** Component press part → live text and item picker parts to reset together. */
+  clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
+  /** Confirmed component press part → wire prop holding the sign-off timestamp. */
+  signOff?: Readonly<Record<string, string>>;
+  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
@@ -98,6 +103,14 @@ export type Meta = {
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Item parts backed by wire props. Photo and remove use the declared press actions. */
+    edits?: ItemEdits;
+    /** Confirmed edits of whole wire records in the item collection. */
+    records?: RecordEdits;
+    /** Inline press/select parts; a choice source prop belongs to the addressed item. */
+    pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
+    /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
+    editPath?: ItemEditPath;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<
       Record<
@@ -149,37 +162,18 @@ export type Meta = {
   read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
   signature?: string;
   status?: "draft" | "ready";
-  /**
-   * Built by code, never chosen or written by the model (TabBar from the sections marked nav). It
-   * stays in the catalog and is read like any component, but choose and write prompts leave it out
-   * and it has only `read` probes.
-   */
+  /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 };
 
-export type BaseRoles = Record<
-  "bg" | "surface" | "raised" | "line" | "text" | "muted" | "good" | "warn" | "bad",
-  string
->;
-export type AccentRoles = Record<"accent" | "accentSoft" | "onAccent", string>;
-export type PresetMeta = {
-  id: string;
-  mood: string;
-  font: "humanist" | "grotesk" | "rounded" | "serif";
-  numbers: "regular" | "condensed";
-  /** `strong` sets every text role one step heavier (bold preset). */
-  weight: "regular" | "strong";
-  shape: "sharp" | "soft" | "round";
-  density: "compact" | "regular" | "airy";
-  surface: "soft" | "solid" | "hairline";
-  roles: { light: BaseRoles; dark: BaseRoles };
-};
-export type AccentMeta = { id: string; light: AccentRoles; dark: AccentRoles };
+/** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
+export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 
 export type PackMeta = {
   id: PackId;
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
+  screenValidators?: readonly PackScreenValidator[];
 };
 export type Slot = {
   allow: readonly ComponentId[];

@@ -8,11 +8,13 @@ import {
   migrateScreen,
   filterDeviceDataScreen,
   isDeviceDataVisible,
+  projectDeviceData,
   resolveDefinition,
   type ActStep,
   type Definition,
   type DeviceData,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
@@ -31,6 +33,7 @@ export type Confirmation = {
   source: string;
   goto?: string;
   step?: ActStep;
+  removal?: ReportRemoval;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -69,10 +72,8 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
 }
 function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
-  const candidates = screen.components.filter(
-    (entry) =>
-      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
-      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
+  const candidates = screen.components.filter(({ id }) =>
+    [drawKey, sessionKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -119,8 +120,7 @@ function visibleConfirmation(
 ) {
   if (!confirmation) return;
   const [source] = relativeAddress(screen.id, confirmation.source).split("/");
-  const component = screen.components.find(({ id }) => id === source)?.c;
-  const meta = component && defs[component]?.meta;
+  const meta = defs[screen.components.find(({ id }) => id === source)?.c ?? ""]?.meta;
   if (!meta || isDeviceDataVisible(meta, data)) return confirmation;
 }
 export function createControllerContext(options: ControllerOptions, standalone = false) {
@@ -143,7 +143,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ),
         };
   const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
+    const visible = filterDeviceDataScreen(screen, defs, projectDeviceData(options.deviceData, values));
     if (standalone) return visible;
     const projected = projectScreen(visible, defs, values, at, sheet, false, false);
     return covered && !hostHidesSheet(screen, visible, sheet)
@@ -161,7 +161,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     valuesOf,
     liveScreen,
     confirmationFor: (data = options.deviceData) =>
-      visibleConfirmation(screen, defs, status.confirmation, data),
+      visibleConfirmation(screen, defs, status.confirmation, projectDeviceData(data, valuesOf())),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
@@ -183,18 +183,3 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
-  return {
-    ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, ctx.options.deviceData),
-    now: () => at,
-    valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
-    mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredProgress: (next) => ctx.expiredProgress(next, at),
-  };
-}

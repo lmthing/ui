@@ -1,4 +1,12 @@
 export {
+  hasRecordClock,
+  recordClockInput,
+  recordClockOffer,
+  recordClockOwnersKey,
+  resetRecordClockOwners,
+  stageRecordClock,
+} from "./record-clock";
+export {
   clockTargets,
   clockKey,
   clockPropKey,
@@ -14,11 +22,12 @@ export {
   isPlaybackAction,
 } from "./clock";
 export { clockChanges } from "./transitions";
+export { projectComponentSets } from "./component-sets";
 export {
   adjustmentAt,
   clearItemSets,
   numericSetAt,
   projectAdjustments,
-  projectComponentSets,
   projectMatrix,
+  setAt,
 } from "./adjustment";

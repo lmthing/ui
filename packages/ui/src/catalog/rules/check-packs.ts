@@ -17,14 +17,23 @@ type Input = {
 function checkMeta(input: Input, pack: PackMeta): string[] {
   const issues: string[] = [];
   const entry = packIndex.find(({ id }) => id === pack.id);
-  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(entry?.pick ?? ""));
-  if (!entry?.purpose.trim() || !entry.pick.trim() || !nearest.length)
+  const pick = entry?.pick ?? "";
+  const nearest = packIds.filter((id) => id !== pack.id && new RegExp(`\\b${id}\\b`).test(pick));
+  const excludesCore =
+    pick.includes("(core)") ||
+    [...pick.matchAll(/\(core ([A-Z][A-Za-z0-9]*)\)/g)].some(
+      ([, id]) => id !== undefined && input.components[id]?.meta.id === id && !input.packOf[id],
+    );
+  if (!entry?.purpose.trim() || !pick.trim() || (!nearest.length && !excludesCore))
     issues.push(`${pack.id}: purpose/pick`);
   if ((input.packArchetypes[pack.id]?.length ?? 0) < 2) issues.push(`${pack.id}: archetypes`);
   const probes = pack.probes.filter((probe) => probe.kind === "pack");
   const positive = probes.filter((probe) => probe.expect.includes(pack.id));
   const miss = probes.some(
-    (probe) => !probe.expect.includes(pack.id) && nearest.some((id) => probe.expect.includes(id)),
+    (probe) =>
+      !probe.expect.includes(pack.id) &&
+      (nearest.some((id) => probe.expect.includes(id)) ||
+        (excludesCore && probe.expect.length === 0 && !probe.allow?.length)),
   );
   if (probes.length < 3 || positive.length < 2 || !miss) issues.push(`${pack.id}: probes`);
   if (probes.some((probe) => probe.expect.length > 3 || probe.expect.some((id) => !packIds.includes(id))))

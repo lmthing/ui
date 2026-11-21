@@ -2,13 +2,12 @@ import type { ClockState, Meta } from "../../meta";
 import type { ActionName } from "../../types";
 import type { Values } from "../index";
 import { clockKey, clockMax, clockPropKey, clockTargets, clockTime } from "./clock";
+import { componentSetAt, isNumericSet, keyFor, type NumericSet } from "./component-sets";
 const knownRows = (value: unknown) => (Array.isArray(value) ? (value as Values[]) : []);
 const rowId = (meta: Meta, row: Values, index: number) =>
   String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
-const keyFor = (base: string, prop: string) => `${base}$adjust/${prop}`;
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
-type SetSpec = NonNullable<Meta["set"]>[string];
-function effectiveLimits(set: SetSpec, adjustments: Meta["adjust"]) {
+function effectiveLimits(set: NumericSet, adjustments: Meta["adjust"]) {
   const related = Object.values(adjustments ?? {}).filter((adjust) => adjust?.prop === set.prop);
   return {
     ...set,
@@ -41,18 +40,12 @@ export function itemSetAt(meta: Meta, props: Values, target: string) {
 export function numericSetAt(meta: Meta, props: Values, target: string) {
   const item = itemSetAt(meta, props, target);
   if (item) return item;
-  const sets = meta.set;
-  if (!sets || !Object.hasOwn(sets, target)) return;
-  const spec = effectiveLimits(sets[target]!, meta.adjust);
-  return { key: keyFor("", spec.prop), spec, value: props[spec.prop] };
+  const set = componentSetAt(meta, props, target);
+  if (set && isNumericSet(set.spec)) return { ...set, spec: effectiveLimits(set.spec, meta.adjust) };
 }
 
-export function projectComponentSets(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  for (const { prop } of Object.values(meta.set ?? {})) {
-    const value = get(keyFor("", prop));
-    if (finite(value) && value !== props[prop]) props = { ...props, [prop]: value };
-  }
-  return props;
+export function setAt(meta: Meta, props: Values, target: string) {
+  return numericSetAt(meta, props, target) ?? componentSetAt(meta, props, target);
 }
 
 /** Used only after the controller has resumed a confirmed component press. */
@@ -100,8 +93,9 @@ export function adjustmentAt(
     (clock) => clock.base === base && clock.child === undefined && clock.spec.prop === prop,
   );
   const sets = row < 0 ? meta.set : meta.items?.set;
-  const setter = !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop);
-  const bounds = setter ? effectiveLimits(setter[1], adjustments) : undefined;
+  const setter =
+    !clock && Object.entries(sets ?? {}).find(([, set]) => set.prop === prop && isNumericSet(set));
+  const bounds = setter && isNumericSet(setter[1]) ? effectiveLimits(setter[1], adjustments) : undefined;
   const state = clock ? (get(clockKey(clock)) as ClockState | undefined) : undefined;
   const saved = get(key);
   const current = clock
