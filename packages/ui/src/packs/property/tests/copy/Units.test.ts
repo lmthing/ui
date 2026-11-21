@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { exclusiveLets, unitDate, unitReading, unitSnapshot } from "../../copy";
+import { exclusiveLets, unitReading, unitSnapshot } from "../../copy";
 
 const first = {
   unitRef: "north",
@@ -54,13 +54,10 @@ describe("Units snapshot", () => {
     const reading = unitReading(
       { on: first.start, units: [unit], lets: [{ ...first, rent: 1234 }] },
       "de-DE",
+      "EUR",
     );
     expect(reading[0]).toContain("19. Nov. 2026");
     expect(reading[1]).toMatch(/^r1 · North Cabin · occupied · Lee · 1\.234/);
-  });
-  it("keeps invalid control values from reaching the renderer's date comparison", () => {
-    expect(unitDate("2028-02-29", first.start)).toBe("2028-02-29");
-    for (const bad of [null, 20261120, "2026-02-30", "tomorrow"])
-      expect(unitDate(bad, first.start)).toBe(first.start);
+    expect(reading[1]).toContain("€");
   });
 });

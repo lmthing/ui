@@ -68,13 +68,10 @@ export const en = {
   },
   units: {
     date: "Occupancy date",
-    empty: "No units to show",
-    error: "Check for invalid or overlapping let dates.",
-    status: {
-      occupied: { label: "Occupied", read: "occupied" },
-      reserved: { label: "Reserved", read: "reserved" },
-      vacant: { label: "Vacant", read: "vacant" },
-    },
+    dateReading: (date: string, value: string) => `Occupancy date: ${date} (${value})`,
+    unitReading: (id: string, fields: readonly string[]) => [id, ...fields].join(" · "),
+    error: "Invalid or overlapping let dates",
+    status: { occupied: "occupied", reserved: "reserved", vacant: "vacant" },
   },
   viewings: {
     statuses: {

@@ -2,46 +2,34 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
-import {
-  affordancesOf,
-  components,
-  createRegistry,
-  packReady,
-  readComponent,
-  stampItemIds,
-  themeName,
-  type CastLike,
-  type Props,
-  type StateName,
-} from "@lmthing/ui/catalog";
+// prettier-ignore
+import { affordancesOf, components, createRegistry, packReady, readComponent, stampItemIds, themeName, type CastLike, type Props, type StateName } from "@lmthing/ui/catalog";
 import { createScreenController, KitProvider, PartScope } from "@lmthing/ui/kit";
 import { addressedElements, config } from "../../../../../test/render";
-import { pack as propertyPack, Units as unitsModule } from "../..";
+import { Units as unitsModule } from "../..";
 
 const { examples, fallback, meta, probes, props } = components.Units;
 const register = examples[0]!;
-const card = examples[1]!;
+const thumbnail = examples[1]!;
 const unit = register.units[0]!;
 const letRecord = register.lets[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
-// Use the shared Tamagui config while Units is not in the generated ready-renderer map.
+// The generated renderer map omits the draft, so mount its actual view with the shared config.
 function draw(input: unknown, state: StateName = "filled") {
-  const stamped = stampItemIds(meta, props.parse(input));
+  const stamped = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
+  const scope = createElement(PartScope, {
+    screen: "home",
+    component: "u1",
+    rev: 1,
+    state,
+    children: createElement(unitsModule.Units, stamped),
+  });
   return renderToStaticMarkup(
     createElement(
       TamaguiProvider,
       { config, defaultTheme: themeName(theme) },
-      createElement(KitProvider, {
-        theme,
-        children: createElement(PartScope, {
-          screen: "home",
-          component: "u1",
-          rev: 1,
-          state,
-          children: createElement(unitsModule.Units, stamped as Props<typeof props, typeof meta>),
-        }),
-      }),
+      createElement(KitProvider, { theme, children: scope }),
     ),
   );
 }
@@ -140,12 +128,9 @@ describe("Units fallback and metadata", () => {
     expect(fallback({ cast: cast("Unit from cast") }).units[0]!.title).toBe("Unit from cast");
   });
   it("retains the core-first miss, shared variants and on-device tier", () => {
-    expect(meta.tier).toBe("phone");
+    expect(meta).toMatchObject({ tier: "phone", dense: true, weight: 3 });
     expect(meta.realPath).toContain("on the device");
-    expect(meta.dense).toBe(true);
-    expect(createRegistry({ packs: [propertyPack.id] }).ids.includes("Units")).toBe(
-      packReady(propertyPack.id),
-    );
+    expect(createRegistry({ packs: ["property"] }).ids.includes("Units")).toBe(packReady("property"));
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "List" }),
@@ -159,8 +144,7 @@ describe("Units fallback and metadata", () => {
 
 describe("Units states, parts and actions", () => {
   it("shows the addressed date field, links and occupancy readings, but hides unrequested photos", () => {
-    const html = draw(register);
-    const parts = addressedElements(html);
+    const parts = addressedElements(draw(register));
     expect(parts.get("home/u1/date")?.attributes).toMatch(/aria-label="Occupancy date".*value="2026-11-18"/);
     expect(parts.get("home/u1/r1/root")?.attributes).toContain('role="link"');
     expect(parts.get("home/u1/r2/root")?.attributes).not.toContain('role="link"');
@@ -168,11 +152,14 @@ describe("Units states, parts and actions", () => {
     expect(parts.get("home/u1/r1/rent")?.text).toEqual(["$900 / month"]);
     expect(parts.has("home/u1/r2/occupant")).toBe(false);
     expect(parts.has("home/u1/r1/photo")).toBe(false);
-    expect(addressedElements(draw(card)).has("home/u1/r1/photo")).toBe(true);
+    expect(addressedElements(draw(thumbnail)).has("home/u1/r1/photo")).toBe(true);
     const read = readComponent(components.Units, register, "u1").join("\n");
     expect(read).toContain("occupied · Asha · $900 / month");
     expect(read).toContain("vacant · $1,050 / month");
+    expect(read).toContain("Occupancy date: 18 Nov 2026 (2026-11-18)");
     expect(read).toContain("[u1/date set]");
+    expect(read).not.toContain("photo:home");
+    expect(read).not.toContain('"flat_a"');
   });
   it.each(["empty", "loading", "error"] as const)("shows no actionable or stale parts in %s", (state) => {
     const html = draw(register, state);
@@ -196,5 +183,4 @@ describe("Units states, parts and actions", () => {
     expect(controller.press("home/u1/r1/occupancy").ok).toBe(false);
     controller.dispose();
   });
-  it.todo("validates date set and projects the new occupancy into both runtime and data-only readings");
 });

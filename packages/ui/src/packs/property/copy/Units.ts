@@ -1,4 +1,4 @@
-import { appointmentDate, isoDate, moneyLine } from "../../../catalog";
+import { appointmentDate, moneyLine, type AppCurrency } from "../../../catalog";
 import { propertyWordsFor } from "../lang";
 
 type Period = "night" | "week" | "month";
@@ -34,11 +34,13 @@ export function exclusiveLets(lets: readonly Let[]) {
   );
 }
 
-export function unitDate(value: unknown, fallback: string): string {
-  return isoDate.safeParse(value).data ?? fallback;
-}
-
-export function unitSnapshot(unit: Unit, lets: readonly Let[], on: string, lang?: string) {
+export function unitSnapshot(
+  unit: Unit,
+  lets: readonly Let[],
+  on: string,
+  lang?: string,
+  currency?: AppCurrency,
+) {
   const active = lets.filter((record) => record.unitRef === unit.unitRef && !record.cancelled);
   const current = active.find(({ start, end }) => start <= on && (end === undefined || on < end));
   const status: "occupied" | "reserved" | "vacant" = current
@@ -51,19 +53,21 @@ export function unitSnapshot(unit: Unit, lets: readonly Let[], on: string, lang?
   return {
     status,
     occupant: current?.occupant,
-    rent: rent === undefined ? undefined : moneyLine(rent, undefined, per, lang),
+    rent: rent === undefined ? undefined : moneyLine(rent, currency, per, lang),
   };
 }
 
-export function unitReading({ on, units, lets }: Snapshot, lang?: string): string[] {
-  const { date, status } = propertyWordsFor(lang).units;
+export function unitReading({ on, units, lets }: Snapshot, lang?: string, currency?: AppCurrency): string[] {
+  const words = propertyWordsFor(lang).units;
   return [
-    `${date}: ${appointmentDate(on, lang)}`,
+    words.dateReading(appointmentDate(on, lang), on),
     ...units.map((unit, index) => {
-      const snapshot = unitSnapshot(unit, lets, on, lang);
-      return [`r${index + 1}`, unit.title, status[snapshot.status].read, snapshot.occupant, snapshot.rent]
-        .filter(Boolean)
-        .join(" · ");
+      const snapshot = unitSnapshot(unit, lets, on, lang, currency);
+      const { status, occupant, rent } = snapshot;
+      return words.unitReading(
+        `r${index + 1}`,
+        [unit.title, words.status[status], occupant, rent].filter((value) => value !== undefined),
+      );
     }),
   ];
 }
