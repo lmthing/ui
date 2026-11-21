@@ -1,5 +1,6 @@
 # Learning component tests
 
+- `Achievements.test.ts`: badge schema, fallback, states, parts and read/act contract.
 - `Assignments.test.ts`: wire limits, fallback, probes, parts, and assignment actions.
 - `Flashcard.test.ts` covers seed props, fallback, visible parts, and the review session.
 - `Lesson.test.ts`: schema bounds, cast fallback, rendered parts, and read/act parity.

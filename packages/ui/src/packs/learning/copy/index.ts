@@ -1,3 +1,4 @@
+export { badgeMilestone, readBadgeMilestones } from "./Achievements";
 export { assignmentDue, assignmentSubjectTone, assignmentToday } from "./Assignments";
 export { cardsLeft } from "./Flashcard";
 export { lessonReading } from "./Lesson";

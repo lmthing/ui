@@ -1,4 +1,8 @@
 export const en = {
+  achievements: {
+    empty: "No badges yet",
+    locked: "Locked",
+  },
   assignments: {
     handedIn: "Handed in?",
     graded: "Work graded",

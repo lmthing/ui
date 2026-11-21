@@ -1,5 +1,6 @@
 # Learning copy
 
+- `Achievements.ts`: badge details and read lines from validated data and the learning words. Import through `index.ts`.
 - `Assignments.ts`: language-aware deadline and subject-mark helpers. Import through `index.ts`.
 - `Flashcard.ts` formats the derived number of cards left using the pack's words.
 - `Lesson.ts`: data-only reading helpers. Built-in words live in `../lang`.
