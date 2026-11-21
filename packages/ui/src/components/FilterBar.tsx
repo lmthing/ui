@@ -21,7 +21,7 @@ import * as kit from "../kit";
 // Core first: Chips/filter narrows by a few labels, not by several fields with separately opened pickers.
 export const meta = {
   id: "FilterBar",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Search and narrow records by several fields, then clear the filters together.",
   pick: "Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).",
@@ -166,17 +166,21 @@ export function FilterBar(input: ViewProps) {
                 {filterCount(filters, lang)}
               </kit.KitText>
             )}
-            {sort && (
-              <kit.KitText part="sort" role="caption" tone="muted">
-                {words.filterSort(sort)}
-              </kit.KitText>
-            )}
           </kit.KitContent>
         </kit.KitContent>
         <kit.KitContent inset="md" density={density}>
           <kit.KitAction part="clear" action="press" kind="quiet" label={words.filterClear} />
         </kit.KitContent>
       </kit.KitGrid>
+      {sort && (
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitContent inset="md" density={density}>
+            <kit.KitText part="sort" role="caption" tone="muted">
+              {words.filterSort(sort)}
+            </kit.KitText>
+          </kit.KitContent>
+        </kit.KitContent>
+      )}
     </kit.KitCard>
   );
 }

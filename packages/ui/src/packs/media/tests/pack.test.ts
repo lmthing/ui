@@ -49,7 +49,7 @@ const recipes = {
 };
 
 it("isolates generated Media entries and never offers MiniPlayer to the Writer", () => {
-  expect(createRegistry({ includeDrafts: true }).resolve("Article")).toBe(components.Article);
+  expect(createRegistry().resolve("Article")).toBe("Article");
   expect(Object.hasOwn(packOf, "Article")).toBe(false);
   const live = createRegistry({ packs: ["media"] });
   const ready = packReady("media");

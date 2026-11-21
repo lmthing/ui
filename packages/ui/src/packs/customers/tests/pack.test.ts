@@ -53,7 +53,7 @@ describe("customers contracts", () => {
         .map(([id]) => id)
         .sort(),
     ).toEqual([...ids].sort());
-    expect(createRegistry({ includeDrafts: true }).resolve("Review")).toBe(components.Review);
+    expect(createRegistry().resolve("Review")).toBe("Review");
     expect(Object.hasOwn(packOf, "Review")).toBe(false);
     for (const id of selectedIds(ids)) {
       const def = defs[id]!;

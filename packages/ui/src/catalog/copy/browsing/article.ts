@@ -119,6 +119,9 @@ export function articleReading(input: ArticleCopy, lang?: string): string[] {
   if (detail === "brief") return body;
   const { by, date, time } = articleHeader(input, lang);
   const separator = wordsFor(lang).article.metadataSeparator;
-  const header = [title, ...(by ? [by] : []), date ? `${date}${separator}${time}` : time];
-  return input.style === "response" ? [...body, ...header] : [...header, ...body];
+  const metadata = date ? `${date}${separator}${time}` : time;
+  const attribution = by ? [by] : [];
+  return input.style === "response"
+    ? [title, metadata, ...body, ...attribution]
+    : [title, ...attribution, metadata, ...body];
 }

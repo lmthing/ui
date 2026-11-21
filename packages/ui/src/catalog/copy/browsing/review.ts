@@ -47,11 +47,12 @@ export function reviewReading(
         reviewCountLine(input.count!, lang),
         ...(input.detail === "brief"
           ? []
-          : input.bars!.map(
-              (amount, index) => `${reviewStarsLine(index + 1, lang)} ${numberLine(amount, lang)}`,
-            )),
+          : input
+              .bars!.map((amount, index) => `${reviewStarsLine(index + 1, lang)} ${numberLine(amount, lang)}`)
+              .reverse()),
       ]
     : input.reviews!.flatMap((review) => [
+        ...(review.id ? [review.id] : []),
         reviewRatingLine(review.stars, lang),
         review.date,
         ...(review.verified ? [reviewLabels.verified] : []),

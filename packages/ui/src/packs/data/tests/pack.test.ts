@@ -42,7 +42,7 @@ it("scopes generated Writer choices and keeps drafts out of live registries", ()
   const format = JSON.stringify(writerFormat(draft));
   const liveFormat = JSON.stringify(writerFormat(live));
   expect(draft.ids.filter((id) => id in packOf).sort()).toEqual([...ids].sort());
-  expect(createRegistry({ includeDrafts: true }).resolve("FilterBar")).toBe(components.FilterBar);
+  expect(createRegistry().resolve("FilterBar")).toBe("FilterBar");
   expect(Object.hasOwn(packOf, "FilterBar")).toBe(false);
   for (const id of ids) {
     expect(packOf[id]).toBe("data");

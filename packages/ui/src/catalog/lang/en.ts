@@ -133,7 +133,7 @@ export const en = {
     verified: "Verified",
     showSpoiler: "Show spoiler",
     hideSpoiler: "Hide spoiler",
-    photo: (index: number) => `Review photo ${index}`,
+    photo: (index: string) => `Review photo ${index}`,
     fit: (value: number) =>
       ["Runs very small", "Runs small", "True to size", "Runs large", "Runs very large"][value - 1]!,
   },

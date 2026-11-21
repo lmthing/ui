@@ -7,14 +7,14 @@ import { wordsFor, balancedLine, detailOf, numberLine, photo, isoDate, itemsOf, 
 // prettier-ignore
 export const meta = {
   id: "Review",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "See what people rated and wrote about a service, item, book, or film.",
   pick: "Customer, visitor, reader, or viewer feedback as an average with five bars or authored reviews and replies. Not logging one's own feeling or rating (Scale) or community comments (Comments).",
   writeHints: [
     'style: "summary" needs average, count and exactly five bars ordered from 1 to 5 stars. style: "list" needs one to five reviews. Omit unused fields.',
     "Each review needs stars 1–5, name, date and text. Optional per review: business reply, up to three photo references, fitScale (1 runs very small, 3 true to size, 5 runs very large), spoiler (hide plot details until revealed), and verified.",
-    'Hiding the breakdown or business replies changes only detail: {"density":null,"surface":null,"detail":"brief"}. In summary mode always write all five bar counts, even when hidden (zero for an unmentioned star level). Otherwise detail is null.',
+    'For a hidden breakdown or replies, output exactly "density":null,"surface":null,"detail":"brief". Do not output "comfortable" or "card" as defaults. Keep all five bar counts, including zeros, even when hidden. Otherwise leave detail null unless requested.',
   ],
   region: "body",
   weight: 2,
@@ -27,6 +27,7 @@ export const meta = {
     "verified", "fit", "spoiler_label", "photo_1", "photo_2", "photo_3",
   ] },
   parts: ["root", "average", "count", "bars"],
+  partTiers: { root: "phone" },
   states: ["filled", "empty"],
   actions: { items: { root: ["toggle"], reply: ["press"] }, when: { root: { spoiler: true }, reply: { style: "list" } } },
   select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
@@ -101,6 +102,7 @@ export const probes = [
     variant: { axis: "detail", value: "brief" },
   },
   read("Reply to Ben's review", { address: "r1/r1/reply", action: "press" }, 1),
+  read("Reveal the plot detail hidden in Ana's review", { address: "r1/r2", action: "toggle" }, 3),
 ] satisfies Probe[];
 type ReviewProps = Props<typeof props, typeof meta>;
 type ReviewView = ReviewProps & { density: NonNullable<ReviewProps["density"]> };
@@ -113,7 +115,7 @@ function ReviewSummary(input: ReviewView) {
     <KitCard part="root" padded {...{ density, surface }}>
       <KitText role="number" part="average" tabular {...{ density }} children={reviewRatingLine(input.average!, lang)} />
       <KitText role="caption" tone="muted" part="count" {...{ density }} children={reviewCountLine(input.count!, lang)} />
-      <KitScaleTrack style="stars" value={input.average!} labels={reviewScale(lang)} readonly />
+      <KitScaleTrack style="stars" value={input.average!} labels={reviewScale(lang)} readonly compact />
       {detail === "full" && <KitCard style="plain" part="bars">
         <ReviewBars bars={input.bars!} count={input.count!} {...{ density, lang }} />
       </KitCard>}
@@ -127,7 +129,7 @@ function ReviewBars({ bars, count, density, lang }: { bars: number[]; count: num
     const label = reviewStarsLine(index + 1, lang);
     const meter = <KitMeter key={index} label={label} amount={numberLine(amount, lang)} ratio={count ? amount / count : 0} slim addressed={false} />;
     return compact ? meter : <KitRow key={index} label={label} inline children={meter} />;
-  });
+  }).reverse();
   return compact ? <KitContent {...{ density }} children={meters} /> : meters;
 }
 // prettier-ignore
@@ -137,15 +139,17 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
   const hidden = spoiler && !expanded;
   const disclosure = expanded ? words.hideSpoiler : words.showSpoiler;
   return (
-    <KitRow item={review.id} part={spoiler ? null : "root"} label={review.name} lineRole="heading" {...{ density }}>
+    <KitRow item={review.id} part={spoiler ? null : "root"} label={review.name} lineRole="heading" inline {...{ density }}>
       <KitContent {...{ density }}>
-        <KitText role="heading" part="name" lines={1} {...{ density }}>{review.name}</KitText>
+        <KitRow inline lineRole="heading" {...{ density }} trailing={review.verified &&
+          <KitTrail kind="badge" value={words.verified} part="verified" {...{ density }} />}>
+          <KitText role="heading" part="name" lines={1} {...{ density }}>{review.name}</KitText>
+        </KitRow>
         <KitContent lineRole="body" {...{ density }}
           lead={<KitScaleTrack style="stars" value={review.stars} labels={reviewScale(lang)} readonly compact />}>
-          <KitText role="caption" tone="muted" part="stars" {...{ density }}>{reviewRatingLine(review.stars, lang)}</KitText>
+          <KitText role="number" numberScale="compact" tabular part="stars" {...{ density }}>{reviewRatingLine(review.stars, lang)}</KitText>
         </KitContent>
         <KitText role="caption" tone="muted" part="date" lines={1} {...{ density }}>{review.date}</KitText>
-        {review.verified && <KitTrail kind="badge" value={words.verified} part="verified" {...{ density }} />}
         {spoiler && (
           <KitRow part="root" role="button" expanded={expanded === true} label={disclosure} lineRole="body" inline>
             <KitText role="label" tone="accent" part="spoiler_label">{disclosure}</KitText>
@@ -168,10 +172,10 @@ function ReviewDetails({ review, density }: { review: ReviewItem; density: Revie
       {review.fitScale !== undefined && <KitText role="caption" part="fit" tone="muted">{reviewFitLine(review.fitScale, lang)}</KitText>}
       {review.photos && <KitGrid columns={3}>
         {review.photos.map((photo, index) => (
-          <KitPhoto key={index} part={`photo_${index + 1}`} shape="square" label={words.photo(index + 1)} {...{ photo }} />
+          <KitPhoto key={index} part={`photo_${index + 1}`} shape="square" label={words.photo(numberLine(index + 1, lang))} {...{ photo }} />
         ))}
       </KitGrid>}
-      {review.reply && <KitContent {...{ density }}>
+      {review.reply && <KitContent group="response" {...{ density }}>
         <KitText role="caption" tone="muted" part={null} {...{ density }}>{words.response}</KitText>
         <KitText role="label" tone="muted" part="response" {...{ density }}>{review.reply}</KitText>
       </KitContent>}
@@ -186,8 +190,8 @@ export function Review(input: ReviewProps) {
   if (state === "empty") return <KitCard part="root" {...{ density }} surface={input.surface}><KitEmpty part="text" /></KitCard>;
   if (input.style === "summary") return <ReviewSummary {...input} density={density} />;
   return (
-    <KitCard part="root" {...{ density }} surface={input.surface}>
-      {live.reviews?.map((review) => <ReviewEntry key={review.id} {...{ review, density }} />)}
+    <KitCard part="root" padded {...{ density }} surface={input.surface}>
+      {live.reviews?.map((review, index) => <KitContent key={review.id} group={index ? "response" : "content"} {...{ density }}><ReviewEntry {...{ review, density }} /></KitContent>)}
     </KitCard>
   );
 }

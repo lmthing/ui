@@ -17,7 +17,7 @@ it("reads exact summary numbers and singular/plural breakdown labels", () => {
       bars: [0, 0, 0, 2, 2],
       reviews: [],
     }),
-  ).toEqual(["4.5 of 5", "4 reviews", "1 star 0", "2 stars 0", "3 stars 0", "4 stars 2", "5 stars 2"]);
+  ).toEqual(["4.5 of 5", "4 reviews", "5 stars 2", "4 stars 2", "3 stars 0", "2 stars 0", "1 star 0"]);
 });
 
 it("reads dates, ratings and reply controls with optional authored responses", () => {

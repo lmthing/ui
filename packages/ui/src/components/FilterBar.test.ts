@@ -92,7 +92,7 @@ describe("FilterBar fallback and probes", () => {
 
   it("uses phone tier and retains the core near miss and the variant and action probes", () => {
     expect(meta).toMatchObject({ tier: "phone", weight: 2, states: ["filled"] });
-    expect(createRegistry({ includeDrafts: true }).ids).toContain("FilterBar");
+    expect(createRegistry().ids).toContain("FilterBar");
     expect(probes).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ kind: "choose", expect: "FilterBar" }),

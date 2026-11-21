@@ -44,22 +44,14 @@ describe("Review schema and boundaries", () => {
   it.each(invalidInputs)("rejects invalid input", (input) =>
     expect(props.safeParse(input).success).toBe(false),
   );
+  // prettier-ignore
   it("accepts both rating endpoints and exact text and list limits", () => {
     for (const average of [0, 5])
       expect(props.safeParse({ average, count: 0, bars: [0, 0, 0, 0, 0] }).success).toBe(true);
-    for (const stars of [1, 5])
-      expect(
-        props.safeParse({
-          ...list,
-          reviews: Array.from({ length: 5 }, () => ({
-            stars,
-            name: "a".repeat(24),
-            date: "2024-02-29",
-            text: "a".repeat(240),
-            reply: "a".repeat(160),
-          })),
-        }).success,
-      ).toBe(true);
+    for (const stars of [1, 5]) {
+      const review = { stars, name: "a".repeat(24), date: "2024-02-29", text: "a".repeat(240), reply: "a".repeat(160) };
+      expect(props.safeParse({ ...list, reviews: Array(5).fill(review) }).success).toBe(true);
+    }
     expect(props.safeParse({ ...summary, bars: [Number.MAX_VALUE, 0, 0, 0, 0] }).success).toBe(true);
   });
   it("discards inactive fields so the screen and reading agree", () => {
@@ -104,7 +96,7 @@ describe("Review fallback and metadata", () => {
       screen: 1,
       expect: { address: "r1/r1/reply", action: "press" },
     });
-    expect(createRegistry({ includeDrafts: true }).ids).toContain("Review");
+    expect(createRegistry().ids).toContain("Review");
   });
 });
 describe("Review states and parts", () => {
@@ -113,7 +105,7 @@ describe("Review states and parts", () => {
     for (const part of ["root", "average", "count", "bars"])
       expect(html).toContain(`data-testid="home/c1/${part}"`);
     expect(html).not.toMatch(/data-testid="home\/c1\/(?:label|amount)"|role="radio"/);
-    expect(html).toMatch(/>1 star<[\s\S]*>5 stars</);
+    expect(html).toMatch(/>5 stars<[\s\S]*>1 star</);
     expect(affordancesOf(meta, props.parse(summary), "r1")).toEqual([]);
     const reading = readComponent(components.Review, summary, "r1").join("\n");
     for (const text of ["4.5 of 5", "4 reviews", "1 star 0", "5 stars 2"]) expect(reading).toContain(text);
@@ -124,13 +116,14 @@ describe("Review states and parts", () => {
   // prettier-ignore
   it("draws verified, fit and photo parts only where supplied", () => {
     const reviews = [{ ...row, fitScale: 3, photos: ["lib:sample", "local:1", "lib:second"], verified: true }, row];
-    const html = renderInstance("Review", { ...list, reviews }, "filled", theme);
+    const html = renderInstance("Review", { ...list, reviews }, "filled", theme, { lang: "ar-EG-u-nu-arab" });
     const parts = addressedElements(html);
     for (const part of ["verified", "fit", "photo_1", "photo_2", "photo_3"]) {
       expect(parts.has(`home/c1/r1/${part}`)).toBe(true);
       expect(parts.has(`home/c1/r2/${part}`)).toBe(false);
     }
     expect(html).toContain("True to size");
+    expect(parts.get("home/c1/r1/photo_1")?.attributes).toContain('aria-label="Review photo ١"');
   });
   it.each([undefined, "Thank you."])("offers a reply with or without an existing response: %s", (reply) => {
     const input = {
@@ -174,14 +167,16 @@ describe("Review live actions", () => {
     for (const hidden of [row.text, reply, "photo_1"]) expect(html).not.toContain(hidden);
     const screen = { id: "home", components: [{ id: "c1", c: "Review", ...input }] };
     const runtime = createScreenController({ screen, defs: components });
-    expect(runtime.read()).toContain("[c1/r1 toggle:off]");
-    expect(runtime.read()).not.toContain(row.text);
+    const read = () => runtime.read().replaceAll("\u00a0", " ");
+    expect(read()).toContain("[c1/r1 toggle:off]");
+    expect(read()).not.toContain(row.text);
     expect(runtime.press("c1/r1").ok).toBe(true);
-    expect(runtime.read()).toContain(row.text);
-    expect(runtime.read()).toContain("photo:ending");
-    expect(runtime.read()).not.toContain(reviews[1]!.text);
+    expect(read()).toContain(`r1 — 5 of 5 — ${row.date} — Hide spoiler — Reply — "${row.text}"`);
+    expect(read()).toContain("photo:ending");
+    expect(read()).toContain("[c1/r1/reply press !needs-people]");
+    expect(read()).not.toContain(reviews[1]!.text);
     expect(runtime.press("c1/r1").ok).toBe(true);
-    expect(runtime.read()).not.toContain(row.text);
+    expect(read()).not.toContain(row.text);
     expect(runtime.snapshotScreen()).toEqual(screen);
     runtime.dispose();
   });

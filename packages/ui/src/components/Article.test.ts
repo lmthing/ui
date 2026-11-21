@@ -75,7 +75,7 @@ describe("Article fallback and contract", () => {
     expect(meta).not.toHaveProperty("confirmParts");
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
-    expect(createRegistry({ includeDrafts: true }).ids).toContain(meta.id);
+    expect(createRegistry().ids).toContain(meta.id);
     expect(probes.filter(({ kind }) => kind === "choose").map(({ expect: id }) => id)).toEqual([
       "Article",
       "Note",
@@ -138,12 +138,25 @@ it("draws fixed papers and scales prose without moving its link", () => {
 });
 
 it("preserves a callout and places response attribution after its body", () => {
-  const input = { title: "Answer", style: "response", body: "A long answer.\n\n> [!NOTE] Do not overwater." };
+  const input = {
+    title: "Answer",
+    style: "response",
+    by: "Noor",
+    body: "A long answer.\n\n> [!NOTE] Do not overwater.",
+  };
   const html = renderInstance("Article", input, "filled", theme);
-  expect(visibleTexts(html)).toEqual(["A long answer.", "Note: Do not overwater.", "Answer", "1 min read"]);
+  expect(visibleTexts(html)).toEqual([
+    "Answer",
+    "1 min read",
+    "A long answer.",
+    "Note: Do not overwater.",
+    "By Noor",
+  ]);
   const screen = { id: "home", components: [{ ...input, id: "c1", c: "Article" }] };
   const runtime = createScreenController({ screen, defs: components });
-  expect(runtime.read()).toContain("A long answer. — Note: Do not overwater. — Answer");
+  expect(runtime.read()).toContain(
+    "Answer — 1 min read — A long answer. — Note: Do not overwater. — By Noor",
+  );
   runtime.dispose();
 });
 
