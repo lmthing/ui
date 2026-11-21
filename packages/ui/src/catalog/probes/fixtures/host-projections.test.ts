@@ -126,9 +126,9 @@ it("refreshes mounted subscribers exactly at ballot boundaries without saving th
     controller.mount();
     expect(controller.canPress("b/r1/vote")).toBe(false);
     vi.advanceTimersByTime(1);
-    expect(visible).toEqual([true]);
+    expect(visible).toEqual([false, true]);
     vi.advanceTimersByTime(closes - opens);
-    expect(visible).toEqual([true, false]);
+    expect(visible).toEqual([false, true, false]);
     expect(controller.store.snapshot()).toEqual({});
   } finally {
     unsubscribe();

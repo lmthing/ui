@@ -55,7 +55,9 @@ export function createScreenController(options: ControllerOptions) {
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
     mount() {
       const expired = ctx.expiredProgress(ctx.valuesOf());
-      if (Object.keys(expired).length) ctx.store.setMany(expired);
+      // A boundary may have passed between the initial render and the mount effect.
+      const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
+      if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
       clock.scheduleClock();
     },
     get openSheet() {

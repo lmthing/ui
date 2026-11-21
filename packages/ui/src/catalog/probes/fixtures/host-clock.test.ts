@@ -8,6 +8,27 @@ const closes = (data: DeviceData, props: Readonly<Values>) => {
   return typeof end === "number" ? end : 0;
 };
 
+it("refreshes if a ballot opens between the initial render and mount", () => {
+  const def = ballotFixture;
+  const screen = { id: "s", components: [{ ...(def.examples[0] as object), id: "b", c: def.meta.id }] };
+  vi.useFakeTimers({ now: opens - 1 });
+  const controller = createScreenController({ screen, defs: { [def.meta.id]: def }, deviceData: ballot });
+  const vote = "b/r1/vote";
+  let visible = controller.canPress(vote);
+  const unsubscribe = controller.store.subscribe(() => (visible = controller.canPress(vote)));
+  try {
+    expect(visible).toBe(false);
+    vi.advanceTimersByTime(1);
+    controller.mount();
+    expect(visible).toBe(true);
+    expect(controller.store.snapshot()).toEqual({});
+  } finally {
+    unsubscribe();
+    controller.dispose();
+    vi.useRealTimers();
+  }
+});
+
 it("wakes at the closing boundary of a newly selected ballot", () => {
   const def: Definition = {
     ...ballotFixture,
@@ -40,9 +61,9 @@ it("wakes at the closing boundary of a newly selected ballot", () => {
     controller.mount();
     expect(controller.canPress(vote)).toBe(false);
     expect(controller.act({ address: "b/ballot", action: "select", value: "next" }).ok).toBe(true);
-    expect(visible).toEqual([true]);
+    expect(visible).toEqual([false, true]);
     vi.advanceTimersByTime(20);
-    expect(visible).toEqual([true, false]);
+    expect(visible).toEqual([false, true, false]);
   } finally {
     unsubscribe();
     controller.dispose();
