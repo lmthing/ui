@@ -50,6 +50,11 @@ comparisons. The planned 0.1% CI baseline gate and axe/native checks are **pendi
 15. Loading shows the component's real shape in soft bars, clearly visible, not an empty card.
 16. Every example looks like a real app a person would want to use, at 320px as well as 430px.
 
+For shared layout recipes, compare filled and loading slots at the same width. Missing metadata
+leaves no blank line; a retained error or success keeps the same content gutters. Check the last
+column of a wide rail by scrolling and by keyboard. Mark unrelated photo or data placeholders
+as gallery fixtures rather than failures of the kit recipe.
+
 ## Compared with the gold standard
 
 17. Next to `List` at the same width and preset, the component looks like part of the same app:

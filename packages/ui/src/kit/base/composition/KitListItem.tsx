@@ -7,6 +7,7 @@ import { KitPhoto } from "../media";
 import { KitRank } from "../data";
 import { KitRow } from "../surface";
 import { KitCheck, KitTrail, type TrailKind } from "../helpers";
+import { KitLayoutText } from "./KitLayoutText";
 
 export type ListItemRow = {
   id: string;
@@ -43,13 +44,12 @@ function ItemText(props: ItemProps) {
   const { row, density, detail } = props;
   return (
     <>
-      <KitText role="body" density={density} tone={titleTone(props)} part="title">
-        {row.title}
-      </KitText>
+      <KitLayoutText line={{ text: row.title, tone: titleTone(props), part: "title" }} density={density} />
       {row.meta && detail !== "brief" && (
-        <KitText role="caption" density={density} tone="muted" part="meta">
-          {row.meta}
-        </KitText>
+        <KitLayoutText
+          line={{ text: row.meta, role: "caption", part: "meta", tone: "muted" }}
+          density={density}
+        />
       )}
     </>
   );

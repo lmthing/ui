@@ -1,4 +1,14 @@
-export { KitCard, KitOverlay, KitStrip, KitScroll, KitTile, KitBlock, KitRow, KitGrid } from "./surface";
+export {
+  KitCard,
+  KitOverlay,
+  KitStrip,
+  KitScroll,
+  KitTile,
+  KitBlock,
+  KitRow,
+  KitRowGroup,
+  KitGrid,
+} from "./surface";
 export { KitNumberPad, KitCalcPad, KitLetterKeys } from "./keys";
 export {
   KitSetRow,
@@ -9,6 +19,13 @@ export {
   type FieldKind,
   KitListItem,
   type ListItemRow,
+  KitLayoutText,
+  type LayoutLine,
+  KitMetaLine,
+  KitHeader,
+  KitFigure,
+  KitActionFooter,
+  KitState,
 } from "./composition";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";

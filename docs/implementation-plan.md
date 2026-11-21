@@ -865,6 +865,20 @@ Bases use Tamagui styled frames, token props and fixed lookup tables. `shifted` 
 `surfaceOf` applies soft/solid/hairline treatment. `KitStyle` sets density, font pairing, radius and
 strong text. No raw colours, pixel values or z-index outside tokens/themes.
 
+### 5.4a Theming a single component
+
+| To change                 | Do this                                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| Colour                    | Use a role or tone and its fixed table. A new role must exist in every theme and pass contrast |
+| Size or spacing           | Use a shared token; component-only numbers live in `tokens/component.ts`                       |
+| Look across themes        | Change a base's fixed variants/props; review screenshots in built presets/light/dark           |
+| Preset differences        | Extend `KitStyle`/`kitStyleOf`; never compare preset names in a view                           |
+| A component-specific look | Add a bounded schema style and map it to existing or task-authorised base treatments           |
+
+No component sub-themes; studio tier tints belong to the host. **Pending enforcement:** lint rejects
+raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
+The current screenshot checker covers rendered contrast, not that complete runtime contract.
+
 ### 5.4b Layout recipes and states
 
 Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
@@ -880,20 +894,6 @@ describes an operation on that content. Only override the treatment when the com
 doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
 change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
 filled/loading parity, and last-column reachability separately from gallery fixture quality.
-
-### 5.4a Theming a single component
-
-| To change                 | Do this                                                                                        |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| Colour                    | Use a role or tone and its fixed table. A new role must exist in every theme and pass contrast |
-| Size or spacing           | Use a shared token; component-only numbers live in `tokens/component.ts`                       |
-| Look across themes        | Change a base's fixed variants/props; review screenshots in built presets/light/dark           |
-| Preset differences        | Extend `KitStyle`/`kitStyleOf`; never compare preset names in a view                           |
-| A component-specific look | Add a bounded schema style and map it to existing or task-authorised base treatments           |
-
-No component sub-themes; studio tier tints belong to the host. **Pending enforcement:** lint rejects
-raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
-The current screenshot checker covers rendered contrast, not that complete runtime contract.
 
 ### 5.5 Views
 

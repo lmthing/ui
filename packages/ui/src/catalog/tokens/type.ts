@@ -7,6 +7,16 @@ export const type = {
   caption: { size: 13, lineHeight: 18, weight: "400", tracking: 0 },
   number: { size: 40, lineHeight: 44, weight: "700", tracking: -1 },
 } as const;
+
+/** Semantic steps for layout recipes; legacy KitText roles remain available to existing views. */
+export const layoutType = {
+  title: "title",
+  body: "body",
+  meta: "label",
+  figure: "number",
+  caption: "caption",
+} as const satisfies Record<string, keyof typeof type>;
+
 export const fontFamilies = {
   humanist: "'Source Sans 3 Variable', 'Source Sans 3', 'Segoe UI', system-ui, sans-serif",
   grotesk: "'Inter Variable', Inter, 'Helvetica Neue', Arial, sans-serif",

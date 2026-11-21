@@ -1,12 +1,12 @@
 import {
   useWords,
   KitCard,
-  KitContent,
+  KitFigure,
+  KitMetaLine,
   KitPhoto,
   KitRow,
-  KitSkeleton,
+  KitState,
   KitStrip,
-  KitText,
   useComponentState,
   useVariant,
 } from "../../../kit";
@@ -25,7 +25,6 @@ import {
   type Meta,
   type Probe,
   type Props,
-  type ThemeDensity,
 } from "../../../catalog";
 
 // Core first: People/stack shows participants, not a booking provider choice with Anyone.
@@ -110,24 +109,6 @@ export const probes = [
   read("Let any available person do this booking", { address: "s1/anyone", action: "select" }),
 ] satisfies Probe[];
 
-type StaffPreview = { name: string; role?: string | undefined; density: ThemeDensity };
-function StaffLoading({ name, role, density }: StaffPreview) {
-  return (
-    <KitRow label={name} inset="none" density={density} inline={density === "compact"}>
-      <KitSkeleton
-        density={density}
-        shape="media"
-        aspect="avatar"
-        inset="none"
-        content={[
-          ["body", name, "center"],
-          ["caption", role, "center"],
-        ]}
-      />
-    </KitRow>
-  );
-}
-
 export function StaffPicker({
   staff,
   anyone,
@@ -141,50 +122,49 @@ export function StaffPicker({
     ...(anyone ? [{ id: undefined, name: anyoneLabel, photo: undefined, role: undefined, position: 0 }] : []),
     ...staff.map((person, index) => ({ ...person, position: index + 1 })),
   ];
-  return (
-    <KitCard part="root" padded>
-      <KitStrip density={density}>
-        {choices.map((person) =>
-          loading ? (
-            <StaffLoading key={person.position} name={person.name} role={person.role} density={density} />
-          ) : (
-            <KitRow
-              key={person.position}
-              {...(person.id ? { item: person.id } : { part: "anyone" })}
-              label={person.name}
-              role="button"
-              inset="none"
-              density={density}
-              inline={density === "compact"}
-            >
+  const rail = (
+    <KitStrip density={density}>
+      {choices.map((person) => (
+        <KitRow
+          key={person.position}
+          {...(loading ? { part: null } : person.id ? { item: person.id } : { part: "anyone" })}
+          label={person.name}
+          {...(loading ? {} : { role: "button" as const })}
+          inset="none"
+          density={density}
+          inline={density === "compact"}
+        >
+          <KitFigure
+            density={density}
+            media={
               <KitPhoto
-                {...(person.photo ? { photo: person.photo } : {})}
+                photo={person.photo}
                 shape="avatar"
-                part={person.id ? "photo" : "anyone_photo"}
+                part={loading ? null : person.id ? "photo" : "anyone_photo"}
                 label={person.name}
                 initials={person.name.slice(0, 1)}
                 ring={at === person.position ? "accent" : "none"}
+                loading={loading}
               />
-              <KitContent lineRole="body">
-                <KitText
-                  density={density}
-                  role="body"
-                  part={person.id ? "name" : "anyone_name"}
-                  align="center"
-                  lines={1}
-                >
-                  {person.name}
-                </KitText>
-                {person.role && (
-                  <KitText density={density} role="caption" tone="muted" part="role" align="center">
-                    {person.role}
-                  </KitText>
-                )}
-              </KitContent>
-            </KitRow>
-          ),
-        )}
-      </KitStrip>
+            }
+            caption={
+              <KitMetaLine
+                align="center"
+                density={density}
+                title={{ text: person.name, part: person.id ? "name" : "anyone_name", lines: 1 }}
+                meta={{ text: person.role, part: "role", role: "caption" }}
+              />
+            }
+          />
+        </KitRow>
+      ))}
+    </KitStrip>
+  );
+  return (
+    <KitCard part="root" padded density={density}>
+      <KitState loading={rail} density={density}>
+        {rail}
+      </KitState>
     </KitCard>
   );
 }

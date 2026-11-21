@@ -137,6 +137,20 @@ for operations that leave useful content on screen. Keep existing parts, reading
 Only override a state treatment when the catalog doc calls for it, and do not invent a retry
 action. Test the kit geometry separately from host fixture data such as photos.
 
+| Recipe | Slots |
+| --- | --- |
+| `KitHeader`, `KitMetaLine` | `title`, optional `meta` (one or more lines), `align`, `density`. A line supplies `text`, optional `part`, semantic `role` and finish. |
+| `KitLayoutText` | One semantic `line`, with optional `align` and `density`; the same descriptor draws a loading bar. |
+| `KitRowGroup` | Row children, optional `leadingWidth="avatar"` to reserve a common rail, `spacing` (`rows` or `groups`), `separators` (default on), `density`. |
+| `KitFigure` | `value` and optional `unit`, or `media`; optional `caption`, `align`, `density`. |
+| `KitActionFooter` | Action children, optional `align` and `density`. A missing action takes no space. |
+| `KitState` | Filled children, optional shaped `loading`, `message`, `part`, `icon`, `density`; `retain` keeps children visible with an inline error or success message. |
+
+Inside a padded frame use `KitRow inset="none"` so the frame owns the gutter. A passive `inline`
+row can use `fitContent` to avoid reserving a control-height slot. This never shrinks links or buttons.
+In loading, keep the slots and use the inert treatment of `KitLayoutText`, `KitPhoto`, `KitIcon`,
+`KitTrail` and `KitAction`; preserve any existing measurement-only addresses.
+
 ### Base reference
 
 This table covers every base exported by `src/kit/base/index.ts`, including its exported helpers.
