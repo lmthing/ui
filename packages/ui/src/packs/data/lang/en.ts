@@ -2,6 +2,11 @@ import type { LDMLPluralRule } from "../../../catalog";
 
 export type DataWords = {
   activityLabel: (who: string, text: string, time: string) => string;
+  boardCard: (id: string, fields: readonly (string | undefined)[]) => string;
+  boardDestination: (destination: string, card: string) => string;
+  boardMove: string;
+  boardStage: (label: string, count: string, total?: string) => string;
+  boardTotal: string;
   bulkSelectAll: string;
   bulkSelected: (count: string) => string;
   chartLatest: string;
@@ -12,6 +17,12 @@ export type DataWords = {
   chartSeriesPoints: (series: string) => string;
   chartUnit: (unit: string) => string;
   chartValue: (value: string, unit: string) => string;
+  filterClear: string;
+  filterCount: (count: string, form: LDMLPluralRule) => string;
+  filterLabel: string;
+  filterList: string;
+  filterOptions: (id: string, label: string, options: readonly string[], value?: string) => string;
+  filterSort: (label: string) => string;
   heatDay: (index: number, short?: boolean) => string;
   heatDetail: (style: "weeks" | "hours") => string;
   heatHour: (hour: string, short?: boolean) => string;
@@ -27,6 +38,11 @@ export type DataWords = {
 
 export const en = {
   activityLabel: (who, text, time) => `${who}: ${text} (${time})`,
+  boardCard: (id, fields) => `${id}: ${fields.filter(Boolean).join(" · ")}`,
+  boardDestination: (destination, card) => `Move ${card} to ${destination}`,
+  boardMove: "Move to",
+  boardStage: (label, count, total) => `${label} (${count}${total ? `, Total ${total}` : ""})`,
+  boardTotal: "Total",
   bulkSelectAll: "Select all",
   bulkSelected: (count) => `${count} selected`,
   chartLatest: "Latest values",
@@ -37,6 +53,13 @@ export const en = {
   chartSeriesPoints: (series) => `${series} data points`,
   chartUnit: (unit) => `Unit: ${unit}`,
   chartValue: (value, unit) => `${value} ${unit}`,
+  filterClear: "Clear filters",
+  filterCount: (count, form) => (form === "one" ? `${count} active filter` : `${count} active filters`),
+  filterLabel: "Name",
+  filterList: "Filter fields",
+  filterOptions: (id, label, options, value) =>
+    `${id} ${value === undefined ? label : `${label}: ${value}`} (${options.join(" · ")})`,
+  filterSort: (label) => `Sort: ${label}`,
   heatDay: (index, short) =>
     (short
       ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
