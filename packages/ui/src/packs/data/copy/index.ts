@@ -1,4 +1,5 @@
 export { activityLabel } from "./ActivityLog";
+export { boardReading, boardStages } from "./Board";
 export { bulkSelected } from "./BulkActions";
 export { filterCount, filterReading } from "./FilterBar";
 export { heatCells, heatGrid, heatReading } from "./Heatmap";
