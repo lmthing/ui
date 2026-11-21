@@ -1,5 +1,5 @@
-// `?c=<Id>&w=<width>&mode=<light|dark>`: the component as a phone screen of that width, one column
-// per preset, every example and state stacked. Used by `pnpm look` to check sizes automatically.
+// `?c=<Id>&w=<width>&mode=<light|dark>&preset=<id>`: the component at phone width, one column
+// per selected preset (or all if omitted), every example and state stacked.
 // Each screen frame carries data-look-frame and each label data-look-label, so checks can find them.
 import { TamaguiProvider, Text, XStack, YStack } from "tamagui";
 import { accents, components, presets, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
@@ -55,7 +55,18 @@ function Screen({
   );
 }
 
-export function Screens({ id, width, mode }: { id: ComponentName; width: number; mode: "light" | "dark" }) {
+export function Screens({
+  id,
+  width,
+  mode,
+  presetIds,
+}: {
+  id: ComponentName;
+  width: number;
+  mode: "light" | "dark";
+  presetIds: readonly string[];
+}) {
+  const selected = presets.filter(({ id }) => !presetIds.length || presetIds.includes(id));
   return (
     <TamaguiProvider config={config} defaultTheme={`kit_calm_${mode}_moss`}>
       <XStack
@@ -65,7 +76,7 @@ export function Screens({ id, width, mode }: { id: ComponentName; width: number;
         backgroundColor="$bg"
         minHeight="100vh"
       >
-        {presets.map((preset) => (
+        {selected.map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
             {cellsOf(id).map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />
