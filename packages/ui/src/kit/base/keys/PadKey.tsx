@@ -1,11 +1,83 @@
 import { YStack, isWeb } from "tamagui";
-import { component, size, space } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 
 type KeyValue = string | { append: string } | { backspace: true } | { clear: true };
 export type Key = { id: string; label: string; value: KeyValue; disabled?: boolean };
+const finishes = {
+  plain: { fill: "$raised", tone: "text", line: "$line" },
+  accent: { fill: "$accentSoft", tone: "text", line: "$line" },
+  primary: { fill: "$accent", tone: "onAccent", line: "$accent" },
+  correct: { fill: "$goodSoft", tone: "text", line: "$good" },
+  present: { fill: "$warnSoft", tone: "text", line: "$warn" },
+  absent: { fill: "$surface", tone: "muted", line: "$line" },
+} as const;
+export type KeyFinish = keyof typeof finishes;
+
+function keyHandlers(press: (() => void) | undefined, inactive: boolean, disabled: boolean) {
+  if (!press || inactive) return { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled } } : {}) };
+  if (!isWeb) return { onPress: press, accessible: true };
+  return {
+    onPress: press,
+    tabIndex: 0,
+    cursor: "pointer" as const,
+    onKeyDown: (event: { key: string; preventDefault(): void; stopPropagation?(): void }) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      event.stopPropagation?.();
+      press();
+    },
+  };
+}
+
+export function KeyButton({
+  label,
+  loading,
+  disabled,
+  press,
+  finish = "plain",
+  round = false,
+  address,
+}: {
+  label: string;
+  loading: boolean;
+  disabled: boolean;
+  press?: (() => void) | undefined;
+  finish?: KeyFinish;
+  round?: boolean | undefined;
+  address?: ReturnType<typeof usePart> | undefined;
+}) {
+  const ks = useKitStyle();
+  const { fill, tone, line } = finishes[disabled ? "absent" : finish];
+  return (
+    <YStack
+      {...address}
+      minHeight={round ? size.control.md : size.control.lg}
+      minWidth={size.control.md}
+      paddingHorizontal={space.sm}
+      paddingVertical={space.sm}
+      alignItems="center"
+      justifyContent="center"
+      borderRadius={round ? radius.pill : shifted("md", ks.radiusShift)}
+      backgroundColor={loading ? "$line" : fill}
+      borderWidth={component.base.borderWidth}
+      borderColor={loading ? "$line" : line}
+      accessibilityRole={loading ? undefined : "button"}
+      accessibilityLabel={loading ? undefined : label}
+      aria-disabled={disabled || undefined}
+      aria-hidden={loading || undefined}
+      {...keyHandlers(press, loading || disabled, disabled)}
+    >
+      <YStack opacity={loading ? component.base.none : undefined} aria-hidden>
+        <KitText role="number" numberScale="compact" tone={tone} part={null}>
+          {label}
+        </KitText>
+      </YStack>
+    </YStack>
+  );
+}
 
 export function PadKey({
   keyValue,
@@ -20,49 +92,16 @@ export function PadKey({
   target: string;
   addressed: boolean;
 }) {
-  const kit = useKit(),
-    ks = useKitStyle();
+  const kit = useKit();
   const address = usePart("root", addressed);
   const unavailable = disabled || Boolean(keyValue.disabled);
-  const press = () => kit.controller?.act({ address: target, action: "type", value: keyValue.value });
+  const press =
+    kit.interactive && kit.controller
+      ? () => void kit.controller?.act({ address: target, action: "type", value: keyValue.value })
+      : undefined;
   return (
     <YStack {...(addressed ? address : {})} width={`${100 / 3}%`} padding={space.xs}>
-      <YStack
-        minHeight={size.control.lg}
-        minWidth={size.control.md}
-        paddingHorizontal={space.sm}
-        paddingVertical={space.sm}
-        alignItems="center"
-        justifyContent="center"
-        borderRadius={shifted("md", ks.radiusShift)}
-        backgroundColor={loading ? "$line" : unavailable ? "$surface" : "$raised"}
-        borderWidth={component.base.borderWidth}
-        borderColor="$line"
-        accessibilityRole={loading ? undefined : "button"}
-        accessibilityLabel={loading ? undefined : keyValue.label}
-        aria-disabled={unavailable || undefined}
-        aria-hidden={loading || undefined}
-        {...(unavailable || loading
-          ? { tabIndex: -1, ...(!isWeb ? { accessibilityState: { disabled: true } } : {}) }
-          : {})}
-        {...((kit.interactive && kit.controller && !loading && !unavailable
-          ? {
-              onPress: press,
-              onKeyDown: (event: { key: string; preventDefault(): void }) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  press();
-                }
-              },
-            }
-          : {}) as object)}
-      >
-        <YStack {...(loading ? { opacity: component.base.none } : {})}>
-          <KitText role="number" numberScale="compact" tone={unavailable ? "muted" : "text"} part={null}>
-            {keyValue.label}
-          </KitText>
-        </YStack>
-      </YStack>
+      <KeyButton label={keyValue.label} loading={loading} disabled={unavailable} press={press} />
     </YStack>
   );
 }

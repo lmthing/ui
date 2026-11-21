@@ -1,5 +1,5 @@
 export { KitCard } from "./surface";
-export { KitNumberPad } from "./keys";
+export { KitNumberPad, KitCalcPad, KitLetterKeys } from "./keys";
 export { KitSetRow, KitFlip, KitTicket } from "./composition";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";
@@ -26,7 +26,7 @@ export { KitTime } from "./time";
 export { KitSlotGrid } from "./time";
 export { KitRing } from "./data";
 export { KitLinePlot, KitRangeBand, KitHeatGrid } from "./plot";
-export { KitRadialTrack, KitBreath } from "./radial";
+export { KitRadialTrack, KitBreath, KitVoiceOrb, KitDialGauge } from "./radial";
 export { KitTabBar } from "./media";
 export { KitMapTile } from "./media";
 export { KitViewfinder, KitShutter } from "./media";
