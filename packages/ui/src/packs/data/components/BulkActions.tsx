@@ -20,6 +20,7 @@ export const meta = {
   tier: "phone",
   realPath: "The action applied to the selected records on the device.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["grid", "rows"] },
+  selectionBinding: { component: "Table", check: "pick", all: "all", requireSelection: true },
   parts: ["root", "count", "all", "all_label"],
   items: { key: "items", parts: ["root", "label", "icon", "confirm"] },
   states: ["filled", "empty"],
@@ -32,12 +33,6 @@ export const meta = {
   },
   read: (input, state, lang): string[] =>
     state === "filled" ? bulkReading((input as LiveProps).$selection, lang) : [],
-} as const satisfies c.Meta;
-
-// Promote this binding once the read probes and preview can mount a selectable Table beside the bar.
-export const boundMeta = {
-  ...meta,
-  selectionBinding: { component: "Table", check: "pick", all: "all", requireSelection: true },
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({
@@ -68,9 +63,9 @@ export const examples = [
     ],
   },
   {
-    density: "compact",
-    arrange: "rows",
-    surface: "outlined",
+    density: "comfortable",
+    arrange: "grid",
+    surface: "card",
     items: [
       { icon: "check", label: "Mark reviewed", danger: false },
       { icon: "share", label: "Export walks", danger: false },
@@ -119,7 +114,7 @@ function BulkCommand({
       part={danger ? "confirm" : "root"}
       role="button"
       label={label}
-      tone={danger ? "bad" : undefined}
+      lineRole="label"
       density={density}
       leading={<kit.KitIcon name={icon} tone={tone} part="icon" />}
     >
@@ -130,7 +125,7 @@ function BulkCommand({
   );
   return (
     <kit.PartScope {...context} item={id}>
-      {danger ? <kit.KitCard surface="plain">{button}</kit.KitCard> : button}
+      {danger ? <kit.KitCard style="plain">{button}</kit.KitCard> : button}
     </kit.PartScope>
   );
 }
@@ -140,7 +135,7 @@ export function BulkActions(input: ViewProps) {
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
   const state = kit.useComponentState();
   const { words, lang } = kit.useWords(dataWordsFor);
-  const { $selection: selection } = kit.useLiveControls(boundMeta, input) as LiveProps;
+  const { $selection: selection } = kit.useLiveControls(meta, input) as LiveProps;
   if (state !== "filled" || !selection?.selected.length) return null;
   const count = bulkSelected(selection.selected.length, lang);
   return (
@@ -154,7 +149,7 @@ export function BulkActions(input: ViewProps) {
           )
         }
       >
-        <kit.KitText part="count" role="heading" density={density}>
+        <kit.KitText part="count" role="number" numberScale="compact" density={density}>
           {count}
         </kit.KitText>
       </kit.KitRow>
