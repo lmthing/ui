@@ -103,3 +103,18 @@ describe("books layouts", () => {
     });
   });
 });
+
+it.each([
+  ["books_home", "books_overview"],
+  ["tax", "books_tax_reserve"],
+] as const)("%s/%s requires the hero emphasis axis, not a style", (id, layout) => {
+  const meta = draft.packComposeArchetypes.find((entry) => entry.id === id)!;
+  const screen = draft.defaultLines(id, layout, neutral);
+  const score = (input: typeof screen) =>
+    c.scoreComposition(JSON.stringify(input), meta, layout, c.components).issues;
+  expect(score(screen)).toEqual([]);
+  const components = screen.components.map((entry) =>
+    entry.c === "Amount" ? { ...entry, emphasis: "normal" } : entry,
+  );
+  expect(score({ ...screen, components })).toContain('Layout requires Amount.emphasis = "hero" (a1)');
+});

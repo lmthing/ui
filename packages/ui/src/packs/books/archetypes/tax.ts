@@ -11,7 +11,7 @@ export const tax = {
       ],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Amount"], required: true, variant: "hero" },
+        { allow: ["Amount"], required: true },
         { allow: ["Progress"], required: false },
         { allow: ["Note"], required: true },
         { allow: ["Button"], required: true },

@@ -9,7 +9,7 @@ export const books_home = {
       writeHints: ['Display the main cash figure with Amount emphasis "hero", not a style.'],
       recipe: [
         { allow: ["Header"], required: true },
-        { allow: ["Amount"], required: true, variant: "hero" },
+        { allow: ["Amount"], required: true },
         { allow: ["Actions"], required: true },
         { allow: ["Ledger"], required: true },
       ],
