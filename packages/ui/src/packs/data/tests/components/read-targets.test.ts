@@ -1,6 +1,11 @@
 import { components, readComponent, runProbes, type Definition } from "@lmthing/ui/catalog";
 import { expect, it } from "vitest";
 
+it("omits the hidden BulkActions commands when there is no bound selection", () => {
+  const { BulkActions } = components;
+  expect(readComponent(BulkActions, BulkActions.examples[0], "s1")).toEqual([]);
+});
+
 it.each([
   { def: components.BulkActions, target: "source Table", targetOffer: "[source/r1/pick check:done]" },
   { def: components.ChapterList, target: "target Player", targetOffer: "[target/scrubber seek]" },

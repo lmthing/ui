@@ -115,6 +115,7 @@ export function readComponent(
   target?: ReturnType<typeof driveTarget>,
 ): string[] {
   const { meta } = def;
+  if (meta.selectionBinding?.requireSelection && !selection?.selected.length) return [];
   const { values, addresses } = redactPrivateMarks(runtimeValues);
   deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
