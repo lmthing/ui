@@ -1,4 +1,19 @@
 export const en = {
+  thoughtRecord: {
+    title: "Thought record",
+    situation: "What happened?",
+    situationHint: "Describe the situation",
+    thought: "What went through your mind?",
+    thoughtHint: "Write the first thought you noticed",
+    traps: "Thinking traps",
+    reframe: "A more balanced thought",
+    reframeHint: "Try another way to look at it",
+    before: "Mood before",
+    after: "Mood after",
+    save: "Save reflection",
+    saved: "Reflection saved",
+    delta: (value: string) => `Mood change: ${value}`,
+  },
   soundscape: {
     sleep: "Sleep timer",
     off: "Off",
