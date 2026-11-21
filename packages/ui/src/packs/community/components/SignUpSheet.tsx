@@ -67,8 +67,8 @@ export const props = z
     })),
   }));
 
-type SlotReading = z.output<typeof props> & {
-  slots: { id: string; slotId: string; capacity: number; expanded: boolean }[];
+type SlotReading = Omit<z.output<typeof props>, "slots"> & {
+  slots: (z.output<typeof slot> & { slotId: string; expanded: boolean })[];
 };
 
 function slotsReading({ slots, claims, detail }: SlotReading, lang?: string): string[] {
