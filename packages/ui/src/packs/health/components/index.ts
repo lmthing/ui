@@ -7,3 +7,4 @@ export * as Vitals from "./Vitals";
 export * as SymptomLog from "./SymptomLog";
 export * as Cycle from "./Cycle";
 export * as ActivityRings from "./ActivityRings";
+export * as CardioSession from "./CardioSession";

@@ -18,6 +18,18 @@ export const workout = {
         { id: "w1", c: "Workout" },
       ],
     },
+    cardio: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["CardioSession"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "c1", c: "CardioSession" },
+        { id: "n1", c: "Note" },
+      ],
+    },
     exercise: {
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
