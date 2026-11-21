@@ -22,11 +22,14 @@ const cases = {
   Measurements: ["detail", "brief", "since first reading"],
   Medication: ["detail", "brief", "4 left"],
   SymptomLog: ["detail", "brief", "2/5"],
+  TrainingPlan: ["detail", "brief", "25 min"],
   Vitals: ["detail", "brief", "08:10"],
   Workout: ["detail", "brief", "Elapsed time"],
 } as const;
-const ids = selectedIds(Object.keys(cases) as (keyof typeof cases)[]);
 const defs: Record<ComponentName, Definition> = components;
+const ids = selectedIds(Object.keys(cases) as (keyof typeof cases)[]).filter(
+  (id) => defs[id].meta.status !== "draft",
+);
 
 const addresses = (id: ComponentName, input: unknown) =>
   [...renderInstance(id, input, "filled", theme).matchAll(/data-testid="(home\/c1\/[^"]+)"/g)].map(

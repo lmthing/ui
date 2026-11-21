@@ -32,7 +32,7 @@ const casts: CastLike[] = [
 ];
 const layouts = {
   today: ["rings", "meds"],
-  workout: ["log", "cardio", "exercise", "history"],
+  workout: ["log", "cardio", "plan", "exercise", "history"],
   body_trends: ["measure", "summary", "add"],
   bodylog: ["symptoms", "vitals", "cycle", "med_edit"],
 };
@@ -61,6 +61,7 @@ it("validates generated metadata, archetypes and each worked line", () => {
     [3, 6],
     [6, 9],
     [14, 17],
+    [17, 20],
   ]) {
     expect(checkScreen({ id: "rep", components: lines.slice(start, end) }, registry)).toEqual([]);
   }
@@ -71,7 +72,7 @@ it("keeps the default core registry isolated and loads health only when ready", 
   const draft = createRegistry({ packs: ["health"], includeDrafts: true });
   const health = Object.keys(packOf).filter((id) => packOf[id as keyof typeof packOf] === "health");
   const ready = packReady("health");
-  expect(health).toHaveLength(10);
+  expect(health).toHaveLength(11);
   expect(
     buildPackIndex()
       .split("\n")

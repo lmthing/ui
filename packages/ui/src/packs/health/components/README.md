@@ -17,4 +17,4 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `TrainingPlan.tsx`
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
-- Draft files (`status: "draft"`) have no view yet.
+- Draft files (`status: "draft"`) are not registered as renderers.

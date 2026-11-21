@@ -1,5 +1,12 @@
 import { expect, it } from "vitest";
-import { affordancesOf, components, createRegistry, packReady, stampItemIds } from "@lmthing/ui/catalog";
+import {
+  affordancesOf,
+  components,
+  createRegistry,
+  packReady,
+  stampItemIds,
+  type StateName,
+} from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
@@ -8,7 +15,7 @@ const [summary, active, idle] = examples;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const at = (part: string) => `home/c1/${part}`;
 const emptyCast = { things: [], items: [] };
-const host = (input: object, state = "filled") => {
+const host = (input: object, state: StateName = "filled") => {
   let now = 1000;
   const onAction: { address: string; action: string }[] = [];
   const runtime = createScreenController({
