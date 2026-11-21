@@ -12,11 +12,14 @@ const maps = [
 const packsPerGroup = 9;
 
 function aggregateLines(names: string[], keys: readonly string[] = maps) {
+  const bindings = names.map((name) => name.replaceAll("-", ""));
+  // Preserve the exact keys and schemas without re-emitting them at each pack aggregation.
+  const componentType = bindings.map((name) => `typeof ${name}.components`).join(" & ");
   return [
-    ...names.map((name) => `import * as ${name.replaceAll("-", "")} from "./${name}";`),
+    ...names.map((name, i) => `import * as ${bindings[i]} from "./${name}";`),
     ...keys.flatMap((key) => [
-      `export const ${key} = {`,
-      ...names.map((name) => `  ...${name.replaceAll("-", "")}.${key},`),
+      `export const ${key}${key === "components" && componentType ? `: ${componentType}` : ""} = {`,
+      ...bindings.map((name) => `  ...${name}.${key},`),
       "};",
     ]),
   ];

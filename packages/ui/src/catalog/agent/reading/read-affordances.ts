@@ -1,5 +1,5 @@
 import type { Definition } from "../../probes";
-import { liveInputKey } from "../live-inputs";
+import { liveInputKey, pickerAt } from "../live-inputs";
 import { linkedInput } from "../linked-edits";
 import {
   choiceOptions,
@@ -38,17 +38,21 @@ export function readAffordances(
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
     const item = itemEditAt(meta, props, target);
+    const picker = pickerAt(meta, props, target);
     const selected = options
-      ? item?.spec.action === "select"
-        ? item.row[item.spec.prop]
-        : props[selectionOffer(meta, target)!.prop]
+      ? picker
+        ? picker.row[picker.spec.prop]
+        : item?.spec.action === "select"
+          ? item.row[item.spec.prop]
+          : props[selectionOffer(meta, target)!.prop]
       : undefined;
     // Advertise a label only when copying it back selects this option.
     const choices =
       options &&
       options.map(({ label, value }) => ({
         value,
-        offered: label !== undefined && resolveChoice(options, label)?.value === value ? label : value,
+        offered:
+          label !== undefined && resolveChoice(options, label, !!picker)?.value === value ? label : value,
       }));
     const set = a.action === "set" && setAt(meta, props, target);
     const linked = a.action === "type" && linkedInput(meta, target);

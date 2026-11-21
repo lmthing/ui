@@ -4,6 +4,8 @@ import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
+import { projectPickers } from "./pickers";
+export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
 export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
@@ -84,7 +86,7 @@ export function projectLiveInputs(
   const seeded = projectRuntimeSets(meta, props, get, validated);
   const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
-  const projected = projectLinkedEdits(meta, edited, get, data);
+  const projected = projectLinkedEdits(meta, projectPickers(meta, edited, get), get, data);
   const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
   const live = derived ? { ...projected, ...derived } : projected;
   return live === seeded ? live : projectRuntimeSets(meta, live, get, validated);
