@@ -1,10 +1,12 @@
 {"id":"h1","c":"Header","title":"Trot clients"}
 {"id":"l1","c":"List","rows":[{"title":"Ben Carter","photo":"lib:people","meta":"Clover and Pip · Last walk 17 Nov","trail":"badge","value":"Owes 120","goto":"client"},{"title":"Mia Jones","photo":"lib:people","meta":"Maple · Last walk 16 Nov","goto":"client"}]}
+{"id":"f1","c":"FollowUpQueue","items":[{"id":"october","clientName":"Ben Carter","kind":"invoice","due":"2026-12-02","note":"October park walks","amount":120,"done":false,"goto":"client"}]}
 {"id":"c1","c":"ClientCard","name":"Ben Carter","photo":"lib:people","since":"2025-04-03","next":"Clover and Pip · Friday 09:00","tags":["Regular","Key holder"],"phone":true,"address":true}
 {"id":"l2","c":"List","rows":[{"title":"Clover","photo":"lib:dogs","meta":"Morning park walks","goto":"clover"},{"title":"Pip","photo":"lib:dogs","meta":"Short lead near roads","goto":"pip"}]}
 {"id":"l3","c":"Loyalty","name":"Ben Carter","stamps":7,"of":10,"reward":"Your tenth walk is free"}
 {"id":"c2","c":"ClientHistory","entries":[{"date":"2026-11-17","kind":"visit","title":"Clover and Pip · Park walk","goto":"visit"},{"date":"2026-11-16","kind":"payment","title":"September walks paid","amount":120,"goto":"payment"}]}
 {"id":"i1","c":"Invoice","number":"T-042","to":"Ben Carter","date":"2026-11-18","due":"2026-12-02","lines":[{"item":"October park walks","qty":8,"price":15}],"status":"draft","note":"Thank you for walking with Trot."}
+{"id":"si1","c":"SavedItems","items":[{"id":"park","title":"Park walk","rate":15,"unit":"walk","taxable":true,"category":"Dog walking"}]}
 {"id":"p1","c":"PaymentStatus","amount":120,"paid":30,"date":"2026-11-18","due":"2026-12-02","method":"Bank transfer"}
 {"id":"a1","c":"Agreement","title":"Key-holding consent","terms":"I allow Trot to keep my spare key for booked walks. Return it when our agreement ends.","signed":true,"name":"Ben Carter","date":"2026-11-18"}
 {"id":"r1","c":"Review","style":"summary","average":4.5,"count":2,"bars":[0,0,0,1,1]}

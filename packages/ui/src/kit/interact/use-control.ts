@@ -1,4 +1,11 @@
-import { createContext, useContext, useLayoutEffect, useSyncExternalStore, type RefObject } from "react";
+import {
+  createContext,
+  useContext,
+  useLayoutEffect,
+  useState,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 import { isWeb } from "tamagui";
 import {
   activeParentId,
@@ -9,6 +16,7 @@ import {
   nestedRemaining,
   projectControls,
   projectLiveInputs,
+  validateActionValue,
   type DeviceData,
   type Meta,
   type Values,
@@ -71,6 +79,26 @@ export function useControlValue<T>(address: string, fallback: T): T {
   );
 }
 
+/** Keep incomplete or invalid dates out of the shared interaction store. */
+export function useDateEdit(address: string, committed: string | undefined, enabled: boolean) {
+  const kit = useKit();
+  const controller = enabled ? kit.controller : undefined;
+  const [draft, setDraft] = useState<{ text: string; committed: typeof committed; address: string }>();
+  // An external update takes precedence over a draft for the previous date.
+  if (draft && (!controller || draft.committed !== committed || draft.address !== address))
+    setDraft(undefined);
+  if (!controller) return { value: committed };
+  return {
+    value: draft?.text ?? committed ?? "",
+    onBlur: () => setDraft(undefined),
+    onChangeText: (text: string) => {
+      setDraft({ text, committed, address });
+      if (!validateActionValue("set", text, { type: "date" }))
+        controller.act({ address, action: "set", value: text });
+    },
+  };
+}
+
 /** PhoneScreen subscribes to the controller store; static renderers use their parsed props. */
 export function useNestedControls(meta: Meta, props: Values) {
   const { controller } = useKit();
@@ -87,9 +115,10 @@ export function useNestedControls(meta: Meta, props: Values) {
       .map((control) => ({
         ...control,
         disabled:
-          remaining !== undefined &&
-          remaining < (control.togglePeers?.length ?? 0) &&
-          control.item[control.spec.prop] !== true,
+          (control.step !== undefined && control.step.next === undefined) ||
+          (remaining !== undefined &&
+            remaining < (control.togglePeers?.length ?? 0) &&
+            control.item[control.spec.prop] !== true),
       })),
   };
 }

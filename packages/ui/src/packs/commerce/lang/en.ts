@@ -5,6 +5,10 @@ export type CommerceWords = {
   emptyProducts: string;
   orderComplete: string;
   priceChange: (was: string, price: string) => string;
+  cartBar: {
+    view: string;
+    count: (formatted: string, singular: boolean) => string;
+  };
   product: {
     stock: (count: string) => string;
     stockField: string;
@@ -14,6 +18,17 @@ export type CommerceWords = {
     unsave: string;
     add: string;
     added: string;
+  };
+  cart: {
+    empty: string;
+    promo: string;
+    subtotal: string;
+    delivery: string;
+    deliveryReading: string;
+    total: string;
+    quantity: string;
+    unitPrice: (price: string) => string;
+    remove: (name: string) => string;
   };
   checkout: {
     fulfillment: string;
@@ -46,6 +61,10 @@ export const en = {
   emptyProducts: "No products to show",
   orderComplete: "Order complete",
   priceChange: (was, price) => `${was} → ${price}`,
+  cartBar: {
+    view: "View basket",
+    count: (formatted, singular) => `${formatted} ${singular ? "item" : "items"}`,
+  },
   product: {
     stock: (count) => `Only ${count} left`,
     stockField: "stock",
@@ -55,6 +74,17 @@ export const en = {
     unsave: "Remove from saved items",
     add: "Add to basket",
     added: "Added to basket",
+  },
+  cart: {
+    empty: "Your basket is empty",
+    promo: "Promo code",
+    subtotal: "Subtotal",
+    delivery: "Delivery",
+    deliveryReading: "delivery",
+    total: "Total",
+    quantity: "Quantity",
+    unitPrice: (price) => `${price} each`,
+    remove: (name) => `Remove ${name}`,
   },
   checkout: {
     fulfillment: "Fulfillment",

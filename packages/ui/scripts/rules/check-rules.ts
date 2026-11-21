@@ -1,5 +1,5 @@
 import { join, relative } from "node:path";
-import { roots, ignoredFolders, ruleNames, type Violation } from "./config";
+import { roots, ignoredFolders, ruleNames, type RuleName, type Violation } from "./config";
 import { readSources } from "./files";
 import { checkLimits } from "./limits";
 import { checkLanguage } from "./language";
@@ -22,13 +22,26 @@ export async function checkRules(root: string): Promise<Violation[]> {
       a.line - b.line,
   );
 }
-export function formatRules(root: string, violations: Violation[]) {
+function isWarning(rule: RuleName) {
+  return rule === "file-lines" || rule === "folder-files";
+}
+
+export function countViolations(issues: Violation[]) {
+  return issues.filter(({ rule }) => !isWarning(rule)).length;
+}
+
+export function formatRules(root: string, issues: Violation[]) {
   const lines: string[] = [];
   for (const rule of ruleNames) {
-    const matches = violations.filter((issue) => issue.rule === rule);
-    lines.push(`${rule}: ${matches.length ? `${matches.length} violation(s)` : "PASS"}`);
+    const matches = issues.filter((issue) => issue.rule === rule);
+    const severity = isWarning(rule) ? "warning" : "violation";
+    lines.push(`${rule}: ${matches.length ? `${matches.length} ${severity}(s)` : "PASS"}`);
     for (const issue of matches) lines.push(`  ${relative(root, issue.file)}:${issue.line}: ${issue.detail}`);
   }
-  lines.push(violations.length ? `\n${violations.length} rule violation(s).` : "\nAll rules pass.");
+  const violations = countViolations(issues);
+  const warnings = issues.length - violations;
+  lines.push("");
+  if (warnings) lines.push(`${warnings} rule warning(s).`);
+  lines.push(violations ? `${violations} rule violation(s).` : "All rules pass.");
   return lines.join("\n");
 }

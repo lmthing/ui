@@ -1,7 +1,8 @@
 import { expect, it } from "vitest";
 import { packIds, packIndex, type PackMeta } from "./index";
 
-it("covers exactly all pack ids in their declared order", () => {
+it("offers all 57 pack ids in their declared order", () => {
+  expect(packIndex).toHaveLength(57);
   expect(packIndex.map(({ id }) => id)).toEqual(packIds);
   for (const entry of packIndex) {
     expect(Object.keys(entry)).toEqual(["id", "name", "purpose", "pick"]);

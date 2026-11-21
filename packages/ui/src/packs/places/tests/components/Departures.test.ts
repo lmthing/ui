@@ -144,7 +144,13 @@ describe("Departures states and parts", () => {
     expect(empty.get(`${root}/empty`)?.text).toEqual(["No departures to show"]);
     expect(renderInstance("Departures", board, "empty", theme, { thing: "bus" })).toContain(emptyLine("bus"));
     const loading = renderInstance("Departures", board, "loading", theme, { deviceData });
-    expect([...addressedElements(loading).keys()]).toEqual([`${root}/root`]);
+    const loadingParts = addressedElements(loading);
+    expect([...loadingParts.keys()]).toEqual([
+      `${root}/root`,
+      ...board.rows.map((_, index) => `${root}/r${index + 1}/line`),
+    ]);
+    for (const [address, part] of loadingParts)
+      if (address.endsWith("/line")) expect(part.attributes).toContain('aria-hidden="true"');
     expect(loading).toContain('aria-busy="true"');
     expect(loading).not.toContain('role="button"');
   });

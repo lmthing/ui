@@ -143,13 +143,21 @@ describe("PlaceCard states and parts", () => {
     expect(draw({ ...cafe, rating: 0 }).get("home/p1/rating")?.text).toEqual(["0"]);
   });
 
-  it("shows a busy skeleton with an inert status slot and no link during loading", () => {
+  it("retains every filled part when moving the cover to the compact thumbnail", () => {
+    const data = { place_details: [record] };
+    const compact = { ...nursery, density: "compact" };
+    const parts = draw(compact, "filled", data);
+    expect([...parts.keys()].sort()).toEqual([...draw(nursery, "filled", data).keys()].sort());
+    expect(parts.get("home/p1/photo")?.attributes).toContain('aria-label="Riverside Nursery"');
+    expect([...draw(compact, "loading", data).keys()]).toEqual(["home/p1/root"]);
+  });
+
+  it("shows a busy skeleton without exposing any filled parts or link during loading", () => {
     const html = render(nursery, "loading", { place_details: [record] });
     const parts = addressedElements(html);
-    expect([...parts.keys()]).toEqual(["home/p1/root", "home/p1/open_state"]);
+    expect([...parts.keys()]).toEqual(["home/p1/root"]);
     expect(parts.get("home/p1/root")?.attributes).not.toContain('role="link"');
     expect(html).toContain('aria-busy="true"');
-    expect(parts.get("home/p1/open_state")?.attributes).toContain('aria-hidden="true"');
   });
 });
 

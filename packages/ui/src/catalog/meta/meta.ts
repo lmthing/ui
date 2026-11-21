@@ -19,6 +19,14 @@ type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
+type NestedPart = {
+  prop: string;
+  /** A named control's true value, or a boolean property on the sub-item. */
+  when?: string | { prop: string; equals: boolean };
+} & (
+  | { action: "toggle" | "set"; min?: number; max?: number; integer?: boolean }
+  | { action: "increment" | "decrement"; min: number | string; max: number | string; step: number | string }
+);
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
         { runtime?: false } | { runtime: true; maxProp: string; initial: number }
@@ -93,21 +101,23 @@ export type Meta = {
   clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
-  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
     deviceData?: LiveMeta.DeviceRows;
-    visible?: "all" | "first";
+    visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
+    toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
+    reset?: string;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
     /** Confirmed edits of whole wire records in the item collection. */
@@ -127,20 +137,7 @@ export type Meta = {
       /** Maximum on toggles across all parent rows, including hidden ones. */
       maxActive?: number;
       clocks?: readonly ClockMeta[];
-      parts: Readonly<
-        Record<
-          string,
-          {
-            action: "toggle" | "set";
-            prop: string;
-            min?: number;
-            max?: number;
-            integer?: boolean;
-            /** A named control's true value, or a boolean property on the sub-item. */
-            when?: string | { prop: string; equals: boolean };
-          }
-        >
-      >;
+      parts: Readonly<Record<string, NestedPart>>;
     };
   };
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.

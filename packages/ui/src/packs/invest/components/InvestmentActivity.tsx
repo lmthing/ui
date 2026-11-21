@@ -135,33 +135,37 @@ export const probes = [
 
 type ActivityProps = c.Props<typeof props, typeof meta>;
 type Density = NonNullable<ActivityProps["density"]>;
-
 // prettier-ignore
 function LedgerRow({ row, density, full, loading }: { row: ActivityRow; density: Density; full: boolean; loading: boolean }) {
   const context = kit.usePartContext();
   const { words: { activity: words }, lang } = kit.useWords(investWordsFor);
   const { event, cash, at, tone, status, ...details } = activityCopy(row, lang, kit.useAppCurrency());
-  const breakdown = full ? Object.entries(details).filter(([, value]) => value !== undefined) : [];
+  const breakdown = full ? Object.entries(details).filter(([, value]) => value !== undefined) : [], dateWithCorrection = row.void && !breakdown.length;
+  const dated = loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", status ? [at, status].join(words.detailSeparator) : at]]} /> :
+    <kit.KitText part={null} role="caption" tone="muted">
+      <kit.KitText part="at" role="caption" tone="muted">{at}</kit.KitText>
+      {status && <>{words.detailSeparator}<kit.KitText part="status" role="caption" tone="muted" emphasis="strong">{status}</kit.KitText></>}
+    </kit.KitText>;
   const amount = loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", cash, "end", "compact"]]} />
     : <kit.KitText part="cash" role="number" numberScale="compact" tone={tone} strike={row.voided === true} tabular>{cash}</kit.KitText>;
+  const detail = breakdown.length > 0 && (loading ?
+    <kit.KitSkeleton shape="figure" inset="none" content={[["caption", breakdown.map(([, value]) => value).join(words.detailSeparator)]]} /> :
+    <kit.KitText part={null} role="caption" tone="muted">{breakdown.map(([part, value], index) =>
+      <kit.KitText key={part} {...{ part }} role="caption" tone="muted">{index ? words.detailSeparator : undefined}{value}</kit.KitText>)}</kit.KitText>);
+  const correction = row.void && <kit.KitRow part={loading ? null : "void"} label={words.void}
+    {...(loading ? {} : { role: "button" as const })} inline density={density} lineRole="label">
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.void]]} /> :
+      <kit.KitText part="void_label" role="label" tone="muted">{words.void}</kit.KitText>}</kit.KitRow>;
   return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-    <kit.KitRow part={null} tone="muted" label={event} density={density}><kit.KitContent density={density}>
+    <kit.KitContent density={density}>
       <kit.KitRow {...(loading ? {} : { role: "group" as const })} label={row.at} part={loading ? null : "root"} density={density}
-        inset="none" goto={loading ? undefined : row.goto} trailing={amount}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", event], ["caption", at]]} /> : <>
-          <kit.KitText part="event" role="label" tone={row.goto ? "accent" : "text"}>{event}</kit.KitText>
-          <kit.KitText part="at" role="caption" tone="muted">{at}</kit.KitText>
-        </>}
+        inline lineRole="label" goto={loading ? undefined : row.goto} trailing={amount}>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", event]]} /> :
+          <kit.KitText part="event" role="label" tone={row.goto ? "accent" : "text"}>{event}</kit.KitText>}
+        {!dateWithCorrection && dated}
       </kit.KitRow>
-      {status && (loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["caption", status]]} /> :
-        <kit.KitText part="status" role="caption" tone="muted">{status}</kit.KitText>)}
-      {breakdown.map(([part, value]) => loading ?
-        <kit.KitSkeleton key={part} shape="figure" inset="none" content={[["caption", value]]} /> :
-        <kit.KitText key={part} {...{ part }} role="caption" tone="muted">{value}</kit.KitText>)}
-      {row.void && <kit.KitRow part={loading ? null : "void"} label={words.void} {...(loading ? {} : { role: "button" as const })} inset="none" density={density}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.void]]} /> :
-          <kit.KitText part="void_label" role="label" tone="muted">{words.void}</kit.KitText>}</kit.KitRow>}
-    </kit.KitContent></kit.KitRow>
+      {correction ? <kit.KitGrid fitLast density={density}>{dateWithCorrection ? dated : detail}{correction}</kit.KitGrid> : detail}
+    </kit.KitContent>
   </kit.PartContext.Provider>;
 }
 
@@ -184,15 +188,13 @@ export function InvestmentActivity(input: ActivityProps) {
       </kit.KitContent> : <kit.KitEmpty part="notice" decorativeIcon /> : <>
         {state === "filled" && live.corrected === true && <kit.KitText part="notice" role="caption" tone="good">{words.corrected}</kit.KitText>}
         {hidden > 0 && !loading && <kit.KitText part="count" role="caption" tone="muted">{activityCount(hidden, lang)}</kit.KitText>}
-        {loading && !rows.length ? <kit.KitSkeleton density={density} /> : <kit.KitGrid list arrange="rows" density="comfortable" listRowGap="cards">
+        {loading && !rows.length ? <kit.KitSkeleton density={density} /> : <kit.KitGrid list arrange="rows" density={density} listRowGap="group">
           {rows.map((row) => <LedgerRow key={row.id} {...{ row, density, full, loading }} />)}
         </kit.KitGrid>}
       </>}
-    {input.goto && (state === "filled" || empty || loading) && <kit.KitContent group={empty ? "content" : "response"} density={density} inset={empty ? "none" : "md"}>
-      <kit.KitRow part={loading ? null : "add"} inset="none" label={words.add} goto={loading ? undefined : input.goto} density={density}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.add]]} /> :
-          <kit.KitText part="add_label" role="label" tone="accent" align={empty ? "center" : "start"}>{words.add}</kit.KitText>}
-      </kit.KitRow>
+    {input.goto && (state === "filled" || empty || loading) && <kit.KitContent group={empty ? "content" : "response"} density={density}>
+      {loading ? <kit.KitSkeleton shape="control" kind="quiet" inset="none" label={words.add} full /> :
+        <kit.KitAction part="add" kind="quiet" label={words.add} goto={input.goto} full />}
     </kit.KitContent>}
   </kit.KitCard>;
 }
