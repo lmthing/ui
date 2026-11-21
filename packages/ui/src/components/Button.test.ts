@@ -1,12 +1,15 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import {
+  affordancesOf,
   components,
   createRegistry,
+  migrateLine,
   placeholderLabel,
   readComponent,
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Button;
 
@@ -14,11 +17,10 @@ describe("Button schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
   );
-  it("exercises every kind and optional field in the examples", () => {
+  it("exercises every surface, media value and optional field in the examples", () => {
     const parsed = examples.map((example) => props.parse(example));
-    expect(new Set(parsed.map((example) => example.kind))).toEqual(
-      new Set(["primary", "secondary", "quiet", "danger"]),
-    );
+    for (const axis of ["surface", "media"] as const)
+      expect(new Set(parsed.map((example) => example[axis]))).toEqual(new Set(meta.variants[axis]));
     expect(parsed.some((example) => example.icon)).toBe(true);
     expect(parsed.some((example) => example.goto && example.goto !== "back")).toBe(true);
     expect(parsed.some((example) => example.goto === "back")).toBe(true);
@@ -26,7 +28,8 @@ describe("Button schema", () => {
   it("applies defaults and trims text", () => {
     expect(props.parse({ label: "  Continue  " })).toEqual({
       label: "Continue",
-      kind: "primary",
+      surface: "card",
+      media: "icon",
     });
   });
   it.each([
@@ -37,6 +40,10 @@ describe("Button schema", () => {
     { label: 4 },
     { label: "Continue", kind: "filled" },
     { label: "Continue", kind: null },
+    { label: "Continue", kind: "primary" },
+    { label: "Continue", surface: "outlined" },
+    { label: "Continue", tone: "warn" },
+    { label: "Continue", media: "cover" },
     { label: "Continue", icon: "unknown" },
     { label: "Continue", icon: null },
     { label: "Continue", goto: "" },
@@ -49,18 +56,21 @@ describe("Button schema", () => {
     { label: "Continue", full: true },
     { label: "Continue", id: "b1" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
-  it("accepts exact maximum lengths and every kind", () => {
-    for (const kind of ["primary", "secondary", "quiet", "danger"]) {
+  it("accepts exact maximum lengths for every surface", () => {
+    for (const surface of meta.variants.surface) {
       expect(
-        props.safeParse({ label: "a".repeat(24), kind, icon: "drop", goto: "a".repeat(64) }).success,
+        props.safeParse({ label: "a".repeat(24), surface, icon: "drop", goto: "a".repeat(64) }).success,
       ).toBe(true);
     }
     expect(props.safeParse({ label: "Continue", goto: "next_screen_1" }).success).toBe(true);
   });
+});
+
+describe("Button view props", () => {
   it("derives view props without item ids or visual overrides", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["label"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["kind"]>().toEqualTypeOf<"primary" | "secondary" | "quiet" | "danger">();
+    expectTypeOf<ViewProps["surface"]>().toEqualTypeOf<"card" | "tinted" | "plain">();
     expectTypeOf<ViewProps>().not.toBeAny();
     expectTypeOf<ViewProps>().not.toHaveProperty("id");
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
@@ -90,7 +100,7 @@ describe("Button fallback and metadata", () => {
     for (const cast of casts) {
       const value = fallback({ cast });
       expect(props.safeParse(value).success).toBe(true);
-      expect(value).toEqual({ label: placeholderLabel, kind: "primary" });
+      expect(value).toEqual({ label: placeholderLabel });
     }
   });
   it("has the declared region, parts, state, actions, tier and real path", () => {
@@ -100,7 +110,7 @@ describe("Button fallback and metadata", () => {
       region: "bottom",
       weight: 1,
       tier: "phone",
-      parts: ["root"],
+      parts: ["root", "root_icon"],
       states: ["filled"],
       actions: { parts: { root: ["press"] } },
     });
@@ -113,7 +123,7 @@ describe("Button fallback and metadata", () => {
     expect(probes.filter((probe) => probe.kind === "choose")).toHaveLength(2);
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Button")).toBeDefined();
     expect(probes.find((probe) => probe.kind === "choose" && probe.expect === "Actions")).toBeDefined();
-    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(2);
+    expect(probes.filter((probe) => probe.kind === "write")).toHaveLength(3);
     expect(probes.find((probe) => probe.kind === "write")).toMatchObject({ expect: "Button" });
     expect(probes.find((probe) => probe.kind === "read")).toMatchObject({
       screen: 0,
@@ -143,5 +153,43 @@ describe("Button confirm", () => {
     expect(line).toContain("asks first");
     expect(line).not.toContain("Remove it?");
     expect(readComponent(components.Button, { label: "Remove" }, "b1").join(" ")).not.toContain("asks first");
+  });
+});
+
+describe("Button variants", () => {
+  it.each([
+    ["primary", {}, { surface: "card" }],
+    ["secondary", {}, { surface: "tinted" }],
+    ["quiet", {}, { surface: "plain" }],
+    ["secondary", { surface: "plain" }, { surface: "plain" }],
+  ])("migrates a saved %s button and keeps its address and link", (kind, override, expected) => {
+    const { c, id, state, ...wire } = migrateLine({
+      c: "Button",
+      id: "b1",
+      state: "filled",
+      kind,
+      label: "Continue",
+      goto: "schedule",
+      confirm: "Continue?",
+      ...override,
+    });
+    expect({ c, id, state }).toEqual({ c: "Button", id: "b1", state: "filled" });
+    expect(wire).not.toHaveProperty("kind");
+    const parsed = props.parse(wire);
+    expect(parsed).toMatchObject({ ...expected, confirm: "Continue?" });
+    expect(affordancesOf(meta, parsed, id as string)).toEqual([
+      { address: "b1", part: "root", action: "press", detail: "→schedule" },
+    ]);
+  });
+  it("hides only the icon part for media none", () => {
+    const input = { label: "Log watering", icon: "drop" };
+    const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+    const draw = (wire: unknown) => renderInstance("Button", wire, "filled", theme);
+    expect(meta.variantParts["media.none"].hides).toEqual(["root_icon"]);
+    expect(draw(input)).toContain('data-testid="home/c1/root_icon"');
+    const hidden = draw({ ...input, media: "none" });
+    expect(hidden).not.toContain('data-testid="home/c1/root_icon"');
+    expect(hidden).toContain('data-testid="home/c1/root_label"');
+    expect(hidden).toContain('role="button"');
   });
 });

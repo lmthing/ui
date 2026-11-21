@@ -6,6 +6,8 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  projectDeviceData,
+  recordClockOffer,
   sessionEvent,
 } from "../../../catalog";
 import type { ActStep, AppCurrency, StateName } from "../../../catalog";
@@ -66,8 +68,10 @@ function actionsAt(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
+    const get = (part: string) => localValues[`${id}/${part}`];
+    const data = projectDeviceData(ctx.options.deviceData, values);
+    const props = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
+    const clock = recordClockOffer(def, raw, props, get, data, now, values);
     return affordancesOf(
       def.meta,
       props,
@@ -75,6 +79,8 @@ function actionsAt(
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
+      data,
+      clock,
     )
       .filter((item) => item.address === local)
       .map((item) => item.action);
@@ -147,12 +153,10 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-
 export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>

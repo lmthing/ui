@@ -1,0 +1,12 @@
+{"id":"h1","c":"Header","title":"Boxes"}
+{"id":"s1","c":"Search","hint":"Find a packed item"}
+{"id":"n1","c":"Stats","tiles":[{"label":"Boxes unpacked","value":"7"},{"label":"Boxes left","value":"5"}]}
+{"id":"t1","c":"Things","items":[{"name":"Kettle","qty":1,"where":"Kitchen box 3","photo":"local:1","goto":"kettle"},{"name":"Sofa","qty":1,"where":"Living room","photo":"local:2","goto":"sofa"},{"name":"TV","qty":1,"where":"Living room box","photo":"local:3","goto":"tv"}]}
+{"id":"s2","c":"Storage","path":["Garage"],"spots":[{"name":"Kitchen box 3","icon":"square","goto":"kitchen_box_3"},{"name":"Living room box","icon":"square","goto":"living_room_box"}],"here":["Sofa"]}
+{"id":"w1","c":"Warranties","items":[{"thing":"Sofa","shop":"House & Home","bought":"2025-05-24","price":520,"ends":"2027-05-24","receipt":"local:4"},{"thing":"TV","bought":"2025-12-01","price":410,"ends":"2027-12-01","receipt":"local:5"}]}
+{"id":"l1","c":"Loans","loans":[{"thing":"Drill","person":"Noor","way":"lent","since":"2026-11-01","due":"2026-11-30"}]}
+{"id":"w2","c":"Wishlist","items":[{"name":"Floor lamp","price":60,"target":45,"priority":1,"where":"Lighting shop"}]}
+{"id":"h2","c":"Header","title":"Flats"}
+{"id":"l2","c":"Listing","title":"Patio flat","price":950,"per":"month","beds":2,"baths":1,"area":64,"areaUnit":"m2","where":"14 Mill Lane","from":"2026-12-01","about":"A sunny ground-floor flat with a patio."}
+{"id":"l3","c":"Lease","tenant":"Ana","place":"Patio flat","start":"2026-01-01","end":"2026-12-30","rent":950,"per":"month","due":12,"deposit":950}
+{"id":"r1","c":"Request","title":"Patio tap is leaking","where":"Patio flat","photo":"local:6","priority":"urgent","status":"booked","who":"Mara","updates":[{"time":"09:15","text":"Tenant turned off the tap."},{"time":"10:05","text":"Plumber booked for tomorrow."}]}

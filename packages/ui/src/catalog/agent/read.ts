@@ -4,7 +4,7 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
-import { projectLiveClocks } from "./clocks";
+import { projectLiveClocks, recordClockOffer } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { parseAppCurrency, type AppCurrency } from "./app-currency";
@@ -13,7 +13,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
-import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { isDeviceDataVisible, projectDeviceData, selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -44,6 +44,7 @@ function readingProps(
     meta.live ||
     meta.linkedEdits ||
     meta.items?.visibleWhen ||
+    meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
@@ -94,9 +95,11 @@ export function readComponent(
 ): string[] {
   const appCurrency = parseAppCurrency(currency);
   const { meta } = def;
+  deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
-  const validated = parseControlProps(def, migrateInput(meta.id, input), get);
+  const migrated = migrateInput(meta.id, input);
+  const validated = parseControlProps(def, migrated, get);
   const props = liveProps(meta, validated, instance, values, true, deviceData);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
@@ -104,7 +107,8 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = affordancesOf(meta, props, instance, values, state);
+  const clock = recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values);
+  const offered = affordancesOf(meta, props, instance, values, state, false, deviceData, clock);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
@@ -129,18 +133,8 @@ export function readComponent(
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
     ...componentTexts(schema, props, key, roundKey, round?.item),
   ];
-  return readItems(
-    meta,
-    schema,
-    visibleNestedProps(meta, props, get),
-    instance,
-    key,
-    head,
-    own,
-    affordances,
-    get("more") === true,
-    lang,
-  );
+  const visible = visibleNestedProps(meta, props, get);
+  return readItems(meta, schema, visible, instance, key, head, own, affordances, get("more") === true, lang);
 }
 
 export type ScreenLike = {
