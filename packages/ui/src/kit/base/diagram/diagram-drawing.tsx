@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Path, Svg } from "react-native-svg";
 import { isWeb, YStack, useTheme } from "tamagui";
 import { component, emptyLine, radius, size, space, type IconName } from "../../../catalog";
@@ -125,8 +126,11 @@ export function DiagramBar({ width, height = space.sm }: { width: number | `${nu
   );
 }
 
-function HeadingPart({ part }: { part: string }) {
+function HeadingPart({ part, top }: { part: string; top: number }) {
   const address = usePart(part);
+  const { onLayout } = address;
+  // Moving the heading does not resize its fullscreen alias.
+  useEffect(onLayout, [onLayout, top]);
   return <YStack {...address} fullscreen pointerEvents="none" aria-hidden accessibilityElementsHidden />;
 }
 
@@ -158,7 +162,7 @@ export function BracketHeading({ round, top, loading }: { round: Heading; top: n
           {round.ties.map(({ id, target, roundPart }) =>
             roundPart == null ? null : (
               <PartContext.Provider key={id} value={{ ...context, item: target?.item ?? id }}>
-                <HeadingPart part={roundPart} />
+                <HeadingPart part={roundPart} top={top} />
               </PartContext.Provider>
             ),
           )}
