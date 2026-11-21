@@ -12,7 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
-import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { captureDeviceTime, isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
 
 type Props = Record<string, unknown>;
 
@@ -42,6 +42,8 @@ function readingProps(
   const useLive =
     meta.live ||
     meta.linkedEdits ||
+    meta.items?.deviceData ||
+    meta.deviceDataFlags ||
     meta.items?.visibleWhen ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
@@ -153,6 +155,7 @@ export function readScreen(
   lang?: string,
   deviceData?: DeviceData,
 ): string {
+  deviceData = captureDeviceTime(defs, deviceData);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );

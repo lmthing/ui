@@ -44,7 +44,7 @@ export function selectStep(
   const local = localValues(screen.id, values);
   const get = (part: string) => local[`${id}/${part}`];
   let props = parseControlProps(def, raw, get);
-  if (item || Object.hasOwn(def.meta.selections ?? {}, target))
+  if (item || def.meta.items?.deviceData || Object.hasOwn(def.meta.selections ?? {}, target))
     props = liveProps(def.meta, props, id!, local, true, data);
   else if (def.meta.items?.set) props = projectAdjustments(def.meta, props, get);
   props = sessionActionProps(def.meta, props, sessionState(def.meta, props, get));

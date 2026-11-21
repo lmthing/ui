@@ -1,4 +1,5 @@
 import {
+  atDeviceTime,
   wordsFor,
   affordancesOf,
   clockControlDeclared,
@@ -67,7 +68,8 @@ function actionsAt(
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const props = liveProps(def.meta, parsed, id, localValues, true, ctx.options.deviceData);
+    const data = atDeviceTime(ctx.options.deviceData, now);
+    const props = liveProps(def.meta, parsed, id, localValues, true, data);
     return affordancesOf(
       def.meta,
       props,
@@ -123,15 +125,11 @@ function read(ctx: ControllerContext) {
   const confirmation = ctx.confirmationFor();
   if (confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
-  const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
-  const reading = readControls(
-    visible,
-    ctx.defs,
-    ctx.valuesOf(),
-    ctx.options.lang,
-    ctx.disabledParts,
-    ctx.options.deviceData,
-  );
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const visible = ctx.liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now);
+  const data = atDeviceTime(ctx.options.deviceData, now);
+  const reading = readControls(visible, ctx.defs, values, ctx.options.lang, ctx.disabledParts, data);
   if (ctx.standalone) return reading;
   return [
     reading,

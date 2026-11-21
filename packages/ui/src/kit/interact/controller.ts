@@ -10,17 +10,25 @@ import {
 } from "./runtime";
 export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
-import { emptyDeviceData, liveProps, selectDeviceData, type Meta, type Values } from "../../catalog";
+import {
+  atDeviceTime,
+  emptyDeviceData,
+  liveProps,
+  selectDeviceData,
+  type Meta,
+  type Values,
+} from "../../catalog";
 
 function liveControls(ctx: ControllerContext, meta: Meta, props: Values, component: string) {
   const prefix = `${ctx.screen.id}/`;
+  const now = ctx.now();
   const local = Object.fromEntries(
-    Object.entries(ctx.valuesOf())
+    Object.entries(ctx.valuesOf(now))
       .filter(([key]) => key.startsWith(prefix))
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  return liveProps(definition, props, component, local, true, ctx.options.deviceData);
+  return liveProps(definition, props, component, local, true, atDeviceTime(ctx.options.deviceData, now));
 }
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */

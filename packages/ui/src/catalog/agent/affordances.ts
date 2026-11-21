@@ -64,7 +64,7 @@ function partsOf(
   const noGoto = item ? meta.actions?.noGoto?.items : meta.actions?.noGoto?.parts;
   const locked = reportLocked(meta, outer);
   return Object.entries(spec ?? {}).flatMap(([part, actions]) =>
-    matches(when?.[part], holder, outer) &&
+    matches(when?.[part], holder, outer, meta.deviceDataFlags) &&
     (!(part in holder) ||
       holder[part] !== undefined ||
       (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
@@ -74,7 +74,7 @@ function partsOf(
           linkedInput(meta, part))))
       ? actions
           .filter((action) => {
-            if (!matches(when?.[`${part}.${action}`], holder, outer)) return false;
+            if (!matches(when?.[`${part}.${action}`], holder, outer, meta.deviceDataFlags)) return false;
             if (!item) return !locked || !reportConfirmation(meta, part, action);
             const edit = itemEditOffer(meta, holder, part, action);
             return edit === undefined || (edit && !locked);

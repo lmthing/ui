@@ -14,7 +14,7 @@ import {
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared, hasPlaybackClock } from "./clocks";
-import { filterDeviceDataScreen, type DeviceData } from "./device-data";
+import { captureDeviceTime, filterDeviceDataScreen, type DeviceData } from "./device-data";
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 
@@ -89,6 +89,8 @@ function affordancesOfScreen(
       policy ||
       live ||
       def.meta.linkedEdits ||
+      def.meta.deviceDataFlags ||
+      items?.deviceData ||
       def.meta.items?.edits ||
       def.meta.signOff ||
       hasPlaybackClock(def.meta)
@@ -134,6 +136,7 @@ export function planAct(
   clockOwner: "planner" | "controller" = "planner",
   data?: DeviceData,
 ): ActResult {
+  data = captureDeviceTime(defs, data);
   if (random && steps.length > 1) {
     const preview = planAct(input, defs, values, steps, null, clockOwner, data);
     if (!preview.ok) return preview;

@@ -4,6 +4,7 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, ScreenLike, Values } from "./index";
+import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
@@ -118,7 +119,6 @@ export function projectControls(meta: Meta, props: Values, get: (part: string) =
   return projectComponentSets(meta, projected, get);
 }
 
-/** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(
   meta: Meta,
   props: Values,
@@ -130,7 +130,6 @@ export function projectParsedControls(
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
 }
 
-/** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
   props: Values,
@@ -140,6 +139,7 @@ export function liveProps(
   data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
+  props = projectDeviceRows(meta, props, data);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
@@ -154,7 +154,7 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get, data);
+  props = projectDeviceFlags(meta, projectLiveInputs(meta, props, instance, get, data), data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

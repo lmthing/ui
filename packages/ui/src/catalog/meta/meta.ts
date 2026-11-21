@@ -1,9 +1,11 @@
+import type { z } from "zod";
 import type { ActionName, ActionSpec, Component, ComponentId, StateName, Tier } from "../types";
 import type { PackProbe, ChooseProbe } from "../probes";
 import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
+type ProjectionProps = Readonly<Record<string, unknown>>;
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -93,6 +95,11 @@ export type Meta = {
     key: string;
     parts: readonly string[];
     prefix?: string;
+    /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
+    deviceData?: {
+      rows: (data: DeviceData, props: ProjectionProps) => readonly unknown[];
+      schema: z.ZodObject;
+    };
     visible?: "all" | "first";
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
@@ -144,6 +151,10 @@ export type Meta = {
   live?: LiveActionInputs;
   /** Record kinds this component may read from the host, never from Writer props. */
   deviceData?: readonly string[];
+  /** Trusted boolean props for `actions.when`. `now` is epoch milliseconds, not a stored value. */
+  deviceDataFlags?: Readonly<
+    Record<string, (data: DeviceData, props: ProjectionProps, now: number) => boolean>
+  >;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */

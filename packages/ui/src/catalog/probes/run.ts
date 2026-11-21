@@ -24,6 +24,7 @@ async function runOne(
       probe.task,
       undefined,
       readFixtureFor(def.meta.id, probe),
+      probe.at,
     );
     const reply = await callModel(prompt);
     const { pass, detail } = scoreRead(reply, probe.expect);

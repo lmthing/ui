@@ -7,6 +7,7 @@ export {
 } from "./affordances";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export {
+  atDeviceTime,
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,

@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { Meta } from "../../meta";
 import { numberLine } from "../../format";
 import { peekLimit, wordsFor } from "../../lang";
@@ -63,7 +64,8 @@ export function readItems(
   lang?: string,
 ) {
   const all = key ? visibleItems(meta, props) : [];
-  const ids = meta.items?.visibleWhen && new Set(all.map(({ id }) => id));
+  const host = meta.items?.deviceData;
+  const ids = (host || meta.items?.visibleWhen) && new Set(all.map(({ id }) => id));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;
     const target = address.slice(instance.length);
@@ -76,7 +78,11 @@ export function readItems(
   const words = wordsFor(lang),
     hidden = all.length - items.length;
   const disclosure = peek && ownAff.some(({ part, action }) => part === "more" && action === "toggle");
-  const itemSchema = key ? schema.properties?.[key]?.items : undefined;
+  const itemSchema = !key
+    ? undefined
+    : host
+      ? (z.toJSONSchema(host.schema, { unrepresentable: "any" }) as ReadSchema)
+      : schema.properties?.[key]?.items;
   return [
     line.join(" "),
     ...items.map((item) => {

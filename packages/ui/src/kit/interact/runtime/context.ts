@@ -1,4 +1,5 @@
 import {
+  atDeviceTime,
   drawKey,
   liveProps,
   stampItemIds,
@@ -17,13 +18,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import {
-  createInteractionStore,
-  projectScreen,
-  valueKey,
-  type InteractionStore,
-  type MediaAdapter,
-} from "../index";
+import { createInteractionStore, projectScreen, valueKey } from "../index";
+import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 export type Confirmation = {
@@ -186,12 +182,14 @@ export type ControllerContext = ReturnType<typeof createControllerContext>;
 export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
+  const data = ctx.options.deviceData;
   return {
     ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, ctx.options.deviceData),
+    options: { ...ctx.options, deviceData: atDeviceTime(data, at) },
+    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, data),
     now: () => at,
     valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
+    status: { ...ctx.status, confirmation: ctx.confirmationFor(data) },
     mounted: new Map(ctx.mounted),
     disabledParts: new Map(ctx.disabledParts),
     liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
