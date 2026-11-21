@@ -2,7 +2,8 @@ import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
 import { knownFailureReporter } from "./known-failures";
-import { checkOptions, conformanceThemeSet, nodeTests, browserTests, nodeTestOptions } from "./check-options";
+import { conformanceThemeSet } from "../../test/themes";
+import { checkOptions, nodeTests, browserTests, nodeTestOptions } from "./check-options";
 
 function changedSummary(started: number, count: number) {
   console.log(`Changed tests: ran ${count} tests in ${((performance.now() - started) / 1000).toFixed(2)}s.`);

@@ -1,5 +1,6 @@
 import { expect, it, vi } from "vitest";
-import { checkOptions, conformanceThemeSet, nodeTestOptions } from "./check-options";
+import { conformanceThemeSet } from "../../test/themes";
+import { checkOptions, nodeTestOptions } from "./check-options";
 
 it("runs all conformance themes only when explicitly requested", () => {
   expect(conformanceThemeSet({})).toBe("calm-light");

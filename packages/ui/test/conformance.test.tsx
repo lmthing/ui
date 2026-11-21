@@ -18,9 +18,9 @@ import {
   type StateName,
 } from "@lmthing/ui/catalog";
 import { kitThemes, renderers } from "@lmthing/ui/kit";
-import { conformanceThemes, modes } from "./conformance-themes";
 import { addressedElements, config, exampleDeviceData, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
+import { conformanceThemes, modes } from "./themes";
 import {
   derivedItemIds,
   derivedItemIssues,
@@ -30,6 +30,7 @@ import {
 } from "./variants";
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
+const themes = conformanceThemes(presets, accents[0].id);
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
   const { draw, items } = meta;
@@ -122,7 +123,7 @@ describe.each(ready)("%s conformance", (id) => {
   const states: readonly StateName[] = meta.states ?? ["filled"];
   const { items } = meta;
 
-  it.each(conformanceThemes)("renders every example and state in $preset $mode", (theme) => {
+  it.each(themes)("renders every example and state in $preset $mode", (theme) => {
     let derivedExample = false,
       drawnRows = 0;
     for (const example of examples) {

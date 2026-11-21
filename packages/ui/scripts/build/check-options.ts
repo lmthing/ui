@@ -1,10 +1,6 @@
 export const nodeTests = ["src/**/*.test.{ts,tsx}", "test/**/*.test.{ts,tsx}", "scripts/**/*.test.{ts,tsx}"];
 export const browserTests = ["**/*.browser.test.{ts,tsx}"];
 
-export function conformanceThemeSet(env: NodeJS.ProcessEnv) {
-  return env.UI_TEST_THEMES === "all" ? "all" : "calm-light";
-}
-
 export function checkOptions(args: readonly string[]) {
   const filters: string[] = [];
   let browser = false,

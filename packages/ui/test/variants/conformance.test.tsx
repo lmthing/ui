@@ -1,10 +1,17 @@
 import { expect, it } from "vitest";
-import { components, readComponent, stampItemIds, type Definition } from "@lmthing/ui/catalog";
+import {
+  accents,
+  components,
+  presets,
+  readComponent,
+  stampItemIds,
+  type Definition,
+} from "@lmthing/ui/catalog";
 import { renderers } from "@lmthing/ui/kit";
 import { selectedIds } from "../../scripts/build";
 import { variantChoices, variantLabel, variantPairs } from "../../scripts/variants";
-import { conformanceThemes } from "../conformance-themes";
 import { renderExample, renderInstance, type Theme } from "../render";
+import { conformanceThemes } from "../themes";
 import { derivedItemIds, derivedItemIssues, renderedAddresses, variantPartIssues } from "./variant-parts";
 import { overflowAllIssues, peekHiddenItems, variantPeekIssues } from "./variant-peek";
 import { rowAddressIssues } from "./row-addresses";
@@ -75,10 +82,11 @@ function checkPair(
 }
 
 const ids = selectedIds(Object.keys(renderers) as Id[], import.meta.url);
+const themes = conformanceThemes(presets, accents[0].id);
 for (const id of ids) {
   const def: Definition = components[id];
   for (const choice of variantChoices(def.meta, true)) {
-    it.each(conformanceThemes)(
+    it.each(themes)(
       `${id} ${variantLabel(choice)} keeps the variant address contract in $preset $mode`,
       (theme) => {
         const pairs = def.examples.flatMap((example) =>
