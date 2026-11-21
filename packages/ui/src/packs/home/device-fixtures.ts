@@ -13,6 +13,7 @@ import type { deviceProps } from ".";
 export const deviceWriteHints = [
   "Use unique keys across all rooms. Light/heat/plug/lock/fan require on; lock on:true means locked. Heat requires temp 5–30 °C and may have reading; heat MUST have level:null, unit:null, normal:null. Celsius is implicit for heat: never write unit:celsius on a thermostat.",
   "Sensors require reading and unit (celsius, percent, ppm, lux), optionally normal:{low,high} with low<=high. Sensors MUST have on:null, level:null, temp:null. Light/fan/blind may have level 0–100; blinds MUST have on:null. All non-heat devices MUST have temp:null. Only sensors have unit/normal, only heat/sensor have reading; use null for unsupported optional fields.",
+  "Only heat devices may have mode (heat, cool, auto, off) or coolTemp (cooling set point, 5–30 °C). Keep writing temp for the heating set point. When not given, leave mode and coolTemp null. These two fields are not scene settings.",
   "Scenes default to []. Each has 2–6 distinct device targets, with key and at least one supported absolute on/level/temp setting. Never target sensors or unknown keys. focus must name a device.",
   "Never write active-scene, out-of-range, pending or command-outcome flags. Code chooses apply versus secure from lock targets. Lock changes and lock scenes always confirm.",
   'Put devices in their rooms even if the person asks for a single ungrouped list; use group "none" for that presentation only. Use style "focused" only when asked to enlarge a specific device. Write surface:null unless asked for outlined tiles.',
@@ -97,6 +98,26 @@ export const deviceExamples = [
   },
   fanAndLamp,
   { ...fanAndLamp, group: "none" },
+  {
+    style: "focused",
+    rooms: [
+      {
+        label: "Greenhouse",
+        devices: [
+          {
+            key: "heat",
+            name: "Thermostat",
+            kind: "heat",
+            on: true,
+            temp: 20,
+            reading: 22,
+            mode: "auto",
+            coolTemp: 25,
+          },
+        ],
+      },
+    ],
+  },
 ] satisfies z.input<typeof deviceProps>[];
 const { choose, write, read } = probesFor("Devices");
 export const deviceProbes = [
@@ -127,6 +148,18 @@ export const deviceProbes = [
       "The hall fan is on and the kitchen lamp is off. Show the connected devices in one list without room headings.",
     ),
     variant: { axis: "group", value: "none" },
+  },
+  {
+    ...write(
+      "One hall thermostat, switched on with a heating set point of 20 °C. Its operating mode is auto.",
+    ),
+    expectProps: { rooms: [{ devices: [{ mode: "auto" }] }] },
+  },
+  {
+    ...write(
+      "One hall thermostat, switched on. Its heating set point is 20 °C and its separate cooling set point is 25.5 °C.",
+    ),
+    expectProps: { rooms: [{ devices: [{ coolTemp: 25.5, temp: 20 }] }] },
   },
   read("Increase the thermostat's set point by one step", { address: "d1/r1/plus", action: "increment" }),
   read("Apply the Evening scene", { address: "d1/r4/apply", action: "press" }),

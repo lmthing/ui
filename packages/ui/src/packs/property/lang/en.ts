@@ -66,6 +66,14 @@ export const en = {
     usage: (value: string, elapsed: string) => `${value} used · ${elapsed}`,
     dateTime: (date: string, time: string) => `${date} · ${time}`,
   },
+  units: {
+    date: "Occupancy date",
+    dateFormat: "YYYY-MM-DD",
+    dateReading: (date: string, value: string) => `Occupancy date: ${date} (${value})`,
+    unitReading: (id: string, fields: readonly string[]) => [id, ...fields].join(" · "),
+    error: "Invalid or overlapping let dates",
+    status: { occupied: "occupied", reserved: "reserved", vacant: "vacant" },
+  },
   viewings: {
     statuses: {
       proposed: "Proposed",

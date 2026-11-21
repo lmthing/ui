@@ -27,11 +27,12 @@ import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { captureAccess } from "./capture";
 import { registerHoldPart } from "./hold";
+import { registerPart } from "./part-registration";
 import { drivenPartBlock } from "./planning";
 import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
-const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
+const pressActions = "press select toggle check increment decrement start stop send copy dismiss".split(" ");
 function actionsAt(
   ctx: ControllerContext,
   address: string,
@@ -81,8 +82,9 @@ function actionsAt(
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
       .filter(
-        ({ address, part }) =>
+        ({ address, action, part }) =>
           address === local &&
+          (action !== "copy" || ctx.clipboard.available()) &&
           (!tier || (partTierAt(def.meta, props, part) === tier && !def.meta.confirmParts?.includes(part))),
       )
       .map((item) => item.action);
@@ -157,15 +159,8 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
-function registerPart(parts: Map<string, symbol>, local: string) {
-  const token = Symbol(local);
-  parts.set(local, token);
-  return () => {
-    if (parts.get(local) === token) parts.delete(local);
-  };
-}
-export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
-  const ctx = createControllerContext(options, true);
+export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency, full = false) {
+  const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
@@ -174,6 +169,8 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       actionsAt(ctx, address, false, ignore, "ok").includes("start"),
     ),
     registerHoldPart: (address: string) => registerHoldPart(ctx, act, address),
+    registerCopyTarget: ctx.clipboard.register,
+    copiedAt: ctx.clipboard.copiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),

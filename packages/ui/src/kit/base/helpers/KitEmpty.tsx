@@ -1,8 +1,7 @@
 import { useWords } from "../../provider";
 import { YStack, styled } from "tamagui";
-import { component, emptyLine, size, space, type IconName } from "../../../catalog";
-import { KitIcon } from "../text";
-import { KitText } from "../text";
+import { component, emptyLine, size, space, type IconName, type ThemeDensity } from "../../../catalog";
+import { KitIcon, KitText } from "../text";
 import { usePartContext } from "../../part";
 
 const Badge = styled(YStack, {
@@ -14,10 +13,25 @@ const Badge = styled(YStack, {
   justifyContent: "center",
 });
 
-/**
- * The empty state every component uses: a soft icon badge and one calm line ("No walks yet"),
- * centred with room around it. The line comes from shared copy and the thing type the host passes.
- */
+type EmptyProps = {
+  icon?: IconName;
+  part?: string | null;
+  /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
+  title?: string;
+  sub?: string;
+  /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
+  fill?: boolean;
+  /** The badge colour: neutral by default, accent explicitly, or good for a success moment. */
+  tone?: "neutral" | "accent" | "good" | "bad";
+  /** Draw the icon without an address (when the component declares no `icon` part). */
+  decorativeIcon?: boolean;
+  /** Explicit copy need not imply a heading. Omit this to retain the legacy title treatment. */
+  prominence?: "body" | "heading";
+  density?: ThemeDensity | undefined;
+  announce?: "alert" | "status";
+};
+
+/** A centred state message with a soft icon badge and copy from the shared dictionary or caller. */
 export function KitEmpty({
   icon = "sparkles",
   part = "title",
@@ -26,22 +40,18 @@ export function KitEmpty({
   fill = false,
   tone = "neutral",
   decorativeIcon = false,
-}: {
-  icon?: IconName;
-  part?: string;
-  /** Standalone use: the text to show instead of the shared "No <things> yet" line. */
-  title?: string;
-  sub?: string;
-  /** Fill the screen's height and centre vertically (the `Empty` component), instead of sitting in a card. */
-  fill?: boolean;
-  /** The badge colour: neutral by default, accent explicitly, or good for a success moment. */
-  tone?: "neutral" | "accent" | "good";
-  /** Draw the icon without an address (when the component declares no `icon` part). */
-  decorativeIcon?: boolean;
-}) {
+  prominence,
+  density,
+  announce,
+}: EmptyProps) {
   const { lang } = useWords();
-
   const { thing } = usePartContext();
+  const textTone =
+    tone === "bad" || (tone === "good" && prominence)
+      ? tone
+      : prominence === "body" || !title
+        ? "muted"
+        : "text";
   return (
     <YStack
       alignItems="center"
@@ -50,7 +60,7 @@ export function KitEmpty({
       paddingHorizontal={space.lg}
       {...(fill ? { flex: 1, justifyContent: "center", minHeight: component.base.emptyMinHeight } : {})}
     >
-      <Badge backgroundColor={tone === "good" ? "$goodSoft" : tone === "accent" ? "$accentSoft" : "$raised"}>
+      <Badge backgroundColor={tone === "neutral" ? "$raised" : `$${tone}Soft`}>
         <KitIcon
           name={icon}
           tone={tone === "neutral" ? "muted" : tone}
@@ -59,8 +69,13 @@ export function KitEmpty({
           decorative={decorativeIcon}
         />
       </Badge>
-      <YStack gap={space.xs} alignItems="center">
-        <KitText role={title ? "heading" : "body"} tone={title ? "text" : "muted"} align="center" part={part}>
+      <YStack gap={space.xs} alignItems="center" accessibilityRole={announce}>
+        <KitText
+          role={prominence ?? (title ? "heading" : "body")}
+          tone={textTone}
+          align="center"
+          {...{ part, density }}
+        >
           {title ?? emptyLine(thing, lang)}
         </KitText>
         {sub && (

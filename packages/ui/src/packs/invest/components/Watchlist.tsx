@@ -148,7 +148,7 @@ function QuoteRow({ row, detail, density, state }: { row: WatchRow; detail: Watc
     ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", price, "end", "compact"]]} />
     : <kit.KitText part="price" role="number" numberScale="compact" tabular lines={1}>{price}</kit.KitText>;
   const remove = <kit.KitRow label={row.name} inline leadingWidth="avatar" leading={<>
-    {(active || loading) && <kit.KitAction part="remove" kind="quiet" icon={loading ? undefined : "close"} a11y={watchlist.remove(row.name)} />}
+    {(active || loading) && <kit.KitAction part="remove" kind="quiet" icon="close" a11y={watchlist.remove(row.name)} />}
   </>}>{null}</kit.KitRow>;
   const trail = <kit.KitRow label={price} inline trailing={remove}>{pricePart}</kit.KitRow>;
   return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
@@ -186,15 +186,15 @@ export function Watchlist(input: WatchProps) {
   const { words: { watchlist } } = kit.useWords(investWordsFor);
   const failed = state === "error";
   const empty = state === "empty" || state === "success" || !input.items.length;
+  const rows = input.items.map((row) => <QuoteRow key={row.id} {...{ row, detail, density, state }} />);
+  const refresh = quote_service === true && (state === "filled" || failed);
   return <kit.KitCard part="root" density={density} padded={!empty}>
-    {empty ? (
-        <kit.KitEmpty part="notice" decorativeIcon {...(state === "success" ? { icon: "check", tone: "good", title: watchlist.removed } : {})} />
-      ) : <>
-        {failed && <kit.KitText part="notice" role="body" tone="muted">{watchlist.refreshFailed}</kit.KitText>}
-        {input.items.map((row) => <QuoteRow key={row.id} {...{ row, detail, density, state }} />)}
-        {quote_service === true && (state === "filled" || failed) && (
-          <kit.KitAction part="refresh" kind="quiet" label={watchlist.refresh} />
-        )}
-      </>}
+    <kit.KitState part="notice" retain={failed} loading={rows} density={density}
+      message={failed ? watchlist.refreshFailed : state === "success" ? watchlist.removed : undefined}>
+      {rows}
+      {refresh && <kit.KitActionFooter density={density}>
+        <kit.KitAction part="refresh" kind="quiet" label={watchlist.refresh} />
+      </kit.KitActionFooter>}
+    </kit.KitState>
   </kit.KitCard>;
 }

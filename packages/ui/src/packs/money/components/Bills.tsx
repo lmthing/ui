@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { billLines, billsReading, billTotalLine, localBillDate, orderedBills } from "../copy";
 import { moneyWordsFor } from "../lang";
+// prettier-ignore
 export const meta = {
   id: "Bills",
   status: "ready",
@@ -12,6 +13,7 @@ export const meta = {
   writeHints: [
     "Write stored paid flags and numeric amounts; never totals, overdue flags or currency. due is optional; repeat is never, weekly, monthly or yearly. Hide repeat labels with detail brief, keeping repeat in the data.",
     "For hidden repeat labels alone, set density, tone and mark to null. Never write comfortable, neutral or none as defaults. Recurrence and paid status alone do not request an item treatment.",
+    'trialEnds is the free-trial end date (YYYY-MM-DD), separate from due. In subscriptions style, write manage: { "goto": "screen_id" } on a bill only when asked to link to its management or cancellation screen.',
   ],
   region: "body",
   weight: 2,
@@ -22,31 +24,31 @@ export const meta = {
   parts: ["root", "total", "empty"],
   items: {
     key: "bills",
-    parts: ["root", "name", "amount", "due", "repeat", "paid", "icon"],
+    parts: ["root", "name", "amount", "due", "repeat", "paid", "icon", "trial_ends", "manage", "manage_label"],
     variants: { tone: ["neutral", "good", "warn", "bad"], mark: ["none", "muted"] },
   },
   states: ["filled", "empty"],
-  actions: { items: { paid: ["check"], root: ["press"] } },
+  actions: {
+    items: { paid: ["check"], root: ["press"], manage: ["press"] },
+    when: { manage: { style: "subscriptions", manageable: true } },
+  },
   read: (input, state, lang): string[] =>
     state === "filled" ? billsReading(input as z.output<typeof props>, lang) : [],
 } as const satisfies c.Meta;
+// prettier-ignore
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
-  bills: z
-    .array(
-      z.strictObject({
-        ...c.itemVariantProps(meta.items.variants),
-        name: c.text(24),
-        amount: z.number().min(0).max(999_999_999.99),
-        due: c.isoDate.optional(),
-        repeat: z.enum(["never", "weekly", "monthly", "yearly"]),
-        paid: z.boolean(),
-        icon: c.icon,
-      }),
-    )
-    .min(1)
-    .max(6),
+  bills: z.array(z.strictObject({
+    ...c.itemVariantProps(meta.items.variants),
+    name: c.text(24), amount: z.number().min(0).max(999_999_999.99),
+    due: c.isoDate.optional(), trialEnds: c.isoDate.optional(),
+    manage: z.strictObject({ goto: c.screenId }).optional(),
+    repeat: z.enum(["never", "weekly", "monthly", "yearly"]),
+    paid: z.boolean(), icon: c.icon,
+  }).overwrite((bill) => (bill.manage ? { ...bill, manageable: true } : bill))).min(1).max(6),
   style: z.enum(["due", "subscriptions"]).default("due"),
+}).refine(({ bills, style }) => style === "subscriptions" || bills.every(({ manage }) => !manage), {
+  path: ["bills"], message: "Manage links require subscriptions style",
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -87,6 +89,13 @@ export const examples = [
   { ...ledgeBills, density: "compact" },
   ...(["good", "warn", "bad"] as const).map((tone) => withItemFinish({ tone })),
   withItemFinish({ mark: "muted" }),
+  {
+    style: "subscriptions",
+    bills: [
+      { name: "Trot route planner", amount: 24, repeat: "monthly", paid: false, icon: "map", trialEnds: "2026-12-01", manage: { goto: "route_plan" } },
+      { name: "Trot phone plan", amount: 12, repeat: "monthly", paid: true, icon: "phone" },
+    ],
+  },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = c.probesFor("Bills");
 // prettier-ignore
@@ -95,34 +104,27 @@ export const probes = [
   choose("Give me a simple list of household jobs to tick off, with no payment amounts or due payments", "Checklist"),
   write("Due bills: Rent 800 due 2026-12-01 monthly unpaid with home icon; Power 60 due 2026-11-28 monthly paid with zap icon. Do not write totals"),
   { ...write("Track Power at 60, due 2026-12-01, unpaid, recurring monthly with a zap icon. Show the due date and paid tick, but hide the repeat label."), variant: { axis: "detail", value: "brief" } },
-  read("Mark Ledge supplies paid using its checkbox, without opening the bill", { address: "b1/r1/paid", action: "check" }),
+  { ...write("In my subscriptions list, Trot route planner costs 24 every month, is unpaid and has a map icon. Its free trial ends 2026-12-01; show the trial end date."), expectProps: { bills: [{ trialEnds: "2026-12-01" }] } },
+  { ...write("Show my Trot phone plan as a subscription, 12 monthly, unpaid, phone icon. Include a separate Manage shortcut opening the phone_plan screen so I can cancel or change it there."), expectProps: { style: "subscriptions", bills: [{ manage: { goto: "phone_plan" } }] } },
+  read("Tick the paid checkbox next to Ledge supplies; do not open the bill", { address: "b1/r1/paid", action: "check" }),
 ] satisfies c.Probe[];
 
 type BillsProps = c.Props<typeof props, typeof meta>;
+// prettier-ignore
 function BillRow({
-  bill,
-  today,
-  detail,
-  density,
-}: Pick<BillsProps, "detail" | "density"> & { bill: BillsProps["bills"][number]; today: string }) {
+  bill, today, detail, density, style,
+}: Pick<BillsProps, "detail" | "density" | "style"> & { bill: BillsProps["bills"][number]; today: string }) {
   const scope = kit.usePartContext();
   const { lang, words } = kit.useWords(moneyWordsFor);
   const paid = kit.useControlValue(c.formatAddress({ ...scope, item: bill.id, part: "paid" }), bill.paid);
   const tone =
     bill.mark === "muted" ? "muted" : bill.tone === "neutral" ? (paid ? "muted" : "text") : bill.tone;
-  const { amount, due, shortDue, repeat, overdue } = billLines({ ...bill, paid }, today, lang, detail);
+  const { amount, due, shortDue, repeat, overdue, trial } = billLines({ ...bill, paid }, today, lang, detail);
   const name = overdue ? words.bills.overdue(bill.name) : bill.name;
-  const label = [name, amount, due && words.bills.due(due), repeat]
-    .filter(Boolean)
-    .join(words.bills.separator);
-  // prettier-ignore
+  const manage = style === "subscriptions" && bill.manage;
+  const label = [name, amount, due && words.bills.due(due), repeat, !manage && trial].filter(Boolean).join(words.bills.separator);
   return (
-    <kit.KitRow
-      item={bill.id}
-      part={null}
-      label={bill.name}
-      inline
-      density={density}
+    <kit.KitRow item={bill.id} part={null} label={bill.name} inline density={density}
       trailing={<kit.KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
     >
       <kit.KitRow
@@ -154,11 +156,20 @@ function BillRow({
             </kit.KitText>
           )}
         </kit.KitText>}
+        {trial && !manage && <kit.KitText part="trial_ends" role="caption" tone="muted">{trial}</kit.KitText>}
       </kit.KitRow>
+      {manage && <kit.KitRow part={null} inline indent={1} density={density} label={bill.name}>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitText part={trial ? "trial_ends" : null} role="caption" tone="muted">{trial}</kit.KitText>
+          <kit.KitRow part="manage" inline density={density} label={words.bills.manageBill(bill.name)} goto={manage.goto}>
+            <kit.KitText part="manage_label" role="label" tone="accent">{words.bills.manage}</kit.KitText>
+          </kit.KitRow>
+        </kit.KitGrid>
+      </kit.KitRow>}
     </kit.KitRow>
   );
 }
-
+// prettier-ignore
 export function Bills({ bills, style, detail, density: requested }: BillsProps) {
   const density = kit.useVariant("density", meta.variants.density, requested);
   const state = kit.useComponentState();
@@ -172,22 +183,12 @@ export function Bills({ bills, style, detail, density: requested }: BillsProps) 
       ) : (
         <>
           {orderedBills(bills, style).map((bill) => (
-            <BillRow key={bill.id} {...{ bill, today, detail, density }} />
+            <BillRow key={bill.id} {...{ bill, today, detail, density, style }} />
           ))}
           <kit.KitContent group="response">
             <kit.KitGrid fitLast>
-              <kit.KitText role="caption" tone="muted" part={null}>
-                {total.label}
-              </kit.KitText>
-              <kit.KitText
-                density={density}
-                role="number"
-                numberScale={style === "due" ? "compact" : "display"}
-                tabular
-                part="total"
-              >
-                {total.amount}
-              </kit.KitText>
+              <kit.KitText role="caption" tone="muted" part={null}>{total.label}</kit.KitText>
+              <kit.KitText density={density} role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">{total.amount}</kit.KitText>
             </kit.KitGrid>
           </kit.KitContent>
         </>

@@ -74,6 +74,21 @@ describe("KitLinePlot", () => {
   });
 });
 describe("KitLinePlot states", () => {
+  it("draws decorative overlays without changing addresses, and keeps them in loading", () => {
+    const target = { point: "p3", target: { part: "point" } };
+    const props = { series, targets: [target] };
+    const original = render(props);
+    const overlays = { band: { low: [-6, -3, -1], high: [2, 4, 6] }, baseline: 0 };
+    for (const loading of [false, true]) {
+      const html = render({ ...props, ...overlays, loading });
+      expect(html).toMatch(/<path [^>]*d="M[^"]+ Z"/);
+      expect(html.match(/<line /g)).toHaveLength(original.match(/<line /g)!.length + 1);
+      expect(html.match(/data-testid=/g)).toHaveLength(loading ? 1 : 2);
+      expect(html).not.toMatch(/NaN|Infinity/);
+    }
+    const svg = (html: string) => html.match(/<svg\b.*<\/svg>/)?.[0];
+    expect(svg(render({ ...props, baseline: Infinity }))).toBe(svg(original));
+  });
   it("keeps drawings and target geometry while removing loading controls", () => {
     const props = { series, targets: [{ point: "p3", target: { part: "point" } }] };
     const filled = render(props),

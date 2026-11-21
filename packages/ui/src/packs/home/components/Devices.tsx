@@ -3,7 +3,7 @@ import { formatAddress, numberLine, type Meta, type Props } from "../../../catal
 import { KitAction, KitText, useWords } from "../../../kit";
 import * as kit from "../../../kit";
 import * as home from "..";
-import { deviceRange, deviceValue, focusedDevice } from "../copy";
+import { deviceRange, deviceValue, focusedDevice, thermostatCopy } from "../copy";
 import { homeWordsFor } from "../lang";
 // Core first: Field/slider stores a preference, not live device commands, readings or scenes.
 export const meta = {
@@ -30,41 +30,44 @@ function DeviceText({ children, ...props }: ComponentProps<typeof KitText> & { c
     <KitText {...props} role={role} children={children} />
   );
 }
+// prettier-ignore
 function SetPoint({ row, disabled, focused, reading }: Tile & { reading?: ReactNode }) {
   const { lang, words } = useWords(homeWordsFor);
   const { min, max } = home.thermostatBounds;
-  const value = row.temp!;
+  const value = row.temp!, coolTemp = row.coolTemp, hasCooling = coolTemp !== undefined;
   const step = meta.items.adjust["plus.increment"].delta;
-  const { decrease, increase } = words.devicePanel;
-  const { setPoint } = words.deviceLabels;
-  const caption = words.devicePanel.measure(setPoint, words.deviceUnits.celsius);
-  const number = numberLine(value, lang);
+  const { decrease, increase } = hasCooling ? words.thermostat : words.devicePanel;
+  const { setPoint, mode, heatingCaption, coolingCaption } = thermostatCopy(row, lang);
+  const measure = (label: string) => words.devicePanel.measure(label, words.deviceUnits.celsius);
   const target = (
     <kit.KitContent>
-      <DeviceText role="label" tone="muted" part={null} children={caption} />
-      <DeviceText role="number" numberScale={focused ? "display" : "compact"} part={null} children={number} />
+      <DeviceText role="label" tone="muted" part={null} children={measure(heatingCaption)} />
+      <DeviceText role="number" numberScale={focused ? "display" : "compact"} part={null} children={numberLine(value, lang)} />
     </kit.KitContent>
   );
   return (
     <kit.KitContent>
-      <kit.KitGrid arrange={reading ? "grid" : "rows"}>
+      {mode && <DeviceText part="mode" tone="muted" children={mode} />}
+      <kit.KitGrid arrange={reading || hasCooling ? "grid" : "rows"} columns={reading && hasCooling ? 3 : 2}>
         {reading}
         {target}
+        {hasCooling && (
+          <kit.KitContent>
+            <DeviceText role="label" tone="muted" part={null} children={measure(coolingCaption)} />
+            <DeviceText role="number" numberScale="compact" part="cool_temp" children={numberLine(coolTemp, lang)} />
+          </kit.KitContent>
+        )}
       </kit.KitGrid>
+      {hasCooling && <kit.KitContent group="response"><DeviceText role="label" part={null} children={words.thermostat.adjustHeat} /></kit.KitContent>}
       <kit.KitSlider part="temp" label={setPoint} {...{ min, max, step, value, disabled }} />
       <kit.KitGrid>
-        {(
-          [
-            { part: "minus", action: "decrement", a11y: decrease, disabled: disabled || value <= min },
-            { part: "plus", action: "increment", a11y: increase, disabled: disabled || value >= max },
-          ] as const
-        ).map((key) => (
-          <KitAction key={key.part} icon={key.part} kind="secondary" full {...key} />
-        ))}
+        <KitAction part="minus" action="decrement" icon="minus" a11y={decrease} kind="secondary" full disabled={disabled || value <= min} />
+        <KitAction part="plus" action="increment" icon="plus" a11y={increase} kind="secondary" full disabled={disabled || value >= max} />
       </kit.KitGrid>
     </kit.KitContent>
   );
 }
+// prettier-ignore
 function Reading({ row, focused }: Pick<Tile, "row" | "focused">) {
   const { lang, words } = useWords(homeWordsFor);
   const loading = kit.useComponentState() === "loading";
@@ -80,11 +83,7 @@ function Reading({ row, focused }: Pick<Tile, "row" | "focused">) {
   return (
     <kit.KitContent>
       <DeviceText role="label" tone="muted" part={null} children={caption} />
-      {range ? (
-        <kit.KitRangeBand {...range} part="reading" reading={content} {...{ tone, loading }} />
-      ) : (
-        content
-      )}
+      {range ? <kit.KitRangeBand {...range} part="reading" reading={content} {...{ tone, loading }} /> : content}
       {range && <DeviceText role="label" tone="muted" part={null} children={range.label} />}
       {range?.status && !loading && <KitText role="label" part={null} tone="warn" children={range.status} />}
     </kit.KitContent>

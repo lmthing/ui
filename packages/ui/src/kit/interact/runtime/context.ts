@@ -18,8 +18,8 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import { createInteractionStore, projectScreen, valueKey } from "../index";
-import type { InteractionStore, MediaAdapter } from "../index";
+import { clipboardRuntime, createInteractionStore, projectScreen, valueKey } from "../index";
+import type { ClipboardText, ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { createMicCapture, type MicCaptureAdapter } from "./capture";
@@ -45,6 +45,8 @@ export type ControllerOptions = {
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
+  writeClipboard?: ClipboardWriter | undefined;
+  resolveClipboardText?: ClipboardText | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
@@ -132,7 +134,15 @@ function initialStatus(screen: string, store: InteractionStore, standalone: bool
     confirmation: store.get(`${screen}/$confirmation`) as Confirmation | undefined,
   };
 }
-export function createControllerContext(options: ControllerOptions, standalone = false) {
+function createClipboard(
+  { writeClipboard, resolveClipboardText }: ControllerOptions,
+  store: InteractionStore,
+  status: { disposed: boolean },
+) {
+  return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
+}
+type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
+export function createControllerContext(options: RuntimeOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
@@ -155,6 +165,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     now,
     store,
     micCapture: createMicCapture(options.micCapture, (address) => relativeAddress(screen.id, address)),
+    clipboard: createClipboard(options, store, status),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),

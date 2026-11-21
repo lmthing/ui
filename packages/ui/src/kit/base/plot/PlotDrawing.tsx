@@ -1,12 +1,15 @@
 import { useTheme } from "tamagui";
 import { Svg, Path, Line, Circle } from "react-native-svg";
 import { component, space } from "../../../catalog";
-import { plotGeometry, plotPaths, type LinePlotProps } from "./linePlotGeometry";
+import { bandPath, plotPaths, type LinePlotProps, type plotGeometry } from "./linePlotGeometry";
 
-type DrawingProps = LinePlotProps & { width: number; height: number };
-function PlotPoints({ series, goal, selected, loading, width, height }: DrawingProps) {
-  const theme = useTheme(),
-    geometry = plotGeometry(series, goal);
+type DrawingProps = LinePlotProps & {
+  width: number;
+  height: number;
+  geometry: ReturnType<typeof plotGeometry>;
+};
+function PlotPoints({ series, geometry, selected, loading, width, height }: DrawingProps) {
+  const theme = useTheme();
   const pad = space.md;
   const x = (value: number) => pad + geometry.x(value) * (width - pad * 2);
   const y = (value: number) => pad + geometry.y(value) * (height - pad * 2);
@@ -46,9 +49,8 @@ function PlotPoints({ series, goal, selected, loading, width, height }: DrawingP
   );
 }
 
-export function PlotDrawing({ series, goal, ...props }: DrawingProps) {
-  const theme = useTheme(),
-    geometry = plotGeometry(series, goal);
+export function PlotDrawing({ series, goal, baseline, geometry, ...props }: DrawingProps) {
+  const theme = useTheme();
   const { width, height, loading } = props;
   const pad = space.md;
   const x = (value: number) => pad + geometry.x(value) * (width - pad * 2);
@@ -56,9 +58,23 @@ export function PlotDrawing({ series, goal, ...props }: DrawingProps) {
   const rule = { strokeWidth: component.base.borderWidth, stroke: theme.line?.val };
   return (
     <Svg width={width} height={height} aria-hidden>
+      {geometry.bands.map((run, i) => {
+        const d = bandPath(run, x, y);
+        return d ? <Path key={i} d={d} fill={theme[loading ? "line" : "accentSoft"]?.val} /> : null;
+      })}
       {geometry.ticks.map((value, index) => (
         <Line key={index} x1={pad} x2={width - pad} y1={y(value)} y2={y(value)} {...rule} />
       ))}
+      {baseline !== undefined && Number.isFinite(baseline) && (
+        <Line
+          x1={pad}
+          x2={width - pad}
+          y1={y(baseline)}
+          y2={y(baseline)}
+          stroke={theme[loading ? "line" : "muted"]?.val}
+          strokeWidth={component.base.strongBorder}
+        />
+      )}
       {goal && Number.isFinite(goal.value) && (
         <Path
           d={`M${pad},${y(goal.value)} L${width - pad},${y(goal.value)}`}
@@ -80,7 +96,7 @@ export function PlotDrawing({ series, goal, ...props }: DrawingProps) {
           strokeLinejoin="round"
         />
       ))}
-      <PlotPoints series={series} {...props} {...(goal ? { goal } : {})} />
+      <PlotPoints series={series} geometry={geometry} {...props} />
     </Svg>
   );
 }
