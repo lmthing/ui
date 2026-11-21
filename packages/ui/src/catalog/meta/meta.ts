@@ -36,10 +36,11 @@ type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
 } & (
-  | { value: RowSelection; mode: "flags"; choices?: never }
+  | { value: RowSelection; mode: "flags"; choices?: never; runtime?: true }
   | {
       value?: RowSelection;
       mode?: "one";
+      runtime?: never;
       /** Named parts that require an explicit value from a closed list or an array prop. */
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
@@ -142,7 +143,7 @@ export type Meta = {
       >;
     };
   };
-  select?: SelectMeta;
+  select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */

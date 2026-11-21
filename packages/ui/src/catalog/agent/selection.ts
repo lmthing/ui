@@ -79,6 +79,7 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   const select = meta.select;
   if (!select) return props;
   if (select.mode === "flags" && meta.items?.key) {
+    if (select.runtime && !Array.isArray(props[meta.items.key])) return props;
     const rows = rowsOf(meta, props).map((row, index) => ({
       ...row,
       [select.prop]: get(idOf(meta, row, index)) ?? row[select.prop] ?? false,
@@ -89,8 +90,9 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
 
-export function projectSelection(meta: Meta, props: Values, get: GetValue): Values {
-  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get, "wire");
+export function projectSelection(meta: Meta, props: Values, get: GetValue, mode?: "live" | "wire"): Values {
+  const selected = mode === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get);
+  return projectNamedSelections(meta, selected, get, "wire");
 }
 
 /** Resolve the visible parent from projected props, without removing or renumbering any rows. */

@@ -19,6 +19,7 @@ import {
   projectLiveClocks,
   projectMatrix,
 } from "./clocks";
+type Get = (part: string) => unknown;
 function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
@@ -112,18 +113,13 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
       : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
-/** Shared schema-prop projection for the planner, reader and kit screen. */
-export function projectControls(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get), get);
+/** Keep runtime-only selection flags out of the kit screen's wire projection. */
+export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
+  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
   return projectComponentSets(meta, projected, get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
-export function projectParsedControls(
-  meta: Meta,
-  props: Values,
-  get: (part: string) => unknown,
-  runtime: boolean,
-): Values {
+export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
   const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
@@ -155,7 +151,10 @@ export function liveProps(
   }
   props = projectDraw(meta, props, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
-  props = projectDeviceFlags(meta, projectRecordRuntime(meta, props, instance, values, data, now), data);
+  props = projectRecordRuntime(meta, props, instance, values, data, now);
+  // Reapply to rows that a live or host projection may have replaced.
+  if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
+  props = projectDeviceFlags(meta, props, data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
