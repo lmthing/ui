@@ -8,5 +8,6 @@ export {
 export { createClock } from "./clock";
 export { createMediaRuntime, type MediaRuntime } from "./media";
 export { createAct, discardHiddenConfirmation } from "./dispatch";
-export { createAccess, createStandaloneAccess } from "./access";
+export { createAccess, createStandaloneAccess, offersReveal } from "./access";
 export { readControls } from "./read-controls";
+export { createReveal, type AuthenticateReveal } from "./reveal";

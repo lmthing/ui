@@ -11,7 +11,14 @@ import { parseAppCurrency, type AppCurrency } from "./app-currency";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateScreen } from "../migrations";
-import { componentTexts, migrateInput, readAffordances, readItems, type ReadSchema as Json } from "./reading";
+import {
+  componentTexts,
+  migrateInput,
+  readAffordances,
+  readItems,
+  redactSecretProps,
+  type ReadSchema as Json,
+} from "./reading";
 import { projectVisibleItems } from "./visibility";
 import {
   disabledSelectionChecks,
@@ -119,7 +126,7 @@ export function readComponent(
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
-  const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
+  const head = `${instance} ${meta.id}${variantsOf(schema, redactSecretProps(schema, props))}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
   const offered = affordancesOf(meta, props, instance, values, state, false, {
@@ -142,7 +149,7 @@ export function readComponent(
   const remaining = nestedRemaining(meta, props);
   const own = [
     ...(meta.read?.(
-      readingProps(meta, validated, instance, values, props, readable),
+      redactSecretProps(schema, readingProps(meta, validated, instance, values, props, readable)),
       state,
       lang,
       selectDeviceData(meta, deviceData),

@@ -4,6 +4,7 @@ import {
   createMediaRuntime,
   createAct,
   createAccess,
+  createReveal,
   discardHiddenConfirmation,
   type ControllerContext,
   type ControllerOptions,
@@ -56,13 +57,22 @@ function deviceDataFor(ctx: ControllerContext, component: string, data = ctx.opt
   return def ? selectDeviceData(def.meta, projectDeviceData(data, ctx.valuesOf())) : emptyDeviceData;
 }
 
+function refreshOnMount(ctx: ControllerContext, scheduleClock: () => void) {
+  const expired = ctx.expiredProgress(ctx.valuesOf());
+  // A boundary may have passed between the initial render and the mount effect.
+  const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
+  if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
+  scheduleClock();
+}
+
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
 export function createScreenController(options: ControllerOptions & { currency?: AppCurrency | undefined }) {
   const currency = parseAppCurrency(options.currency);
   const ctx = createControllerContext(options);
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
   const media = createMediaRuntime(ctx);
-  const act = createAct(ctx, media, clock.scheduleClock);
+  const reveal = createReveal(ctx);
+  const act = reveal.dispatch(createAct(ctx, media, clock.scheduleClock));
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -72,19 +82,14 @@ export function createScreenController(options: ControllerOptions & { currency?:
     act,
     mountMedia: media.mountMedia,
     tick: clock.tick,
-    ...createAccess(ctx, act, currency),
+    ...createAccess(ctx, act, currency, reveal.revoke),
+    ...reveal.view,
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {
       return options.deviceData;
     },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
-    mount() {
-      const expired = ctx.expiredProgress(ctx.valuesOf());
-      // A boundary may have passed between the initial render and the mount effect.
-      const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
-      if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
-      clock.scheduleClock();
-    },
+    mount: () => refreshOnMount(ctx, clock.scheduleClock),
     get openSheet() {
       return ctx.status.openSheet;
     },
@@ -94,6 +99,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     confirmationFor: ctx.confirmationFor,
     discardHiddenConfirmation: () => {
       discardHiddenConfirmation(ctx);
+      reveal.reconcile();
       clock.scheduleDeviceWake();
     },
     snapshotScreen: () => {
@@ -101,6 +107,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
       return projectScreen(ctx.screen, ctx.defs, values, ctx.now(), ctx.status.openSheet);
     },
     reset() {
+      reveal.clear();
       ctx.status.openSheet = undefined;
       ctx.status.confirmation = undefined;
       media.reset();
@@ -111,6 +118,7 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     dispose() {
       ctx.status.disposed = true;
+      reveal.clear();
       clock.dispose();
       media.dispose();
     },

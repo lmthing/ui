@@ -21,36 +21,30 @@ import {
 import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
-import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
+import {
+  createControllerContext,
+  trackPart,
+  type ControllerContext,
+  type ControllerOptions,
+} from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
-const pressActions = [
-  "press",
-  "select",
-  "toggle",
-  "check",
-  "increment",
-  "decrement",
-  "start",
-  "stop",
-  "send",
-  "dismiss",
-];
-function actionsAt(
+const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
+function offersAt(
   ctx: ControllerContext,
   address: string,
   includeBlocked = false,
   ignoreDisabledPart = false,
-): string[] {
+): { action: string; hostReveal?: true }[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
   if (ctx.confirmationFor()) {
-    if (local === "confirm/confirm") return ["press"];
-    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
+    if (local === "confirm/confirm") return [{ action: "press" }];
+    return ["confirm/cancel", "confirm/close"].includes(local) ? [{ action: "dismiss" }] : [];
   }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
@@ -82,12 +76,21 @@ function actionsAt(
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
-    return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local)
-      .map((item) => item.action);
+    return driveAffordances(def.meta, props, id, offered, target).filter((item) => item.address === local);
   } catch {
     return [];
   }
+}
+function actionsAt(
+  ctx: ControllerContext,
+  address: string,
+  includeBlocked = false,
+  ignoreDisabledPart = false,
+) {
+  return offersAt(ctx, address, includeBlocked, ignoreDisabledPart).map(({ action }) => action);
+}
+export function offersReveal(ctx: ControllerContext, address: string) {
+  return offersAt(ctx, address).some(({ hostReveal }) => hostReveal === true);
 }
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);
@@ -156,7 +159,12 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
-export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
+export function createAccess(
+  ctx: ControllerContext,
+  act: Act,
+  currency?: AppCurrency,
+  revokeReveal?: (address: string) => void,
+) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
@@ -177,21 +185,12 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       }
       return result;
     },
-    registerPart(address: string) {
-      const local = ctx.relative(address),
-        token = Symbol(local);
-      ctx.mounted.set(local, token);
-      return () => {
-        if (ctx.mounted.get(local) === token) ctx.mounted.delete(local);
-      };
-    },
+    registerPart: (address: string) => trackPart(ctx.mounted, ctx.relative(address), revokeReveal),
     registerDisabledPart(address: string) {
-      const local = ctx.relative(address),
-        token = Symbol(local);
-      ctx.disabledParts.set(local, token);
-      return () => {
-        if (ctx.disabledParts.get(local) === token) ctx.disabledParts.delete(local);
-      };
+      const local = ctx.relative(address);
+      const remove = trackPart(ctx.disabledParts, local);
+      revokeReveal?.(local);
+      return remove;
     },
   };
 }

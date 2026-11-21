@@ -46,6 +46,10 @@ function itemControlAt(meta: Meta, part: string) {
   );
 }
 
+function revealOffer(address: string, part: string, action: string) {
+  return { address, part, action, detail: "", hostReveal: true as const };
+}
+
 export function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -75,6 +79,9 @@ export function partsOf(
             return edit === undefined || (edit && !locked);
           })
           .map((action) => {
+            const address = part === "root" ? base : `${base}/${part}`;
+            if (action === "press" && meta.actions?.reveal?.[item ? "items" : "parts"]?.includes(part))
+              return revealOffer(address, part, action);
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const record = item ? recordEdit(meta, part) : undefined;
@@ -91,7 +98,7 @@ export function partsOf(
               (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
             );
             return {
-              address: part === "root" ? base : `${base}/${part}`,
+              address,
               part,
               action,
               detail:

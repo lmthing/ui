@@ -1,5 +1,5 @@
 import { type Definition, type DeviceData, type StateName } from "@lmthing/ui/catalog";
-import { createScreenController, type Environment } from "@lmthing/ui/kit";
+import { createScreenController, type AuthenticateReveal, type Environment } from "@lmthing/ui/kit";
 
 const previewSeed = 123456789;
 export const previewComponent = "c1";
@@ -9,6 +9,7 @@ export const drawPreviewEnvironment: Environment = {
   reduceMotion: true,
   agentMode: true,
 };
+const approveExampleReveal: AuthenticateReveal = async () => "approved";
 
 /** A deterministic stream of unsigned 32-bit words for gallery fixtures only. */
 function seededRandom(seed: number) {
@@ -25,17 +26,25 @@ export function createSeededDraw(
     state = "filled",
     drawn,
     deviceData,
-  }: { seed?: number | undefined; state?: StateName; drawn?: true; deviceData?: DeviceData },
+    authenticateReveal,
+  }: {
+    seed?: number | undefined;
+    state?: StateName;
+    drawn?: true;
+    deviceData?: DeviceData;
+    authenticateReveal?: AuthenticateReveal;
+  },
 ) {
   const { draw, id, items } = def.meta;
   const shouldDraw = draw && (drawn || state === "success");
-  if (!shouldDraw && !deviceData) return;
+  if (!shouldDraw && !deviceData && !authenticateReveal) return;
   const controller = createScreenController({
     screen: { id: screen, components: [{ ...input, id: previewComponent, c: id, state }] },
     defs: { [id]: def },
     random: seededRandom(seed),
-    now: () => 0,
+    now: authenticateReveal ? Date.now : () => 0,
     deviceData,
+    authenticateReveal,
   });
   try {
     if (!shouldDraw) return controller;
@@ -47,7 +56,7 @@ export function createSeededDraw(
     }
     return controller;
   } finally {
-    controller.dispose();
+    if (!authenticateReveal) controller.dispose();
   }
 }
 
@@ -63,5 +72,6 @@ export function createPreviewController(
     state,
     ...(drawn ? { drawn } : {}),
     ...(deviceData ? { deviceData } : {}),
+    ...(def.meta.actions?.reveal ? { authenticateReveal: approveExampleReveal } : {}),
   });
 }

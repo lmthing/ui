@@ -70,7 +70,7 @@ export function driveAffordances(
   if (meta.drives === undefined) return offered;
   const rows = new Map(addressedItems(meta, props).map((row) => [`${id}/${String(row.id)}`, row]));
   return offered.flatMap((a) => {
-    const row = a.action === "press" && a.part === "root" && rows.get(a.address);
+    const row = !a.hostReveal && a.action === "press" && a.part === "root" && rows.get(a.address);
     if (!row) return [a];
     const value = row.at;
     if (!target || typeof value !== "number" || validateActionValue("seek", value)) return [];

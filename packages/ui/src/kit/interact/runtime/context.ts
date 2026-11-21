@@ -23,6 +23,7 @@ import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
+import type { AuthenticateReveal } from "./reveal";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -43,6 +44,7 @@ export type ControllerOptions = {
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
+  authenticateReveal?: AuthenticateReveal | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
@@ -181,3 +183,14 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
+
+export function trackPart(parts: Map<string, symbol>, address: string, revoke?: (address: string) => void) {
+  if (parts.has(address)) revoke?.(address);
+  const token = Symbol(address);
+  parts.set(address, token);
+  return () => {
+    if (parts.get(address) !== token) return;
+    parts.delete(address);
+    revoke?.(address);
+  };
+}

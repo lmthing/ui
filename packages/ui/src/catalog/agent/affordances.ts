@@ -23,6 +23,7 @@ export type Affordance = {
   blocked?: "max_active";
   togglePeers?: readonly string[];
   move?: { current: string | null; choices: string[] };
+  hostReveal?: true;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {

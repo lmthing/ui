@@ -43,6 +43,7 @@ export function readAffordances(
   props = sessionActionProps(meta, props, session);
   const answers = session?.kind === "rounds" ? session.assessment?.answers : undefined;
   return affordances.map((a) => {
+    if (a.hostReveal) return { ...a, detail: risks.ok! };
     const target = a.address === instance ? "root" : a.address.slice(instance.length + 1);
     const options = a.action === "select" && choiceOptions(meta, props, target);
     const item = itemEditAt(meta, props, target);

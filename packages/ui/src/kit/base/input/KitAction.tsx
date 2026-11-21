@@ -5,6 +5,7 @@ import { XStack, styled, isWeb } from "tamagui";
 import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
+import { useActionPress } from "../../interact";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
@@ -124,23 +125,6 @@ function ActionContent({
   );
 }
 
-function useActionPress(props: ActionProps, address: string, inactive: boolean) {
-  const kit = useKit();
-  if (!kit.interactive || inactive) return {};
-  if (kit.controller)
-    return {
-      onPress: () =>
-        props.action
-          ? kit.controller!.act({
-              address,
-              action: props.action,
-              ...(props.value === undefined ? {} : { value: props.value }),
-            })
-          : kit.controller!.press(address),
-    };
-  return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
-}
-
 export function KitAction({
   label,
   icon,
@@ -172,7 +156,7 @@ export function KitAction({
   const inactive = loading || disabled || Boolean(blocked);
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
-  const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
+  const handlers = useActionPress({ action, value, goto }, address.testID, inactive);
   return (
     <Frame
       {...address}

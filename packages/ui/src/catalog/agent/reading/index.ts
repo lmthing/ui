@@ -5,7 +5,9 @@ import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
+import { secretPlaceholder } from "./secret-props";
 export { readAffordances } from "./read-affordances";
+export { redactSecretProps } from "./secret-props";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {
@@ -56,7 +58,7 @@ function textsOf(schema: ReadSchema | undefined, value: Props, omit?: string): s
     const v = value[key];
     if (field.kind === "text" && typeof v === "string") return [JSON.stringify(v)];
     if (field.kind === "photo" && typeof v === "string") return [`photo:${v.replace(/^lib:/, "")}`];
-    if (field.kind === "secret" && typeof v === "string") return ["(secret)"];
+    if (field.kind === "secret" && typeof v === "string") return [secretPlaceholder];
     if (field.type === "object" && v && typeof v === "object") return textsOf(field, v as Props);
     return [];
   });
