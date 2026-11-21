@@ -7,7 +7,7 @@ import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessi
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
 import type { SendDraft } from "./act";
-import { partsOf } from "./action-input";
+import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
 
 export type Affordance = {
@@ -19,6 +19,7 @@ export type Affordance = {
   send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
+  move?: { current: string; choices: string[] };
 };
 type Props = Record<string, unknown>;
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
@@ -46,23 +47,15 @@ function actionsForItem(
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  const actions = partsOf(
-    items,
-    item,
-    `${instance}/${id}`,
-    when,
-    { ...props, $first: first },
-    meta,
-    true,
-    data,
-  );
-  return actions.filter(({ part, action }) => {
-    const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
-    const needsChoices =
-      (picker && action === "press") ||
-      (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
-    return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
-  });
+  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data)
+    .filter(({ part, action }) => {
+      const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
+      const needsChoices =
+        (picker && action === "press") ||
+        (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
+      return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
+    })
+    .flatMap((offer) => itemActionOffer(meta, props, item, offer));
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
@@ -83,6 +76,7 @@ export function affordancesOf(
   if (meta.errorActions) props = { ...props, state };
   const { parts, when } = meta.actions ?? {};
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if (a.action === "move" && meta.items?.move) return [];
     const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;

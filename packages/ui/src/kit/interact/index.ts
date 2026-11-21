@@ -7,6 +7,7 @@ export {
   useControlValue,
   useDeviceData,
   useLiveControls,
+  useMoveFocus,
   useNestedControls,
 } from "./use-control";
 export { useSwipe, swipeDirection } from "./use-swipe";

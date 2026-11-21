@@ -9,6 +9,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
+import { projectMoves } from "./action-input";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -73,6 +74,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
   source = applyRecordWire(meta, source, get);
+  source = projectMoves(def, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);

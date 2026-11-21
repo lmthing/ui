@@ -111,6 +111,8 @@ export type Meta = {
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
     editPath?: ItemEditPath;
+    /** Item-root move: the row's column index and the component's array of { label } columns. */
+    move?: { column: string; columns: string };
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<
       Record<

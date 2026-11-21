@@ -46,6 +46,7 @@ export function affordancesOfScreen(
       live ||
       def.meta.linkedEdits ||
       items?.edits ||
+      items?.move ||
       items?.records ||
       items?.pickers ||
       def.meta.clear ||

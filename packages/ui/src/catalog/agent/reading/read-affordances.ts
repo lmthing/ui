@@ -76,9 +76,9 @@ export function readAffordances(
       detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
-    if (choices) {
+    if (choices)
       detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
-    }
+    if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
     return { ...a, detail: `${detail}${risk}` };
   });
 }

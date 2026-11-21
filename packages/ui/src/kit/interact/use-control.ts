@@ -1,4 +1,5 @@
-import { createContext, useContext, useSyncExternalStore } from "react";
+import { createContext, useContext, useLayoutEffect, useSyncExternalStore, type RefObject } from "react";
+import { isWeb } from "tamagui";
 import {
   activeParentId,
   emptyDeviceData,
@@ -76,5 +77,24 @@ export function useNestedControls(meta: Meta, props: Values) {
           remaining < (control.togglePeers?.length ?? 0) &&
           control.item[control.spec.prop] !== true,
       })),
+  };
+}
+
+/** Reparenting a card replaces its DOM nodes; restore focus only for a focused human control. */
+export function useMoveFocus(pending: RefObject<string | null>, testID: string, ref: RefObject<unknown>) {
+  const node = () => ref.current as HTMLElement | null;
+  useLayoutEffect(() => {
+    if (!isWeb || pending.current !== testID) return;
+    pending.current = null;
+    const card = node();
+    (
+      card?.querySelector<HTMLElement>('[role="link"]') ??
+      card?.querySelector<HTMLElement>('[data-step-action="move"][tabindex="0"]') ??
+      card
+    )?.focus();
+  });
+  return (move: () => { ok: boolean }) => {
+    if (isWeb && node()?.contains(document.activeElement)) pending.current = testID;
+    if (!move().ok && pending.current === testID) pending.current = null;
   };
 }

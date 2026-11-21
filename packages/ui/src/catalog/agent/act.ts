@@ -7,6 +7,7 @@ import {
   affordancesOfScreen,
   controlsAreValid,
   localValues,
+  moveKey,
   selectStep,
   stageProgress,
   stageRecord,
@@ -117,10 +118,15 @@ function stageControl(
   links: Extract<ActResult, { ok: true }>["links"],
   clockOwner: "planner" | "controller",
   snapshot: DeviceData | undefined,
-  { edit, limits, changes, declared }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep>,
+  {
+    key,
+    edit,
+    limits,
+    changes,
+    declared,
+  }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
-  const key = `${screen.id}/${address}`;
   const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
   if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
@@ -167,8 +173,8 @@ export function planAct(
     const found = offered.find((a) => a.address === address && a.action === step.action);
     if (!found) return notOffered(offered, address, at);
     if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
-    const key = `${screen.id}/${address}`;
-    const validated = { ...selected, ...validateStep(screen, defs, found, step, next, key) };
+    const key = `${screen.id}/${found.move ? moveKey(address) : address}`;
+    const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
