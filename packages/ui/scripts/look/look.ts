@@ -1,60 +1,6 @@
-// pnpm look --component <Id> [--widths 320,390,430]
-// Renders the component as phone screens at several widths, in every preset and both modes, and:
-//  - writes one screenshot per width and mode: packages/ui/shots/<Id>/<width>-<mode>.png
-//    (columns are presets; every example and state is stacked);
-//  - writes variants.png for declared shared alternatives in calm light at 390px;
-//  - checks every screen automatically (clipped text, parts outside the screen, overlapping text,
-//    contrast under WCAG AA, touch targets under 44×44, console errors);
-//  - writes packages/ui/shots/<Id>/issues.json and exits 1 if there are issues.
-// Starts its own gallery on a free port, so parallel agents never collide.
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { launchChrome } from "./launch-chrome";
-import { createServer } from "vite";
-import { galleryConfig } from "./gallery-config";
-import type { LookIssue } from "./checks";
-import { bundleChecks } from "./bundle-checks";
-import { capture } from "./capture";
-import { variantSheet } from "../variants";
+import { lookArgs, runLook } from "./component";
 
-function arg(name: string) {
-  const index = process.argv.indexOf(name);
-  return index >= 0 ? process.argv[index + 1] : undefined;
-}
-
-export async function look(id: string, widths: number[]) {
-  const out = new URL(`../../shots/${id}/`, import.meta.url).pathname;
-  rmSync(out, { recursive: true, force: true });
-  mkdirSync(out, { recursive: true });
-  const content = await bundleChecks();
-  const server = await createServer(galleryConfig(0));
-  await server.listen();
-  const base = server.resolvedUrls?.local[0];
-  const browser = await launchChrome();
-  const issues: (LookIssue & { width: number; mode: string })[] = [];
-  try {
-    for (const width of widths) {
-      for (const mode of ["light", "dark"] as const) {
-        issues.push(
-          ...(await capture(browser, `${base}?c=${id}&w=${width}&mode=${mode}`, out, width, mode, content)),
-        );
-      }
-    }
-    const { width, mode } = variantSheet;
-    issues.push(
-      ...(await capture(browser, `${base}?c=${id}&variant-sheet`, out, width, mode, content, true)),
-    );
-  } finally {
-    await browser.close();
-    await server.close();
-  }
-  writeFileSync(`${out}issues.json`, `${JSON.stringify(issues, null, 2)}\n`);
-  return issues;
-}
-
-const id = arg("--component");
-if (!id) throw new Error("Usage: pnpm look --component <Id> [--widths 320,390,430]");
-const widths = (arg("--widths") ?? "320,390,430").split(",").map(Number);
-const issues = await look(id, widths);
+const issues = await runLook(lookArgs(process.argv.slice(2)));
 const unique = new Map(issues.map((i) => [`${i.kind}|${i.part}|${i.detail}`, i]));
 for (const i of unique.values())
   console.log(`ISSUE ${i.kind.padEnd(8)} ${i.width}px ${i.mode} ${i.frame} ${i.part}: ${i.detail}`);
