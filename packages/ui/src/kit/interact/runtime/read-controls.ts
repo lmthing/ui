@@ -1,5 +1,6 @@
 import {
   migrateScreen,
+  projectDeviceData,
   readComponent,
   readScreen,
   selectionBindingFor,
@@ -80,6 +81,7 @@ function readKeypads(
   lang?: string,
   deviceData?: DeviceData,
 ) {
+  const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -89,7 +91,7 @@ function readKeypads(
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       if (!def) return [`${id} ${c} (unknown)`];
-      const selection = selectionBindingFor(screen, defs, def.meta, id, local, deviceData);
+      const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
       return readComponent(
         withKeypadDrafts(def, id, local),
         props,

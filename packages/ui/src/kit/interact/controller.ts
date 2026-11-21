@@ -13,6 +13,7 @@ import { projectScreen } from "./live-screen";
 import {
   emptyDeviceData,
   liveProps,
+  projectDeviceData,
   projectSelectionBinding,
   selectDeviceData,
   selectionBindingFor,
@@ -30,7 +31,7 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  const data = ctx.options.deviceData;
+  const data = projectDeviceData(ctx.options.deviceData, values);
   const live = liveProps(definition, props, component, local, true, data);
   if (!definition.selectionBinding) return live;
   const sheet = ctx.status.openSheet;
@@ -56,7 +57,7 @@ export function createScreenController(options: ControllerOptions) {
     deviceDataFor(component: string, data = options.deviceData) {
       const source = ctx.sourceOf(component);
       const def = source && ctx.defs[source.c];
-      return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
+      return def ? selectDeviceData(def.meta, projectDeviceData(data, ctx.valuesOf())) : emptyDeviceData;
     },
     get deviceData() {
       return options.deviceData;

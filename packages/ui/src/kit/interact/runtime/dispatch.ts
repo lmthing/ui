@@ -1,5 +1,8 @@
 import {
+  filterDeviceDataScreen,
+  projectDeviceData,
   hasPlaybackClock,
+  hasRecordClock,
   withDisabledSelectionChecks,
   wordsFor,
   type ActStep,
@@ -7,25 +10,36 @@ import {
 } from "../../../catalog";
 import type { ActOptions, ActReply } from "../index";
 import { actionFailure } from "../actions";
-import { snapshotPlanning, type ControllerContext } from "./context";
+import type { ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
+
+function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+  const at = ctx.now();
+  const values = ctx.valuesOf(at);
+  if (ctx.standalone)
+    for (const { c, id } of ctx.screen.components)
+      if (ctx.defs[c] && hasRecordClock(ctx.defs[c]!.meta)) values[ctx.key(id, "$now")] = at;
+  const disabledParts = new Map(ctx.disabledParts);
+  return {
+    ...ctx,
+    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projectDeviceData(ctx.options.deviceData, values)),
+    now: () => at,
+    valuesOf: () => values,
+    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
+    mounted: new Map(ctx.mounted),
+    disabledParts,
+    liveScreen: (next, sheet, covered) =>
+      withDisabledSelectionChecks(ctx.liveScreen(next, sheet, covered, at), disabledParts),
+    expiredProgress: (next) => ctx.expiredProgress(next, at),
+  };
+}
 
 export function discardHiddenConfirmation(ctx: ControllerContext) {
   if (ctx.status.confirmation && !ctx.confirmationFor()) {
     ctx.status.confirmation = undefined;
     ctx.store.set(`${ctx.screen.id}/$confirmation`, undefined);
   }
-}
-
-function planningSnapshot(ctx: ControllerContext): ControllerContext {
-  const snapshot = snapshotPlanning(ctx);
-  const { liveScreen, disabledParts } = snapshot;
-  return {
-    ...snapshot,
-    liveScreen: (values, sheet, covered) =>
-      withDisabledSelectionChecks(liveScreen(values, sheet, covered), disabledParts),
-  };
 }
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
@@ -37,7 +51,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = planningSnapshot(ctx);
+    const planning = snapshotPlanning(ctx);
     const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
     if (opts.dryRun)
@@ -64,9 +78,12 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!ctx.standalone) {
       state.values[`${ctx.screen.id}/$sheet`] = state.sheet;
       state.values[`${ctx.screen.id}/$agentMode`] = Boolean(opts.agent);
-      // A mounted action's planning timestamp must not freeze subsequent detached playback reads.
-      for (const { c, id } of ctx.screen.components)
-        if (ctx.defs[c] && hasPlaybackClock(ctx.defs[c]!.meta)) state.values[ctx.key(id, "$now")] = undefined;
+    }
+    // Planning timestamps must not freeze subsequent detached reads.
+    for (const { c, id } of ctx.screen.components) {
+      const meta = ctx.defs[c]?.meta;
+      if (meta && (hasRecordClock(meta) || (!ctx.standalone && hasPlaybackClock(meta))))
+        state.values[ctx.key(id, "$now")] = undefined;
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;

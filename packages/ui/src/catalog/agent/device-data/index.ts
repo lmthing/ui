@@ -1,6 +1,14 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import type { ScreenLike } from "../index";
+export { inLocalWeek } from "./local-week";
+export {
+  projectDeviceData,
+  recordKey,
+  recordSnapshotKey,
+  resetRecordSnapshots,
+  stageRecordSnapshot,
+} from "./record-snapshot";
 
 /** Host-owned record snapshots, keyed by kind. Components narrow the records they consume. */
 export type DeviceData = Readonly<Partial<Record<string, readonly unknown[]>>>;

@@ -1,6 +1,6 @@
 import type { CastLike } from "../../types";
 import { defaultLines, type ComposeProbe, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
-import { checkScreen } from "../../rules";
+import { checkScreen, type PackScreenContext } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
 import { buildEntry, variantVocabulary } from "../../prompt";
 import { migrateScreen } from "../../migrations";
@@ -75,6 +75,7 @@ export function scoreComposition(
   meta: ArchetypeMeta,
   layout: string,
   defs: Record<string, Definition>,
+  options?: { packContext?: PackScreenContext },
 ): { screen?: ScreenLike; issues: string[] } {
   let decoded = decode(reply) as ScreenLike | undefined;
   if (
@@ -85,7 +86,7 @@ export function scoreComposition(
   )
     return { issues: ["Expected a screen object with component ids"] };
   decoded = migrateScreen(compositionInput(decoded, defs), { variantOnly: true });
-  const issues = checkScreen(decoded, defs).map((issue) => `${issue.code}: ${issue.message}`);
+  const issues = checkScreen(decoded, defs, options).map((issue) => `${issue.code}: ${issue.message}`);
   issues.push(...packPropIssues(decoded, meta.defaults[layout]!, defs));
   let available = [...decoded.components];
   for (const slot of meta.layouts[layout]!.slots) {
@@ -127,13 +128,13 @@ type ComposeOptions = {
   archetypes: readonly ArchetypeMeta[];
   probes?: readonly ComposeProbe[];
   defs: Record<string, Definition>;
+  packContext?: PackScreenContext;
   cast: CastLike | ((archetype: string, layout: string) => CastLike);
   callModel: CallModel;
   samples?: number;
   rubric?: boolean;
   only?: readonly string[];
 };
-
 export async function runComposeProbes(options: ComposeOptions): Promise<ComposeResult[]> {
   const briefs = new Map<string, string[]>();
   for (const { archetype, layout, brief } of options.probes ?? []) {
@@ -152,9 +153,8 @@ export async function runComposeProbes(options: ComposeOptions): Promise<Compose
     }
   return results;
 }
-
 async function runComposeProbe(
-  { cast, defs, callModel, samples = 3, rubric: useRubric }: ComposeOptions,
+  { cast, defs, packContext, callModel, samples = 3, rubric: useRubric }: ComposeOptions,
   meta: ArchetypeMeta,
   layout: string,
   brief?: string,
@@ -167,7 +167,7 @@ async function runComposeProbe(
   for (let sample = 0; sample < samples; sample++) {
     const reply = await callModel(prompt, sample, format);
     replies.push(reply);
-    scored.push(scoreComposition(reply, meta, layout, defs));
+    scored.push(scoreComposition(reply, meta, layout, defs, packContext && { packContext }));
   }
   const passed = scored.filter((result) => !result.issues.length).length;
   const result: ComposeResult = {

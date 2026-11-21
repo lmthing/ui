@@ -6,7 +6,9 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  projectDeviceData,
   projectSelectionBinding,
+  recordClockOffer,
   selectionBindingFor,
   sessionEvent,
   withDisabledSelectionChecks,
@@ -40,16 +42,15 @@ function actionsAt(
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
-  if (ctx.confirmationFor())
-    return local === "confirm/confirm"
-      ? ["press"]
-      : ["confirm/cancel", "confirm/close"].includes(local)
-        ? ["dismiss"]
-        : [];
+  if (ctx.confirmationFor()) {
+    if (local === "confirm/confirm") return ["press"];
+    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
+  }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
   const sheet = ctx.status.openSheet;
-  const screen = ctx.liveScreen(values, sheet, Boolean(sheet), now);
+  const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
+  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
   const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
@@ -69,12 +70,12 @@ function actionsAt(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const parsed = parseControlProps(def, raw, (part) => localValues[`${id}/${part}`]);
-    const data = ctx.options.deviceData;
-    const live = liveProps(def.meta, parsed, id, localValues, true, data);
-    const sourceScreen = withDisabledSelectionChecks(screen, ctx.disabledParts);
-    const selection = selectionBindingFor(sourceScreen, ctx.defs, def.meta, id, localValues, data);
+    const get = (part: string) => localValues[`${id}/${part}`];
+    const data = projectDeviceData(ctx.options.deviceData, values);
+    const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
+    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
     const props = projectSelectionBinding(def.meta, live, selection?.view);
+    const clock = recordClockOffer(def, raw, props, get, data, now, values);
     return affordancesOf(
       def.meta,
       props,
@@ -82,6 +83,8 @@ function actionsAt(
       localValues,
       (props.state as StateName | undefined) ?? entry.state,
       includeBlocked,
+      data,
+      clock,
     )
       .filter((item) => item.address === local)
       .map((item) => item.action);
@@ -126,19 +129,15 @@ function isPressAction(ctx: ControllerContext, local: string, action: string) {
   );
 }
 function read(ctx: ControllerContext) {
-  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
+  const { lang, deviceData } = ctx.options;
+  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
   const confirmation = ctx.confirmationFor();
   if (confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
-  const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
-  const reading = readControls(
-    visible,
-    ctx.defs,
-    ctx.valuesOf(),
-    ctx.options.lang,
-    ctx.disabledParts,
-    ctx.options.deviceData,
-  );
+  const values = ctx.valuesOf();
+  const sheet = ctx.status.openSheet;
+  const visible = ctx.liveScreen(values, sheet, Boolean(sheet));
+  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, deviceData);
   if (ctx.standalone) return reading;
   return [
     reading,
@@ -153,12 +152,10 @@ function isKeypad(ctx: ControllerContext, full: string) {
   const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
-
 export function createStandaloneAccess(options: ControllerOptions) {
   const ctx = createControllerContext(options, true);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
 }
-
 export function createAccess(ctx: ControllerContext, act: Act) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>

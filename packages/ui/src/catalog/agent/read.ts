@@ -4,7 +4,7 @@ import { numberLine } from "../format";
 import type { Definition } from "../probes";
 import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
-import { projectLiveClocks } from "./clocks";
+import { projectLiveClocks, recordClockOffer } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
 import type { Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
@@ -12,7 +12,7 @@ import { sessionKey, sessionState, sessionStatus, type SessionState } from "./se
 import { migrateLine, migrateScreen } from "../migrations";
 import { componentTexts, readAffordances, readItems, type ReadSchema as Json } from "./reading";
 import { projectVisibleItems } from "./visibility";
-import { isDeviceDataVisible, selectDeviceData, type DeviceData } from "./device-data";
+import { isDeviceDataVisible, projectDeviceData, selectDeviceData, type DeviceData } from "./device-data";
 import {
   disabledSelectionChecks,
   projectSelectionBinding,
@@ -50,6 +50,7 @@ function readingProps(
     meta.linkedEdits ||
     meta.selectionBinding ||
     meta.items?.visibleWhen ||
+    meta.items?.records ||
     Object.values(meta.selections ?? {}).some((s) => s.runtime);
   const projected = projectVisibleItems(
     meta,
@@ -87,6 +88,20 @@ function migrateInput(component: string, input: unknown) {
   return props;
 }
 
+function readInput(
+  def: Definition,
+  input: unknown,
+  instance: string,
+  values: Props,
+  data: DeviceData | undefined,
+  selection: BoundSelection | undefined,
+) {
+  const migrated = migrateInput(def.meta.id, input);
+  const validated = parseControlProps(def, migrated, (part) => values[`${instance}/${part}`]);
+  const live = liveProps(def.meta, validated, instance, values, true, data);
+  return { migrated, validated, props: projectSelectionBinding(def.meta, live, selection) };
+}
+
 /** Read addressed text and affordances, without styling or secrets (plan 4.12). */
 export function readComponent(
   def: Definition,
@@ -99,18 +114,18 @@ export function readComponent(
   selection?: BoundSelection,
 ): string[] {
   const { meta } = def;
+  deviceData = projectDeviceData(deviceData, values);
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
-  const validated = parseControlProps(def, migrateInput(meta.id, input), get);
-  const live = liveProps(meta, validated, instance, values, true, deviceData);
-  const props = projectSelectionBinding(meta, live, selection);
+  const { migrated, validated, props } = readInput(def, input, instance, values, deviceData, selection);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
   state = sessionStatus(meta, props, base, get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const offered = affordancesOf(meta, props, instance, values, state);
+  const clock = recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values);
+  const offered = affordancesOf(meta, props, instance, values, state, false, deviceData, clock);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
@@ -163,6 +178,7 @@ export function readScreen(
   lang?: string,
   deviceData?: DeviceData,
 ): string {
+  const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -171,7 +187,7 @@ export function readScreen(
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];
-    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, deviceData);
+    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot);
     return readComponent(def, props, id, state, local, lang, deviceData, selection?.view);
   });
   return [header, ...lines].join("\n");

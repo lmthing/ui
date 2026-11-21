@@ -10,21 +10,27 @@ export {
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,
+  projectDeviceData,
+  recordSnapshotKey,
+  resetRecordSnapshots,
   selectDeviceData,
   type DeviceData,
 } from "./device-data";
 export { visibleItems } from "./visibility";
-export { projectLiveInputs } from "./live-inputs";
+export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
 export {
   hasReportConfirmation,
   itemEditSpec,
   reportConfirmation,
+  isRecordAction,
+  recordClaimAt,
   reportRemovalAt,
   stageReportEdit,
   type ItemEditPath,
   type ItemEdits,
   type ReportRemoval,
+  type RecordClaim,
 } from "./report-edits";
 export {
   choiceOptions,
@@ -93,6 +99,10 @@ export {
   clockActionValid,
   clockControlDeclared,
   hasPlaybackClock,
+  hasRecordClock,
+  recordClockOffer,
+  recordClockOwnersKey,
+  resetRecordClockOwners,
   isPlaybackAction,
   clockChanges,
 } from "./clocks";
