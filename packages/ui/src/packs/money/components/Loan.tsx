@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { loanCadences, loanCopy, loanReading } from "../copy";
+import { isLoanDue, loanCadences, loanCopy, loanReading } from "../copy";
 import { moneyWordsFor } from "../lang";
 export const meta = {
   id: "Loan",
@@ -13,6 +13,7 @@ export const meta = {
     "Write opening principal > 0, nominal annual rate 0–100, payment per period > 0, firstDue YYYY-MM-DD, and at most six recorded payments with due and positive amount. No currency, balance, interest totals, schedule or finish date.",
     "Use detail full only when asked to list upcoming installments; otherwise leave detail null for a summary. For a schedule without a spacing request, density must be null, not comfortable.",
     'If asked for a Pay-in-4 or installments plan, use style "installments" and leave detail null. Set cadence to weekly, biweekly (every two weeks) or monthly when specified; null otherwise. Do not invent a payment cadence.',
+    "For recorded payments, use the scheduled installment due date for the cadence, not the day the money was paid.",
   ],
   region: "body",
   weight: 2,
@@ -45,6 +46,14 @@ export const props = loanSource
     style: z.enum(["installments"]).optional(),
     ...c.variantProps(meta.variants),
   })
+  .refine(
+    ({ firstDue, cadence, payments }) =>
+      !cadence || payments.every(({ due }) => isLoanDue(firstDue, due, cadence)),
+    {
+      path: ["payments"],
+      message: "Recorded payments must use scheduled due dates",
+    },
+  )
   .overwrite((value) => ({ ...value, linked: value.goto !== undefined }));
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
   const thing = c.thingOf(cast);

@@ -1,4 +1,4 @@
-import { compactMoneyLine, moneyLine } from "../../../catalog";
+import { compactMoneyLine, moneyLine, type AppCurrency } from "../../../catalog";
 import { moneyWordsFor, type MoneyWords } from "../lang";
 
 type Account = {
@@ -11,16 +11,21 @@ type Account = {
   rewardsValue?: number | undefined;
 };
 
-export function accountCopy(account: Account, lang?: string, words = moneyWordsFor(lang)) {
+export function accountCopy(
+  account: Account,
+  lang?: string,
+  words = moneyWordsFor(lang),
+  currency?: AppCurrency,
+) {
   const kind = words.accountKinds[account.kind];
-  const exact = moneyLine(account.balance, undefined, undefined, lang);
-  const balance = exact.length > 11 ? compactMoneyLine(account.balance, undefined, lang) : exact;
+  const exact = moneyLine(account.balance, currency, undefined, lang);
+  const balance = exact.length > 11 ? compactMoneyLine(account.balance, currency, lang) : exact;
   const extras = [
     ["credit_limit", account.creditLimit, words.accountCreditLimit],
     ["rewards_value", account.rewardsValue, words.accountRewardsValue],
   ] as const;
   const details = extras.flatMap(([part, value, label]) =>
-    value === undefined ? [] : [{ part, text: label(compactMoneyLine(value, undefined, lang)) }],
+    value === undefined ? [] : [{ part, text: label(compactMoneyLine(value, currency, lang)) }],
   );
   return {
     kind,
@@ -35,9 +40,13 @@ export function accountCopy(account: Account, lang?: string, words = moneyWordsF
   };
 }
 
-export function accountReading(accounts: readonly Account[], lang?: string): string[] {
+export function accountReading(
+  accounts: readonly Account[],
+  lang?: string,
+  currency?: AppCurrency,
+): string[] {
   return accounts.map((account) => {
-    const { kind, suffix, balance, exact, details } = accountCopy(account, lang);
+    const { kind, suffix, balance, exact, details } = accountCopy(account, lang, undefined, currency);
     const visible = `${kind}${suffix ?? ""} ${balance}`;
     const line = [
       balance === exact ? visible : `${visible} (${exact})`,

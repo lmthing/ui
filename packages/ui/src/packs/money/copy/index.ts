@@ -22,7 +22,7 @@ export {
   priceChartRanges,
   priceChartReading,
 } from "./PriceChart";
-export { loanCadences, loanToday, projectLoan } from "./repayment";
+export { isLoanDue, loanCadences, loanToday, projectLoan } from "./repayment";
 export { splitBalances, splitCopy, splitPayments, splitReading } from "./Split";
 export {
   transactionAmount,

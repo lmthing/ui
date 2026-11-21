@@ -169,7 +169,7 @@ it.each(cases)(
     const name = part.split("/").at(-1)!;
     const adds = id === "Loan";
     expect(def.meta.variantParts).toMatchObject({
-      [`${axis}.${value}`]: { [adds ? "adds" : "hides"]: [name] },
+      [`${axis}.${value}`]: { [adds ? "adds" : "hides"]: id === "Transactions" ? [name, "receipt"] : [name] },
     });
     const addresses = (props: unknown) =>
       [...addressedElements(renderInstance(id, props, "filled", theme)).keys()].sort();

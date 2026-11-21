@@ -53,7 +53,7 @@ export function transactionAmount(amount: number, lang?: string): string {
   return compactAmount(compactMoneyLine(magnitude, undefined, lang), amount < 0);
 }
 
-export function transactionCopy(entry: Transaction, lang?: string) {
+export function transactionCopy(entry: Transaction, lang?: string, showLead = true) {
   const words = moneyWordsFor(lang).transactions;
   const amount = transactionAmount(entry.amount, lang);
   const status = entry.status === undefined ? undefined : words.status[entry.status];
@@ -61,7 +61,7 @@ export function transactionCopy(entry: Transaction, lang?: string) {
     words.entry(entry.payee, entry.category, amount),
     status,
     entry.note,
-    entry.receipt && words.receipt,
+    showLead && entry.receipt && words.receipt,
   ]
     .filter(Boolean)
     .join(words.separator);
@@ -72,11 +72,12 @@ export function transactionReading(
   entries: readonly Transaction[],
   lang?: string,
   now = new Date(),
+  showLead = true,
 ): string[] {
   return transactionGroups(entries).flatMap(({ date, entries }) => [
     transactionDay(date, lang, now),
     ...entries.map((entry) => {
-      const { label } = transactionCopy(entry, lang);
+      const { label } = transactionCopy(entry, lang, showLead);
       return entry.id ? `${entry.id} ${label}` : label;
     }),
   ]);

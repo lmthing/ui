@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { components, readComponent } from "@lmthing/ui/catalog";
-import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, renderInstance } from "../../../../../test/render";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { components, readComponent, stampItemIds, themeName } from "@lmthing/ui/catalog";
+import { createScreenController, KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
+import { addressedElements, config, elementAt, renderInstance } from "../../../../../test/render";
 
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const account = { name: "Everyday", kind: "card", balance: -45, swatch: "navy", goto: "card" };
@@ -29,16 +32,18 @@ describe("money Wave 6 option contracts", () => {
     const original = { accounts: [account, { ...account, name: "Reserve", goto: "reserve" }] };
     const input = {
       ...original,
-      style: "stacked",
+      arrange: "rows",
       accounts: [{ ...account, creditLimit: 2500, rewardsValue: 0 }, original.accounts[1]],
     };
     expect(def.props.safeParse(input).success).toBe(true);
-    expect(def.props.safeParse({ ...original, style: "grid" }).success).toBe(false);
+    expect(def.props.safeParse({ ...original, arrange: "grid" }).success).toBe(false);
     for (const key of ["creditLimit", "rewardsValue"]) {
       expect(def.props.safeParse({ accounts: [{ ...account, [key]: -1 }] }).success).toBe(false);
     }
     const before = renderInstance("AccountCard", original, "filled", theme);
     const stacked = renderInstance("AccountCard", input, "filled", theme);
+    expect(elementAt(before, "home/c1/root").children).toHaveLength(1);
+    expect(elementAt(stacked, "home/c1/root").children).toHaveLength(2);
     expect(
       [...addressedElements(stacked).keys()].filter((address) => !/credit_limit|rewards_value/.test(address)),
     ).toEqual([...addressedElements(before).keys()]);
@@ -81,13 +86,42 @@ describe("money Wave 6 option contracts", () => {
     expect(controller.press("home/c1/r1/paid")).toMatchObject({ ok: true });
     expect(controller.read()).toContain("[c1/r1/paid check:done]");
     const due = { ...input, style: "due" };
-    expect(renderInstance("Bills", due, "filled", theme)).not.toContain(manage);
-    expect(readComponent(def, due, "c1").join("")).not.toContain("/manage");
+    expect(def.props.safeParse(due).success).toBe(false);
+    expect(def.props.safeParse({ bills: [{ ...managed, manage: { goto: "sheet" } }] }).success).toBe(false);
     expect(renderInstance("Bills", input, "empty", theme)).not.toContain(manage);
     expect(def.props.safeParse({ bills: [{ ...bill, trialEnds: "2090-02-29" }] }).success).toBe(false);
     expect(
       def.props.safeParse({ bills: [{ ...bill, manage: { goto: "https://example.com" } }] }).success,
     ).toBe(false);
+  });
+
+  it("uses the controller currency for balances, limits and rewards in the view and the reading", () => {
+    const input = { accounts: [{ ...account, creditLimit: 2500, rewardsValue: 12.5 }] };
+    const { AccountCard: def } = components;
+    const controller = createScreenController({
+      defs: components,
+      currency: "GBP",
+      lang: "en-GB",
+      screen: { id: "home", components: [{ id: "c1", c: "AccountCard", ...input }] },
+    });
+    const props = stampItemIds(def.meta, def.props.parse(input));
+    try {
+      const view = createElement(
+        PartScope,
+        { screen: "home", component: "c1", rev: 1, state: "filled" },
+        createElement(renderers.AccountCard, props),
+      );
+      const tree = createElement(KitProvider, { theme, controller, lang: "en-GB" }, view);
+      const html = renderToStaticMarkup(
+        createElement(TamaguiProvider, { config, defaultTheme: themeName(theme) }, tree),
+      );
+      for (const amount of ["£45", "Credit limit: £2,500", "Rewards: £12.50"]) {
+        expect(html).toContain(amount);
+        expect(controller.read()).toContain(amount);
+      }
+    } finally {
+      controller.dispose();
+    }
   });
 
   it("shows a transaction's optional metadata without changing its action or other entries", () => {
@@ -110,6 +144,10 @@ describe("money Wave 6 option contracts", () => {
     expect(loading).not.toContain("home/c1/r1/receipt");
     expect(loading).not.toContain("home/c1/r1/note");
     expect(readComponent(def, input, "c1", "loading").join("\n")).not.toContain("Charged twice");
+    const noLead = { ...input, lead: "none" };
+    expect(def.props.parse(noLead).entries[0]?.receipt).toBe("local:1");
+    expect(renderInstance("Transactions", noLead, "filled", theme)).not.toContain("home/c1/r1/receipt");
+    expect(readComponent(def, noLead, "c1").join("\n")).not.toContain("Receipt");
     for (const patch of [
       { receipt: "https://example.com/a" },
       { status: "cleared" },
@@ -136,6 +174,9 @@ describe("money Wave 6 option contracts", () => {
     expect(read).toContain("$10.00");
     expect(read).not.toContain("press");
     expect(def.props.safeParse({ ...input, cadence: "daily" }).success).toBe(false);
+    const record = (due: string) => ({ ...input, payments: [{ due, amount: 30 }] });
+    expect(def.props.safeParse(record("2090-12-21")).success).toBe(false);
+    expect(def.props.safeParse(record("2090-12-28")).success).toBe(true);
     expect(def.props.safeParse({ ...input, style: "schedule" }).success).toBe(false);
     const loading = renderInstance("Loan", input, "loading", theme);
     expect(loading).not.toContain("home/c1/schedule");

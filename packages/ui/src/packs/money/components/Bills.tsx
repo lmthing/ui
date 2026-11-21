@@ -3,6 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { billLines, billsReading, billTotalLine, localBillDate, orderedBills } from "../copy";
 import { moneyWordsFor } from "../lang";
+// prettier-ignore
 export const meta = {
   id: "Bills",
   status: "ready",
@@ -23,18 +24,7 @@ export const meta = {
   parts: ["root", "total", "empty"],
   items: {
     key: "bills",
-    parts: [
-      "root",
-      "name",
-      "amount",
-      "due",
-      "repeat",
-      "paid",
-      "icon",
-      "trial_ends",
-      "manage",
-      "manage_label",
-    ],
+    parts: ["root", "name", "amount", "due", "repeat", "paid", "icon", "trial_ends", "manage", "manage_label"],
     variants: { tone: ["neutral", "good", "warn", "bad"], mark: ["none", "muted"] },
   },
   states: ["filled", "empty"],
@@ -57,6 +47,8 @@ export const props = z.strictObject({
     paid: z.boolean(), icon: c.icon,
   }).overwrite((bill) => (bill.manage ? { ...bill, manageable: true } : bill))).min(1).max(6),
   style: z.enum(["due", "subscriptions"]).default("due"),
+}).refine(({ bills, style }) => style === "subscriptions" || bills.every(({ manage }) => !manage), {
+  path: ["bills"], message: "Manage links require subscriptions style",
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
@@ -114,7 +106,7 @@ export const probes = [
   { ...write("Track Power at 60, due 2026-12-01, unpaid, recurring monthly with a zap icon. Show the due date and paid tick, but hide the repeat label."), variant: { axis: "detail", value: "brief" } },
   { ...write("In my subscriptions list, Trot route planner costs 24 every month, is unpaid and has a map icon. Its free trial ends 2026-12-01; show the trial end date."), expectProps: { bills: [{ trialEnds: "2026-12-01" }] } },
   { ...write("Show my Trot phone plan as a subscription, 12 monthly, unpaid, phone icon. Include a separate Manage shortcut opening the phone_plan screen so I can cancel or change it there."), expectProps: { style: "subscriptions", bills: [{ manage: { goto: "phone_plan" } }] } },
-  read("Mark Ledge supplies paid using its checkbox, without opening the bill", { address: "b1/r1/paid", action: "check" }),
+  read("Tick the paid checkbox next to Ledge supplies; do not open the bill", { address: "b1/r1/paid", action: "check" }),
 ] satisfies c.Probe[];
 
 type BillsProps = c.Props<typeof props, typeof meta>;
@@ -131,12 +123,7 @@ function BillRow({
   const name = overdue ? words.bills.overdue(bill.name) : bill.name;
   const label = [name, amount, due && words.bills.due(due), repeat, trial].filter(Boolean).join(words.bills.separator);
   return (
-    <kit.KitRow
-      item={bill.id}
-      part={null}
-      label={bill.name}
-      inline
-      density={density}
+    <kit.KitRow item={bill.id} part={null} label={bill.name} inline density={density}
       trailing={<kit.KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
     >
       <kit.KitRow

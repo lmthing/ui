@@ -3,7 +3,7 @@ import * as c from "../../../catalog";
 import * as kit from "../../../kit";
 import { accountCopy, accountReading } from "../copy";
 import { moneyWordsFor } from "../lang";
-
+// prettier-ignore
 export const meta = {
   id: "AccountCard",
   status: "ready",
@@ -12,28 +12,24 @@ export const meta = {
   pick: "Your separate accounts as cards, with kind, last digits and balance. Not one total (Amount), or a client's payment (PaymentStatus).",
   writeHints: [
     "When asked to hide account ending digits, use detail brief and keep last4. An account's swatch is not a surface request. Unrequested density and surface must be null, never comfortable or card.",
-    'Use style "stacked" for a vertical stack of full-width account cards. creditLimit and rewardsValue are optional numeric amounts on an account; write them only when given.',
+    'Use arrange "rows" for a vertical stack of full-width account cards; null keeps the usual sideways cards. creditLimit and rewardsValue are optional numeric amounts on an account; write them only when given.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "Balances typed in on the device; a bank link would need an outside service.",
-  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"] },
+  variants: { detail: ["full", "brief"], density: ["comfortable", "compact"], surface: ["card", "outlined"], arrange: ["strip", "rows"] },
   variantParts: { "detail.brief": { hides: ["last4"] } },
   parts: ["root"],
-  items: {
-    key: "accounts",
-    parts: ["root", "name", "kind", "last4", "balance", "swatch", "credit_limit", "rewards_value"],
-  },
+  items: { key: "accounts", parts: ["root", "name", "kind", "last4", "balance", "swatch", "credit_limit", "rewards_value"] },
   states: ["filled", "loading"],
   actions: { items: { root: ["press"] } },
-  read: (input, state, lang): string[] =>
-    state === "filled" ? accountReading((input as z.output<typeof props>).accounts, lang) : [],
+  read: (input, state, lang, _data, currency): string[] =>
+    state === "filled" ? accountReading((input as z.output<typeof props>).accounts, lang, currency) : [],
 } as const satisfies c.Meta;
 // prettier-ignore
 export const props = z.strictObject({
     ...c.variantProps(meta.variants),
-    style: z.enum(["stacked"]).optional(),
     accounts: z.array(z.strictObject({
       name: c.text(20), kind: z.enum(["current", "savings", "card", "cash", "jar"]),
       last4: c.text(4).regex(/^\d{4}$/).optional(), balance: z.number(),
@@ -80,8 +76,9 @@ export const examples = [
   { ...ledgeAccounts, detail: "brief" },
   { ...ledgeAccounts, density: "compact" },
   { ...ledgeAccounts, surface: "outlined" },
+  { ...ledgeAccounts, arrange: "rows" },
   {
-    style: "stacked",
+    arrange: "rows",
     accounts: [
       { name: "Trot expenses", kind: "card", last4: "9034", balance: -120, creditLimit: 2500, rewardsValue: 37.5, swatch: "purple", goto: "card" },
       { name: "Fuel reserve", kind: "jar", balance: 175, swatch: "blue", goto: "fuel" },
@@ -104,7 +101,7 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
-  { ...write("Stack my account cards vertically, full width. Everyday current balance 400, navy, opens current. Savings balance 600, green, opens savings."), expectProps: { style: "stacked" } },
+  { ...write("Stack my account cards vertically, full width. Everyday current balance 400, navy, opens current. Savings balance 600, green, opens savings."), variant: { axis: "arrange", value: "rows" } },
   { ...write("My purple Everyday card has a balance of -120 and a credit limit of 2500. It opens card. Show that limit with the balance."), expectProps: { accounts: [{ creditLimit: 2500 }] } },
   { ...write("Show my purple Everyday card with a balance of -120 and rewards worth 37.50 in money. It opens card. Include the rewards value on the card."), expectProps: { accounts: [{ rewardsValue: 37.5 }] } },
   read("Open the Ledge supplies account", { address: "a1/r1", action: "press" }),
@@ -173,22 +170,24 @@ function AccountTile({
     </kit.PartContext.Provider>
   );
 }
-export function AccountCard({ accounts, density: requested, surface, style }: CardProps) {
+// prettier-ignore
+export function AccountCard({ accounts, density: requested, surface, arrange }: CardProps) {
   const density = kit.useVariant("density", meta.variants.density, requested);
   const finish = { density, surface };
   const loading = kit.useComponentState() === "loading";
   const { lang, words } = kit.useWords(moneyWordsFor);
-  const cards = accounts.map((account) => ({ account, copy: accountCopy(account, lang, words) }));
+  const currency = kit.useAppCurrency(), stacked = arrange === "rows";
+  const cards = accounts.map((account) => ({ account, copy: accountCopy(account, lang, words, currency) }));
   const numberScale =
-    (style !== "stacked" && cards.length > 1) || cards.some(({ copy }) => copy.balance.length > 9)
+    (!stacked && cards.length > 1) || cards.some(({ copy }) => copy.balance.length > 9)
       ? "compact"
       : "display";
   const tiles = cards.map(({ account, copy }) => (
     <AccountTile key={account.id} account={account} copy={copy} {...{ loading, numberScale, finish }} />
   ));
   return (
-    <kit.KitCard style={style === "stacked" ? "cards" : "plain"} part="root">
-      {style === "stacked" || tiles.length === 1 ? (
+    <kit.KitCard style={stacked ? "cards" : "plain"} part="root">
+      {stacked || tiles.length === 1 ? (
         tiles
       ) : tiles.length === 2 ? (
         <kit.KitGrid>{tiles}</kit.KitGrid>

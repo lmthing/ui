@@ -6,6 +6,7 @@ export const loanCadences = ["weekly", "biweekly", "monthly"] as const;
 type Cadence = (typeof loanCadences)[number];
 const periodsPerYear = { weekly: 52, biweekly: 26, monthly: 12 };
 const daysPerPeriod = { weekly: 7, biweekly: 14 };
+const dayMs = 86_400_000;
 
 export type LoanTerms = {
   principal: number;
@@ -47,6 +48,18 @@ function minorScale(currency: Currency): number {
   const digits = new Intl.NumberFormat(undefined, { style: "currency", currency }).resolvedOptions()
     .maximumFractionDigits;
   return 10 ** (digits ?? 2);
+}
+
+export function isLoanDue(firstDue: string, recordedDue: string, cadence: Cadence): boolean {
+  const first = new Date(`${firstDue}T00:00:00Z`);
+  const due = new Date(`${recordedDue}T00:00:00Z`);
+  const offset =
+    cadence === "monthly"
+      ? (due.getUTCFullYear() - first.getUTCFullYear()) * periodsPerYear.monthly +
+        due.getUTCMonth() -
+        first.getUTCMonth()
+      : (due.valueOf() - first.valueOf()) / (dayMs * daysPerPeriod[cadence]);
+  return Number.isInteger(offset) && offset >= 0 && dueAt(first, offset, cadence) === recordedDue;
 }
 
 function forecast(
