@@ -6,7 +6,7 @@ import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
-import type { DeviceDataMeta, DeviceRows } from "./device-data";
+import type { DeviceDataFlags, DeviceDataWake, DeviceRows } from "./device-data";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -49,7 +49,7 @@ type SelectMeta = {
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
 );
-export type Meta = DeviceDataMeta & {
+export type Meta = {
   id: string;
   group: "structure" | "content" | "data" | "input" | "action" | "beyond" | "signature" | "escape";
   purpose: string;
@@ -153,6 +153,12 @@ export type Meta = DeviceDataMeta & {
   /** Component `type` parts and one `press` part sharing runtime state outside Writer props. */
   linkedEdits?: LinkedEdits;
   live?: LiveActionInputs;
+  /** Record kinds this component may read from the host, never from Writer props. */
+  deviceData?: readonly string[];
+  /** Trusted boolean props for `actions.when`; `now` is an unstored epoch millisecond sample. */
+  deviceDataFlags?: DeviceDataFlags;
+  /** Next future epoch millisecond when a mounted projection needs to be read again. */
+  deviceDataWake?: DeviceDataWake;
   /** Pure visibility rule over the declared host records. A false result hides the whole component. */
   deviceDataVisible?: (data: DeviceData) => boolean;
   /** Deterministic synthetic records for preview, conformance and read-probe fixtures only. */
