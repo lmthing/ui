@@ -10,7 +10,7 @@ export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
 {"id":"shop_basket","c":"CartBar","goto":"basket"}
 {"id":"loaf_header","c":"Header","title":"Country sourdough","style":"back"}
 {"id":"loaf_photos","c":"Gallery","style":"carousel","photos":[{"photo":"local:1","caption":"Whole loaf"},{"photo":"local:3","caption":"Cut loaf"}]}
-{"id":"loaf_product","c":"Product","name":"Country sourdough","price":6,"was":7.5,"description":"A slow-fermented loaf with a crisp crust. Made for tomorrow's pickup.","stock":3,"badge":"Sale","saved":false}
+{"id":"loaf_product","c":"Product","name":"Country sourdough","price":6,"was":7.5,"description":"A slow-fermented loaf with a crisp crust. Made for tomorrow's pickup.","stock":3,"badge":"Sale","saved":false,"storeName":"Crumb bakery","aisle":"Bread counter","storeStock":6,"scan":{"goto":"scan_barcode"}}
 {"id":"loaf_sizes","c":"VariantPicker","label":"Loaf size","style":"size","options":[{"label":"Small","available":true},{"label":"Large","available":true,"extra":3}],"at":0}
 {"id":"loaf_rating","c":"Scale","style":"stars","label":"Customer rating","value":4.5,"readonly":true}
 {"id":"pastry_header","c":"Header","title":"Almond croissant","style":"back"}
@@ -24,7 +24,7 @@ export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
 {"id":"checkout_options","c":"Checkout","modes":["pickup"],"mode":"pickup","time":"Tomorrow 10:30","methods":["cash","card"],"method":"cash"}
 {"id":"checkout_note","c":"Note","text":"Collect at the Crumb counter tomorrow."}
 {"id":"status_header","c":"Header","title":"Your order"}
-{"id":"status_track","c":"OrderStatus","steps":[{"label":"Received","time":"07:00"},{"label":"Preparing","time":"08:15"},{"label":"Ready","time":"10:30"},{"label":"Collected"}],"at":2,"line":"Ready at 10:30","seller":false}
+{"id":"status_track","c":"OrderStatus","steps":[{"label":"Received","time":"07:00"},{"label":"Preparing","time":"08:15"},{"label":"Ready","time":"10:30"},{"label":"Collected"}],"at":2,"line":"Ready at 10:30","seller":false,"style":"pickup","pickupCode":"CR023","bay":"Crumb counter"}
 {"id":"status_receipt","c":"OrderSummary","number":"CR-023","date":"2026-11-20","lines":[{"name":"Country sourdough","qty":2,"price":6},{"name":"Almond croissant","qty":1,"price":4}],"mode":"pickup","place":"Crumb counter"}
 {"id":"orders_header","c":"Header","title":"Bakery orders"}
 {"id":"orders_views","c":"Segmented","options":[{"label":"Today"},{"label":"Tomorrow"}],"at":0}
@@ -36,4 +36,13 @@ export const example = `{"id":"shop_header","c":"Header","title":"Crumb"}
 {"id":"order_header","c":"Header","style":"back","title":"Order CR-024"}
 {"id":"order_track","c":"OrderStatus","seller":true,"steps":[{"label":"Received","time":"07:10"},{"label":"Preparing","time":"08:30"},{"label":"Ready"},{"label":"Collected"}],"at":1}
 {"id":"order_receipt","c":"OrderSummary","number":"CR-024","date":"2026-11-20","lines":[{"name":"Almond croissant","qty":2,"price":4}],"mode":"pickup","place":"Crumb counter"}
+{"id":"apron_header","c":"Header","title":"Canvas apron sizes","style":"back"}
+{"id":"apron_guide","c":"SizeGuide","unit":"cm","columns":["Width","Length"],"rows":[{"size":"Regular","values":[68,80]},{"size":"Long","values":[72,92]}],"fitScore":3}
+{"id":"apron_sizes","c":"VariantPicker","label":"Apron size","style":"size","options":[{"label":"Regular","available":true},{"label":"Long","available":true}]}
+{"id":"saved_header","c":"Header","title":"Saved for later"}
+{"id":"saved_items","c":"SavedList","items":[{"id":"sourdough","name":"Country sourdough","photo":"local:1","price":6,"savedPrice":7.5,"targetPrice":5.5,"goto":"loaf"},{"id":"croissant","name":"Almond croissant","photo":"local:2","price":4,"stock":2,"goto":"pastry"}]}
+{"id":"saved_basket","c":"CartBar","goto":"basket"}
+{"id":"scan_barcode_header","c":"Header","style":"back","title":"Scan a product"}
+{"id":"scan_barcode_camera","c":"Camera","kind":"scan","hint":"Point at the barcode on your loaf."}
+{"id":"scan_barcode_cancel","c":"Button","label":"Back to the loaf","goto":"loaf"}
 `;
