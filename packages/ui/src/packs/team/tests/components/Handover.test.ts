@@ -16,13 +16,6 @@ import { createScreenController } from "@lmthing/ui/kit";
 import { addressedElements, renderInstance } from "../../../../../test/render";
 import { teamWordsFor } from "../../lang";
 
-// Exercise the actual view even while it is not registered in the generated renderer map.
-vi.mock("@lmthing/ui/kit", async (original) => {
-  const kit = await original<typeof import("@lmthing/ui/kit")>();
-  const { Handover } = await import("../../components");
-  return { ...kit, renderers: { ...kit.renderers, Handover: Handover.Handover } };
-});
-
 const def = components.Handover;
 const { props, meta, examples, fallback, probes } = def;
 const full = examples[0]!;
@@ -127,7 +120,8 @@ describe("Handover fallback and metadata", () => {
       { kind: "read", expect: { address: "h1/r1/seen", action: "check" } },
     ]);
     expect(createRegistry({ packs: ["team"], includeDrafts: true }).schema("Handover")).toBe(props);
-    expect(createRegistry({ packs: ["team"] }).ids.includes("Handover")).toBe(packReady("team"));
+    expect(packReady("team")).toBe(true);
+    expect(createRegistry({ packs: ["team"] }).schema("Handover")).toBe(props);
   });
 });
 

@@ -58,9 +58,55 @@ wave, because each wave changes the pack index.
 | 3 | commerce, mind, trips, learning, requests, property | Next most-asked; `requests` and `property` complete the landlord combination |
 | 4 | social, media, events, places, community | Need `people` and `service` tiers; groups build on social and events |
 | 5 | inventory, data, team, sports, projects, paperwork, books, invest, hiring | Business back-office and niche; order inside the wave follows real `Canvas` misses and forced fits |
+| 6 | comms, assistant, workspace, utilities, security, auto, medical, weather, realestate, parenting, ticketing, dating, comics, watch, puzzles, navigation, stays, dining, news, reference, fantasy, studio, curation, safety, dispatch, marketplace, rpg, kids, beauty, perks | Full Google Play Store category coverage (32 app categories, 17 game categories, Kids, Wear OS) from the top-10 app audit |
 
 A wave starts when the previous wave's packs are ready. Within a wave, at most six Droids run at once;
 bases for the wave are built first, then scaffolds, then components, then archetypes and acceptance.
+
+### Wave 6 prerequisites (before wave 6 scaffolds)
+
+Before scaffolding any of the 30 Wave 6 packs in TypeScript, complete these shared runtime steps once so existing Wave 1–5 recorded Director probes remain valid until the Wave 6 re-recording pass:
+
+1. **Pack index & ID registration:** Register the 30 Wave 6 pack IDs in `packages/ui/src/catalog/meta/pack-ids.ts` and split `pack-index.ts` (near the 200-line file limit) into focused modules under `packages/ui/src/catalog/meta/`.
+2. **Pack folder scaffolds:** Add `packages/ui/src/packs/<pack>/README.md` scaffolds for all 30 Wave 6 packs (`scan-entries.ts` requires every folder under `src/packs/` to be registered in `packIds`).
+3. **`copy` action vocabulary:** Add `copy` to `ActionName`, `validateActionValue`, and the browser/runtime action dispatcher.
+4. **Core promotions & Wave 6 Core additions:** Build `PassCard` and `FileList`, promote `FilterBar` (from `data`), `Review` (from `customers`), and `Article` (from `media`) into Core, apply the 15 targeted Core option upgrades documented in [core.md](../core.md), and migrate `trips/Weather` standalone weather usage to `weather`.
+5. **Director pack-pick re-recording:** Re-record the Director pack-pick probes once when Wave 6 enters the pack index.
+6. **12 new shared kit bases:** Build `KitMicCapture`, `KitCodeBlock`, `KitVoiceOrb`, `KitCalcPad`, `KitDialGauge`, `KitMasonry`, `KitHoldButton`, `KitPanelStrip`, `KitRemotePad`, `KitSeatGrid`, `KitCellGrid`, and `KitLetterKeys` (plus minor `KitMapTile`, `KitLinePlot`, and `KitPhoto` option extensions) as mapped in [bases.md](bases.md).
+
+### Wave 6 extensions to existing packs and core
+
+In addition to the 30 new Wave 6 packs (196 components, 110 archetypes), Wave 6 adds **59 components** and targeted option upgrades to the 27 Waves 1–5 packs (growing 180 → 239 components; existing archetype counts stay unchanged at 109), plus `PassCard`, `FileList`, 3 Core promotions, and 15 Core options in [core.md](../core.md). New components added to an existing pack keep that pack's original wave in [bases.md](bases.md).
+
+| Pack | Base wave | Wave 6 additions | New total |
+| --- | --- | --- | --- |
+| `booking` | 1 | `ClassRoster`, `SessionPack` (+ options on `Appointment`, `Slots`, `Availability`, `ServiceMenu`) | 8 |
+| `customers` | 1 | `FollowUpQueue`, `SavedItems` (+ `Review` Core promotion prep & `Invoice`/`PaymentStatus`/`ClientCard` options) | 9 |
+| `health` | 2 | `CardioSession`, `TrainingPlan` (+ `ActivityRings`, `Vitals`, `Workout`, `Cycle` options) | 11 |
+| `kitchen` | 2 | `NutritionFacts` (+ `MealPlan`, `Pantry`, `Ingredients` options) | 8 |
+| `home` | 2 | `CameraFeed`, `Routines` (+ `Devices`, `CareSchedule`, `Agenda` options) | 9 |
+| `money` | 2 | `CardControls`, `MoneyTransfer`, `CreditScore` (+ `AccountCard`, `Bills`, `Split`, `Transactions`, `Loan` options) | 11 |
+| `play` | 2 | `LifeCounter`, `PassReveal`, `CardDeck`, `BuzzerPad` (+ `Dice`, `ScoreSheet`, `Trivia`, `TurnOrder` options) | 10 |
+| `commerce` | 3 | `SizeGuide`, `SavedList` (+ `OrderStatus`, `ProductGrid`, `VariantPicker`, `Product`, `Promo` options) | 11 |
+| `mind` | 3 | `ThoughtRecord` (+ `SleepLog`, `Entries`, `Breathe`, `Soundscape` options) | 8 |
+| `trips` | 3 | `FlightStatus`, `BagTracker`, `CabinSeats` (`Weather` stays intact; dedicated weather apps migrate to `weather`) | 10 |
+| `learning` | 3 | `WorkedSolution`, `Gradebook`, `SpeechCheck` (+ `Quiz`, `Flashcard`, `Path` options) | 11 |
+| `requests` | 3 | `SlaPolicy`, `CannedReplies` (+ `RequestThread`, `RequestQueue`, `WorkOrder` options) | 7 |
+| `property` | 3 | `RentalApplication`, `LeaseRenewal` (+ `Units`, `RentRoll`, `Inspections` options) | 7 |
+| `social` | 4 | `ActivityFeed`, `Groups`, `StoryViewer`, `FollowList`, `LiveRoom` (+ `Post`, `Feed`, `Stories`, `Invite` options) | 13 |
+| `media` | 4 | `Transcript`, `AudioMatch` (+ `Article` Core promotion prep & `Library`, `Collection`, `Playlist` options) | 9 |
+| `events` | 4 | `Sessions` (+ `Ticket`, `Door`, `Seating`, `GuestList` options) | 9 |
+| `places` | 4 | `StationRates` (+ `PlaceCard`, `MapList`, `DeliveryTracker`, `Hours`, `Departures` options) | 7 |
+| `community` | 4 | `ModQueue` (+ `Vote`, `Dues`, `Members`, `Minutes` options) | 6 |
+| `inventory` | 5 | Options only (`Things` barcode/QR scan, condition, serial metadata; `Storage`, `Loans` options) | 8 |
+| `data` | 5 | `Funnel`, `SavedViews` (+ `FilterBar` Core promotion prep & `Table`, `Board`, `LineChart`, `ActivityLog` options) | 9 |
+| `team` | 5 | `LeaveBalance`, `PayStub`, `TeamDirectory`, `TeamNotice` (+ `Roster`, `Shift`, `TimeClock`, `Approval` options) | 11 |
+| `sports` | 5 | `MatchStats`, `BoxScore`, `MomentumChart` (+ `Fixtures`, `Scoreboard`, `Lineup`, `Standings` options) | 10 |
+| `projects` | 5 | `ProjectStatus`, `ProjectBrief` (+ `Tasks`, `Gantt`, `TimeLog` options) | 7 |
+| `paperwork` | 5 | `ScanBatch`, `FormFiller` (+ `Documents`, `TaxYear`, `Signature` options) | 7 |
+| `books` | 5 | `Reconcile`, `MileageLog`, `CashForecast` (+ `Ledger`, `Expenses`, `ProfitLoss` options) | 8 |
+| `invest` | 5 | `TradeTicket`, `Rebalance` (+ `Holdings`, `Watchlist`, `Performance`, `Dividends` options) | 7 |
+| `hiring` | 5 | `JobFeed`, `ResumeProfile` (+ `JobPost`, `ApplicantPipeline`, `Candidate`, `Interview`, `Offer` options) | 8 |
 
 ## Gates
 

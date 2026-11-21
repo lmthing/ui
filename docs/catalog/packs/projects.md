@@ -30,7 +30,7 @@ choice. `Tasks` is kept only for linked, assigned work with subtasks or blockers
 Operational kanban stays data `Board`; pay approvals stay team `Timesheet` and `Approval`; terms signed
 once stay customers `Agreement`. None is required by this pack.
 
-## Components (5)
+## Components (7)
 
 ### `Tasks` · planned · input · phone
 Assigned project tasks with due dates, priorities and a single level of subtasks, showing which work blocks
@@ -110,6 +110,24 @@ separate list of what is excluded. A revision identifies the current baseline; i
 - Real path: a versioned baseline and local acceptance dates on the person's device; a client's own
   acceptance through a shared app is `people` (`meta.partTiers: { accept: "people" }` on that host variant).
 
+### `ProjectStatus` · planned · content · phone
+A periodic project health check-in card showing RAG status (`on_track`, `at_risk`, `blocked`), a short headline summary, bulleted key wins and blockers, and the next upcoming milestone date. Posting a check-in opens the status update form when linked while preserving the current health snapshot.
+- Pick: reporting periodic project health, wins, and blockers over time. Not gated deliverable dates (`Milestones`), generic cards (`Card`), or shift handovers (team `Handover`).
+- Writes: `projectRef` text(32), `status` (`on_track` default, `at_risk`, `blocked`), `headline` text(80), `author` text(24) optional, `updatedAt` date, `wins` text(80) each 0–3, `blockers` text(80) each 0–3, `nextMilestone` (`title` text(32), `due` date, `goto` optional) optional, `postGoto` optional, `style`. Status tone and days remaining to the next milestone are computed by code.
+- Styles: `update` (default, RAG badge, summary, wins, blockers, and next milestone row), `compact` (status pill, headline, and date only).
+- Parts → actions: `milestone press` (opens `nextMilestone.goto` when set), `update press` (opens check-in form via `postGoto`).
+- States: filled, empty (no status update posted yet), loading.
+- Real path: periodic health check-ins saved locally with the project; sharing updates with collaborators uses a shared app (`people`).
+
+### `ProjectBrief` · planned · content · phone
+A project charter card framing the project objective, owner, target delivery window, pinned summary sections, and key resource links such as specs, design files, or repositories. Tapping a link opens the referenced internal screen or external URL while keeping the project overview focused.
+- Pick: framing a project's goal, owner, window, and key reference links. Not testable deliverable acceptance (`Scope`), flat facts (`KeyValue`), or long-form reading (media `Article`).
+- Writes: `projectRef` text(32), `title` text(40), `objective` text(240), `owner` text(24) optional, `start` date optional, `target` date optional, `sections` of `heading` text(24), `body` text(160), 0–3; `links` of `label` text(28), `kind` (`screen`, `file`, `url`), `goto` text(120), 0–5; `editGoto` optional, `style`. Formatted date window is computed by code.
+- Styles: `overview` (default, objective, owner/window facts, sections, and resource links), `summary` (objective, owner, and target date only).
+- Parts → actions: links `root press` (internal `screen` or `file` links), links `open press` (external `url` links), `edit press` (opens `editGoto` when set). `meta.partTiers: { open: "service" }`.
+- States: filled, empty (brief not written yet), loading.
+- Real path: project charter and local links stored on the device; external URL links open via the device's browser (`service`).
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
@@ -140,9 +158,11 @@ only in a shared host. `TimeLog.export` is `service`; no sending, notifications,
 
 ## Build notes
 
-- Order: `Tasks`, `Scope`, `Milestones`, `TimeLog`, `Gantt`. Every component has two domain examples,
+- Order: `Tasks`, `Scope`, `Milestones`, `TimeLog`, `Gantt`; Wave 6 additions follow in order: `ProjectStatus`, `ProjectBrief`. Every component has two domain examples,
   choose/write/read probes and a renderer from kit bases; the future `example.jsonl` validates and renders
   in three presets. This task plans those files; it does not build them or expose the pack to live prompts.
+- Wave 6 option upgrades on existing components: `Tasks` adds `repeat` (`never | daily | weekly | monthly`), `tags` (0–2), and `style: "today"`; `TimeLog` adds `style: "summary"` (billable vs non-billable breakdown by project); `Milestones` adds `style: "compact"` (single-row next-gate strip); `Scope` adds `changeNote` text(120) per scope revision bump.
+- Wave 6 boundaries: arbitrary Kanban and tables stay in `data`, collaborative wiki hierarchies/ACLs belong in `workspace`, staff payroll/leave belong in `team`, and client billing belongs in `customers`.
 - Strict Writer output permits only core plus selected pack ids. Record refs are host-issued, text(32),
   distinct from validator-owned item ids; the brief supplies the allowed refs, narrowed in the scoped schema.
   Repeated seeds for one ref must agree; the host keeps one project/task/deliverable record behind every view.

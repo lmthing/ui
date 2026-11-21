@@ -26,7 +26,7 @@ physiotherapist or massage, cleaner, car wash, photographer, meeting-room bookin
 `ServiceMenu` is kept although a `List` can show services: it holds group headings inside one component, up
 to 12 services, a duration and price as numbers the app can compute with, and a book action per service.
 
-## Components (6)
+## Components (8)
 
 ### `ServiceMenu` · planned · content · phone
 The services on offer as rows with a name, a duration, a price and a short line, grouped under optional
@@ -38,6 +38,7 @@ headings, each with a book action.
 - Styles: `rows` (default), `cards` (with a photo per service).
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: services stored on the device by the provider.
+- Wave 6 options: add `capacity` (`1` default, `>1` shows group cap), optional `deposit` number, and an optional portfolio link to `Gallery`.
 
 ### `Slots` · planned · input · phone
 The free start times of the day chosen in the `Calendar` above it, as a grid of chips (09:00, 09:30…),
@@ -46,7 +47,7 @@ taken ones dimmed and disabled. Picking one highlights it.
   setting working hours (`Availability`).
 - Writes: `times` of `time` HH:MM and `taken` boolean, 1–24; `at` optional; `minutes` (slot length, shown
   under the grid); `style`.
-- Styles: `grid` (default), `list` (long slots with an end time each).
+- Styles: `grid` (default), `list` (long slots with an end time each), `ranges` (Wave 6: `09:00–09:45` spans plus read-only `timezone` badge).
 - Parts → actions: items `root select` (free times only). · States: filled, empty ("No free times" from
   copy), loading.
 - Real path: free times computed on the device from working hours minus bookings.
@@ -61,6 +62,7 @@ optional break.
   HH:MM optional, exactly 7.
 - Parts → actions: items `toggle toggle`, items `from type`, items `to type`. · States: filled.
 - Real path: working hours stored on the device.
+- Wave 6 options: add `bufferMinutes` (`0`, `5`, `10`, `15`, `30`) and `dateOverrides` (`0–6` blocked or holiday dates).
 
 ### `StaffPicker` · planned · input · people
 Who the booking is with: avatars in a row with names, "Anyone" first, the chosen one ringed.
@@ -79,11 +81,12 @@ cancellation policy.
 - Writes: `service` text(28), `with` text(24) optional, `date`, `time` HH:MM, `minutes`, `place` text(40)
   optional, `price` number optional, `status` (`confirmed`, `pending`, `cancelled`, `done`), `policy`
   text(100) optional (`summary` only), `goto` (reschedule target), `style`.
-- Styles: `card` (default), `summary` (before booking: every detail with an edit link; status hidden).
+- Styles: `card` (default), `summary` (before booking: every detail with an edit link; status hidden), `compact` (Wave 6: single-row summary card).
 - Parts → actions: `root press`, `reschedule press` (goes to `goto`), `cancel press` (in `confirmParts`),
   `edit press` (`summary`; goes to `goto`). · States: filled, loading, success (booked).
 - Real path: a booking record on the device; a customer booking through the provider's app needs a shared
   app (`partTiers`: none on the provider's side).
+- Wave 6 options: add `locationKind` (`in_person`, `video`, `phone`), optional `meetingUrl` (`HTTPS`), and `join press` (`meta.partTiers: { join: "service" }`).
 
 ### `Waitlist` · planned · action · people
 A full session's join-the-waitlist panel: the place in line, how many are ahead, and join or leave.
@@ -92,13 +95,32 @@ A full session's join-the-waitlist panel: the place in line, how many are ahead,
 - Parts → actions: `join press`, `leave press` (in `confirmParts`). · States: filled, success.
 - Real path: a queue in a shared app; the next person is told when a place opens (notifications, `ok`).
 
+### `ClassRoster` · planned · action · people
+An enrolled attendee list for a scheduled group session showing checked-in and no-show toggles, walk-in add and one-tap waitlist promotion. Remaining spaces and attendance counts update live as people arrive or leave.
+- Pick: checking attendees into a scheduled group class and promoting waitlisted guests. Not headcount progress alone (`Progress`), read-only avatars (`People`), or staff shifts (team `Roster`).
+- Writes: `sessionId` text(24), `title` text(32), `at` ISO datetime with offset, `capacity` 2–60, `attendees` of `id` text(24), `name` text(24), `photo` optional, `status` (`booked`, `checked_in`, `no_show`), `paid` boolean optional, 0–30; `waitlistCount` 0–30 optional; `style`. Checked-in count and remaining spots are computed by code.
+- Styles: `roster` (default, check-in toggles, walk-in add and waitlist promotion), `compact` (attendee check-in rows with status pills).
+- Parts → actions: attendees `checkin toggle`, attendees `noshow press`, `walkin press`, `promote press`. `meta.confirmParts: ["noshow"]`.
+- States: filled, empty, loading, success (attendance updated), error (class full or save failed).
+- Real path: a shared class roster synced across instructor and front-desk devices (`people`).
+- Density: `meta.dense: true`, weight 3; group class rosters need more than six attendee rows.
+
+### `SessionPack` · planned · data · phone
+A client's prepaid bundle of appointments showing the bundle title, credits remaining against total, progress bar and expiry date. Providers or clients can redeem one session per visit or renew the bundle when credits run low.
+- Pick: tracking prepaid session credits and expiry across multiple appointments. Not free visit stamps (customers `Loyalty`), a single bar (`Progress`), or an unpaid bill (customers `Invoice`).
+- Writes: `packId` text(24), `title` text(28), `total` 2–50, `used` 0–50, `expires` date optional, `service` text(28) optional, `renewGoto` optional, `style`. Remaining credits and expiring-soon status are computed by code.
+- Styles: `card` (default, credit balance meter, expiry and redeem/renew buttons), `compact` (single summary row with remaining pill).
+- Parts → actions: `redeem press`, `renew press` (goes to `renewGoto`). `meta.partTiers: { renew: "service" }` when opening an outside payment flow.
+- States: filled, empty, loading, success (session redeemed), error (pack expired or zero credits left).
+- Real path: prepaid session balances stored locally on the provider's device; online top-up uses a payment service.
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
 | `book` | Choose a service and a time | `service`, `time`, `confirm` | `service`: Header, ServiceMenu, Note · `time`: Header, StaffPicker, Calendar[week], Slots, Button · `confirm`: Header, Appointment[summary], Field[repeat], Button |
-| `appointments` | My upcoming and past bookings | `upcoming`, `history` | `upcoming`: Header, Segmented, Appointment, List · `history`: Header, Segmented, Timeline[history] |
-| `schedule` | The provider's day | `day`, `class` | `day`: Header, Calendar[week], Timeline[hours], Stats · `class`: Header[back], KeyValue, Progress[compact], People[stack], Waitlist |
+| `appointments` | My upcoming and past bookings | `upcoming`, `history`, `packs` | `upcoming`: Header, Segmented, Appointment, List · `history`: Header, Segmented, Timeline[history] · `packs`: Header, Segmented, SessionPack, List |
+| `schedule` | The provider's day | `day`, `class` | `day`: Header, Calendar[week], Timeline[hours], Stats · `class`: Header[back], KeyValue, Progress[compact], ClassRoster, Waitlist |
 | `hours` | When I take bookings | `simple` | Header, Availability, Button |
 
 ## Worked example: Trot
@@ -116,9 +138,12 @@ bookings) works on the phone alone, so the first showcase shows it; the customer
 ## Build notes
 
 - Order: `ServiceMenu`, `Slots`, `Appointment` (Trot's book flow), then `Availability`, `StaffPicker`,
-  `Waitlist`.
+  `Waitlist`, then Wave 6 additions `ClassRoster` and `SessionPack`.
 - `Slots` reads as `[select:3/12]` with taken times printed `(taken)`, so an agent never picks one.
 - Every time is local to the provider; a reader prints times as written.
+- **Wave 6 additions & options:**
+  - Added `ClassRoster` (`action`, `people`) for group class check-ins, no-shows, walk-ins and waitlist promotion, and `SessionPack` (`data`, `phone`) for prepaid session bundles and expiry.
+  - Option/style upgrades: `Appointment` gains `locationKind` (`in_person`, `video`, `phone`), optional `meetingUrl`, `join press` (`service`) and `style: "compact"`; `Slots` gains `style: "ranges"` (`09:00–09:45`) and read-only `timezone` badge; `Availability` gains `bufferMinutes` (`0|5|10|15|30`) and `dateOverrides`; `ServiceMenu` gains `capacity`, optional `deposit` and stylist `Gallery` link.
 
 ## Open questions
 

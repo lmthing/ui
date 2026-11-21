@@ -185,13 +185,10 @@ export function Gantt(input: View) {
       copy && chart && <>
         {loading ? <kit.KitSkeleton shape="figure" inset="none" density="comfortable" content={[["heading", copy.range]]} /> :
           <kit.KitText part={null} role="heading" density="comfortable">{copy.range}</kit.KitText>}
-        {loading ? <kit.KitGrid columns={2}>
-          {scales.map((value) => <kit.KitSkeleton key={value} shape="control" kind="quiet" full label={words[value]} />)}
-        </kit.KitGrid> :
-          <kit.KitTrack part="range" role="radiogroup" look="segments" label={words.range}>
-            {scales.map((value) => <kit.KitChip key={value} item={null}
-              role="radio" look="segment" label={words[value]} on={input.style === value} value={value} />)}
-          </kit.KitTrack>}
+        <kit.KitTrack part="range" role="radiogroup" look="segments" label={words.range}>
+          {scales.map((value) => <kit.KitChip key={value} item={null} disabled={loading ? true : undefined}
+            role="radio" look="segment" label={words[value]} on={input.style === value} value={value} />)}
+        </kit.KitTrack>
         {!loading && copy.noDates ? <kit.KitText part="chart" tone="muted">{copy.noDates}</kit.KitText> :
           <kit.KitGantt part="chart" {...chart} loading={loading} />}
         <ScheduleDetails {...{ copy, words, density, loading }} />

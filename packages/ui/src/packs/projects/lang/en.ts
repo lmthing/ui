@@ -12,6 +12,7 @@ export const en = {
     accept: (title: string) => `Accept ${title}`,
     clear: (title: string) => `Clear acceptance of ${title}`,
     remove: (title: string) => `Remove ${title}`,
+    openMark: "→",
     separator: " · ",
   },
   timeLog: {
