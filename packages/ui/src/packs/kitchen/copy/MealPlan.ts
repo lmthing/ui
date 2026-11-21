@@ -27,8 +27,13 @@ export function mealPlanTotals(cells: readonly { day: number; kcal?: number | un
 }
 export const mealPlanWeek = (week: string, lang?: string): string =>
   kitchenWordsFor(lang).mealPlanWeek(appointmentDate(week, lang));
-export function mealPlanReading(week: string, cells: readonly MealCell[], lang?: string): string[] {
-  const { mealPlanLabels } = kitchenWordsFor(lang);
+export function mealPlanReading(
+  week: string,
+  cells: readonly MealCell[],
+  lang?: string,
+  agenda = false,
+): string[] {
+  const { mealPlanLabels, mealPlanAdd } = kitchenWordsFor(lang);
   const { weekdayNames } = wordsFor(lang);
   const totals = week
     ? mealPlanTotals(
@@ -39,10 +44,11 @@ export function mealPlanReading(week: string, cells: readonly MealCell[], lang?:
   return [
     ...(week ? [mealPlanWeek(week, lang)] : []),
     ...weekdayNames.flatMap((day, index) => (totals.has(index) ? [`${day}: ${totals.get(index)}`] : [])),
-    ...cells.map(
-      (cell, index) =>
-        `${cell.id ?? `r${index + 1}`}: ${weekdayNames[cell.day]} ${mealPlanLabels[cell.meal]} · ${cell.title ?? mealPlanLabels.add}`,
-    ),
+    ...cells.map((cell, index) => {
+      const meal = mealPlanLabels[cell.meal];
+      const title = cell.title ?? (agenda ? mealPlanAdd(meal) : mealPlanLabels.add);
+      return `${cell.id ?? `r${index + 1}`}: ${weekdayNames[cell.day]} ${meal} · ${title}`;
+    }),
   ];
 }
 /** Highlight only a local calendar date that belongs to the supplied Monday-first week. */

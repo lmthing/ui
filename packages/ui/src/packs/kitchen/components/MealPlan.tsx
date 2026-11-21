@@ -31,8 +31,12 @@ export const meta = {
   },
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
-    const value = input as { week: string; rows: Parameters<typeof mealPlanReading>[1] };
-    return mealPlanReading(value.week, value.rows, lang);
+    const value = input as {
+      week: string;
+      rows: Parameters<typeof mealPlanReading>[1];
+      style?: "week" | "day";
+    };
+    return mealPlanReading(value.week, value.rows, lang, value.style === "day");
   },
 } as const satisfies c.Meta;
 const meal = z.enum(["breakfast", "lunch", "dinner", "snack"]).meta({ kind: "text" });
@@ -127,7 +131,7 @@ function MealCell({ cell, compact, stackPhoto, showPhoto, agenda }: MealCellProp
   const title = cell.filled && (
     <kit.KitText part="title" role={compact && !leading ? "caption" : "body"} lines={2}>{cell.title}</kit.KitText>
   );
-  const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell], lang)[0]! };
+  const target = { item: cell.id, goto: cell.goto, label: mealPlanReading("", [cell], lang, agenda)[0]! };
   const meal = words.mealPlanLabels[cell.meal];
   const add = agenda ? words.mealPlanAdd(meal) : words.mealPlanLabels.add;
   return (

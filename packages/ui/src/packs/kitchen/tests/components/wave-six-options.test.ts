@@ -90,6 +90,8 @@ describe("MealPlan agenda and daily calories", () => {
     expect(reading).not.toContain("Wednesday:");
     expect(reading).toContain("[m1/r1 press→details]");
     expect(reading).toContain("[m1/r14/add press]");
+    expect(reading).toContain("r14: Sunday Dinner · Add dinner");
+    expect(readComponent(def, input, "m1").join("\n")).toContain("r14: Sunday Dinner · Add");
   });
   it("rejects authored totals, invalid calorie values and unknown styles", () => {
     for (const kcal of [-1, Infinity, 10001])
