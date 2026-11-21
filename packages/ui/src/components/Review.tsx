@@ -141,7 +141,7 @@ function ReviewEntry({ review, density }: { review: ReviewItem; density: ReviewV
   return (
     <KitRow item={review.id} part={spoiler ? null : "root"} label={review.name} lineRole="heading" inline {...{ density }}>
       <KitContent {...{ density }}>
-        <KitRow inline lineRole="heading" {...{ density }} trailing={review.verified &&
+        <KitRow inline label={review.name} lineRole="heading" {...{ density }} trailing={review.verified &&
           <KitTrail kind="badge" value={words.verified} part="verified" {...{ density }} />}>
           <KitText role="heading" part="name" lines={1} {...{ density }}>{review.name}</KitText>
         </KitRow>
