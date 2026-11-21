@@ -281,3 +281,9 @@ Use a danger or neutral treatment for negative actions rather than the primary a
 that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
 region is not clipped text. When the component brief requires a specific empty message, pass it
 from the language copy to `KitEmpty` instead of letting it show the shared neutral line.
+
+Document this requirement on the component's `States:` line as `empty (reason)` in its catalog
+brief. The acceptance reviews also call for specific copy in these existing cases:
+
+- `Approval`: empty (no requests waiting for a decision).
+- `TravelDocs`: empty (no travel documents).

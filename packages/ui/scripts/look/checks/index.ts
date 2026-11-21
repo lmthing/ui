@@ -6,15 +6,19 @@ import { checkAlignment } from "./alignment";
 import { checkLead } from "./lead";
 import { checkRhythm } from "./rhythm";
 import { checkOverlap } from "./overlap";
+import { checkTypeSizes } from "./type-sizes";
+import { checkActionTone } from "./action-tone";
+import { checkGroupSpacing, checkHeadingGap } from "./group-spacing";
+import { checkNumericColumns } from "./numeric-columns";
+import { checkEmptyCopy } from "./empty-copy";
 import { drawMarks } from "./marks";
-import { ownText, type LookIssue, type FrameCheck, type TextBox } from "./shared";
+import { ownText, partOf, type LookIssue, type FrameCheck, type TextBox } from "./shared";
 export type { LookIssue } from "./shared";
 
 export function find(): LookIssue[] {
   const issues: LookIssue[] = [];
   const add: FrameCheck["add"] = (kind, frame, el, detail) => {
-    const part = el.closest("[data-testid]")?.getAttribute("data-testid") ?? "?";
-    issues.push({ kind, frame, part: part.split("/").slice(2).join("/") || "root", detail });
+    issues.push({ kind, frame, part: partOf(el) || "root", detail });
   };
   for (const frameEl of Array.from(document.querySelectorAll("[data-look-frame]"))) {
     checkFrame({
@@ -43,7 +47,7 @@ function checkFrame(context: FrameCheck) {
     checkLoading(check);
     if (!ownText(el)) continue;
     texts.push({ el, rect });
-    checkClipped(check);
+    checkClipped(check, context);
     checkTextContrast(check);
     checkTextSpacing(check);
   }
@@ -51,6 +55,16 @@ function checkFrame(context: FrameCheck) {
   checkLead(context);
   checkRhythm(context);
   checkOverlap(context, texts);
+  if (Math.abs(context.box.width - 390) >= 1) return;
+  const parts = new Map(
+    Array.from(context.frameEl.querySelectorAll("[data-testid]"), (el) => [partOf(el), el] as const),
+  );
+  checkGroupSpacing(context, parts);
+  checkTypeSizes(context, texts);
+  checkNumericColumns(context, texts, parts);
+  checkActionTone(context);
+  checkHeadingGap(context, parts);
+  checkEmptyCopy(context, texts);
 }
 
 declare global {
