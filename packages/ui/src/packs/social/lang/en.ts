@@ -19,6 +19,12 @@ export type SocialWords = {
     image: (position: string, total: string) => string;
     withCount: (action: string, count: string) => string;
   };
+  comments: {
+    reply: string;
+    replyAuthor: (author: string, parent: string) => string;
+    more: (author: string) => string;
+    reaction: (author: string, liked: boolean, count: string) => string;
+  };
   poll: {
     voteFor: (label: string) => string;
     chosen: (label: string) => string;
@@ -87,6 +93,12 @@ export const en = {
     share: "Share this post",
     image: (position, total) => `Post photo ${position} of ${total}`,
     withCount: (action, count) => `${action} · ${count}`,
+  },
+  comments: {
+    reply: "Reply",
+    replyAuthor: (author, parent) => `${author} replying to ${parent}`,
+    more: (author) => `More actions for ${author}’s comment`,
+    reaction: (author, liked, count) => `${liked ? "Unlike" : "Like"} ${author}’s comment · ${count}`,
   },
   poll: {
     voteFor: (label) => `Vote for ${label}`,

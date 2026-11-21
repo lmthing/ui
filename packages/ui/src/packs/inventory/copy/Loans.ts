@@ -32,7 +32,9 @@ export function loanReading(
   const words = inventoryWordsFor(lang).loans;
   const rows = loans.map((loan, index) => {
     const { since, due, overdue } = loanDates(loan, detail, lang, today);
-    return `r${index + 1} ${words.reading([`${words.way[loan.way]}${loan.person}`, since, due, overdue].filter((line): line is string => Boolean(line)))}`;
+    const reminder = words.remind[loan.way](loan.person);
+    const lines = [`${words.way[loan.way]}${loan.person}`, since, due, overdue, words.returned, reminder];
+    return `r${index + 1} ${words.reading(lines.filter((line): line is string => Boolean(line)))}`;
   });
-  return [...rows, words.reading([words.returned, words.remind])];
+  return rows;
 }
