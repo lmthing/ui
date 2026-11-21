@@ -5,3 +5,4 @@ export * as Turns from "./Turns";
 export * as Agenda from "./Agenda";
 export * as BabyLog from "./BabyLog";
 export * as Devices from "./Devices";
+export * as CameraFeed from "./CameraFeed";
