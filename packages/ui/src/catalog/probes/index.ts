@@ -6,8 +6,10 @@ export type {
   FallbackInput,
   PackProbe,
   Probe,
+  ProbeCall,
   ProbeResult,
   ReadProbe,
+  ReplayProbe,
   WriteProbe,
 } from "./types";
 export { signature } from "./signature";
