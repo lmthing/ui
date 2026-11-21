@@ -129,7 +129,7 @@ export function readControls(
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size
     ? read.replace(controlTokens, (token, address, action) =>
-        (action?.startsWith("set") ? privateMarks : disabled)?.has(address) ? "" : token,
+        disabled?.has(address) || (action?.startsWith("set") && privateMarks?.has(address)) ? "" : token,
       )
     : read;
 }
@@ -149,16 +149,16 @@ function readKeypads(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
-  const keypadValues = redactPrivateMarks(local).values;
+  const { values: safe, addresses } = redactPrivateMarks(local);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       if (!def) return [`${id} ${c} (unknown)`];
-      const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
-      const target = driveTarget(def.meta, screen, defs, local, snapshot, canDrive);
+      const selection = selectionBindingFor(screen, defs, def.meta, id, safe, snapshot, addresses);
+      const target = driveTarget(def.meta, screen, defs, safe, snapshot, canDrive, addresses);
       return readComponent(
-        withKeypadDrafts(def, id, keypadValues),
+        withKeypadDrafts(def, id, safe),
         props,
         id,
         state,

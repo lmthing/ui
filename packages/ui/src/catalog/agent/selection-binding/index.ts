@@ -34,6 +34,7 @@ export function selectionBindingFor(
   instance: string,
   local: Values,
   data?: DeviceData,
+  privateAddresses?: ReadonlySet<string>,
 ) {
   const binding = meta.selectionBinding;
   if (!binding) return;
@@ -70,6 +71,7 @@ export function selectionBindingFor(
       address.split("/").length === length &&
       !screen[disabledSelectionChecks]?.has(address) &&
       !hostOnly?.has(address) &&
+      !privateAddresses?.has(address) &&
       !isPrivateMark(local, address),
   );
   if (!checks.length) return;

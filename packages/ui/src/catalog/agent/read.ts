@@ -183,12 +183,13 @@ export function readScreen(
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
+  const { values: safe, addresses } = redactPrivateMarks(local);
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];
-    const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot)?.view;
-    const target = driveTarget(def.meta, migrated, defs, local, snapshot, canDrive);
+    const selection = selectionBindingFor(migrated, defs, def.meta, id, safe, snapshot, addresses)?.view;
+    const target = driveTarget(def.meta, migrated, defs, safe, snapshot, canDrive, addresses);
     return readComponent(def, props, id, state, local, lang, deviceData, appCurrency, selection, target);
   });
   return [header, ...lines].join("\n");
