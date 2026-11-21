@@ -134,6 +134,7 @@ export function introducedPart(
     (meta.live?.derive ||
       (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
+      meta.dateSpan ||
       meta.linkedEdits ||
       meta.items?.visibleWhen ||
       meta.items?.edits ||

@@ -49,6 +49,7 @@ export {
   KitAvatarStack,
   KitBubble,
   KitPhoto,
+  KitPhotoCompare,
 } from "./media";
 export { KitLinePlot, KitRangeBand, KitHeatGrid } from "./plot";
 export { KitRadialTrack, KitBreath, KitVoiceOrb, KitDialGauge } from "./radial";

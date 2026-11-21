@@ -1,4 +1,6 @@
 export { partsOf } from "./affordance-parts";
+import { jumpKey } from "./jump";
+export { jumpKey } from "./jump";
 import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
@@ -161,7 +163,11 @@ export function stageValue(
     next[key] = Number(next[key] ?? 0) + (action === "increment" ? 1 : -1);
   } else if (action === "press" || action === "select") {
     if (detail.startsWith("→")) links.push({ goto: detail.slice(1), address: key });
-    if (action === "select") next[key] = value;
+    if (action === "select" && !found.dateSpan) next[key] = value;
+    if (found.jump) {
+      const slot = jumpKey(key);
+      next[slot] = Number(next[slot] ?? 0) + 1;
+    }
   } else {
     next[key] = value;
     if (edit?.set) next[`${screenId}/${edit.id}/${edit.slot}`] = value;

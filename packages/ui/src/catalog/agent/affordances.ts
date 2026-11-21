@@ -11,6 +11,7 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
+import { activeDateSpan, dateSpanOffer } from "./date-span";
 
 export type Affordance = {
   address: string;
@@ -23,6 +24,8 @@ export type Affordance = {
   blocked?: "max_active";
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
+  jump?: true;
+  dateSpan?: true;
   move?: { current: string | null; choices: string[] };
 };
 type Props = Record<string, unknown>;
@@ -58,13 +61,32 @@ function actionsForItem(
   const id = String(item.id);
   return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true, data, wire)
     .filter(({ part, action }) => {
+      if (!dateSpanOffer(meta, props, part, action, item)) return false;
       const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
       const needsChoices =
         (picker && action === "press") ||
         (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
       return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
     })
-    .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
+    .flatMap((offer) =>
+      offer.part === "root" && offer.action === "select" && activeDateSpan(meta, props)
+        ? [{ ...offer, dateSpan: true as const }]
+        : itemActionOffer(meta, props, item, offer, schema),
+    );
+}
+
+function componentActions(meta: Meta, props: Props, instance: string): Affordance[] {
+  const { parts, when } = meta.actions ?? {};
+  return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if (!dateSpanOffer(meta, props, a.part, a.action)) return [];
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
+    if (a.action === "press" && meta.jump?.includes(a.part)) return [{ ...a, jump: true }];
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
@@ -82,15 +104,7 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, when } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
-    if (send !== undefined) return send ? [{ ...a, send }] : [];
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
+  const own = componentActions(meta, props, instance);
   const items = addressedItems(meta, props);
   const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).

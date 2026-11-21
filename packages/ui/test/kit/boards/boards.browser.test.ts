@@ -184,7 +184,7 @@ it("reads class, exit, axis and reveal marks without turning unavailable cells i
   expect(await blocked.getAttribute("data-testid")).toBeNull();
   await page.keyboard.press("Enter");
   await page.keyboard.press("Space");
-  await blocked.tap();
+  await blocked.tap({ force: true });
   expect(await presses()).toEqual([]);
   await page.keyboard.press("ArrowRight");
   expect(await active()).toBe("1, 4, present, P");

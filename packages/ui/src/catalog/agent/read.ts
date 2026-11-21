@@ -62,6 +62,7 @@ function readingProps(
     meta.recordRuntime ||
     meta.linkedEdits ||
     meta.selectionBinding ||
+    meta.dateSpan ||
     meta.items?.deviceData ||
     meta.items?.move?.derived ||
     meta.deviceDataFlags ||

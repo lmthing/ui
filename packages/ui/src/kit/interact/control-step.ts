@@ -1,5 +1,6 @@
 import {
   selectionAt,
+  dateSpanItem,
   selectionOffer,
   itemEditSpec,
   pickerAt,
@@ -35,6 +36,7 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
     "",
   );
   if (selectionOffer(def.meta, local) || itemEditSpec(def.meta, local)?.action === "select") return step;
+  if (def.meta.dateSpan && dateSpanItem(def.meta, stampItemIds(def.meta, input), local)) return step;
   if (def.meta.items?.pickers && pickerAt(def.meta, stampItemIds(def.meta, input), local)) return step;
   const found = selectionAt(def.meta, input, local);
   if (found?.row && def.meta.items?.deviceData) return { ...step, value: found.value };

@@ -7,25 +7,19 @@ import { useKit } from "../../provider";
 import { KitText } from "../text";
 import { Streets } from "../map";
 import { KitPhoto } from "./KitPhoto";
-type Point = { x: number; y: number };
-type Pin = Point & {
-  selected?: boolean | undefined;
-  mark?: "pin" | "dot" | "price" | "avatar";
-  photo?: string;
-  initials?: string;
-  target?: { item?: string; part: string };
-} & Record<"id" | "label", string>;
-type TileProps = { part?: string } & (
+import { PhotoLayer } from "./photo-layer";
+import {
+  centerOf,
+  markSizeOf,
+  nearestPin,
+  offset,
+  targetWidthOf,
+  type Pin,
+  type Point,
+} from "./pin-placement";
+type TileProps = { part?: string; underlay?: string | undefined } & (
   { count: number; pins?: undefined } | { count?: number; pins: readonly Pin[] }
 );
-
-function markerCenter(coordinate: number, extent: number, markSize: number) {
-  const share = Number.isFinite(coordinate) ? Math.max(0, Math.min(1, coordinate)) : 0.5;
-  return markSize / 2 + share * (extent - markSize);
-}
-
-const offset = (center: number, extent: number, target: number = size.control.md) =>
-  Math.max(0, Math.min(extent - target, center - target / 2));
 
 type PressLocation = Partial<Record<"locationX" | "locationY" | "offsetX" | "offsetY" | "detail", number>>;
 type PinPress = { stopPropagation?(): void; nativeEvent?: PressLocation };
@@ -68,47 +62,44 @@ function usePinTarget(pin: Pin, loading: boolean, origin: Point, nearest: (point
   };
 }
 
-const markSizeOf = (pin: Pin) =>
-  pin.mark === "dot" ? size.icon.sm : pin.mark === "avatar" ? size.avatar.md : size.avatar.sm;
-const targetWidthOf = (pin: Pin, width: number) =>
-  pin.mark === "price" ? Math.min(width, size.avatar.lg) : size.control.md;
-const centerOf = (pin: Pin, width: number, height: number): Point => ({
-  x: markerCenter(pin.x, width, pin.mark === "price" ? targetWidthOf(pin, width) : markSizeOf(pin)),
-  y: markerCenter(pin.y, height, markSizeOf(pin)),
-});
-function nearestPin(at: Point, pins: readonly Pin[], width: number, height: number) {
-  let closest: Pin | undefined,
-    best = Infinity;
-  for (const pin of pins) {
-    if (!pin.target) continue;
-    const { x, y } = centerOf(pin, width, height);
-    const targetWidth = targetWidthOf(pin, width);
-    const inside = (delta: number, extent: number) => delta >= 0 && delta <= extent;
-    if (
-      !inside(at.x - offset(x, width, targetWidth), targetWidth) ||
-      !inside(at.y - offset(y, height), size.control.md)
-    )
-      continue;
-    const distance = Math.hypot(x - at.x, y - at.y);
-    if (distance >= best) continue;
-    [best, closest] = [distance, pin];
-  }
-  return closest;
+type PlacedProps = {
+  pin: Pin;
+  width: number;
+  height: number;
+  loading: boolean;
+  pins: readonly Pin[];
+  imageSpace: boolean;
+};
+
+function PinGlyph({ pin }: { pin: Pin }) {
+  const avatar = pin.mark === "avatar";
+  const Glyph = avatar ? UserRound : MapPin;
+  if (avatar && (pin.photo || pin.initials))
+    return (
+      <KitPhoto
+        photo={pin.photo}
+        initials={pin.initials}
+        part={null}
+        shape="round"
+        ring={pin.selected ? "accent" : "none"}
+      />
+    );
+  return <Glyph size={size.icon.md} color={pin.selected ? "$accent" : "$muted"} />;
 }
 
-type PlacedProps = { pin: Pin; width: number; height: number; loading: boolean; pins: readonly Pin[] };
-function PlacedPin({ pin, width, height, loading, pins }: PlacedProps) {
+function PlacedPin({ pin, width, height, loading, pins, imageSpace }: PlacedProps) {
   const dot = pin.mark === "dot",
     price = pin.mark === "price",
     avatar = pin.mark === "avatar";
-  const Glyph = avatar ? UserRound : MapPin;
   const targetWidth = targetWidthOf(pin, width),
     mark = markSizeOf(pin),
     markWidth = price ? targetWidth : mark,
-    { x, y } = centerOf(pin, width, height);
+    { x, y } = centerOf(pin, width, height, imageSpace);
   const left = offset(x, width, targetWidth),
     top = offset(y, height);
-  const target = usePinTarget(pin, loading, { x: left, y: top }, (at) => nearestPin(at, pins, width, height));
+  const target = usePinTarget(pin, loading, { x: left, y: top }, (at) =>
+    nearestPin(at, pins, width, height, imageSpace),
+  );
   return (
     <YStack
       {...target}
@@ -139,38 +130,28 @@ function PlacedPin({ pin, width, height, loading, pins }: PlacedProps) {
             </KitText>
           </YStack>
         )}
-        {!loading &&
-          !dot &&
-          !price &&
-          (avatar && (pin.photo || pin.initials) ? (
-            <KitPhoto
-              photo={pin.photo}
-              initials={pin.initials}
-              part={null}
-              shape="round"
-              ring={pin.selected ? "accent" : "none"}
-            />
-          ) : (
-            <Glyph size={size.icon.md} color={pin.selected ? "$accent" : "$muted"} />
-          ))}
+        {!loading && !dot && !price && <PinGlyph pin={pin} />}
       </YStack>
     </YStack>
   );
 }
 
-export function KitMapTile({ count, pins, part = "map" }: TileProps) {
+export function KitMapTile({ count, pins, part = "map", underlay }: TileProps) {
   const context = usePartContext();
   const address = usePart(part);
+  const { resolvePhoto } = useKit();
   const [width, setWidth] = useState(0);
   const height = Math.round(width / component.base.wideRatio);
   const emptyBadge = { alignSelf: "center", alignItems: "center", justifyContent: "center" } as const;
-  if (pins && context.state === "empty")
+  if ((pins || underlay) && context.state === "empty")
     return (
       <YStack {...address} {...emptyBadge} width={size.control.md} height={size.control.md} aria-hidden>
         <MapPin size={size.icon.md} color="$muted" />
       </YStack>
     );
-  const loading = pins !== undefined && context.state === "loading";
+  const loading = (pins !== undefined || underlay !== undefined) && context.state === "loading";
+  const source = !loading && underlay ? resolvePhoto?.(underlay) : undefined;
+  const imageSpace = Boolean(underlay);
   return (
     <YStack
       {...address}
@@ -188,11 +169,15 @@ export function KitMapTile({ count, pins, part = "map" }: TileProps) {
         setWidth(event.nativeEvent.layout.width);
       }}
     >
-      {width > 0 && <Streets {...{ width, height }} count={pins ? 0 : (count ?? 0)} />}
+      {source ? (
+        <PhotoLayer source={source} stretch />
+      ) : (
+        width > 0 && <Streets {...{ width, height }} count={pins ? 0 : (count ?? 0)} />
+      )}
       {width > 0 &&
         pins?.map((pin) => (
           <PartContext.Provider key={pin.id} value={{ ...context, item: pin.target?.item ?? pin.id }}>
-            <PlacedPin {...{ pin, width, height, loading, pins }} />
+            <PlacedPin {...{ pin, width, height, loading, pins, imageSpace }} />
           </PartContext.Provider>
         ))}
     </YStack>

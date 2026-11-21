@@ -9,6 +9,7 @@ import {
 import { isWeb } from "tamagui";
 import {
   activeParentId,
+  dateSpanKey,
   emptyDeviceData,
   linkedEditKey,
   liveProps,
@@ -43,7 +44,7 @@ export function useDeviceData() {
 export function useLiveControls(meta: Meta, props: Values): Values {
   const { controller: host } = useKit();
   const { screen, component } = usePartContext();
-  const controller = meta.linkedEdits || meta.selectionBinding ? host : undefined;
+  const controller = meta.linkedEdits || meta.selectionBinding || meta.dateSpan ? host : undefined;
   const data = useContext(DeviceDataContext);
   const subscribe = controller?.store.subscribe ?? subscribeNone;
   useSyncExternalStore(
@@ -63,9 +64,12 @@ export function useLiveControls(meta: Meta, props: Values): Values {
       ? JSON.stringify(controller?.liveControls(meta, props, component).$selection)
       : undefined;
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
+  const spanSnapshot = () =>
+    meta.dateSpan ? controller?.store.get(`${screen}/${component}/${dateSpanKey}`) : undefined;
+  useSyncExternalStore(subscribe, spanSnapshot, spanSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    (meta.select?.runtime
+    (meta.select?.runtime || meta.dateSpan
       ? liveProps(meta, props, component, {}, true, data)
       : projectLiveInputs(meta, props, component, () => undefined, data))
   );

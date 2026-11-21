@@ -6,6 +6,7 @@ export {
   type Affordance,
 } from "./affordances";
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
+export { dateSpanChoice, dateSpanItem, dateSpanKey, type DateSpanSelection } from "./date-span";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
@@ -25,7 +26,7 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
-export { itemMoveOffer } from "./action-input";
+export { itemMoveOffer, jumpKey } from "./action-input";
 export {
   isRecordJournal,
   isRecordPress,

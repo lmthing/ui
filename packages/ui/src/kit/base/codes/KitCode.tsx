@@ -61,6 +61,40 @@ export function codeDrawing(value: string | undefined) {
   return { path: runs.join(" "), side: count + quiet * 2 };
 }
 
+function CodeFallback({
+  kind,
+  used,
+  label,
+}: {
+  kind: NonNullable<CodeProps["kind"]>;
+  used: boolean;
+  label: string;
+}) {
+  const Glyph = kind === "barcode" ? Barcode : QrCode;
+  return (
+    <YStack alignItems="center" gap={space.md} padding={space.md}>
+      <YStack
+        width={size.control.md}
+        height={size.control.md}
+        alignItems="center"
+        justifyContent="center"
+        borderRadius={radius.pill}
+        backgroundColor={used ? "$goodSoft" : "$raised"}
+        aria-hidden
+      >
+        {used ? (
+          <KitIcon name="circle_check" tone="good" scale="lg" decorative />
+        ) : (
+          <Glyph size={size.icon.lg} color="$muted" aria-hidden />
+        )}
+      </YStack>
+      <KitText part={null} align="center" role="label">
+        {label}
+      </KitText>
+    </YStack>
+  );
+}
+
 /** Draw only the supplied payload, on a fixed-contrast plate with a symbology-specific quiet zone. */
 export function KitCode({
   part = "root",
@@ -81,7 +115,6 @@ export function KitCode({
   const linear = drawing && "height" in drawing ? (drawing.height as number) : undefined;
   const width = linear && drawing ? Math.floor(edge / drawing.side) * drawing.side : edge;
   const height = linear ? size.control.lg : edge;
-  const Glyph = kind === "barcode" ? Barcode : QrCode;
   return (
     <YStack
       {...(part === null ? {} : address)}
@@ -111,26 +144,7 @@ export function KitCode({
       ) : loading ? (
         <YStack width={edge} height={edge} borderRadius={radius.sm} backgroundColor="$line" aria-hidden />
       ) : (
-        <YStack alignItems="center" gap={space.md} padding={space.md}>
-          <YStack
-            width={size.control.md}
-            height={size.control.md}
-            alignItems="center"
-            justifyContent="center"
-            borderRadius={radius.pill}
-            backgroundColor={used ? "$goodSoft" : "$raised"}
-            aria-hidden
-          >
-            {used ? (
-              <KitIcon name="circle_check" tone="good" scale="lg" decorative />
-            ) : (
-              <Glyph size={size.icon.lg} color="$muted" aria-hidden />
-            )}
-          </YStack>
-          <KitText part={null} align="center" role="label">
-            {label}
-          </KitText>
-        </YStack>
+        <CodeFallback kind={kind} used={used} label={label} />
       )}
     </YStack>
   );

@@ -150,11 +150,11 @@ function Fixture() {
       <button type="button" onClick={() => setMode("empty")}>
         Empty
       </button>
-      <button type="button" onClick={() => setMode("compact")}>
-        Compact
-      </button>
       <button type="button" onClick={() => setMode("marked")}>
         Marked
+      </button>
+      <button type="button" onClick={() => setMode("compact")}>
+        Compact
       </button>
       <KitProvider theme={theme} controller={controller} interactive>
         <PartScope screen="test" component="seats" rev={1} state="filled">

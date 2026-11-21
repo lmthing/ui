@@ -4,7 +4,7 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { DateSpanSelection, DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
 export type NumericAdjustments = Readonly<
@@ -141,6 +141,9 @@ export type Meta = {
     };
   };
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
+  dateSpan?: DateSpanSelection;
+  /** Declared component press parts that signal an in-screen drawing to reveal a local anchor. */
+  jump?: readonly string[];
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */

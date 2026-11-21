@@ -13,6 +13,7 @@ import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-ed
 import { projectDerivedMoves, projectMoves } from "./action-input";
 import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
+import { dateSpanKey, projectDateSpan } from "./date-span";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -153,9 +154,8 @@ export function liveProps(
   props = projectDraw(meta, props, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
-  // Reapply to rows that a live or host projection may have replaced.
-  if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
-  props = projectDeviceFlags(meta, props, data);
+  if (meta.select?.runtime) props = projectLegacySelection(meta, props, get); // Rows may have been replaced.
+  props = projectDateSpan(meta, projectDeviceFlags(meta, props, data), get(dateSpanKey));
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
