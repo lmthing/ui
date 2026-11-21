@@ -53,7 +53,7 @@ it("restores the former matrix with --all, while permitting explicit overrides",
 
 it.each([
   { args: [], error: "Usage:" },
-  { args: ["--component", "../List"], error: "Unknown component" },
+  { args: ["--component", "../List"], error: "Invalid component id" },
   { args: ["--component", "List", "--preset", "missing"], error: "Invalid --preset" },
   { args: ["--component", "List", "--mode", "dark,"], error: "Invalid --mode" },
   { args: ["--component", "List", "--widths", "0"], error: "Invalid --widths" },

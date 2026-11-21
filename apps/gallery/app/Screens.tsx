@@ -2,13 +2,13 @@
 // per selected preset (or all if omitted), every example and state stacked.
 // Each screen frame carries data-look-frame and each label data-look-label, so checks can find them.
 import { TamaguiProvider, Text, XStack, YStack } from "tamagui";
-import { accents, components, presets, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
+import { accents, components, space, stampItemIds, type ComponentName } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { config, drawPreviewEnvironment, previewComponent } from "../index";
 import { createPreviewController } from "./draw";
 import { galleryParts } from "./parts";
 import { resolvePhoto } from "./photos";
-import { cellKey, cellLabel, cellsOf, DraftPreview, type Cell } from "./overview";
+import { cellKey, cellLabel, cellsOf, DraftPreview, screenPresets, type Cell } from "./overview";
 
 function Screen({
   id,
@@ -66,7 +66,6 @@ export function Screens({
   mode: "light" | "dark";
   presetIds: readonly string[];
 }) {
-  const selected = presets.filter(({ id }) => !presetIds.length || presetIds.includes(id));
   return (
     <TamaguiProvider config={config} defaultTheme={`kit_calm_${mode}_moss`}>
       <XStack
@@ -76,7 +75,7 @@ export function Screens({
         backgroundColor="$bg"
         minHeight="100vh"
       >
-        {selected.map((preset) => (
+        {screenPresets(presetIds).map((preset) => (
           <YStack key={preset.id} gap={space.lg}>
             {cellsOf(id).map((cell) => (
               <Screen key={cellKey(cell)} id={id} cell={cell} preset={preset.id} mode={mode} width={width} />

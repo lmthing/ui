@@ -1,5 +1,5 @@
 import { parseArgs } from "node:util";
-import { components, presets, type ComponentName } from "../../../src/entry/catalog";
+import { presets } from "../../../src/catalog";
 
 const modes = ["light", "dark"] as const;
 type Mode = (typeof modes)[number];
@@ -24,7 +24,7 @@ function list<T>(values: string[], flag: string, parse: (value: string) => T | u
 }
 
 export type LookOptions = {
-  id: ComponentName;
+  id: string;
   widths: number[];
   modes: Mode[];
   presets: Preset[];
@@ -43,10 +43,11 @@ export function lookArgs(args: readonly string[]): LookOptions {
     },
   });
   if (!values.component) throw new Error(usage);
-  if (!Object.hasOwn(components, values.component)) throw new Error(`Unknown component: ${values.component}`);
+  if (!/^[A-Z][A-Za-z0-9]*$/.test(values.component))
+    throw new Error(`Invalid component id: ${values.component}`);
   const all = values.all ?? false;
   return {
-    id: values.component as ComponentName,
+    id: values.component,
     widths: values.widths
       ? list(values.widths, "--widths", (value) => {
           const width = Number(value);

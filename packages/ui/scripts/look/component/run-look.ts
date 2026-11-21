@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, URL, URLSearchParams } from "node:url";
 import { createServer } from "vite";
 import type { LookOptions } from "./args";
 import { bundleChecks, capture, galleryConfig, launchChrome } from "..";
