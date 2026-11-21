@@ -10,12 +10,14 @@ import {
   packOf,
   runComposeProbes,
   variantAxes,
+  type CallModel,
   type PackId,
   type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
 import { probeModels, replayCall } from "../scripts";
 import { selectedIds, selectedLayouts } from "../scripts/build";
+import { partialRunAnnotation } from "./known";
 
 const registry = createRegistry({ includeDrafts: true });
 const required = probeModels.filter((model) => model.required);
@@ -54,44 +56,64 @@ describe.each(required)("probes on $id", (model) => {
   });
 });
 
-describe.each(required)("pack probes on $id", (model) => {
-  it.each(selectedPacks)("%s passes selection, component and composition probes", async (id) => {
-    const registry = createRegistry({ packs: [id], includeDrafts: true });
-    const callModel = replayCall(`pack/${id}`, model.id);
-    const selection = await runPackProbes({ packs, only: [id], samples: model.samples, callModel });
-    expect(
-      selection
-        .filter((result) => result.status !== "pass")
-        .map((result) => `${result.component}: ${result.detail}`),
-    ).toEqual([]);
-    const only = selectedIds(registry.ids.filter((name) => (packOf as Record<string, PackId>)[name] === id));
-    const core = (packs as Partial<Record<PackId, import("@lmthing/ui/catalog").PackMeta>>)[
-      id
-    ]!.probes.filter((probe) => probe.kind === "choose");
-    const coreResults = await runProbes({
-      defs: registry.defs.map((def) => ({
-        ...def,
-        probes: core.filter((probe) => probe.expect === def.meta.id),
-      })),
-      callModel,
-      samples: model.samples,
-      ...(process.env.UI_TEST_COMPONENTS ? { only } : {}),
-    });
-    expect(coreResults.filter((result) => result.status !== "pass")).toEqual([]);
-    const components = await runProbes({ defs: registry.defs, only, callModel, samples: model.samples });
-    expect(components.filter((result) => result.status !== "pass")).toEqual([]);
-    const metas = registry.packComposeArchetypes;
-    const layouts = selectedLayouts(metas);
-    if (layouts && !layouts.length) return;
-    const compose = await runComposeProbes({
+function expectPassing(results: readonly { status: string }[]) {
+  expect(results.filter((result) => result.status !== "pass")).toEqual([]);
+}
+
+async function replayPackComposition(
+  id: PackId,
+  registry: ReturnType<typeof createRegistry>,
+  callModel: CallModel,
+  samples: number,
+) {
+  const metas = registry.packComposeArchetypes;
+  const layouts = selectedLayouts(metas);
+  if (layouts && !layouts.length) return;
+  expectPassing(
+    await runComposeProbes({
       archetypes: metas,
       probes: (packComposeProbes as Partial<Record<PackId, readonly ComposeProbe[]>>)[id] ?? [],
       ...(layouts ? { only: layouts } : {}),
       defs: Object.fromEntries(registry.defs.map((def) => [def.meta.id, def])),
       cast: { things: [], items: [] },
       callModel,
-      samples: model.samples,
-    });
-    expect(compose.filter((result) => result.status !== "pass")).toEqual([]);
+      samples,
+    }),
+  );
+}
+
+describe.each(required)("pack probes on $id", ({ id: model, samples }) => {
+  it.for(selectedPacks)("%s passes selection, component and composition probes", async (id, { annotate }) => {
+    const partial = Boolean(process.env.UI_TEST_COMPONENTS);
+    if (partial) await annotate("Only selected components and layouts were replayed.", partialRunAnnotation);
+    const registry = createRegistry({ packs: [id], includeDrafts: true });
+    const callModel = replayCall(`pack/${id}`, model);
+    const only = selectedIds(registry.ids.filter((name) => (packOf as Record<string, PackId>)[name] === id));
+    const core = (packs as Partial<Record<PackId, import("@lmthing/ui/catalog").PackMeta>>)[
+      id
+    ]!.probes.filter((probe) => probe.kind === "choose");
+    const stages = await Promise.allSettled([
+      runPackProbes({ packs, only: [id], samples, callModel }).then((results) => {
+        expect(
+          results
+            .filter((result) => result.status !== "pass")
+            .map((result) => `${result.component}: ${result.detail}`),
+        ).toEqual([]);
+      }),
+      runProbes({
+        defs: registry.defs.map((def) => ({
+          ...def,
+          probes: core.filter((probe) => probe.expect === def.meta.id),
+        })),
+        callModel,
+        samples,
+        ...(partial ? { only } : {}),
+      }).then(expectPassing),
+      runProbes({ defs: registry.defs, only, callModel, samples }).then(expectPassing),
+      replayPackComposition(id, registry, callModel, samples),
+    ]);
+    const errors = stages.flatMap((stage) => (stage.status === "rejected" ? [stage.reason as unknown] : []));
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1) throw new AggregateError(errors, errors.map(String).join("\n"));
   });
 });

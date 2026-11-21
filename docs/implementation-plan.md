@@ -1108,7 +1108,7 @@ current kit test tool; native behavioural coverage remains a requirement, not a 
 tests. `test/known/failures.json` lists existing failures by exact test file and full test name
 with a reason and an owner task ID. Missing pack recordings have one entry per pack, owned by its
 acceptance task. Tests still run: `KNOWN` failures do not block the merge gate, but any new failure
-does. `KNOWN-FIXED` means the listed test passed and its entry must be removed; set
+does. `KNOWN-FIXED` means the listed test passed in full and its entry must be removed; set
 `UI_KNOWN_STRICT=1` to make that warning fail the run. The UI suite has
 2,372 tests, including composition replay and browser motion. Chrome suites use `CHROME` or
 `/usr/bin/google-chrome`; set `CHROME` to an installed binary when that default is absent.

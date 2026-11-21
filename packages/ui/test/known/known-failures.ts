@@ -2,10 +2,11 @@ import { readFileSync } from "node:fs";
 import type { Reporter, TestState } from "vitest/node";
 
 type Entry = { file: string; test: string; reason: string; owner: string };
-type Result = Pick<Entry, "file" | "test"> & { state: TestState };
+type Result = Pick<Entry, "file" | "test"> & { state: TestState; partial?: boolean };
 
 const manifest = "test/known/failures.json";
 const key = ({ file, test }: Pick<Entry, "file" | "test">) => JSON.stringify([file, test]);
+export const partialRunAnnotation = "partial-replay";
 
 function isEntry(value: unknown): value is Entry {
   if (typeof value !== "object" || value === null) return false;
@@ -57,7 +58,7 @@ export function evaluateKnownFailures(
     if (result.state === "failed") {
       known++;
       log(`KNOWN: ${label} (${entry.owner}: ${entry.reason})`);
-    } else if (result.state === "passed") {
+    } else if (result.state === "passed" && !result.partial) {
       if (strict) blocking = true;
       log(`KNOWN-FIXED: remove it from ${manifest}: ${label} (${entry.owner})`);
     }
@@ -76,6 +77,7 @@ export function knownFailureReporter(): Reporter {
           file: module.relativeModuleId,
           test: test.fullName,
           state: test.result().state,
+          partial: test.annotations().some(({ type }) => type === partialRunAnnotation),
         })),
       );
       const { known, blocking } = evaluateKnownFailures(entries, results, strict);

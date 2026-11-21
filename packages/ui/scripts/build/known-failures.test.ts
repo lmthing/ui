@@ -49,6 +49,14 @@ it("does not treat missing, pending or skipped tests as fixed", () => {
   }
 });
 
+it("quarantines partial failures but requires a full pass to report a fix", () => {
+  const passed = evaluate([{ ...entry, state: "passed", partial: true }], true);
+  deepStrictEqual(passed, { outcome: { known: 0, blocking: false }, messages: [] });
+  const failed = evaluate([{ ...entry, state: "failed", partial: true }], true);
+  deepStrictEqual(failed.outcome, { known: 1, blocking: false });
+  match(failed.messages[0]!, /^KNOWN:/);
+});
+
 it("blocks when the listed identity matches more than one test", () => {
   const { outcome, messages } = evaluate([
     { ...entry, state: "failed" },
