@@ -11,7 +11,7 @@ export const meta = {
   pick: "A group's official membership register with joining or leaving dates, voting rights and dues badges. Not a small directory (People), one person's identity (Profile), business clients (ClientCard) or event guests (GuestList).",
   writeHints: [
     "Use unique snake_case member ids. Leave ended unset for continuing members; when supplied it must not precede joined. Dues badges are computed by the host.",
-    'For names, primary roles and badges only, use detail "brief"; keep the dates, roles and photo in the data.',
+    'For names, primary roles and badges only, write detail "brief" and keep the dates, roles and photo in the data. Hiding extra details does not request different row spacing: write density null unless the person expressly asks for tighter or roomier spacing.',
   ],
   region: "body",
   weight: 3,
