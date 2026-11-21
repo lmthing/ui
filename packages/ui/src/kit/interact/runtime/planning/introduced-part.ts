@@ -89,7 +89,12 @@ export function introducedPart(
   const nested = !strict && meta.items?.nested?.activeParent && isNestedTarget(meta, target);
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
-    (meta.live?.derive || meta.linkedEdits || meta.items?.visibleWhen || meta.items?.edits || meta.signOff) &&
+    (meta.live?.derive ||
+      meta.select?.runtime ||
+      meta.linkedEdits ||
+      meta.items?.visibleWhen ||
+      meta.items?.edits ||
+      meta.signOff) &&
     Object.keys(staged.values).some((key) => key.startsWith(prefix) && staged.values[key] !== initial[key]);
   if (!session && !nested && !gated) return false;
   const sheet = ctx.status.openSheet;

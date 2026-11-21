@@ -4,6 +4,7 @@ import {
   activeParentId,
   emptyDeviceData,
   linkedEditKey,
+  liveProps,
   nestedControls,
   nestedRemaining,
   projectControls,
@@ -56,7 +57,9 @@ export function useLiveControls(meta: Meta, props: Values): Values {
   useSyncExternalStore(subscribe, selectionSnapshot, selectionSnapshot);
   return (
     host?.liveControls(meta, props, component) ??
-    projectLiveInputs(meta, props, component, () => undefined, data)
+    (meta.select?.runtime
+      ? liveProps(meta, props, component, {}, true, data)
+      : projectLiveInputs(meta, props, component, () => undefined, data))
   );
 }
 export function useControlValue<T>(address: string, fallback: T): T {
