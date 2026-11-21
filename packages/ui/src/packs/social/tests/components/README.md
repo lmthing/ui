@@ -7,3 +7,4 @@
 - `EventCard.test.ts`: Event details, RSVP states, variants, and controller dispatch.
 - `Challenge.test.ts`: Shared goal, deadline, ranks, membership actions, and variant addresses.
 - `Invite.test.ts`: Invite codes, QR, joined count, variants, and copy/share actions.
+- `Comments.test.ts`: Comment-thread schema, parts, variants, reading, and actions.
