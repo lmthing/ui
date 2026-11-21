@@ -9,6 +9,6 @@ it("counts only yes, keeping availability and coach selection independent", () =
 
 it("localizes the reply and keeps the reason out of the brief reading", () => {
   const input = { needed: 2, players: [player] };
-  expect(squadReading(input)).toEqual(["Available to play · 1 of 2", "Ella: Yes · Has a lift · Picked"]);
-  expect(squadReading({ ...input, detail: "brief" })[1]).toBe("Ella: Yes · Picked");
+  expect(squadReading(input)).toEqual(["Available to play · 1 of 2", "Ella: yes · Has a lift · Picked"]);
+  expect(squadReading({ ...input, detail: "brief" })[1]).toBe("Ella: yes · Picked");
 });

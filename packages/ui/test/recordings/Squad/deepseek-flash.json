@@ -132,11 +132,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}],\"coach\":false}",
+    "reply": "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}] ,\"coach\":false}",
     "replies": [
-      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}],\"coach\":false}",
-      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}],\"coach\":null}",
-      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}],\"coach\":false}"
+      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"away that weekend\",\"picked\":false}] ,\"coach\":false}",
+      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"Away that weekend\",\"picked\":false}] ,\"coach\":false}",
+      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":3,\"players\":[{\"name\":\"Jo\",\"photo\":\"local:1\",\"answer\":\"yes\",\"reason\":null,\"picked\":true},{\"name\":\"Lee\",\"photo\":\"local:2\",\"answer\":\"no\",\"reason\":\"Away that weekend\",\"picked\":false}] ,\"coach\":false}"
     ]
   },
   "19505bd1bdde9085": {
@@ -155,6 +155,15 @@
       "People",
       "People",
       "People"
+    ]
+  },
+  "668404b795d96c75": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Squad Available to play · 1 of 5 — Ella: No reply — Reed: yes — Moss: maybe · Waiting on a lift\n  r1 \"Ella\" · photo:local:1 [s1/r1/answer select choices [\"yes\",\"maybe\",\"no\"] !needs-people] [s1/r1/picked check:todo !needs-people]\n  r2 \"Reed\" · photo:local:2 [s1/r2/picked check:todo !needs-people]\n  r3 \"Moss\" · photo:local:3 [s1/r3/picked check:todo !needs-people]\n\nTask: Tick Reed as picked to play\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r2/picked\", \"action\": \"check\"}",
+    "replies": [
+      "{\"address\": \"s1/r2/picked\", \"action\": \"check\"}",
+      "{\"address\": \"s1/r2/picked\", \"action\": \"check\"}",
+      "{\"address\": \"s1/r2/picked\", \"action\": \"check\"}"
     ]
   },
   "a9fff6346ba8027e": {
@@ -281,11 +290,20 @@
         }
       }
     },
-    "reply": "{\"c\":\"Squad\",\"density\":null,\"detail\":\"full\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}",
+    "reply": "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}",
     "replies": [
-      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"full\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}",
       "{\"c\":\"Squad\",\"density\":null,\"detail\":\"brief\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}",
+      "{\"c\":\"Squad\",\"density\":null,\"detail\":\"full\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}",
       "{\"c\":\"Squad\",\"density\":null,\"detail\":\"full\",\"needed\":5,\"players\":[{\"name\":\"Ella\",\"photo\":\"local:1\",\"answer\":\"none\",\"reason\":null,\"picked\":false},{\"name\":\"Reed\",\"photo\":\"local:2\",\"answer\":\"yes\",\"reason\":null,\"picked\":false},{\"name\":\"Moss\",\"photo\":\"local:3\",\"answer\":\"maybe\",\"reason\":\"Waiting on a lift\",\"picked\":false}],\"coach\":true}"
+    ]
+  },
+  "b9ad07dc2d4d8637": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\ns1 Squad Available to play · 1 of 5 — Ella: No reply — Reed: yes — Moss: maybe · Waiting on a lift\n  r1 \"Ella\" · photo:local:1 [s1/r1/answer select choices [\"yes\",\"maybe\",\"no\"] !needs-people] [s1/r1/picked check:todo !needs-people]\n  r2 \"Reed\" · photo:local:2 [s1/r2/picked check:todo !needs-people]\n  r3 \"Moss\" · photo:local:3 [s1/r3/picked check:todo !needs-people]\n\nTask: Reply to the match for myself, Ella\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"s1/r1/answer\", \"action\": \"select\"}",
+    "replies": [
+      "{\"address\": \"s1/r1/answer\", \"action\": \"select\"}",
+      "{\"address\": \"s1/r1/answer\", \"action\": \"select\"}",
+      "{\"address\": \"s1/r1/answer\", \"action\": \"select\"}"
     ]
   },
   "c13d2f9a6801f216": {

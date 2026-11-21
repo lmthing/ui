@@ -87,7 +87,7 @@ describe("Squad parts, states and reading", () => {
     expect(parts.has(address("available"))).toBe(true);
     expect(html).toContain("1 of 5");
     expect(parts.get(address("r1/answer"))?.attributes).toContain('role="radiogroup"');
-    expect(parts.get(address("r2/answer"))?.text).toContain("Yes");
+    expect(parts.get(address("r2/answer"))?.text).toContain("yes");
     expect(parts.get(address("r3/reason"))?.text).toContain("Waiting on a lift");
     expect(parts.get(address("r2/picked"))?.attributes).toContain('role="checkbox"');
     expect(parts.has(address("r2/photo"))).toBe(true);

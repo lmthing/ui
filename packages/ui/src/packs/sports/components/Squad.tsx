@@ -53,17 +53,18 @@ export const props = z
       .max(20),
     coach: z.boolean().default(false),
   })
-  .overwrite((input) => ({
-    ...input,
-    own_answer: input.players[0]?.answer,
-  }));
+  .overwrite((input) => {
+    const answer = input.players[0]?.answer;
+    return { ...input, own_answer: answer === "none" ? undefined : answer };
+  });
 
 function applyOwnAnswer(input: Readonly<Record<string, unknown>>): Record<string, unknown> {
   const { players, own_answer } = input as z.output<typeof props> & {
-    own_answer: "yes" | "maybe" | "no" | "none";
+    own_answer?: (typeof replies)[number];
   };
   const [first, ...others] = players;
-  if (first && first.answer !== own_answer) return { players: [{ ...first, answer: own_answer }, ...others] };
+  if (first && own_answer && first.answer !== own_answer)
+    return { players: [{ ...first, answer: own_answer }, ...others] };
   return {};
 }
 

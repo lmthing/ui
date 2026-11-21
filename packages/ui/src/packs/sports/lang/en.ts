@@ -9,7 +9,7 @@ export const en = {
   squad: {
     available: "Available to play",
     reply: "Your availability",
-    answers: { yes: "Yes", maybe: "Maybe", no: "No", none: "No reply" },
+    answers: { yes: "yes", maybe: "maybe", no: "no", none: "No reply" },
     selection: (name: string) => `Pick ${name}`,
     picked: "Picked",
     separator: " · ",
