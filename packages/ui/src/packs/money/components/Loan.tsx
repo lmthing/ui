@@ -144,12 +144,12 @@ function Forecast({ copy, words, loading, density }: ForecastProps) {
         <kit.KitContent density={density} group="response">
           <LoanLine density={density} role="label" part="schedule" children={copy.scheduleLabel} />
           {copy.schedule.map(({ due, date, payment, remaining, split }) => (
-            <kit.KitRow density={density} key={due} inline lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split, payment)}>
+            <kit.KitRow density={density} key={due} inline={!installments} inset={installments ? "none" : "md"} lineRole="label" label={loading ? "" : words.loanRow(date, remaining, split, payment)}>
               <kit.KitGrid density={density} fitLast>
                 <LoanLine density={density} role="caption" children={date} />
-                <LoanLine density={density} role="label" tabular children={payment ?? remaining} />
+                <LoanLine density={density} role="label" tabular children={remaining} />
               </kit.KitGrid>
-              {payment && <LoanLine density={density} role="caption" tone="muted" children={remaining} />}
+              {payment && <LoanLine density={density} role="caption" tone="muted" children={payment} />}
               {split && <LoanLine density={density} role="caption" tone="muted" children={split} />}
             </kit.KitRow>
           ))}

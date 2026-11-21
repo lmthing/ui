@@ -105,7 +105,9 @@ export function loanCopy(
           due: row.due,
           date: date(row.due),
           remaining: words.loanRemaining(scheduleMoney(row.balance)),
-          payment: installments ? scheduleMoney(row.principal + row.interest) : undefined,
+          payment: installments
+            ? words.loanField(labels.installmentAmount, scheduleMoney(row.principal + row.interest))
+            : undefined,
           split:
             installments && input.rate === 0
               ? undefined
@@ -136,8 +138,8 @@ export function loanReading(input: LoanInput, state: string, lang?: string): str
                 scheduleLabel,
                 ...schedule.flatMap(({ date, payment, remaining, split }) => [
                   date,
-                  ...(payment ? [payment] : []),
                   remaining,
+                  ...(payment ? [payment] : []),
                   ...(split ? [split] : []),
                 ]),
               ]

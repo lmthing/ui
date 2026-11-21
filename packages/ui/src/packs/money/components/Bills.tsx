@@ -121,7 +121,8 @@ function BillRow({
     bill.mark === "muted" ? "muted" : bill.tone === "neutral" ? (paid ? "muted" : "text") : bill.tone;
   const { amount, due, shortDue, repeat, overdue, trial } = billLines({ ...bill, paid }, today, lang, detail);
   const name = overdue ? words.bills.overdue(bill.name) : bill.name;
-  const label = [name, amount, due && words.bills.due(due), repeat, trial].filter(Boolean).join(words.bills.separator);
+  const manage = style === "subscriptions" && bill.manage;
+  const label = [name, amount, due && words.bills.due(due), repeat, !manage && trial].filter(Boolean).join(words.bills.separator);
   return (
     <kit.KitRow item={bill.id} part={null} label={bill.name} inline density={density}
       trailing={<kit.KitCheck part="paid" done={bill.paid} label={words.bills.markPaid(bill.name)} />}
@@ -155,13 +156,16 @@ function BillRow({
             </kit.KitText>
           )}
         </kit.KitText>}
-        {trial && <kit.KitText part="trial_ends" role="caption" tone="muted">{trial}</kit.KitText>}
+        {trial && !manage && <kit.KitText part="trial_ends" role="caption" tone="muted">{trial}</kit.KitText>}
       </kit.KitRow>
-      {style === "subscriptions" && bill.manage && (
-        <kit.KitRow part="manage" inline density={density} label={words.bills.manageBill(bill.name)} goto={bill.manage.goto}>
-          <kit.KitText part="manage_label" role="label" tone="accent">{words.bills.manage}</kit.KitText>
-        </kit.KitRow>
-      )}
+      {manage && <kit.KitRow part={null} inline indent={1} density={density} label={bill.name}>
+        <kit.KitGrid fitLast density={density}>
+          <kit.KitText part={trial ? "trial_ends" : null} role="caption" tone="muted">{trial}</kit.KitText>
+          <kit.KitRow part="manage" inline density={density} label={words.bills.manageBill(bill.name)} goto={manage.goto}>
+            <kit.KitText part="manage_label" role="label" tone="accent">{words.bills.manage}</kit.KitText>
+          </kit.KitRow>
+        </kit.KitGrid>
+      </kit.KitRow>}
     </kit.KitRow>
   );
 }
@@ -183,12 +187,8 @@ export function Bills({ bills, style, detail, density: requested }: BillsProps) 
           ))}
           <kit.KitContent group="response">
             <kit.KitGrid fitLast>
-              <kit.KitText role="caption" tone="muted" part={null}>
-                {total.label}
-              </kit.KitText>
-              <kit.KitText density={density} role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">
-                {total.amount}
-              </kit.KitText>
+              <kit.KitText role="caption" tone="muted" part={null}>{total.label}</kit.KitText>
+              <kit.KitText density={density} role="number" numberScale={style === "due" ? "compact" : "display"} tabular part="total">{total.amount}</kit.KitText>
             </kit.KitGrid>
           </kit.KitContent>
         </>

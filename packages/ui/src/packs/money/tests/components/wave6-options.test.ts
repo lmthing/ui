@@ -45,8 +45,10 @@ describe("money Wave 6 option contracts", () => {
     expect(elementAt(before, "home/c1/root").children).toHaveLength(1);
     expect(elementAt(stacked, "home/c1/root").children).toHaveLength(2);
     expect(
-      [...addressedElements(stacked).keys()].filter((address) => !/credit_limit|rewards_value/.test(address)),
-    ).toEqual([...addressedElements(before).keys()]);
+      [...addressedElements(stacked).keys()]
+        .filter((address) => !/credit_limit|rewards_value/.test(address))
+        .sort(),
+    ).toEqual([...addressedElements(before).keys()].sort());
     expect(elementAt(stacked, "home/c1/r1/credit_limit")).toBeDefined();
     expect(stacked).toContain("Credit limit: $2,500");
     expect(stacked).toContain("Rewards: $0");
@@ -164,7 +166,7 @@ describe("money Wave 6 option contracts", () => {
     const html = renderInstance("Loan", input, "filled", theme);
     expect(html).toContain("Upcoming installments");
     expect(html).toContain("Payment every two weeks");
-    expect(html).toContain("$10.00");
+    expect(html).toContain("Payment: $10.00");
     expect(html).toContain("25 Jan 2091");
     expect(html).toContain("home/c1/schedule");
     expect(html).not.toContain("home/c1/next");

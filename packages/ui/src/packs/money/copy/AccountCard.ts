@@ -24,9 +24,11 @@ export function accountCopy(
     ["credit_limit", account.creditLimit, words.accountCreditLimit],
     ["rewards_value", account.rewardsValue, words.accountRewardsValue],
   ] as const;
-  const details = extras.flatMap(([part, value, label]) =>
-    value === undefined ? [] : [{ part, text: label(compactMoneyLine(value, currency, lang)) }],
-  );
+  const details = extras.flatMap(([part, value, label]) => {
+    if (value === undefined) return [];
+    const amount = compactMoneyLine(value, currency, lang);
+    return [{ part, label, amount, text: words.accountDetail(label, amount) }];
+  });
   return {
     kind,
     suffix: account.last4 === undefined ? undefined : words.accountSuffix(account.last4),

@@ -29,8 +29,9 @@ export const en = {
     jar: "Jar",
   },
   accountSuffix: (last4: string) => ` · ${last4}`,
-  accountCreditLimit: (amount: string) => `Credit limit: ${amount}`,
-  accountRewardsValue: (amount: string) => `Rewards: ${amount}`,
+  accountCreditLimit: "Credit limit:",
+  accountRewardsValue: "Rewards:",
+  accountDetail: (label: string, amount: string) => `${label} ${amount}`,
   accountLabel: (name: string, kind: string, balance: string, last4?: string) =>
     `${name}, ${kind}${last4 ? ` ending in ${last4}` : ""}, ${balance}`,
   cardControls: {
@@ -96,6 +97,7 @@ export const en = {
     finish: "Estimated payoff",
     schedule: "Upcoming payments",
     installments: "Upcoming installments",
+    installmentAmount: "Payment",
     edit: "Open terms editor",
     cleared: "Loan paid off",
     forecastError: "No forecast",
@@ -112,7 +114,7 @@ export const en = {
   loanSplit: (principal: string, interest: string) => `Principal ${principal} · Interest ${interest}`,
   loanRemaining: (balance: string) => `${balance} left`,
   loanRow: (date: string, balance: string, split?: string, payment?: string) =>
-    [date, payment, balance, split].filter(Boolean).join(" · "),
+    [date, balance, payment, split].filter(Boolean).join(" · "),
   loanMore: (count: string, plural: Intl.LDMLPluralRule) =>
     `And ${count} more ${plural === "one" ? "payment" : "payments"}`,
   priceChart: {
