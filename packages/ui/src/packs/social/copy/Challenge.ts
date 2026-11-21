@@ -30,6 +30,7 @@ export function challengeCopy(input: ChallengeCopy, state: StateName, lang?: str
   return {
     group: reached ? words.reached : words.group,
     reached,
+    ended: days < 0,
     progress: words.progress(numberLine(total, lang), goalLine(goal, lang), unit),
     total: amount(total),
     goal: words.goal(amount(goal)),

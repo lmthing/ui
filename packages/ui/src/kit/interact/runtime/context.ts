@@ -24,6 +24,7 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { createMicCapture, type MicCaptureAdapter } from "./capture";
 import { visibleConfirmation } from "./read-controls";
+import { createPrivateMarks } from "./private-mark";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -170,6 +171,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     mounted: new Map<string, symbol>(),
     hold: { parts: new Map<string, symbol>(), approval: undefined as symbol | undefined },
     disabledParts,
+    privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),

@@ -120,7 +120,6 @@ export const probes = [
 
 type PerformanceProps = c.Props<typeof props, typeof meta>;
 type Density = NonNullable<PerformanceProps["density"]>;
-
 // prettier-ignore
 function PerformanceFigures({ point, item, density, full, loading }: { point: PerformancePoint; item?: string; density: Density; full: boolean; loading: boolean }) {
   const { words: { performance: words }, lang } = kit.useWords(investWordsFor);
@@ -128,42 +127,44 @@ function PerformanceFigures({ point, item, density, full, loading }: { point: Pe
   const summary = item ? words.selected : words.latest;
   const amount = (part: "value" | "contributed" | "gain") => {
     const scale = part === "value" ? "display" : "compact";
-    return loading ? <kit.KitSkeleton shape="figure" inset="none" content={[[ "caption", words[part] ], [ "number", copy[part], "start", scale ]]} />
+    const emphasis = part === "value" ? "normal" : "quiet";
+    return loading ? <kit.KitSkeleton shape="figure" inset="none" {...{ emphasis }} content={[[ "caption", words[part] ], [ "number", copy[part], "start", scale ]]} />
       : <kit.KitContent density={density}>
         <kit.KitText part={null} role="caption" tone="muted">{words[part]}</kit.KitText>
-        <kit.KitText {...{ part }} {...(item ? { item } : {})} role="number" numberScale={scale} tabular
-          tone={part === "gain" ? copy.tone : part === "value" ? "text" : "muted"}>{copy[part]}</kit.KitText>
+        <kit.KitText {...{ part, emphasis }} {...(item ? { item } : {})} role="number" numberScale={scale} tabular
+          tone={part === "gain" ? copy.tone : "text"}>{copy[part]}</kit.KitText>
       </kit.KitContent>;
   };
   return <kit.KitContent density={density} group="response">
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={full ? [["label", summary], ["caption", copy.at]] : [["caption", copy.at]]} /> : <>
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={full ? [["label", summary], ["caption", copy.at]] : [["caption", copy.at]]} /> : <kit.KitContent density={density}>
       {full && <kit.KitText part="summary" role="label">{summary}</kit.KitText>}
       <kit.KitText part={item ? "at" : null} {...(item ? { item } : {})} role="caption" tone="muted">{copy.at}</kit.KitText>
-    </>}
-    <kit.KitGrid density={density}>
+    </kit.KitContent>}
+    <kit.KitContent density={density} group="response"><kit.KitGrid density={density}>
       {amount("value")}
       <kit.KitContent density={density}>{amount("contributed")}{amount("gain")}</kit.KitContent>
-    </kit.KitGrid>
+    </kit.KitGrid></kit.KitContent>
   </kit.KitContent>;
 }
 
 // prettier-ignore
 function PerformancePlot({ samples, selected, loading, density }: { samples: PerformancePoint[]; selected?: string | undefined; loading: boolean; density: Density }) {
   const { words: { performance: words }, lang } = kit.useWords(investWordsFor);
+  const unit = kit.useAppCurrency() ?? c.defaultCurrency;
   const keys = [["value", words.value, "accent"], ["contributed", words.contributed, "muted"]] as const;
-  const series = keys.map(([id, label, tone]) => ({ id, label, tone, points: samples.map((point) => ({
-    id: point.id, x: Date.parse(point.at), value: point[id] ?? (loading ? 0 : null), label: performancePointCopy(point, lang).day,
+  const series = keys.map(([id, label, tone], placeholder) => ({ id, label, tone, points: samples.map((point) => ({
+    id: point.id, x: Date.parse(point.at), value: loading ? placeholder : (point[id] ?? null), label: performancePointCopy(point, lang).day,
   })) }));
   const ready = samples.some(({ contributed }) => typeof contributed === "number");
   return <>
-    {ready || loading ? <kit.KitLinePlot part="legend" {...{ series, loading }} {...(selected ? { selected } : {})} />
+    {ready || loading ? <kit.KitLinePlot part="legend" {...{ series, loading, unit }} {...(!loading && selected ? { selected } : {})} />
       : <kit.KitText part="notice" tone="muted">{words.unavailable}</kit.KitText>}
     <kit.KitContent group="response" density={density}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[[ "caption", words.observations ]]} />
         : <kit.KitText part="observations" role="caption" tone="muted">{words.observations}</kit.KitText>}
       <kit.KitTrack part="dates" role="radiogroup" label={words.observations}>
         {samples.map((point) => <kit.KitChip key={point.id} item={point.id} role="radio" disabled={loading || undefined} labelPart={null}
-          label={performancePointCopy(point, lang).day} on={selected === point.id} />)}
+          label={performancePointCopy(point, lang).day} on={!loading && selected === point.id} />)}
       </kit.KitTrack>
     </kit.KitContent>
   </>;
@@ -178,11 +179,10 @@ export function Performance(input: PerformanceProps) {
   const state = source === "filled" ? (live.state as c.StateName | undefined) ?? source : source;
   const loading = state === "loading";
   const points = live.samples as PerformancePoint[], samples = loading && !points.length ? input.samples : points;
-  const selected = samples.find(({ at }) => at === live.selected_point);
-  const point = selected ?? samples.at(-1);
+  const selected = samples.find(({ at }) => at === live.selected_point), point = selected ?? samples.at(-1);
   return <kit.KitCard part="root" padded density={density}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[[ "heading", input.title ]]} />
-      : <kit.KitText part="title" role="heading" density={density}>{input.title}</kit.KitText>}
+    {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[[ "label", input.title ]]} />
+      : <kit.KitText part="title" role="label" emphasis="strong">{input.title}</kit.KitText>}
     {loading ? <kit.KitRow label={words.range} part={null} tone="muted" inline density={density}>
       <kit.KitGrid columns={3} density={density}>{performanceRanges.map((range) => <kit.KitContent key={range}>
         {range === live.range && <kit.KitSkeleton shape="control" inset="none" kind="secondary" label={words.ranges[range]} full />}

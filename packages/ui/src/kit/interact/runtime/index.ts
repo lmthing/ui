@@ -11,3 +11,4 @@ export { createAct, discardHiddenConfirmation } from "./dispatch";
 export { createAccess, createStandaloneAccess } from "./access";
 export { readControls } from "./read-controls";
 export type { MicCaptureAdapter, MicCaptureSession } from "./capture";
+export { PrivateMarkContext, type PrivateMarkAdapter, type PrivateMarkSurfaceProps } from "./private-mark";

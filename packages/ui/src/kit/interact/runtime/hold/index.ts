@@ -7,7 +7,7 @@ export function registerHoldPart(ctx: ControllerContext, act: ReturnType<typeof 
   const registered = () => ctx.hold.parts.get(local) === token;
   return {
     complete: () => {
-      if (registered()) return act({ address, action: "press" }, {}, token);
+      if (registered()) return act({ address, action: "press" }, undefined, undefined, token);
     },
     unregister: () => {
       if (registered()) ctx.hold.parts.delete(local);

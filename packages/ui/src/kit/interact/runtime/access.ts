@@ -5,11 +5,12 @@ import {
   clockControlDeclared,
   driveAffordances,
   driveTarget,
+  hostOnlyAddresses,
   isPlaybackAction,
   liveProps,
-  parseAddress,
   parseControlProps,
   partTierAt,
+  privateMarkKey,
   projectDeviceData,
   projectSelectionBinding,
   recordClockOffer,
@@ -27,7 +28,8 @@ import { createMediaRuntime } from "./media";
 import { captureAccess } from "./capture";
 import { registerHoldPart } from "./hold";
 import { drivenPartBlock } from "./planning";
-import { readControls } from "./read-controls";
+import { privateMarkRegistration } from "./private-mark";
+import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
 const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
 function actionsAt(
@@ -40,6 +42,7 @@ function actionsAt(
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
+  if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
   if (ctx.confirmationFor()) {
     if (tier) return [];
     if (local === "confirm/confirm") return ["press"];
@@ -73,6 +76,7 @@ function actionsAt(
     const state = (props.state as StateName | undefined) ?? entry.state;
     const offerContext = { data, clock, wire, schema: def.props };
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
+    if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
@@ -134,7 +138,17 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
   const data = atDeviceTime(deviceData, now);
   const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
-  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, data, currency, canDrive);
+  const reading = readControls(
+    visible,
+    ctx.defs,
+    values,
+    lang,
+    ctx.disabledParts,
+    data,
+    currency,
+    canDrive,
+    ctx.privateMarks,
+  );
   if (ctx.standalone) return reading;
   return [
     reading,
@@ -143,11 +157,12 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
-function isKeypad(ctx: ControllerContext, full: string) {
-  const address = parseAddress(full);
-  const entry = address?.component && ctx.sourceOf(address.component);
-  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
-  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+function registerPart(parts: Map<string, symbol>, local: string) {
+  const token = Symbol(local);
+  parts.set(local, token);
+  return () => {
+    if (parts.get(local) === token) parts.delete(local);
+  };
 }
 export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
   const ctx = createControllerContext(options, true);
@@ -178,21 +193,8 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       }
       return result;
     },
-    registerPart(address: string) {
-      const local = ctx.relative(address),
-        token = Symbol(local);
-      ctx.mounted.set(local, token);
-      return () => {
-        if (ctx.mounted.get(local) === token) ctx.mounted.delete(local);
-      };
-    },
-    registerDisabledPart(address: string) {
-      const local = ctx.relative(address),
-        token = Symbol(local);
-      ctx.disabledParts.set(local, token);
-      return () => {
-        if (ctx.disabledParts.get(local) === token) ctx.disabledParts.delete(local);
-      };
-    },
+    registerPart: (address: string) => registerPart(ctx.mounted, ctx.relative(address)),
+    registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
+    registerPrivateMarkPart: privateMarkRegistration(ctx, act),
   };
 }
