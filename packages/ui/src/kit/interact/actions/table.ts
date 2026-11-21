@@ -1,14 +1,19 @@
 import {
   affordancesOf,
+  isRecordPress,
   itemEditSpec,
   isRecordAction,
   liveProps,
   parseControlProps,
   projectDeviceData,
+  projectSelectionBinding,
   recordClaimAt,
   reportConfirmation,
+  reportEditWire,
   reportRemovalAt,
+  selectionBindingFor,
   stampItemIds,
+  recordTargetAt,
   type ActStep,
   type StateName,
 } from "../../../catalog";
@@ -45,10 +50,34 @@ function confirmReportAction(state: ActionState, ctx: ActionContext, target: str
     : rejected(state, ctx.at, "not_actionable", "No photo at this address");
 }
 
+function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionContext) {
+  const { id, c, state: _state, ...wire } = ctx.entry;
+  const def = ctx.defs[c]!;
+  const prefix = `${ctx.screen.id}/`;
+  const local = Object.fromEntries(
+    Object.entries(state.values).map(([key, value]) => [
+      key.startsWith(prefix) ? key.slice(prefix.length) : key,
+      value,
+    ]),
+  );
+  const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
+  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const props = liveProps(def.meta, parsed, id, local, true, data, ctx.now());
+  const recordTarget = recordTargetAt(def.meta, props, action.address, action.action);
+  return recordTarget === undefined
+    ? rejected(state, ctx.at, "not_actionable", "No record at this address")
+    : showConfirmation(state, { ...ctx.selected, recordTarget }, ctx);
+}
+
 export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
-  const meta = ctx.defs[ctx.entry.c]!.meta;
+  const { id, c, state: entryState, ...raw } = ctx.entry;
+  const def = ctx.defs[c]!;
+  const { meta } = def;
   const target = action.address === ctx.entry.id ? "root" : action.address.slice(ctx.entry.id.length + 1);
-  if (reportConfirmation(meta, target, action.action)) return confirmReportAction(state, ctx, target);
+  if (reportConfirmation(meta, target, action.action))
+    return isRecordPress(meta, action.address, action.action)
+      ? confirmRecordAction(state, action, ctx)
+      : confirmReportAction(state, ctx, target);
   if (
     action.action === "press" &&
     Object.hasOwn(meta.clearItems ?? {}, target) &&
@@ -58,20 +87,19 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
-  const props = liveProps(
-    meta,
-    stampItemIds(meta, ctx.input),
-    ctx.entry.id,
-    local,
-    true,
-    projectDeviceData(ctx.options.deviceData, state.values),
-  );
+  const data = projectDeviceData(ctx.options.deviceData, state.values);
+  const wire = reportEditWire(def, raw, (part) => local[`${id}/${part}`]);
+  const live = liveProps(meta, stampItemIds(meta, ctx.input), ctx.entry.id, local, true, data);
+  const selection = selectionBindingFor(ctx.active, ctx.defs, meta, ctx.entry.id, local, data);
+  const props = projectSelectionBinding(meta, live, selection?.view);
   const part = affordancesOf(
     meta,
     props,
     ctx.entry.id,
     local,
-    (props.state as StateName | undefined) ?? ctx.entry.state,
+    (props.state as StateName | undefined) ?? entryState,
+    false,
+    { data, wire },
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)

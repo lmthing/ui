@@ -1,22 +1,66 @@
+import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
 import type { ActStep, Values } from "../act";
-import { affordancesOf } from "../affordances";
+import { affordancesOf, type Affordance } from "../affordances";
 import {
   hasPlaybackClock,
   hasRecordClock,
+  hasRuntimeSets,
   recordClockInput,
   recordClockOffer,
   stageRecordClock,
 } from "../clocks";
 import type { DeviceData } from "../device-data";
+import { driveAffordances, driveTarget } from "../drives";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
-import { isRecordAction, recordRequestAllowed } from "../report-edits";
+import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-edits";
+import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
 
-function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
+type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
+
+function liveInput(
+  def: Definition,
+  input: Values,
+  id: string,
+  local: Values,
+  data?: DeviceData,
+  now?: number,
+) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true, data);
+  return liveProps(def.meta, parsed, id, local, true, data, now);
+}
+
+/** Keep the legacy planner's state fallback for definitions without a state opt-in. */
+function usesLiveState(meta: Meta) {
+  const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = meta;
+  return (
+    draw ||
+    emptyActions ||
+    errorActions?.length ||
+    session ||
+    successActions?.length ||
+    readSuccess ||
+    items?.nested?.activeParent ||
+    items?.nested?.maxActive !== undefined ||
+    live ||
+    meta.drives ||
+    meta.recordRuntime ||
+    meta.linkedEdits ||
+    meta.selectionBinding ||
+    hasRuntimeSets(meta) ||
+    meta.deviceDataFlags ||
+    items?.deviceData ||
+    items?.edits ||
+    items?.move ||
+    items?.records ||
+    items?.pickers ||
+    meta.clear ||
+    meta.signOff ||
+    hasPlaybackClock(meta) ||
+    hasRecordClock(meta)
+  );
 }
 
 export function affordancesOfScreen(
@@ -30,33 +74,28 @@ export function affordancesOfScreen(
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveInput(def, input, id, local, data);
-    const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
-    const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
-    // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
-    const liveState =
-      (props.state as typeof state) ??
-      (draw ||
-      emptyActions ||
-      errorActions?.length ||
-      session ||
-      successActions?.length ||
-      readSuccess ||
-      policy ||
-      live ||
-      def.meta.linkedEdits ||
-      items?.edits ||
-      items?.records ||
-      items?.pickers ||
-      def.meta.clear ||
-      def.meta.signOff ||
-      hasPlaybackClock(def.meta) ||
-      hasRecordClock(def.meta)
-        ? state
-        : undefined);
+    const selection = selectionBindingFor(screen, defs, def.meta, id, local, data);
+    const props = projectSelectionBinding(
+      def.meta,
+      liveInput(def, input, id, local, data, now),
+      selection?.view,
+    );
+    const liveState = (props.state as typeof state) ?? (usesLiveState(def.meta) ? state : undefined);
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
-    return affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
+    const wire = reportEditWire(def, input, get);
+    const offered = affordancesOf(def.meta, props, id, local, liveState, true, { data, clock, wire });
+    const routed = driveAffordances(
+      def.meta,
+      props,
+      id,
+      offered,
+      driveTarget(def.meta, screen, defs, local, data),
+    );
+    if (!selection) return routed;
+    return routed.map((a): PlannedAffordance =>
+      isSelectAll(def.meta, a.part, a.action, isItemOffer(id, a)) ? { ...a, checks: selection.checks } : a,
+    );
   });
 }
 
@@ -76,7 +115,7 @@ export function stageRecord(
   if (!record && !hasRecordClock(def.meta)) return;
   const base = `${screen.id}/${id}`;
   const get = (part: string) => next[`${base}/${part}`];
-  const props = liveInput(def, raw, id!, localValues(screen.id, next), data);
+  const props = liveInput(def, raw, id!, localValues(screen.id, next), data, now);
   if (record) return recordRequestAllowed(def.meta, props, target, step); // Intent only until confirmation.
   return stageRecordClock(
     recordClockInput(def, raw, props, get, data, now, next),

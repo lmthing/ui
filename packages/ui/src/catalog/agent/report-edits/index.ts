@@ -7,7 +7,8 @@ import { addressedItems } from "../visibility";
 import { projectDeviceData, type DeviceData } from "../device-data";
 import { wireEditKey, writeWireEdit } from "./wire-edits";
 import { isRecordAction, stageRecordEdit, recordClaimAt } from "./record-edits";
-export { applyRecordWire, applyReportEdits, validRecordWire, writeRecordWire } from "./wire-edits";
+export { applyRecordWire, applyReportEdits, reportEditWire } from "./wire-edits";
+export { validRecordWire, writeRecordWire } from "./wire-edits";
 export {
   isRecordAction,
   recordClaimAt,
@@ -18,7 +19,7 @@ export {
 export { projectRecordIds, rememberRecordIds } from "./record-ids";
 type Choices = NonNullable<NonNullable<Meta["select"]>["choices"]>[string];
 type ItemEdit =
-  | { action: "select"; prop: string; choices: Choices }
+  | { action: "select"; prop: string; choices: Choices | { row: string } }
   | { action: "type"; prop: string; max: number; empty?: "unset" }
   | { action: "photo"; prop: string; max: number }
   | { action: "remove"; photo: string };
@@ -28,9 +29,8 @@ export type ItemEditPath = (
   wire: Readonly<Values>,
 ) => readonly (string | number)[] | undefined;
 
-function own<T>(map: Readonly<Record<string, T>> | undefined, key: string): T | undefined {
-  return Object.hasOwn(map ?? {}, key) ? map![key] : undefined;
-}
+const own = <T>(map: Readonly<Record<string, T>> | undefined, key: string): T | undefined =>
+  Object.hasOwn(map ?? {}, key) ? map![key] : undefined;
 
 function itemTarget(target: string) {
   const [item, part, extra] = target.split("/");
@@ -52,10 +52,11 @@ export function itemEditAt(meta: Meta, props: Values, target: string) {
 }
 
 export function reportConfirmation(meta: Meta, target: string, action: string) {
-  return (
-    isRecordAction(meta, target, action) ||
-    (action === "press" && (itemEditSpec(meta, target)?.action === "remove" || !!own(meta.signOff, target)))
-  );
+  if (isRecordAction(meta, target, action)) return true;
+  if (action !== "press") return false;
+  if (itemEditSpec(meta, target)?.action === "remove" || own(meta.signOff, target)) return true;
+  const part = itemTarget(target)?.part;
+  return Boolean(part && meta.confirmParts?.includes(part) && own(meta.recordRuntime?.presses, part));
 }
 
 export function hasReportConfirmation(meta: Meta) {
@@ -75,9 +76,10 @@ function photoList(row: Values, prop: string): readonly string[] {
 }
 
 /** An item edit behaves like an ordinary declared action, but cannot link or fall back to a row selection. */
-export function itemEditOffer(meta: Meta, row: Values, part: string, action: string) {
+export function itemEditOffer(meta: Meta, row: Values, part: string, action: string, wire?: Values) {
   const spec = own(meta.items?.edits, part);
   if (!spec) return undefined;
+  if (meta.items?.deviceData && (!wire || !meta.items.editPath?.(row, wire))) return false;
   if (spec.action === "photo") return action === "press" && photoList(row, spec.prop).length < spec.max;
   if (spec.action === "remove") {
     const photo = own(meta.items?.edits, spec.photo);
@@ -90,7 +92,6 @@ type EditRequest =
   | { kind: "input" }
   | { kind: "confirm"; now: number; removal: ReportRemoval | undefined }
   | { kind: "photo"; reference: string };
-
 export type RecordClaim = NonNullable<ReturnType<typeof recordClaimAt>>;
 export type ReportRemoval = Readonly<{ index: number; reference: string }> | { record: RecordClaim };
 export function reportRemovalAt(meta: Meta, props: Values, target: string): ReportRemoval | undefined {
@@ -133,7 +134,7 @@ function changeAt(
 function itemPath(meta: Meta, wire: Values, edit: NonNullable<ReturnType<typeof itemEditAt>>) {
   const items = meta.items!;
   if (items.editPath) return items.editPath(edit.row, wire);
-  if (Array.isArray(wire[items.key])) return [items.key, edit.index];
+  if (!items.deviceData && Array.isArray(wire[items.key])) return [items.key, edit.index];
 }
 
 /** Stage a schema-checked wire edit. Undefined means this step is not a wire edit. */
@@ -189,7 +190,7 @@ export function stageReportEdit(
     return Number.isFinite(date.valueOf()) && commit([signOff], date.toISOString());
   }
   const edit = itemEditAt(meta, props, target);
-  if (!edit || !itemEditOffer(meta, edit.row, edit.part, step.action)) return false;
+  if (!edit || !itemEditOffer(meta, edit.row, edit.part, step.action, wire)) return false;
   const path = itemPath(meta, wire, edit);
   const change = changeAt(meta, edit.row, edit.spec, request, step.value);
   if (!path || !change || !commit([...path, change.prop], change.value)) return false;

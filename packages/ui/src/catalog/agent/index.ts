@@ -5,12 +5,17 @@ export {
   partTierAt,
   type Affordance,
 } from "./affordances";
+export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
+  atDeviceTime,
+  captureDeviceTime,
   emptyDeviceData,
   filterDeviceDataScreen,
   isDeviceDataVisible,
   projectDeviceData,
+  projectDeviceRows,
   recordSnapshotKey,
   resetRecordSnapshots,
   selectDeviceData,
@@ -19,12 +24,14 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
+export { isRecordJournal, isRecordPress, recordTargetAt } from "./record-runtime";
 export {
   hasReportConfirmation,
   itemEditSpec,
   reportConfirmation,
   isRecordAction,
   recordClaimAt,
+  reportEditWire,
   reportRemovalAt,
   stageReportEdit,
   type ItemEditPath,
@@ -59,6 +66,12 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
+export {
+  projectSelectionBinding,
+  selectionBindingFor,
+  withDisabledSelectionChecks,
+  type BoundSelection,
+} from "./selection-binding";
 export {
   activeParentId,
   isNestedTarget,

@@ -791,9 +791,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Note\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"media\":\"none\",\"tone\":\"neutral\",\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}",
+    "reply": "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}",
     "replies": [
-      "{\"c\":\"Note\",\"density\":\"comfortable\",\"emphasis\":\"normal\",\"media\":\"none\",\"tone\":\"neutral\",\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}",
+      "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}",
       "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}",
       "{\"c\":\"Note\",\"density\":null,\"emphasis\":null,\"media\":\"none\",\"tone\":null,\"text\":\"Ferns prefer indirect light.\",\"icon\":\"sun\"}"
     ]
@@ -1581,10 +1581,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}",
+    "reply": "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"icon\",\"tone\":\"neutral\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
     "replies": [
-      "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}",
-      "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"icon\",\"tone\":\"warn\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"alert\"}",
+      "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"icon\",\"tone\":\"neutral\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
+      "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"none\",\"tone\":\"warn\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}",
       "{\"c\":\"Note\",\"density\":\"compact\",\"emphasis\":\"quiet\",\"media\":\"none\",\"tone\":\"warn\",\"text\":\"Keep Clover on a short lead near the road.\",\"icon\":\"paw\"}"
     ]
   },

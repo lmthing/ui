@@ -28,16 +28,34 @@ export function PlanningTargetScope({
   );
 }
 
-export function usePlanningTarget(
-  target: Target | undefined,
-  label: string,
-  loading: boolean,
-  selected?: boolean,
-) {
+export function usePlanningAddress(target: Target | undefined, loading: boolean, register = true) {
+  const enabled = useContext(ValidTarget) && Boolean(target) && !loading;
+  const address = usePart(target?.part, enabled && register);
+  return enabled ? address : undefined;
+}
+
+export function planningButtonEvents(press: (() => void) | undefined) {
+  return press
+    ? {
+        cursor: "pointer" as const,
+        onPress: (event: { stopPropagation?(): void }) => {
+          event.stopPropagation?.();
+          press();
+        },
+        onKeyDown: (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          event.stopPropagation();
+          press();
+        },
+      }
+    : {};
+}
+
+type Address = ReturnType<typeof usePlanningAddress>;
+export function usePlanningPress(address: Address, label: string, selected?: boolean) {
   const kit = useKit();
-  const enabled = useContext(ValidTarget) && !loading;
-  const address = usePart(enabled ? target?.part : undefined, enabled);
-  if (!enabled) return {} as { testID?: never };
+  if (!address) return {} as { testID?: never };
   const press =
     kit.interactive && kit.controller ? () => void kit.controller!.press(address.testID) : undefined;
   return {
@@ -48,20 +66,10 @@ export function usePlanningTarget(
       ? { "aria-pressed": selected }
       : { accessible: true, accessibilityState: { selected }, onAccessibilityTap: press }),
     focusable: Boolean(press),
-    ...(press
-      ? {
-          cursor: "pointer" as const,
-          onPress: (event: { stopPropagation?(): void }) => {
-            event.stopPropagation?.();
-            press();
-          },
-          onKeyDown: (event: { key?: string; preventDefault(): void; stopPropagation(): void }) => {
-            if (event.key !== "Enter" && event.key !== " ") return;
-            event.preventDefault();
-            event.stopPropagation();
-            press();
-          },
-        }
-      : {}),
+    ...planningButtonEvents(press),
   };
+}
+
+export function usePlanningTarget(target: Target | undefined, label: string, loading: boolean) {
+  return usePlanningPress(usePlanningAddress(target, loading), label);
 }

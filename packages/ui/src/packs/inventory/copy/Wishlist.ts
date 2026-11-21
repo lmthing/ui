@@ -24,7 +24,9 @@ export function wishReading({ items, detail }: { items: Wish[]; detail: Detail }
   const words = inventoryWordsFor(lang).wishlist;
   return items.map((wish, index) => {
     const { price, target, priority } = wishCopy(wish, detail, lang);
-    const fields = [price, target, priority, words.got].filter((line): line is string => line !== undefined);
+    const fields = [price?.join(""), target?.join(""), priority, words.got].filter(
+      (line): line is string => line !== undefined,
+    );
     return `r${index + 1} ${fields.join(words.separator)}`;
   });
 }

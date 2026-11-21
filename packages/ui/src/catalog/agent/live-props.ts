@@ -4,11 +4,14 @@ import type { Definition } from "../probes";
 import { stampItemIds } from "../lines";
 import { repairVariants } from "../rules";
 import type { DeviceData, ScreenLike, Values } from "./index";
+import { projectDeviceFlags, projectDeviceRows } from "./device-data";
 import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
+import { projectMoves } from "./action-input";
+import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -16,6 +19,7 @@ import {
   projectLiveClocks,
   projectMatrix,
 } from "./clocks";
+type Get = (part: string) => unknown;
 function unwrapField(field: unknown, wire = false): unknown {
   while (
     field instanceof z.ZodOptional ||
@@ -73,6 +77,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
   source = applyRecordWire(meta, source, get);
+  source = projectMoves(def, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);
@@ -108,18 +113,13 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
       : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
-/** Shared schema-prop projection for the planner, reader and kit screen. */
-export function projectControls(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get), get);
+/** Keep runtime-only selection flags out of the kit screen's wire projection. */
+export function projectControls(meta: Meta, props: Values, get: Get, mode?: "live" | "wire"): Values {
+  const projected = projectNested(meta, projectSelection(meta, props, get, mode), get);
   return projectComponentSets(meta, projected, get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
-export function projectParsedControls(
-  meta: Meta,
-  props: Values,
-  get: (part: string) => unknown,
-  runtime: boolean,
-): Values {
+export function projectParsedControls(meta: Meta, props: Values, get: Get, runtime: boolean): Values {
   const selected = meta.select?.choices ? props : projectLegacySelection(meta, props, get);
   const nested = projectNested(meta, selected, get);
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
@@ -127,21 +127,22 @@ export function projectParsedControls(
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
-  props: Values,
+  validated: Values,
   instance: string,
   values: Values,
   wireApplied = false,
   data?: DeviceData,
+  now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  props = projectRecordIds(meta, props, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
-  if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
-  else {
-    props = projectControls(meta, props, get);
-    if (meta.items?.set || meta.items?.adjust || runtime) props = projectAdjustments(meta, props, get);
-  }
+  let props = wireApplied
+    ? projectParsedControls(meta, addressed, get, runtime)
+    : projectControls(meta, addressed, get);
+  if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
+    props = projectAdjustments(meta, props, get);
   const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
@@ -149,7 +150,11 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
-  props = projectLiveInputs(meta, props, instance, get, data);
+  props = projectLiveInputs(meta, props, instance, get, data, validated);
+  props = projectRecordRuntime(meta, props, instance, values, data, now);
+  // Reapply to rows that a live or host projection may have replaced.
+  if (meta.select?.runtime) props = projectLegacySelection(meta, props, get);
+  props = projectDeviceFlags(meta, props, data);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {

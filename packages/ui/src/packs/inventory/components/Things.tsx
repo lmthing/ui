@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { isLowStock, thingCopy, thingsEmpty, thingsReading } from "../copy";
+import { isLowStock, thingCopy, thingsReading } from "../copy";
 import { inventoryWordsFor } from "../lang";
 
 // Core first: List/cards cannot adjust owned quantities or flag stock at its minimum.
@@ -127,16 +127,17 @@ function ThingTile({ item, peer, layout, density }: TileProps) {
     {...(item.photo ? { photo: item.photo } : {})} {...(rows ? { shape: "thumb" } : { aspect: "wide" })} />;
   const labels = { less: words.things.less(item.name), more: words.things.more(item.name) };
   const stepper = <kit.KitStepper part="qty" value={item.qty} min={0} max={maxQuantity} labels={labels} />;
+  const stockLine = value || low || peer?.value !== undefined || (peer && isLowStock(peer));
   const detail = <kit.KitRow part="root" goto={item.goto} label={item.name} density={density} inline>
       <kit.KitContent density={rows ? "comfortable" : density} lead={rows ? photo : undefined} leadingAlign="row">
         {!rows && photo}
         <kit.KitText part="name" role="body" density={density}>{item.name}</kit.KitText>
-        {([
-          ["where", item.where, peer?.where, "muted"],
-          ["value", value, peer?.value !== undefined, "muted"],
-          ["low", low, peer && isLowStock(peer), "warn"],
-        ] as const).map(([part, text, reserve, tone]) => (text || reserve) &&
-          <kit.KitText key={part} part={text ? part : null} role="caption" {...{ tone, density }}>{text ?? "\u00a0"}</kit.KitText>)}
+        {(item.where || peer?.where) && <kit.KitText part={item.where ? "where" : null} role="caption" tone="muted" density={density}>{item.where ?? "\u00a0"}</kit.KitText>}
+        {stockLine && <kit.KitText part={null} role="body" density={density}>
+          {value && <kit.KitText part="value" role="number" numberScale="compact" tone="muted" emphasis="quiet" tabular density={density}>{value}</kit.KitText>}
+          {value && low && words.things.priceStockSeparator}{low && <kit.KitText part="low" role="caption" tone="warn" density={density}>{low}</kit.KitText>}
+          {!value && !low && "\u00a0"}
+        </kit.KitText>}
       </kit.KitContent>
   </kit.KitRow>;
   if (rows && item.qty <= inlineCountMax) return <kit.KitGrid fitLast density="compact">{detail}{stepper}</kit.KitGrid>;
@@ -148,17 +149,22 @@ function ThingTile({ item, peer, layout, density }: TileProps) {
 // prettier-ignore
 function ThingLoading({ item, peer, layout, density }: TileProps) {
   const rows = layout === "rows";
-  const { lang } = kit.useWords(inventoryWordsFor);
-  const { value, low } = thingCopy(item, lang);
+  const { lang, words } = kit.useWords(inventoryWordsFor);
+  const { value, low, quantity } = thingCopy(item, lang);
+  const stock = [value, low].filter(Boolean).join(words.things.priceStockSeparator);
+  const reserveStock = peer?.value !== undefined || (peer && isLowStock(peer));
   const detail = <kit.KitSkeleton shape="figure" lead={rows ? "box" : "none"} inset="none" density={density}
-      content={[["body", item.name], ["caption", item.where], ["caption", value], ["caption", low]]} />
+      content={[["body", item.name], ["caption", item.where], ["body", stock || undefined]]} />
   const button = <kit.KitSkeleton shape="control" kind="secondary" inset="none" />;
-  const controls = <kit.KitContent lead={button} leadingAlign="row" density="comfortable">{button}</kit.KitContent>;
+  const count = <kit.KitSkeleton shape="figure" inset="none" content={[["number", quantity, "center", "compact"]]} />;
+  const controls = <kit.KitRow part={null} inline surface="plain" label="" leading={button} leadingAlign="row" density="compact">
+    <kit.KitRow part={null} inline surface="plain" label="" leading={count} leadingAlign="row" density="compact">{button}</kit.KitRow>
+  </kit.KitRow>;
   if (rows && item.qty <= inlineCountMax) return <kit.KitGrid fitLast density={density}>{detail}{controls}</kit.KitGrid>;
   return <>
     {!rows && <kit.KitSkeleton shape="media" aspect="wide" content={[]} inset="none" density={density} />}
     <kit.KitContent density={density}>{detail}
-      {!low && peer && isLowStock(peer) && <kit.KitText role="caption" part={null} density={density}>{"\u00a0"}</kit.KitText>}
+      {!stock && reserveStock && <kit.KitText role="body" part={null} density={density}>{"\u00a0"}</kit.KitText>}
     </kit.KitContent>
     <kit.KitContent group={density === "compact" ? "content" : "response"} density={density}>{controls}</kit.KitContent>
   </>;
@@ -167,7 +173,7 @@ function ThingLoading({ item, peer, layout, density }: TileProps) {
 // prettier-ignore
 export function Things(input: ThingsProps) {
   const context = kit.usePartContext();
-  const { lang } = kit.useWords(inventoryWordsFor);
+  const { words } = kit.useWords(inventoryWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const arrange = kit.useVariant("arrange", meta.variants.arrange, input.arrange);
@@ -175,9 +181,9 @@ export function Things(input: ThingsProps) {
   const items = visible.length === 0 && context.state === "loading" ? input.items : visible;
   // Keep the exact quantity and both touch targets visible when a tile needs more room.
   const layout = arrange === "grid" && items.some(({ qty }) => qty > inlineCountMax) ? "wide" : arrange;
-  if (context.state === "empty" || items.length === 0)
-    return <kit.KitCard part="root" {...{ surface, density }}>
-      <kit.KitEmpty part="empty" decorativeIcon {...thingsEmpty(context.state === "empty" ? "all" : input.filter, lang, context.thing)} />
+  if (context.state === "empty" || items.length === 0) return <kit.KitCard part="root" {...{ surface, density }}>
+      <kit.KitEmpty part="empty" decorativeIcon {...(context.state !== "empty" && input.filter === "low"
+        ? { icon: "check", title: words.things.stocked } : { icon: "package" })} />
     </kit.KitCard>;
   const Tile = context.state === "loading" ? ThingLoading : ThingTile;
   return <kit.KitCard part="root" style="cards" density={density}>
