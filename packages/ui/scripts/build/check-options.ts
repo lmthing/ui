@@ -21,6 +21,29 @@ export function checkOptions(args: readonly string[]) {
   return { browser, changed, filters };
 }
 
+function positiveInteger(
+  value: string | undefined,
+  name: string,
+  max: number,
+  warn: (message: string) => void,
+) {
+  if (value === undefined) return undefined;
+  const number = Number(value);
+  if (/^\d+$/.test(value) && Number.isSafeInteger(number) && number > 0 && number <= max) return number;
+  warn(`Ignoring ${name}: expected a positive decimal integer no greater than ${max}.`);
+  return undefined;
+}
+
+export function nodeTestOptions(env: NodeJS.ProcessEnv, warn = console.warn) {
+  // Node turns delays above this limit into 1 ms instead of honoring the requested timeout.
+  const timeout = positiveInteger(env.UI_TEST_TIMEOUT, "UI_TEST_TIMEOUT", 2_147_483_647, warn);
+  const workers = positiveInteger(env.UI_TEST_WORKERS, "UI_TEST_WORKERS", Number.MAX_SAFE_INTEGER, warn);
+  return {
+    ...(timeout === undefined ? {} : { testTimeout: timeout, hookTimeout: timeout }),
+    ...(workers === undefined ? {} : { maxWorkers: workers }),
+  };
+}
+
 export function changeSelection(paths: readonly string[]) {
   const ids = new Set<string>(),
     packs = new Set<string>();
