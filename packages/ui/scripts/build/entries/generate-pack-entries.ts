@@ -70,6 +70,11 @@ export function generatePackEntries({ defs, packs }: Entries): Record<string, st
     const name = `group-${groups.length + 1}`;
     groups.push(name);
     const group = packs.slice(start, start + packsPerGroup);
+    for (const pack of group)
+      outputs[`packs/${name}/${pack.id}.ts`] = packLines(
+        pack,
+        defs.filter(({ pack: id }) => id === pack.id),
+      );
     outputs[`packs/${name}/index.ts`] = aggregateLines(group.map(({ id }) => id));
     outputs[`packs/${name}/README.md`] = [
       "# generated pack group",
@@ -78,11 +83,6 @@ export function generatePackEntries({ defs, packs }: Entries): Record<string, st
       "Each pack file imports its root door; `index.ts` combines the data maps.",
     ];
     outputs[`views/${name}.ts`] = rendererLines(group, defs);
-    for (const pack of group)
-      outputs[`packs/${name}/${pack.id}.ts`] = packLines(
-        pack,
-        defs.filter(({ pack: id }) => id === pack.id),
-      );
   }
   outputs["packs/index.ts"] = aggregateLines(groups);
   outputs["packs/README.md"] = [
