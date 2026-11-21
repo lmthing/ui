@@ -1,3 +1,4 @@
+export { dividendCopy, dividendReading, type DividendRow } from "./Dividends";
 export { holdingCopy, holdingsReading } from "./Holdings";
 export {
   performanceChoices,
