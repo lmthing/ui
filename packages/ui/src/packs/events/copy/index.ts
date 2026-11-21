@@ -1,3 +1,4 @@
+export * from "./Door";
 export * from "./GuestList";
 export * from "./Registry";
 export * from "./RSVP";
