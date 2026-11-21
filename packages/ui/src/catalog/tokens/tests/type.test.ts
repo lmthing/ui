@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { layoutType, type as typography } from "./type";
+import { layoutType, type as typography } from "..";
 
 it("uses only five size and line-height steps, including legacy roles", () => {
   expect(Object.keys(layoutType)).toEqual(["title", "body", "meta", "figure", "caption"]);
