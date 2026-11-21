@@ -27,7 +27,7 @@ import {
 import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
-import { stageRecordPress } from "./record-runtime";
+import { stageRecordAction, withRecordScreen } from "./record-runtime";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -56,14 +56,16 @@ function stageStandaloneClock(
   const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
   const def = defs[c]!;
   const { meta } = def;
-  const legacy = meta.live?.derive && (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
+  const legacy =
+    (meta.live?.derive || meta.recordRuntime?.actions) &&
+    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
   const target = parts.join("/") || "root";
   if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
   const get = (part: string) => next[`${screen.id}/${id}/${part}`];
   const props = legacy
     ? liveInput(def, input, id!, localValues(screen.id, next), data)
     : parseControlProps(def, input, get);
-  const now = Number(get("$now") ?? Date.now());
+  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
   const changes = clockChanges(meta, props, get, target, step, now);
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
@@ -162,7 +164,7 @@ export function planAct(
   const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
   const { values: next, changed, links } = plan;
   for (const [at, original] of steps.entries()) {
-    const snapshot = projectDeviceData(data, next);
+    const snapshot = withRecordScreen(projectDeviceData(data, next), migrated);
     const screen = filterDeviceDataScreen(migrated, defs, snapshot);
     const action = findAction(screen, defs, next, original, at, snapshot, now);
     if (action.error) return action.error;
@@ -173,7 +175,7 @@ export function planAct(
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
-    const record = stageRecordPress(screen, defs, next, resolved, now, snapshot);
+    const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
       const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
