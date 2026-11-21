@@ -93,7 +93,7 @@ it("resolves explicit values from a prop list without accepting indexes or infer
   expect(selectionAt(fromProps, options, "r1", "one")).toBeUndefined();
 });
 
-const nestedMeta: Meta = {
+const nestedMeta = {
   ...meta,
   items: {
     key: "rows",
@@ -106,7 +106,7 @@ const nestedMeta: Meta = {
       },
     },
   },
-};
+} satisfies Meta;
 const nestedProps = {
   rows: [
     {

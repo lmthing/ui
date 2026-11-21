@@ -1,6 +1,14 @@
-import { useCallback, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { isWeb } from "tamagui";
-import { useKit } from "../../provider";
+import {
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ComponentProps,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
+import { isWeb, type YStack } from "tamagui";
+import { useKit } from "../../../provider";
 
 const activationKey = (key: string) => key === " " || key === "Enter";
 type Source = number | string;
@@ -34,6 +42,9 @@ function webHold(start: (source: Source) => void, end: (source?: Source) => void
     },
   };
 }
+
+type StackProps = ComponentProps<typeof YStack>;
+type WebHandlers = Pick<StackProps, keyof ReturnType<typeof webHold> & keyof StackProps>;
 
 /** Keep the face veiled unless this mounted target owns a physical hold. */
 export function useHoldTarget(address: string | undefined) {
@@ -70,5 +81,6 @@ export function useHoldTarget(address: string | undefined) {
       held,
       handlers: { onPressIn: () => start("native"), onPressOut: () => end("native") },
     };
-  return { held, handlers: webHold(start, end, () => active.current !== null) };
+  // Tamagui forwards these DOM handlers on web, but its shared prop types use native events.
+  return { held, handlers: webHold(start, end, () => active.current !== null) as unknown as WebHandlers };
 }

@@ -7,7 +7,6 @@ import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
-import type { NestedPart } from "./nested-part";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -20,6 +19,14 @@ type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
+type NestedPart = {
+  prop: string;
+  /** A named control's true value, or a boolean property on the sub-item. */
+  when?: string | { prop: string; equals: boolean };
+} & (
+  | { action: "toggle" | "set"; min?: number; max?: number; integer?: boolean }
+  | { action: "increment" | "decrement"; min: number | string; max: number | string; step: number | string }
+);
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
         { runtime?: false } | { runtime: true; maxProp: string; initial: number }

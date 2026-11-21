@@ -73,7 +73,7 @@ export {
   type RandomSource,
 } from "./draw";
 export { selectionAt, selectionError, selectionChanges, projectSelection } from "./selection";
-export { itemCounterReset } from "./counter-reset";
+export { itemCounterReset } from "./nested";
 export {
   projectSelectionBinding,
   selectionBindingFor,

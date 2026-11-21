@@ -41,6 +41,8 @@ afterAll(async () => {
 
 const control = (part: string) => page.getByTestId(`play/${part}`);
 const read = () => page.evaluate(() => window.__lmthingUI!.read());
+const act = (address: string, action: string) =>
+  page.evaluate(({ address, action }) => window.__lmthingUI!.act({ address, action }), { address, action });
 
 it("rotates only selected pads without changing reading, address or keyboard order", async () => {
   const north = page.getByTestId("play/counters/r1/root");
@@ -85,11 +87,11 @@ it("shares bounds between buttons and restores only starting counter values on c
   await life.click();
   await reset.click();
   expect(await read()).toContain("confirm/confirm");
-  const act = (address: string, action: string) =>
-    page.evaluate(({ address, action }) => window.__lmthingUI!.act({ address, action }), { address, action });
   expect((await act("confirm/cancel", "dismiss")).ok).toBe(true);
   expect(await read()).toContain("[counters/r1/minus_1 decrement = 6]");
   expect(await life.innerText()).toBe("8");
+  await minus.click();
+  await expect.poll(() => read()).toContain("[counters/r1/plus_1 increment = 3]");
   await reset.click();
   expect((await act("confirm/confirm", "press")).ok).toBe(true);
   await expect.poll(() => life.innerText()).toBe("7");
@@ -109,8 +111,13 @@ it("veils on release outside, pointer cancellation, keyup and keyboard cancellat
   await hold();
   await expect.poll(() => secret.textContent()).toBe("Private alpha");
   expect(await read()).not.toMatch(/Private|Second/);
+  expect((await act("counters/reset", "press")).ok).toBe(true);
+  expect(await read()).toContain("confirm/cancel");
   await page.mouse.move(1, 1);
   await page.mouse.up();
+  await expect.poll(() => secret.count()).toBe(0);
+  expect(await read()).toContain("confirm/cancel");
+  expect((await act("confirm/cancel", "dismiss")).ok).toBe(true);
   await expect.poll(() => name.textContent()).toBe("Second");
   await hold();
   await expect.poll(() => secret.textContent()).toBe("Private beta");

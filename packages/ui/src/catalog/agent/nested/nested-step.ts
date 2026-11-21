@@ -1,8 +1,10 @@
-import type { Meta } from "../meta";
-import type { Values } from "./act";
+import type { Meta } from "../../meta";
+import type { Values } from "../index";
 
 type Part = NonNullable<NonNullable<Meta["items"]>["nested"]>["parts"][string];
-export const isNestedStep = (spec: Part) => spec.action === "increment" || spec.action === "decrement";
+type Step = Extract<Part, { action: "increment" | "decrement" }>;
+export const isNestedStep = (spec: Part): spec is Step =>
+  spec.action === "increment" || spec.action === "decrement";
 export function hasWireNestedControls(meta: Meta) {
   const nested = meta.items?.nested;
   return nested && (meta.select || meta.set || Object.values(nested.parts).some(isNestedStep));

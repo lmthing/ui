@@ -5,8 +5,7 @@ import { useAnimatedValue } from "../../motion";
 import { PartContext, usePart, usePartContext } from "../../part";
 import { useKit, useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
-import { FlipPlaceholder } from "./FlipPlaceholder";
-import { useHoldTarget } from "./hold-target";
+import { FlipPlaceholder, useHoldTarget } from "./flip";
 
 type Target = { item?: string; part: string | null };
 type FlipProps = {
@@ -98,7 +97,7 @@ function FlipFace({
   const surface = surfaceOf(ks.surface);
   const { environment } = useKit();
   const hold = mode === "hold";
-  const interactive = usePanelTarget(target, label, loading, disabled, !hold);
+  const interactive: { testID?: string } = usePanelTarget(target, label, loading, disabled, !hold);
   const { held, handlers } = useHoldTarget(hold && !disabled ? interactive.testID : undefined);
   const visible = flipped && (!hold || held);
   const settled = hold || loading || environment.reduceMotion || environment.agentMode;

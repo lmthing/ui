@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import type { Meta } from "../meta";
+import type { Meta } from "../../meta";
 import { itemCounterReset } from "./counter-reset";
 
 const meta = {
@@ -35,6 +35,5 @@ it("clears one canonical value per sub-item and the declared item adjustment, no
     "r3/$nested/1/value": undefined,
     "r3/$adjust/life": undefined,
     "$wire/r3/$adjust/life": undefined,
-    r3: undefined,
   });
 });

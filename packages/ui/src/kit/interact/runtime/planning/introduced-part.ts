@@ -70,6 +70,15 @@ export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
 }
 
+/** Releasing a private hold cannot be blocked by an unrelated confirmation. */
+export function isRevealRelease(ctx: ControllerContext, action: ActStep) {
+  if (action.action !== "stop") return false;
+  const [id, ...parts] = action.address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return !!meta && sessionEvent(meta, parts.join("/") || "root", action.action) === "hide";
+}
+
 /** Check whether an earlier step introduced the part before the view could update. */
 export function introducedPart(
   ctx: ControllerContext,

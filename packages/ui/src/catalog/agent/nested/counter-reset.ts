@@ -1,7 +1,6 @@
-import type { Meta } from "../meta";
-import { nestedControls } from "./selection";
-import { addressedItems } from "./visibility";
-import type { Values } from "./act";
+import type { Meta } from "../../meta";
+import { nestedControls, type Values } from "../index";
+import { addressedItems } from "../visibility";
 
 export function itemCounterReset(meta: Meta, props: Values): Values {
   const changes: Values = {};
@@ -10,11 +9,10 @@ export function itemCounterReset(meta: Meta, props: Values): Values {
   }
   addressedItems(meta, props).forEach((row, index) => {
     const id = String(row.id ?? `${meta.items?.prefix ?? "r"}${index + 1}`);
-    for (const [pair, spec] of Object.entries(meta.items?.adjust ?? {})) {
+    for (const spec of Object.values(meta.items?.adjust ?? {})) {
       if (!spec) continue;
-      const part = pair.slice(0, pair.lastIndexOf("."));
       const key = `${id}/$adjust/${spec.prop}`;
-      changes[key] = changes[`$wire/${key}`] = changes[part === "root" ? id : `${id}/${part}`] = undefined;
+      changes[key] = changes[`$wire/${key}`] = undefined;
     }
   });
   return changes;

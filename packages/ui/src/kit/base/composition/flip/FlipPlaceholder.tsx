@@ -1,7 +1,7 @@
 import { YStack } from "tamagui";
-import { component, space, type as typography } from "../../../catalog";
-import { useKitStyle } from "../../provider";
-import { shifted } from "../text";
+import { component, space, type as typography } from "../../../../catalog";
+import { useKitStyle } from "../../../provider";
+import { shifted } from "../../text";
 
 export function FlipPlaceholder({ hint }: { hint: boolean }) {
   const ks = useKitStyle();

@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { z } from "zod";
-import { sessionState, text, type Definition } from "@lmthing/ui/catalog";
+import { sessionState, text, type Definition, type Values } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
 
 const def = {
@@ -24,7 +24,10 @@ const def = {
     actions: { parts: { show: ["press"], veil: ["press"], reset: ["press"] } },
     confirmParts: ["reset"],
     successActions: ["reset.press"],
-    read: ({ rows, $session }) => [JSON.stringify(rows), JSON.stringify($session)],
+    read: (props) => {
+      const { rows, $session } = props as Values;
+      return [JSON.stringify(rows), JSON.stringify($session)];
+    },
   },
   props: z.strictObject({ rows: z.array(z.strictObject({ name: text(12), secret: text(24) })) }),
   fallback: () => ({}),

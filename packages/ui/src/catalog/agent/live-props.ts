@@ -11,7 +11,7 @@ import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectDerivedMoves, projectMoves } from "./action-input";
-import { hasWireNestedControls } from "./nested-step";
+import { hasWireNestedControls } from "./nested";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,

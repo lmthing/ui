@@ -23,6 +23,7 @@ import {
   drivenPartBlock,
   inactive,
   introducedPart,
+  isRevealRelease,
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
@@ -181,7 +182,7 @@ export function planSteps(
     const action = { ...step, address: ctx.relative(step.address) };
     const run = stepRunner(ctx, media, random, at, execution);
     let result: ActionResult;
-    if (state.confirmation)
+    if (state.confirmation && !isRevealRelease(ctx, action))
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);
     else result = run(state, step);
     if (result.error) return { ...result, performed: [] };

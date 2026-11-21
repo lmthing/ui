@@ -2,7 +2,7 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { choiceOptions, resolveChoice, selectionOffer } from "./validate-value";
 import { projectNamedSelections } from "./live-inputs";
-import { isNestedStep, nestedStepAt, nestedStepKey } from "./nested-step";
+import { isNestedStep, nestedStepAt, nestedStepKey } from "./nested";
 
 type GetValue = (part: string) => unknown;
 const parentSlot = "$nested/parent";
@@ -149,7 +149,7 @@ export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
         const togglePeers = peers?.map(([peer]) => `${id}/${peer}_${at + 1}`);
         const enabled = (!nested.activeParent || id === activeParent) && matches;
         const step = nestedStepAt(spec, item, id, at);
-        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled, step };
+        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled, ...(step ? { step } : {}) };
       }),
     );
   });
