@@ -99,11 +99,11 @@ export const probes = [
 ] satisfies c.Probe[];
 
 type SavedProps = c.Props<typeof props, typeof meta> & { moved?: boolean };
-type SavedRow = z.output<typeof item> & { productRef: string };
+type SavedRow = z.output<typeof item>;
 type SavedChange = { id: string; kind: "move" | "remove" };
 // Keep Writer rows and their ordinals intact so later alert edits still target the original item.
 function projectSaved({ props, journal }: c.RecordContext): c.Values {
-  const rows = props.items as SavedRow[];
+  const rows = props.items as (SavedRow & { productRef: string })[];
   const removed = new Set((journal as SavedChange[]).map(({ id }) => id));
   return {
     items: rows.filter(({ productRef }) => !removed.has(productRef)),
