@@ -71,7 +71,7 @@ function actionsAt(
     const get = (part: string) => localValues[`${id}/${part}`];
     const data = projectDeviceData(ctx.options.deviceData, values);
     const props = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
-    const clock = recordClockOffer(def, raw, props, get, data, now);
+    const clock = recordClockOffer(def, raw, props, get, data, now, values);
     return affordancesOf(
       def.meta,
       props,

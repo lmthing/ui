@@ -3,10 +3,10 @@ import type { Definition } from "../../probes";
 import type { ActStep, Values } from "../act";
 import { recordKey, selectDeviceData, stageRecordSnapshot, type DeviceData } from "../device-data";
 import { visibleItems } from "../visibility";
-import { validRecordWire, writeRecordWire } from "./wire-edits";
+import { recordPartition, validRecordWire, writeRecordWire } from "./wire-edits";
 import { rememberRecordIds } from "./record-ids";
 
-type Claim = Readonly<{ key: string; date?: unknown }>;
+type Claim = Readonly<{ key: string; scope: string; date?: unknown }>;
 type Target = { row: Values; claim: Claim; spec: RecordEdits["parts"][string] };
 type Input = { def: Definition; wire: Values; props: Values; base: string; data?: DeviceData | undefined };
 
@@ -27,11 +27,27 @@ function targetAt(meta: Meta, props: Values, target: string, action: string): Ta
   const row = visibleItems(meta, props).find((row) => row.id === id);
   const key = row && recordKey(row, meta.items!.records!.keys);
   if (key !== undefined && row)
-    return { row, spec, claim: spec.action === "check" ? { key, date: row[spec.date] } : { key } };
+    return {
+      row,
+      spec,
+      claim: {
+        key,
+        scope: recordPartition(meta, props),
+        ...(spec.action === "check" && { date: row[spec.date] }),
+      },
+    };
 }
 
 export const recordClaimAt = (meta: Meta, props: Values, target: string, action: string) =>
   targetAt(meta, props, target, action)?.claim;
+
+export function recordRequestAllowed(meta: Meta, props: Values, target: string, step: ActStep) {
+  const claim = recordClaimAt(meta, props, target, step.action);
+  return Boolean(
+    claim &&
+    (step.action !== "check" || step.value === undefined || step.value !== (claim.date !== undefined)),
+  );
+}
 
 export function recordEditAllowed(
   meta: Meta,
@@ -61,7 +77,7 @@ function localDate(now: number) {
 function nextRow(target: Target, value: unknown, records: RecordEdits, now: number, data: DeviceData) {
   const { row, spec } = target;
   if (spec.action === "press") return undefined;
-  const { [spec.date]: before, id: _id, ...rest } = row;
+  const { [spec.date]: before, ...rest } = row;
   const accept = value ?? before === undefined;
   if (!accept) return before === undefined ? false : rest;
   if (before !== undefined) return false;
@@ -81,7 +97,14 @@ export function stageRecordEdit(
   const items = meta.items!;
   const records = items.records!;
   const edit = targetAt(meta, props, target, step.action);
-  if (!claim || !edit || claim.key !== edit.claim.key || claim.date !== edit.claim.date) return false;
+  if (
+    !claim ||
+    !edit ||
+    claim.key !== edit.claim.key ||
+    claim.date !== edit.claim.date ||
+    claim.scope !== edit.claim.scope
+  )
+    return false;
   if (!recordEditAllowed(meta, props, edit.row, target.split("/")[1]!, step.action, data)) return false;
   const rows = wire[items.key];
   if (!Array.isArray(rows)) return false;
@@ -116,7 +139,7 @@ export function stageRecordEdit(
     if (row && recordKey(row, keys) !== key) return false;
     stageRecordSnapshot(values, { source: base, kind, keys, key, ...(row && { row }) });
   }
-  writeRecordWire(values, base, patch);
+  writeRecordWire(meta, wire, values, base, patch);
   rememberRecordIds(meta, props, values, base);
   return true;
 }

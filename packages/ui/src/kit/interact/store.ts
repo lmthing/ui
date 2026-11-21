@@ -1,5 +1,10 @@
 // What people and agents change on a screen (toggles, ticks, typed text), keyed by full address.
-import { recordSnapshotKey, resetRecordSnapshots } from "../../catalog";
+import {
+  recordClockOwnersKey,
+  recordSnapshotKey,
+  resetRecordClockOwners,
+  resetRecordSnapshots,
+} from "../../catalog";
 
 export type InteractionStore = {
   get(address: string): unknown;
@@ -27,13 +32,17 @@ export function createInteractionStore(initial: Record<string, unknown> = {}): I
     },
     reset: (screen) => {
       values = Object.fromEntries(Object.entries(values).filter(([address]) => !inScreen(screen)(address)));
-      if (screen) resetRecordSnapshots(values, screen);
+      if (screen) {
+        resetRecordSnapshots(values, screen);
+        resetRecordClockOwners(values, screen);
+      }
       notify();
     },
     snapshot: (screen) =>
       Object.fromEntries(
         Object.entries(values).filter(
-          ([address]) => address === recordSnapshotKey || inScreen(screen)(address),
+          ([address]) =>
+            address === recordSnapshotKey || address === recordClockOwnersKey || inScreen(screen)(address),
         ),
       ),
     subscribe: (listener) => {

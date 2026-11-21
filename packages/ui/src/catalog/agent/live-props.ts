@@ -8,7 +8,7 @@ import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
-import { applyReportEdits, projectRecordIds } from "./report-edits";
+import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import {
   adjustmentAt,
   projectAdjustments,
@@ -72,6 +72,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
+  source = applyRecordWire(meta, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
   const keys = new Set([items.key]);

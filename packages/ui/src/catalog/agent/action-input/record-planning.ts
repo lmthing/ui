@@ -11,7 +11,7 @@ import {
 import type { DeviceData } from "../device-data";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
-import { isRecordAction } from "../report-edits";
+import { isRecordAction, recordRequestAllowed } from "../report-edits";
 import { localValues } from "./select-step";
 
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
@@ -55,7 +55,7 @@ export function affordancesOfScreen(
         ? state
         : undefined);
     const get = (part: string) => local[`${id}/${part}`];
-    const clock = recordClockOffer(def, input, props, get, data, now);
+    const clock = recordClockOffer(def, input, props, get, data, now, values);
     return affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
   });
 }
@@ -72,10 +72,17 @@ export function stageRecord(
   const { c, id: _id, state: _state, ...raw } = screen.components.find((entry) => entry.id === id)!;
   const def = defs[c]!;
   const target = parts.join("/") || "root";
-  if (isRecordAction(def.meta, target, step.action)) return true; // Only confirmation may commit a row edit.
-  if (!hasRecordClock(def.meta)) return;
+  const record = isRecordAction(def.meta, target, step.action);
+  if (!record && !hasRecordClock(def.meta)) return;
   const base = `${screen.id}/${id}`;
   const get = (part: string) => next[`${base}/${part}`];
   const props = liveInput(def, raw, id!, localValues(screen.id, next), data);
-  return stageRecordClock(recordClockInput(def, raw, props, get, data, now), next, base, target, step.action);
+  if (record) return recordRequestAllowed(def.meta, props, target, step); // Intent only until confirmation.
+  return stageRecordClock(
+    recordClockInput(def, raw, props, get, data, now, next),
+    next,
+    base,
+    target,
+    step.action,
+  );
 }

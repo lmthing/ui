@@ -1,6 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { planAct, projectDeviceData, readScreen, type Definition } from "../index";
+import { planAct, projectDeviceData, readScreen } from "../index";
+import type { Definition } from "../../probes";
 import { createAgentAccess, createInteractionStore, createScreenController } from "../../../kit/interact";
 
 const props = z.strictObject({
@@ -43,6 +44,7 @@ const def: Definition = {
       parts: ["accept", "remove"],
       records: {
         keys: ["ref"],
+        scope: ["scope"],
         parts: { accept: { action: "check", date: "date" }, remove: { action: "press", remove: true } },
         revision: "revision",
         canRemove: (row, input, data) =>
@@ -92,16 +94,18 @@ it("records or clears a local date, revision and shared snapshot in the same sto
     ]),
   );
   expect(planAct(screen, defs, {}, [check]).ok).toBe(true);
+  expect(runtime.act({ ...check, value: false }).ok).toBe(false);
   expect(runtime.act(check).ok).toBe(true);
   expect(readings).toEqual([[1, [unrelated]]]);
   expect(runtime.act(cancel).ok).toBe(true);
   expect(runtime.act([check, confirm, { ...remove, address: "absent" }]).ok).toBe(false);
   expect(runtime.act([check, confirm], { dryRun: true }).ok).toBe(true);
   expect(readings).toHaveLength(2);
-  expect(runtime.act([check, confirm]).ok).toBe(true);
+  expect(runtime.act([{ ...check, value: true }, confirm]).ok).toBe(true);
   expect(readings[2]).toEqual([2, [unrelated, { scope: "a", ref: "x", date: "2026-03-07" }]]);
   expect(runtime.read()).toContain("[b1/r1/accept check:done]");
-  expect(runtime.act([check, confirm]).ok).toBe(true);
+  expect(runtime.act({ ...check, value: true }).ok).toBe(false);
+  expect(runtime.act([{ ...check, value: false }, confirm]).ok).toBe(true);
   expect(readings[3]).toEqual([3, [unrelated]]);
   expect(runtime.read()).toContain("[b1/r1/accept check:todo]");
   expect(runtime.act([check, confirm]).ok).toBe(false);
@@ -128,6 +132,8 @@ it("rechecks gate references on confirmation and preserves other addressed rows 
   expect(agent.read()).not.toContain("[b1/r1/remove press]");
   expect(agent.read()).toContain("[b1/r2/remove press]");
   expect(projectDeviceData(data, store.snapshot("elsewhere"))?.acceptance).toEqual([]);
+  const otherProject = { ...screen, components: [{ ...screen.components[0]!, scope: "b" }] };
+  expect(readScreen(otherProject, defs, store.snapshot("edit"))).toContain("[b1/r1/remove press]");
   store.reset("edit");
   expect(projectDeviceData(data, store.snapshot("elsewhere"))?.acceptance).toEqual(data.acceptance);
 });

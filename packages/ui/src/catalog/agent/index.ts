@@ -95,6 +95,8 @@ export {
   hasPlaybackClock,
   hasRecordClock,
   recordClockOffer,
+  recordClockOwnersKey,
+  resetRecordClockOwners,
   isPlaybackAction,
   clockChanges,
 } from "./clocks";

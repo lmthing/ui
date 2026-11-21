@@ -1,4 +1,11 @@
-export { hasRecordClock, recordClockInput, recordClockOffer, stageRecordClock } from "./record-clock";
+export {
+  hasRecordClock,
+  recordClockInput,
+  recordClockOffer,
+  recordClockOwnersKey,
+  resetRecordClockOwners,
+  stageRecordClock,
+} from "./record-clock";
 export {
   clockTargets,
   clockKey,

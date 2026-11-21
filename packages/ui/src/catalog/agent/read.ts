@@ -104,7 +104,7 @@ export function readComponent(
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),
     session = sessionState(meta, props, get);
-  const clock = recordClockOffer(def, migrated as Props, props, get, deviceData);
+  const clock = recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values);
   const offered = affordancesOf(meta, props, instance, values, state, false, deviceData, clock);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;

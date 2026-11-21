@@ -183,18 +183,3 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
-  return {
-    ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projectDeviceData(ctx.options.deviceData, values)),
-    now: () => at,
-    valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
-    mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredProgress: (next) => ctx.expiredProgress(next, at),
-  };
-}

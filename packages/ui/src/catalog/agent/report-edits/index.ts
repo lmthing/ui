@@ -7,8 +7,14 @@ import { addressedItems } from "../visibility";
 import { projectDeviceData, type DeviceData } from "../device-data";
 import { wireEditKey, writeWireEdit } from "./wire-edits";
 import { isRecordAction, stageRecordEdit, recordClaimAt } from "./record-edits";
-export { applyReportEdits, validRecordWire, writeRecordWire } from "./wire-edits";
-export { isRecordAction, recordClaimAt, recordEdit, recordEditAllowed } from "./record-edits";
+export { applyRecordWire, applyReportEdits, validRecordWire, writeRecordWire } from "./wire-edits";
+export {
+  isRecordAction,
+  recordClaimAt,
+  recordEdit,
+  recordEditAllowed,
+  recordRequestAllowed,
+} from "./record-edits";
 export { projectRecordIds, rememberRecordIds } from "./record-ids";
 type Choices = NonNullable<NonNullable<Meta["select"]>["choices"]>[string];
 type ItemEdit =

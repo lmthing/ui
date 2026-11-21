@@ -112,12 +112,13 @@ export function projectClocks(
   props: Values,
   get: (part: string) => unknown,
   now: number,
-  mode: "all" | "playback" | "legacy" = "all",
+  mode: "all" | "playback" | "legacy" | "record" = "all",
 ): Values {
   let playbackCompletion: StateName | undefined;
   for (const clock of clockTargets(meta, props)) {
     const playback = isPlaybackClock(clock.spec);
-    if (mode !== "all" && playback !== (mode === "playback")) continue;
+    const family = clock.spec.commitOnStop ? "record" : playback ? "playback" : "legacy";
+    if (mode !== "all" && family !== mode) continue;
     const state = get(clockKey(clock)) as ClockState | undefined;
     if (!state && !playback && clock.spec.kind !== "until") continue;
     const seconds = clockTime(clock, state, get(clockPropKey(clock)), now);
@@ -138,15 +139,14 @@ export function projectClocks(
   return state === undefined ? props : { ...props, state };
 }
 export function projectLiveClocks(meta: Meta, props: Values, get: (part: string) => unknown, all: boolean) {
-  const records = meta.clocks?.filter(({ commitOnStop }) => commitOnStop);
-  if (!all && !hasPlaybackClock(meta) && !records?.length) return props;
+  const records = meta.clocks?.some(({ commitOnStop }) => commitOnStop);
+  if (!all && !hasPlaybackClock(meta) && !records) return props;
   const now = Number(get("$now") ?? Date.now());
-  if (!all && records?.length) props = projectClocks({ ...meta, clocks: records }, props, get, now, "legacy");
+  if (!all && records) props = projectClocks(meta, props, get, now, "record");
   return all || hasPlaybackClock(meta)
     ? projectClocks(meta, props, get, now, all ? "all" : "playback")
     : props;
 }
-/** Shared addresses (for example stop-all) are valid if any owning clock can act. */
 export function clockControlDeclared(meta: Meta, target: string, action: string, playbackOnly = false) {
   const [row, part = "root"] = target.split("/");
   const groups = [

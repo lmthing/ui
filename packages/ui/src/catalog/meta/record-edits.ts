@@ -13,6 +13,8 @@ export type RecordSnapshot = {
 
 export type RecordEdit = { action: "check"; date: string } | { action: "press"; remove: true };
 export type RecordEdits = {
+  /** Component fields identifying the collection. Defaults to the clock week, if any. */
+  scope?: readonly string[];
   /** Uniquely identifies a wire row, independently of its stamped address. */
   keys: readonly string[];
   parts: Readonly<Record<string, RecordEdit>>;
