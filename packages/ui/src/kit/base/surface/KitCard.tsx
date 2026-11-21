@@ -45,6 +45,7 @@ type CardProps = {
   /** Horizontal padding for padded content; `none` keeps form controls at the screen gutter. */
   inset?: "md" | "none";
   swatch?: Swatch;
+  orientation?: "opposing";
 };
 
 function swatchTheme(parent: string, swatch?: Swatch) {
@@ -126,6 +127,7 @@ export function KitCard(props: CardProps) {
           {...root}
           cardStyle={style}
           {...finish}
+          {...(props.orientation === "opposing" ? { rotate: "180deg" } : {})}
           {...(swatch ? { backgroundColor: loading ? "$line" : component.swatch[swatch] } : {})}
           {...(swatch && isWeb ? { className: `kit-swatch-${swatch}` } : {})}
           {...(clip ? { overflow: "hidden" as const } : {})}

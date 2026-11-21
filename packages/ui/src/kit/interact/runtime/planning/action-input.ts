@@ -17,8 +17,9 @@ function parseActionInput(ctx: ControllerContext, entry: ScreenComponent, values
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const { session, successActions, errorActions, live } = meta;
     const useParsed =
-      meta.confirmParts?.length &&
-      (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits);
+      meta.items?.reset ||
+      (meta.confirmParts?.length &&
+        (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits));
     return useParsed ? parseControlProps(def, raw, get) : raw;
   }
   const input = ctx.inputOf(entry);

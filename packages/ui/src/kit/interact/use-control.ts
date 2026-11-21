@@ -87,9 +87,10 @@ export function useNestedControls(meta: Meta, props: Values) {
       .map((control) => ({
         ...control,
         disabled:
-          remaining !== undefined &&
-          remaining < (control.togglePeers?.length ?? 0) &&
-          control.item[control.spec.prop] !== true,
+          (control.step !== undefined && control.step.next === undefined) ||
+          (remaining !== undefined &&
+            remaining < (control.togglePeers?.length ?? 0) &&
+            control.item[control.spec.prop] !== true),
       })),
   };
 }
