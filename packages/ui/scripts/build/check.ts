@@ -2,7 +2,14 @@ import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
 import { execFileSync } from "node:child_process";
-import { checkOptions, changeSelection, relatedIncludes, nodeTests, browserTests } from "./check-options";
+import {
+  checkOptions,
+  changeSelection,
+  relatedIncludes,
+  nodeTests,
+  browserTests,
+  nodeTestOptions,
+} from "./check-options";
 
 function changedSince(base: string) {
   const cwd = fileURLToPath(new URL("../../", import.meta.url));
@@ -37,7 +44,9 @@ export async function check() {
       run: true,
       passWithNoTests: Boolean(selection),
       ...(selection && !selection.full ? { changed: selection.mergeBase } : {}),
-      ...(options.browser ? { fileParallelism: false, maxWorkers: 1, testTimeout: 60000 } : {}),
+      ...(options.browser
+        ? { fileParallelism: false, maxWorkers: 1, testTimeout: 60000 }
+        : nodeTestOptions(process.env)),
       server: { deps: { inline: [/tamagui/, /react-native-svg/] } },
       alias: [
         {
