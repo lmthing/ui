@@ -1,4 +1,5 @@
 import { existsSync } from "node:fs";
+import { URL } from "node:url";
 import { packIds } from "@lmthing/ui/catalog";
 import { describe, expect, it } from "vitest";
 import { readPackTable } from "./pack-table";
