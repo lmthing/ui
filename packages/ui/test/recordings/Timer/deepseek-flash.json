@@ -156,6 +156,127 @@
       "{\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260}"
     ]
   },
+  "25ca84a949a5af1b": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTimer: Measure time remaining or elapsed, with controls to start and stop.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", style?: down|up|until=\"down\", label: text≤24, seconds?: int 0..86400, until?: date YYYY-MM-DD, at?: time HH:MM }\nRule: A shortened running time sets only figures \"short\"; keep exact seconds and write density as JSON null unless tighter spacing was requested. Do not output default axis values.\nRule: A countdown to a calendar date uses style \"until\", a date in until, and null for seconds; down and up use seconds instead.\nexample: {\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":600}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nAbbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.\nBrief: Count down the days left until our wedding on 14 June 2030 at 2pm, labelled Our wedding day",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Timer",
+              "enum": [
+                "Timer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "down",
+                    "up",
+                    "until"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "seconds": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 86400
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "figures",
+            "style",
+            "label",
+            "seconds",
+            "until",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+    "replies": [
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":null,\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
+    ]
+  },
   "27129964e80e3037": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nTimer: Measure time remaining or elapsed, with controls to start and stop.\nprops: { style?: down|up=\"down\", label: text≤24, seconds: int 0..86400 }\nexample: {\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":600}\n\nBrief: Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it\nReply with only the JSON line, starting with {\"c\":\"Timer\".",
     "reply": "{\"c\":\"Timer\",\"style\":\"up\",\"label\":\"Walk timer\",\"seconds\":1260}"
@@ -579,6 +700,127 @@
       "{\"c\":\"Timer\",\"density\":\"comfortable\",\"figures\":\"short\",\"style\":\"down\",\"label\":\"Orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}"
     ]
   },
+  "a591ba36d21d7618": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTimer: Measure time remaining or elapsed, with controls to start and stop.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", style?: down|up|until=\"down\", label: text≤24, seconds?: int 0..86400, until?: date YYYY-MM-DD, at?: time HH:MM }\nRule: A shortened running time sets only figures \"short\"; keep exact seconds and write density as JSON null unless tighter spacing was requested. Do not output default axis values.\nRule: A countdown to a calendar date uses style \"until\", a date in until, and null for seconds; down and up use seconds instead.\nexample: {\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":600}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nAbbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.\nBrief: Time the orchid soak with start and stop. Keep 650 seconds as the starting value but show only whole minutes, like 10 min instead of 10:50. Leave the spacing unchanged, with no density override.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Timer",
+              "enum": [
+                "Timer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "down",
+                    "up",
+                    "until"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "seconds": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 86400
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "figures",
+            "style",
+            "label",
+            "seconds",
+            "until",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+    "replies": [
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Time the orchid soak\",\"seconds\":650,\"until\":null,\"at\":null}"
+    ]
+  },
   "a99f900d9c0570db": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nTimer: Measure time remaining or elapsed, with controls to start and stop.\nprops: { style?: down|up|until=\"down\", label: text≤24, seconds?: int 0..86400, until?: date YYYY-MM-DD, at?: time HH:MM }\nexample: {\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":600}\n\nBrief: Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it",
     "format": {
@@ -893,6 +1135,127 @@
       "{\"c\":\"Timer\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
       "{\"c\":\"Timer\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}",
       "{\"c\":\"Timer\",\"style\":\"until\",\"label\":\"Our wedding day\",\"seconds\":null,\"until\":\"2030-06-14\",\"at\":\"14:00\"}"
+    ]
+  },
+  "d75cb6e4ba6d7c9f": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nTimer: Measure time remaining or elapsed, with controls to start and stop.\nprops: { density?: comfortable|compact, figures?: exact|short=\"exact\", style?: down|up|until=\"down\", label: text≤24, seconds?: int 0..86400, until?: date YYYY-MM-DD, at?: time HH:MM }\nRule: A shortened running time sets only figures \"short\"; keep exact seconds and write density as JSON null unless tighter spacing was requested. Do not output default axis values.\nRule: A countdown to a calendar date uses style \"until\", a date in until, and null for seconds; down and up use seconds instead.\nexample: {\"c\":\"Timer\",\"style\":\"down\",\"label\":\"Soak the orchid\",\"seconds\":600}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nAbbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.\nBrief: Show the walk's elapsed time of 21 minutes, labelled Walk timer, with controls to begin and end it",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Timer",
+              "enum": [
+                "Timer"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "figures": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "exact",
+                    "short"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "down",
+                    "up",
+                    "until"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "seconds": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 86400
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "until": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "figures",
+            "style",
+            "label",
+            "seconds",
+            "until",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
+    "replies": [
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"short\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}",
+      "{\"c\":\"Timer\",\"density\":null,\"figures\":\"exact\",\"style\":\"down\",\"label\":\"Walk timer\",\"seconds\":1260,\"until\":null,\"at\":null}"
     ]
   },
   "da7ef3ca02bac45c": {

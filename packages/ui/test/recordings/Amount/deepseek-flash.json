@@ -1,4 +1,246 @@
 {
+  "00c7d263bee6f272": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nAmount: One sum of money written properly, with its period, old price or change.\nprops: { density?: comfortable|compact, emphasis?: normal|hero=\"normal\", surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: inline|total, label?: text≤24, value: number, currency?: USD|EUR|GBP|JPY|CNY|INR|AUD|CAD|CHF|SEK|NOK|DKK|PLN|CZK|HUF|MXN|BRL|ZAR|KRW|TRY|NZD=\"USD\", per?: none|hour|day|night|week|month|year|each|person=\"none\", was?: number, change?: number, changeIn?: money|percent=\"money\", sub?: text≤40, goto?: id snake_case }\nRule: Use JSON null for every unrequested Amount axis, not its default string. Never write comfortable, normal, or card just because they are defaults.\nRule: If asked only to hide the secondary note, use detail \"brief\" and keep sub; density, emphasis, and surface must be null.\nRule: For one large focal figure, use emphasis hero and leave surface null. Only a separate request for an outline sets surface outlined. Use style total only for a total with the automatic label.\nexample: {\"c\":\"Amount\",\"emphasis\":null,\"label\":\"Spent on plants\",\"value\":42.5,\"change\":-6.5,\"sub\":\"this month\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show £72 labelled Weekly walks. Store the note Four morning walks but hide it on screen.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Amount",
+              "enum": [
+                "Amount"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "inline",
+                    "total"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "type": "number"
+            },
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "JPY",
+                    "CNY",
+                    "INR",
+                    "AUD",
+                    "CAD",
+                    "CHF",
+                    "SEK",
+                    "NOK",
+                    "DKK",
+                    "PLN",
+                    "CZK",
+                    "HUF",
+                    "MXN",
+                    "BRL",
+                    "ZAR",
+                    "KRW",
+                    "TRY",
+                    "NZD"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "per": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "hour",
+                    "day",
+                    "night",
+                    "week",
+                    "month",
+                    "year",
+                    "each",
+                    "person"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "was": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "change": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "changeIn": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "money",
+                    "percent"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "detail",
+            "style",
+            "label",
+            "value",
+            "currency",
+            "per",
+            "was",
+            "change",
+            "changeIn",
+            "sub",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
+    "replies": [
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":\"none\",\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}"
+    ]
+  },
   "0f2a75b97d674499": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nAmount: One sum of money written properly, with its period, old price or change.\nprops: { style?: inline|large|total=\"inline\", label?: text≤24, value: number, currency?: USD|EUR|GBP|JPY|CNY|INR|AUD|CAD|CHF|SEK|NOK|DKK|PLN|CZK|HUF|MXN|BRL|ZAR|KRW|TRY|NZD=\"USD\", per?: none|hour|day|night|week|month|year|each|person=\"none\", was?: number, change?: number, changeIn?: money|percent=\"money\", sub?: text≤40, goto?: id snake_case }\nexample: {\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Spent on plants\",\"value\":42.5,\"change\":-6.5,\"sub\":\"this month\"}\n\nBrief: My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings\nReply with only the JSON line, starting with {\"c\":\"Amount\".",
     "reply": "{\"c\":\"Amount\",\"style\":\"large\",\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"change\":-32,\"sub\":\"this week\"}",
@@ -456,6 +698,248 @@
       "",
       "",
       ""
+    ]
+  },
+  "6bb44fa9c6775a8e": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nAmount: One sum of money written properly, with its period, old price or change.\nprops: { density?: comfortable|compact, emphasis?: normal|hero=\"normal\", surface?: card|outlined=\"card\", detail?: full|brief=\"full\", style?: inline|total, label?: text≤24, value: number, currency?: USD|EUR|GBP|JPY|CNY|INR|AUD|CAD|CHF|SEK|NOK|DKK|PLN|CZK|HUF|MXN|BRL|ZAR|KRW|TRY|NZD=\"USD\", per?: none|hour|day|night|week|month|year|each|person=\"none\", was?: number, change?: number, changeIn?: money|percent=\"money\", sub?: text≤40, goto?: id snake_case }\nRule: Use JSON null for every unrequested Amount axis, not its default string. Never write comfortable, normal, or card just because they are defaults.\nRule: If asked only to hide the secondary note, use detail \"brief\" and keep sub; density, emphasis, and surface must be null.\nRule: For one large focal figure, use emphasis hero and leave surface null. Only a separate request for an outline sets surface outlined. Use style total only for a total with the automatic label.\nexample: {\"c\":\"Amount\",\"emphasis\":null,\"label\":\"Spent on plants\",\"value\":42.5,\"change\":-6.5,\"sub\":\"this month\"}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: My savings are 1240.50 euros, down 32 euros this week, shown as one large figure labelled Savings",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Amount",
+              "enum": [
+                "Amount"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "emphasis": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "hero"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "surface": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "card",
+                    "outlined"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "inline",
+                    "total"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 24
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "value": {
+              "type": "number"
+            },
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "USD",
+                    "EUR",
+                    "GBP",
+                    "JPY",
+                    "CNY",
+                    "INR",
+                    "AUD",
+                    "CAD",
+                    "CHF",
+                    "SEK",
+                    "NOK",
+                    "DKK",
+                    "PLN",
+                    "CZK",
+                    "HUF",
+                    "MXN",
+                    "BRL",
+                    "ZAR",
+                    "KRW",
+                    "TRY",
+                    "NZD"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "per": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "hour",
+                    "day",
+                    "night",
+                    "week",
+                    "month",
+                    "year",
+                    "each",
+                    "person"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "was": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "change": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "changeIn": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "money",
+                    "percent"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "goto": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "emphasis",
+            "surface",
+            "detail",
+            "style",
+            "label",
+            "value",
+            "currency",
+            "per",
+            "was",
+            "change",
+            "changeIn",
+            "sub",
+            "goto"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
+    "replies": [
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"this week\",\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":null,\"sub\":null,\"goto\":null}"
     ]
   },
   "a99b271f25625d8b": {

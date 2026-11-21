@@ -8,6 +8,127 @@
       "{\"c\":\"Bars\",\"title\":\"Walk counts this week\",\"unit\":\"walks\",\"style\":\"columns\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
     ]
   },
+  "0313f98e8f73a938": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: columns|share=\"columns\", title: text≤32, unit?: text≤8, points: [2..7 { label: text≤16, value: num 0.. }] }\nRule: A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail \"brief\"; keep all points and leave density null unless tighter spacing was also requested.\nRule: Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).\nRule: Shares of a whole use style: \"share\", with labels up to sixteen characters. Long category names do not make a columns input valid.\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Compare Mon 3, Tue 5 and Wed 4 walks. Keep the point labels but hide the combined total.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "columns",
+                    "share"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "title",
+            "unit",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"density\":null,\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walks\",\"unit\":null,\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walks\",\"unit\":null,\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":\"brief\",\"style\":null,\"title\":\"Walks\",\"unit\":null,\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walks\",\"unit\":null,\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4}]}"
+    ]
+  },
   "05f14b6c05aec222": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { title: text≤32, unit?: text≤8, points: [2..7 { label: text≤4, value: num 0.. }] }\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nBrief: Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1\nReply with only the JSON line, starting with {\"c\":\"Bars\".",
     "reply": "{\"c\":\"Bars\",\"title\":\"Walks this week\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
@@ -414,6 +535,127 @@
   "5ea0c8a0f06cc1e4": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { title: text≤32, unit?: text≤8, points: [2..7 { label: text≤4, value: num 0.. }] }\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nBrief: Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1\nReply with only the JSON line, starting with {\"c\":\"Bars\".",
     "reply": "{\"c\":\"Bars\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
+  },
+  "6c08b14967768885": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: columns|share=\"columns\", title: text≤32, unit?: text≤8, points: [2..7 { label: text≤16, value: num 0.. }] }\nRule: A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail \"brief\"; keep all points and leave density null unless tighter spacing was also requested.\nRule: Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).\nRule: Shares of a whole use style: \"share\", with labels up to sixteen characters. Long category names do not make a columns input valid.\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show this week's walk counts, measured in walks: Mon 3, Tue 5, Wed 4, Thu 2, Fri 6, Sat 2, Sun 1",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "columns",
+                    "share"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "title",
+            "unit",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
+    ]
   },
   "729cdd1e079a5826": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { style?: columns|share=\"columns\", title: text≤32, unit?: text≤8, points: [2..7 { label: text≤16, value: num 0.. }] }\nRule: Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).\nRule: Shares of a whole use style: \"share\", with labels up to sixteen characters. Long category names do not make a columns input valid.\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nBrief: Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
@@ -1216,6 +1458,127 @@
       "{\"c\":\"Bars\",\"density\":\"comfortable\",\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walks this week\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
       "{\"c\":\"Bars\",\"density\":\"comfortable\",\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}",
       "{\"c\":\"Bars\",\"density\":\"comfortable\",\"detail\":\"brief\",\"style\":\"columns\",\"title\":\"Walk counts\",\"unit\":\"walks\",\"points\":[{\"label\":\"Mon\",\"value\":3},{\"label\":\"Tue\",\"value\":5},{\"label\":\"Wed\",\"value\":4},{\"label\":\"Thu\",\"value\":2},{\"label\":\"Fri\",\"value\":6},{\"label\":\"Sat\",\"value\":2},{\"label\":\"Sun\",\"value\":1}]}"
+    ]
+  },
+  "a0e627d84f5f8154": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nBars: Compare counts or amounts across days or categories, using the actual counted or measured unit.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: columns|share=\"columns\", title: text≤32, unit?: text≤8, points: [2..7 { label: text≤16, value: num 0.. }] }\nRule: A plain comparison or share breakdown always leaves detail and density null, even if no total is mentioned. Only an explicit request to hide the combined total sets detail \"brief\"; keep all points and leave density null unless tighter spacing was also requested.\nRule: Columns compare one measured unit. Column point labels are at most four characters: abbreviate day/category names (Mon, Tue, Fern, Mons).\nRule: Shares of a whole use style: \"share\", with labels up to sixteen characters. Long category names do not make a columns input valid.\nexample: {\"c\":\"Bars\",\"title\":\"Water used\",\"unit\":\"L\",\"points\":[{\"label\":\"W1\",\"value\":2},{\"label\":\"W2\",\"value\":4},{\"label\":\"W3\",\"value\":3},{\"label\":\"W4\",\"value\":5}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show how this month's spending splits across Groceries €240, Rent €800 and Fun €120, as shares of the whole",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Bars",
+              "enum": [
+                "Bars"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "columns",
+                    "share"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "points": {
+              "minItems": 2,
+              "maxItems": 7,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "label",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "style",
+            "title",
+            "unit",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"share\",\"title\":\"Spending this month\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+    "replies": [
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"share\",\"title\":\"Spending this month\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"share\",\"title\":\"Spending this month\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}",
+      "{\"c\":\"Bars\",\"density\":null,\"detail\":null,\"style\":\"share\",\"title\":\"This month's spending\",\"unit\":\"€\",\"points\":[{\"label\":\"Groceries\",\"value\":240},{\"label\":\"Rent\",\"value\":800},{\"label\":\"Fun\",\"value\":120}]}"
     ]
   },
   "a30ed44ab9ef2c77": {

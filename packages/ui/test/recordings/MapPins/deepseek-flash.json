@@ -190,6 +190,134 @@
       "MapPins"
     ]
   },
+  "8e49e90bc1e3d9bd": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nMapPins: See where nearby places are and open a place.\nprops: { density?: comfortable|compact, trail?: chevron|none=\"chevron\", pins: [1..5 { label: text≤24, goto?: id snake_case, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use null for unrequested MapPins and pin axes. If asked to hide the arrows on linked rows, use trail \"none\"; keep the links in goto. Pin tone and mark affect only the matching rows below the map.\nexample: {\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Show nearby plant shops: Greenhouse plant shop, Riverside nursery and Garden centre",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "MapPins",
+              "enum": [
+                "MapPins"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "chevron",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "pins": {
+              "minItems": 1,
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "goto",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "trail",
+            "pins"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"chevron\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":null,\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\",\"tone\":null,\"mark\":null},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\",\"tone\":null,\"mark\":null},{\"label\":\"Garden centre\",\"goto\":null,\"tone\":null,\"mark\":null}]}"
+    ]
+  },
   "9d8359291a007505": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nMapPins: See where nearby places are and open a place.\nprops: { pins: [1..5 { label: text≤24, goto?: id snake_case }] }\nexample: {\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\"}]}\n\nBrief: Show nearby plant shops: Greenhouse plant shop, Riverside nursery and Garden centre\nReply with only the JSON line, starting with {\"c\":\"MapPins\".",
     "reply": "{\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\"}]}",
@@ -407,6 +535,134 @@
       "Route",
       "Route",
       "Route"
+    ]
+  },
+  "db8769d21a2f90ea": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nMapPins: See where nearby places are and open a place.\nprops: { density?: comfortable|compact, trail?: chevron|none=\"chevron\", pins: [1..5 { label: text≤24, goto?: id snake_case, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\" }] }\nRule: Use null for unrequested MapPins and pin axes. If asked to hide the arrows on linked rows, use trail \"none\"; keep the links in goto. Pin tone and mark affect only the matching rows below the map.\nexample: {\"c\":\"MapPins\",\"pins\":[{\"label\":\"Greenhouse plant shop\",\"goto\":\"greenhouse\"},{\"label\":\"Riverside nursery\",\"goto\":\"riverside\"},{\"label\":\"Garden centre\"}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Pin Park gate and Pond on the map. Keep their rows linked to park_gate and pond, but hide the chevron arrows at the end of the rows.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "MapPins",
+              "enum": [
+                "MapPins"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "trail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "chevron",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "pins": {
+              "minItems": 1,
+              "maxItems": 5,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 24
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "good",
+                          "warn",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "mark": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "none",
+                          "highlight",
+                          "muted",
+                          "new"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "goto",
+                  "tone",
+                  "mark"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "trail",
+            "pins"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"none\",\"pins\":[{\"label\":\"Pin Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
+    "replies": [
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"none\",\"pins\":[{\"label\":\"Pin Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"none\",\"pins\":[{\"label\":\"Pin Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"MapPins\",\"density\":null,\"trail\":\"none\",\"pins\":[{\"label\":\"Pin Park gate\",\"goto\":\"park_gate\",\"tone\":null,\"mark\":null},{\"label\":\"Pond\",\"goto\":\"pond\",\"tone\":null,\"mark\":null}]}"
     ]
   }
 }

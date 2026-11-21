@@ -224,6 +224,106 @@
       "Sparkline"
     ]
   },
+  "76a2bf981e7aff28": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSparkline: See how one measurement is changing, alongside its latest value.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", label: text≤24, value: text≤10, points: [3..12 number] }\nRule: If asked only to hide the trend line: detail \"brief\", density null, tone null; still store the series. Never choose compact density just because the brief hides the line.\nRule: If asked to warn about a series, use tone \"warn\" and keep detail and density null. The line is normally visible; a warning, a latest value or a falling series never asks to hide it.\nexample: {\"c\":\"Sparkline\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18],\"tone\":null}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Soil moisture is 18% now, down from readings of 42, 35 and 28; warn me it is drying out",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sparkline",
+              "enum": [
+                "Sparkline"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10
+            },
+            "points": {
+              "minItems": 3,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "tone",
+            "label",
+            "value",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18,14,11,8]}",
+    "replies": [
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18,14,11,8]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":null,\"tone\":\"warn\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,35,28,18]}"
+    ]
+  },
   "831ee8b4ce1e77f4": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSparkline: See how one measurement is changing, alongside its latest value.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", label: text≤24, value: text≤10, points: [3..12 number] }\nRule: Use JSON null for every unrequested Sparkline axis. If asked to show just the labelled latest value without the trend line, set only detail to \"brief\"; still store the series.\nRule: Use a tone only for a requested status treatment; falling or rising points alone do not request a tone.\nexample: {\"c\":\"Sparkline\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18],\"tone\":\"warn\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: For Walk attendance, record the series 90, 82, 67 and latest value 67%. Show the name and latest value, but hide the trend line.",
     "format": {
@@ -348,6 +448,106 @@
   "a9cba6d95dfbfd3e": {
     "prompt": "You choose the one UI component that best fits a need on a phone app screen.\nComponents:\n- Actions: Two to four shortcuts to different things the person can do next. Pick: Two to four quick tasks or destinations together. Not one main action (Button) or several records to scan and open (List).\n- Banner: Something important to notice now, with an optional link to act. Pick: An immediate warning or status update that stands out at the top. Not a supporting sentence (Note) or the screen's main statement (Hero).\n- Bars: Compare counts or amounts across days or categories, using the actual counted or measured unit. Pick: Compare one amount across days or categories. Not a few separate summary numbers (Stats) or a trend with its latest value (Sparkline).\n- Button: One main thing the person does next. Pick: One labelled action to press. Not two to four shortcuts (Actions) or a tappable summary of one thing (Card).\n- Calendar: See which dates have something planned and open a day. Pick: Days of a week or month, with dates marked for planned activity. Not events with times in order (Timeline) or separate things to browse (List).\n- Card: One thing with a little detail, optionally tappable to open it. Pick: A compact preview of one thing, with a title and short detail, optionally opening it. Not several separate things to scan (List) or the screen's main headline (Hero).\n- Checklist: Things to do, with each job ticked off when done. Pick: Tick off independent jobs. Not browsing and opening things (List) or following an ordered sequence (Steps).\n- Chips: Filter things or pick one value from a few short options. Pick: Filter a collection or choose a value. Not switching between views (Segmented) or ticking off jobs (Checklist).\n- Counter: Keep one running count, adding or removing a fixed amount with each tap. Pick: One count the person nudges up or down with plus and minus buttons. Not several read-only summary numbers (Stats) or a number entered in a form (Field).\n- Empty: A calm message on a screen that has no content yet. Pick: Only when there is no content or no results yet, explaining their absence. Not the screen's main statement about what exists or needs attention (Hero), a separate warning or status notice (Banner), or a supporting sentence (Note).\n- Gallery: Browse several pictures together, optionally opening one. Pick: Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).\n- Header: Name the screen and offer one optional shortcut. Pick: The title at the top of a screen. Not a label above a group (SectionTitle) or the screen's main message (Hero).\n- Hero: The one headline fact or message this screen says. Pick: One main message, photo-led introduction or headline number. Not a supporting sentence (Note) or several numbers (Stats).\n- KeyValue: Label and value details of one single thing, like its room or schedule. Pick: Any need about one thing's details or settings. Not several separate things (List) or summary numbers (Stats).\n- List: Several things of the same kind, each one tappable. Pick: Several things of one kind to scan and tap individually, even when asked to tap just one of them. Not one featured thing (Card), details of one thing (KeyValue), or jobs to tick off (Checklist).\n- Note: One short sentence of supporting information. Pick: Add a short supporting sentence. Not something to notice now (Banner) or the screen's main statement (Hero).\n- Photo: Show one picture, with an optional caption. Pick: One picture on its own, optionally captioned. Not several pictures (Gallery) or a photo-led main message with a headline (Hero).\n- Profile: Identify the person, pet or plant whose screen this is. Pick: An identity block with a name, short detail and optional portrait. Not a screen title or navigation (Header), or a summary to open another thing (Card).\n- Ring: How far you are toward one goal. Pick: One amount completed toward a target. Not several summary numbers (Stats) or ordered stages of a process (Steps).\n- Scale: Log a rating or feeling from one to five. Pick: Rate how something went, feels or looks on five ordered levels. Not switching views (Segmented) or entering information in a general input (Field).\n- Search: Find one thing among many by typing words from its name. Pick: Type a query above a list to find matching things. Not a few fixed filters (Chips) or entering one piece of information (Field).\n- SectionTitle: Label a group of content and offer one optional link to more. Pick: A short label just above a group within a screen. Not the screen's title at the top (Header) or its main message (Hero).\n- Segmented: Switch between two to four views of the same screen. Pick: One active view of the same screen, such as today or week. Not filters or choices among values (Chips), or navigation between screens (TabBar).\n- Sparkline: See how one measurement is changing, alongside its latest value. Pick: One latest value with its recent rise or fall. Not separate amounts per day or category to compare (Bars), or several summary numbers (Stats).\n- Stats: Two to four summary numbers, with time periods in labels and only short measurement units. Pick: Several totals, counts or amounts together. Not the details of one record (KeyValue) or one headline number (Hero).\n- Steps: Know your current place in a short ordered flow. Pick: Show the current position in a short setup or booking flow. Not independent jobs to tick off (Checklist) or progress toward a numeric goal (Ring).\n- Streak: How many days in a row you kept a habit, with this week's completed days. Pick: Consecutive days of a habit with daily completion this week. Not several independent totals (Stats) or your position in an ordered flow (Steps).\n- Success: Know an action worked, with its result and the saved item's details. Pick: A standalone moment after an action worked, with a result title and optional detail. Not an ongoing status or urgent warning at the top (Banner), or a screen with no content yet (Empty).\n- Timeline: When things happen, in time order, as a day plan or a history. Pick: Show events with their times or dates in order. Not things without times to browse (List) or independent jobs to tick off (Checklist).\n- Timer: Measure time remaining or elapsed, with controls to start and stop. Pick: Time remaining until an activity ends or elapsed since it began. Not a number manually nudged up or down (Counter) or an amount completed toward a goal (Ring).\n\nNeed, in the person's words: \"Show the amounts I earned on each day this week so I can compare the days\"\nReply with only the component id, nothing else.",
     "reply": "Bars"
+  },
+  "ac5e01e940035bf4": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSparkline: See how one measurement is changing, alongside its latest value.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", label: text≤24, value: text≤10, points: [3..12 number] }\nRule: If asked only to hide the trend line: detail \"brief\", density null, tone null; still store the series. Never choose compact density just because the brief hides the line.\nRule: If asked to warn about a series, use tone \"warn\" and keep detail and density null. The line is normally visible; a warning, a latest value or a falling series never asks to hide it.\nexample: {\"c\":\"Sparkline\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18],\"tone\":null}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: For Walk attendance, record the series 90, 82, 67 and latest value 67%. Show the name and latest value, but hide the trend line.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sparkline",
+              "enum": [
+                "Sparkline"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "tone": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "neutral",
+                    "good",
+                    "warn",
+                    "bad"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 24
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 10
+            },
+            "points": {
+              "minItems": 3,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "tone",
+            "label",
+            "value",
+            "points"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sparkline\",\"density\":null,\"detail\":\"brief\",\"tone\":null,\"label\":\"Walk attendance\",\"value\":\"67%\",\"points\":[90,82,67]}",
+    "replies": [
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":\"brief\",\"tone\":null,\"label\":\"Walk attendance\",\"value\":\"67%\",\"points\":[90,82,67]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":\"brief\",\"tone\":null,\"label\":\"Walk attendance\",\"value\":\"67%\",\"points\":[90,82,67]}",
+      "{\"c\":\"Sparkline\",\"density\":null,\"detail\":\"brief\",\"tone\":null,\"label\":\"Walk attendance\",\"value\":\"67%\",\"points\":[90,82,67]}"
+    ]
   },
   "b4697fb57182150f": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSparkline: See how one measurement is changing, alongside its latest value.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", label: text≤24, value: text≤10, points: [3..12 number] }\nRule: Use JSON null for every unrequested Sparkline axis. If asked to show just the labelled latest value without the trend line, set only detail to \"brief\"; still store the series.\nRule: Use a tone only for a requested status treatment; falling or rising points alone do not request a tone.\nexample: {\"c\":\"Sparkline\",\"label\":\"Soil moisture\",\"value\":\"18%\",\"points\":[42,39,35,32,28,23,18],\"tone\":\"warn\"}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: Soil moisture is 18% now, down from readings of 42, 35 and 28; warn me it is drying out",
