@@ -9,13 +9,23 @@ import { MatrixContent, MatrixScroll } from "./matrix-drawing";
 import { useMoveFocus } from "../../interact";
 import type { Drawing } from "./matrix-layout";
 
+type Column = {
+  id: string;
+  label: string;
+  count: string;
+  countPart?: string;
+  /** Stable value for move actions. If omitted, the displayed label is the value. */
+  moveValue?: string;
+  summary?: ReactNode;
+  children?: ReactNode;
+};
 type ColumnsProps = Drawing & {
-  columns: readonly { id: string; label: string; count: string; summary?: ReactNode; children?: ReactNode }[];
+  columns: readonly Column[];
   style?: "columns" | "stack";
   move?: ColumnMove;
 };
 type CardProps = {
-  column: ColumnsProps["columns"][number];
+  column: Column;
   loading: boolean;
   stack: boolean;
   items: ReactNode;
@@ -39,7 +49,7 @@ function ColumnCard({ column, loading, stack, items }: CardProps) {
               {column.label}
             </KitText>
           </YStack>
-          <KitText role="number" numberScale="compact" tabular part={null}>
+          <KitText role="number" numberScale="compact" tabular part={column.countPart ?? null}>
             {column.count}
           </KitText>
         </XStack>
@@ -100,7 +110,7 @@ function Destination({ destination, name, press }: DestinationProps) {
 
 type ItemProps = {
   card: ColumnItem;
-  destinations: readonly string[];
+  destinations: readonly { label: string; value: string }[];
   loading: boolean;
   move: ColumnMove;
   focus: RefObject<string | null>;
@@ -137,12 +147,12 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
             {caption}
           </KitText>
           <XStack gap={space.xs} flexWrap="wrap">
-            {destinations.map((destination) => (
+            {destinations.map(({ label: destination, value }) => (
               <Destination
-                key={destination}
+                key={value}
                 destination={destination}
                 name={label(destination, card.label)}
-                press={offered ? () => press(destination) : undefined}
+                press={offered ? () => press(value) : undefined}
               />
             ))}
           </XStack>
@@ -153,21 +163,17 @@ function ItemRoot({ card, destinations, move: { caption, label }, loading, focus
 }
 
 /** Counted columns scroll sideways or stack vertically; all copy and actions belong to callers. */
-export function KitColumns({
-  part = "root",
-  loading = false,
-  columns,
-  style = "columns",
-  move,
-}: ColumnsProps) {
+export function KitColumns({ part = "root", loading = false, columns, style, move }: ColumnsProps) {
   const address = usePart(part);
   const context = usePartContext();
   const focus = useRef<string | null>(null);
   const stack = style === "stack";
-  const labels = columns.map((column) => column.label);
+  const choices = columns.map(({ label, moveValue }) => ({ label, value: moveValue ?? label }));
+  const values = choices.map(({ value }) => value);
   const cards = columns.map((column, index) => {
-    const destinations = labels.filter(
-      (label, at) => label && at !== index && labels.indexOf(label) === labels.lastIndexOf(label),
+    const destinations = choices.filter(
+      ({ label, value }, at) =>
+        label && value && at !== index && values.indexOf(value) === values.lastIndexOf(value),
     );
     const items = move?.cards
       .filter((card) => card.column === index)
@@ -183,7 +189,7 @@ export function KitColumns({
       {!columns.length ? null : stack ? (
         <YStack gap={space.md}>{cards}</YStack>
       ) : (
-        <MatrixScroll loading={loading} label={labels.join(", ")}>
+        <MatrixScroll loading={loading} label={columns.map(({ label }) => label).join(", ")}>
           <XStack gap={space.md} alignItems="flex-start">
             {cards}
           </XStack>
