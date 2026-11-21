@@ -15006,6 +15006,13 @@
       "{\"clarity\": 4, \"focus\": 4, \"flow\": 5, \"content\": 4, \"structure\": 5}"
     ]
   },
+  "0aabc495fbf3eda4": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen calendar_month \"Things by date\"\nheader Header \"Monthly appointments\" — \"Nov 18 agenda below · 1 appointment\"\ncalendar Calendar[month] r1: 1 — r2: 2 — r3: 3 — r4: 4 — r5: 5 — r6: 6 — r7: 7 — r8: 8 — r9: 9 — r10: 10 — r11: 11 — r12: 12 — r13: 13 — r14: 14 — r15: 15 — r16: 16 — r17: 17 — r18: 18 (good) — r19: 19 — r20: 20 (good) — r21: 21 — r22: 22 — r23: 23 (good) — r24: 24 — r25: 25 — r26: 26 — r27: 27 — r28: 28 — r29: 29 — r30: 30 — \"Nov 2026\"\n  r1 [calendar/r1 select]\n  r2 [calendar/r2 select]\n  r3 [calendar/r3 select]\n  r4 [calendar/r4 select]\n  r5 [calendar/r5 select]\n  r6 [calendar/r6 select]\n  r7 [calendar/r7 select]\n  r8 [calendar/r8 select]\n  r9 [calendar/r9 select]\n  r10 [calendar/r10 select]\n  r11 [calendar/r11 select]\n  r12 [calendar/r12 select]\n  r13 [calendar/r13 select]\n  r14 [calendar/r14 select]\n  r15 [calendar/r15 select]\n  r16 [calendar/r16 select]\n  r17 [calendar/r17 select]\n  r18 [calendar/r18 select]\n  r19 [calendar/r19 select]\n  r20 [calendar/r20 select]\n  r21 [calendar/r21 select]\n  r22 [calendar/r22 select]\n  r23 [calendar/r23 select]\n  r24 [calendar/r24 select]\n  r25 [calendar/r25 select]\n  r26 [calendar/r26 select]\n  r27 [calendar/r27 select]\n  r28 [calendar/r28 select]\n  r29 [calendar/r29 select]\n  r30 [calendar/r30 select]\ntimeline Timeline\n  r1 \"09:00\" · \"Check-in\" · \"Nov 18 · Routine review\"",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}"
+    ]
+  },
   "0b0c109d5a3ff824": {
     "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen onboarding_steps\nsetup_hero Hero \"Pick your first plant\" — \"Choose a real plant to start your care routine.\"\nafter_choice_note Note \"After you choose, we'll set up watering reminders for it.\"\ncurrent_step Steps Step 1 of 3 — \"Choose your plant\"\nstarter_choice Choice \"Which plant do you want to start with?\"\n  r1 \"Fern\" · \"Bathroom • water every seven days\" · \"fern\" [starter_choice/r1 select]\n  r2 \"Basil\" · \"Kitchen • water every three days\" · \"basil\" [starter_choice/r2 select]\n  r3 \"Monstera\" · \"Living room • water every ten days\" · \"monstera\" [starter_choice/r3 select]\nnext_button Button \"Continue\" [next_button press→setup_details]",
     "reply": "{\"clarity\":4,\"focus\":4,\"flow\":4,\"content\":4,\"structure\":4}",
@@ -62567,6 +62574,13 @@
       "{\"clarity\": 4, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}"
     ]
   },
+  "26b387fe08e10030": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen tracker_timer \"Time your care session\"\nheader_screen Header \"Time your care session\"\ntimer_session Timer[up] 0:00 up — Start — Stop — \"Care session\" [timer_session/start start] [timer_session/stop stop]\nnote_instructions Note \"Start when you begin, Stop when finished, then Save session to review the saved entry.\"\nbars_recent Bars Total 35 min — Mon 12, Tue 8, Wed 15 — \"Recent session lengths\" — \"min\"\n  r1 \"Mon\"\n  r2 \"Tue\"\n  r3 \"Wed\"\nbutton_save Button \"Save session\" [button_save press→session_saved]",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 5,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 5,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}"
+    ]
+  },
   "27b28610c86611b3": {
     "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: home/feed. Job: What matters now.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"Hero\"],\"min\":1,\"max\":1},{\"id\":\"slot3\",\"allow\":[\"List\"],\"min\":1,\"max\":1},{\"id\":\"slot4\",\"allow\":[\"Card\"],\"min\":0,\"max\":1},{\"id\":\"slot5\",\"allow\":[\"Button\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Show the supplied records and their known details. If no due date or completion is supplied, show the regular schedule, not invented urgency. Omit the optional Card unless it adds something the List does not already show.\n\nReal app content: {\"things\":[{\"type\":\"plant\",\"fields\":[\"name\",\"room\",\"care\"]}],\"items\":[{\"id\":\"fern\",\"type\":\"plant\",\"sample\":true,\"name\":\"Fern\",\"room\":\"Bathroom\",\"care\":\"Water every seven days\",\"photo\":\"lib:plants\"},{\"id\":\"basil\",\"type\":\"plant\",\"sample\":true,\"name\":\"Basil\",\"room\":\"Kitchen\",\"care\":\"Water every three days\",\"photo\":\"lib:plants\"},{\"id\":\"monstera\",\"type\":\"plant\",\"sample\":true,\"name\":\"Monstera\",\"room\":\"Living room\",\"care\":\"Water every ten days\",\"photo\":\"lib:plants\"}]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nHero: The screen's main statement or headline number, including what needs attention today.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet=\"normal\", align?: start|center=\"start\", detail?: full|brief=\"full\", media?: none|cover=\"none\", tone?: neutral|good|warn|bad=\"neutral\", style?: number, title: text≤40, sub?: text≤80, photo?: photo lib:<tag>|local:<n> }\nRule: Use style \"number\" when the title is a headline number. For a requested wide photo, set media to \"cover\" and give its photo reference; density, emphasis, align and tone stay null unless explicitly requested.\nRule: Put visible subtitles in sub and keep detail null. Only an explicit request to hide the subtitle sets detail to \"brief\"; keep the subtitle in sub.\nexample: {\"c\":\"Hero\",\"title\":\"Plant care\",\"sub\":\"Check the ferns before watering\",\"photo\":\"lib:plants\"}\nweight: 3\n\nList: Several things of the same kind, each one tappable.\nprops: { density?: comfortable|compact, surface?: card|plain|outlined=\"card\", detail?: full|brief=\"full\", group?: none|sections=\"none\", overflow?: all|peek=\"all\", lead?: icon|none|thumb|number=\"icon\", trail?: chevron|none|value|badge|toggle|check=\"chevron\", style?: cards|shelf|expand, rows: [1..6 { title: text≤28, meta?: text≤36, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, trail?: chevron|none|value|badge|toggle|check, tone?: neutral|good|warn|bad=\"neutral\", mark?: none|highlight|muted|new=\"none\", value?: text≤10, goto?: id snake_case, body?: text≤200, me?: boolean, section?: text≤24 }] }\nRule: Use null for all unrequested List and row axes. Data such as status, urgency or recency does not request a mark or tone. If asked to highlight, use mark \"highlight\" on at most one in three rows (none in a one- or two-row list).\nRule: Use style \"expand\" with a body on every FAQ row or \"shelf\" with a photo on every sideways rail row. Photos use references like \"lib:plants\" or \"local:1\". The water icon is \"drop\".\nRule: Rankings use style null (never expand), lead \"number\", trail \"value\", and each score in value. Only the person’s row gets me.\nRule: For grouped headings use group \"sections\" and a section label on every row; keep rows in section order.\nRule: For See all: overflow \"peek\"; style and all other axes null unless requested. Output every row, including hidden ones. If asked for names only, write title and leave all other row fields null.\nexample: {\"c\":\"List\",\"trail\":\"toggle\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom · water today\",\"icon\":\"leaf\",\"goto\":\"fern\"},{\"title\":\"Monstera\",\"meta\":\"Living room · in two days\",\"icon\":\"leaf\",\"trail\":\"chevron\",\"goto\":\"monstera\"},{\"title\":\"Basil\",\"meta\":\"Kitchen · freshly watered\",\"icon\":\"drop\",\"trail\":\"check\",\"goto\":\"basil\"}]}\nweight: 2\n\nCard: One thing with a little detail, optionally tappable to open it.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet|hero=\"normal\", surface?: card|plain|tinted|outlined=\"card\", media?: thumb|none|icon|cover=\"thumb\", detail?: full|brief=\"full\", tone?: neutral|good|warn|bad=\"neutral\", title: text≤40, body?: text≤120, meta?: text≤24, badge?: text≤12, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, photo?: photo lib:<tag>|local:<n>, goto?: id snake_case }\nRule: Use null for every unrequested Card axis. Ordinary photos, icons and status text go in the content fields; they do not request a cover, tint or hidden detail.\nRule: A wide photo above the text changes media to cover only; leave other axes null unless explicitly requested.\nRule: Leave detail null for short copy; use brief only when asked to hide the body and meta. Keep both in the data.\nRule: Use surface tinted with a semantic tone only when asked to colour the card for that status.\nexample: {\"c\":\"Card\",\"media\":\"cover\",\"title\":\"Fern\",\"body\":\"Bathroom · soft indirect light\",\"meta\":\"Water today\",\"photo\":\"lib:plants\",\"goto\":\"fern\"}\nweight: 2\n\nButton: One main thing the person does next.\nprops: { label: text≤24, kind?: primary|secondary|quiet|danger=\"primary\", icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, confirm?: text≤60 }\nexample: {\"c\":\"Button\",\"label\":\"Log watering\",\"kind\":\"primary\",\"icon\":\"drop\"}\nweight: 1\n\nA valid default for this layout: {\"id\":\"home_feed\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Plant\"},{\"id\":\"h2\",\"c\":\"Hero\",\"title\":\"Fern\",\"sub\":\"Bathroom\"},{\"id\":\"l1\",\"c\":\"List\",\"rows\":[{\"title\":\"Fern\",\"meta\":\"Bathroom\"},{\"title\":\"Basil\",\"meta\":\"Kitchen\"},{\"title\":\"Monstera\",\"meta\":\"Living room\"}]},{\"id\":\"b1\",\"c\":\"Button\",\"label\":\"Continue\",\"kind\":\"primary\"}]}\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
     "format": {
@@ -91823,6 +91837,13 @@
       "{\"clarity\": 3, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}"
     ]
   },
+  "48deb4eba22e5b25": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen monthly_appointments \"Monthly appointments\"\nheader_1 Header \"Monthly appointments\" — \"Tap a marked day for its agenda\"\ncalendar_1 Calendar[month] r1: 1 — r2: 2 — r3: 3 — r4: 4 — r5: 5 — r6: 6 — r7: 7 — r8: 8 — r9: 9 — r10: 10 — r11: 11 — r12: 12 — r13: 13 — r14: 14 — r15: 15 — r16: 16 — r17: 17 — r18: 18 (good) — r19: 19 — r20: 20 (good) — r21: 21 — r22: 22 — r23: 23 (good) — r24: 24 — r25: 25 — r26: 26 — r27: 27 — r28: 28 — r29: 29 — r30: 30 — \"Nov 2026\"\n  r1 [calendar_1/r1 select]\n  r2 [calendar_1/r2 select]\n  r3 [calendar_1/r3 select]\n  r4 [calendar_1/r4 select]\n  r5 [calendar_1/r5 select]\n  r6 [calendar_1/r6 select]\n  r7 [calendar_1/r7 select]\n  r8 [calendar_1/r8 select]\n  r9 [calendar_1/r9 select]\n  r10 [calendar_1/r10 select]\n  r11 [calendar_1/r11 select]\n  r12 [calendar_1/r12 select]\n  r13 [calendar_1/r13 select]\n  r14 [calendar_1/r14 select]\n  r15 [calendar_1/r15 select]\n  r16 [calendar_1/r16 select]\n  r17 [calendar_1/r17 select]\n  r18 [calendar_1/r18 select]\n  r19 [calendar_1/r19 select]\n  r20 [calendar_1/r20 select]\n  r21 [calendar_1/r21 select]\n  r22 [calendar_1/r22 select]\n  r23 [calendar_1/r23 select]\n  r24 [calendar_1/r24 select]\n  r25 [calendar_1/r25 select]\n  r26 [calendar_1/r26 select]\n  r27 [calendar_1/r27 select]\n  r28 [calendar_1/r28 select]\n  r29 [calendar_1/r29 select]\n  r30 [calendar_1/r30 select]\ntimeline_1 Timeline\n  r1 \"09:00\" · \"Check-in\" · \"Nov 18 · Routine review\"",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 3,\n  \"content\": 4,\n  \"structure\": 3\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 3,\n  \"content\": 4,\n  \"structure\": 3\n}"
+    ]
+  },
   "492a4cb7e9905027": {
     "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen home_focus \"What matters now\"\nheader_plant_care Header \"Plant care\"\nhero_watering_priority Hero \"Basil needs water every three days\"\nlist_plants List\n  r1 \"Fern\" · \"Bathroom\" [list_plants/r1 press→fern]\n  r2 \"Basil\" · \"Kitchen\" [list_plants/r2 press→basil]\n  r3 \"Monstera\" · \"Living room\" [list_plants/r3 press→monstera]\nbutton_log_watering Button \"Log watering\" [button_log_watering press→log_watering]",
     "reply": "{\"clarity\":4,\"focus\":5,\"flow\":4,\"content\":5,\"structure\":4}",
@@ -95760,6 +95781,13 @@
     "reply": "{\"clarity\": 4, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}",
     "replies": [
       "{\"clarity\": 4, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}"
+    ]
+  },
+  "4ebb0f000affe55d": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen calendar_week \"Appointments this week\"\nheader Header \"Appointments this week\" — \"Nov 18–20 · 2 appointments\"\ncalendar Calendar r1: 16 — r2: 17 — r3: 18 (good) — r4: 19 — r5: 20 (good) — r6: 21 — r7: 22 — \"Nov 2026\"\n  r1 [calendar/r1 select]\n  r2 [calendar/r2 select]\n  r3 [calendar/r3 select]\n  r4 [calendar/r4 select]\n  r5 [calendar/r5 select]\n  r6 [calendar/r6 select]\n  r7 [calendar/r7 select]\ntimeline Timeline\n  r1 \"09:00\" · \"Check-in\" · \"Nov 18 · Routine review\"\n  r2 \"14:30\" · \"Follow-up\" · \"Nov 20 · Review next steps\"",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 4,\n  \"content\": 4,\n  \"structure\": 4\n}"
     ]
   },
   "4f3f9cc3711a710f": {
@@ -129097,11 +129125,11 @@
         }
       }
     },
-    "reply": "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Appointments\",\n  \"components\": [\n    {\n      \"id\": \"appointments_header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"week_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"appointments_timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+    "reply": "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Appointments this week\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
     "replies": [
-      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Appointments\",\n  \"components\": [\n    {\n      \"id\": \"appointments_header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"week_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"appointments_timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
-      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Calendar Week\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
-      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Things by date\",\n  \"components\": [\n    {\n      \"id\": \"header_section\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_view\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_list\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
+      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Appointments this week\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Things by Date\",\n  \"components\": [\n    {\n      \"id\": \"appointments_header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_view\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"appointments_timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_week\",\n  \"title\": \"Appointments this week\",\n  \"components\": [\n    {\n      \"id\": \"header_appointments\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Appointments this week\",\n      \"sub\": \"Nov 18–20 · 2 appointments\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_appointments\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"week\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_agenda\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        },\n        {\n          \"tone\": null,\n          \"time\": \"14:30\",\n          \"title\": \"Follow-up\",\n          \"meta\": \"Nov 20 · Review next steps\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
   "6e93f7d82c26b6b6": {
@@ -175555,11 +175583,11 @@
         }
       }
     },
-    "reply": "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_1\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" },\n        { \"day\": 23, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_1\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+    "reply": "{\n  \"id\": \"monthly_appointments\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_1\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" },\n        { \"day\": 23, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_1\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
     "replies": [
-      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_1\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" },\n        { \"day\": 23, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_1\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
-      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Things by date\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_component\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\"day\": 18, \"tone\": \"good\"},\n        {\"day\": 20, \"tone\": \"good\"},\n        {\"day\": 23, \"tone\": \"good\"}\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_component\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
-      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" },\n        { \"day\": 23, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
+      "{\n  \"id\": \"monthly_appointments\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_1\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        { \"day\": 18, \"tone\": \"good\" },\n        { \"day\": 20, \"tone\": \"good\" },\n        { \"day\": 23, \"tone\": \"good\" }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_1\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"screen_header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"appointments_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 23,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"selected_day_agenda\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Things by date\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Tap a marked day for its agenda\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\n          \"day\": 18,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 20,\n          \"tone\": \"good\"\n        },\n        {\n          \"day\": 23,\n          \"tone\": \"good\"\n        }\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
   "93c65d526c87f230": {
@@ -219614,11 +219642,11 @@
         }
       }
     },
-    "reply": "{\n  \"id\": \"edit_plant\",\n  \"title\": \"Edit plant\",\n  \"components\": [\n    {\n      \"id\": \"header_edit_fern\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_plant_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save_changes\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
+    "reply": "{\n  \"id\": \"form_short\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
     "replies": [
-      "{\n  \"id\": \"edit_plant\",\n  \"title\": \"Edit plant\",\n  \"components\": [\n    {\n      \"id\": \"header_edit_fern\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_plant_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save_changes\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
-      "{\n  \"id\": \"edit_fern\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit_fern\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_plant_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save_changes\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
-      "{\n  \"id\": \"edit_plant_screen\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit_fern\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_plant_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save_changes\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}"
+      "{\n  \"id\": \"form_short\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"edit_fern\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit_fern\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_plant_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\"\n    ,\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save_changes\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"form_short\",\n  \"title\": \"Edit Fern\",\n  \"components\": [\n    {\n      \"id\": \"header_edit\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": \"full\",\n      \"style\": null,\n      \"title\": \"Edit Fern\",\n      \"sub\": \"Update details\",\n      \"action\": null\n    },\n    {\n      \"id\": \"field_name\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Plant name\",\n      \"value\": \"Fern\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_room\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"text\",\n      \"label\": \"Room\",\n      \"value\": \"Bathroom\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"field_watering_interval\",\n      \"c\": \"Field\",\n      \"density\": null,\n      \"detail\": null,\n      \"kind\": \"number\",\n      \"label\": \"Watering interval (days)\",\n      \"value\": \"7\",\n      \"repeat\": null,\n      \"hint\": null,\n      \"options\": null\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save changes\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"fern_detail\",\n      \"confirm\": null\n    }\n  ]\n}"
     ]
   },
   "bc3f86253d56a6f4": {
@@ -227446,11 +227474,11 @@
         }
       }
     },
-    "reply": "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_main\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_main\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": null,\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent_sessions\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
+    "reply": "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_screen\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_session\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": \"exact\",\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
     "replies": [
-      "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_main\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_main\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": null,\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent_sessions\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
-      "{\n  \"id\": \"tracker_timer\",\n  \"title\": null,\n  \"components\": [\n    {\n      \"id\": \"header_session\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_session\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": null,\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent_sessions\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        { \"label\": \"Mon\", \"value\": 12 },\n        { \"label\": \"Tue\", \"value\": 8 },\n        { \"label\": \"Wed\", \"value\": 15 }\n      ]\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
-      "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_care_session\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_count_up\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": null,\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent_sessions\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button_save_session\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}"
+      "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_screen\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_session\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": \"exact\",\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_instructions\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_recent\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button_save\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": null,\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": \"brief\",\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": \"Track each session and see your progress\",\n      \"action\": null\n    },\n    {\n      \"id\": \"timer\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": \"exact\",\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": \"icon\",\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": \"timer\"\n    },\n    {\n      \"id\": \"bars\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": \"min\",\n      \"points\": [\n        {\"label\": \"Mon\", \"value\": 12},\n        {\"label\": \"Tue\", \"value\": 8},\n        {\"label\": \"Wed\", \"value\": 15}\n      ]\n    },\n    {\n      \"id\": \"button\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": \"icon\",\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": \"check\",\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}",
+      "{\n  \"id\": \"tracker_timer\",\n  \"title\": \"Time your care session\",\n  \"components\": [\n    {\n      \"id\": \"header_1\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Time your care session\",\n      \"sub\": null,\n      \"action\": null\n    },\n    {\n      \"id\": \"timer_1\",\n      \"c\": \"Timer\",\n      \"density\": null,\n      \"figures\": null,\n      \"style\": \"up\",\n      \"label\": \"Care session\",\n      \"seconds\": 0,\n      \"until\": null,\n      \"at\": null\n    },\n    {\n      \"id\": \"note_1\",\n      \"c\": \"Note\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"media\": null,\n      \"tone\": null,\n      \"text\": \"Start when you begin, Stop when finished, then Save session to review the saved entry.\",\n      \"icon\": null\n    },\n    {\n      \"id\": \"bars_1\",\n      \"c\": \"Bars\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"columns\",\n      \"title\": \"Recent session lengths\",\n      \"unit\": null,\n      \"points\": [\n        {\n          \"label\": \"Mon\",\n          \"value\": 12\n        },\n        {\n          \"label\": \"Tue\",\n          \"value\": 8\n        },\n        {\n          \"label\": \"Wed\",\n          \"value\": 15\n        }\n      ]\n    },\n    {\n      \"id\": \"button_1\",\n      \"c\": \"Button\",\n      \"surface\": null,\n      \"media\": null,\n      \"label\": \"Save session\",\n      \"kind\": null,\n      \"icon\": \"check\",\n      \"goto\": \"session_saved\",\n      \"confirm\": null\n    }\n  ]\n}"
     ]
   },
   "c2faa62c15d53d55": {
@@ -238696,6 +238724,631 @@
     "reply": "{\"clarity\":4,\"focus\":5,\"flow\":4,\"content\":4,\"structure\":4}",
     "replies": [
       "{\"clarity\":4,\"focus\":5,\"flow\":4,\"content\":4,\"structure\":4}"
+    ]
+  },
+  "c877f6fbb96b9fe5": {
+    "prompt": "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.\n\nLayout: calendar/month. Job: Things by date.\n\nRecipe slots: [{\"id\":\"slot1\",\"allow\":[\"Header\"],\"min\":1,\"max\":1},{\"id\":\"slot2\",\"allow\":[\"Calendar\"],\"min\":1,\"max\":1,\"variant\":\"month\"},{\"id\":\"slot3\",\"allow\":[\"Timeline\"],\"min\":1,\"max\":1}]. Match every required slot in order. Variants such as shelf, reply, month or mood are the component's style; Field/Camera variants are kind. prices means every Choice option has a price value; toggle means every List row has trail: toggle.\n\nScreen rules: three to nine components outside overlays, total weight at most twelve, at most two weight-three components. One primary Button at most. Hero first in the body; a SectionTitle needs following content. Repeated types cannot be adjacent except Card and Field. Reply Composer is last after Bubbles. Do not invent color, size or layout props.\n\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\n\nAn explicit layout rule can request an axis. Catalog examples show JSON shape, not requested styling. Never infer an axis from the data alone. Variant limits: one hero emphasis and one cover collection per screen.\n\nLayout rule: Use only the supplied dated events and calendar month/start/days/selected values. Mark their event dates. Timeline uses day style with supplied times and titles, and the date and detail in meta. On EVERY Timeline item end, tone and goto must be literal null, even when time and title have values; do not replace those nulls with end times, status tones or links. This is not hours style. Header action is null.\n\nLayout rule: Use \"Monthly appointments\" for the Header title. In its subtitle, name the selected date and count its supplied appointments, e.g. \"Nov 18 agenda below · 1 appointment\". This connects the marked month overview to the selected day’s agenda directly below it. Do not promise that tapping a date loads a new agenda. Keep all Header axes null.\n\nLayout rule: Mark the supplied appointment dates with tone good. The Timeline is only the agenda for the supplied selected day: exclude every other day even when marked on the Calendar. Retain each title and time, put a readable date first and purpose second in meta (e.g. \"Nov 18 · Routine review\"), and leave done and all Timeline axes null.\n\nReal app content: {\"things\":[{\"type\":\"event\",\"fields\":[\"title\",\"date\",\"time\",\"detail\",\"month\",\"start\",\"days\",\"selected\"]}],\"items\":[{\"id\":\"check_in\",\"type\":\"event\",\"sample\":true,\"title\":\"Check-in\",\"date\":\"2026-11-18\",\"time\":\"09:00\",\"detail\":\"Routine review\",\"month\":\"Nov 2026\",\"start\":7,\"days\":30,\"selected\":18},{\"id\":\"follow_up\",\"type\":\"event\",\"sample\":true,\"title\":\"Follow-up\",\"date\":\"2026-11-20\",\"time\":\"14:30\",\"detail\":\"Review next steps\"},{\"id\":\"planning\",\"type\":\"event\",\"sample\":true,\"title\":\"Planning\",\"date\":\"2026-11-23\",\"time\":\"10:00\",\"detail\":\"Plan the coming week\"}]}\n\nHeader: Name the screen and offer one optional shortcut.\nprops: { density?: comfortable|compact, emphasis?: normal|quiet=\"normal\", detail?: full|brief=\"full\", style?: back, title: text≤28, sub?: text≤40, action?: { icon: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, label: text≤16, goto?: id snake_case } }\nRule: Use style \"back\" only when a back button is needed. To hide a subtitle, use detail \"brief\" and keep the supplied subtitle in sub. Hiding it does not request a smaller title or a denser header: set emphasis and density to null unless the brief explicitly asks for those changes.\nexample: {\"c\":\"Header\",\"title\":\"My plants\",\"sub\":\"Three need water today\",\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}\nweight: 1\n\nCalendar: See which dates have something planned and open a day.\nprops: { emphasis?: normal|quiet=\"normal\", style?: week|month=\"week\", month: text≤16, marked: [0..12 { day: int 1..31, tone?: neutral|good|warn|bad=\"neutral\" }], selected?: int 1..31, start?: int 1..7=1, days?: int 28..31=30 }\nRule: Write JSON null for an unrequested emphasis or day tone. Never write emphasis \"normal\" just to apply the default. Use \"quiet\" only for an explicitly subdued month heading. A dot without a requested status needs only the day.\nexample: {\"c\":\"Calendar\",\"style\":\"month\",\"month\":\"June 2026\",\"start\":1,\"days\":30,\"selected\":12,\"marked\":[{\"day\":5},{\"day\":12},{\"day\":19},{\"day\":26}]}\nweight: 3\n\nTimeline: Events in time order, or activities sized by duration on an hour rail.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", style?: day|history|hours=\"day\", items: [1..8 { tone?: neutral|good|warn|bad=\"neutral\", time: text≤12, title: text≤32, meta?: text≤32, done?: boolean=false, end?: time HH:MM, goto?: id snake_case }] }\nRule: Use day for a schedule of events with only single times, even if some are already done. Use history for an explicitly past-only log. Either takes up to six items. To show time and title only, set detail brief and keep supplied notes in meta.\nRule: Use hours for duration blocks on an hour rail: up to eight items, time as the start in HH:MM and a later end in HH:MM. Only hours uses end and goto; omit meta and done in hours.\nRule: Set density, detail and each event tone to null unless explicitly requested. Times, notes, completion and scheduling are data, not requests for a variant.\nexample: {\"c\":\"Timeline\",\"style\":\"history\",\"items\":[{\"time\":\"Mon\",\"title\":\"Watered fern\",\"meta\":\"Bathroom · Ledge\",\"done\":true},{\"time\":\"Wed\",\"title\":\"Repotted basil\",\"meta\":\"Kitchen\",\"done\":true}]}\nweight: 2\n\nA valid default for this layout: {\"id\":\"calendar_month\",\"components\":[{\"id\":\"h1\",\"c\":\"Header\",\"title\":\"Event\"},{\"id\":\"c1\",\"c\":\"Calendar\",\"month\":\"This month\",\"marked\":[],\"style\":\"month\"},{\"id\":\"t1\",\"c\":\"Timeline\",\"style\":\"day\",\"items\":[{\"time\":\"—\",\"title\":\"Check-in\",\"meta\":\"2026-11-18\"},{\"time\":\"—\",\"title\":\"Follow-up\",\"meta\":\"2026-11-20\"},{\"time\":\"—\",\"title\":\"Planning\",\"meta\":\"2026-11-23\"}]}]}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\n\nUse the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing. Reply with JSON only.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_screen",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "components": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Header",
+                        "enum": [
+                          "Header"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "back"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      "sub": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "action": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "icon": {
+                                "type": "string",
+                                "enum": [
+                                  "dot",
+                                  "leaf",
+                                  "drop",
+                                  "dog",
+                                  "cat",
+                                  "calendar",
+                                  "calendar_days",
+                                  "clock",
+                                  "check",
+                                  "chevron_right",
+                                  "plus",
+                                  "minus",
+                                  "close",
+                                  "search",
+                                  "settings",
+                                  "bell",
+                                  "bell_off",
+                                  "heart",
+                                  "star",
+                                  "bookmark",
+                                  "share",
+                                  "send",
+                                  "message",
+                                  "mail",
+                                  "phone",
+                                  "camera",
+                                  "image",
+                                  "video",
+                                  "mic",
+                                  "music",
+                                  "play",
+                                  "pause",
+                                  "square",
+                                  "undo",
+                                  "timer",
+                                  "alarm_clock",
+                                  "sun",
+                                  "moon",
+                                  "cloud",
+                                  "cloud_rain",
+                                  "thermometer",
+                                  "wind",
+                                  "flame",
+                                  "zap",
+                                  "battery",
+                                  "wifi",
+                                  "pin",
+                                  "map",
+                                  "navigation",
+                                  "compass",
+                                  "home",
+                                  "building",
+                                  "store",
+                                  "shopping_cart",
+                                  "shopping_bag",
+                                  "tag",
+                                  "gift",
+                                  "credit_card",
+                                  "wallet",
+                                  "banknote",
+                                  "piggy_bank",
+                                  "receipt",
+                                  "trending_up",
+                                  "trending_down",
+                                  "bar_chart",
+                                  "pie_chart",
+                                  "activity",
+                                  "target",
+                                  "trophy",
+                                  "medal",
+                                  "award",
+                                  "flag",
+                                  "user",
+                                  "users",
+                                  "user_plus",
+                                  "baby",
+                                  "smile",
+                                  "dumbbell",
+                                  "bike",
+                                  "footprints",
+                                  "heart_pulse",
+                                  "pill",
+                                  "stethoscope",
+                                  "apple",
+                                  "coffee",
+                                  "utensils",
+                                  "wine",
+                                  "pizza",
+                                  "carrot",
+                                  "sprout",
+                                  "flower",
+                                  "tree",
+                                  "mountain",
+                                  "waves",
+                                  "car",
+                                  "bus",
+                                  "plane",
+                                  "train",
+                                  "briefcase",
+                                  "graduation_cap",
+                                  "book_open",
+                                  "book",
+                                  "pencil",
+                                  "file_text",
+                                  "clipboard",
+                                  "clipboard_list",
+                                  "checklist",
+                                  "lock",
+                                  "unlock",
+                                  "key",
+                                  "shield",
+                                  "eye",
+                                  "link",
+                                  "paperclip",
+                                  "download",
+                                  "upload",
+                                  "trash",
+                                  "edit",
+                                  "filter",
+                                  "sliders",
+                                  "info",
+                                  "alert",
+                                  "help",
+                                  "sparkles",
+                                  "lightbulb",
+                                  "palette",
+                                  "scissors",
+                                  "wrench",
+                                  "hammer",
+                                  "package",
+                                  "truck",
+                                  "recycle",
+                                  "globe",
+                                  "languages",
+                                  "gamepad",
+                                  "ticket",
+                                  "paw",
+                                  "shirt",
+                                  "bed",
+                                  "bath",
+                                  "sofa",
+                                  "lamp",
+                                  "chevron_left",
+                                  "arrow_left",
+                                  "more",
+                                  "external_link",
+                                  "quote",
+                                  "circle_check"
+                                ]
+                              },
+                              "label": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 16
+                              },
+                              "goto": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "pattern": "^[a-z][a-z0-9_]*$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              }
+                            },
+                            "required": [
+                              "icon",
+                              "label",
+                              "goto"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "emphasis",
+                      "detail",
+                      "style",
+                      "title",
+                      "sub",
+                      "action"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Calendar",
+                        "enum": [
+                          "Calendar"
+                        ]
+                      },
+                      "emphasis": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "normal",
+                              "quiet"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "week",
+                              "month"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "month": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 16
+                      },
+                      "marked": {
+                        "minItems": 0,
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "day": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 31
+                            },
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "day",
+                            "tone"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "selected": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "start": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 7
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "days": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 28,
+                            "maximum": 31
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "emphasis",
+                      "style",
+                      "month",
+                      "marked",
+                      "selected",
+                      "start",
+                      "days"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      "c": {
+                        "type": "string",
+                        "const": "Timeline",
+                        "enum": [
+                          "Timeline"
+                        ]
+                      },
+                      "density": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "comfortable",
+                              "compact"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "detail": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "full",
+                              "brief"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "style": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "enum": [
+                              "day",
+                              "history",
+                              "hours"
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "items": {
+                        "minItems": 1,
+                        "maxItems": 8,
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "tone": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "neutral",
+                                    "good",
+                                    "warn",
+                                    "bad"
+                                  ]
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "time": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 12
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 32
+                            },
+                            "meta": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 32
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "done": {
+                              "anyOf": [
+                                {
+                                  "type": "boolean"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "end": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
+                            "goto": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "pattern": "^[a-z][a-z0-9_]*$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "tone",
+                            "time",
+                            "title",
+                            "meta",
+                            "done",
+                            "end",
+                            "goto"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "c",
+                      "density",
+                      "detail",
+                      "style",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "title",
+            "components"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Things by date\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Nov 18 agenda below · 1 appointment\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\"day\": 18, \"tone\": \"good\"},\n        {\"day\": 20, \"tone\": \"good\"},\n        {\"day\": 23, \"tone\": \"good\"}\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+    "replies": [
+      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Things by date\",\n  \"components\": [\n    {\n      \"id\": \"header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Nov 18 agenda below · 1 appointment\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\"day\": 18, \"tone\": \"good\"},\n        {\"day\": 20, \"tone\": \"good\"},\n        {\"day\": 23, \"tone\": \"good\"}\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_month\",\n  \"title\": \"Monthly appointments\",\n  \"components\": [\n    {\n      \"id\": \"header_appointments\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Nov 18 agenda below · 1 appointment\",\n      \"action\": null\n    },\n    {\n      \"id\": \"calendar_nov\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\"day\": 18, \"tone\": \"good\"},\n        {\"day\": 20, \"tone\": \"good\"},\n        {\"day\": 23, \"tone\": \"good\"}\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"timeline_agenda\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}",
+      "{\n  \"id\": \"calendar_month_screen\",\n  \"title\": \"Calendar\",\n  \"components\": [\n    {\n      \"id\": \"screen_header\",\n      \"c\": \"Header\",\n      \"density\": null,\n      \"emphasis\": null,\n      \"detail\": null,\n      \"style\": null,\n      \"title\": \"Monthly appointments\",\n      \"sub\": \"Nov 18 agenda below · 1 appointment\",\n      \"action\": null\n    },\n    {\n      \"id\": \"month_calendar\",\n      \"c\": \"Calendar\",\n      \"emphasis\": null,\n      \"style\": \"month\",\n      \"month\": \"Nov 2026\",\n      \"marked\": [\n        {\"day\": 18, \"tone\": \"good\"},\n        {\"day\": 20, \"tone\": \"good\"},\n        {\"day\": 23, \"tone\": \"good\"}\n      ],\n      \"selected\": 18,\n      \"start\": 7,\n      \"days\": 30\n    },\n    {\n      \"id\": \"day_timeline\",\n      \"c\": \"Timeline\",\n      \"density\": null,\n      \"detail\": null,\n      \"style\": \"day\",\n      \"items\": [\n        {\n          \"tone\": null,\n          \"time\": \"09:00\",\n          \"title\": \"Check-in\",\n          \"meta\": \"Nov 18 · Routine review\",\n          \"done\": null,\n          \"end\": null,\n          \"goto\": null\n        }\n      ]\n    }\n  ]\n}"
     ]
   },
   "c89e29f31e64248c": {
@@ -254025,6 +254678,13 @@
     "reply": "{\"clarity\": 5, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}",
     "replies": [
       "{\"clarity\": 5, \"focus\": 4, \"flow\": 4, \"content\": 4, \"structure\": 4}"
+    ]
+  },
+  "d39cabf726510534": {
+    "prompt": "Evaluate this phone screen for clarity, focus, flow, content and structure, each from 1 to 5. Judge its visible content and interaction plan. A useful, coherent, specific screen should score at least 4. Return only JSON numbers with those five keys.\n\nscreen form_short \"Edit Fern\"\nheader_edit Header \"Edit Fern\" — \"Update details\"\nfield_name Field text — \"Plant name\" — \"Fern\" [field_name/field type]\nfield_room Field text — \"Room\" — \"Bathroom\" [field_room/field type]\nfield_watering_interval Field[number] number — \"Watering interval (days)\" — \"7\" [field_watering_interval/field type]\nbutton_save Button \"Save changes\" [button_save press→fern_detail]",
+    "reply": "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 5,\n  \"content\": 4,\n  \"structure\": 4\n}",
+    "replies": [
+      "{\n  \"clarity\": 4,\n  \"focus\": 4,\n  \"flow\": 5,\n  \"content\": 4,\n  \"structure\": 4\n}"
     ]
   },
   "d3da9ebdb962c9c1": {
