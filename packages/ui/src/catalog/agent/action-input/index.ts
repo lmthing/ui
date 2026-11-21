@@ -8,13 +8,16 @@ export { stageProgress } from "./progress";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { findAction } from "./offered-actions";
 export {
+  createPrivateMarks,
   hostOnlyParts,
   hostOnlyAddresses,
   isPrivateMark,
+  planHostAct,
   privateMarkKey,
   redactPrivateMarks,
+  registerPrivateMark,
+  type PrivateMarks,
 } from "./host-actions";
-export { createPrivateMarks, planHostAct, registerPrivateMark, type PrivateMarks } from "./host-marks";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
