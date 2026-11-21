@@ -29,6 +29,7 @@ const ids = [
   "OrderSummary",
   "OrderStatus",
   "Promo",
+  "SizeGuide",
 ] as const;
 const core = createRegistry();
 const draft = createRegistry({ packs: ["commerce"], includeDrafts: true });
@@ -43,7 +44,7 @@ const casts: CastLike[] = [
 ];
 const cases = [
   [commerce.shop, commerce.shopProbes, ["grid", "menu"]],
-  [commerce.product, commerce.productProbes, ["simple", "variants"]],
+  [commerce.product, commerce.productProbes, ["simple", "variants", "sizing"]],
   [commerce.cart, commerce.cartProbes, ["simple"]],
   [commerce.checkout, commerce.checkoutProbes, ["pay", "status"]],
   [commerce.orders, commerce.ordersProbes, ["today", "order"]],

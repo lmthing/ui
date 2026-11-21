@@ -6,7 +6,7 @@ Built in step U7 (drafts in U3), wave 3 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `Product.tsx` `ProductGrid.tsx` `VariantPicker.tsx` `Cart.tsx` `CartBar.tsx` `Checkout.tsx` `OrderSummary.tsx` `OrderStatus.tsx` `Promo.tsx`
+- `components/`: `Product.tsx` `ProductGrid.tsx` `VariantPicker.tsx` `Cart.tsx` `CartBar.tsx` `Checkout.tsx` `OrderSummary.tsx` `OrderStatus.tsx` `Promo.tsx` `SizeGuide.tsx`
 - `archetypes/`: `shop.ts` `product.ts` `cart.ts` `checkout.ts` `orders.ts` `product-edit.ts`
 
 Rules:

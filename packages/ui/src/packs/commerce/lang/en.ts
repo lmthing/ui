@@ -37,6 +37,14 @@ export type CommerceWords = {
   copyPromoCode: (code: string) => string;
   variantUnavailable: string;
   variantReading: (label: string, details: readonly string[]) => string;
+  sizeGuide: {
+    size: string;
+    unit: string;
+    units: Record<"cm" | "in", string>;
+    fit: string;
+    fitWords: readonly [string, string, string];
+    reference: (size: string) => string;
+  };
 };
 
 export const en = {
@@ -78,4 +86,12 @@ export const en = {
   copyPromoCode: (code) => `Copy ${code}`,
   variantUnavailable: "Sold out",
   variantReading: (label, details) => [label, ...details].join(" · "),
+  sizeGuide: {
+    size: "Size",
+    unit: "Measurement units",
+    units: { cm: "cm", in: "in" },
+    fit: "Fit",
+    fitWords: ["Runs small", "True to size", "Runs large"],
+    reference: (size) => `Reference size: ${size}`,
+  },
 } satisfies CommerceWords;
