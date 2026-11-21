@@ -1,35 +1,11 @@
 import { z } from "zod";
-import {
-  detailOf,
-  isoDate,
-  itemVariantProps,
-  itemsOf,
-  placeholderTitle,
-  wordsFor,
-  probesFor,
-  screenId,
-  text,
-  thingOf,
-  titleOf,
-  variantProps,
-  type FallbackInput,
-  type Meta,
-  type Probe,
-  type Props,
-} from "../../../catalog";
-import {
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitRow,
-  KitText,
-  useComponentState,
-  useVariant,
-  useWords,
-} from "../../../kit";
-import { pantryDates, pantryOrder, pantryReading } from "../copy";
+// prettier-ignore
+import { detailOf, isoDate, itemVariantProps, itemsOf, placeholderTitle, wordsFor, probesFor, screenId,
+  text, thingOf, titleOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
+// prettier-ignore
+import { KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText,
+  useComponentState, useVariant, useWords } from "../../../kit";
+import { pantryDates, pantryIsLow, pantryOpened, pantryOrder, pantryReading } from "../copy";
 import { kitchenWordsFor } from "../lang";
 // Core first: List/cards cannot order food by use-by date or expose a confirmed used-up removal.
 export const meta = {
@@ -41,6 +17,7 @@ export const meta = {
   writeHints: [
     "Write stored useBy dates, never expiry status, tones or sorted ranks. Dates and today's clock determine those.",
     'If asked to hide storage locations, set detail to "brief" and keep place in the data. Always write mark null unless the user explicitly asks to highlight a specific item; quantities and expiry dates are not a request to highlight.',
+    "Write openedOn as a date only if supplied. Set lowAt to a numeric stock threshold only if supplied; qty must start with a plain number in the same units. Never write computed low-stock status.",
   ],
   region: "body",
   weight: 3,
@@ -51,7 +28,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["place"] } },
   items: {
     key: "items",
-    parts: ["root", "name", "qty", "place", "use_by", "used"],
+    parts: ["root", "name", "qty", "place", "use_by", "used", "low", "opened_on"],
     variants: { mark: ["none", "highlight"] },
   },
   parts: ["root"],
@@ -72,6 +49,8 @@ export const props = z
           qty: text(12),
           place: z.enum(["cupboard", "fridge", "freezer"]),
           useBy: isoDate.optional(),
+          lowAt: z.number().min(0).optional(),
+          openedOn: isoDate.optional(),
           goto: screenId,
         }),
       )
@@ -110,6 +89,7 @@ export const examples = [
   { items: [{ ...berries, mark: "highlight" }, oats] },
   { items: [berries, oats] },
   { detail: "brief", items: [berries, oats] },
+  { items: [{ ...oats, lowAt: 1, openedOn: "2026-11-17", useBy: "2027-02-01" }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Pantry");
 export const probes = [
@@ -129,9 +109,11 @@ export const probes = [
     ),
     variant: { axis: "detail", value: "brief" },
   },
+  write("Keep 1 bag of oats in the cupboard, opening food_details. The low-stock threshold is 2 bags."),
+  write("Keep 1 bag of oats in the cupboard, opening food_details. I opened it on 2026-11-17."),
   read("Mark the ricotta as used up", { address: "p1/r1/used", action: "press" }),
 ] satisfies Probe[];
-function PantryDate({ useBy }: { useBy?: string | undefined }) {
+function PantryDate({ useBy, openedOn }: { useBy?: string | undefined; openedOn?: string | undefined }) {
   const { lang } = useWords(kitchenWordsFor);
   const expiry = pantryDates(useBy, undefined, lang);
   return (
@@ -143,6 +125,11 @@ function PantryDate({ useBy }: { useBy?: string | undefined }) {
         <KitText part={null} role="caption" tone={expiry.tone} tabular>
           {expiry.date}
         </KitText>
+        {openedOn && (
+          <KitText part="opened_on" role="caption" tone="muted">
+            {pantryOpened(openedOn, lang)}
+          </KitText>
+        )}
       </KitContent>
     </KitRow>
   );
@@ -152,6 +139,9 @@ type PantryProps = Props<typeof props, typeof meta>;
 // prettier-ignore
 function PantryFood({ item, detail }: { item: PantryProps["items"][number]; detail: PantryProps["detail"] }) {
   const { words } = useWords(kitchenWordsFor);
+  const low = pantryIsLow(item.qty, item.lowAt);
+  const place = detail === "full" && <KitText part="place" role="caption" tone="muted">
+    {words.pantryPlace(words.pantryLabels[item.place])}</KitText>;
   return (
     <KitRow label={item.name} inline lineRole="label" density="compact"
       trailing={<KitIcon name="chevron_right" scale="sm" decorative />}>
@@ -159,11 +149,8 @@ function PantryFood({ item, detail }: { item: PantryProps["items"][number]; deta
         {item.name}
       </KitText>
       <KitText part="qty" role="number" numberScale="compact" tabular children={item.qty} />
-      {detail === "full" && (
-        <KitText part="place" role="caption" tone="muted">
-          {words.pantryPlace(words.pantryLabels[item.place])}
-        </KitText>
-      )}
+      {low && <KitText part="low" role="caption" tone="warn">{words.pantryLabels.low}</KitText>}
+      {low && place ? <KitContent group="response">{place}</KitContent> : place}
     </KitRow>
   );
 }
@@ -178,12 +165,12 @@ export function Pantry({ items, detail: choice }: PantryProps) {
     <KitRow key={item.id} item={item.id} part={null} label={item.name} inline>
       <KitContent>
         <KitRow part="root" label={item.name} goto={item.goto} inline>
-          {items.length === 1 ? (
+          {items.length === 1 && !item.openedOn && !pantryIsLow(item.qty, item.lowAt) ? (
             <KitGrid columns={2}><PantryFood {...{ item, detail }} /><PantryDate useBy={item.useBy} /></KitGrid>
           ) : (
             <KitContent>
               <PantryFood {...{ item, detail }} />
-              <KitContent group="response"><PantryDate useBy={item.useBy} /></KitContent>
+              <KitContent group="response"><PantryDate useBy={item.useBy} openedOn={item.openedOn} /></KitContent>
             </KitContent>
           )}
         </KitRow>

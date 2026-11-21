@@ -6,6 +6,26 @@ const places = { cupboard: "Cupboard", fridge: "Fridge", freezer: "Freezer" };
 export const en = {
   kcalUnit: "kcal",
   kcalLine: (value: string, unit: string) => `${value} ${unit}`,
+  nutritionFacts: {
+    calories: "Calories",
+    protein: "Protein",
+    carbs: "Carbs",
+    fat: "Fat",
+    macros: "Macro grams and share by weight",
+    nutrients: "Other nutrients",
+    allergens: "Contains",
+    servings: "Servings",
+    servingBasis: (label: string) => `Servings · ${label}`,
+    less: "Decrease servings",
+    more: "Increase servings",
+    log: "Log portion",
+    success: "Added to food diary",
+    amount: (value: string, unit: string) => `${value} ${unit}`,
+    unitSuffix: (unit: string) => ` ${unit}`,
+    line: (label: string, value: string) => `${label}: ${value}`,
+    share: (value: string, percent: string) => `${value} (${percent})`,
+    list: (labels: readonly string[]) => labels.join(", "),
+  },
   cookStepUses: (uses: readonly string[]) => uses.join(" · "),
   cookStepsLabels: {
     timer: "Cooking timer",
@@ -40,6 +60,7 @@ export const en = {
     shop: "Add missing to groceries",
   },
   ingredientServings: (count: string, label: string) => `${count} ${label}`,
+  ingredientSwap: (swap: string) => `Swap: ${swap}`,
   ingredientUnits: {
     g: "g",
     kg: "kg",
@@ -61,6 +82,7 @@ export const en = {
   mealPlanLabels: { ...meals, add: "Add" },
   mealPlanEmpty: "No meals yet.",
   mealPlanWeek: (date: string) => `Week of ${date}`,
+  mealPlanAdd: (meal: string) => `Add ${meal.toLowerCase()}`,
   pantryLabels: {
     ...places,
     used: "Used up",
@@ -69,7 +91,9 @@ export const en = {
     dated: "Use by",
     undated: "Use-by date",
     missing: "Not set",
+    low: "Low stock",
   },
+  pantryOpened: (date: string) => `Opened ${date}`,
   pantryPlace: (place: string) => place.toLowerCase(),
 };
 
