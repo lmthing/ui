@@ -1,5 +1,5 @@
-import { basename, dirname, relative } from "node:path";
-import { limits, folderExemptions, type SourceFile, type Violation } from "./config";
+import { basename, dirname, relative, sep } from "node:path";
+import { limits, folderExemptions, packFolderExemption, type SourceFile, type Violation } from "./config";
 
 export function physicalLines(source: string) {
   if (!source) return 0;
@@ -18,7 +18,8 @@ export function checkLimits(root: string, sources: SourceFile[]): Violation[] {
     folders.set(folder, (folders.get(folder) ?? 0) + 1);
   }
   for (const [file, count] of folders) {
-    if (folderExemptions.some((folder) => relative(root, file) === folder)) continue;
+    const path = relative(root, file).split(sep).join("/");
+    if (folderExemptions.some((folder) => path === folder) || packFolderExemption.test(path)) continue;
     if (count > limits.folder)
       violations.push({
         rule: "folder-files",

@@ -8,6 +8,16 @@ export const en = {
     placeLine: (place: string, time: string, offset: string, daylight: string) =>
       `${place}: ${time}, ${offset}, ${daylight}`,
   },
+  converter: {
+    home: "Home amount",
+    local: "Local amount",
+    swap: "Swap currencies",
+    amountHint: "Enter amount",
+    currencyLabel: (currency: string, side: string) => `${currency} · ${side}`,
+    amount: (label: string, value: string) => `${label}: ${value}`,
+    rateDate: (date: string) => `Rate as of ${date}`,
+    noRate: "Exchange rate unavailable",
+  },
   itinerary: {
     untimed: "—",
     hours: (hours: string, minutes?: string) => `${hours} h${minutes ? ` ${minutes} min` : ""}`,
@@ -21,6 +31,28 @@ export const en = {
     quantity: (count: string) => `×${count}`,
     itemLabel: (name: string, quantity: string) => `${name}, ${quantity}`,
   },
+  reservationKinds: {
+    flight: "Flight",
+    train: "Train",
+    bus: "Bus",
+    ferry: "Ferry",
+    stay: "Stay",
+    car: "Car rental",
+    ticket: "Ticket",
+  },
+  reservationStops: (kind: string) => {
+    if (kind === "stay") return { start: "Check-in", end: "Check-out" };
+    if (kind === "car") return { start: "Pickup", end: "Return" };
+    if (kind === "ticket") return { start: "Starts", end: "Ends" };
+    return { start: "Departure", end: "Arrival" };
+  },
+  reservationStamp: (date: string, time: string) => `${date} ${time}`,
+  reservationSeat: (kind: string, seat: string) => (kind === "stay" ? seat : `Seat ${seat}`),
+  reservationRef: "Reference",
+  reservationReadRef: (quotedRef: string) => `ref ${quotedRef}`,
+  copyReservationRef: "Copy reference",
+  openReservation: (title: string) => `View reservation: ${title}`,
+  reservationCode: "Scannable reservation code",
   travelDocs: {
     kinds: {
       passport: "Passport",
@@ -38,6 +70,27 @@ export const en = {
     onTripEnd: "Expires on trip end date",
     soonAfterTrip: "Expires soon after trip",
     open: (kind: string, owner: string) => `${kind}, ${owner}`,
+  },
+  weather: {
+    today: "Today",
+    forecast: "Forecast",
+    sampleForecast: "Sample forecast",
+    todayHeading: (today: string, forecast: string) => `${today} · ${forecast}`,
+    typical: (month: string) => `Typical weather in ${month}`,
+    sampleTypical: (month: string) => `Sample · ${month} averages`,
+    conditions: { clear: "Clear", cloudy: "Cloudy", rain: "Rain" },
+    iconPlaceholder: "●",
+    degrees: (value: string) => `${value}°`,
+    range: (high: string, low: string) => `${high} / ${low}`,
+    celsiusRange: (range: string) => `${range}C`,
+    highsAndLows: (high: string, low: string) => `High ${high}, low ${low} Celsius`,
+    rain: (chance: string) => `${chance} rain`,
+    dayLabel: (day: string, condition: string) => `${day}, ${condition}`,
+    reading: (lines: readonly string[]) => lines.join(" · "),
+    unavailable: "Weather unavailable",
+    offline: "You’re offline",
+    tryLater: "Check again later.",
+    reconnect: "Connect to see the forecast.",
   },
 };
 

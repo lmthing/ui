@@ -4,7 +4,7 @@ type Line = Record<string, unknown>;
 type VariantPatch = { [A in Axis]?: AxisValue<A> };
 
 export type VariantMove = {
-  from: "style" | "tone";
+  from: "style" | "tone" | "kind";
   values: Readonly<Partial<Record<string, VariantPatch>>>;
   retainStyle?: true;
   prepare?: (props: Line) => Line;
@@ -68,8 +68,45 @@ export function migrateSheetItems(props: Line): Line {
   return changed ? { ...props, items } : props;
 }
 
+/** Old progress bars called their over-target tone `over`. Keep explicit row axes intact. */
+export function migrateProgressItems(props: Line): Line {
+  if (!Array.isArray(props.bars)) return props;
+  let changed = false;
+  const bars = props.bars.map((row: unknown) => {
+    if (!row || typeof row !== "object" || !("over" in row)) return row;
+    const { over, ...rest } = row;
+    if (over !== "warn" && over !== "good" && over !== "bad") return row;
+    changed = true;
+    return { tone: over, ...rest };
+  });
+  return changed ? { ...props, bars } : props;
+}
+
 /** Each table applies once the corresponding component adopts its axes. */
 export const variantMoves: Readonly<Partial<Record<string, readonly VariantMove[]>>> = {
+  Button: [
+    {
+      from: "kind",
+      values: {
+        primary: {},
+        secondary: { surface: "tinted" },
+        quiet: { surface: "plain" },
+      },
+    },
+  ],
+  Choice: [{ from: "style", values: { cards: { surface: "card" }, list: { surface: "plain" } } }],
+  ScoreSheet: [{ from: "style", values: { grid: { overflow: "all" }, round: { overflow: "page" } } }],
+  TeamPicker: [{ from: "style", values: { columns: { arrange: "strip" }, groups: { arrange: "rows" } } }],
+  Trivia: [{ from: "style", values: { card: { emphasis: "normal" }, large: { emphasis: "hero" } } }],
+  Amount: [
+    { from: "style", values: { large: { emphasis: "hero" } } },
+    { from: "style", values: { total: { surface: "outlined" } }, retainStyle: true },
+  ],
+  Ring: [{ from: "style", values: { md: {}, lg: { emphasis: "hero" } } }],
+  Player: [{ from: "style", values: { compact: { density: "compact", detail: "brief" } } }],
+  Progress: [
+    { from: "style", values: { stack: { density: "comfortable" }, compact: { density: "compact" } } },
+  ],
   Hero: [{ from: "style", values: { statement: {}, photo: { media: "cover" } } }],
   Header: [{ from: "style", values: { large: {}, inline: { emphasis: "quiet" } } }],
   Note: [

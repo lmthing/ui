@@ -23,17 +23,18 @@ export const schedule = {
       ],
     },
     class: {
+      writeHints: ['The capacity bars use Progress with density "compact"; leave figures null.'],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["KeyValue"], required: true },
-        { allow: ["Progress"], required: true, variant: "compact" },
+        { allow: ["Progress"], required: true },
         { allow: ["People"], required: true, variant: "stack" },
         { allow: ["Waitlist"], required: true },
       ],
       defaults: [
         { id: "h1", c: "Header", style: "back" },
         { id: "k1", c: "KeyValue" },
-        { id: "p1", c: "Progress", style: "compact" },
+        { id: "p1", c: "Progress", density: "compact" },
         { id: "p2", c: "People", style: "stack" },
         { id: "w1", c: "Waitlist" },
       ],

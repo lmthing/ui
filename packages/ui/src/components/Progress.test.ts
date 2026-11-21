@@ -20,8 +20,8 @@ describe("Progress schema", () => {
   );
   it("applies defaults, trims text and derives root presence", () => {
     expect(props.parse({ bars: [{ label: " Protein ", value: 1, of: 2 }] })).toEqual({
-      style: "stack",
-      bars: [{ label: "Protein", value: 1, of: 2, over: "warn", root: undefined }],
+      figures: "exact",
+      bars: [{ label: "Protein", value: 1, of: 2, tone: "warn", root: undefined }],
     });
     expect((props.parse({ bars: [{ ...bar, goto: "macros" }] }).bars[0] as { root?: string }).root).toBe(
       "macros",
@@ -39,7 +39,10 @@ describe("Progress schema", () => {
     { bars: [{ ...bar, value: "3" }] },
     { bars: [{ ...bar, value: NaN }] },
     { bars: [{ ...bar, unit: "a".repeat(9) }] },
-    { bars: [{ ...bar, over: "red" }] },
+    { bars: [{ ...bar, over: "warn" }] },
+    { bars: [{ ...bar, tone: "neutral" }] },
+    { bars: [bar], density: "thin" },
+    { bars: [bar], figures: "rounded" },
     { bars: [{ ...bar, goto: "Bad ID" }] },
     { bars: [{ ...bar, root: "x" }] },
     { bars: [{ ...bar, color: "red" }] },
@@ -54,7 +57,7 @@ describe("Progress schema", () => {
   it("adds item ids only to view props", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["bars"][number]["id"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"stack" | "compact">();
+    expectTypeOf<ViewProps["density"]>().toEqualTypeOf<"comfortable" | "compact" | undefined>();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
@@ -80,7 +83,11 @@ describe("Progress fallback and metadata", () => {
   });
   it("declares item parts, states and press only on linked bars", () => {
     expect(meta).toMatchObject({ id: "Progress", group: "data", region: "body", weight: 2, tier: "phone" });
-    expect(meta.items).toEqual({ key: "bars", parts: ["root", "label", "amount"] });
+    expect(meta.items).toMatchObject({
+      key: "bars",
+      parts: ["root", "label", "amount"],
+      variants: { tone: ["warn", "good", "bad"] },
+    });
     expect(meta.states).toEqual(["filled", "empty", "loading"]);
     const linked = props.parse({ bars: [{ ...bar, goto: "macros" }, bar] });
     expect(affordancesOf(meta, stampItemIds(meta, linked), "p1")).toEqual([
@@ -129,8 +136,17 @@ describe("Progress fallback and metadata", () => {
 });
 
 describe("Progress rendering", () => {
-  it.each(["stack", "compact"] as const)("draws one addressable item per bar in %s", (style) => {
-    const input = { style, bars: [bar, { ...bar, label: "Carbs", value: 300, of: 200, over: "bad" }] };
+  it("uses the same abbreviated figures in the view and reader without changing stored targets", () => {
+    const raw = { figures: "short", bars: [{ ...bar, value: 4200, of: 6000, goto: "totals" }] };
+    const html = renderInstance("Progress", raw, "filled", theme);
+    const line = readComponent(components.Progress, raw, "p1").join(" ");
+    expect(html).toContain("4.2K of 6K g");
+    expect(line).toContain("4.2K of 6K g");
+    expect(html).toContain('data-testid="home/c1/r1/amount"');
+    expect(props.parse(raw).bars[0]).toMatchObject({ value: 4200, of: 6000 });
+  });
+  it.each(meta.variants.density)("draws one addressable item per bar in %s", (density) => {
+    const input = { density, bars: [bar, { ...bar, label: "Carbs", value: 300, of: 200, tone: "bad" }] };
     const html = renderInstance("Progress", input, "filled", theme);
     expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
     for (const index of [1, 2])

@@ -1,6 +1,14 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { type Definition, type ScreenLike, readScreen, text, variantProps } from "@lmthing/ui/catalog";
+import {
+  type Definition,
+  type ScreenLike,
+  privateMarkKey,
+  readScreen,
+  text,
+  variantProps,
+} from "@lmthing/ui/catalog";
+import { selectionFixture } from "../../../catalog/probes/fixtures";
 import { readControls } from "./read-controls";
 
 vi.mock("../../../catalog/migrations", async (load) => {
@@ -75,6 +83,39 @@ it("hides only the disabled row's action and preserves the amount and quoted con
   expect(read).not.toContain('[first/r2/amount type = "3."]');
 });
 
+it("does not advertise disabled public setters", () => {
+  const screen = { id: "home", components: [{ id: "entry", c: "Fixture", rows: [] }] };
+  const defs = {
+    Fixture: { ...def, meta: { ...def.meta, actions: { parts: { amount: ["set"] } } } },
+  } satisfies Record<string, Definition>;
+  const address = "entry/amount";
+  expect(readControls(screen, defs, {})).toContain(`[${address} set]`);
+  expect(readControls(screen, defs, {}, undefined, new Map([[address, Symbol()]]))).not.toContain(
+    `[${address} set]`,
+  );
+});
+
+it("does not let private captures affect bound reads, including the keypad path", () => {
+  const { screen, defs } = selectionFixture();
+  const values = {
+    "home/table/$dismissed": "private-reference",
+    [privateMarkKey("home", "table/$dismissed")]: true,
+    "home/table/r1/pick": "private-check",
+    [privateMarkKey("home", "table/r1/pick")]: true,
+  };
+  const withKeypad = {
+    ...screen,
+    components: [...screen.components, { id: "entry", c: "Fixture", rows: [] }],
+  };
+  for (const read of [
+    readScreen(screen, defs, values),
+    readControls(withKeypad, { ...defs, Fixture: def }, values),
+  ]) {
+    expect(read).toContain("selected none [bulk/all press]");
+    expect(read).not.toMatch(/private-reference|private-check|\[table\/r1\/pick check/);
+  }
+});
+
 it("migrates saved variant lines when a keypad draft is present", () => {
   const screen: ScreenLike = {
     id: "home",
@@ -96,16 +137,17 @@ it("migrates saved variant lines when a keypad draft is present", () => {
   expect(read).toContain('[entry/r1/amount type = "3."]');
 });
 
-it("keeps the device records in the read callback when projecting keypad drafts", () => {
+it("keeps the device records and app currency when projecting keypad drafts", () => {
   const readings = [{ value: 9 }];
   const withData: Definition = {
     ...def,
     meta: {
       ...def.meta,
       deviceData: ["readings"],
-      read: (input, state, lang, data) => {
+      read: (input, state, lang, data, currency) => {
         expect(data?.readings).toBe(readings);
         expect(Object.keys(data ?? {})).toEqual(["readings"]);
+        expect(currency).toBe("EUR");
         return def.meta.read!(input, state, lang);
       },
     },
@@ -121,6 +163,7 @@ it("keeps the device records in the read callback when projecting keypad drafts"
       readings,
       other: [],
     },
+    "EUR",
   );
   expect(read).toContain("entry Fixture 7.");
 });

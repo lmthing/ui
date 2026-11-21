@@ -1,4 +1,30 @@
 export const en = {
+  achievements: {
+    empty: "No badges yet",
+    locked: "Locked",
+  },
+  assignments: {
+    handedIn: "Handed in?",
+    graded: "Work graded",
+    gradeSeparator: " · ",
+    dueToday: (date: string) => `Today · ${date}`,
+    dueIn: (days: string, plural: Intl.LDMLPluralRule, date: string) =>
+      `In ${days}\u00a0${plural === "one" ? "day" : "days"} · ${date}`,
+    dueOn: (date: string) => `Due ${date}`,
+    deadlinePassed: (date: string) => `Deadline passed · ${date}`,
+    handInLabel: (title: string) => `${title}: handed in`,
+    reading: (item: string, due: string, status: string) => `${item}: ${due} · ${status}`,
+  },
+  flashcard: {
+    left: (count: string, category: Intl.LDMLPluralRule) =>
+      `${count} ${category === "one" ? "card" : "cards"} left`,
+    reveal: "Reveal answer",
+    again: "Again",
+    hard: "Hard",
+    good: "Good",
+    easy: "Easy",
+    complete: "Done for today",
+  },
   lesson: { example: "Worked example", next: "Continue" },
   path: {
     status: { done: "Completed", current: "Start unit", locked: "Locked" },
@@ -26,6 +52,31 @@ export const en = {
     keyed: (label: string, key: string) => `${key} · ${label}`,
     paired: (label: string, other: string) => `${label} (${other})`,
     pair: (left: string, right: string) => `${left} → ${right}`,
+  },
+  result: {
+    score: "Practice score",
+    perfect: "Perfect score",
+    total: (of: string) => ` of ${of}`,
+    right: "Right",
+    wrong: "Wrong",
+    seconds: "Time",
+    points: "Points",
+    corrections: "Corrections",
+    review: "Review",
+    again: "Try again",
+  },
+  timetable: {
+    picker: "Show first",
+    days: {
+      mon: { short: "mon", name: "Monday" },
+      tue: { short: "tue", name: "Tuesday" },
+      wed: { short: "wed", name: "Wednesday" },
+      thu: { short: "thu", name: "Thursday" },
+      fri: { short: "fri", name: "Friday" },
+      sat: { short: "sat", name: "Saturday" },
+      sun: { short: "sun", name: "Sunday" },
+    },
+    reading: (parts: readonly (string | undefined)[]) => parts.filter(Boolean).join(" · "),
   },
 };
 

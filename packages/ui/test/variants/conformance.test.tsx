@@ -3,8 +3,8 @@ import { components, readComponent, stampItemIds, type Definition } from "@lmthi
 import { renderers } from "@lmthing/ui/kit";
 import { selectedIds } from "../../scripts/build";
 import { variantChoices, variantLabel, variantPairs, variantSheet } from "../../scripts/variants";
-import { renderInstance } from "../render";
-import { renderedAddresses, variantPartIssues } from "./variant-parts";
+import { renderExample, renderInstance } from "../render";
+import { derivedItemIds, derivedItemIssues, renderedAddresses, variantPartIssues } from "./variant-parts";
 import { overflowAllIssues, peekHiddenItems, variantPeekIssues } from "./variant-peek";
 import { rowAddressIssues } from "./row-addresses";
 
@@ -24,14 +24,19 @@ function checkPair(
   const key = def.meta.items?.key;
   const rowsOf = (value: Props) => (key ? ((value[key] ?? []) as (Props & { id: string })[]) : []);
   const rows = rowsOf(baseProps);
-  const items = rows.map(({ id }) => id);
-  expect(rowsOf(props).map(({ id }) => id)).toEqual(items);
-  const render = (value: unknown) =>
-    renderInstance(id, value, "filled", variantSheet, { resolvePhoto: (ref) => ref });
-  const beforeHTML = render(baseline);
-  const afterHTML = render(input);
+  const authoredIds = rows.map(({ id }) => id);
+  expect(rowsOf(props).map(({ id }) => id)).toEqual(authoredIds);
+  const options = { resolvePhoto: (ref: string) => ref };
+  const { html: beforeHTML, deviceData } = renderExample(id, baseline, "filled", variantSheet, options);
+  // Vary the axis, not the host's data snapshot.
+  const afterHTML = renderInstance(id, input, "filled", variantSheet, {
+    ...options,
+    deviceData,
+  });
   const before = renderedAddresses(beforeHTML);
   const after = renderedAddresses(afterHTML);
+  const derived = !!(deviceData && key && !Array.isArray(baseProps[key]));
+  const items = derived ? derivedItemIds(before) : authoredIds;
   const isPeek = choice.axis === "overflow" && choice.value === "peek";
   const { hidden, issues } = isPeek
     ? peekHiddenItems(items, after, baseline.overflow === "all" ? before : undefined)
@@ -44,6 +49,9 @@ function checkPair(
     inheritsTrail && itemIndex !== undefined ? (rows[itemIndex]?.trail ?? baseProps.trail) : undefined;
   expect([
     ...issues,
+    ...(derived
+      ? [...derivedItemIssues(def.meta, baseProps, before), ...derivedItemIssues(def.meta, props, after)]
+      : []),
     ...rowAddressIssues(rows, beforeHTML, afterHTML),
     ...variantPartIssues(def.meta, choice, before, after, {
       ...(item ? { item } : {}),
@@ -57,14 +65,15 @@ function checkPair(
           input,
           { input: baseline, props: baseProps },
           hidden,
-          readComponent(def, input, "c1"),
+          readComponent(def, input, "c1", "filled", {}, undefined, deviceData),
         )
       : []),
   ]).toEqual([]);
   return hidden.length;
 }
 
-for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+const ids = selectedIds(Object.keys(renderers) as Id[], import.meta.url);
+for (const id of ids) {
   const def: Definition = components[id];
   for (const choice of variantChoices(def.meta, true)) {
     it(`${id} ${variantLabel(choice)} keeps the variant address contract`, () => {
@@ -86,7 +95,7 @@ for (const id of selectedIds(Object.keys(renderers) as Id[])) {
 }
 
 it("allows ready components without variant declarations", () => {
-  for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+  for (const id of ids) {
     const { meta } = components[id] as Definition;
     if (!meta.variants && !meta.items?.variants) expect(variantChoices(meta, true)).toEqual([]);
   }
