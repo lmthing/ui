@@ -1,7 +1,20 @@
 import type { Definition } from "../../probes";
-import { validateActionValue, type ActStep, type DeviceData, type ScreenLike, type Values } from "../index";
+import {
+  validateActionValue,
+  type ActStep,
+  type Affordance,
+  type DeviceData,
+  type ScreenLike,
+  type Values,
+} from "../index";
+import { moveKey } from "./move";
 import { affordancesOfScreen } from "./record-planning";
 import { selectStep } from "./select-step";
+
+export function actionValueAddress(address: string, found: Affordance) {
+  if (found.nestedStep) return `${address.split("/")[0]}/${found.nestedStep.key}`;
+  return found.move ? moveKey(address) : address;
+}
 
 export function findAction(
   screen: ScreenLike,
@@ -11,9 +24,12 @@ export function findAction(
   at: number,
   data?: DeviceData,
   now?: number,
+  hostCapture = false,
 ) {
-  const offered = affordancesOfScreen(screen, defs, next, data, now);
-  const address = original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
+  const address = hostCapture
+    ? original.address
+    : original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
+  const offered = affordancesOfScreen(screen, defs, next, data, now, hostCapture ? original : undefined);
   const selected = selectStep(screen, defs, original, address, next, data, now);
   const found = offered.find((a) => a.address === address && a.action === selected.step.action);
   if (!found) {

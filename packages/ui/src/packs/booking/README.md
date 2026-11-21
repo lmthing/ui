@@ -6,7 +6,7 @@ Built in step U5 (drafts in U3), wave 1 of the catalog plan. Read `docs/catalog/
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
-- `components/`: `ServiceMenu.tsx` `Slots.tsx` `Availability.tsx` `StaffPicker.tsx` `Appointment.tsx` `Waitlist.tsx`
+- `components/`: `ServiceMenu.tsx` `Slots.tsx` `Availability.tsx` `StaffPicker.tsx` `Appointment.tsx` `Waitlist.tsx` `ClassRoster.tsx` `SessionPack.tsx`
 - `archetypes/`: `book.ts` `appointments.ts` `schedule.ts` `hours.ts`
 
 Rules:

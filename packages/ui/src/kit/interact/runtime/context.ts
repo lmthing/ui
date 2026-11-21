@@ -18,11 +18,12 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import { createInteractionStore, projectScreen, valueKey } from "../index";
-import type { InteractionStore, MediaAdapter } from "../index";
+import { clipboardRuntime, createInteractionStore, projectScreen, valueKey } from "../index";
+import type { ClipboardText, ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
+import { createPrivateMarks } from "./private-mark";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -42,6 +43,8 @@ export type ControllerOptions = {
   random?: RandomSource | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
+  writeClipboard?: ClipboardWriter | undefined;
+  resolveClipboardText?: ClipboardText | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
@@ -122,7 +125,15 @@ function projectLive(options: ControllerOptions, screen: ScreenLike, standalone:
       : projected;
   };
 }
-export function createControllerContext(options: ControllerOptions, standalone = false) {
+function createClipboard(
+  { writeClipboard, resolveClipboardText }: ControllerOptions,
+  store: InteractionStore,
+  status: { disposed: boolean },
+) {
+  return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
+}
+type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
+export function createControllerContext(options: RuntimeOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();
@@ -148,6 +159,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     defs,
     now,
     store,
+    clipboard: createClipboard(options, store, status),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),
@@ -166,6 +178,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     },
     mounted: new Map<string, symbol>(),
     disabledParts,
+    privateMarks: createPrivateMarks(),
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),

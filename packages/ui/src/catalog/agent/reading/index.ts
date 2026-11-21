@@ -5,7 +5,7 @@ import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
-export { readAffordances } from "./read-affordances";
+export { readAffordances, readOffers } from "./read-affordances";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {
@@ -99,7 +99,12 @@ export function readItems(
       : schema.properties?.[key]?.items;
   const group = meta.items?.readGroupBy;
   const groupBy = group && isGroupText(itemSchema?.properties?.[group]) ? group : undefined;
-  const exactIds = host || group || meta.items?.visibleWhen || (meta.deviceData?.length && meta.live?.derive);
+  const exactIds =
+    host ||
+    group ||
+    meta.items?.move?.derived ||
+    meta.items?.visibleWhen ||
+    (meta.deviceData?.length && meta.live?.derive);
   const ids = exactIds && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;

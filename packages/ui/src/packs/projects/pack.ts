@@ -12,7 +12,7 @@ export const pack = {
     },
     {
       kind: "pack",
-      idea: "Plan one exhibition installation, with overlapping task dates and dependencies, deadlines for accepted deliverables, and a record of time I spend on each task.",
+      idea: "Help me deliver an exhibition installation for opening night. Some jobs overlap and others must wait for earlier jobs. I need to sign off each deliverable by its deadline and log my own time against each job until I hand over the finished installation.",
       expect: ["projects"],
     },
     {
