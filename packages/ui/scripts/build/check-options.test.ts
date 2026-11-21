@@ -1,5 +1,12 @@
 import { expect, it, vi } from "vitest";
-import { checkOptions, nodeTestOptions } from "./check-options";
+import { checkOptions, conformanceThemeSet, nodeTestOptions } from "./check-options";
+
+it("runs all conformance themes only when explicitly requested", () => {
+  expect(conformanceThemeSet({})).toBe("calm-light");
+  expect(conformanceThemeSet({ UI_TEST_THEMES: "calm-light" })).toBe("calm-light");
+  expect(conformanceThemeSet({ UI_TEST_THEMES: "all" })).toBe("all");
+  expect(conformanceThemeSet({ UI_TEST_THEMES: "other" })).toBe("calm-light");
+});
 
 it("separates real changed/browser options from file filters", () => {
   expect(checkOptions(["--changed"])).toEqual({ changed: "main", browser: false, filters: [] });
