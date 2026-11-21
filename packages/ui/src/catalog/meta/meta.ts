@@ -117,7 +117,7 @@ export type Meta = {
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
-    move?: { column: string; columns: string } | { field: string; values: readonly string[] };
+    move?: LiveMeta.ItemMove;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
