@@ -1,6 +1,8 @@
 import { z } from "zod";
 import {
   itemsOf,
+  clip,
+  pickerKey,
   placeholderTitle,
   probesFor,
   searchLine,
@@ -11,7 +13,11 @@ import {
   type FallbackInput,
   type Meta,
   type Probe,
+  type Props,
 } from "../../../catalog";
+import * as kit from "../../../kit";
+import { filterCount, filterReading } from "../copy";
+import { dataWordsFor } from "../lang";
 
 // Core first: Chips/filter narrows by a few labels, not by several fields with separately opened pickers.
 export const meta = {
@@ -22,21 +28,29 @@ export const meta = {
   pick: "Search many records and filter by named fields, each with its own option picker; show the sort order and clear all filters. Not a few standalone filter chips (Chips), switching views (Segmented) or search alone (Search).",
   writeHints: [
     "Write 1 to 4 separate filters, each with 2 to 8 distinct options. If a filter has a selected value, it must exactly match one of its options. sort is the current order's label, not an options list.",
+    'Use detail "brief" only if asked to hide the active filter count; keep the filter values and sort label. Write null for density and surface unless their appearance is explicitly requested, including when detail is "brief". Leave detail null when the count is not mentioned.',
   ],
   region: "body",
   weight: 2,
   tier: "phone",
   realPath: "A query built on the device.",
-  variants: { density: ["comfortable", "compact"] },
-  parts: ["root", "field", "sort", "count", "clear"],
-  items: { key: "filters", parts: ["root", "label", "value"] },
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["plain", "outlined"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["count"] } },
+  parts: ["root", "field", "filters", "sort", "count", "clear", "clear_label"],
+  items: {
+    key: "filters",
+    parts: ["root"],
+    pickers: { root: { prop: "value", choices: { prop: "options" } } },
+  },
   states: ["filled"],
-  actions: { parts: { field: ["type"], clear: ["press"] }, items: { root: ["select"] } },
+  actions: { parts: { field: ["type"], clear: ["press"] }, items: { root: ["press", "select"] } },
   live: { text: { field: { prop: "query", max: 40 } } },
-  read: (input, _state): string[] =>
-    (input as z.output<typeof props>).filters.map(
-      ({ label, options }, i) => `r${i + 1} ${label}: ${options.join(" · ")}`,
-    ),
+  clear: { clear: { text: ["field"], pickers: ["root"] } },
+  read: (input, state, lang): string[] => (state === "filled" ? filterReading(input as ViewProps, lang) : []),
 } as const satisfies Meta;
 
 const filter = z
@@ -64,13 +78,16 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const thing = thingOf(cast);
   const titles = itemsOf(cast, 8, thing?.type).flatMap((item) => titleOf(item, 16, thing) ?? []);
   const options = [...new Set(titles)];
-  for (let i = 0; options.length < 2; i++) {
-    const title = placeholderTitle(i, lang);
-    if (!options.includes(title)) options.push(title);
+  for (const locale of [lang, undefined]) {
+    for (const index of [0, 1]) {
+      if (options.length >= 2) break;
+      const title = clip(placeholderTitle(index, locale), 16);
+      if (title && !options.includes(title)) options.push(title);
+    }
   }
   return {
-    hint: searchLine(thing?.type, lang).slice(0, 40),
-    filters: [{ label: placeholderTitle(0, lang), options }],
+    hint: clip(searchLine(thing?.type, lang), 40) ?? searchLine(undefined, lang),
+    filters: [{ label: clip(dataWordsFor(lang).filterLabel, 14) ?? dataWordsFor().filterLabel, options }],
   };
 }
 
@@ -105,5 +122,62 @@ export const probes = [
   write(
     "Use Find a plant as the search hint, a Room dropdown with Kitchen and Study as options and Study selected, a Light dropdown with Bright and Indirect, and sort by Recently watered.",
   ),
-  read("Change the Room filter to Kitchen.", { address: "s1/r1", action: "select" }),
+  {
+    ...write(
+      "Find a walk, with a Route filter offering Canal and Park and Canal selected. Show Newest first as the sort, keep the clear button, but hide the number of active filters.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Select Kitchen as the Room filter value in one action.", { address: "s1/r1", action: "select" }),
 ] satisfies Probe[];
+
+type ViewProps = Props<typeof props, typeof meta> & { query?: string };
+
+function FilterPickers({ filters }: Pick<ViewProps, "filters">) {
+  const { screen, component } = kit.usePartContext();
+  const open = kit.useControlValue<string | undefined>(`${screen}/${component}/${pickerKey}`, undefined);
+  const { words } = kit.useWords(dataWordsFor);
+  return (
+    <kit.KitScroll part="filters" label={words.filterList} bounded={open !== undefined}>
+      {filters.map(({ id, label, options, value }) => (
+        <kit.KitOption key={id} item={id} title={label} choices={options} selected={value} />
+      ))}
+    </kit.KitScroll>
+  );
+}
+
+export function FilterBar(input: ViewProps) {
+  const { density: requestedDensity, detail, surface } = input;
+  const density = kit.useVariant("density", meta.variants.density, requestedDensity);
+  const { hint, filters, query, sort } = kit.useLiveControls(meta, input) as ViewProps;
+  const { lang, words } = kit.useWords(dataWordsFor);
+  return (
+    <kit.KitCard padded density={density} surface={surface}>
+      <kit.KitContent>
+        <kit.KitInput kind="search" part="field" hint={hint} value={query} />
+        <kit.KitContent group="response">
+          <FilterPickers filters={filters} />
+        </kit.KitContent>
+      </kit.KitContent>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitContent inset="md" density={density}>
+            {detail === "full" && (
+              <kit.KitText part="count" role="label" tone="muted" density={density}>
+                {filterCount(filters, lang)}
+              </kit.KitText>
+            )}
+            {sort && (
+              <kit.KitText part="sort" role="caption" tone="muted">
+                {words.filterSort(sort)}
+              </kit.KitText>
+            )}
+          </kit.KitContent>
+        </kit.KitContent>
+        <kit.KitContent inset="md" density={density}>
+          <kit.KitAction part="clear" action="press" kind="quiet" label={words.filterClear} />
+        </kit.KitContent>
+      </kit.KitGrid>
+    </kit.KitCard>
+  );
+}

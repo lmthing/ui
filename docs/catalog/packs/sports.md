@@ -23,7 +23,7 @@ school sports day, pub quiz league, darts or pool league, office tournament, pad
 
 The draft `ScoreEntry` is a style of `Scoreboard`, and `PlayerCard` is `Profile` with `Stats`.
 
-## Components (7)
+## Components (10)
 
 ### `Fixtures` · planned · data · phone
 Matches in date order: date and time, the opponent with a round initial badge, home or away, the venue, and
@@ -101,6 +101,35 @@ winners carried to the next round, the person's team highlighted.
 - Parts → actions: ties `root press`. · States: filled, loading.
 - Real path: results entered on the organiser's phone; following them is `people`.
 
+### `MatchStats` · planned · data · phone
+A side-by-side statistical comparison of two teams in one match, drawing mirrored horizontal bars outward from a central axis for metrics such as possession percent, shots, expected goals, turnovers, and fouls. Optional period selector chips switch between the full match and individual halves, quarters, or periods.
+- Pick: comparing two teams' statistical totals side by side for one match. Not minute-by-minute events (`MatchFeed`), individual player stat tables (`BoxScore`), or single-series bar charts (`Bars`).
+- Writes: `home` text(20), `away` text(20), `periods` text(12) each 0–5, `periodAt` integer 0–4 (default 0), `metrics` of `label` text(24), `homeValue` number ≥ 0, `awayValue` number ≥ 0, `unit` (`count` default, `percent`), 2–10; `style`. Mirrored bar proportions and leading-side highlights are computed by code from each pair's values.
+- Styles: `mirrored` (default, paired horizontal meters extending left and right from center), `rows` (aligned numeric comparison rows without bar tracks).
+- Parts → actions: `period select` (switches active period slice).
+- States: filled, empty (match stats unavailable), loading.
+- Real path: match stat totals aggregated from recorded match events on the device or fetched from a sports data service.
+- Density: `meta.dense: true`, weight 3; up to ten paired statistical metrics compare two sides in one view.
+
+### `BoxScore` · planned · data · phone
+A period, quarter, set, or inning line score across the top followed by a team-switched scrollable tabular player stat sheet (for example `MIN`, `PTS`, `REB`, `AST`, or `AB`, `H`, `R`, `RBI`, or `RTG`). Sticky player names stay pinned on the left while stat columns scroll sideways, and tapping a player row opens their profile when linked.
+- Pick: per-player match statistics alongside a period-by-period team line score. Not league-wide team tables (`Standings`), one player's profile (`Profile` + `Stats`), or live scorekeeping (`Scoreboard`).
+- Writes: `home` text(20), `away` text(20), `periods` of `label` text(6), `home` number, `away` number, 1–9; `columns` text(8) each 3–8, `homePlayers` of `name` text(20), `pos` text(4) optional, `stats` text(8) each 3–8, `goto` optional, 1–16; `awayPlayers` of the same shape, 1–16; `team` (`home` default, `away`), `style`. Final team scores are computed by code from `periods`.
+- Styles: `full` (default, line score header, team switch, and scrollable player stat table), `linescore` (period line score only).
+- Parts → actions: `team select` (`home` or `away`), players `root press` (when linked via `goto`).
+- States: filled, empty (box score not yet recorded), loading.
+- Real path: player stat sheets entered on the scorekeeper's phone or fetched from a league stats service; renders using `KitTable`.
+- Density: `meta.dense: true`, weight 3; sticky player names and up to eight stat columns across sixteen players per side.
+
+### `MomentumChart` · planned · data · service
+A live win-probability curve or minute-by-minute attack momentum graph centered on an equal-split baseline between home and away teams, marking major scoring, turnover, or red-card inflections along the match clock. Selecting a marker reads out the clock time, event summary, and exact momentum or win-probability value.
+- Pick: showing how match momentum or win probability shifted over game time. Not team stat totals (`MatchStats`), personal metric trends (`Sparkline`), or business charts (data `LineChart`).
+- Writes: `home` text(20), `away` text(20), `mode` (`win_prob` default, `momentum`), `points` of `id` text(12), `clock` text(12), `value` number −100–100 (for `momentum`, positive favors home) or 0–100 (for `win_prob`, 50 = even), `event` text(40) optional, 6–60; `style`. Centered baseline, favored side label, and current probability delta are computed by code; renders with `KitLinePlot`.
+- Styles: `curve` (default, centered baseline plot with inflection markers), `compact` (compact momentum curve without event callouts).
+- Parts → actions: points `root select` (inspects an inflection point's clock and event).
+- States: filled, empty (momentum feed unavailable), loading.
+- Real path: live win-probability and momentum series streamed from a sports analytics service.
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
@@ -124,8 +153,10 @@ Entering fixtures, scores, lineups and results works on one phone (`phone`); tea
 
 ## Build notes
 
-- Order: `Fixtures`, `Scoreboard`, `Squad`, `Standings`, `Lineup`, `MatchFeed`, `Bracket`.
+- Order: `Fixtures`, `Scoreboard`, `Squad`, `Standings`, `Lineup`, `MatchFeed`, `Bracket`; Wave 6 additions follow in order: `MatchStats`, `BoxScore`, `MomentumChart`.
 - Points use 3 for a win and 1 for a draw by default; other sports set it in the brief.
+- Wave 6 option upgrades on existing components: `Scoreboard` adds `sport` (`football`, `basketball`, `baseball`, `tennis`, `hockey`, `generic`), optional `periods`, `possession`, and baseball/softball `outs`/`balls`/`strikes`/`bases`; `Lineup` adds `style: "pitch" | "court" | "diamond" | "list"` and per-player `rating`, `cards`, `goals` badges; `MatchFeed` replaces numeric `minute` `0–130` with flexible `clock` text(12) (`"67'"`, `"Q3 04:12"`, `"Top 7th"`) and expands `kind` across sports; `Fixtures` adds `style: "list" | "next" | "scoreboard"` with `live` boolean and `clock`; `Standings` adds optional `group` text(16) and `format` (`football_pts`, `pct_gb` for NBA/MLB/NFL).
+- Wave 6 bases & boundaries: `MatchStats` composes mirrored bars over `KitMeter`, `BoxScore` reuses `KitTable`, and `MomentumChart` uses `KitLinePlot` with an optional centered baseline prop. Fantasy rosters, draft boards, waiver claims, player prop pick'ems, and sportsbook odds/bet slips stay out in `fantasy`; solo run/ride logs stay in `health`.
 
 ## Open questions
 

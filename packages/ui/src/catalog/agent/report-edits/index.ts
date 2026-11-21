@@ -6,6 +6,7 @@ import type { ScreenLike } from "../read";
 import { addressedItems } from "../visibility";
 import { projectDeviceData, type DeviceData } from "../device-data";
 import { wireEditKey, writeWireEdit } from "./wire-edits";
+import { recordActionAt } from "../record-runtime";
 import { isRecordAction, stageRecordEdit, recordClaimAt } from "./record-edits";
 export { applyRecordWire, applyReportEdits, reportEditWire } from "./wire-edits";
 export { validRecordWire, writeRecordWire } from "./wire-edits";
@@ -50,9 +51,8 @@ export function itemEditAt(meta: Meta, props: Values, target: string) {
   const row = addressedItems(meta, props)[index];
   if (row) return { spec, index, part, item, row };
 }
-
 export function reportConfirmation(meta: Meta, target: string, action: string) {
-  if (isRecordAction(meta, target, action)) return true;
+  if (isRecordAction(meta, target, action) || recordActionAt(meta, target, action)) return true;
   if (action !== "press") return false;
   if (itemEditSpec(meta, target)?.action === "remove" || own(meta.signOff, target)) return true;
   const part = itemTarget(target)?.part;
