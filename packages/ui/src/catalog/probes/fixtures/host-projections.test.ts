@@ -82,6 +82,7 @@ it("passes projected row values through mounted selection", () => {
     ...reportFixture,
     meta: {
       ...reportFixture.meta,
+      items: { ...reportFixture.meta.items!, prefix: "l" },
       select: { prop: "selected", value: { field: "label" } },
       actions: { items: { root: ["select"] } },
     },
@@ -89,9 +90,9 @@ it("passes projected row values through mounted selection", () => {
   const { defs, screen } = fixture(def, "r");
   const onAction = vi.fn();
   const controller = createScreenController({ screen, defs, deviceData: statement, onAction });
-  expect(controller.read()).toContain("[r/a2 select");
-  expect(controller.act({ address: "r/a2", action: "select" }).ok).toBe(true);
-  expect(onAction).toHaveBeenCalledWith({ address: "s/r/a2", action: "select" });
+  expect(controller.read()).toContain("[r/l2 select");
+  expect(controller.act({ address: "r/l2", action: "select" }).ok).toBe(true);
+  expect(onAction).toHaveBeenCalledWith({ address: "s/r/l2", action: "select" });
   expect(controller.store.get("s/r/$selected")).toBe('Costs "direct"');
   expect(controller.snapshotScreen()).toEqual(screen);
 });

@@ -32,9 +32,10 @@ export function selectedStep(step: ActStep, entry: Entry, input: Values, def: De
     "",
   );
   if (selectionOffer(def.meta, local) || itemEditSpec(def.meta, local)?.action === "select") return step;
+  const found = selectionAt(def.meta, input, local);
+  if (found?.row && def.meta.items?.deviceData) return { ...step, value: found.value };
   const level = local.match(/(?:^|\/)l([1-5])$/);
   if (level) return { ...step, value: Number(level[1]) };
-  const found = selectionAt(def.meta, input, local);
   return found ? { ...step, value: found.value } : step;
 }
 

@@ -1,10 +1,12 @@
 import {
+  atDeviceTime,
   clockTargets,
   clockKey,
   clockTime,
   clockEnded,
   parseControlProps,
   isDeviceDataVisible,
+  liveProps,
   selectDeviceData,
   type ClockState,
   type Meta,
@@ -75,16 +77,28 @@ function tickValues(ctx: ControllerContext) {
 }
 /** Find the next declared boundary without polling the host. */
 function nextDeviceWake(ctx: ControllerContext, now: number): number | undefined {
-  const data = ctx.options.deviceData;
+  const candidates = ctx.screen.components.filter(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
+  if (!candidates.length) return;
+  const data = atDeviceTime(ctx.options.deviceData, now);
+  const prefix = `${ctx.screen.id}/`;
+  const local = Object.fromEntries(
+    Object.entries(ctx.valuesOf(now))
+      .filter(([key]) => key.startsWith(prefix))
+      .map(([key, value]) => [key.slice(prefix.length), value]),
+  );
   let next: number | undefined;
-  for (const entry of ctx.screen.components) {
-    const def = ctx.defs[entry.c];
-    const wake = def?.meta.deviceDataWake;
-    if (!wake || !isDeviceDataVisible(def.meta, data)) continue;
-    const { c: _c, id: _id, state: _state, ...wire } = entry;
-    const parsed = def.props.safeParse(wire);
-    if (!parsed.success) continue;
-    const at = wake(selectDeviceData(def.meta, data), parsed.data, now);
+  for (const { c, id, state: _state, ...wire } of candidates) {
+    const def = ctx.defs[c]!;
+    const { meta } = def;
+    if (!isDeviceDataVisible(meta, data)) continue;
+    let parsed: Values;
+    try {
+      parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
+    } catch {
+      continue;
+    }
+    const live = liveProps(meta, parsed, id, local, true, data);
+    const at = meta.deviceDataWake!(selectDeviceData(meta, data), live, now);
     if (at !== undefined && Number.isFinite(at) && at > now && (next === undefined || at < next)) next = at;
   }
   return next;
