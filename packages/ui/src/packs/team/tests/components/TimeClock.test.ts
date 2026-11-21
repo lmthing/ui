@@ -10,7 +10,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, elementAt, renderInstance } from "../../../../../test/render";
+import { addressedElements, elementAt, renderExample, renderInstance } from "../../../../../test/render";
 
 const def = components.TimeClock;
 const { props, meta, examples, fallback, probes } = def;
@@ -96,12 +96,11 @@ describe("TimeClock fallback and metadata", () => {
 
 describe("TimeClock states, parts and reading", () => {
   it("addresses the readout and active controls and keeps the same text in the reading", () => {
-    const html = renderInstance("TimeClock", active, "filled", theme);
+    const { html, props: parsed, deviceData } = renderExample("TimeClock", active, "filled", theme);
     expect([...addressedElements(html).keys()].sort()).toEqual(
       meta.parts.map((part) => `home/c1/${part}`).sort(),
     );
-    const device = meta.previewDeviceData({ input: active, state: "filled" });
-    const reading = readComponent(def, active, "t1", "filled", {}, undefined, device).join("\n");
+    const reading = readComponent(def, parsed, "t1", "filled", {}, undefined, deviceData).join("\n");
     for (const line of ["Clocked in at 07:00", "2:35:00", "1 break today", "Clock out", "Start break"]) {
       expect(html).toContain(line);
       expect(reading).toContain(line);
@@ -112,22 +111,25 @@ describe("TimeClock states, parts and reading", () => {
     }
   });
   it("preserves finish addresses; brief hides since without removing the input or metrics", () => {
+    const { html, deviceData } = renderExample("TimeClock", active, "filled", theme);
     const addresses = (input: unknown) => [
-      ...addressedElements(renderInstance("TimeClock", input, "filled", theme)).keys(),
+      ...addressedElements(renderInstance("TimeClock", input, "filled", theme, { deviceData })).keys(),
     ];
-    const standard = addresses(active);
+    const standard = [...addressedElements(html).keys()];
     expect(addresses({ ...active, density: "compact" })).toEqual(standard);
     expect(addresses({ ...active, surface: "outlined" })).toEqual(standard);
     const brief = { ...active, detail: "brief" };
     expect(props.parse(brief).since).toBe(active.since);
     expect(addresses(brief)).toEqual(standard.filter((address) => !address.endsWith("/since")));
-    const reading = readComponent(def, brief, "t1").join("\n");
+    const reading = readComponent(def, brief, "t1", "filled", {}, undefined, deviceData).join("\n");
     expect(reading).not.toContain("07:00");
+    expect(reading).toContain("2:35:00");
+    expect(reading).toContain("1 break today");
     expect(reading).toContain("[t1/break press]");
   });
   it("shows a clock-in action when off or a read-only receipt after clock-out", () => {
     const idle = renderInstance("TimeClock", off, "filled", theme);
-    const receipt = renderInstance("TimeClock", active, "success", theme);
+    const { html: receipt, props: parsed, deviceData } = renderExample("TimeClock", active, "success", theme);
     expect(idle).toContain("Clock in");
     for (const part of ["break", "since", "elapsed"])
       expect(addressedElements(idle).has(`home/c1/${part}`)).toBe(false);
@@ -135,10 +137,23 @@ describe("TimeClock states, parts and reading", () => {
     expect(receipt).toContain("2:35:00");
     for (const part of ["since", "clock", "break"])
       expect(addressedElements(receipt).has(`home/c1/${part}`)).toBe(false);
-    const data = meta.previewDeviceData({ input: active, state: "success" });
-    const reading = readComponent(def, active, "t1", "success", {}, undefined, data).join("\n");
+    const reading = readComponent(def, parsed, "t1", "success", {}, undefined, deviceData).join("\n");
     expect(reading).toContain("Clocked out");
+    expect(reading).toContain("2:35:00");
     expect(reading).not.toContain(" press]");
+  });
+  it("keeps the active controls but omits metrics when the host supplies no records", () => {
+    const html = renderInstance("TimeClock", active, "filled", theme);
+    const parts = addressedElements(html);
+    const reading = readComponent(def, active, "t1").join("\n");
+    for (const part of ["elapsed", "elapsed_label", "breaks"])
+      expect(parts.has(`home/c1/${part}`)).toBe(false);
+    for (const line of ["Clocked in at 07:00", "Clock out", "Start break"]) {
+      expect(html).toContain(line);
+      expect(reading).toContain(line);
+    }
+    expect(reading).not.toContain("2:35:00");
+    expect(reading).not.toContain("1 break today");
   });
   it("labels an open break as End break at the same address", () => {
     const fixture = meta.previewDeviceData({ input: active, state: "filled" });
