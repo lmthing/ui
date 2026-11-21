@@ -37,7 +37,9 @@ describe("List schema", () => {
     { rows: [{ title: "Fern", goto: "a".repeat(65) }] },
     { rows: [{ title: "Fern", photo: "https://example.org/image.png" }] },
     { rows: [{ title: "Fern", photo: `lib:${"a".repeat(65)}` }] },
-    { style: "grid", rows: [{ title: "Fern" }] },
+    { style: "masonry", rows: [{ title: "Fern" }] },
+    { rows: [{ title: "Fern", progress: 0.5 }] },
+    { rows: [{ title: "Fern", badge: "New" }] },
     { color: "red", rows: [{ title: "Fern" }] },
     { rows: [{ title: "Fern", pixels: 4 }] },
     { rows: [{ title: "Fern", root: "fern" }] },
@@ -61,6 +63,28 @@ describe("List schema", () => {
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
     expect(props.safeParse({ rows: [{ title: "Fern", id: "r1" }] }).success).toBe(false);
   });
+});
+
+it("allows both shelf progress endpoints, and preserves grid link addresses", () => {
+  const rows = [
+    { title: "Fern", photo: "lib:fern", progress: 0 },
+    { title: "Basil", photo: "lib:basil", progress: 1 },
+  ];
+  expect(props.safeParse({ style: "shelf", aspect: "tall", rows }).success).toBe(true);
+  for (const progress of [-0.01, 1.01])
+    expect(props.safeParse({ style: "shelf", rows: [{ ...rows[0], progress }, rows[1]] }).success).toBe(
+      false,
+    );
+  const grid = props.parse({
+    style: "grid",
+    rows: [
+      { title: "Fern", goto: "fern", pinned: true },
+      { title: "Basil", unread: true },
+    ],
+  });
+  expect(affordancesOf(meta, stampItemIds(meta, grid), "l1")).toEqual([
+    { address: "l1/r1", part: "root", action: "press", detail: "→fern" },
+  ]);
 });
 
 describe("List fallback and metadata", () => {

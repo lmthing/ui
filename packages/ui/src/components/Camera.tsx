@@ -1,4 +1,13 @@
-import { useWords, KitCard, KitShutter, KitViewfinder } from "../kit";
+import {
+  useWords,
+  KitAction,
+  KitCard,
+  KitContent,
+  KitShutter,
+  KitViewfinder,
+  useControlValue,
+  usePartContext,
+} from "../kit";
 import {
   wordsFor,
   probesFor,
@@ -7,6 +16,7 @@ import {
   thingOf,
   variantProps,
   type FallbackInput,
+  type ClockState,
   type Meta,
   type Probe,
   type Props,
@@ -16,30 +26,54 @@ import { z } from "zod";
 export const meta = {
   id: "Camera",
   group: "beyond",
-  purpose: "Aim at something and take a new picture or scan its code.",
-  pick: "Take a new picture or scan a code while aiming at the subject. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).",
+  purpose: "Aim at something to take a photo, record video, or scan it.",
+  pick: "Aim at a subject to take a new picture, record video, scan a code or capture both sides of a document. Not showing an existing picture (Photo), or adding a picture to a labelled form value (Field).",
   region: "body",
   weight: 3,
   tier: "ok",
   realPath: "With permission, the device camera takes a photo or scans a code.",
   variants: { surface: ["plain", "card"] },
-  writeHints: ['Use surface "card" only when asked for one card around the viewfinder and shutter together.'],
+  writeHints: [
+    'Use surface "card" only when asked for one card around the viewfinder and shutter together.',
+    'Kind "video" records a new clip; kind "document_dual" guides capture of two sides of one document. Keep the hint applicable to both sides.',
+  ],
   parts: ["root", "viewfinder", "hint", "shutter"],
   states: ["filled"],
-  actions: { parts: { shutter: ["press"] } },
+  actions: {
+    parts: { shutter: ["press", "start", "stop", "scan"] },
+    when: {
+      "shutter.press": { still: true },
+      "shutter.start": { kind: "video" },
+      "shutter.stop": { kind: "video" },
+      "shutter.scan": { kind: "document_dual" },
+    },
+  },
+  clocks: [
+    {
+      id: "recording",
+      kind: "up",
+      when: { kind: "video" },
+      start: { part: "shutter", action: "start" },
+      stop: { part: "shutter", action: "stop" },
+    },
+  ],
+  adjust: { "shutter.scan": { prop: "side", delta: 1, min: 0, max: 2 } },
   read: (input, state, lang?: string): string[] => {
-    const { photoLabels } = wordsFor(lang);
-
-    const { kind } = input as z.output<typeof props>;
-    return state === "filled" ? [kind === "scan" ? photoLabels.scan : photoLabels.take] : [];
+    return state === "filled" ? [shutterLabel(input as CameraProps, lang)] : [];
   },
 } as const satisfies Meta;
 
-export const props = z.strictObject({
-  ...variantProps(meta.variants),
-  kind: z.enum(["photo", "scan"]).default("photo"),
-  hint: text(48),
-});
+export const props = z
+  .strictObject({
+    ...variantProps(meta.variants),
+    kind: z.enum(["photo", "scan", "video", "document_dual"]).default("photo"),
+    hint: text(48),
+  })
+  .overwrite((input) => ({
+    ...input,
+    ...(input.kind === "document_dual" ? { side: 0 } : {}),
+    still: input.kind === "photo" || input.kind === "scan",
+  }));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const { placeholderDetail } = wordsFor(lang);
@@ -52,6 +86,8 @@ export const examples = [
   { kind: "photo", hint: "Point at your plant's leaves" },
   { kind: "scan", hint: "Scan the dog's tag" },
   { kind: "photo", hint: "Point at your plant's leaves", surface: "card" },
+  { kind: "video", hint: "Keep Clover in the frame" },
+  { kind: "document_dual", hint: "Fit the vaccination card inside the frame" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Camera");
@@ -59,6 +95,8 @@ export const probes = [
   choose("Let me aim at my fern's leaves and take a new shot"),
   choose("Show an existing shot of my fern with a short caption underneath", "Photo"),
   write("Let me aim at my plant's leaves and take a new shot, with a short instruction"),
+  write("Let me record a new video of Clover, with a shutter that starts and stops recording."),
+  write("Guide me through scanning the front and back of Clover's vaccination card, one side at a time."),
   {
     ...write("Let me take a photo of my fern. Put the viewfinder and shutter together inside one card."),
     variant: { axis: "surface", value: "card" },
@@ -66,12 +104,33 @@ export const probes = [
   read("Take the photo", { address: "c1/shutter", action: "press" }),
 ] satisfies Probe[];
 
-export function Camera({ kind, hint, surface }: Props<typeof props, typeof meta>) {
-  const { photoLabels } = useWords().words;
+type CameraProps = Props<typeof props, typeof meta> & { recording?: boolean; side?: number };
+
+function shutterLabel({ kind, recording, side }: CameraProps, lang?: string) {
+  const { photoLabels, captureLabels: copy } = wordsFor(lang);
+  if (kind === "video") return recording ? copy.stop : copy.start;
+  if (kind === "document_dual") return side === 2 ? copy.complete : side === 1 ? copy.back : copy.front;
+  return kind === "scan" ? photoLabels.scan : photoLabels.take;
+}
+
+// prettier-ignore
+export function Camera(input: CameraProps) {
+  const { kind, hint, surface } = input;
+  const { lang } = useWords();
+  const { screen, component } = usePartContext();
+  const base = `${screen}/${component}`;
+  const clock = useControlValue<ClockState | undefined>(`${base}/$recording`, undefined);
+  const side = useControlValue(`${base}/$adjust/side`, input.side ?? 0);
+  const recording = Boolean(clock?.running);
+  const label = shutterLabel({ ...input, side, recording }, lang);
+  const dual = kind === "document_dual", video = kind === "video";
   return (
     <KitCard style="plain" part="root" surface={surface} padded={surface === "card"}>
-      <KitViewfinder kind={kind} hint={hint} part="viewfinder" hintPart="hint" />
-      <KitShutter label={kind === "scan" ? photoLabels.scan : photoLabels.take} part="shutter" />
+      <KitViewfinder kind={dual || kind === "scan" ? "scan" : "photo"} hint={hint} part="viewfinder" hintPart="hint" />
+      {dual || video ? <KitContent align="center" group="response">
+        <KitAction label={label} part="shutter" action={dual ? "scan" : recording ? "stop" : "start"}
+          kind={recording ? "danger" : "primary"} disabled={dual && side === 2} />
+      </KitContent> : <KitShutter label={label} part="shutter" />}
     </KitCard>
   );
 }

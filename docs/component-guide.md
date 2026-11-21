@@ -222,6 +222,10 @@ If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.
 
+`KitPlayback` accepts an optional `overlay` of controls for an in-frame video toolbar. The toolbar
+remains visible when the host replaces the fallback artwork with its video. Browser media elements
+also accept optional `speed` and `loop`; when neither is set, their playback settings are untouched.
+
 ## Tests: `<Id>.test.ts`
 
 Copy `List.test.ts` and keep its four blocks: every example parses; invalid inputs are rejected

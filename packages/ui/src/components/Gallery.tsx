@@ -35,7 +35,7 @@ export const meta = {
   pick: "Several pictures to browse together, in a grid or sideways strip. Not one picture on its own (Photo) or text-led rows of separate things (List).",
   writeHints: [
     'Leave all axes null unless requested. For a sideways strip showing several pictures at once use arrange "strip"; for swiping one large picture at a time use style "carousel" and leave arrange null.',
-    'A sideways strip by itself changes only arrange. Explicitly write "aspect":null and "detail":null unless the request also asks for wide crops or hidden captions. Keep supplied captions visible by default.',
+    'A sideways strip by itself changes only arrange. Set aspect "tall" for tall portrait crops or "wide" for wide crops. Write "aspect":null and "detail":null unless the request asks for a crop or hidden captions.',
   ],
   region: "body",
   weight: 3,
@@ -43,7 +43,7 @@ export const meta = {
   realPath: "Photo references on records in the on-device database, with optional navigation links.",
   items: { key: "photos", parts: ["root", "photo", "caption"] },
   parts: ["root"],
-  variants: { arrange: ["grid", "strip"], aspect: ["auto", "wide"], detail: ["full", "brief"] },
+  variants: { arrange: ["grid", "strip"], aspect: ["auto", "wide", "tall"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["caption"] } },
   states: ["filled", "empty", "loading"],
   actions: { items: { root: ["press"] }, when: { root: { linked: true } } },
@@ -117,6 +117,7 @@ export const examples = [
   { photos: plantPhotos },
   { arrange: "strip", photos: plantPhotos },
   { aspect: "wide", photos: plantPhotos },
+  { aspect: "tall", photos: plantPhotos },
   { detail: "brief", photos: plantPhotos },
 ] satisfies z.input<typeof props>[];
 
@@ -126,6 +127,12 @@ export const probes = [
   choose("Show just one shot of my fern with a short description underneath", "Photo"),
   write("Show four plant shots together, captioned Fern, Monstera, Basil and Aloe, opening fern from Fern"),
   write("Show three shots of the flat to swipe through one at a time: Front room, Kitchen and Garden"),
+  {
+    ...write(
+      "Show photos of Fern, Monstera and Basil in tall portrait frames. Keep the usual layout and captions.",
+    ),
+    variant: { axis: "aspect", value: "tall" },
+  },
   {
     ...write(
       "Show photos of Fern, Basil, and Aloe with those captions underneath in a sideways swipeable strip. Keep the usual crops and show several at once, not one picture per page.",
@@ -138,7 +145,7 @@ export const probes = [
 type Entry = Props<typeof props, typeof meta>["photos"][number];
 
 // prettier-ignore
-function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; shape: "wide" | "square" }) {
+function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; shape: "wide" | "square" | "tall" }) {
   const { lang } = useWords();
   const cue = entry.goto && <KitIcon name="chevron_right" scale="sm" decorative />;
   const caption = entry.caption && <KitText role="caption" tone="muted" part="caption">{entry.caption}</KitText>;
@@ -153,7 +160,7 @@ function GalleryItem({ entry, index, shape }: { entry: Entry; index: number; sha
 export function Gallery({ style, arrange, aspect, photos }: Props<typeof props, typeof meta>) {
   const { lang } = useWords();
   const state = useComponentState();
-  const shape = style === "carousel" || aspect === "wide" ? "wide" : "square";
+  const shape = aspect === "tall" ? "tall" : style === "carousel" || aspect === "wide" ? "wide" : "square";
   if (state === "empty") {
     return (
       <KitCard style="plain" part="root">

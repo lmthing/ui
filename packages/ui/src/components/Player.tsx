@@ -5,6 +5,7 @@ import {
   KitMediaControls,
   KitPhoto,
   KitPlayback,
+  KitRow,
   KitSkeleton,
   KitSlider,
   KitText,
@@ -18,18 +19,21 @@ import {
   clip,
   clockLine,
   media,
+  numberLine,
   photo,
   placeholderTitle,
   remainingLine,
   text,
   thingOf,
   variantProps,
+  wordsFor,
   type FallbackInput,
   type Meta,
   type Probe,
   type Props,
 } from "../catalog";
 
+// prettier-ignore
 export const meta = {
   id: "Player",
   group: "content",
@@ -37,7 +41,7 @@ export const meta = {
   pick: "One recording to listen to or watch now, such as a meditation, a lesson, an episode, an exercise video or a voice memo. Not a list of recordings to choose from (List), one picture (Photo), or timing an activity with no recording (Timer).",
   writeHints: [
     'Hiding only the cover artwork sets detail "brief" and density null. Keep the photo reference and playback controls. Never output default axis values; density is compact only when tighter spacing was specifically requested.',
-    'The media field is the recording reference, not a presentation choice. Use style "video" only for a video recording.',
+    'The media field is the recording reference. Use style "video" for the original video layout or "compact" for one audio row. Mode is the recording type; write it only when requested. Speed is a multiplier (1.5 for 1.5×).',
   ],
   region: "body",
   weight: 3,
@@ -45,7 +49,7 @@ export const meta = {
   realPath: "A file stored on or bundled with the app, played by the device's media player.",
   variants: { density: ["comfortable", "compact"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["artwork"] } },
-  parts: ["root", "artwork", "title", "sub", "scrubber", "elapsed", "remaining", "back", "play", "forward"],
+  parts: ["root", "artwork", "title", "sub", "scrubber", "elapsed", "remaining", "back", "play", "forward", "options"],
   states: ["filled", "loading"],
   actions: {
     parts: { scrubber: ["seek"], back: ["press"], play: ["play", "pause"], forward: ["press"] },
@@ -53,14 +57,20 @@ export const meta = {
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const { at, seconds } = input as z.output<typeof props>;
-    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang)];
+    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang), ...optionLines(input as PlayerProps, lang)];
   },
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
     ...variantProps(meta.variants),
-    style: z.enum(["audio", "video"]).default("audio"),
+    style: z.enum(["audio", "video", "compact"]).default("audio"),
+    mode: z.enum(["audio", "music", "podcast", "video", "live"]).optional(),
+    speed: z.number().min(0.25).max(4).optional(),
+    liked: z.boolean().optional(),
+    shuffle: z.boolean().optional(),
+    repeat: z.boolean().optional(),
+    loop: z.boolean().optional(),
     media,
     title: text(40),
     sub: text(40).optional(),
@@ -71,7 +81,12 @@ export const props = z
   .refine(({ at, seconds }) => at === undefined || at <= seconds, {
     path: ["at"],
     message: "Cannot start past the end",
-  });
+  })
+  .refine(({ mode, style }) => mode !== "video" || style !== "compact", {
+    path: ["style"],
+    message: "Compact is for audio only",
+  })
+  .overwrite((input) => (input.mode === "video" ? { ...input, style: "video" } : input));
 
 export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   const tag = (thingOf(cast)?.type ?? "")
@@ -87,36 +102,22 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
   };
 }
 
-const fernGuide = {
-  style: "video",
-  media: "lib:fern_care",
-  title: "Repotting a fern",
-  sub: "Two minute guide",
-  photo: "lib:fern_care",
-  seconds: 134,
-} as const;
-const voiceNote = {
-  style: "audio",
-  media: "lib:voice_note",
-  title: "Voice note from Anna",
-  photo: "lib:anna",
-  seconds: 38,
-  at: 12,
-} as const;
+// prettier-ignore
+const fernGuide = { style: "video", media: "lib:fern_care", title: "Repotting a fern", sub: "Two minute guide", photo: "lib:fern_care", seconds: 134 } as const;
+// prettier-ignore
+const voiceNote = { style: "audio", media: "lib:voice_note", title: "Voice note from Anna", photo: "lib:anna", seconds: 38, at: 12 } as const;
+// prettier-ignore
 export const examples = [
   {
-    style: "audio",
-    media: "lib:wind_down",
-    title: "Evening wind-down",
-    sub: "Guided breathing",
-    photo: "lib:plants",
-    seconds: 720,
-    at: 245,
+    style: "audio", media: "lib:wind_down", title: "Evening wind-down", sub: "Guided breathing",
+    photo: "lib:plants", seconds: 720, at: 245,
   },
   fernGuide,
   { ...voiceNote, detail: "brief" },
   voiceNote,
   { ...fernGuide, density: "compact" },
+  { ...voiceNote, title: "Park walk recap", style: "compact", mode: "podcast", speed: 1.5, liked: true },
+  { style: "audio", mode: "music", media: "lib:park_walk", title: "Morning walk playlist", seconds: 182, shuffle: true, repeat: true, loop: true },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Player");
@@ -124,6 +125,9 @@ export const probes = [
   choose("Let me listen to a twelve minute evening meditation and scrub back and forth through it"),
   choose("Show the ten meditations I can pick from, each with its length, to tap one", "List"),
   write("Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in"),
+  write(
+    "Play the Park walk recap podcast from lib:voice_note in a single compact audio row. It's 38 seconds long. Use 1.5× speed, mark it liked, and loop it. Leave shuffle and repeat off.",
+  ),
   {
     ...write(
       "Play the 12-minute Evening wind-down recording from lib:wind_down. Keep lib:plants as its cover photo but hide the artwork, without changing the spacing or playback controls.",
@@ -133,47 +137,58 @@ export const probes = [
   read("Pause the recording", { address: "p1/play", action: "pause" }),
 ] satisfies Probe[];
 
-export function Player(input: Props<typeof props, typeof meta>) {
-  const { style, title, sub, detail, photo: art, seconds, at } = input;
+type PlayerProps = Props<typeof props, typeof meta>;
+
+// prettier-ignore
+function optionLines({ mode, speed, liked, shuffle, repeat, loop }: PlayerProps, lang?: string) {
+  const w = wordsFor(lang).playbackOptions;
+  return [
+    mode && w.mode[mode], speed !== undefined && w.speed(numberLine(speed, lang)),
+    liked && w.liked, shuffle && w.shuffle, (loop ?? repeat) && w.loop,
+  ].filter((line): line is string => typeof line === "string");
+}
+
+// prettier-ignore
+export function Player(input: PlayerProps) {
+  const { style, title, sub, detail, photo: art, seconds, at, speed, loop, repeat } = input;
   const density = useVariant("density", meta.variants.density, input.density);
   const artwork = detail === "full" ? art : undefined;
   const aspect = style === "video" ? "wide" : "square";
-  const { lang, words } = useWords();
-  const { mediaLabels } = words;
+  const { lang, words: { mediaLabels } } = useWords();
   const state = useComponentState();
-  const here = at ?? 0;
+  const compact = style === "compact";
   if (state === "loading") {
-    return (
-      <KitCard style="inset" padded density={density}>
-        <KitSkeleton
-          shape="media"
-          inset="none"
-          playback
-          aspect={artwork ? aspect : "none"}
-          density={density}
-          lines={[{ text: title, role: "heading" }, ...(sub ? [{ text: sub, role: "body" as const }] : [])]}
-        />
-      </KitCard>
-    );
+    return <KitCard style="inset" padded density={density}>
+      {compact ? <KitSkeleton items={[{ title, sub, ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
+        <KitSkeleton shape="media" inset="none" playback aspect={artwork || style === "video" ? aspect : "none"} density={density}
+          lines={[{ text: title, role: "heading" }, ...(sub ? [{ text: sub, role: "body" as const }] : [])]} />}
+    </KitCard>;
   }
+  const here = at ?? 0, info = optionLines(input, lang);
+  const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
+  const titles = <>
+    <KitText role={compact ? "body" : "heading"} part="title" density={density}>{title}</KitText>
+    {sub && <KitText role={compact ? "caption" : "body"} tone="muted" part="sub" density={density}>{sub}</KitText>}
+    {info.length > 0 && <KitText role="caption" tone="muted" part="options">{info.join(" · ")}</KitText>}
+  </>;
+  const position = <>
+    <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
+    <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} />
+  </>;
+  const cover = artwork && <KitPhoto photo={artwork} shape={compact ? "thumb" : aspect} part="artwork" label={title} />;
+  const playback = { style, speed, loop: loop ?? repeat };
   return (
     <KitCard style="inset" part="root" padded density={density}>
-      <KitPlayback style={style}>
-        {artwork && <KitPhoto photo={artwork} shape={aspect} part="artwork" label={title} />}
-      </KitPlayback>
-      <KitContent density={density}>
-        <KitText role="heading" part="title" density={density}>
-          {title}
-        </KitText>
-        {sub && (
-          <KitText role="body" tone="muted" part="sub" density={density}>
-            {sub}
-          </KitText>
-        )}
-      </KitContent>
-      <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
-      <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} />
-      <KitMediaControls labels={mediaLabels} />
+      {compact ? <KitPlayback {...playback}>
+        <KitRow label={title} leading={cover} leadingAlign="row" trailing={controls} inset="none" density={density}>
+          <KitContent density={density} lineRole="body">{titles}{position}</KitContent>
+        </KitRow>
+      </KitPlayback> : <>
+        <KitPlayback {...playback} overlay={style === "video" ? controls : undefined}>{cover}</KitPlayback>
+        <KitContent density={density}>{titles}</KitContent>
+        {position}
+        {style !== "video" && controls}
+      </>}
     </KitCard>
   );
 }

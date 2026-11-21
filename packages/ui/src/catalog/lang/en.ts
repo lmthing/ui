@@ -75,6 +75,27 @@ export const en = {
     yearly: "Yearly",
   },
   mediaLabels: { play: "Play", pause: "Pause", back: "Back 15 seconds", forward: "Forward 15 seconds" },
+  playbackOptions: {
+    mode: { audio: "Audio", music: "Music", podcast: "Podcast", video: "Video", live: "Live" },
+    speed: (value: string) => `${value}×`,
+    liked: "Liked",
+    shuffle: "Shuffle",
+    loop: "Loop",
+  },
+  captureLabels: {
+    start: "Start recording",
+    stop: "Stop recording",
+    front: "Scan front",
+    back: "Scan back",
+    complete: "Both sides scanned",
+  },
+  listLabels: { progress: "Progress", unread: "Unread", pinned: "Pinned" },
+  bubbleLabels: {
+    status: { sent: "Sent", delivered: "Delivered", read: "Read" },
+    attachment: { photo: "Photo", voice: "Voice message", file: "File" },
+    broadcast: "Broadcast",
+    reply: (value: string) => `Reply to: ${value}`,
+  },
   perWords: {
     hour: "hr",
     day: "day",
