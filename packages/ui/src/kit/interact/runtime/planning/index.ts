@@ -18,6 +18,7 @@ import {
   inactive,
   introducedPart,
   isDraw,
+  isRevealRelease,
   needsConfirmation,
   standaloneEffects,
 } from "./introduced-part";
@@ -56,7 +57,7 @@ function prepareStep(
   if (mustMount && !introducedPart(ctx, state, entry, action))
     return fail("not_mounted", "This control is not mounted");
   const values =
-    confirmed && !ctx.standalone
+    confirmed && (!ctx.standalone || def.meta.items?.reset !== undefined)
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
@@ -173,7 +174,7 @@ export function planSteps(
     const action = markToken ? step : { ...step, address: ctx.relative(step.address) };
     const run = stepRunner(ctx, media, random, at, execution, markToken);
     let result: ActionResult;
-    if (state.confirmation)
+    if (state.confirmation && !isRevealRelease(ctx, action))
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);
     else result = run(state, step);
     if (result.error) return { ...result, performed: [] };
