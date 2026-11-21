@@ -6,6 +6,8 @@ import {
   isDeviceDataVisible,
   liveProps,
   parseControlProps,
+  projectSelectionBinding,
+  selectionBindingFor,
   validateActionValue,
   type ActStep,
   type Affordance,
@@ -37,7 +39,7 @@ export function driveTarget(
   for (const { id, c, state, ...input } of screen.components) {
     if (c !== meta.drives || values[`${id}/$dismissed`]) continue;
     const address = part === "root" ? id : `${id}/${part}`;
-    const props = liveProps(
+    const live = liveProps(
       def.meta,
       parseControlProps(def, input, (key) => values[`${id}/${key}`]),
       id,
@@ -45,6 +47,8 @@ export function driveTarget(
       true,
       data,
     );
+    const selection = selectionBindingFor(screen, defs, def.meta, id, values, data);
+    const props = projectSelectionBinding(def.meta, live, selection?.view);
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
       data,
     });

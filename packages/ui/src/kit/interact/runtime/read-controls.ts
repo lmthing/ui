@@ -34,8 +34,9 @@ export function visibleConfirmation(
   if (!meta) return confirmation;
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
-  if (entry && meta?.deviceDataFlags && confirmation.step) {
-    const sourceScreen = meta.selectionBinding || meta.drives ? screen : { ...screen, components: [entry] };
+  const bound = meta.selectionBinding || meta.drives;
+  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+    const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
       defs,

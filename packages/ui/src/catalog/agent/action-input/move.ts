@@ -29,6 +29,8 @@ export function itemActionOffer(meta: Meta, props: Values, row: Values, offer: A
   const { part, action } = offer;
   // Other declarations (such as moving a guest to a table) keep their existing offer.
   if (action === "move" && meta.items?.move) {
+    // Column moves write by wire slot, not by the position of a host-projected row.
+    if (meta.items.deviceData) return [];
     const move = part === "root" && moveOffer(meta, props, row);
     return move ? [{ ...offer, move }] : [];
   }
@@ -38,7 +40,7 @@ export function itemActionOffer(meta: Meta, props: Values, row: Values, offer: A
 /** Overlay the column index on the original wire row without reordering or restamping it. */
 export function projectMoves(def: Definition, props: Values, get: (part: string) => unknown): Values {
   const items = def.meta.items;
-  if (!items?.move || !Array.isArray(props[items.key])) return props;
+  if (!items?.move || items.deviceData || !Array.isArray(props[items.key])) return props;
   const { columns, column } = items.move;
   const rows = props[items.key] as Values[];
   let labels: ReturnType<typeof columnLabels> | undefined;

@@ -99,12 +99,14 @@ it("excludes host-disabled row checks from the shared selection and the bulk wri
   expect(runtime.store.get(disabled)).toBe(true);
 });
 
-it("revalidates a host-gated select-all confirmation with the same source table", () => {
+it.each(["source", "consumer"])("revalidates Select All when the %s owns the host gate", (side) => {
   const { screen, defs } = selectionFixture();
   const bulk = defs.BulkActions.meta;
   bulk.confirmParts = ["all"];
-  bulk.deviceDataFlags = { inWindow: (_data, _props, now) => now < 20 };
-  bulk.actions = { ...bulk.actions, when: { "all.press": { inWindow: true } } };
+  const owner = side === "source" ? defs.Table.meta : bulk;
+  const pair = side === "source" ? "pick.check" : "all.press";
+  owner.deviceDataFlags = { inWindow: (_data, _props, now) => now < 20 };
+  owner.actions = { ...owner.actions, when: { ...owner.actions?.when, [pair]: { inWindow: true } } };
   let now = 10;
   const runtime = createScreenController({ screen, defs, now: () => now });
   expect(runtime.press(allStep.address).ok).toBe(true);
