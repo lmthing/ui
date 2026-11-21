@@ -21,7 +21,6 @@ export type Affordance = {
   togglePeers?: readonly string[];
 };
 type Props = Record<string, unknown>;
-
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
@@ -38,7 +37,6 @@ export function isAdjustOnlyItem(
 }
 
 const firstBoolean = (value: Props) => Object.values(value).find((v) => typeof v === "boolean");
-
 function detailOf(action: string, holder: Props, suppressLink: boolean): string {
   if (!suppressLink && (action === "press" || action === "select") && typeof holder.goto === "string")
     return `→${holder.goto}`;
@@ -82,12 +80,16 @@ function partsOf(
           .map((action) => {
             const target = holder[part];
             const nested = target && typeof target === "object" ? (target as Props) : holder;
-            const suppressLink =
-              (item && Object.hasOwn(meta.items?.edits ?? {}, part)) ||
-              (action === "press" &&
-                ((!item &&
-                  (meta.linkedEdits?.swap.part === part || reportConfirmation(meta, part, action))) ||
-                  (nested === holder && !!noGoto?.includes(part))));
+            const itemControl = item && (meta.items?.edits?.[part] || meta.items?.pickers?.[part]);
+            const localPress =
+              !item &&
+              (meta.clear?.[part] ||
+                meta.linkedEdits?.swap.part === part ||
+                reportConfirmation(meta, part, action));
+            const suppressLink = Boolean(
+              itemControl ||
+              (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
+            );
             return {
               address: part === "root" ? base : `${base}/${part}`,
               part,
@@ -103,12 +105,14 @@ function partsOf(
 function actionsForItem(meta: Meta, props: Props, item: Props, instance: string, first: boolean) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
-  return partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true).filter(
-    ({ part, action }) =>
-      action !== "select" ||
-      meta.items?.edits?.[part]?.action !== "select" ||
-      Boolean(choiceValues(meta, props, `${id}/${part}`)?.length),
-  );
+  const actions = partsOf(items, item, `${instance}/${id}`, when, { ...props, $first: first }, meta, true);
+  return actions.filter(({ part, action }) => {
+    const picker = Object.hasOwn(meta.items?.pickers ?? {}, part);
+    const needsChoices =
+      (picker && action === "press") ||
+      (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
+    return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
+  });
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
