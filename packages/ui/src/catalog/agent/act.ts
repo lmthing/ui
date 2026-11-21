@@ -5,6 +5,7 @@ import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
   controlsAreValid,
+  expireProgress,
   findAction,
   localValues,
   moveKey,
@@ -14,9 +15,8 @@ import {
   stageValue,
   validateStep,
 } from "./action-input";
-import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
+import { deviceRandom, type RandomSource } from "./draw";
 import { monotonicNow } from "./buzz";
-import { sessionKey, staleSession } from "./session";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import {
   captureDeviceTime,
@@ -74,23 +74,6 @@ function stageStandaloneClock(
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
-}
-
-function expireProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
-) {
-  for (const { id, c, state: _state, ...raw } of screen.components) {
-    const def = defs[c];
-    const draw = `${screen.id}/${id}/${drawKey}`;
-    const session = `${screen.id}/${id}/${sessionKey}`;
-    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const props = liveInput(def, raw, id, localValues(screen.id, values), data);
-    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
-    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
-  }
 }
 
 function stepProgress(

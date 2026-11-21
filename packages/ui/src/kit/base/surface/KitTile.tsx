@@ -6,7 +6,7 @@ import { PartContext, useComponentState, usePart, usePartContext } from "../../p
 import { KitIcon } from "../text";
 import { KitText } from "../text";
 import { shifted } from "../text";
-import { useTileBuzz } from "./use-tile-buzz";
+import { useTileBuzz } from "./tile-buzz";
 
 const Badge = styled(YStack, {
   width: size.avatar.md,
@@ -134,6 +134,7 @@ function Tile(props: Omit<TileProps, "item">) {
       minHeight={size.control.lg}
       borderRadius={shifted("md", ks.radiusShift)}
       backgroundColor={on ? "$accentSoft" : undefined}
+      {...(!isWeb && touchTarget && !loading ? { accessible: true } : {})}
       accessibilityRole={loading ? undefined : goto && !action && !touchTarget ? "link" : "button"}
       accessibilityLabel={loading ? undefined : label}
       aria-pressed={on}

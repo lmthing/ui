@@ -4,7 +4,7 @@ import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
 import { drawAvailable, drawRole, drawStatus } from "./draw";
-import { buzzAvailable, buzzStatus, buzzTarget } from "./buzz";
+import { buzzAvailable, buzzRound, buzzStatus, buzzTarget } from "./buzz";
 import { sessionActionProps, sessionAvailable, sessionEvent, sessionState, sessionStatus } from "./session";
 import { addressedItems, nestedActions, visibleItems } from "./visibility";
 import { sendDraft, type LiveInput } from "./live-inputs";
@@ -67,6 +67,18 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
+function actionsForComponent(meta: Meta, props: Props, instance: string) {
+  const { parts, when } = meta.actions ?? {};
+  return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
+}
+
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
@@ -79,19 +91,12 @@ export function affordancesOf(
 ): Affordance[] {
   const get = (part: string) => values[`${instance}/${part}`];
   state = sessionStatus(meta, props, drawStatus(meta, props, state, get), get);
-  state = buzzStatus(meta, state, get);
+  state = buzzStatus(meta, props, state, get);
+  const round = buzzRound(meta, props, get);
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, when } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
-    if (send !== undefined) return send ? [{ ...a, send }] : [];
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
+  const own = actionsForComponent(meta, props, instance);
   const items = addressedItems(meta, props);
   const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
   // `$first` in a rule is true only for the first item (the top card of a stack).
@@ -118,7 +123,7 @@ export function affordancesOf(
     if (context.clock && !context.clock(target, action)) return false;
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
-    if (buzz !== null && !buzzAvailable(get, buzz)) return false;
+    if (buzz !== null && !buzzAvailable(round, buzz)) return false;
     if (
       (liveClock || clockControlDeclared(meta, target, action, true)) &&
       !clockActionValid(meta, props, target, action, get, now)

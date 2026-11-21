@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { buzzKey, type Definition, type ScreenLike } from "../../../catalog";
-import { createScreenController } from "../index";
+import { buzzKey, type Definition, type ScreenLike, type Values } from "../../../../catalog";
+import { createScreenController } from "../../index";
 
 const def: Definition = {
   meta: {
@@ -18,7 +18,10 @@ const def: Definition = {
     successActions: ["buzz.press", "reset.press"],
     readSuccess: true,
     buzz: { press: "buzz", reset: "reset" },
-    read: (input) => (input[buzzKey] ? [JSON.stringify(input[buzzKey])] : []),
+    read: (input) => {
+      const round = (input as Values)[buzzKey];
+      return round ? [JSON.stringify(round)] : [];
+    },
   },
   props: z.strictObject({ players: z.array(z.strictObject({ name: z.string() })) }),
   fallback: () => ({}),
@@ -56,4 +59,32 @@ it("uses a separate injectable clock, projects only deltas, and unlocks on reset
   expect(runtime.snapshotScreen().components[0]?.state).toBeUndefined();
   expect(runtime.act(step("pad/r1/buzz")).ok).toBe(true);
   expect(live()).toEqual({ winner: "r1", deltas: { r1: 0 } });
+});
+
+it("omits disabled buzz offers from the agent's reading", () => {
+  const runtime = createScreenController({ screen, defs });
+  const unregister = runtime.registerDisabledPart("pad/r2/buzz");
+  expect(runtime.read()).not.toContain("[pad/r2/buzz press]");
+  expect(runtime.read()).toContain("[pad/r1/buzz press]");
+  expect(runtime.act(step("pad/r2/buzz"))).toMatchObject({ ok: false, code: "disabled" });
+  unregister();
+  expect(runtime.read()).toContain("[pad/r2/buzz press]");
+});
+
+it("clears a previous roster's winner rather than transferring it to the new first player", () => {
+  const runtime = createScreenController({ screen, defs, touchNow: () => 30 });
+  expect(runtime.press("pad/r1/buzz").ok).toBe(true);
+  const store = runtime.store;
+  const changed = { ...screen, components: [{ ...screen.components[0]!, players: players.slice(1) }] };
+  const replacement = createScreenController({ screen: changed, defs, store, touchNow: () => 45 });
+  expect(replacement.canPress("pad/r1/buzz")).toBe(true);
+  expect(replacement.snapshotScreen().components[0]?.state).toBeUndefined();
+  replacement.mount();
+  expect(store.get(`s/pad/${buzzKey}`)).toBeUndefined();
+  expect(runtime.canPress("pad/r1/buzz")).toBe(true);
+  expect(replacement.press("pad/r1/buzz").ok).toBe(true);
+  expect(replacement.liveControls(def.meta, { players: players.slice(1) }, "pad")[buzzKey]).toEqual({
+    winner: "r1",
+    deltas: { r1: 0 },
+  });
 });

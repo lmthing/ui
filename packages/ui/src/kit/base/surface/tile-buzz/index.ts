@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { isWeb } from "tamagui";
-import { useKit } from "../../provider";
+import { useKit } from "../../../provider";
 
 export function useTileBuzz(address: string, timed: boolean, disabled: boolean) {
   const { controller, interactive } = useKit();

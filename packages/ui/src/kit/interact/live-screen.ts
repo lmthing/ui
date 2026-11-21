@@ -117,13 +117,11 @@ function projectEntry(
     const state = drawStatus(meta, props, (props.state as Entry["state"]) ?? result.state ?? "filled", get);
     if (state !== result.state && (result.state !== undefined || state !== "filled")) result.state = state;
   }
-  if (meta.session) {
+  if (meta.session || meta.buzz) {
     const { id: _id, c: _c, state: _state, ...wire } = result;
-    const state = sessionStatus(meta, parseControlProps(def, wire, get), result.state ?? "filled", get);
-    if (result.state !== undefined || state !== "filled") result.state = state;
-  }
-  if (meta.buzz) {
-    const state = buzzStatus(meta, result.state ?? "filled", get);
+    const props = parseControlProps(def, wire, get);
+    const base = result.state ?? "filled";
+    const state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
     if (result.state !== undefined || state !== "filled") result.state = state;
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")

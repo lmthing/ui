@@ -4,7 +4,7 @@ import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageRecord } from "./record-planning";
-export { stageProgress } from "./progress";
+export { expireProgress, stageProgress } from "./progress";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { findAction } from "./offered-actions";
 import { storeLiveInput } from "../live-inputs";

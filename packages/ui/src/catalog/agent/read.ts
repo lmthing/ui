@@ -119,7 +119,7 @@ export function readComponent(
   const live = liveProps(meta, validated, instance, values, true, deviceData);
   const props = projectSelectionBinding(meta, live, selection);
   const base = drawStatus(meta, props, (props.state as StateName | undefined) ?? state, get);
-  state = buzzStatus(meta, sessionStatus(meta, props, base, get), get);
+  state = buzzStatus(meta, props, sessionStatus(meta, props, base, get), get);
   const schema = z.toJSONSchema(def.props, { io: "input", unrepresentable: "any" }) as Json;
   const head = `${instance} ${meta.id}${variantsOf(schema, props)}${state === "filled" ? "" : ` (${state})`}`;
   const draw = drawState(def.meta, props, get),

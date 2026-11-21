@@ -1,5 +1,6 @@
 import {
   atDeviceTime,
+  buzzTarget,
   captureDeviceTime,
   driveTarget,
   isDeviceDataVisible,
@@ -57,7 +58,14 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:type(?: = "(?:\\.|[^"\\])*")?|increment|decrement)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|press)(?: !needs-[a-z]+)?\]/g;
+
+function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
+  const [id, ...parts] = address.split("/");
+  const entry = screen.components.find((component) => component.id === id);
+  const meta = entry && defs[entry.c]?.meta;
+  return !!meta && Boolean(buzzTarget(meta, parts.join("/"), "press"));
+}
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {
@@ -117,7 +125,9 @@ export function readControls(
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size
-    ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
+    ? read.replace(controlTokens, (token, address, action) =>
+        disabled.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address)) ? "" : token,
+      )
     : read;
 }
 

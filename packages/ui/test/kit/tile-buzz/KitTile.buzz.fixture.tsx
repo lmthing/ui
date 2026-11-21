@@ -4,7 +4,7 @@ import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
 import { buzzKey, type ActStep, type Definition } from "@lmthing/ui/catalog";
 import { createScreenController, KitAction, KitProvider, KitTile, PartScope } from "@lmthing/ui/kit";
-import { config } from "../render";
+import { config } from "../../render";
 
 const def: Definition = {
   meta: {
@@ -41,6 +41,7 @@ declare global {
     tileBuzz: {
       setTime: (at: number) => void;
       act: typeof controller.act;
+      read: typeof controller.read;
       round: () => unknown;
       events: ActStep[];
     };
@@ -49,6 +50,7 @@ declare global {
 window.tileBuzz = {
   setTime: (at) => (time = at),
   act: controller.act,
+  read: controller.read,
   round: () => controller.liveControls(def.meta, { players }, "pads")[buzzKey],
   events,
 };

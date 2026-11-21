@@ -1,7 +1,7 @@
 import { expect, it, vi } from "vitest";
 import { z } from "zod";
-import { drawKey, type Definition, type ScreenLike } from "../../../catalog";
-import { createAgentAccess, createInteractionStore, createScreenController } from "../index";
+import { drawKey, type Definition, type ScreenLike } from "../../../../catalog";
+import { createAgentAccess, createInteractionStore, createScreenController } from "../../index";
 
 const props = z.strictObject({
   cards: z.array(z.strictObject({ title: z.string() })),

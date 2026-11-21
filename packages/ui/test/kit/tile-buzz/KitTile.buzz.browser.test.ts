@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, it } from "vitest";
 import type { Browser, Page } from "playwright-core";
 import { createServer, type ViteDevServer } from "vite";
-import { galleryConfig, launchChrome } from "../../scripts/look";
+import { galleryConfig, launchChrome } from "../../../scripts/look";
 
 let server: ViteDevServer, browser: Browser, page: Page;
 const route = "/kit-tile-buzz-test";
@@ -67,12 +67,14 @@ it("records the named pad on pointer down and leaves an ordinary tile on root pr
 it("keeps disabled and loading timed targets inert for both pointers and controller dispatch", async () => {
   const count = () => page.evaluate(() => window.tileBuzz.events.length);
   const before = await count();
+  const read = await page.evaluate(() => window.tileBuzz.read());
   for (const item of ["r3", "r4"]) {
     const address = `test/pads/${item}/buzz`;
     await page.getByTestId(address).dispatchEvent("pointerdown", { button: 0 });
     expect(
       await page.evaluate((address) => window.tileBuzz.act({ address, action: "press" }), address),
     ).toMatchObject({ ok: false, code: "disabled" });
+    expect(read).not.toContain(`[pads/${item}/buzz press]`);
   }
   expect(await count()).toBe(before);
 });
