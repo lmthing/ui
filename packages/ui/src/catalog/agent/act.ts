@@ -28,6 +28,7 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { stageCredentialToggle } from "./credential-toggle";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -42,7 +43,6 @@ export type ActResult =
       driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
   screen: ScreenLike,
@@ -69,7 +69,6 @@ function stageStandaloneClock(
   const changes = clockChanges(meta, props, get, target, step, now);
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
-
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
@@ -105,6 +104,7 @@ function stepProgress(
   const record = stageRecord(screen, defs, next, step, snapshot, now);
   if (record !== undefined) return record ? "" : false;
   return (
+    stageCredentialToggle(screen, defs, next, step) ??
     stageLinkedEdit(screen, defs, next, found, step.value) ??
     stageProgress(screen, defs, step.address, step, next, random, snapshot)
   );
