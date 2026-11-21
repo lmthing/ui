@@ -9,7 +9,7 @@ import { wireEditKey, writeWireEdit } from "./wire-edits";
 export { applyReportEdits } from "./wire-edits";
 type Choices = NonNullable<NonNullable<Meta["select"]>["choices"]>[string];
 type ItemEdit =
-  | { action: "select"; prop: string; choices: Choices }
+  | { action: "select"; prop: string; choices: Choices | { row: string } }
   | { action: "type"; prop: string; max: number; empty?: "unset" }
   | { action: "photo"; prop: string; max: number }
   | { action: "remove"; photo: string };
@@ -66,6 +66,7 @@ function photoList(row: Values, prop: string): readonly string[] {
 export function itemEditOffer(meta: Meta, row: Values, part: string, action: string) {
   const spec = own(meta.items?.edits, part);
   if (!spec) return undefined;
+  if (meta.items?.deviceData && !meta.items.editPath) return false;
   if (spec.action === "photo") return action === "press" && photoList(row, spec.prop).length < spec.max;
   if (spec.action === "remove") {
     const photo = own(meta.items?.edits, spec.photo);
@@ -120,7 +121,7 @@ function changeAt(
 function itemPath(meta: Meta, wire: Values, edit: NonNullable<ReturnType<typeof itemEditAt>>) {
   const items = meta.items!;
   if (items.editPath) return items.editPath(edit.row, wire);
-  if (Array.isArray(wire[items.key])) return [items.key, edit.index];
+  if (!items.deviceData && Array.isArray(wire[items.key])) return [items.key, edit.index];
 }
 
 /** Stage a schema-checked wire edit. Undefined means this step is not a wire edit. */

@@ -108,7 +108,7 @@ export type Meta = {
     adjust?: NumericAdjustments;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
-    /** Locate a derived item's owner in wire input; by default it is the item at its stamped index. */
+    /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<
