@@ -1,13 +1,18 @@
-import { useEffect } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 import { useKit } from "../../provider";
-import { useControlValue } from "../index";
-import { copyStatusKey } from "./index";
 
-export function useCopyFeedback(address: string | undefined, disabled: boolean) {
+const subscribeNone = () => () => {};
+export function useCopyFeedback(address: string | undefined, text: unknown, disabled: boolean) {
   const { controller } = useKit();
-  useEffect(
-    () => (address && disabled ? controller?.registerDisabledPart(address) : undefined),
-    [address, disabled, controller],
+  useLayoutEffect(() => {
+    if (!address || !controller) return;
+    return !disabled && typeof text === "string" && text.length
+      ? controller.registerCopyTarget(address, text)
+      : controller.registerDisabledPart(address);
+  }, [address, text, disabled, controller]);
+  return useSyncExternalStore(
+    (address && controller?.store.subscribe) || subscribeNone,
+    () => Boolean(address && typeof text === "string" && controller?.copiedAt(address, text)),
+    () => false,
   );
-  return useControlValue<unknown>(address ? copyStatusKey(address) : undefined, undefined) === true;
 }

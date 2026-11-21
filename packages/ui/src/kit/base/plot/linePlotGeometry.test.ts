@@ -96,3 +96,10 @@ describe("reference overlays", () => {
     expect(geometry.ticks).toEqual([8, 4, 0]);
   });
 });
+
+it("does not scale to an isolated band sample that cannot draw an area", () => {
+  const series = [{ id: "one", label: "One", points }];
+  const partial = plotGeometry(series, undefined, { low: [NaN, -1000], high: [NaN, 1000] });
+  expect(partial.bands).toEqual([]);
+  expect(partial.ticks).toEqual(plotGeometry(series).ticks);
+});

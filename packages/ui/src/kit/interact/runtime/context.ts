@@ -19,7 +19,7 @@ import {
   type Values,
 } from "../../../catalog";
 import { clipboardRuntime, createInteractionStore, projectScreen, valueKey } from "../index";
-import type { ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
+import type { ClipboardText, ClipboardWriter, InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
@@ -43,6 +43,7 @@ export type ControllerOptions = {
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
   onSend?: SendHandler | undefined;
   writeClipboard?: ClipboardWriter | undefined;
+  resolveClipboardText?: ClipboardText | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interactive?: boolean | undefined;
   requireMounted?: boolean | undefined;
@@ -123,6 +124,13 @@ function projectLive(options: ControllerOptions, screen: ScreenLike, standalone:
       : projected;
   };
 }
+function createClipboard(
+  { writeClipboard, resolveClipboardText }: ControllerOptions,
+  store: InteractionStore,
+  status: { disposed: boolean },
+) {
+  return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
+}
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
@@ -149,7 +157,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     defs,
     now,
     store,
-    clipboard: clipboardRuntime(store, () => status.disposed, options.writeClipboard),
+    clipboard: createClipboard(options, store, status),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),

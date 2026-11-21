@@ -11,7 +11,7 @@ import {
 } from "../../catalog";
 import { createStandaloneAccess, readControls } from "./runtime";
 import { deliverSend, type SendHandler } from "./actions";
-import type { ClipboardWriter } from "./clipboard";
+import type { ClipboardText, ClipboardWriter } from "./clipboard";
 import type { InteractionStore } from "./store";
 
 export type ActOptions = { dryRun?: boolean; agent?: boolean };
@@ -31,6 +31,7 @@ type AgentOptions = {
   onLink?: (goto: string, address: string) => void;
   onSend?: SendHandler;
   writeClipboard?: ClipboardWriter;
+  resolveClipboardText?: ClipboardText;
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
@@ -66,12 +67,6 @@ function standaloneAccess(
     return createStandaloneAccess({ ...options, screen }, currency);
 }
 
-function logStep(step: ActStep): ActLogEntry {
-  return step.action === "copy"
-    ? { address: step.address, action: step.action, at: Date.now() }
-    : { ...step, at: Date.now() };
-}
-
 function detachedRead(options: AgentOptions, currency: AppCurrency | undefined) {
   const { store, defs, lang, deviceData } = options;
   const screen = options.current();
@@ -101,7 +96,7 @@ export function createAgentAccess(options: AgentOptions) {
       const runtime = options.runtime ?? (screen && detached(screen, list));
       if (runtime) {
         const reply = runtime.act(steps, { ...opts, agent: true });
-        if (reply.ok && !opts.dryRun) for (const step of list) log.push(logStep(step));
+        if (reply.ok && !opts.dryRun) for (const step of list) log.push({ ...step, at: Date.now() });
         return reply;
       }
       const plan = planAct(
@@ -119,7 +114,7 @@ export function createAgentAccess(options: AgentOptions) {
       store.setMany(plan.values);
       for (const link of plan.links) onLink?.(link.goto, link.address);
       for (const send of plan.sends ?? []) deliverSend(send, options.onSend);
-      for (const step of list) log.push(logStep(step));
+      for (const step of list) log.push({ ...step, at: Date.now() });
       return { ...reply, dryRun: false };
     },
     log: () => [...log],

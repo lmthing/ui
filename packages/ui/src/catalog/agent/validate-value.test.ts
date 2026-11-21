@@ -3,7 +3,7 @@ import type { Meta } from "../meta";
 import { validateActionValue } from "./index";
 import { choiceOptions, choiceValues, resolveChoice, resolveKeypadValue } from "./validate-value";
 
-it.each(["dismiss", "play", "pause", "flip", "send", "scan"])("%s takes no value", (action) => {
+it.each(["dismiss", "play", "pause", "flip", "send", "scan", "copy"])("%s takes no value", (action) => {
   expect(validateActionValue(action, undefined)).toBeNull();
   for (const value of [null, false, 0, "label"])
     expect(validateActionValue(action, value)?.code).toBe("invalid_value");
@@ -18,14 +18,6 @@ it.each([
   ["move", "Done", true],
   ["move", 1, false],
   ["move", undefined, false],
-  ["copy", "  two\nlines  ", true],
-  ["copy", " ", true],
-  ["copy", "", false],
-  ["copy", 123, false],
-  ["copy", false, false],
-  ["copy", undefined, false],
-  ["copy", null, false],
-  ["copy", { text: "nested" }, false],
   ["unknown", undefined, false],
 ])("validates %s value %j", (action, value, valid) => {
   expect(validateActionValue(action as string, value) === null).toBe(valid);

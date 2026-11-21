@@ -71,7 +71,7 @@ const isChoiceValue = (value: unknown): value is string | number =>
 const rules: Record<string, [check: (value: unknown) => boolean, hint: string]> = {
   flip: [none, "flip takes no value"],
   scan: [none, "scan takes no value"],
-  copy: [(v) => typeof v === "string" && v.length > 0, "copy takes nonempty text"],
+  copy: [none, "copy takes no value"],
   move: [(v) => typeof v === "string", "move takes a label"],
   press: [none, "press takes no value"],
   start: [none, "start takes no value"],

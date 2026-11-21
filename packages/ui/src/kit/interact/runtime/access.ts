@@ -37,6 +37,7 @@ const pressActions = [
   "start",
   "stop",
   "send",
+  "copy",
   "dismiss",
 ];
 function actionsAt(
@@ -158,6 +159,8 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
+    registerCopyTarget: ctx.clipboard.register,
+    copiedAt: ctx.clipboard.copiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),

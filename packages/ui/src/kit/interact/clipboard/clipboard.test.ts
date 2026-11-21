@@ -9,7 +9,8 @@ import {
 import { copyStatusKey } from "./index";
 
 const screen = { id: "home", components: [{ id: "c1", c: "Button", label: "Copy" }] };
-const step = { address: "home/c1/root", action: "copy", value: "  fixture\ntext  " };
+const step = { address: "home/c1/root", action: "copy" };
+const text = "  fixture\ntext  ";
 const key = copyStatusKey(step.address);
 function definitions(confirm = false): Record<string, Definition> {
   const button = components.Button!;
@@ -25,7 +26,9 @@ function definitions(confirm = false): Record<string, Definition> {
   };
 }
 function setup(writeClipboard?: ClipboardWriter, confirm = false) {
-  return createScreenController({ screen, defs: definitions(confirm), writeClipboard });
+  const runtime = createScreenController({ screen, defs: definitions(confirm), writeClipboard });
+  runtime.registerCopyTarget(step.address, text);
+  return runtime;
 }
 function deferred() {
   let resolve!: () => void;
@@ -35,6 +38,19 @@ function deferred() {
     reject = fail;
   });
   return { promise, resolve, reject };
+}
+function detached(confirm = false) {
+  const writeClipboard = vi.fn(),
+    store = createInteractionStore();
+  const resolveClipboardText = (address: string) => (address === "home/c1" ? text : undefined);
+  const agent = createAgentAccess({
+    defs: definitions(confirm),
+    store,
+    current: () => screen,
+    writeClipboard,
+    resolveClipboardText,
+  });
+  return { agent, writeClipboard, store };
 }
 afterEach(() => vi.unstubAllGlobals());
 
@@ -55,9 +71,9 @@ it("plans and admits copy without echoing or persisting its text", async () => {
   expect(write).not.toHaveBeenCalled();
   expect(runtime.store.snapshot()).toEqual({});
   expect(runtime.act(step)).toMatchObject({ ok: true, changed: "c1 copy" });
-  expect(write).toHaveBeenCalledExactlyOnceWith(step.value);
+  expect(write).toHaveBeenCalledExactlyOnceWith(text);
   await Promise.resolve();
-  expect(runtime.store.get(key)).toBe(true);
+  expect(runtime.copiedAt(step.address, text)).toBe(true);
   expect(JSON.stringify(runtime.store.snapshot())).not.toContain("fixture");
 });
 
@@ -75,9 +91,9 @@ it("uses the bound browser clipboard and reports unavailable hosts", async () =>
   vi.stubGlobal("navigator", { clipboard });
   const runtime = setup();
   runtime.act(step);
-  expect(writeText).toHaveBeenCalledExactlyOnceWith(step.value);
+  expect(writeText).toHaveBeenCalledExactlyOnceWith(text);
   await Promise.resolve();
-  expect(runtime.store.get(key)).toBe(true);
+  expect(runtime.copiedAt(step.address, text)).toBe(true);
 });
 
 it("only reports a completed write for the latest attempt and forgets attempts on reset", async () => {
@@ -91,11 +107,11 @@ it("only reports a completed write for the latest attempt and forgets attempts o
     .mockReturnValueOnce(pending.promise);
   const runtime = setup(write);
   runtime.act(step);
-  runtime.act({ ...step, value: "Newer" });
-  expect(runtime.store.get(key)).not.toBe(true);
+  runtime.act(step);
+  expect(runtime.copiedAt(step.address, text)).toBe(false);
   old.resolve();
   await Promise.resolve();
-  expect(runtime.store.get(key)).not.toBe(true);
+  expect(runtime.copiedAt(step.address, text)).toBe(false);
   next.reject();
   await Promise.resolve();
   expect(runtime.store.get(key)).toBe(false);
@@ -118,8 +134,8 @@ it("copies a confirmable part only after an accepted, valid batch", async () => 
   expect(write).not.toHaveBeenCalled();
   expect(runtime.act([step, accept])).toMatchObject({ ok: true });
   await Promise.resolve();
-  expect(write).toHaveBeenCalledExactlyOnceWith(step.value);
-  expect(runtime.store.get(key)).toBe(true);
+  expect(write).toHaveBeenCalledExactlyOnceWith(text);
+  expect(runtime.copiedAt(step.address, text)).toBe(true);
 });
 
 it("requires a mounted, enabled target and does not write from a preview", () => {
@@ -129,6 +145,7 @@ it("requires a mounted, enabled target and does not write from a preview", () =>
   expect(preview.act(step)).toMatchObject({ ok: false, code: "not_interactive" });
   const runtime = createScreenController(options);
   expect(runtime.act(step)).toMatchObject({ ok: false, code: "not_mounted" });
+  runtime.registerCopyTarget(step.address, text);
   const unmount = runtime.registerPart(step.address);
   const enable = runtime.registerDisabledPart(step.address);
   expect(runtime.act(step)).toMatchObject({ ok: false, code: "disabled" });
@@ -140,26 +157,44 @@ it("requires a mounted, enabled target and does not write from a preview", () =>
 });
 
 it("copies through detached agent access without logging text", async () => {
-  const writeClipboard = vi.fn(),
-    store = createInteractionStore();
-  const agent = createAgentAccess({ defs: definitions(), store, current: () => screen, writeClipboard });
+  const { agent, writeClipboard, store } = detached();
   expect(agent.read()).toContain("[c1 copy]");
   expect(agent.act(step)).toMatchObject({ ok: true, changed: "c1 copy" });
   expect(agent.log()).toEqual([{ address: step.address, action: "copy", at: expect.any(Number) }]);
   await Promise.resolve();
-  expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(step.value);
+  expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(text);
   expect(store.get(key)).toBe(true);
 });
 
 it("retains a detached agent confirmation across separate calls", async () => {
-  const writeClipboard = vi.fn(),
-    store = createInteractionStore();
-  const agent = createAgentAccess({ defs: definitions(true), store, current: () => screen, writeClipboard });
+  const { agent, writeClipboard, store } = detached(true);
   expect(agent.act(step)).toMatchObject({ ok: true });
   expect(agent.read()).toContain("[confirm/confirm press]");
   expect(writeClipboard).not.toHaveBeenCalled();
   expect(agent.act({ address: "confirm/confirm", action: "press" })).toMatchObject({ ok: true });
   await Promise.resolve();
-  expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(step.value);
+  expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(text);
   expect(store.get(key)).toBe(true);
+});
+
+it("does not reuse success for changed text before or after the prior write settles", async () => {
+  const pending = deferred();
+  const write = vi.fn().mockReturnValueOnce(undefined).mockReturnValueOnce(pending.promise);
+  const runtime = setup(write);
+  expect(runtime.act(step)).toMatchObject({ ok: true });
+  await Promise.resolve();
+  expect(runtime.copiedAt(step.address, text)).toBe(true);
+
+  const oldLabel = "New text";
+  runtime.registerCopyTarget(step.address, oldLabel);
+  expect(runtime.copiedAt(step.address, oldLabel)).toBe(false);
+  runtime.act(step);
+  runtime.registerCopyTarget(step.address, "Newest text");
+  pending.resolve();
+  await Promise.resolve();
+  expect(runtime.copiedAt(step.address, "Newest text")).toBe(false);
+  expect(write).toHaveBeenLastCalledWith(oldLabel);
+  expect(runtime.act(step)).toMatchObject({ ok: true });
+  await Promise.resolve();
+  expect(runtime.copiedAt(step.address, "Newest text")).toBe(true);
 });

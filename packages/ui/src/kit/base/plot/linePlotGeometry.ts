@@ -59,7 +59,7 @@ function plotBands(points: readonly Point[], band: LinePlotProps["band"]) {
     if (!current.length) runs.push(current);
     current.push({ x, low, high });
   }
-  return runs;
+  return runs.filter((run) => run.length > 1);
 }
 
 export function bandPath(run: readonly BandPoint[], x: (n: number) => number, y: (n: number) => number) {

@@ -70,7 +70,6 @@ type ActionProps = {
   disabled?: boolean;
   copiedLabel?: string;
 };
-
 function ActionContent({
   label,
   icon,
@@ -133,11 +132,13 @@ function useActionPress(props: ActionProps, address: string, inactive: boolean) 
           ? kit.controller!.act({
               address,
               action: props.action,
-              ...(props.value === undefined ? {} : { value: props.value }),
+              ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
             })
           : kit.controller!.press(address),
     };
-  return props.goto ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) } : feedback;
+  return props.goto && props.action !== "copy"
+    ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) }
+    : feedback;
 }
 
 export function KitAction({
@@ -167,8 +168,7 @@ export function KitAction({
   const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
   const inactive = loading || disabled || noCopyValue || Boolean(blocked);
   const copied =
-    useCopyFeedback(action === "copy" ? address.testID : undefined, loading || disabled || noCopyValue) &&
-    !inactive;
+    useCopyFeedback(action === "copy" ? address.testID : undefined, value, loading || disabled) && !inactive;
   const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);

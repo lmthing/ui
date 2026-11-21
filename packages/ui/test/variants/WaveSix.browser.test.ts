@@ -28,10 +28,12 @@ beforeAll(async () => {
   await server.listen();
   browser = await launchChrome();
   page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  page.on("pageerror", (error) => console.error(error.message));
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
-  await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
-  await page.getByRole("button", { name: "Copy text", exact: true }).waitFor();
+  await page.goto(new URL(route, server.resolvedUrls!.local[0]).href, { waitUntil: "commit" });
+  await page.getByRole("button", { name: "Copy text", exact: true }).waitFor({ timeout: 40000 });
+  page.setDefaultTimeout(8000);
 }, 60000);
 
 afterAll(async () => {
@@ -40,19 +42,33 @@ afterAll(async () => {
 });
 
 it("copies exact text via the browser and returns to the normal button when a new write fails", async () => {
-  await page.getByRole("button", { name: "Copy text", exact: true }).click();
+  const button = page.getByRole("button", { name: "Copy text", exact: true });
+  expect(await button.getAttribute("data-testid")).toBe("home/c1/root");
+  await button.click();
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe("Fixture\n copy");
   const copied = page.getByRole("button", { name: "Copied", exact: true });
   await copied.waitFor();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("Fixture\n copy");
+  await page.getByRole("button", { name: "Change text" }).click();
+  await button.waitFor();
+  expect(await page.evaluate(() => window.__lmthingUI!.act({ address: "c1", action: "copy" }))).toMatchObject(
+    { ok: true },
+  );
+  await copied.waitFor();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("New fixture text");
   await page.evaluate(() => {
     navigator.clipboard.writeText = () => Promise.reject(new Error("fixture rejection"));
   });
   await copied.click();
   await page.getByRole("button", { name: "Copy text", exact: true }).waitFor();
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("Fixture\n copy");
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("New fixture text");
 });
 
 it("renders the portrait, edge markers and overlays at calm light 390", async () => {
+  expect(
+    await page
+      .locator("[data-testid]")
+      .evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-testid"))),
+  ).toContain("home/c1/portrait");
   const photo = (await page.getByTestId("home/c1/portrait").boundingBox())!;
   expect(photo.width / photo.height).toBeCloseTo(3 / 4);
   const map = (await page.getByTestId("home/c1/map").boundingBox())!;
