@@ -54,6 +54,7 @@ export async function publishEntries(root: string, outputs: Outputs) {
       await writeFile(temp, text);
       await rename(temp, file);
     }
+    // Callers finish generation before reading. Prune only paths the new doors no longer reference.
     await pruneGroups(entry, "packs", outputs);
     await pruneGroups(entry, "views", outputs);
   } finally {

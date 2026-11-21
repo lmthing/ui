@@ -172,13 +172,17 @@ it("prunes obsolete pack files and groups during overlapping rebuilds of a small
   const root = await mkdtemp(resolve(".entries-scale-test-"));
   roots.push(root);
   const ids = [...packIds].sort().slice(0, 10);
-  for (const id of ids) await scaffold(root, id);
+  const names = await Promise.all(ids.map((id) => scaffold(root, id)));
   await generateEntries(root);
   expect(await readdir(join(root, "src/entry/views"))).toContain("group-2.ts");
   await put(root, "entry/packs/group-1.ts", "// Obsolete flat group\n");
   await rm(join(root, "src/packs", ids[0]!), { recursive: true });
-  const builds = await Promise.allSettled([generateEntries(root), generateEntries(root)]);
-  expect(builds).toEqual([{ status: "fulfilled" }, { status: "fulfilled" }]);
+  const rebuildAndRead = async () => {
+    await generateEntries(root);
+    return Object.keys((await loadEntry(root, "renderers")).renderers);
+  };
+  const result = { status: "fulfilled", value: names.slice(1).flat() };
+  expect(await Promise.allSettled([rebuildAndRead(), rebuildAndRead()])).toEqual([result, result]);
   expect((await readdir(join(root, "src/entry/packs"))).sort()).toEqual(["README.md", "group-1", "index.ts"]);
   expect((await readdir(join(root, "src/entry/packs/group-1"))).sort()).toEqual(
     ["README.md", "index.ts", ...ids.slice(1).map((id) => `${id}.ts`)].sort(),
