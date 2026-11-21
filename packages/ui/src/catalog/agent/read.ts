@@ -19,6 +19,7 @@ import {
   selectionBindingFor,
   type BoundSelection,
 } from "./selection-binding";
+import { driveAffordances, driveTarget, type CanDrive } from "./drives";
 
 type Props = Record<string, unknown>;
 
@@ -112,6 +113,7 @@ export function readComponent(
   lang?: string,
   deviceData?: DeviceData,
   selection?: BoundSelection,
+  target?: ReturnType<typeof driveTarget>,
 ): string[] {
   const { meta } = def;
   deviceData = projectDeviceData(deviceData, values);
@@ -126,7 +128,8 @@ export function readComponent(
     session = sessionState(meta, props, get);
   const clock = recordClockOffer(def, migrated as Props, props, get, deviceData, undefined, values);
   const offered = affordancesOf(meta, props, instance, values, state, false, deviceData, clock);
-  const affordances = readAffordances(offered, values, def, props, instance, session);
+  const driven = driveAffordances(meta, props, instance, offered, target);
+  const affordances = readAffordances(driven, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
     return [
@@ -149,18 +152,8 @@ export function readComponent(
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
     ...componentTexts(schema, props, key, roundKey, round?.item),
   ];
-  return readItems(
-    meta,
-    schema,
-    visibleNestedProps(meta, props, get),
-    instance,
-    key,
-    head,
-    own,
-    affordances,
-    get("more") === true,
-    lang,
-  );
+  const nested = visibleNestedProps(meta, props, get);
+  return readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang);
 }
 
 export type ScreenLike = {
@@ -177,6 +170,7 @@ export function readScreen(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ): string {
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
@@ -188,7 +182,8 @@ export function readScreen(
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];
     const selection = selectionBindingFor(migrated, defs, def.meta, id, local, snapshot);
-    return readComponent(def, props, id, state, local, lang, deviceData, selection?.view);
+    const target = driveTarget(def.meta, migrated, defs, local, snapshot, canDrive);
+    return readComponent(def, props, id, state, local, lang, deviceData, selection?.view, target);
   });
   return [header, ...lines].join("\n");
 }

@@ -5,6 +5,7 @@ export {
   partTierAt,
   type Affordance,
 } from "./affordances";
+export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
 export {
   emptyDeviceData,

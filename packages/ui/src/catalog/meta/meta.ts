@@ -72,6 +72,7 @@ export type Meta = {
   realPath: string;
   dense?: true;
   confirmParts?: readonly string[];
+  drives?: string; // Forward item root presses as a seek to the item's `at` seconds.
   variants?: Variants;
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];

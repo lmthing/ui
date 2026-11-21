@@ -1,14 +1,14 @@
 import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
-import { type Affordance } from "./affordances";
+import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
-  affordancesOfScreen,
   controlsAreValid,
+  findAction,
   localValues,
   moveKey,
-  selectStep,
+  type selectStep,
   stageProgress,
   stageRecord,
   stageValue,
@@ -33,15 +33,9 @@ export type ActResult =
       changed: string[];
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
+      driven?: ActStep[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
-const relative = (screen: string, address: string) =>
-  address.replace(new RegExp(`^${screen}/`), "").replace(/\/root$/, "");
-function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
-  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true, data);
-}
 
 /** A mounted controller already stages clocks through its action table. */
 function stageStandaloneClock(
@@ -68,6 +62,11 @@ function stageStandaloneClock(
   for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
 }
 
+function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
+  const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
+  return liveProps(def.meta, parsed, id, local, true, data);
+}
+
 function expireProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
@@ -83,12 +82,6 @@ function expireProgress(
     if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
     if (staleSession(def.meta, props, values[session])) values[session] = undefined;
   }
-}
-
-function notOffered(offered: Affordance[], address: string, at: number): ActResult {
-  const here = offered.filter((a) => a.address === address).map((a) => a.action);
-  const hint = here.length ? `offers ${here.join(", ")}` : "no action at this address";
-  return { ok: false, code: "not_actionable", at, hint };
 }
 
 function stepProgress(
@@ -114,7 +107,7 @@ function stageControl(
   defs: Record<string, Definition>,
   next: Values,
   resolved: ActStep,
-  found: ReturnType<typeof affordancesOfScreen>[number],
+  found: Parameters<typeof stageValue>[2],
   links: Extract<ActResult, { ok: true }>["links"],
   clockOwner: "planner" | "controller",
   snapshot: DeviceData | undefined,
@@ -159,20 +152,15 @@ export function planAct(
     if (!preview.ok) return preview;
   }
   const migrated = migrateScreen(input, { variantOnly: true });
-  const next: Values = { ...values };
-  const changed: string[] = [];
-  const links: Extract<ActResult, { ok: true }>["links"] = [];
-  const sends: SendDraft[] = [];
+  const plan: Extract<ActResult, { ok: true }> = { ok: true, values: { ...values }, changed: [], links: [] };
+  const { values: next, changed, links } = plan;
   for (const [at, original] of steps.entries()) {
     const snapshot = projectDeviceData(data, next);
     const screen = filterDeviceDataScreen(migrated, defs, snapshot);
-    const offered = affordancesOfScreen(screen, defs, next, snapshot, now);
-    const address = relative(screen.id, original.address);
-    const selected = selectStep(screen, defs, original, address, next, snapshot);
-    const step = selected.step;
-    const found = offered.find((a) => a.address === address && a.action === step.action);
-    if (!found) return notOffered(offered, address, at);
-    if (selected.error) return { ok: false, code: "invalid_value", at, hint: selected.error };
+    const action = findAction(screen, defs, next, original, at, snapshot, now);
+    if (action.error) return action.error;
+    const { address, selected, found, drive, step } = action;
+    if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${found.move ? moveKey(address) : address}`;
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
@@ -192,8 +180,9 @@ export function planAct(
     const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
     if (failure) return { ...failure, at };
     expireProgress(screen, defs, next, snapshot);
-    if (found.send) sends.push({ ...found.send, address: `${screen.id}/${found.send.address}` });
+    if (found.send)
+      (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
-  return { ok: true, values: next, changed, links, ...(sends.length ? { sends } : {}) };
+  return plan;
 }

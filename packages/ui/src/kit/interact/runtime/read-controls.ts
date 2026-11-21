@@ -1,10 +1,12 @@
 import {
+  driveTarget,
   migrateScreen,
   projectDeviceData,
   readComponent,
   readScreen,
   selectionBindingFor,
   withDisabledSelectionChecks,
+  type CanDrive,
   type Definition,
   type DeviceData,
   type ScreenLike,
@@ -62,13 +64,14 @@ export function readControls(
   lang?: string,
   disabled?: ReadonlyMap<string, symbol>,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ): string {
   const source = withDisabledSelectionChecks(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
   const hasKeypads = migrated.components.some(({ c }) => Array.isArray(defs[c]?.props.meta()?.keypadParts));
   const read = hasKeypads
-    ? readKeypads(migrated, defs, values, lang, deviceData)
-    : readScreen(source, defs, values, lang, deviceData);
+    ? readKeypads(migrated, defs, values, lang, deviceData, canDrive)
+    : readScreen(source, defs, values, lang, deviceData, canDrive);
   return disabled?.size
     ? read.replace(controlTokens, (token, address) => (disabled.has(address) ? "" : token))
     : read;
@@ -80,18 +83,21 @@ function readKeypads(
   values: Values,
   lang?: string,
   deviceData?: DeviceData,
+  canDrive?: CanDrive,
 ) {
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const snapshot = projectDeviceData(deviceData, values);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       if (!def) return [`${id} ${c} (unknown)`];
       const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
+      const target = driveTarget(def.meta, screen, defs, local, snapshot, canDrive);
       return readComponent(
         withKeypadDrafts(def, id, local),
         props,
@@ -101,6 +107,7 @@ function readKeypads(
         lang,
         deviceData,
         selection?.view,
+        target,
       );
     }),
   ].join("\n");

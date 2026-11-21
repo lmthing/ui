@@ -13,6 +13,7 @@ import type { DeviceData } from "./device-data";
 
 export type Affordance = {
   address: string;
+  readAddress?: string;
   part: string;
   action: string;
   detail: string;
@@ -142,6 +143,6 @@ export function partTierAt(meta: Meta, props: Props, part: string): Tier {
 }
 
 /** Every action names its own address, so a model copies it and never assembles one: `[l1/r1/trail toggle:on]`. */
-export function formatAffordance({ address, action, detail }: Affordance): string {
-  return `[${address} ${action}${detail}]`;
+export function formatAffordance({ address, readAddress = address, action, detail }: Affordance): string {
+  return `[${readAddress} ${action}${detail}]`;
 }

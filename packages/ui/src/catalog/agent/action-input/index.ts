@@ -3,9 +3,10 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
-export { affordancesOfScreen, stageRecord } from "./record-planning";
+export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
 export { itemActionOffer, moveKey, projectMoves } from "./move";
+export { findAction } from "./offered-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,

@@ -9,13 +9,14 @@ import {
   stageRecordClock,
 } from "../clocks";
 import type { DeviceData } from "../device-data";
+import { driveAffordances, driveTarget } from "../drives";
 import { liveProps, parseControlProps } from "../live-props";
 import type { ScreenLike } from "../read";
 import { isRecordAction, recordRequestAllowed } from "../report-edits";
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
 
-type PlannedAffordance = Affordance & { checks?: readonly Affordance[] };
+type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
@@ -48,6 +49,7 @@ export function affordancesOfScreen(
       readSuccess ||
       policy ||
       live ||
+      def.meta.drives ||
       def.meta.linkedEdits ||
       def.meta.selectionBinding ||
       items?.edits ||
@@ -63,8 +65,15 @@ export function affordancesOfScreen(
     const get = (part: string) => local[`${id}/${part}`];
     const clock = recordClockOffer(def, input, props, get, data, now, values);
     const offered = affordancesOf(def.meta, props, id, local, liveState, true, data, clock);
-    if (!selection) return offered;
-    return offered.map((a): PlannedAffordance =>
+    const routed = driveAffordances(
+      def.meta,
+      props,
+      id,
+      offered,
+      driveTarget(def.meta, screen, defs, local, data),
+    );
+    if (!selection) return routed;
+    return routed.map((a): PlannedAffordance =>
       isSelectAll(def.meta, a.part, a.action, isItemOffer(id, a)) ? { ...a, checks: selection.checks } : a,
     );
   });

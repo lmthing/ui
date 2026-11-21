@@ -2,6 +2,8 @@ import {
   wordsFor,
   affordancesOf,
   clockControlDeclared,
+  driveAffordances,
+  driveTarget,
   isPlaybackAction,
   liveProps,
   parseAddress,
@@ -19,6 +21,7 @@ import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = [
@@ -76,16 +79,11 @@ function actionsAt(
     const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
     const props = projectSelectionBinding(def.meta, live, selection?.view);
     const clock = recordClockOffer(def, raw, props, get, data, now, values);
-    return affordancesOf(
-      def.meta,
-      props,
-      id,
-      localValues,
-      (props.state as StateName | undefined) ?? entry.state,
-      includeBlocked,
-      data,
-      clock,
-    )
+    const state = (props.state as StateName | undefined) ?? entry.state;
+    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, data, clock);
+    const canDrive = (part: string) => !drivenPartBlock(ctx, part);
+    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
+    return driveAffordances(def.meta, props, id, offered, target)
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {
@@ -137,7 +135,8 @@ function read(ctx: ControllerContext) {
   const values = ctx.valuesOf();
   const sheet = ctx.status.openSheet;
   const visible = ctx.liveScreen(values, sheet, Boolean(sheet));
-  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, deviceData);
+  const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
+  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, deviceData, canDrive);
   if (ctx.standalone) return reading;
   return [
     reading,
