@@ -76,7 +76,8 @@ function removeGoal(goals: Map<string, MatchGoal>, target: Goal) {
 
 /** Fold confirmed changes onto the current baseline without confusing collisions with acknowledgments. */
 export function replayMatch(record: MatchRecord, journal: readonly unknown[]) {
-  const goals = new Map<string, MatchGoal>(record.goals.map((goal) => [recordKey(goal), goal]));
+  const baseline = [...record.goals].sort((a, b) => a.id - b.id);
+  const goals = new Map<string, MatchGoal>(baseline.map((goal) => [recordKey(goal), goal]));
   if (goals.size !== record.goals.length) return;
   const unlisted = record.unlisted;
   const activeUnlisted = record.unlisted ? { ...record.unlisted } : undefined;
@@ -115,7 +116,7 @@ export function replayMatch(record: MatchRecord, journal: readonly unknown[]) {
     }
   }
   return {
-    goals: [...goals.values()].sort((a, b) => a.id - b.id),
+    goals: [...goals.values()],
     nextId: highestId < Number.MAX_SAFE_INTEGER ? highestId + 1 : undefined,
     ...(activeUnlisted && { unlisted: activeUnlisted, seed: record.unlisted }),
   };
