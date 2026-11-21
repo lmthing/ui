@@ -40,7 +40,8 @@ function prepareStep(
   confirmed?: ActionState["confirmation"],
 ): PreparedStep {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
-  const entry = active.components.find((item) => item.id === action.address.split("/", 1)[0]);
+  const id = action.address.split("/")[0]!;
+  const entry = active.components.find((item) => item.id === id);
   const fail = (code: string, hint: string) => ({ error: actionFailure(at, code, hint) });
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
   if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
@@ -84,7 +85,6 @@ function prepareStep(
       now: ctx.now,
       key: ctx.key,
       options: ctx.options,
-      clipboard: ctx.clipboard,
       playMedia: media.playMedia,
       seekMedia: media.seekMedia,
       requestPhoto: media.requestPhoto,
@@ -92,7 +92,7 @@ function prepareStep(
   };
 }
 function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
-  if (!ctx.standalone || selected.action === "copy") return true;
+  if (!ctx.standalone) return true;
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
@@ -143,7 +143,7 @@ function stepRunner(
         prepared.context.links = plan.links;
       }
     }
-    if (ctx.standalone && selected.action !== "copy")
+    if (ctx.standalone)
       return {
         state: prepared.state,
         effects: standaloneEffects(prepared.context),

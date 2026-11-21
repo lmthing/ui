@@ -35,15 +35,20 @@ type AgentOptions = {
   runtime?: { act(steps: ActStep | ActStep[], opts?: ActOptions): ActReply; read(): string; reset(): void };
 };
 
+function hasCopyConfirmation(options: AgentOptions, screen: ScreenLike) {
+  return screen.components.some(({ c }) => {
+    const meta = options.defs[c]?.meta;
+    return meta?.confirmParts?.some((part) =>
+      [meta.actions?.parts?.[part], meta.actions?.items?.[part]].some((actions) => actions?.includes("copy")),
+    );
+  });
+}
+
 function requiresStandalone(options: AgentOptions, screen: ScreenLike) {
   return screen.components.some(({ c }) => {
     const meta = options.defs[c]?.meta;
     if (!meta) return false;
-    const copyConfirmation = meta.confirmParts?.some((part) =>
-      [meta.actions?.parts?.[part], meta.actions?.items?.[part]].some((actions) => actions?.includes("copy")),
-    );
     return (
-      copyConfirmation ||
       meta.recordRuntime ||
       hasReportConfirmation(meta) ||
       (meta.confirmParts?.length &&
@@ -63,8 +68,9 @@ function standaloneAccess(
   currency: AppCurrency | undefined,
   copy = false,
 ) {
-  if (copy || requiresStandalone(options, screen))
-    return createStandaloneAccess({ ...options, screen }, currency);
+  const needsEffects = copy || hasCopyConfirmation(options, screen);
+  if (needsEffects || requiresStandalone(options, screen))
+    return createStandaloneAccess({ ...options, screen }, currency, !needsEffects);
 }
 
 function detachedRead(options: AgentOptions, currency: AppCurrency | undefined) {

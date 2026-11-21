@@ -131,7 +131,8 @@ function createClipboard(
 ) {
   return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
 }
-export function createControllerContext(options: ControllerOptions, standalone = false) {
+type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
+export function createControllerContext(options: RuntimeOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
   const disabledParts = new Map<string, symbol>();

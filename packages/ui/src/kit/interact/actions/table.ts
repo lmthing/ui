@@ -111,7 +111,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
 const playbackAction: ActionHandler = (state, action, ctx) =>
   ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
 const copyAction: ActionHandler = (state, { address }, ctx) => {
-  const clipboard = ctx.clipboard;
+  const clipboard = ctx.options.clipboard;
   if (!clipboard?.available())
     return rejected(state, ctx.at, "clipboard_unavailable", "Clipboard is unavailable");
   const effect = clipboard.effectFor(`${ctx.screen.id}/${address}`);
