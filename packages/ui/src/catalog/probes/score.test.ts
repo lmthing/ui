@@ -62,3 +62,18 @@ it("continues to prefer titles and then labels", () => {
   expect(score([{ label: "Fern", name: "Aloe" }, { label: "Basil" }]).pass).toBe(true);
   expect(score([{ label: "Aloe", name: "Fern" }, { label: "Basil" }])).toEqual(incorrect);
 });
+
+it("requires the requested wire fields as well as a valid schema", () => {
+  const fields = { "options.0.label": "Fern" };
+  const check = (label: string | null, detail: string | null = "brief") =>
+    scoreWrite(
+      JSON.stringify({ c: "Fixture", detail, options: [{ label }, { label: "Basil" }] }),
+      fixture,
+      ordered,
+      fields,
+    );
+  expect(check("Fern").pass).toBe(true);
+  expect(check(null)).toEqual({ pass: false, detail: "expected options.0.label: Fern, got undefined" });
+  expect(check("Aloe").pass).toBe(false);
+  expect(check("Fern", null).pass).toBe(false);
+});

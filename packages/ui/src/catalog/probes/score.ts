@@ -29,15 +29,29 @@ function jsonLine(reply: string): unknown {
 }
 
 /** Valid first time: right component, props pass the schema with no repair. */
-export function scoreWrite(reply: string, def: Definition, variant?: WriteProbe["variant"]): Score {
+export function scoreWrite(
+  reply: string,
+  def: Definition,
+  variant?: WriteProbe["variant"],
+  fields?: WriteProbe["fields"],
+): Score {
   const line = jsonLine(reply);
   if (!line || typeof line !== "object") return { pass: false, detail: "no JSON object" };
   const { c, ...rest } = line as Record<string, unknown>;
   if (c !== def.meta.id) return { pass: false, detail: `wrote c=${String(c)}` };
   const input = writerInput(def, rest) as Record<string, unknown>;
   const parsed = def.props.safeParse(input);
-  if (parsed.success)
+  if (parsed.success) {
+    for (const [path, expected] of Object.entries(fields ?? {})) {
+      const actual = path.split(".").reduce<unknown>((value, key) => {
+        if (value && typeof value === "object" && Object.hasOwn(value, key))
+          return (value as Record<string, unknown>)[key];
+      }, input);
+      if (actual !== expected)
+        return { pass: false, detail: `expected ${path}: ${expected}, got ${String(actual)}` };
+    }
     return variant ? scoreVariant(input, def, variant) : { pass: true, detail: "valid first time" };
+  }
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
   return { pass: false, detail: issues.slice(0, 3).join("; ") };
 }

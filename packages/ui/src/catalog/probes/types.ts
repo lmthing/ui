@@ -7,7 +7,14 @@ export type ChooseProbe = { kind: "choose"; need: string; expect: string };
 type VariantExpectation = {
   [A in Axis]: { axis: A; value: AxisValue<A> | null; item?: number; itemTitles?: readonly string[] };
 }[Axis];
-export type WriteProbe = { kind: "write"; brief: string; expect: string; variant?: VariantExpectation };
+export type WriteProbe = {
+  kind: "write";
+  brief: string;
+  expect: string;
+  variant?: VariantExpectation;
+  /** Exact values at dot-separated wire paths, with zero-based indexes for arrays. */
+  fields?: Readonly<Record<string, string | number | boolean>>;
+};
 export type ReadProbe = {
   kind: "read";
   screen: number;

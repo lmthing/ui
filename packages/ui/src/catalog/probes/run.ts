@@ -41,7 +41,7 @@ async function runOne(
   }
   const prompt = writePrompt(def, probe.brief);
   const reply = await callModel(prompt, 0, writerFormatFor(def));
-  const { pass, detail } = scoreWrite(reply, def, probe.variant);
+  const { pass, detail } = scoreWrite(reply, def, probe.variant, probe.fields);
   return { ...base, prompt, reply, status: pass ? "pass" : "fail", detail };
 }
 
