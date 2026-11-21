@@ -14,6 +14,7 @@ import {
   stampItemIds,
   themeName,
   writerFormatFor,
+  type Affordance,
   type AppCurrency,
   type ComponentName,
   type Definition,
@@ -36,6 +37,7 @@ import { addressedElements, config, hasStepTarget, renderExample } from "./rende
 import { selectedIds } from "../scripts/build";
 import { decode, peekForExample, visibleTexts } from "./variants";
 import { hasColumnTarget } from "./kit/column-target";
+import { seatMoveReading } from "./kit/seat-move";
 
 const props = z.strictObject({ value: z.number() });
 function Fixture({ value }: z.infer<typeof props>) {
@@ -147,6 +149,24 @@ function labels(html: string): string[] {
   return [...html.matchAll(/aria-label="([^"]*)"/g)].map((m) => decode(m[1]!));
 }
 
+function expectTarget(read: string, addressed: ReturnType<typeof addressedElements>, offer: Affordance) {
+  const { address, action, part } = offer;
+  expect(read, `${address} is missing from the read`).toContain(`[${address} ${action}`);
+  const element = addressed.get(`home/${address}${part === "root" ? "/root" : ""}`);
+  expect(element, `${address} offers ${action} but is not on screen`).toBeDefined();
+  if (element && (hasStepTarget(element, action) || hasColumnTarget(element, action))) return;
+  const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
+  expect(roles[action] ?? [], `${address} has role ${role ?? "none"}`).toContain(role);
+}
+
+it("accepts addressed KitSeatMap guest buttons for the move action offered in the read", () => {
+  const { html, text, offers } = seatMoveReading();
+  const addressed = addressedElements(html);
+  expect(offers.map(({ address, action }) => `${address} ${action}`)).toEqual(["c1/r1 move", "c1/r2 move"]);
+  expect(html.match(/aria-expanded="false"/g)).toHaveLength(2);
+  for (const offer of offers) expectTarget(text, addressed, offer);
+});
+
 describe.each(ready)("%s reads as text and can be acted on", (id) => {
   const def = components[id];
   // An open problem listed in test/known/<Id>.md is expected to fail until it is fixed.
@@ -172,23 +192,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);
-    for (const affordance of affordancesOf(def.meta, props, "c1")) {
-      if (hidden.includes(affordance.address.split("/")[1]!)) continue;
-      expect(read, `${affordance.address} is missing from the read`).toContain(
-        `[${affordance.address} ${affordance.action}`,
-      );
-      const testId = `home/${affordance.address}${affordance.part === "root" ? "/root" : ""}`;
-      const element = addressed.get(testId);
-      expect(element, `${affordance.address} offers ${affordance.action} but is not on screen`).toBeDefined();
-      if (
-        element &&
-        (hasStepTarget(element, affordance.action) || hasColumnTarget(element, affordance.action))
-      )
-        continue;
-      const role = element?.attributes.match(/\brole="([^"]+)"/)?.[1];
-      expect(roles[affordance.action] ?? [], `${affordance.address} has role ${role ?? "none"}`).toContain(
-        role,
-      );
+    const offers = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
+    for (const affordance of offers) {
+      if (!hidden.includes(affordance.address.split("/")[1]!)) expectTarget(read, addressed, affordance);
     }
   });
 });

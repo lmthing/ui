@@ -107,8 +107,10 @@ describe("Wishlist states and parts", () => {
   it("draws each supplied field and both controls, without placeholder fields on a sparse row", () => {
     const parts = render(filled);
     expect(parts.get(at("r1/name"))?.text).toEqual([light.name]);
-    expect(parts.get(at("r1/price"))?.text).toEqual(["Price $0"]);
-    expect(parts.get(at("r1/target"))?.text).toEqual(["Target $25.50"]);
+    expect(parts.get(at("r1/price"))?.text).toEqual(["Price "]);
+    expect(parts.get(at("r1/price"))?.children[0]?.text).toEqual(["$0"]);
+    expect(parts.get(at("r1/target"))?.text).toEqual(["Target "]);
+    expect(parts.get(at("r1/target"))?.children[0]?.text).toEqual(["$25.50"]);
     expect(parts.get(at("r1/priority"))?.text).toEqual(["High priority"]);
     expect(parts.get(at("r2/priority"))?.text).toEqual(["Low priority"]);
     expect(parts.get(at("r1/where"))?.text).toEqual(["Garden Supply"]);

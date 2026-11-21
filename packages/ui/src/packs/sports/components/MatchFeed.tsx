@@ -1,5 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import { goalEvents } from "../match-record";
+import { matchFeedRecord } from "../match-runtime";
 
 // Core first: Timeline/history shows one stream of past events, not two sides' match incidents.
 export const meta = {
@@ -23,6 +25,7 @@ export const meta = {
   states: ["filled", "empty"],
   actions: { parts: { add: ["press"] } },
   emptyActions: ["add.press"],
+  ...matchFeedRecord,
   read: (input, _state, lang): string[] => {
     const { events } = input as z.output<typeof props>;
     return events.map(
@@ -34,17 +37,7 @@ export const meta = {
 
 export const props = z.strictObject({
   ...c.variantProps(meta.variants),
-  events: z
-    .array(
-      z.strictObject({
-        minute: z.int().min(0).max(130),
-        side: z.enum(["home", "away"]),
-        kind: z.enum(["goal", "card_yellow", "card_red", "sub", "note"]),
-        text: c.text(36),
-      }),
-    )
-    .min(1)
-    .max(12),
+  events: goalEvents,
 });
 
 export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {

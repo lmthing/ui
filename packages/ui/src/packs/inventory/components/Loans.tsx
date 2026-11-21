@@ -144,14 +144,13 @@ function LoanRow({ row, today, density, surface, detail }: LoanRowProps) {
         </kit.KitRow>
         {(since || due) && <kit.KitContent density={density}>
           {since && <kit.KitText part="since" role="caption" tone="muted" density={density}>{since}</kit.KitText>}
-          {due && <kit.KitGrid fitLast density={density}>
-            <kit.KitText part="due" role="caption" density={density}>{due}</kit.KitText>
-            {overdue && <kit.KitText part="overdue" role="caption" tone="bad" density={density}>{overdue}</kit.KitText>}
-          </kit.KitGrid>}
+          {due && <kit.KitText part="due" role="caption" density={density}>
+            {due}{overdue && <kit.KitText part="overdue" role="caption" tone="bad" density={density}>{words.dueGap}{overdue}</kit.KitText>}
+          </kit.KitText>}
         </kit.KitContent>}
         <kit.KitGrid density={density}>
           <kit.KitAction part="returned" label={words.returned} kind="secondary" full />
-          <kit.KitAction part="remind" label={words.remind} kind="quiet" full />
+          <kit.KitAction part="remind" label={words.remind[row.way](row.person)} kind="quiet" full />
         </kit.KitGrid>
       </kit.KitCard>
     </kit.PartScope>

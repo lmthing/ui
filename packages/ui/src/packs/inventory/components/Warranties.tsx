@@ -132,8 +132,8 @@ function WarrantyRow({ row, density, surface, detail, today }: WarrantyRowProps)
           </kit.KitContent>
         </kit.KitRow>
         <kit.KitContent group="response" density={density}>
-          <kit.KitText part="ends" role="caption" tone="muted" density={density}>
-            {status && <kit.KitText part="status" role="caption" tone={tone} density={density}>{status}</kit.KitText>}
+          <kit.KitText part="ends" role="caption" tone={status ? "muted" : "text"} density={density} emphasis={status ? "normal" : "strong"}>
+            {status && <kit.KitText part="status" role="caption" tone={tone === "warn" ? tone : "text"} emphasis="strong" density={density}>{status}</kit.KitText>}
             {status && words.separator}
             {ends}
           </kit.KitText>

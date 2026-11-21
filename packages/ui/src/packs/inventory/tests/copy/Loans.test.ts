@@ -27,9 +27,8 @@ describe("loan dates", () => {
       { since, person: "Sam", way: "borrowed" as const },
     ];
     expect(loanReading({ loans, detail: "brief" }, "en", today)).toEqual([
-      "r1 Lent to Ana · Due back 1 Mar 2024 · Overdue",
-      "r2 Borrowed from Sam",
-      "Mark returned · Remind",
+      "r1 Lent to Ana · Due back 1 Mar 2024 · Overdue · Mark returned · Remind Ana",
+      "r2 Borrowed from Sam · Mark returned · Remind me",
     ]);
   });
 });

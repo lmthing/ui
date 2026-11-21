@@ -36,10 +36,11 @@ type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
 } & (
-  | { value: RowSelection; mode: "flags"; choices?: never }
+  | { value: RowSelection; mode: "flags"; choices?: never; runtime?: true }
   | {
       value?: RowSelection;
       mode?: "one";
+      runtime?: never;
       /** Named parts that require an explicit value from a closed list or an array prop. */
       choices?: Readonly<Record<string, ChoiceSource>>;
     }
@@ -115,8 +116,8 @@ export type Meta = {
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
-    /** Item-root move: the row's column index and the component's array of { label } columns. */
-    move?: { column: string; columns: string };
+    /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
+    move?: { column: string; columns: string } | { field: string; values: readonly string[] };
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
@@ -142,7 +143,7 @@ export type Meta = {
       >;
     };
   };
-  select?: SelectMeta;
+  select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.
   /** Bind to item checks on a same-screen component. Without an instance id, require a unique source. */
   selectionBinding?: LiveMeta.SelectionBinding;
   /** Named component parts with independent destinations and explicit offers. */
@@ -172,7 +173,6 @@ export type Meta = {
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 };
-
 /** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 export type PackMeta = {
@@ -180,6 +180,7 @@ export type PackMeta = {
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
   screenValidators?: readonly PackScreenValidator[];
+  hostRecords?: LiveMeta.HostRecords;
 };
 export type Slot = {
   allow: readonly ComponentId[];
