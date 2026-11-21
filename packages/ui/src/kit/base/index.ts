@@ -3,6 +3,7 @@ export { KitNumberPad } from "./keys";
 export { KitSetRow, KitFlip, KitTicket } from "./composition";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";
+export { KitSeatMap, KitGantt } from "./planning";
 export { KitJar } from "./data";
 export { KitDiceFace, KitWheel, KitOrbit, KitScore } from "./game";
 export { KitOverlay } from "./surface";
