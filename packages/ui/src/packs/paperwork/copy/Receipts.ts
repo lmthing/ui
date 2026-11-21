@@ -31,13 +31,17 @@ export function receiptDetails(row: Receipt, currency: Currency, lang?: string, 
     { part: "amount", line: money(row.amount) },
     { part: "date", line: appointmentDate(row.date, lang) },
   ];
-  if (row.category) lines.push({ part: "category", line: row.category });
+  const joined = reading ? words.separator.trimStart() : "";
+  if (row.category) lines.push({ part: "category", line: `${joined}${row.category}` });
   if (row.allocation !== undefined) {
     const share = row.amount * (row.allocation / 100);
     lines.push({ part: "allocation", line: words.allocation(percentageLine(row.allocation, lang)) });
-    lines.push({ part: "allocated_amount", line: reading ? words.allocated(money(share)) : money(share) });
+    lines.push({ part: "allocated_amount", line: `${joined}${money(share)}` });
   }
-  if (row.file) lines.push({ part: "file", line: reading ? words.privateFile : words.attached });
+  if (row.file) {
+    lines.push({ part: "file", line: words.attached });
+    if (reading) lines.push({ part: "file", line: words.privateFile });
+  }
   if (row.tags.length) lines.push({ part: "tags", line: row.tags.join(words.separator) });
   return lines;
 }

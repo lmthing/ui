@@ -45,6 +45,16 @@ export function documentDetails(row: DocumentDetails, now: Date, lang?: string):
     lines.push(...expiryWarning(row.expires, now, lang));
   }
   if (row.file) lines.push({ part: "file", line: words.privateFile });
-  if (row.tags.length) lines.push({ part: "tags", line: row.tags.join(" · ") });
+  if (row.tags.length) lines.push({ part: "tags", line: row.tags.join(words.separator) });
   return lines;
+}
+
+export function documentReading(row: DocumentDetails, now: Date, lang?: string): string[] {
+  const words = paperworkWordsFor(lang).documents;
+  const reading = documentDetails(row, now, lang).map(({ part, line }) => {
+    const joined = part === "kind" || (part === "number" && row.issuer) || (part === "tags" && row.file);
+    return `${joined ? words.separator.trimStart() : ""}${line}`;
+  });
+  if (row.file) reading.push(words.attached);
+  return reading;
 }

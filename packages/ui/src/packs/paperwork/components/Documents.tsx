@@ -1,7 +1,7 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { documentDetails } from "../copy";
+import { documentDetails, documentReading } from "../copy";
 import { paperworkWordsFor } from "../lang";
 import { attachment, seedRows } from "../seeds";
 
@@ -38,11 +38,7 @@ export const meta = {
     noGoto: { items: ["remove"] },
   },
   read: (input, _state, lang): string[] =>
-    (input as z.output<typeof props>).docs.flatMap((row) =>
-      documentDetails(row, new Date(), lang)
-        .filter(({ part }) => part !== "number")
-        .map(({ line }) => line),
-    ),
+    (input as z.output<typeof props>).docs.flatMap((row) => documentReading(row, new Date(), lang)),
 } as const satisfies c.Meta;
 
 const doc = z

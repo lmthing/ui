@@ -8,9 +8,9 @@ describe("receipt copy", () => {
     [50, "£12.25"],
     [100, "£24.50"],
   ])("computes the assigned amount for %s percent", (allocation, value) => {
-    expect(receiptDetails({ ...row, allocation }, "GBP", "en", true)).toContainEqual({
+    expect(receiptDetails({ ...row, allocation }, "GBP", "en")).toContainEqual({
       part: "allocated_amount",
-      line: `Assigned share ${value}`,
+      line: value,
     });
   });
   it("omits an unspecified allocation and validates host currency separately", () => {

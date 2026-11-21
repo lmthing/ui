@@ -206,11 +206,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
+    "reply": "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
     "replies": [
+      "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
-      "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Mina's greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
-      "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}"
+      "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}"
     ]
   },
   "42c6c49b1a594d1a": {
@@ -420,9 +420,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[],\"goto\":null}],\"style\":null}",
+    "reply": "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[],\"goto\":null}],\"style\":null}",
     "replies": [
-      "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[],\"goto\":null}],\"style\":null}",
+      "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[],\"goto\":null}],\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[],\"goto\":null}],\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":\"brief\",\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[],\"goto\":null}],\"style\":null}"
     ]
@@ -869,7 +869,7 @@
     "reply": "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":\"Garden office\",\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
     "replies": [
       "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":\"Garden office\",\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
-      "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":\"Garden office\",\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
+      "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":\"Garden office\",\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}] ,\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":null,\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":\"Garden office\",\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}"
     ]
   },
@@ -1299,6 +1299,15 @@
       "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":\"lib:greenhouse_permit\",\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}",
       "{\"c\":\"Documents\",\"density\":null,\"surface\":\"plain\",\"detail\":null,\"docs\":[{\"title\":\"Ledge greenhouse permit\",\"kind\":\"certificate\",\"owner\":\"Mina\",\"issuer\":null,\"number\":null,\"issued\":null,\"expires\":\"2027-04-10\",\"file\":null,\"tags\":[\"permits\"],\"goto\":null}],\"style\":null}"
+    ]
+  },
+  "e668a287a047b9ea": {
+    "prompt": "You operate a phone app for a person. You see the screen as text: one line per component,\nitems indented. Text in quotes is content. Each action is in square brackets and starts with its\naddress: [l1/r2/trail toggle:off] means address l1/r2/trail, action toggle. Copy the address\nexactly. The action is the word written in that bracket (type, select, increment, press, …),\nnever a different action and never the → or : part.\n\nscreen home\nd1 Documents · Certificate — Garden office — · Number •••• — Issued 10 Apr 2026 — Expires 10 Apr 2027 — (private file) — · permits — File attached\n  r1 \"Ledge greenhouse permit\" · \"Mina\" · \"Garden office\" · (secret) [d1/r1 press→permit] [d1/r1/remove press]\n\nTask: Open Mina's greenhouse permit.\nReply with only JSON: {\"address\": \"<address>\", \"action\": \"<action>\"}",
+    "reply": "{\"address\": \"d1/r1\", \"action\": \"press\"}",
+    "replies": [
+      "{\"address\": \"d1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"d1/r1\", \"action\": \"press\"}",
+      "{\"address\": \"d1/r1\", \"action\": \"press\"}"
     ]
   },
   "f442bcc91fbdfe35": {
