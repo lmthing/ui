@@ -272,3 +272,12 @@ Then the look must pass `docs/visual-rubric.md`: look at every PNG yourself, the
 `ui-reviewer` subagent (`.factory/droids/ui-reviewer.md`) to review it with fresh eyes, fix, and
 repeat until it answers `APPROVED` (at most 3 rounds). The orchestrating agent then looks at the final
 screenshots once, approves and merges.
+
+For pack acceptance, start with `pnpm look --component <Id> --widths 390 --preset calm --mode light`.
+Use the part names in `issues.json` to find the source. Use tight spacing inside a label/value
+pair and more space before the next group; put the first row close to its heading. Use at most
+three text sizes per item, and use end alignment for numeric columns even with tabular digits.
+Use a danger or neutral treatment for negative actions rather than the primary accent. Check
+that meaningful text fits without clipping or ellipsis; a wholly offscreen item in a scroll
+region is not clipped text. When the component brief requires a specific empty message, pass it
+from the language copy to `KitEmpty` instead of letting it show the shared neutral line.

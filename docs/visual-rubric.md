@@ -3,7 +3,7 @@
 What "finished" means for a component, judged on its `pnpm look` screenshots (3 widths × 3 presets ×
 light and dark, the first accent). Each filled example is shown; other declared states use the first
 example. The current presets are `calm`, `bold` and `editorial`. Full 12-preset acceptance is **pending**. Every line is checkable by eye. A problem found by a person
-that this rubric missed becomes a new line here, or an automated check in `scripts/look-checks.ts`.
+that this rubric missed becomes a new line here, or an automated check in `packages/ui/scripts/look/checks/`.
 
 Automated checks already cover clipping, overflow, overlap, contrast, faint loading bars, cramped
 text, awkward wraps, text under 12px, touch targets, alignment of item parts and item rhythm. The
@@ -34,6 +34,7 @@ comparisons. The planned 0.1% CI baseline gate and axe/native checks are **pendi
 ## Text
 
 9. Text wraps only where a person would expect; short values (names, dates, amounts) never wrap.
+   At 390px the initial view does not clip or truncate meaningful text.
 10. No line ends with a single short word in titles (widows), where avoidable by limits or layout.
 
 ## Colour and surface
@@ -63,3 +64,12 @@ comparisons. The planned 0.1% CI baseline gate and axe/native checks are **pendi
     contrast and the same type and spacing system as the default.
 20. Compact fits without clipping, crowding or shrinking an actionable target.
 21. Hero draws the eye once without shouting: secondary text and nearby controls stay secondary.
+
+## Pack acceptance at 390px
+
+- Apply the three-size limit to each item, including its action labels.
+- Compare the gap inside a label/value pair with the gap to the next group; the pair stays closer.
+- Within each numeric column, the visible figures share a right edge.
+- A destructive or negative action does not use the positive accent, even as quiet text.
+- A heading stays close to the first item it introduces.
+- If the component brief calls for specific empty copy, the shared neutral line is not a substitute.
