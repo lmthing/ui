@@ -6,6 +6,7 @@ export {
   DeviceDataContext,
   useAppCurrency,
   useControlValue,
+  useDateEdit,
   useDeviceData,
   useLiveControls,
   useMoveFocus,
