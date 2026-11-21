@@ -121,8 +121,14 @@ describe("CartBar states and parts", () => {
     { state: "filled", data: undefined },
     { state: "filled", data: { basket: [] } },
     { state: "filled", data: { basket: [{ count: 0, total: 0 }] } },
-  ] as const)("hides every part for $state with $data", ({ state, data }) => {
+    { state: "filled", data: { basket: [{ count: 3, total: -1 }] } },
+  ] as const)("hides every part and rejects navigation for $state with $data", ({ state, data }) => {
     expect([...addressedElements(renderBar(state, data)).keys()]).toEqual([]);
+    if (state === "filled") expect(readComponent(def, example, "c1", state, {}, undefined, data)).toEqual([]);
+    expect(planAct(screenFor(state), components, {}, [press], null, "planner", data)).toMatchObject({
+      ok: false,
+      code: "not_actionable",
+    });
   });
 });
 
@@ -131,10 +137,10 @@ describe("CartBar read and act", () => {
     const screen = screenFor();
     const onLink = vi.fn();
     const lang = "en-GB";
-    const data = { basket: [{ count: 1, total: 12.5, currency: "GBP" }] };
+    const data = { basket: [{ count: 1, total: 0, currency: "GBP" }] };
     const runtime = createScreenController({ screen, defs: components, deviceData: data, lang, onLink });
     const html = renderBar("filled", data, example, lang);
-    for (const line of ["View basket", "1 item", "£12.50"]) {
+    for (const line of ["View basket", "1 item", "£0"]) {
       expect(html).toContain(line);
       expect(runtime.read()).toContain(line);
     }
@@ -152,6 +158,33 @@ describe("CartBar read and act", () => {
     expect(runtime.snapshotScreen()).toEqual(screen);
     runtime.dispose();
   });
+});
+
+describe("CartBar navigation gates", () => {
+  it("closes and reopens navigation as the host refreshes the same filled screen", () => {
+    const screen = screenFor();
+    const onLink = vi.fn();
+    let data: DeviceData = deviceData;
+    const runtime = createScreenController({
+      screen,
+      defs: components,
+      onLink,
+      get deviceData() {
+        return data;
+      },
+    });
+    expect(runtime.read()).toContain(`[c1 press→${example.goto}]`);
+    data = { basket: [] };
+    expect(runtime.read()).not.toContain("CartBar");
+    expect(runtime.press("home/c1/root")).toMatchObject({ ok: false, code: "not_actionable" });
+    expect(onLink).not.toHaveBeenCalled();
+    data = deviceData;
+    expect(runtime.read()).toContain(`[c1 press→${example.goto}]`);
+    expect(runtime.act(press)).toMatchObject({ ok: true });
+    expect(onLink).toHaveBeenCalledExactlyOnceWith(example.goto, "home/c1");
+    expect(runtime.snapshotScreen()).toEqual(screen);
+    runtime.dispose();
+  });
   it("omits copy and rejects navigation in the explicit empty state, even with a stale summary", () => {
     const screen = screenFor("empty");
     const onLink = vi.fn();
@@ -160,10 +193,6 @@ describe("CartBar read and act", () => {
       "c1 CartBar (empty)",
     ]);
     expect(runtime.act(press)).toMatchObject({ ok: false, code: "not_actionable" });
-    expect(planAct(screen, components, {}, [press], null, "planner", deviceData)).toMatchObject({
-      ok: false,
-      code: "not_actionable",
-    });
     expect(onLink).not.toHaveBeenCalled();
     runtime.dispose();
   });

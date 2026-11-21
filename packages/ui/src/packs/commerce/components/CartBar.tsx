@@ -1,13 +1,13 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import { cartBarLines, cartBarReading } from "../copy";
+import { basketSummary, cartBarLines, cartBarReading } from "../copy";
 import { commerceWordsFor } from "../lang";
 
 // Core first: Button/secondary cannot read the live basket count and total or hide itself when the basket is empty.
 export const meta = {
   id: "CartBar",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Return to a nonempty basket from a shopping screen.",
   pick: "A persistent bottom shortcut to the basket with its live count and total, hidden when empty. Not a lone action without live basket data (Button) or the editable basket itself (Cart).",
@@ -22,6 +22,7 @@ export const meta = {
   actions: { parts: { root: ["press"] } },
   emptyActions: [],
   deviceData: ["basket"],
+  deviceDataVisible: ({ basket }) => basketSummary(basket) !== undefined,
   previewDeviceData: ({ state }) => ({ basket: state === "filled" ? [{ count: 3, total: 24.5 }] : [] }),
   read: (_input, state, lang, data): string[] => cartBarReading(state, data?.basket, lang),
 } as const satisfies c.Meta;
@@ -64,26 +65,41 @@ export function CartBar(input: c.Props<typeof props, typeof meta>) {
   if (!lines) return null;
   const quiet = emphasis === "quiet";
   const finish = { density, emphasis };
+  const total = (
+    <kit.KitText
+      part="total"
+      role="number"
+      tone={quiet ? "muted" : "text"}
+      numberScale="compact"
+      tabular
+      {...finish}
+    >
+      {lines.total}
+    </kit.KitText>
+  );
   return (
     <kit.KitCard part="root" goto={goto} label={lines.label} padded density={density}>
-      <kit.KitGrid density={density} fitLast>
-        <kit.KitText part="label" role="heading" tone={quiet ? "text" : "accent"} density={density}>
+      <kit.KitRow
+        part={null}
+        label={lines.label}
+        lineRole="heading"
+        density={density}
+        inline
+        trailing={total}
+      >
+        <kit.KitText
+          part="label"
+          role="heading"
+          tone={quiet ? "text" : "accent"}
+          density={density}
+          emphasis={density === "compact" ? "strong" : undefined}
+        >
           {lines.label}
         </kit.KitText>
-        <kit.KitText
-          part="total"
-          role="number"
-          tone={quiet ? "muted" : "text"}
-          numberScale="compact"
-          tabular
-          {...finish}
-        >
-          {lines.total}
+        <kit.KitText part="count" role="caption" tone="muted" {...finish}>
+          {lines.count}
         </kit.KitText>
-      </kit.KitGrid>
-      <kit.KitText part="count" role="caption" tone="muted" {...finish}>
-        {lines.count}
-      </kit.KitText>
+      </kit.KitRow>
     </kit.KitCard>
   );
 }

@@ -8,6 +8,7 @@ export type CommerceWords = {
   cartBar: {
     view: string;
     count: (formatted: string, singular: boolean) => string;
+  };
   product: {
     stock: (count: string) => string;
     stockField: string;
@@ -63,6 +64,7 @@ export const en = {
   cartBar: {
     view: "View basket",
     count: (formatted, singular) => `${formatted} ${singular ? "item" : "items"}`,
+  },
   product: {
     stock: (count) => `Only ${count} left`,
     stockField: "stock",
