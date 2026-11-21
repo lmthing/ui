@@ -1,7 +1,8 @@
 # rules
 
 Standalone audit of src, scripts, test and the gallery app routes.
-Run `pnpm rules`; violations are grouped by rule with file and line.
+Run `pnpm rules`; findings are grouped by rule with file and line.
+Files over 400 lines and non-exempt folders over 12 files warn; only violations fail the command.
 Scan .ts, .tsx, .mts and README.md only, excluding *.generated.ts and test/recordings/.
 Function limits count physical node lines, including comments and tests.
 Hex literals in *.test.ts are allowed; other rules still apply to tests.

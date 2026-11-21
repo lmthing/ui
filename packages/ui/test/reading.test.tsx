@@ -7,6 +7,7 @@ import { z } from "zod";
 import {
   affordancesOf,
   components,
+  driveAffordances,
   isDeviceDataVisible,
   moneyLine,
   readComponent,
@@ -178,7 +179,9 @@ describe.each(ready)("%s reads as text and can be acted on", (id) => {
     const { hidden, issues } = peekForExample(def.meta, props, html);
     expect(issues).toEqual([]);
     const addressed = addressedElements(html);
-    const offers = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
+    const declared = affordancesOf(def.meta, props, "c1", {}, undefined, false, { schema: def.props });
+    // A standalone example has no same-screen seek target.
+    const offers = driveAffordances(def.meta, props, "c1", declared);
     for (const affordance of offers) {
       if (!hidden.includes(affordance.address.split("/")[1]!))
         expectTarget(read, addressed, affordance, def.meta);
