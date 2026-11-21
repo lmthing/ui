@@ -58,18 +58,20 @@ export function discardHiddenConfirmation(ctx: ControllerContext) {
 }
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
-  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
+  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}, markToken?: symbol): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
     const list = Array.isArray(steps) ? steps : [steps];
+    if (markToken && (ctx.standalone || opts.agent || list.length !== 1))
+      return actionFailure(0, "not_actionable", "Private control");
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     // Sample contact before projection, and reuse it if the action is planned again.
     let touchTime = opts.dryRun ? 0 : list.some((step) => isBuzz(ctx, step)) ? ctx.touchNow() : undefined;
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
     const planning = snapshotPlanning(ctx, () => (touchTime ??= ctx.touchNow()));
-    const preview = planSteps(list, planning, media, null);
+    const preview = planSteps(list, planning, media, null, markToken);
     if (preview.error) return preview.error;
     if (opts.dryRun)
       return { ok: true, screen: ctx.screen.id, changed: preview.state.changes.join("\n"), dryRun: true };
@@ -84,7 +86,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
         error instanceof Error ? error.message : wordsFor(ctx.options.lang).mediaUnavailable,
       );
     }
-    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random) : preview;
+    const result = preview.drew ? planSteps(list, planning, media, ctx.options.random, markToken) : preview;
     if (result.error) {
       settleMedia(false);
       return result.error;

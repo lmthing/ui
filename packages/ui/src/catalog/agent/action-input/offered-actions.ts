@@ -11,9 +11,12 @@ export function findAction(
   at: number,
   data?: DeviceData,
   now?: number,
+  hostCapture = false,
 ) {
-  const offered = affordancesOfScreen(screen, defs, next, data, now);
-  const address = original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
+  const address = hostCapture
+    ? original.address
+    : original.address.replace(new RegExp(`^${screen.id}/`), "").replace(/\/root$/, "");
+  const offered = affordancesOfScreen(screen, defs, next, data, now, hostCapture ? original : undefined);
   const selected = selectStep(screen, defs, original, address, next, data, now);
   const found = offered.find((a) => a.address === address && a.action === selected.step.action);
   if (!found) {

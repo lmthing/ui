@@ -17,6 +17,7 @@ import type { ScreenLike } from "../read";
 import { isRecordAction, recordRequestAllowed, reportEditWire } from "../report-edits";
 import { isItemOffer, isSelectAll, projectSelectionBinding, selectionBindingFor } from "../selection-binding";
 import { localValues } from "./select-step";
+import { hostOnlyAddresses, isPrivateMark } from "./host-actions";
 
 type PlannedAffordance = Affordance & { drive?: ActStep; checks?: readonly Affordance[] };
 
@@ -70,6 +71,7 @@ export function affordancesOfScreen(
   values: Values,
   data?: DeviceData,
   now?: number,
+  host?: Pick<ActStep, "address" | "action">,
 ) {
   const local = localValues(screen.id, values);
   return screen.components.flatMap(({ id, c, state, ...input }) => {
@@ -91,11 +93,17 @@ export function affordancesOfScreen(
       wire,
       schema: def.props,
     });
+    const hostOnly = hostOnlyAddresses(def, id, offered);
+    const allowed = offered.filter(
+      ({ address, action }) =>
+        (host?.address === address && host.action === action) ||
+        (!hostOnly?.has(address) && !isPrivateMark(local, address)),
+    );
     const routed = driveAffordances(
       def.meta,
       props,
       id,
-      offered,
+      allowed,
       driveTarget(def.meta, screen, defs, local, data),
     );
     if (!selection) return routed;

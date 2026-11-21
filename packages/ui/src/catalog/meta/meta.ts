@@ -10,11 +10,6 @@ import type * as LiveMeta from "./live";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
-type Draw =
-  | { kind: "faces"; press: string; count: string; sides: string; hold?: string }
-  | { kind: "pick"; press: string; pool: string; repeat?: string; reset?: string }
-  | { kind: "deck"; press: string; pool: string; count: string; reset: string }
-  | { kind: "partition"; press: string; redraw?: string; players: string; teams: string; locked?: string };
 type NumericSet = { prop: string; min?: number; max?: number; integer?: boolean };
 type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
@@ -80,7 +75,7 @@ export type Meta = {
   /** Read visible content and the read summary in success, not just the header and available actions. */
   readSuccess?: true;
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
-  draw?: Draw;
+  draw?: LiveMeta.Draw;
   /** Monotonic round timing for an item press and a component reset press. */
   buzz?: { press: string; reset: string };
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
@@ -96,18 +91,18 @@ export type Meta = {
   clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
-  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
     deviceData?: LiveMeta.DeviceRows;
-    visible?: "all" | "first";
+    visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
+    toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;

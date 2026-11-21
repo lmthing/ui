@@ -5,10 +5,12 @@ import {
   driveTarget,
   isDeviceDataVisible,
   migrateScreen,
+  parseAddress,
   planAct,
   projectDeviceData,
   readComponent,
   readScreen,
+  redactPrivateMarks,
   selectionBindingFor,
   withDisabledSelectionChecks,
   withRecordScreen,
@@ -19,7 +21,15 @@ import {
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import type { Confirmation } from "./context";
+import type { Confirmation, ControllerContext } from "./context";
+import type { PrivateMarks } from "../../../catalog/agent/action-input";
+
+export function isKeypad(ctx: ControllerContext, full: string) {
+  const address = parseAddress(full);
+  const entry = address?.component && ctx.sourceOf(address.component);
+  const parts = entry ? ctx.defs[entry.c]?.props.meta()?.keypadParts : undefined;
+  return Array.isArray(parts) && parts.includes(address?.part ?? "root");
+}
 
 export function visibleConfirmation(
   screen: ScreenLike,
@@ -58,7 +68,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|press)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|press|set(?: = "(?:\\.|[^"\\])*")?)(?: !needs-[a-z]+)?\]/g;
 
 function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -117,6 +127,7 @@ export function readControls(
   deviceData?: DeviceData,
   currency?: AppCurrency,
   canDrive?: CanDrive,
+  privateMarks?: PrivateMarks,
 ): string {
   const source = withDisabledSelectionChecks(screen, disabled);
   const migrated = migrateScreen(source, { variantOnly: true });
@@ -124,10 +135,12 @@ export function readControls(
   const read = hasKeypads
     ? readKeypads(migrated, defs, values, lang, deviceData, currency, canDrive)
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
-  return disabled?.size
-    ? read.replace(controlTokens, (token, address, action) =>
-        disabled.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address)) ? "" : token,
-      )
+  return disabled?.size || privateMarks?.size
+    ? read.replace(controlTokens, (token, address, action) => {
+        if (action?.startsWith("set") && privateMarks?.has(address)) return "";
+        if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
+        return token;
+      })
     : read;
 }
 
@@ -141,20 +154,21 @@ function readKeypads(
   canDrive?: CanDrive,
 ) {
   deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), screen);
-  const snapshot = projectDeviceData(deviceData, values);
+  const snapshot = projectDeviceData(deviceData, redactPrivateMarks(values).values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = readScreen({ ...screen, components: [] }, defs, values, lang);
+  const { values: safe, addresses } = redactPrivateMarks(local);
   return [
     header,
     ...screen.components.flatMap(({ id, c, state, ...props }) => {
       const def = defs[c];
       if (!def) return [`${id} ${c} (unknown)`];
-      const selection = selectionBindingFor(screen, defs, def.meta, id, local, snapshot);
-      const target = driveTarget(def.meta, screen, defs, local, snapshot, canDrive);
+      const selection = selectionBindingFor(screen, defs, def.meta, id, safe, snapshot, addresses);
+      const target = driveTarget(def.meta, screen, defs, safe, snapshot, canDrive, addresses);
       return readComponent(
-        withKeypadDrafts(def, id, local),
+        withKeypadDrafts(def, id, safe),
         props,
         id,
         state,

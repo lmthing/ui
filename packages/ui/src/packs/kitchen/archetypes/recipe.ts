@@ -24,6 +24,18 @@ export const recipe = {
         { id: "b1", c: "Button" },
       ],
     },
+    nutrition: {
+      recipe: [
+        { allow: ["Header"], required: true, variant: "back" },
+        { allow: ["NutritionFacts"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header", style: "back" },
+        { id: "n1", c: "NutritionFacts" },
+        { id: "n2", c: "Note" },
+      ],
+    },
     cook: {
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
