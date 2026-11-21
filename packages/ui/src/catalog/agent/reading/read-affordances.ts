@@ -37,6 +37,13 @@ function runtimeRowValue(meta: Meta, props: Values, target: string, fallback: un
   return option.row[flag] === true ? option.value : undefined;
 }
 
+function booleanDetail(a: Affordance, value: unknown) {
+  if (typeof value !== "boolean") return a.detail;
+  if (a.input?.kind !== "boolean" && a.action === "toggle") return `:${value ? "on" : "off"}`;
+  if (!a.input && a.action === "check") return `:${value ? "done" : "todo"}`;
+  return a.detail;
+}
+
 export function readOffers(
   def: Definition,
   wire: unknown,
@@ -70,12 +77,12 @@ export function readOffers(
   return driveAffordances(def.meta, props, instance, visible, destination);
 }
 
-function toggleDetail(meta: Meta, props: Values, offer: Affordance, target: string, value: unknown) {
-  if (offer.action !== "toggle") return offer.detail;
+function credentialDetail(meta: Meta, props: Values, offer: Affordance, target: string, value: unknown) {
+  if (offer.action !== "toggle") return undefined;
   const fields = meta.actions?.credentialToggles;
   const credential = fields && Object.hasOwn(fields, target) ? fields[target] : undefined;
   if (credential) return credentialToggleOn(value, props[credential]) ? ":on" : ":off";
-  return typeof value === "boolean" ? (value ? ":on" : ":off") : offer.detail;
+  return undefined;
 }
 
 /** Describe the offered controls using live values and choices. */
@@ -126,9 +133,7 @@ export function readAffordances(
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
-    let detail = toggleDetail(meta, props, a, target, value);
-    if (!a.input && typeof value === "boolean" && a.action === "check")
-      detail = `:${value ? "done" : "todo"}`;
+    let detail = credentialDetail(meta, props, a, target, value) ?? booleanDetail(a, value);
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;
     if (offered !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(offered)}`;

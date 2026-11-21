@@ -1,4 +1,4 @@
-import type { Meta } from "../meta";
+import type { LocalStateEvent, Meta } from "../meta";
 import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
@@ -26,6 +26,7 @@ export type Affordance = {
   nestedStep?: { key: string; next: number };
   move?: { current: string | null; choices: string[] };
   hostIntent?: HostIntent;
+  localEvent?: Omit<LocalStateEvent, "value">;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {

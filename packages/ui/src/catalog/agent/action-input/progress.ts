@@ -2,7 +2,17 @@ import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
 import { drawKey, drawRole, holdIndex, performDraw, staleDraw, storeDraw, type RandomSource } from "../draw";
 import { advanceSession, sessionEvent, sessionKey, staleSession } from "../session";
-import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
+import {
+  liveProps,
+  parseControlProps,
+  type ActStep,
+  type Affordance,
+  type ScreenLike,
+  type Values,
+} from "../index";
+import { stageCredentialToggle } from "../credential-toggle";
+import { stageLinkedEdit } from "../linked-edits";
+import { stageRecord } from "./record-planning";
 import { localValues } from "./select-step";
 
 export function expireProgress(
@@ -24,7 +34,7 @@ export function expireProgress(
   }
 }
 
-export function stageProgress(
+function stageProgress(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   address: string,
@@ -62,4 +72,23 @@ export function stageProgress(
   const value =
     role === "hold" && outcome.kind === "faces" ? outcome.held[holdIndex(def.meta, target)] : outcome;
   return ` = ${JSON.stringify(value)}`;
+}
+
+export function stageStepProgress(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  next: Values,
+  step: ActStep,
+  found: Affordance,
+  random: RandomSource | null,
+  snapshot: DeviceData | undefined,
+  now: number,
+) {
+  const record = stageRecord(screen, defs, next, step, snapshot, now);
+  if (record !== undefined) return record ? "" : false;
+  return (
+    stageCredentialToggle(screen, defs, next, step) ??
+    stageLinkedEdit(screen, defs, next, found, step.value) ??
+    stageProgress(screen, defs, step.address, step, next, random, snapshot)
+  );
 }

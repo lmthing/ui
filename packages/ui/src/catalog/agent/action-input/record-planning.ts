@@ -50,6 +50,7 @@ function usesLiveState(meta: Meta) {
     items?.nested?.maxActive !== undefined ||
     live ||
     meta.drives ||
+    meta.localState ||
     meta.recordRuntime ||
     meta.linkedEdits ||
     meta.selectionBinding ||

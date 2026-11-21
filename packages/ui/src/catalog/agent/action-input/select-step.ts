@@ -51,6 +51,7 @@ export function selectStep(
     def.meta.select?.runtime ||
     def.meta.items?.deviceData ||
     def.meta.recordRuntime ||
+    def.meta.localState ||
     def.meta.items?.pickers ||
     Object.hasOwn(def.meta.selections ?? {}, target)
   )

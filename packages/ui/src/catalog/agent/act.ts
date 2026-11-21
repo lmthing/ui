@@ -1,7 +1,6 @@
 import { liveProps, parseControlProps, stageItemAdjustment } from "./live-props";
 import type { Definition } from "../probes";
 import { migrateScreen } from "../migrations";
-import type { Affordance } from "./affordances";
 import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
@@ -10,8 +9,7 @@ import {
   findAction,
   localValues,
   type selectStep,
-  stageProgress,
-  stageRecord,
+  stageStepProgress,
   stageValue,
   validateStep,
 } from "./action-input";
@@ -24,12 +22,10 @@ import {
   projectDeviceData,
   type DeviceData,
 } from "./device-data";
-import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
-import { stageRecordAction, withRecordScreen } from "./record-runtime";
-import { stageCredentialToggle } from "./credential-toggle";
 import type { HostIntent } from "./host-commands";
+import { stageLocalEvent, stageRecordAction, withRecordScreen } from "./record-runtime";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -43,6 +39,7 @@ export type ActResult =
       sends?: SendDraft[];
       driven?: ActStep[];
       hostCommands?: HostIntent[];
+      localEvent?: true;
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
 /** A mounted controller already stages clocks through its action table. */
@@ -74,25 +71,6 @@ function stageStandaloneClock(
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
-}
-
-function stepProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  step: ActStep,
-  found: Affordance,
-  random: RandomSource | null,
-  snapshot: DeviceData | undefined,
-  now: number,
-) {
-  const record = stageRecord(screen, defs, next, step, snapshot, now);
-  if (record !== undefined) return record ? "" : false;
-  return (
-    stageCredentialToggle(screen, defs, next, step) ??
-    stageLinkedEdit(screen, defs, next, found, step.value) ??
-    stageProgress(screen, defs, step.address, step, next, random, snapshot)
-  );
 }
 
 function stageControl(
@@ -166,10 +144,19 @@ export function planAct(
       continue;
     }
     const resolved = { ...step, address, value: result.value };
+    if (found.localEvent) {
+      const failure = stageLocalEvent(screen, defs, next, resolved, found.localEvent);
+      if (failure) return { ok: false, code: "invalid_value", at, hint: failure.error };
+      plan.localEvent = true;
+      changed.push(`${address} ${step.action}`);
+      continue;
+    }
     const record = stageRecordAction(screen, defs, next, resolved, now, snapshot);
     if (record && "error" in record) return { ok: false, code: "invalid_value", at, hint: record.error };
     try {
-      const progress = record ? "" : stepProgress(screen, defs, next, resolved, found, random, snapshot, now);
+      const progress = record
+        ? ""
+        : stageStepProgress(screen, defs, next, resolved, found, random, snapshot, now);
       if (progress === false)
         return { ok: false, code: "invalid_value", at, hint: "Invalid record mutation" };
       if (progress !== undefined) {

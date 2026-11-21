@@ -3,6 +3,6 @@ export type { PresetMeta, AccentMeta, BaseRoles, AccentRoles } from "./preset-me
 export type { Props } from "./props";
 export type { ClockCommit, ClockMeta, ClockTrigger, ClockState } from "./clocks";
 export type { RecordEdit, RecordEdits, RecordSnapshot } from "./record-edits";
-export type { RecordContext, RecordRuntime } from "./live";
+export type { LocalStateEvent, LocalStateRuntime, RecordContext, RecordRuntime } from "./live";
 export { packIds, type PackId } from "./pack-ids";
 export { packIndex, type PackIndexEntry } from "./pack-index";

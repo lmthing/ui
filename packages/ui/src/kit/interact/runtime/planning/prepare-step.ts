@@ -10,6 +10,7 @@ export type PreparedAction = {
   context: ActionContext;
   drive: ActStep | undefined;
   host: HostIntent | undefined;
+  localEvent?: true;
 };
 type PreparedStep = PreparedAction | { error: Extract<ActReply, { ok: false }> };
 type Plan = Extract<ActResult, { ok: true }>;
@@ -74,6 +75,7 @@ export function prepareStep(
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
     drive: plan.driven?.[0],
     host: plan.hostCommands?.[0],
+    ...(plan.localEvent && { localEvent: true }),
     context: {
       screen: ctx.screen,
       active,

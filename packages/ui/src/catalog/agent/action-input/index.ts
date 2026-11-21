@@ -3,8 +3,7 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
-export { stageRecord } from "./record-planning";
-export { expireProgress, stageProgress } from "./progress";
+export { expireProgress, stageStepProgress } from "./progress";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { actionValueAddress, findAction } from "./offered-actions";
 export {

@@ -4,6 +4,7 @@ import {
   confirmationAction,
   confirmationFor,
   handlerFor,
+  navigationAction,
   type ActionResult,
   type ActionState,
 } from "../../actions";
@@ -21,9 +22,9 @@ import { prepareStep, type PreparedAction } from "./prepare-step";
 import { runHostCommand } from "./host-command";
 export { drivenPartBlock, inactive } from "./introduced-part";
 
-function runControl({ state, context }: PreparedAction, selected: ActStep, address: string) {
+function runControl({ state, context, localEvent }: PreparedAction, selected: ActStep, address: string) {
   const { links, screen } = context;
-  return handlerFor(selected.action)(
+  return (localEvent ? navigationAction : handlerFor(selected.action))(
     state,
     { ...selected, address },
     { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
@@ -66,7 +67,8 @@ function stepRunner(
       if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
       return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
     }
-    execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
+    if (!prepared.localEvent)
+      execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {

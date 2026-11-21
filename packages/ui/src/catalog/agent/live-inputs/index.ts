@@ -8,7 +8,7 @@ import { itemToggleDetail, projectItemToggles } from "./item-toggles";
 import { projectPickers } from "./pickers";
 export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
-export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
+export type LiveInput = { kind: "check" | "boolean" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
 
 /** Undefined means an ordinary send; null means a declared send is not ready. */
@@ -50,6 +50,22 @@ export function projectNamedSelections(
 /** These keys are distinct from raw address values and rejected edit drafts. */
 export const liveInputKey = (target: string, action: "type" | "check") => `$${action}/${target}`;
 
+function componentToggle(meta: Meta, part: string) {
+  const toggles = meta.live?.toggles;
+  return Object.hasOwn(toggles ?? {}, part) ? toggles?.[part] : undefined;
+}
+
+export const hasComponentToggle = (meta: Meta, part: string) => componentToggle(meta, part) !== undefined;
+
+function applyComponentToggles(meta: Meta, props: Values, get: Get) {
+  for (const [part, { prop, initial }] of Object.entries(meta.live?.toggles ?? {})) {
+    const value = get(liveInputKey(part, "check"));
+    if (typeof value === "boolean") props = { ...props, [prop]: value };
+    else if (typeof props[prop] !== "boolean") props = { ...props, [prop]: initial };
+  }
+  return props;
+}
+
 function applyText(meta: Meta, props: Values, get: Get) {
   for (const [part, { prop, max }] of Object.entries(meta.live?.text ?? {})) {
     const value = get(liveInputKey(part, "type"));
@@ -87,7 +103,7 @@ export function projectLiveInputs(
   const seeded = projectRuntimeSets(meta, props, get, validated);
   const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
-  const toggled = projectItemToggles(meta, edited, get);
+  const toggled = applyComponentToggles(meta, projectItemToggles(meta, edited, get), get);
   const projected = projectLinkedEdits(meta, projectPickers(meta, toggled, get), get, data);
   const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
   const live = derived ? { ...projected, ...derived } : projected;
@@ -96,6 +112,13 @@ export function projectLiveInputs(
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */
 export function withLiveInput(meta: Meta, part: string, action: string, holder: Values, row: boolean) {
+  const toggle = !row && (action === "toggle" || action === "check") && componentToggle(meta, part);
+  if (toggle) {
+    const value = holder[toggle.prop];
+    const on = typeof value === "boolean" ? value : toggle.initial;
+    const state = action === "toggle" ? (on ? "on" : "off") : on ? "done" : "todo";
+    return { input: { kind: "boolean" } as const, detail: `:${state}` };
+  }
   if (action === "type" && row && Object.hasOwn(meta.items?.edits ?? {}, part)) {
     const spec = meta.items!.edits![part];
     if (spec?.action === "type") return { input: { kind: "text", max: spec.max } as const };
