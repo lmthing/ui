@@ -35,6 +35,13 @@ function runtimeRowValue(meta: Meta, props: Values, target: string, fallback: un
   return option.row[flag] === true ? option.value : undefined;
 }
 
+function booleanDetail(a: Affordance, value: unknown) {
+  if (typeof value !== "boolean") return a.detail;
+  if (a.input?.kind !== "boolean" && a.action === "toggle") return `:${value ? "on" : "off"}`;
+  if (!a.input && a.action === "check") return `:${value ? "done" : "todo"}`;
+  return a.detail;
+}
+
 export function readOffers(
   def: Definition,
   wire: unknown,
@@ -107,11 +114,7 @@ export function readAffordances(
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
-    let detail = a.detail;
-    if (a.input?.kind !== "boolean" && typeof value === "boolean" && a.action === "toggle")
-      detail = `:${value ? "on" : "off"}`;
-    if (!a.input && typeof value === "boolean" && a.action === "check")
-      detail = `:${value ? "done" : "todo"}`;
+    let detail = booleanDetail(a, value);
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;
     if (offered !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(offered)}`;

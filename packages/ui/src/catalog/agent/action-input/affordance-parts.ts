@@ -49,6 +49,15 @@ function itemControlAt(meta: Meta, part: string) {
   );
 }
 
+function componentPressAt(meta: Meta, part: string, action: string) {
+  return (
+    meta.clear?.[part] ||
+    meta.items?.reset === part ||
+    meta.linkedEdits?.swap.part === part ||
+    reportConfirmation(meta, part, action)
+  );
+}
+
 export function partsOf(
   spec: Record<string, readonly string[]> | undefined,
   holder: Props,
@@ -84,12 +93,7 @@ export function partsOf(
             const record = item ? recordEdit(meta, part) : undefined;
             const flag = item && part === "root" && meta.select?.runtime ? meta.select.prop : undefined;
             const itemControl = item && itemControlAt(meta, part);
-            const localPress =
-              !item &&
-              (meta.clear?.[part] ||
-                meta.items?.reset === part ||
-                meta.linkedEdits?.swap.part === part ||
-                reportConfirmation(meta, part, action));
+            const localPress = !item && componentPressAt(meta, part, action);
             const suppressLink = Boolean(
               localEvent ||
               isSelectAll(meta, part, action, item) ||

@@ -150,8 +150,7 @@ export function liveProps(
     const state = get("$state");
     if (state !== undefined) props = { ...props, state };
   }
-  props = projectDraw(meta, props, get);
-  props = projectLocalState(meta, props, validated, get);
+  props = projectLocalState(meta, projectDraw(meta, props, get), validated, get);
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectRecordRuntime(meta, props, instance, values, data, now);
   // Reapply to rows that a live or host projection may have replaced.

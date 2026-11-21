@@ -152,9 +152,8 @@ export function planAct(
     if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${actionValueAddress(address, found)}`;
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
-    const { result } = validated;
-    if ("code" in result) return { ok: false, at, ...result };
-    const resolved = { ...step, address, value: result.value };
+    if ("code" in validated.result) return { ok: false, at, ...validated.result };
+    const resolved = { ...step, address, value: validated.result.value };
     if (found.localEvent) {
       const failure = stageLocalEvent(screen, defs, next, resolved, found.localEvent);
       if (failure) return { ok: false, code: "invalid_value", at, hint: failure.error };
