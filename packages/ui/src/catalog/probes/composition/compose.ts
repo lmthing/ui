@@ -2,7 +2,7 @@ import type { CastLike } from "../../types";
 import { defaultLines, type ComposeProbe, type CoreArchetypeMeta as ArchetypeMeta } from "../../archetypes";
 import { checkScreen, type PackScreenContext } from "../../rules";
 import { readScreen, type ScreenLike } from "../../agent";
-import { buildEntry, variantVocabulary } from "../../prompt";
+import { buildEntry, variantVocabulary, writerVariants } from "../../prompt";
 import { migrateScreen } from "../../migrations";
 import type { CallModel, Definition } from "..";
 import { composeFormat, compositionInput } from "./compose-format";
@@ -36,12 +36,11 @@ export function composePrompt(
   const slots = meta.layouts[layout]!.slots;
   const names = [...new Set(slots.flatMap((slot) => [...slot.allow]))];
   const offersVariants = names.some((name) => defs[name]?.meta.variants || defs[name]?.meta.items?.variants);
-  const inheritedToggle =
+  const toggle =
     slots.some((slot) => slot.variant === "toggle" && slot.allow.includes("List")) &&
-    defs.List?.meta.variants?.trail?.includes("toggle");
-  const toggle = inheritedToggle
-    ? 'toggle means every List row has an effective trail of "toggle"; a row without a trail can inherit the List trail.'
-    : "toggle means every List row has trail: toggle.";
+    defs.List?.meta.variants?.trail?.includes("toggle")
+      ? 'toggle means every List row has an effective trail of "toggle"; a row without a trail can inherit the List trail.'
+      : "toggle means every List row has trail: toggle.";
   return [
     "Write one complete phone screen as JSON: {id,title?,components:[{id,c,...props}]}. Use unique snake_case ids for components; never put ids on array items. Use only listed props. Use null for absent optional fields, never write empty strings.",
     `Layout: ${meta.id}/${layout}. Job: ${meta.purpose}.`,
@@ -58,6 +57,7 @@ export function composePrompt(
     `Real app content: ${JSON.stringify(cast)}`,
     ...names.map((name) => `${buildEntry(defs[name]!)}\nweight: ${defs[name]!.meta.weight}`),
     `A valid default for this layout: ${JSON.stringify(defaultLines(meta, layout, cast, defs))}`,
+    ...(names.some((name) => defs[name]?.meta.variants?.density) ? [writerVariants] : []),
     "Use the supplied facts, not content from examples. Do not invent dates, status, measurements, or zero values for missing data. Keep all components focused on the screen's job; give the main action a clear label and avoid duplicate or unrelated actions. Reply with JSON only.",
   ].join("\n\n");
 }

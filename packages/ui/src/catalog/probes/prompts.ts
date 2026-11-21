@@ -1,6 +1,6 @@
 import type { Definition } from "./types";
 import { atDeviceTime, planAct, readComponent, readScreen, type DeviceData, type ScreenLike } from "../agent";
-import { buildBlock, buildEntry, variantVocabulary } from "../prompt";
+import { buildBlock, buildEntry, variantVocabulary, writerVariants } from "../prompt";
 import { exampleDeviceData, type ReadProbeFixture } from "./fixtures";
 
 export function choosePrompt(defs: readonly Definition[], need: string): string {
@@ -29,7 +29,9 @@ export function writePrompt(def: Definition, brief: string): string {
     "",
     ...(hasVariants
       ? [
-          "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.",
+          def.meta.variants?.density
+            ? writerVariants
+            : "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.",
         ]
       : []),
     `Brief: ${brief}`,
