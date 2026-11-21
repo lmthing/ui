@@ -29,7 +29,7 @@ import {
   visibleTexts,
 } from "./variants";
 
-const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
+const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const modes = ["light", "dark"] as const;
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
