@@ -19,12 +19,11 @@ describe("Comments copy", () => {
       ],
     };
     expect(commentReading(input, "filled")).toEqual([
-      "r1: Sam · 0 likes",
-      "r2: Lee replying to Sam · 2 likes",
-      "r3: Maya replying to Sam · 1 like",
-      "r4: Ben · 3 likes",
-      "r5: Anna replying to Ben · 4 likes",
-      "Reply",
+      "r1: Sam · 0 likes · Reply on this row answers Sam’s comment",
+      "r2: Lee replying to Sam · 2 likes · Reply on this row answers Lee’s comment",
+      "r3: Maya replying to Sam · 1 like · Reply on this row answers Maya’s comment",
+      "r4: Ben · 3 likes · Reply on this row answers Ben’s comment",
+      "r5: Anna replying to Ben · 4 likes · Reply on this row answers Anna’s comment",
     ]);
     expect(commentReading(input, "empty")).toEqual([]);
   });
