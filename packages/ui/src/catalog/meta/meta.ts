@@ -101,18 +101,18 @@ export type Meta = {
   clear?: Readonly<Record<string, { text: readonly string[]; pickers: readonly string[] }>>;
   /** Confirmed component press part → wire prop holding the sign-off timestamp. */
   signOff?: Readonly<Record<string, string>>;
-  /** `visible: "first"` draws and reads only the first item, with a count of the rest. */
   items?: {
     key: string;
     parts: readonly string[];
     prefix?: string;
     /** Replace this runtime collection with validated, addressed host rows, not Writer props. */
     deviceData?: LiveMeta.DeviceRows;
-    visible?: "all" | "first";
+    visible?: "all" | "first"; // "first" draws and reads only the first item and counts the rest.
     /** Read visible rows sharing the value of this readable text field on one addressed line. */
     readGroupBy?: string;
     /** Match the addressed row first, then its component. Filter only after stamping. */
     visibleWhen?: Readonly<Record<string, string | boolean>>;
+    toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;

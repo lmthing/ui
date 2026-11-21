@@ -116,16 +116,16 @@ type View = c.Props<typeof props, typeof meta>;
 type GateCopy = ReturnType<typeof milestoneCopies<View["gates"][number]>>[number];
 
 // prettier-ignore
-function GateLines({ copy, density, spaced = false }: { copy: GateCopy; density: View["density"]; spaced?: boolean }) {
-  return <kit.KitContent density={density} lineRole="body">
+function GateLines({ copy, density }: { copy: GateCopy; density: View["density"] }) {
+  return <>
     <kit.KitText part="title" role="body" density={density}>{copy.gate.title}</kit.KitText>
-    <kit.KitContent group={spaced ? "response" : "content"} density={density}>
+    <kit.KitContent density={density}>
       <kit.KitText part="due" role="caption" tone={copy.overdue ? "bad" : "muted"}>{copy.due}</kit.KitText>
       {copy.reached && <kit.KitText part="reached" role="caption" tone="good">{copy.reached}</kit.KitText>}
       {copy.requires && <kit.KitText part="requires" role="caption" tone="muted">{copy.requires}</kit.KitText>}
       {copy.missing && <kit.KitText part="missing" role="caption" tone={copy.overdue ? "warn" : "muted"}>{copy.missing}</kit.KitText>}
     </kit.KitContent>
-  </kit.KitContent>;
+  </>;
 }
 
 // prettier-ignore
@@ -143,20 +143,18 @@ export function Milestones(input: View) {
       if (!cards) return <kit.KitRouteStop key={gate.id} item={gate.id} goto={gate.goto} label={gate.title}
         position={index === copies.length - 1 && index > 0 ? "end" : index === 0 ? "start" : "middle"}
         mark={copy.reached ? "check" : "dot"}>
-        {GateLines({ copy, density })}
+        <kit.KitContent density={density} lineRole="body">{GateLines({ copy, density })}</kit.KitContent>
       </kit.KitRouteStop>;
-      if (state === "loading") return <kit.KitRow key={gate.id} part={null} label={gate.title} density="comfortable">
+      if (state === "loading") return <kit.KitRow key={gate.id} part={null} label={gate.title} density={density}>
+        <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", gate.title]]} />
         <kit.KitContent density={density}>
-          <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", gate.title]]} />
-          <kit.KitContent group={density === "compact" ? "content" : "response"}>
-            <kit.KitSkeleton shape="figure" inset="none" density={density}
-              content={[["caption", copy.due], ["caption", copy.reached], ["caption", copy.requires], ["caption", copy.missing]]} />
-          </kit.KitContent>
+          <kit.KitSkeleton shape="figure" inset="none" density={density}
+            content={[["caption", copy.due], ["caption", copy.reached], ["caption", copy.requires], ["caption", copy.missing]]} />
         </kit.KitContent>
       </kit.KitRow>;
-      return <kit.KitRow key={gate.id} item={gate.id} label={gate.title} goto={gate.goto} density="comfortable"
+      return <kit.KitRow key={gate.id} item={gate.id} label={gate.title} goto={gate.goto} density={density}
         trailing={gate.goto && <kit.KitIcon name="chevron_right" tone="muted" scale="sm" decorative />}>
-        <GateLines {...{ copy, density }} spaced={density !== "compact"} />
+        {GateLines({ copy, density })}
       </kit.KitRow>;
     })}
   </kit.KitCard>;

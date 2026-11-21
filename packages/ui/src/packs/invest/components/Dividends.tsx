@@ -136,7 +136,6 @@ export const probes = [
 
 type DividendProps = c.Props<typeof props, typeof meta>;
 type Density = NonNullable<DividendProps["density"]>;
-
 // prettier-ignore
 function DividendItem({ row, density, full, loading }: { row: DividendRow; density: Density; full: boolean; loading: boolean }) {
   const { words: { dividends: words }, lang } = kit.useWords(investWordsFor);
@@ -148,11 +147,11 @@ function DividendItem({ row, density, full, loading }: { row: DividendRow; densi
   const action = row.receive ? { part: "receive", label: words.receive, kind: "secondary" } as const
     : row.void ? { part: "void", label: words.reverse, kind: "danger" } as const : undefined;
   return <kit.PartContext.Provider value={{ ...context, item: row.id }}>
-    <kit.KitContent density={density} group="response">
-      <kit.KitRow part={loading ? null : "root"} label={copy.asset} goto={loading ? undefined : row.goto} inline density={density}
+    <kit.KitContent density={density}>
+      <kit.KitRow part={loading ? null : "root"} label={copy.asset} goto={loading ? undefined : row.goto} inline density={density} lineRole="label"
         trailing={!loading && row.goto ? <kit.KitIcon name="chevron_right" scale="sm" decorative /> : undefined}>
-        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["heading", copy.asset], ["caption", copy.status]]} /> : <>
-          <kit.KitText part="asset" role="heading">{copy.asset}</kit.KitText>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", copy.asset], ["caption", copy.status]]} /> : <>
+          <kit.KitText part="asset" role="label" emphasis="strong">{copy.asset}</kit.KitText>
           <kit.KitText part="status" role="caption" tone={row.receivedAt ? "good" : "muted"}>{copy.status}</kit.KitText>
         </>}
       </kit.KitRow>
@@ -162,15 +161,16 @@ function DividendItem({ row, density, full, loading }: { row: DividendRow; densi
             <kit.KitText part={null} role="caption" tone="muted">{words.net}</kit.KitText>
             <kit.KitText part="net" role="number" tabular>{copy.net}</kit.KitText>
           </>}
+          {full && label("gross")}{full && label("withheld")}
         </kit.KitContent>
         <kit.KitContent density={density}>
           {label("pay_on")}{full && label("entitled_at")}
+          {full && <kit.KitContent group="response" density={density}>{label("units")}{label("per_unit")}</kit.KitContent>}
         </kit.KitContent>
       </kit.KitGrid>
-      {full && <kit.KitGrid density="comfortable">{label("units")}{label("gross")}{label("per_unit")}{label("withheld")}</kit.KitGrid>}
-      {action && <kit.KitContent group="response" density={density}><kit.KitContent group={full ? "response" : "content"} density={density}>{loading ?
+      {action && <kit.KitContent group="response" density={density}>{loading ?
         <kit.KitSkeleton shape="control" inset="none" kind={action.kind} label={action.label} /> :
-        <kit.KitAction {...action} />}</kit.KitContent></kit.KitContent>}
+        <kit.KitAction {...action} />}</kit.KitContent>}
     </kit.KitContent>
   </kit.PartContext.Provider>;
 }
@@ -185,7 +185,7 @@ export function Dividends(input: DividendProps) {
   const rows = c.visibleItems(meta, live) as DividendRow[];
   const empty = state === "empty" || (state === "filled" && !rows.length);
   return <kit.KitCard part="root" padded={!empty && state !== "success"} density={density}>
-    {state === "error" ? <kit.KitText part="notice" tone="muted">{words.error}</kit.KitText> :
+    {state === "error" ? <kit.KitText part="notice" role="label" tone="muted">{words.error}</kit.KitText> :
       state === "success" ? <kit.KitEmpty part="notice" icon="check" tone="good" title={words.saved} decorativeIcon /> :
       empty ? <kit.KitEmpty part="notice" decorativeIcon /> : <>
         {state === "filled" && live.receiptRecorded === true && <kit.KitText part="notice" role="caption" tone="good">{words.saved}</kit.KitText>}

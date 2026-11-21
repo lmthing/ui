@@ -36,9 +36,9 @@ it("commits only on confirmation and projects the same record in the reader and 
   ]);
   const added = runtime.read();
   expect(added).toContain("Ledge Rovers 1–1 Fern House");
-  expect(added).toContain("51′ away goal: Goal");
+  expect(added).toContain("51′ Away · Goal: Goal");
   expect(added).toContain("Reed scores from the edge");
-  expect(added).toContain("Caution for Birch");
+  expect(added).toContain("Birch booked");
   expect(store.get("match/s1/away")).toBeUndefined();
   const scoreDef = components.Scoreboard;
   const feedDef = components.MatchFeed;
@@ -54,16 +54,18 @@ it("commits only on confirmation and projects the same record in the reader and 
   expect(feed()).toMatchObject([
     { id: "r20", minute: 51 },
     { text: "Reed scores from the edge" },
-    { text: "Caution for Birch" },
-    { text: "Moss replaces Gardner" },
+    { text: "Birch booked" },
+    { text: "Moss is on, Gardner off" },
+    { text: "Pike hits the near post" },
   ]);
   expect(runtime.act([undo, confirm]).ok).toBe(true);
   expect(store.get(journal)).toMatchObject([{ kind: "add" }, { kind: "undo", target: { id: 1 } }]);
   expect(score()).toMatchObject({ homeScore: 0, awayScore: 1 });
   expect(feed()).toMatchObject([
     { id: "r20", minute: 51 },
-    { text: "Caution for Birch" },
-    { text: "Moss replaces Gardner" },
+    { text: "Birch booked" },
+    { text: "Moss is on, Gardner off" },
+    { text: "Pike hits the near post" },
   ]);
   expect(runtime.read()).not.toMatch(/Reed scores|s1\/home decrement/);
   expect(runtime.snapshotScreen().components[0]).toMatchObject({ homeScore: 1, awayScore: 0 });
@@ -75,14 +77,14 @@ it("prefers the host record and does not confirm a stale undo against a replacem
   const goals = [{ id: 4, side: "home", minute: 23, scorer: "Quinn" }];
   const data = { [matchRecordKind]: [{ matchId: screen.id, goals }] };
   const runtime = createScreenController({ screen, defs: components, deviceData: data });
-  expect(runtime.read()).toContain("23′ home goal: Quinn");
+  expect(runtime.read()).toContain("23′ Home · Goal: Quinn");
   expect(runtime.read()).not.toContain("Reed scores");
   expect(runtime.act(undo).ok).toBe(true);
   goals[0] = { ...goals[0]!, scorer: "Taylor" };
   expect(runtime.act(confirm)).toMatchObject({ ok: false, code: "invalid_value" });
   expect(runtime.store.get(journal)).toBeUndefined();
   expect(runtime.act(cancel).ok).toBe(true);
-  expect(runtime.read()).toContain("23′ home goal: Taylor");
+  expect(runtime.read()).toContain("23′ Home · Goal: Taylor");
   runtime.dispose();
 });
 
@@ -126,7 +128,7 @@ it("keeps replacement seeds after remount and after the old goal was undone", ()
       { id: "m1", c: "MatchFeed", events: [{ kind: "goal", side: "home", minute: 10, text: "New goal" }] },
     ],
   };
-  expect(agent.read()).toContain("10′ home goal: New goal");
+  expect(agent.read()).toContain("10′ Home · Goal: New goal");
   expect(agent.read()).toContain("Ledge Rovers 1–0 Fern House");
 });
 
@@ -144,7 +146,7 @@ it("keeps both projections live when a host snapshot includes a confirmed add an
   expect(runtime.act([add, confirm]).ok).toBe(true);
   record.goals.push({ id: 5, side: "away", minute: 0, scorer: null });
   expect(runtime.read()).toContain("Ledge Rovers 1–1 Fern House");
-  expect(runtime.read()).toContain("0′ away goal: Goal");
+  expect(runtime.read()).toContain("0′ Away · Goal: Goal");
   expect(runtime.act([undo, confirm]).ok).toBe(true);
   record.goals.shift();
   expect(runtime.read()).toContain("Ledge Rovers 0–1 Fern House");
@@ -171,7 +173,7 @@ it("fills an explicitly empty feed on the first confirmed goal and empties it ag
   });
   expect(runtime.read()).toContain("m1 MatchFeed (empty)");
   expect(runtime.act([add, confirm]).ok).toBe(true);
-  expect(runtime.read()).toContain("0′ away goal: Goal");
+  expect(runtime.read()).toContain("0′ Away · Goal: Goal");
   expect(runtime.act([{ ...add, action: "decrement" }, confirm]).ok).toBe(true);
   expect(runtime.read()).toContain("m1 MatchFeed (empty)");
   runtime.dispose();
