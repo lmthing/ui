@@ -42,6 +42,19 @@ const screen = { id: "home", components: [{ id: "p1", c: "Performance", ...seed 
 const defs = { Performance: def };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
+it("shows two flat, distinct loading traces without exposing the filled trend", () => {
+  const example = def.examples[0]!;
+  const traces = (state: "filled" | "loading") =>
+    [...renderExample("Performance", example, state, theme).html.matchAll(/\bd="([ML]\d[^"]+)"/g)]
+      .map(([, path]) => [...path!.matchAll(/[ML][^,]+,([-\d.]+)/g)].map(([, y]) => y))
+      .filter((ys) => ys.length === example.samples.length);
+  const loading = traces("loading");
+  expect(loading).toHaveLength(2);
+  expect(loading.map((ys) => new Set(ys).size)).toEqual([1, 1]);
+  expect(loading[0]![0]).not.toBe(loading[1]![0]);
+  expect(traces("filled").some((ys) => new Set(ys).size > 1)).toBe(true);
+});
+
 describe("Performance contract", () => {
   it.each(def.examples)("accepts the example and renders every declared state", (example) => {
     expect(def.props.safeParse(example).success).toBe(true);

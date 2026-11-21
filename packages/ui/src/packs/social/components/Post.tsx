@@ -4,7 +4,6 @@ import * as kit from "../../../kit";
 import { postCountParts, postReading } from "../copy";
 import { socialWordsFor } from "../lang";
 
-// Core first: Card/feature cannot show a full authored post with a carousel and a reaction bar.
 const imageParts = ["images", "image_2", "image_3", "image_4"] as const;
 export const meta = {
   id: "Post",
@@ -103,6 +102,18 @@ export const probes = [
 
 type PostProps = c.Props<typeof props, typeof meta>;
 type Finish = { density: c.ThemeDensity; loading: boolean };
+// prettier-ignore
+function PostIconAction({ part, icon, label, density }: {
+  part: "share" | "more"; icon: c.IconName; label: string; density: c.ThemeDensity;
+}) {
+  const { controller, interactive } = kit.useKit();
+  const { testID } = kit.usePart(part, false);
+  if (interactive && controller && !controller.canPress(testID))
+    return <kit.KitAction part={part} icon={icon} kind="quiet" a11y={label} disabled />;
+  const leading = <kit.KitIcon name={icon} part={`${part}_icon`} tone="muted" />;
+  return <kit.KitRow part={part} role="button" label={label} inline density={density}
+    leadingWidth="avatar" leadingAlign="row" leading={leading}>{null}</kit.KitRow>;
+}
 
 // prettier-ignore
 function PostHeader({ input, density, loading }: Finish & { input: PostProps }) {
@@ -119,18 +130,37 @@ function PostHeader({ input, density, loading }: Finish & { input: PostProps }) 
         </>}
     </kit.KitContent>
     {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
-      <kit.KitAction part="more" icon="more" kind="quiet" a11y={post.more} />}
+      <PostIconAction part="more" icon="more" label={post.more} density={density} />}
   </kit.KitGrid>;
 }
 
 // prettier-ignore
 function PostImages({ images, density, loading }: Finish & Pick<PostProps, "images">) {
   const { lang, words: { post } } = kit.useWords(socialWordsFor);
-  const cells = images.map((photo, index) => loading ?
-    <kit.KitSkeleton key={index} shape="media" aspect="wide" inset="none" content={[]} density={density} /> :
+  if (loading) return <kit.KitSkeleton shape="media" aspect="wide" inset="none" content={[]} density={density} />;
+  const cells = images.map((photo, index) =>
     <kit.KitPhoto key={index} part={imageParts[index]!} photo={photo} shape="wide"
       label={post.image(c.numberLine(index + 1, lang), c.numberLine(images.length, lang))} />);
   return cells.length > 1 ? <kit.KitStrip overflow="page" density={density}>{cells}</kit.KitStrip> : cells[0] ?? null;
+}
+
+// prettier-ignore
+function PostCountAction({ part, count, label, on, density, loading }: Finish & {
+  part: "like" | "comment"; count: string; label: string; on?: boolean;
+}) {
+  const target = loading ? null : part;
+  const { words } = kit.useWords();
+  const icon = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["heading", words.placeholderValue.repeat(2)]]} /> :
+    <kit.KitIcon name={part === "like" ? "heart" : "message"} part={`${part}_icon`} tone={on ? "accent" : "muted"} />;
+  return <kit.KitRow part={target} role={loading ? "text" : "button"} label={label} inline density={density}>
+    <kit.KitContent inset="md" density={density}>
+      <kit.KitRow part={null} role={loading ? "text" : "group"} label={label} inline leading={icon} density={density}>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", count, "start", "compact"]]} density={density} /> :
+          <kit.KitText part={part === "like" ? "likes" : "comments"} role="number" numberScale="compact"
+            tone={on ? "accent" : "muted"} tabular lines={1} density={density}>{count}</kit.KitText>}
+      </kit.KitRow>
+    </kit.KitContent>
+  </kit.KitRow>;
 }
 
 // prettier-ignore
@@ -139,23 +169,16 @@ function PostReactions({ input, density, loading }: Finish & { input: PostProps 
   const { testID } = kit.usePart("like", false);
   const liked = kit.useControlValue(testID, input.liked);
   const [likes, comments] = postCountParts(input, lang);
-  const like = <kit.KitAction part="like" action="toggle" icon="heart" kind={liked ? "secondary" : "quiet"}
-    a11y={post.withCount(feed.reaction(input.name, liked), likes.line)} />;
-  const comment = <kit.KitAction part="comment" icon="message" kind="quiet"
-    a11y={post.withCount(post.comment, comments.line)} />;
-  const count = ({ part, count }: typeof likes | typeof comments) => loading
-    ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", count, "start", "compact"]]} density={density} />
-    : <kit.KitText part={part} role="number" numberScale="compact" tone="muted" tabular lines={1} density={density}>{count}</kit.KitText>;
-  const control = <kit.KitSkeleton shape="control" kind="quiet" />;
-  const pair = { inline: true, part: null, label: "", density } as const;
+  const like = <PostCountAction part="like" count={likes.count} on={liked}
+    label={post.withCount(feed.reaction(input.name, liked), likes.line)} {...{ density, loading }} />;
+  const comment = <PostCountAction part="comment" count={comments.count}
+    label={post.withCount(post.comment, comments.line)} {...{ density, loading }} />;
   return <kit.KitGrid fitLast density={density}>
-    <kit.KitContent density={density} leadingAlign="row"
-      lead={<kit.KitRow {...pair} leading={loading ? control : like}>{count(likes)}</kit.KitRow>}>
-      <kit.KitContent inset="md" density={density}>
-        <kit.KitRow {...pair} leading={loading ? control : comment}>{count(comments)}</kit.KitRow>
-      </kit.KitContent>
+    <kit.KitContent density={density} leadingAlign="row" lead={like}>
+      <kit.KitContent density={density} leadingAlign="row" lead={comment}>{null}</kit.KitContent>
     </kit.KitContent>
-    {loading ? control : <kit.KitAction part="share" icon="share" kind="quiet" a11y={post.share} />}
+    {loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+      <PostIconAction part="share" icon="share" label={post.share} density={density} />}
   </kit.KitGrid>;
 }
 
@@ -166,12 +189,12 @@ export function Post(input: PostProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const hasImages = media !== "none" && input.images.length > 0;
-  const reactions = <PostReactions {...{ input, density, loading }} />;
+  const group = hasImages && !loading && input.images.length > 1 ? "content" : "response";
   return <kit.KitCard part="root" padded {...{ density, surface }}>
     <PostHeader {...{ input, density, loading }} />
     {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", input.text]]} /> :
       <kit.KitText part="text" density={density}>{input.text}</kit.KitText>}
     {hasImages && <PostImages images={input.images} {...{ density, loading }} />}
-    {hasImages ? reactions : <kit.KitContent group="response" density={density}>{reactions}</kit.KitContent>}
+    <kit.KitContent group={group} density={density}><PostReactions {...{ input, density, loading }} /></kit.KitContent>
   </kit.KitCard>;
 }

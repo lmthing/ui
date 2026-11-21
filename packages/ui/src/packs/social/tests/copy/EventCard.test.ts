@@ -10,12 +10,17 @@ const input = {
 };
 
 it("formats independent day, short month, time, and exact count in the app locale", () => {
-  expect(eventCopy(input)).toEqual({ day: "28", month: "Nov", time: "14:00", count: "12345 going" });
+  expect(eventCopy(input)).toEqual({
+    day: "28",
+    month: "Nov",
+    time: "14:00",
+    attendance: { count: "12345", before: "", after: " going", line: "12345 going" },
+  });
   expect(eventCopy(input, "ar-EG")).toEqual({
     day: "٢٨",
     month: "نوفمبر",
     time: "١٤:٠٠",
-    count: "١٢٣٤٥ going",
+    attendance: { count: "١٢٣٤٥", before: "", after: " going", line: "١٢٣٤٥ going" },
   });
 });
 

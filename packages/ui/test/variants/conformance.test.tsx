@@ -72,7 +72,8 @@ function checkPair(
   return hidden.length;
 }
 
-for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+const ids = selectedIds(Object.keys(renderers) as Id[], import.meta.url);
+for (const id of ids) {
   const def: Definition = components[id];
   for (const choice of variantChoices(def.meta, true)) {
     it(`${id} ${variantLabel(choice)} keeps the variant address contract`, () => {
@@ -94,7 +95,7 @@ for (const id of selectedIds(Object.keys(renderers) as Id[])) {
 }
 
 it("allows ready components without variant declarations", () => {
-  for (const id of selectedIds(Object.keys(renderers) as Id[])) {
+  for (const id of ids) {
     const { meta } = components[id] as Definition;
     if (!meta.variants && !meta.items?.variants) expect(variantChoices(meta, true)).toEqual([]);
   }

@@ -120,7 +120,7 @@ type EventFinish = { density: c.ThemeDensity; loading: boolean };
 type EventCopy = ReturnType<typeof eventCopy>;
 
 // prettier-ignore
-function EventDetails({ input, density, loading, day, month, time }: EventFinish & Omit<EventCopy, "count"> & { input: EventProps }) {
+function EventDetails({ input, density, loading, day, month, time }: EventFinish & Omit<EventCopy, "attendance"> & { input: EventProps }) {
   const date = loading ?
     <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["number", day, "start", "compact"], ["label", month]]} /> :
     <kit.KitContent density={density}>
@@ -130,12 +130,14 @@ function EventDetails({ input, density, loading, day, month, time }: EventFinish
   return <kit.KitRow part="root" goto={loading ? undefined : input.goto} label={input.title}
     inset="none" density={density}>
     <kit.KitContent lead={date} leadingAlign="row" density={density}>
+      <kit.KitGrid fitLast density={density}>
+        {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["heading", input.title]]} /> :
+          <kit.KitText part="title" role="heading" density={density}>{input.title}</kit.KitText>}
+        {loading ? <kit.KitSkeleton shape="figure" lead="dot" inset="none" content={[]} density={density} /> :
+          <kit.KitIcon name="chevron_right" tone="muted" decorative />}
+      </kit.KitGrid>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["heading", input.title], ["label", time], ["label", input.place]]} /> : <>
-        <kit.KitGrid fitLast density={density}>
-          <kit.KitText part="title" role="heading" density={density}>{input.title}</kit.KitText>
-          <kit.KitIcon name="chevron_right" tone="muted" decorative />
-        </kit.KitGrid>
+        content={[["label", time], ["label", input.place]]} /> : <>
         <kit.KitText part="time" role="label" tone="muted" density={density}>{time}</kit.KitText>
         <kit.KitText part="place" role="label" tone="muted" density={density}>{input.place}</kit.KitText>
       </>}
@@ -144,10 +146,13 @@ function EventDetails({ input, density, loading, day, month, time }: EventFinish
 }
 
 // prettier-ignore
-function EventAttendees({ members, count, density, loading }: EventFinish & Pick<EventProps, "members"> & Pick<EventCopy, "count">) {
+function EventAttendees({ members, attendance, density, loading }: EventFinish & Pick<EventProps, "members"> & Pick<EventCopy, "attendance">) {
   const { words: { event } } = kit.useWords(socialWordsFor);
-  const label = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", count]]} /> :
-    <kit.KitText part="count" role="label" tone="muted" density={density}>{count}</kit.KitText>;
+  const { count, before, after, line } = attendance;
+  const label = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", line]]} /> :
+    <kit.KitText part="count" role="label" tone="muted" density={density}>
+      {before}<kit.KitText part={null} role="number" numberScale="compact" tabular density={density}>{count}</kit.KitText>{after}
+    </kit.KitText>;
   const avatars = loading ? members.slice(0, 3).reduceRight<React.JSX.Element | null>((tail, { id }) => {
     const circle = <kit.KitSkeleton shape="control" />;
     return tail ? <kit.KitRow key={id} part={null} label="" inline leadingAlign="row" leading={circle}>
@@ -181,13 +186,13 @@ export function EventCard(input: EventProps) {
   const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
   const media = kit.useVariant("media", meta.variants.media, input.media);
   const { words: { event }, lang } = kit.useWords(socialWordsFor);
-  const { count, ...date } = eventCopy(input, lang);
+  const { attendance, ...date } = eventCopy(input, lang);
   const photo = media === "cover" && input.photo;
   return <kit.KitCard part="frame" padded density={density} surface={surface}>
     {photo && (loading ? <kit.KitSkeleton shape="media" inset="none" content={[]} /> :
       <kit.KitPhoto part="photo" photo={photo} shape="wide" label={event.photo} />)}
     <EventDetails {...{ input, density, loading }} {...date} />
-    <EventAttendees members={input.members} {...{ count, density, loading }} />
+    <EventAttendees members={input.members} {...{ attendance, density, loading }} />
     <kit.KitContent group="response" density={density}>
       <EventActions status={input.status} {...{ density, loading }} />
     </kit.KitContent>

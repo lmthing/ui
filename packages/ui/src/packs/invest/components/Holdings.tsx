@@ -140,10 +140,11 @@ type Line = [part: string, text: string, role?: "caption" | "label" | "number", 
 function HoldingLines({ lines, density, loading, link }: { lines: Line[]; density: Density; loading: boolean; link?: boolean }) {
   const { words: { holdings: words } } = kit.useWords(investWordsFor);
   const fields = lines.map(([part, text, role = "caption", tone = "muted"]) => {
-    if (loading) return <kit.KitSkeleton key={part} shape="figure" inset="none" density={density}
+    const emphasis = part === "value" ? "quiet" : "normal";
+    if (loading) return <kit.KitSkeleton key={part} shape="figure" inset="none" {...{ density, emphasis }}
       content={[[role, part === "value" ? [words.valueLabel, text].join(words.valueGap) : text, "start", "compact"]]} />;
-    const field = <kit.KitText key={part} {...{ part, role, tone, density }} tabular numberScale="compact">
-      {part === "value" && <><kit.KitText part={null} role="caption" tone="muted" density={density}>
+    const field = <kit.KitText key={part} {...{ part, role, tone, density, emphasis }} tabular numberScale="compact">
+      {part === "value" && <><kit.KitText part={null} role="label" tone="muted" density={density}>
         {words.valueLabel}</kit.KitText>{words.valueGap}</>}{text}
     </kit.KitText>;
     return link && part === "value" ? <kit.KitGrid key={part} fitLast density={density}>
