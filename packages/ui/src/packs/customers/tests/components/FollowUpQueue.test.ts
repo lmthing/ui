@@ -57,7 +57,10 @@ describe("FollowUpQueue contract and fallback", () => {
   });
   it("uses only declared cast text or a neutral fallback", () => {
     const things = [{ type: "record", fields: ["label", "summary"] }];
-    const cast = { things, items: [{ id: "a", type: "record", label: "Alpha", summary: "Detail" }] };
+    const cast = {
+      things,
+      items: [{ id: "a", type: "record", sample: true, label: "Alpha", summary: "Detail" }],
+    };
     for (const seed of [
       cast,
       { things, items: [{ ...cast.items[0]!, label: 1, summary: null }] },
