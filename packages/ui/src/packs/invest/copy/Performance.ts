@@ -1,4 +1,10 @@
-import { changeLine, compactMoneyLine, dateLocaleOf, type AppCurrency } from "../../../catalog";
+import {
+  changeLine,
+  compactMoneyLine,
+  dateLocaleOf,
+  defaultCurrency,
+  type AppCurrency,
+} from "../../../catalog";
 import { investWordsFor } from "../lang";
 
 export type PerformancePoint = {
@@ -70,6 +76,9 @@ export function performanceReading(
     words.observations,
     ...(detail !== "brief" ? [selected_point === point.at ? words.selected : words.latest] : []),
     ...rows,
+    ...(samples.some(({ contributed }) => typeof contributed === "number")
+      ? [currency ?? defaultCurrency]
+      : []),
     ...axisReadings(samples, words),
   ];
 }

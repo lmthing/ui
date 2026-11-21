@@ -74,12 +74,15 @@ describe("Tasks rendering and action gates", () => {
     expect(sections.has(part("r1/project"))).toBe(true);
     expect(sections.has(part("r1/done"))).toBe(false);
     expect(sections.has(part("r2/done"))).toBe(true);
+    expect(sections.get(part("r5/project"))?.text).toEqual(["Walker onboarding"]);
+    expect(sections.get(part("r5/done"))?.attributes).toContain('aria-checked="false"');
     expect(render(grouped, "success").has(part("r3/title"))).toBe(true);
   });
 
   it("hides content and controls in empty and loading", () => {
     expect([...render(first, "empty").keys()]).toEqual([part("root"), part("empty")]);
     expect([...render(first, "loading").keys()]).toEqual([part("root")]);
+    expect([...render(grouped, "loading").keys()]).toEqual([part("root")]);
   });
 
   it("offers separate link and completion actions and unlocks the dependent after checking", () => {
@@ -114,4 +117,13 @@ describe("Tasks rendering and action gates", () => {
     expect(result).toMatchObject({ ok: true, links: [] });
     if (result.ok) expect(JSON.stringify(result.values)).toContain("Noor");
   });
+});
+
+it("shows completed example tasks in success without changing the filled example", () => {
+  const success = render(first, "success");
+  expect(success.get(part("r1/state"))?.text).toEqual(["Done"]);
+  expect(success.get(part("r2/state"))?.text).toEqual(["Done"]);
+  expect(success.has(part("r2/blockers"))).toBe(false);
+  expect(success.get(part("r2/done"))?.attributes).toContain('aria-checked="true"');
+  expect(render(first).get(part("r1/done"))?.attributes).toContain('aria-checked="false"');
 });

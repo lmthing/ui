@@ -168,6 +168,10 @@ Hosts can carry those fields, but the current kit and reader do not consume them
 One file per component, `src/components/<Id>.tsx`, holds its data and view. Pack components follow
 the same shape. [The component guide](component-guide.md) and `List.tsx` / `List.test.ts` are binding.
 
+Core and pack component folders (`src/components` and `src/packs/<pack>/components`) are exempt from
+the 12-file folder limit. So are the pack per-component test folders, `src/packs/<pack>/tests` and
+`src/packs/<pack>/tests/components`. These exemptions do not extend to other subfolders.
+
 | Export     | What it is                                                                                                    |
 | ---------- | ------------------------------------------------------------------------------------------------------------- |
 | `meta`     | A plain object, `as const satisfies Meta`                                                                     |
@@ -722,8 +726,8 @@ first reply and sample replies. Replay is deterministic.
 Do not repeat unchanged probes for luck. Reword purpose/pick/write hints, improve schemas/examples,
 then run once per change. Never weaken probes or edit another component to hide a conflict.
 
-`pnpm test` replays required component/pack recordings. `test/known/<Id>.md` skips component replay and
-marks its reading test `it.fails` until fixed. This is an explicit open-problem bypass, not a pass.
+`pnpm test` replays required component/pack recordings. Listed failures still run and are
+quarantined as described in Testing (8); a quarantined failure is not a pass.
 `pnpm test` also replays all 35 compose/rubric gates from real recordings;
 `--compose --replay` can check them explicitly.
 
@@ -1113,8 +1117,11 @@ configuration, the render fixture and the check runner trigger a full Node run. 
 
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those
-tests. `test/known/<Id>.md` bypasses replay and records expected reading failures (4.13).
-A suite that passes with these files does not prove those components' acceptance. The UI suite has
+tests. `test/known/failures.json` lists existing failures by exact test file and full test name
+with a reason and an owner task ID. Missing pack recordings have one entry per pack, owned by its
+acceptance task. Tests still run: `KNOWN` failures do not block the merge gate, but any new failure
+does. `KNOWN-FIXED` means the listed test passed in full and its entry must be removed; set
+`UI_KNOWN_STRICT=1` to make that warning fail the run. The UI suite has
 2,372 tests, including composition replay and browser motion. Chrome suites use `CHROME` or
 `/usr/bin/google-chrome`; set `CHROME` to an installed binary when that default is absent.
 

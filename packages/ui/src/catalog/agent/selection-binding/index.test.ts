@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { allStep, checkStep, selectionFixture } from "../../probes/fixtures";
-import { planAct, readScreen } from "../index";
+import { hostOnlyParts, planAct, privateMarkKey, readScreen } from "../index";
 
 it("plans one press on eligible rows, reads the same selection, and leaves tables' own check and sort intact", () => {
   const { screen, defs } = selectionFixture();
@@ -44,6 +44,25 @@ it("recomputes availability after an earlier step changes selection in the same 
     changed: ["table/r2/pick check = true", "bulk/all press"],
     values: { "home/table/r1/pick": true, "home/table/r2/pick": true },
   });
+});
+
+it("skips private rows when bulk selection plans its indirect checks", () => {
+  const { screen, defs } = selectionFixture();
+  const { Table } = defs;
+  const hostDefs = {
+    ...defs,
+    Table: { ...Table, meta: { ...Table.meta, ...hostOnlyParts({ items: ["pick"] }) } },
+  };
+  expect(readScreen(screen, hostDefs)).not.toContain("[bulk/all press]");
+  expect(planAct(screen, hostDefs, {}, [allStep])).toMatchObject({ ok: false, code: "not_actionable" });
+  const tag = privateMarkKey("home", "table/r1/pick");
+  const values = { "home/table/r1/pick": "local-ref", [tag]: true };
+  const result = planAct(screen, defs, values, [allStep]);
+  expect(result).toMatchObject({
+    ok: true,
+    values: { ...values, "home/table/r2/pick": true },
+  });
+  if (result.ok) expect(result.values).not.toHaveProperty("home/table/$check/r1/pick");
 });
 
 it("honors the declared instance rather than the first table or another screen's check values", () => {

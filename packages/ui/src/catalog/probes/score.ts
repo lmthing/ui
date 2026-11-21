@@ -29,17 +29,37 @@ function jsonLine(reply: string): unknown {
 }
 
 /** Valid first time: right component, props pass the schema with no repair. */
-export function scoreWrite(reply: string, def: Definition, variant?: WriteProbe["variant"]): Score {
+export function scoreWrite(
+  reply: string,
+  def: Definition,
+  variant?: WriteProbe["variant"],
+  expectProps?: WriteProbe["expectProps"],
+): Score {
   const line = jsonLine(reply);
   if (!line || typeof line !== "object") return { pass: false, detail: "no JSON object" };
   const { c, ...rest } = line as Record<string, unknown>;
   if (c !== def.meta.id) return { pass: false, detail: `wrote c=${String(c)}` };
   const input = writerInput(def, rest) as Record<string, unknown>;
   const parsed = def.props.safeParse(input);
-  if (parsed.success)
+  if (parsed.success) {
+    const mismatch = expectProps && firstMismatch(input, expectProps);
+    if (mismatch) return { pass: false, detail: `missing or incorrect ${mismatch}` };
     return variant ? scoreVariant(input, def, variant) : { pass: true, detail: "valid first time" };
+  }
   const issues = parsed.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`);
   return { pass: false, detail: issues.slice(0, 3).join("; ") };
+}
+
+function firstMismatch(actual: unknown, expected: unknown, field = "props"): string | undefined {
+  if (actual === expected) return undefined;
+  if (actual === null || expected === null || typeof actual !== "object" || typeof expected !== "object")
+    return field;
+  if (Array.isArray(actual) !== Array.isArray(expected)) return field;
+  if (Array.isArray(expected) && (actual as unknown[]).length !== expected.length) return field;
+  for (const [key, value] of Object.entries(expected)) {
+    const mismatch = firstMismatch((actual as Record<string, unknown>)[key], value, `${field}.${key}`);
+    if (mismatch) return mismatch;
+  }
 }
 
 function hasItemTitles(rows: unknown, titles: readonly string[]): boolean {

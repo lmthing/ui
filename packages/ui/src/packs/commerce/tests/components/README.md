@@ -1,5 +1,6 @@
 # Commerce component tests
 
+- `Cart.test.ts`: basket boundaries, rendering, quantity edits, promo input, and removal confirmation.
 - `Checkout.test.ts`: schema, fallback, rendering, reading, and dispatch for checkout.
 - `OrderStatus.test.ts`: fulfillment milestones, completion, and seller-only advancement.
 - `ProductGrid.test.ts`: schema, fallback, rendering, reading, and dispatch for the product grid and menu.
