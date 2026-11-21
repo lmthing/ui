@@ -28,11 +28,12 @@ function useCellTarget({ target, disabled, selected, loading, label, anchor }: C
   const press = () => kit.controller?.press(address.testID);
   const anchorProps = anchor
     ? {
+        accessible: true,
         ref: (node: TamaguiElement | null) => {
           anchor.current = node;
           address.ref.current = node;
         },
-        ...(!target ? { tabIndex: -1 as const, accessible: true, accessibilityLabel: label } : {}),
+        ...(!target ? { tabIndex: -1 as const, accessibilityLabel: label } : {}),
       }
     : {};
   return !target || loading

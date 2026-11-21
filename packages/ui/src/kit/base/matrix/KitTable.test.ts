@@ -130,4 +130,34 @@ describe("KitTable dispatch", () => {
     expect(press.mock.calls).toEqual(Array.from({ length: 3 }, () => ["home/c1/r1/first"]));
     expect(handlers.get("home/c1/r1/second")?.onPress).toBeUndefined();
   });
+
+  it("makes addressed and plain jump headers accessible without removing the addressed press", async () => {
+    const press = vi.fn();
+    const controller = { press } as unknown as ScreenController;
+    type Anchor = { accessible?: boolean; accessibilityLabel?: string; onPress?: (event: object) => void };
+    const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
+    const anchors: Anchor[] = [];
+    const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
+      const props = args[1] as Anchor;
+      if (props.accessibilityLabel === "b" && props.accessible) anchors.push(props);
+      return jsxDEV(...args);
+    });
+    try {
+      const timeline = { jump: { part: "now", column: "b" } };
+      renderMatrix(createElement(KitTable, { ...input, timeline }), controller);
+      renderMatrix(
+        createElement(KitTable, {
+          ...input,
+          timeline,
+          headerTargets: [{ column: "b", target: { part: "later" } }],
+        }),
+        controller,
+      );
+    } finally {
+      spy.mockRestore();
+    }
+    expect(anchors.some((anchor) => !anchor.onPress)).toBe(true);
+    anchors.find((anchor) => anchor.onPress)?.onPress?.({});
+    expect(press).toHaveBeenCalledExactlyOnceWith("home/c1/later");
+  });
 });
