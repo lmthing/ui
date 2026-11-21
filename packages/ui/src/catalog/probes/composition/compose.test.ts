@@ -22,6 +22,12 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
     ...plainHeader
   } = components.Header.meta;
   const { variants: _chatVariants, variantParts: _chatParts, ...plainBubbles } = components.Bubbles.meta;
+  const {
+    variants: _composerVariants,
+    variantParts: _composerParts,
+    writeHints: _composerHints,
+    ...plainComposer
+  } = components.Composer.meta;
   const withoutAxes = {
     ...components,
     Header: {
@@ -40,6 +46,12 @@ it("adds the vocabulary once and the screen caps only for recipes with shared ax
           .max(6),
       }),
       examples: [{ messages: [{ from: "them", text: "Hello" }] }],
+    },
+    Composer: {
+      ...components.Composer,
+      meta: plainComposer,
+      props: z.strictObject({ style: z.enum(["entry", "reply"]), hint: text(60) }),
+      examples: [{ style: "reply", hint: "Reply" }],
     },
   };
   const caps = "one hero emphasis and one cover collection per screen";
