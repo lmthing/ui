@@ -1,5 +1,5 @@
 import { Text, YStack } from "tamagui";
-import { accents, component, components, space, stampItemIds } from "@lmthing/ui/catalog";
+import { accents, component, components, space, stampItemIds, type Definition } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, renderers } from "@lmthing/ui/kit";
 import { variantSheet } from "../../../../packages/ui/scripts/variants";
 import { drawPreviewEnvironment, galleryParts, previewComponent, resolvePhoto } from "../../index";
@@ -23,7 +23,7 @@ type PreviewProps = {
 };
 
 export function Preview({ cell, preset, mode, responsive = false, label = true, variant }: PreviewProps) {
-  const def = components[cell.id];
+  const def: Definition = components[cell.id];
   const View = renderers[cell.id as keyof typeof renderers] as
     ((props: object) => React.ReactNode) | undefined;
   const input = def.props.parse(cell.example) as Record<string, unknown>;

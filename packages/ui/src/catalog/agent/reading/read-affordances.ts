@@ -30,6 +30,13 @@ function runtimeRowValue(meta: Meta, props: Values, target: string, fallback: un
   return option.row[flag] === true ? option.value : undefined;
 }
 
+function initialDetail(affordance: Affordance, value: unknown) {
+  if (typeof value !== "boolean") return affordance.detail;
+  if (affordance.action === "toggle") return `:${value ? "on" : "off"}`;
+  if (!affordance.input && affordance.action === "check") return `:${value ? "done" : "todo"}`;
+  return affordance.detail;
+}
+
 /** Describe the offered controls using live values and choices. */
 export function readAffordances(
   affordances: Affordance[],
@@ -79,10 +86,7 @@ export function readAffordances(
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
-    let detail = a.detail;
-    if (typeof value === "boolean" && a.action === "toggle") detail = `:${value ? "on" : "off"}`;
-    if (!a.input && typeof value === "boolean" && a.action === "check")
-      detail = `:${value ? "done" : "todo"}`;
+    let detail = initialDetail(a, value);
     const offered = a.action === "select" && !choices ? runtimeRowValue(meta, props, target, value) : value;
     if (offered !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(offered)}`;

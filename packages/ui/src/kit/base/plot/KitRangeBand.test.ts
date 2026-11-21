@@ -103,22 +103,22 @@ describe("KitRangeBand caller-owned reading", () => {
   });
 });
 
-describe("KitRangeBand zones", () => {
-  const props = {
-    part: "band",
-    label: "Reading",
-    min: 300,
-    max: 800,
-    value: 650,
-    zones: [
-      { label: "First", from: 200, to: 400, tone: "bad" },
-      { label: "Middle", from: 400, to: 700, tone: "warn" },
-      { label: "Last", from: 700, to: 900, tone: "good" },
-    ],
-  } as const;
+const zonesInput = {
+  part: "band",
+  label: "Reading",
+  min: 300,
+  max: 800,
+  value: 650,
+  zones: [
+    { label: "First", from: 200, to: 400, tone: "bad" },
+    { label: "Middle", from: 400, to: 700, tone: "warn" },
+    { label: "Last", from: 700, to: 900, tone: "good" },
+  ],
+} as const;
 
+describe("KitRangeBand zones", () => {
   it("places all ordered zones and the marker on one scale, with a readable legend", () => {
-    const html = render(props);
+    const html = render(zonesInput);
     const [layer, marker] = drawing(html).children;
     for (const [index, left, width, tone] of [
       [0, 0, 20, "bad"],
@@ -136,13 +136,13 @@ describe("KitRangeBand zones", () => {
   });
 
   it("keeps zone positions while loading, and hides the legend from accessibility", () => {
-    const html = render({ ...props, loading: true });
+    const html = render({ ...zonesInput, loading: true });
     const zones = drawing(html).children[0]!.children;
     expect(zones).toHaveLength(3);
     expect(styleAt(html, zones[1]!)).toContain("var(--line)");
     expect(styleAt(html, zones[1]!)).toContain("left:20%");
     expect(elementAt(html, "home/c1/band").children[2]!.attributes).toContain('aria-hidden="true"');
-    expect(render({ ...props, value: NaN })).not.toContain(">First (");
+    expect(render({ ...zonesInput, value: NaN })).not.toContain(">First (");
   });
 
   it("keeps the old band for an empty list and skips invalid and out-of-scale intervals", () => {
@@ -151,15 +151,18 @@ describe("KitRangeBand zones", () => {
       { label: "Invalid", from: NaN, to: 500, tone: "bad" },
       { label: "Out of scale", from: 100, to: 200, tone: "accent" },
       { label: "Reversed", from: 600, to: 500, tone: "muted" },
-      props.zones[1],
+      zonesInput.zones[1],
     ] as const;
-    const html = render({ ...props, zones });
+    const html = render({ ...zonesInput, zones });
     expect(drawing(html).children[0]!.children).toHaveLength(1);
     expect(html).not.toMatch(/Invalid|Out of scale|Reversed|NaN/);
   });
 
   it("separates adjacent zones with identical tones and identifies them by bounds", () => {
-    const html = render({ ...props, zones: props.zones.map((zone) => ({ ...zone, tone: "warn" })) });
+    const html = render({
+      ...zonesInput,
+      zones: zonesInput.zones.map((zone) => ({ ...zone, tone: "warn" })),
+    });
     const [first, second, third] = drawing(html).children[0]!.children;
     expect(styleAt(html, first!)).not.toContain("border-left-width");
     for (const zone of [second!, third!]) {

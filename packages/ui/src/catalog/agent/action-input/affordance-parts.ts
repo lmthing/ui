@@ -86,7 +86,6 @@ export function partsOf(
             const nested = target && typeof target === "object" ? (target as Props) : holder;
             const record = item ? recordEdit(meta, part) : undefined;
             const flag = item && part === "root" && meta.select?.runtime ? meta.select.prop : undefined;
-            const itemControl = item && itemControlAt(meta, part);
             const localPress =
               !item &&
               (meta.clear?.[part] ||
@@ -94,7 +93,7 @@ export function partsOf(
                 reportConfirmation(meta, part, action));
             const suppressLink = Boolean(
               isSelectAll(meta, part, action, item) ||
-              itemControl ||
+              (item && itemControlAt(meta, part)) ||
               (action === "press" && (localPress || (nested === holder && noGoto?.includes(part)))),
             );
             return {
