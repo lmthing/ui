@@ -23,6 +23,7 @@ describe("Composer schema", () => {
       hint: "Write here",
       max: 600,
       sendable: false,
+      detail: "full",
     });
   });
   it.each([
@@ -37,6 +38,8 @@ describe("Composer schema", () => {
     { hint: "Write", value: "a".repeat(2001), max: 2000 },
     { hint: "Write", value: "" },
     { hint: "Write", style: "chat" },
+    { hint: "Write", density: "compact" },
+    { hint: "Write", detail: "none" },
     { hint: "Write", goto: "next" },
     { hint: "Write", color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
@@ -120,5 +123,27 @@ describe("Composer rendering", () => {
     expect(html).toContain('data-testid="home/c1/send"');
     expect(html).not.toContain('data-testid="home/c1/count"');
     expect(html).toContain("Thanks, see you at nine");
+  });
+  it("hides only the entry count from the drawing and the reader, not the limit", () => {
+    const input = { ...examples[0], detail: "brief" } as const;
+    expect(meta.variantParts["detail.brief"]).toEqual({ hides: ["count"] });
+    const html = renderInstance("Composer", input, "filled", theme);
+    for (const part of ["root", "label", "field"]) expect(html).toContain(`data-testid="home/c1/${part}"`);
+    expect(html).not.toContain('data-testid="home/c1/count"');
+    expect(html).toContain('maxLength="400"');
+    const read = readComponent(components.Composer, input, "c1").join("\n");
+    expect(read).not.toContain(charLine(0, 400));
+    expect(read).toContain("[c1/field type");
+  });
+  it("keeps Send visible and actionable for a reply with brief detail", () => {
+    const input = { ...examples[1], detail: "brief" } as const;
+    const html = renderInstance("Composer", input, "filled", theme);
+    expect(html).toContain('data-testid="home/c1/send"');
+    expect(html).not.toContain('data-testid="home/c1/count"');
+    expect(affordancesOf(meta, props.parse(input), "c1").map(({ action }) => action)).toEqual([
+      "type",
+      "send",
+    ]);
+    expect(readComponent(components.Composer, input, "c1").join("\n")).toContain("[c1/send send");
   });
 });

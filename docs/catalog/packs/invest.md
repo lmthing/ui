@@ -31,7 +31,7 @@ from them, not saved names alone. `Performance` separates invested value from mo
 trades that change units and cash, unlike spending rows. None can be a visual option on a core component.
 The money pack's `AccountCard`, `Transactions` and quote-only `PriceChart` are neighbours, not dependencies.
 
-## Components (5)
+## Components (7)
 
 ### `Holdings` · planned · data · phone
 Positions as rows with instrument, units, unit cost, dated quote, computed value and unrealised gain.
@@ -51,6 +51,7 @@ A linked row opens that holding; refreshing quotes never buys or sells it.
 - Real path: an opening statement and later trades on the device; values use stored quotes. Live quote
   refresh needs market data and reads `!needs-service`; missing quotes show unknown, never zero.
 - Weight: 2; at most six rows, shared "and N more" copy beyond them.
+- Wave 6 options: add `classFilter` chips (`all`, `equity`, `bond`, `fund`, `crypto`) and optional `dayChange`.
 
 ### `Watchlist` · planned · data · phone
 Instruments being watched, each with a dated quote, an optional target price and the computed gap to it.
@@ -68,6 +69,7 @@ Targets mark a condition to watch, not a recommendation or a trade.
 - Real path: watch records and manually entered quotes on the device; a live feed is an optional service.
   Removing a watch record never removes an owned position or its shared quote history.
 - Weight: 2; a simple name-only watchlist uses core `List` instead.
+- Wave 6 options: add `alertOn` boolean and `alert toggle` (`meta.partTiers: { alert: "ok" }`) for price threshold alerts.
 
 ### `Performance` · planned · data · phone
 Portfolio value and net money put in as two labelled lines over the same dates, with their latest
@@ -83,6 +85,7 @@ difference as money gained or lost. Range selection changes the view, not the co
 - Real path: code replays the shared opening statement, trades, cash flows and received dividends at
   each sample, then values the units with that sample's quotes; no market service is required.
 - Weight: 2; chart points are values, not dense rows. No invented zero for a missing instrument quote.
+- Wave 6 options: extend `range` with `day` and `week`, plus optional `benchmark` line (`at`, `price`).
 
 ### `Dividends` · planned · data · phone
 Distributions with instrument, entitlement date, payment date, amount per unit, computed gross and net
@@ -120,13 +123,33 @@ date order. A trade shows units, unit price, fee and computed cash movement; cor
 - Real path: local records folded after the opening statement. Dividend rows reference `Dividends`
   receipts and are code-owned, never separately seeded or voided here. No action sends a broker order.
 - Density: `meta.dense: true`, weight 3; a reconciled investment ledger needs more than six event lines.
+- Wave 6 options: add `reward` and `split` to `kind`, plus optional `recurring` boolean tag.
+
+### `TradeTicket` · planned · input · service
+An order entry panel for buying or selling an asset via market, limit or recurring DCA orders, or trading a binary event contract with Yes or No pricing and implied odds. Entering an amount or quantity updates code-computed estimated shares, fee and payout before confirmed submission.
+- Pick: placing or previewing an investment trade, recurring DCA order or binary event contract order. Not recording a past trade (`InvestmentActivity`), keypad cash entry (money `AmountPad`), or retail checkout (commerce `Checkout`).
+- Writes: `assetId` text(24), `name` text(32), `symbol` text(12), `side` (`buy`, `sell`, `yes`, `no`), `orderKind` (`market`, `limit`, `dca`, `contract`), `price` number > 0, `limitPrice` number > 0 optional, `amount` number ≥ 0 optional, `units` number ≥ 0 optional, `cadence` (`weekly`, `biweekly`, `monthly`) optional (`dca` only), `availableCash` number ≥ 0, `fee` number ≥ 0 optional, `style`. Estimated shares, implied probability, contract payout and post-order cash are computed by code.
+- Styles: `asset` (default, stock, ETF or crypto order ticket), `contract` (binary Yes/No event contract with implied odds and payout readout).
+- Parts → actions: `side select`, `orderKind select`, `amount set`, `units set`, `limitPrice set`, `preview press`, `place press`. `meta.confirmParts: ["place"]`.
+- States: filled, loading (submitting order), success (order submitted or scheduled), error (insufficient cash, oversell or market closed).
+- Real path: order submission routes to an external brokerage or exchange service (`service`); local showcase previews validate against portfolio balances without live settlement.
+
+### `Rebalance` · planned · data · phone
+Target versus actual portfolio allocation across asset classes or holdings showing drift badges and code-computed buy or sell dollar deltas to restore the target mix. Investors can adjust target percentages or open suggested corrective trades.
+- Pick: comparing current allocation against target weights and computing rebalance buy or sell deltas. Not a current share breakdown alone (`Bars[share]`), position rows (`Holdings`), or savings goals (`Progress`).
+- Writes: `portfolioId` text(24), `totalValue` number > 0, `slices` of `id` text(24), `label` text(24), `actualPct` number 0–100, `targetPct` number 0–100, `tolerancePct` number 0–25 optional, 2–8; `cashBuffer` number ≥ 0 optional; `tradeGoto` optional; `style`. Percentage drift, out-of-band warnings and buy/sell currency deltas are computed by code.
+- Styles: `weights` (default, target vs actual meters with target editors and drift badges), `trades` (suggested buy/sell dollar deltas per slice with trade shortcuts).
+- Parts → actions: slices `target set`, `reset press`, `apply press` (opens `tradeGoto` or queues rebalance orders; `meta.partTiers: { apply: "service" }`).
+- States: filled, empty, loading, success (targets saved), error (target weights do not sum to 100%).
+- Real path: target allocation math runs locally on the device; executing suggested rebalance trades requires a connected brokerage service (`service`).
+- Density: `meta.dense: true`, weight 3; allocation rebalancing compares up to eight asset classes or holdings.
 
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `portfolio` | My investments over time | `invest_positions`, `invest_allocation`, `invest_performance` | `invest_positions`: Header, Amount[large], Holdings, Button · `invest_allocation`: Header, Bars[share], Note · `invest_performance`: Header, Performance, Note |
-| `holding` | One position and its income | `invest_holding`, `invest_income`, `invest_activity` | `invest_holding`: Header[back], Holdings[compact] (assetId filter), KeyValue, Button · `invest_income`: Header[back], Dividends, Note · `invest_activity`: Header[back], InvestmentActivity, Button |
+| `portfolio` | My investments over time | `invest_positions`, `invest_allocation`, `invest_rebalance`, `invest_performance` | `invest_positions`: Header, Amount[large], Holdings, Button · `invest_allocation`: Header, Bars[share], Note · `invest_rebalance`: Header, Rebalance, Note · `invest_performance`: Header, Performance, Note |
+| `holding` | One position and its income | `invest_holding`, `invest_trade`, `invest_income`, `invest_activity` | `invest_holding`: Header[back], Holdings[compact] (assetId filter), KeyValue, Button · `invest_trade`: Header[back], TradeTicket, Note · `invest_income`: Header[back], Dividends, Note · `invest_activity`: Header[back], InvestmentActivity, Button |
 | `watchlist` | Quotes against watch thresholds | `invest_watch` | Header, Search, Watchlist[targets], Button |
 | `goals` | Long-term savings targets | `invest_goal`, `invest_goals`, `invest_contribution` | `invest_goal`: Header, Ring, Amount, Note, Button · `invest_goals`: Header, Progress, Note, Button · `invest_contribution`: Header, Field[number], Field[date], Button |
 
@@ -155,7 +178,10 @@ Notifications for thresholds need permission (`ok`) as a host feature; no notifi
 
 ## Build notes
 
-- Order: `InvestmentActivity`, `Holdings`, `Performance`, `Dividends`, `Watchlist`; all remain planned.
+- Order: `InvestmentActivity`, `Holdings`, `Performance`, `Dividends`, `Watchlist`, then Wave 6 additions `Rebalance` and `TradeTicket`; all remain planned.
+- **Wave 6 additions & options:**
+  - Added `TradeTicket` (`input`, `service`) for market, limit, DCA and binary event-contract orders, and `Rebalance` (`data`, `phone` with `apply` in `service`) for target vs actual portfolio weights and buy/sell deltas.
+  - Option/style upgrades: `Holdings` gains `classFilter` chips (`all`, `equity`, `bond`, `fund`, `crypto`) and `dayChange`; `Performance` gains `range: "day" | "week"` and optional `benchmark` line; `Watchlist` gains `alertOn` (`meta.partTiers: { alert: "ok" }`); `InvestmentActivity` gains `kind: "reward" | "split"` and `recurring` tag.
 - Writers use strict `writerFormat(registry)` for core plus chosen packs; no aliases or off-pack ids.
   All record ids are unique snake_case values. Asset references resolve in one shared instrument store;
   consistent repeated seeds merge by id, conflicting snapshots or same-time quotes fail validation.

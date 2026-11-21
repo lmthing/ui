@@ -7,30 +7,29 @@ import {
   staleSession,
   migrateScreen,
   filterDeviceDataScreen,
-  isDeviceDataVisible,
+  projectDeviceData,
   resolveDefinition,
+  withDisabledSelectionChecks,
   type ActStep,
   type Definition,
   type DeviceData,
   type RandomSource,
+  type ReportRemoval,
   type ScreenLike,
   type Values,
 } from "../../../catalog";
-import {
-  createInteractionStore,
-  projectScreen,
-  valueKey,
-  type InteractionStore,
-  type MediaAdapter,
-} from "../index";
+import { createInteractionStore, projectScreen, valueKey } from "../index";
+import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
+import { visibleConfirmation } from "./read-controls";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
   source: string;
   goto?: string;
   step?: ActStep;
+  removal?: ReportRemoval;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -69,10 +68,8 @@ function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now
 }
 function expiredProgress(screen: ScreenLike, defs: Record<string, Definition>, values: Values, now: number) {
   const expired: Values = {};
-  const candidates = screen.components.filter(
-    (entry) =>
-      values[valueKey(screen.id, entry.id, drawKey)] !== undefined ||
-      values[valueKey(screen.id, entry.id, sessionKey)] !== undefined,
+  const candidates = screen.components.filter(({ id }) =>
+    [drawKey, sessionKey].some((part) => values[valueKey(screen.id, id, part)] !== undefined),
   );
   if (!candidates.length) return expired;
   const projected = projectScreen({ ...screen, components: candidates }, defs, values, now, undefined, true);
@@ -111,45 +108,39 @@ function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string |
     !visible.components.some(({ id }) => id === sheet)
   );
 }
-function visibleConfirmation(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  confirmation?: Confirmation,
-  data?: DeviceData,
-) {
-  if (!confirmation) return;
-  const [source] = relativeAddress(screen.id, confirmation.source).split("/");
-  const component = screen.components.find(({ id }) => id === source)?.c;
-  const meta = component && defs[component]?.meta;
-  if (!meta || isDeviceDataVisible(meta, data)) return confirmation;
+function projectLive(options: ControllerOptions, screen: ScreenLike, standalone: boolean, now: () => number) {
+  return (values: Values, sheet: string | undefined, covered = false, at = now()) => {
+    const visible = filterDeviceDataScreen(
+      screen,
+      options.defs,
+      projectDeviceData(options.deviceData, values),
+    );
+    if (standalone) return visible;
+    const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
+    return covered && !hostHidesSheet(screen, visible, sheet)
+      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
+      : projected;
+  };
 }
 export function createControllerContext(options: ControllerOptions, standalone = false) {
   const { defs, now = Date.now, store = createInteractionStore() } = options;
   const screen = controllerScreen(options, standalone);
+  const disabledParts = new Map<string, symbol>();
   let initial = standalone ? {} : initialValues(screen, defs, now);
   const status = {
     disposed: false,
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
+  const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
-    standalone
+    localOnly
       ? store.snapshot(screen.id)
       : {
           ...initial,
           ...store.snapshot(),
-          ...Object.fromEntries(
-            screen.components.map((entry) => [valueKey(screen.id, entry.id, "$now"), at]),
-          ),
+          ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
-  const liveScreen = (values: Values, sheet: string | undefined, covered = false, at = now()): ScreenLike => {
-    const visible = filterDeviceDataScreen(screen, defs, options.deviceData);
-    if (standalone) return visible;
-    const projected = projectScreen(visible, defs, values, at, sheet, false, false);
-    return covered && !hostHidesSheet(screen, visible, sheet)
-      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
-      : projected;
-  };
   return {
     standalone,
     options,
@@ -159,15 +150,22 @@ export function createControllerContext(options: ControllerOptions, standalone =
     store,
     status,
     valuesOf,
-    liveScreen,
-    confirmationFor: (data = options.deviceData) =>
-      visibleConfirmation(screen, defs, status.confirmation, data),
+    liveScreen: projectLive(options, screen, standalone, now),
+    confirmationFor: (data = options.deviceData, at = now()) =>
+      visibleConfirmation(
+        withDisabledSelectionChecks(screen, disabledParts),
+        defs,
+        status.confirmation,
+        data,
+        at,
+        valuesOf,
+      ),
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
     resetValues: () => {
       initial = initialValues(screen, defs, now);
     },
     mounted: new Map<string, symbol>(),
-    disabledParts: new Map<string, symbol>(),
+    disabledParts,
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
@@ -183,18 +181,3 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
-export function snapshotPlanning(ctx: ControllerContext): ControllerContext {
-  const at = ctx.now();
-  const values = ctx.valuesOf(at);
-  return {
-    ...ctx,
-    screen: filterDeviceDataScreen(ctx.screen, ctx.defs, ctx.options.deviceData),
-    now: () => at,
-    valuesOf: () => values,
-    status: { ...ctx.status, confirmation: ctx.confirmationFor() },
-    mounted: new Map(ctx.mounted),
-    disabledParts: new Map(ctx.disabledParts),
-    liveScreen: (next, sheet, covered) => ctx.liveScreen(next, sheet, covered, at),
-    expiredProgress: (next) => ctx.expiredProgress(next, at),
-  };
-}

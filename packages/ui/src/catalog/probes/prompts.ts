@@ -1,5 +1,5 @@
 import type { Definition } from "./types";
-import { planAct, readComponent, readScreen, type DeviceData, type ScreenLike } from "../agent";
+import { atDeviceTime, planAct, readComponent, readScreen, type DeviceData, type ScreenLike } from "../agent";
 import { buildBlock, buildEntry, variantVocabulary } from "../prompt";
 import { exampleDeviceData, type ReadProbeFixture } from "./fixtures";
 
@@ -73,13 +73,15 @@ export function readPrompt(
   task: string,
   lang?: string,
   fixture?: ReadProbeFixture,
+  at?: number,
 ): string {
   const input = def.examples[screen];
   const { meta } = def;
-  const deviceData =
+  const records =
     meta.deviceData?.length && meta.previewDeviceData
       ? exampleDeviceData(meta, def.props.parse(input) as Record<string, unknown>, "filled")
       : undefined;
+  const deviceData = at === undefined ? records : atDeviceTime(records, at);
   const reading = fixture
     ? readAfterAction(def, input, instance, lang, fixture, deviceData)
     : ["screen home", ...readComponent(def, input, instance, undefined, undefined, lang, deviceData)].join(

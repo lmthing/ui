@@ -1,8 +1,12 @@
+export { partsOf } from "./affordance-parts";
 import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
-import { adjustmentAt, numericSetAt, projectAdjustments } from "../clocks";
+import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
+export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
+export { itemActionOffer, moveKey, projectMoves } from "./move";
+export { findAction } from "./offered-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,
@@ -26,10 +30,10 @@ export function validateStep(
   values: Values,
   key: string,
 ) {
-  const number = numericStep(screen, defs, found.address, step.action, values);
-  const limits = number?.set
-    ? { ...number.set.spec, numeric: true as const }
-    : nestedSpec(screen, defs, found.address);
+  const edit = setStep(screen, defs, found.address, step.action, values);
+  const limits = found.move
+    ? { type: "choice" as const, choices: found.move.choices }
+    : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));
   const keypad = step.action === "type" ? keypadInput(screen, defs, found, values) : undefined;
   let result = keypad
     ? resolveKeypadValue(step.value, values[key] ?? keypad.value, keypad)
@@ -39,9 +43,9 @@ export function validateStep(
     if (max !== undefined && typeof result.value === "string" && result.value.length > max)
       result = { code: "invalid_value", hint: `Use at most ${max} characters` };
     else if (found.blocked && result.value !== false)
-      return { result: { code: found.blocked, hint: "Turn off an active choice first" }, number, limits };
+      return { result: { code: found.blocked, hint: "Turn off an active choice first" }, edit, limits };
   }
-  return { result, number, limits };
+  return { result, edit, limits };
 }
 
 export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
@@ -53,7 +57,7 @@ export function nestedSpec(screen: ScreenLike, defs: Record<string, Definition>,
   return nestedAt(def.meta, parseControlProps(def, raw), parts.join("/"))?.spec;
 }
 
-export function numericStep(
+function setStep(
   screen: ScreenLike,
   defs: Record<string, Definition>,
   address: string,
@@ -70,7 +74,7 @@ export function numericStep(
   const props = parseControlProps(def, raw, get);
   const target = parts.join("/") || "root";
   if (action === "set") {
-    const set = numericSetAt(def.meta, props, target);
+    const set = setAt(def.meta, props, target);
     if (set) return { id, set, slot: controlValueKey(def, set.key) };
   }
   const adjustment = adjustmentAt(def.meta, props, target, action, get, Number(get("$now") ?? Date.now()));
@@ -116,18 +120,20 @@ export function keypadInput(
 export function stageValue(
   next: Values,
   key: string,
-  found: Affordance,
+  found: Affordance & { checks?: readonly Affordance[] },
   value: unknown,
-  number: ReturnType<typeof numericStep>,
+  edit: ReturnType<typeof setStep>,
   screenId: string,
   links: Extract<ActResult, { ok: true }>["links"],
 ) {
   const { action, detail } = found;
-  if (number?.adjustment) {
-    const { next: amount, atSet } = number.adjustment;
+  for (const check of found.checks ?? [])
+    stageValue(next, `${screenId}/${check.address}`, check, true, undefined, screenId, links);
+  if (edit?.adjustment) {
+    const { next: amount, atSet } = edit.adjustment;
     if (amount === undefined) return false;
-    const base = `${screenId}/${number.id}`;
-    next[`${base}/${number.slot}`] = amount;
+    const base = `${screenId}/${edit.id}`;
+    next[`${base}/${edit.slot}`] = amount;
     next[atSet === "root" ? base : `${base}/${atSet}`] = amount;
     next[key] = amount;
   } else if (action === "toggle" || action === "check") {
@@ -143,7 +149,7 @@ export function stageValue(
     if (action === "select") next[key] = value;
   } else {
     next[key] = value;
-    if (number?.set) next[`${screenId}/${number.id}/${number.slot}`] = value;
+    if (edit?.set) next[`${screenId}/${edit.id}/${edit.slot}`] = value;
   }
   storeLiveInput(next, screenId, found, next[key]);
   return true;

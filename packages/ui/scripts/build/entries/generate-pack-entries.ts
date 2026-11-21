@@ -12,11 +12,14 @@ const maps = [
 const packsPerGroup = 9;
 
 function aggregateLines(names: string[], keys: readonly string[] = maps) {
+  const bindings = names.map((name) => name.replaceAll("-", ""));
+  // Preserve the exact keys and schemas without re-emitting them at each pack aggregation.
+  const componentType = bindings.map((name) => `typeof ${name}.components`).join(" & ");
   return [
-    ...names.map((name) => `import * as ${name.replaceAll("-", "")} from "./${name}";`),
+    ...names.map((name, i) => `import * as ${bindings[i]} from "./${name}";`),
     ...keys.flatMap((key) => [
-      `export const ${key} = {`,
-      ...names.map((name) => `  ...${name.replaceAll("-", "")}.${key},`),
+      `export const ${key}${key === "components" && componentType ? `: ${componentType}` : ""} = {`,
+      ...bindings.map((name) => `  ...${name}.${key},`),
       "};",
     ]),
   ];
@@ -67,6 +70,11 @@ export function generatePackEntries({ defs, packs }: Entries): Record<string, st
     const name = `group-${groups.length + 1}`;
     groups.push(name);
     const group = packs.slice(start, start + packsPerGroup);
+    for (const pack of group)
+      outputs[`packs/${name}/${pack.id}.ts`] = packLines(
+        pack,
+        defs.filter(({ pack: id }) => id === pack.id),
+      );
     outputs[`packs/${name}/index.ts`] = aggregateLines(group.map(({ id }) => id));
     outputs[`packs/${name}/README.md`] = [
       "# generated pack group",
@@ -75,11 +83,6 @@ export function generatePackEntries({ defs, packs }: Entries): Record<string, st
       "Each pack file imports its root door; `index.ts` combines the data maps.",
     ];
     outputs[`views/${name}.ts`] = rendererLines(group, defs);
-    for (const pack of group)
-      outputs[`packs/${name}/${pack.id}.ts`] = packLines(
-        pack,
-        defs.filter(({ pack: id }) => id === pack.id),
-      );
   }
   outputs["packs/index.ts"] = aggregateLines(groups);
   outputs["packs/README.md"] = [

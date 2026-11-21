@@ -2,12 +2,12 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
-import { component, space, themeName } from "@lmthing/ui/catalog";
+import { component, space, themeName, type ThemeChoice } from "@lmthing/ui/catalog";
 import { KitProvider, PartScope, KitFlip, KitText } from "@lmthing/ui/kit";
 import { config, elementAt, styleAt } from "../../../../test/render";
 
-function render(props: Parameters<typeof KitFlip>[0]) {
-  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+function render(props: Parameters<typeof KitFlip>[0], preset: ThemeChoice["preset"] = "calm") {
+  const theme = { preset, mode: "light", accent: "moss" } as const;
   return renderToStaticMarkup(
     createElement(
       TamaguiProvider,
@@ -63,4 +63,29 @@ it("draws empty/static and loading cards without mounting either slot", () => {
   const empty = render({ ...input, front: null, part: null, target: { part: null } });
   expect(empty).toContain("<svg");
   expect(empty).not.toMatch(/role="button"|data-testid=/);
+});
+
+it.each([
+  ["calm", 0],
+  ["bold", 0],
+  ["editorial", component.base.borderWidth],
+] as const)("opts into the shared start inset in %s without changing vertical padding", (preset, border) => {
+  const address = "home/c1/r2/turn";
+  const centered = render(input, preset);
+  const explicitCenter = render({ ...input, align: "center" }, preset);
+  expect(elementAt(centered, address)).toEqual(elementAt(explicitCenter, address));
+  expect(styleAt(centered, address)).toContain(`padding-left:${space.lg}px`);
+  expect(styleAt(centered, elementAt(centered, address).children[0]!.children[1]!.children[0]!)).toContain(
+    "text-align:center",
+  );
+
+  const start = render({ ...input, align: "start" }, preset);
+  const face = elementAt(start, address);
+  const content = face.children[0]!;
+  expect(face.attributes).toContain('role="button"');
+  expect(styleAt(start, face)).toContain(`padding-left:${space.md - border}px`);
+  expect(styleAt(start, face)).toContain(`padding-right:${space.md - border}px`);
+  expect(styleAt(start, face)).toContain(`padding-top:${space.lg}px`);
+  expect(styleAt(start, content)).toContain("align-items:stretch");
+  expect(styleAt(start, content.children[1]!.children[0]!)).not.toContain("text-align:center");
 });
