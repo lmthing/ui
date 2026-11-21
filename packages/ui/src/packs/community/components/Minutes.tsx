@@ -37,6 +37,7 @@ export const meta = {
     },
   },
   signature: "check_burst",
+  read: (input): string[] => minutesReading(input as z.output<typeof schema>),
 } as const satisfies c.Meta;
 
 const decision = z.strictObject({
@@ -91,6 +92,13 @@ export const props = schema
       ...input.actions.map((row) => ({ ...row, entryId: row.id, kind: "action", visible: true })),
     ],
   }));
+
+function minutesReading({ style, decisions, actions }: z.output<typeof schema>): string[] {
+  return [
+    ...(style === "record" ? decisions.map((row, i) => `r${i + 1}: ${JSON.stringify(row.title)}`) : []),
+    ...actions.map((row, i) => `r${decisions.length + i + 1}: ${JSON.stringify(row.text)}`),
+  ];
+}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -167,7 +175,7 @@ export const probes = [
     "Checklist",
   ),
   write(
-    "Record November committee minutes on 2026-11-18 chaired by ana: decision shed_purchase titled Buy a shared tool shed, text Obtain quotes before ordering, linked to motion shed; action quotes for shed_purchase, Obtain three quotes, owner ana, not done.",
+    "Record our November committee minutes for 18 November 2026. Ana chaired. We decided to buy a shared tool shed after the motion called shed, and agreed to obtain quotes before ordering. Ana owns the follow-up, Obtain three quotes, and hasn't finished it yet.",
   ),
   read("Open the motion linked to the decision to buy the shared tool shed.", {
     address: "m1/r1",

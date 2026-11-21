@@ -66,9 +66,8 @@ export const props = z
     style: z.enum(["ballot", "result"]).default("ballot"),
   })
   .refine(({ opens, closes }) => Date.parse(opens) < Date.parse(closes), { path: ["closes"] })
-  .refine(({ ballots }) => distinct(ballots, (row) => row.memberId), { path: ["ballots"] })
-  // The draft previews the ballot face; the shared host must supply time and eligibility gates.
-  .overwrite((input) => ({ ...input, can_vote: input.style === "ballot" }));
+  // Eligibility, opening time and chair permissions must come from the shared host, not the seed.
+  .refine(({ ballots }) => distinct(ballots, (row) => row.memberId), { path: ["ballots"] });
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {

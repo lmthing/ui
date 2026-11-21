@@ -53,6 +53,7 @@ export const meta = {
   },
   partTiers: { remind: "service", pay: "service" },
   confirmParts: ["void"],
+  read: (input, _state, lang): string[] => ledgerReading(input as z.output<typeof schema>, lang),
 } as const satisfies c.Meta;
 
 const assessment = z.strictObject({
@@ -96,6 +97,18 @@ export const props = schema
       ...input.receipts.map((row) => ({ ...row, entryId: row.id, kind: "receipt" })),
     ],
   }));
+
+function ledgerReading({ assessments, receipts }: z.output<typeof schema>, lang?: string): string[] {
+  return [
+    ...assessments.map(
+      (row, i) => `r${i + 1}: ${row.memberId} · ${c.numberLine(row.amount, lang)} · ${row.due}`,
+    ),
+    ...receipts.map(
+      (row, i) =>
+        `r${assessments.length + i + 1}: ${row.method} · ${c.numberLine(row.amount, lang)} · ${row.date}`,
+    ),
+  ];
+}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {

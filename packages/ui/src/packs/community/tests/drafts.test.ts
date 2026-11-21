@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   components,
   createRegistry,
+  liveProps,
   readComponent,
+  stampItemIds,
   type CastLike,
   type Definition,
 } from "@lmthing/ui/catalog";
@@ -49,10 +51,52 @@ describe("community component contracts", () => {
       if (read && meta.status === "draft") {
         const address = read.expect.address;
         const lines = readComponent(def, def.examples[read.screen], address.split("/")[0]!);
-        expect(lines.join("\n")).toContain(`[${address} ${read.expect.action}`);
+        const reading = lines.join("\n");
+        if (id === "Vote") {
+          // The read fixture cannot yet provide a trusted active voter.
+          expect(reading).not.toMatch(/\[v1\/(?:for|against|abstain|cancel) /);
+        } else {
+          expect(reading).toContain(`[${address} ${read.expect.action}`);
+        }
       }
     },
   );
+});
+
+it("preserves former membership data in brief mode while hiding presentation details", () => {
+  const member = {
+    ...Members.examples[0]!.members[0]!,
+    ended: "2026-10-01",
+  };
+  const input = { detail: "brief" as const, members: [member] };
+  const parsed = Members.props.parse(input);
+  expect(parsed.members[0]).toMatchObject(member);
+  if (Members.meta.status === "draft") {
+    const shown = liveProps(Members.meta, stampItemIds(Members.meta, parsed), "m1", {});
+    expect(shown.members).toMatchObject([{ id: "r1", roles: ["Secretary"], ended: undefined }]);
+    expect(readComponent(Members, input, "m1").join("\n")).not.toContain("photo:people");
+  }
+});
+
+it("holds claim and release actions until the host supplies permissions", () => {
+  if (SignUpSheet.meta.status === "draft") {
+    const reading = readComponent(SignUpSheet, SignUpSheet.examples[0], "s1").join("\n");
+    expect(reading).not.toMatch(/\/(?:claim|release) press/);
+  }
+});
+
+it("identifies the ledger receipt and motion link in the draft reader", () => {
+  if (Dues.meta.status === "draft") {
+    const reading = readComponent(Dues, Dues.examples[0], "d1").join("\n");
+    expect(reading).toMatch(/r3: cash · 10 · 2026-03-10/);
+    expect(reading).toContain("[d1/r3/void press]");
+    expect(reading).not.toContain("[d1/r4/void press]");
+  }
+  if (Minutes.meta.status === "draft") {
+    const reading = readComponent(Minutes, Minutes.examples[0], "m1").join("\n");
+    expect(reading).toContain('r1: "Buy a shared tool shed"');
+    expect(reading).toContain("[m1/r1 press");
+  }
 });
 
 it("rejects inconsistent membership records", () => {

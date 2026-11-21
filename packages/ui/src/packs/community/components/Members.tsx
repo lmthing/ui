@@ -43,6 +43,7 @@ export const meta = {
     noGoto: { items: ["end"] },
   },
   confirmParts: ["end"],
+  live: { derive: briefRows },
 } as const satisfies c.Meta;
 
 const member = z
@@ -67,11 +68,22 @@ export const props = z
       ...row,
       memberId: row.id,
       linked: Boolean(row.goto),
-      ...(input.detail === "brief"
-        ? { ended: undefined, photo: undefined, roles: row.roles.slice(0, 1) }
-        : {}),
     })),
   }));
+
+function briefRows(input: Readonly<c.Values>): c.Values {
+  if (input.detail !== "brief") return {};
+  const { members } = input as z.output<typeof props>;
+  return {
+    members: members.map((row) => ({
+      ...row,
+      joined: undefined,
+      ended: undefined,
+      photo: undefined,
+      roles: row.roles.slice(0, 1),
+    })),
+  };
+}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {

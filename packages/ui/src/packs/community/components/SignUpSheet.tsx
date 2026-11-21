@@ -61,8 +61,6 @@ export const props = z
     slots: input.slots.map((row) => ({
       ...row,
       slotId: row.id,
-      // The draft previews a member without a claim; the host supplies live membership and ownership.
-      can_claim: input.claims.filter(({ slotId }) => slotId === row.id).length < row.capacity,
     })),
   }));
 
@@ -108,5 +106,5 @@ export const probes = [
   write(
     "Make the Seed swap contributions sign-up sheet: tables means Bring a folding table, capacity 2, with one place already claimed by ana.",
   ),
-  read("Claim the remaining place to bring a folding table.", { address: "s1/r1/claim", action: "press" }),
+  read("Expand the refreshments slot to see who has signed up.", { address: "s1/r1", action: "toggle" }, 1),
 ] satisfies c.Probe[];

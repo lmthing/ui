@@ -38,13 +38,13 @@ export const probes = [
     archetype: "meeting",
     layout: "community_motion",
     brief:
-      "Head the screen Shed motion with a back button. Motion voteId shed: Buy a shared tool shed, opens 2026-11-18T19:00:00Z and closes 2026-11-18T20:00:00Z, quorum 8, simple majority, no ballots yet. Add the note Only eligible members can vote.",
+      "Call the screen Shed motion and give it a back button. We're voting to buy a shared tool shed; call the motion shed. Voting opens at 19:00 UTC and closes at 20:00 UTC on 18 November 2026. We need eight members and a simple majority. No one has voted yet. Note that only eligible members can vote.",
   },
   {
     kind: "compose",
     archetype: "meeting",
     layout: "community_record",
     brief:
-      "Head the screen Meeting record with a back button. Show November committee minutes on 2026-11-18 chaired by ana, with decision shed_purchase titled Buy a shared tool shed, text Obtain quotes before ordering, linked to closed motion shed. Action quotes for shed_purchase: Obtain three quotes, owner ana, not done. Not approved yet. End with the note Follow-up actions can still be updated after approval.",
+      "Call the screen Meeting record and give it a back button. In the November committee minutes for 18 November 2026, Ana chaired. Link our decision to buy a shared tool shed to the closed motion named shed. We agreed to obtain quotes before ordering; Ana owns the unfinished follow-up, Obtain three quotes. The minutes aren't approved yet. Add a note saying we can still update follow-up actions after approval.",
   },
 ] satisfies ComposeProbe[];
