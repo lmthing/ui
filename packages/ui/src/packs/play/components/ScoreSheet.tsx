@@ -24,7 +24,7 @@ export const meta = {
   purpose: "Record players' round scores and compute totals, ranks and tied winners.",
   pick: "An editable scorecard: enter each player's points for each game round, hand or hole and calculate totals and tied winners. Not one running number (Counter), final ranking (List[ranked]), a live match (Scoreboard), or arbitrary records (Table).",
   writeHints: [
-    "Each round's points has exactly one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.",
+    "Keep exactly the requested players and rounds. Each round's points has one entry per player, in roster order: integer -999–999 or null for unplayed. Never write totals, ranks, winners or selected round.",
     "If requested, use goal for the target total. In each round that tracks bids, provide bids in player order with one integer or null per player; use points for what each player made. Never write a separate made field.",
     'Set density to null unless compact spacing is explicitly requested. For one round at a time write {"overflow":"page","density":null} and keep all rounds in the data.',
   ],
@@ -111,8 +111,8 @@ export const probes = [
     variant: { axis: "overflow", value: "page" } },
   { ...write("Track Anna and Ben's round scores. They made 4 and 2 in the first round. The target total is 10."),
     expectProps: { goal: 10 } },
-  { ...write("In the first game round Anna bid 3 and made 4; Ben bid 1 and made 2. Record both the bids and what they made."),
-    expectProps: { rounds: [{ bids: [3, 1], points: [4, 2] }] } },
+  { ...write("Record exactly one game round for only two players, Anna then Ben. Anna bid 3 and made 4; Ben bid 1 and made 2. Record the bids and what each player made."),
+    expectProps: { players: [{ name: "Anna" }, { name: "Ben" }], rounds: [{ bids: [3, 1], points: [4, 2] }] } },
   read("Change Anna's score in round one", { address: "s1/r1/score", action: "set" }),
   read("Reset the round scores", { address: "s1/reset", action: "press" }),
 ] satisfies Probe[];
@@ -126,22 +126,22 @@ function ScoreTable({ input, selected, loading, readonly }: {
   const { lang, words } = useWords(playWordsFor), labels = words.scoreLabels;
   const { players, rounds, cells, overflow } = input, { players: totals } = scoreCopy(input, lang);
   const visible = [selected, ...rounds.flatMap((_, index) => overflow === "all" && index !== selected ? [index] : [])];
-  const showBids = visible.some((round) => rounds[round]!.bids), cellId = (round: number, player: number) => cells[round * players.length + player]!.id;
-  const columns = visible.map((round) => ({
-    id: roundKey(round), label: rounds[round]!.label,
+  const showBids = visible.some((round) => rounds[round]!.bids), spacer = <KitText role="caption" part={null}>{"\u00a0"}</KitText>;
+  const cellId = (round: number, player: number) => cells[round * players.length + player]!.id;
+  const columns = visible.map((round) => ({ id: roundKey(round), label: rounds[round]!.label,
     header: <KitRow item={cellId(round, 0)} inline part="round" label={rounds[round]!.label}>
       {line("label", rounds[round]!.label, round === selected ? "accent" : "text", readonly ? "end" : "start")}
-      {showBids && line("caption", labels.made, "muted", readonly ? "end" : "start")}</KitRow>,
-  }));
-  const rows = totals.map(({ name, total, standing, winner }, player) => ({
-    id: cellId(selected, player), label: name,
+      {showBids && (rounds[round]!.bids ? line("caption", labels.made, "muted", readonly ? "end" : "start") : spacer)}</KitRow> }));
+  const rows = totals.map(({ name, total, standing, winner }, player) => {
+    const amount = line("number", loading ? digitsLine(0, 2, lang) : total, "text", "end");
+    return { id: cellId(selected, player), label: name,
     heading: <KitRow inline part="player" label={name}><KitGrid fitLast>
-      <KitContent>{line("label", name)}{standing && line("caption", standing, winner ? "good" : "muted")}</KitContent>
-      {line("number", loading ? digitsLine(0, 2, lang) : total, "text", "end")}
+      <KitContent>{line("label", name)}{standing ? line("caption", standing, winner ? "good" : "muted") : showBids && spacer}</KitContent>
+      {showBids ? <KitRow inline>{amount}{spacer}</KitRow> : amount}
     </KitGrid></KitRow>,
     cells: visible.map((round) => {
       const { label: roundLabel, points, bids } = rounds[round]!;
-      const label = words.scoreCell(name, roundLabel, showBids ? labels.made : undefined), score = points[player];
+      const label = words.scoreCell(name, roundLabel, bids ? labels.made : undefined), score = points[player];
       const value = score == null ? "" : String(score);
       return { id: cellId(round, player), content:
         <KitRow item={cellId(round, player)} inline label={label}>
@@ -151,10 +151,10 @@ function ScoreTable({ input, selected, loading, readonly }: {
                 {score == null ? labels.unplayed : numberLine(score, lang)}</KitText>
             : <KitInput compact kind="number" action="set" label={label} part="score"
                 hint={labels.unplayed} value={value} min={scoreMin} max={scoreMax} step={1} />}
-          {showBids && line("caption", scoreBidLine(bids?.[player] ?? null, lang), "muted", readonly ? "end" : "start", "bid")}
+          {showBids && (bids ? line("caption", scoreBidLine(bids[player]!, lang), "muted", readonly ? "end" : "start", "bid") : spacer)}
         </KitRow> };
-    }),
-  }));
+    }) };
+  });
   function line(role: "label" | "caption" | "number", text: string, tone: "accent" | "text" | "good" | "muted" = "text", align: "start" | "end" = "start", part: string | null = null) {
     return loading ? <KitSkeleton shape="figure" inset="none" content={[[role, text, align, "compact"]]} /> :
       <KitText {...{ role, tone, align, part }} numberScale="compact" tabular={role === "number"} lines={1}>{text}</KitText>;
@@ -162,7 +162,7 @@ function ScoreTable({ input, selected, loading, readonly }: {
   return <KitTable part="matrix" columns={columns} rows={rows}
     fitColumns={columns.length <= 2 && players.every(({ name }) => name.length <= 12)}
     corner={<KitRow inline label={labels.player}><KitGrid fitLast>
-      {line("label", labels.player, "muted")}{line("label", labels.total, "muted", "end")}</KitGrid></KitRow>} />;
+      {line("label", labels.player, "muted")}{line("label", labels.total, "muted", "end")}</KitGrid>{showBids && spacer}</KitRow>} />;
 }
 // prettier-ignore
 function ScoreActions({ share, loading, labels }: {share: boolean; loading: boolean; labels: Labels}) {
@@ -187,7 +187,7 @@ export function ScoreSheet(input: SheetProps) {
           <KitText role="caption" tone="muted" part="progress">{progress}</KitText></>}
       {goal && (loading
         ? <KitSkeleton shape="figure" inset="none" content={goal.reached ? [["label", goal.target], ["caption", goal.reached]] : [["label", goal.target]]} />
-        : <><KitText role="label" part="goal">{goal.target}</KitText>
+        : <><KitText role="label" part="goal">{goal.prefix}<KitText role="number" numberScale="compact" tabular part={null}>{goal.value}</KitText></KitText>
           {goal.reached && <KitText role="caption" part="goal_reached" tone="good">{goal.reached}</KitText>}</>)}
     </KitContent>
     {state !== "success" && <KitTrack part="root" {...(active ? { role: "radiogroup" } : {})} label={labels.rounds}>

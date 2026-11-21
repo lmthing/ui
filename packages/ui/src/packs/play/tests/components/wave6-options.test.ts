@@ -72,11 +72,13 @@ it("keeps bids paired with live scores across paging, edits and confirmed resets
   expect(props.safeParse({ ...bidding, goal: 0.5 }).success).toBe(false);
   const input = { ...bidding, overflow: "page" };
   const view = addressedElements(renderInstance("ScoreSheet", input, "filled", theme));
-  expect(view.get(part("goal"))?.text).toEqual(["Target: 5"]);
+  expect(view.get(part("goal"))).toMatchObject({ text: ["Target: "], children: [{ text: ["5"] }] });
   expect(view.get(part("r1/bid"))?.text).toEqual(["Bid 3"]);
   expect(view.get(part("r2/bid"))?.text).toEqual(["Bid —"]);
   expect(view.get(part("r1/score"))?.attributes).toContain('aria-label="Anna, First, Made"');
   expect(view.has(part("goal_reached"))).toBe(false);
+  const grid = addressedElements(renderInstance("ScoreSheet", bidding, "filled", theme));
+  expect(grid.has(part("r3/bid"))).toBe(false);
   expect(addressedElements(renderInstance("ScoreSheet", input, "loading", theme)).has(part("r1/bid"))).toBe(
     false,
   );
@@ -118,7 +120,7 @@ it("reads visible goal and bid results in success without adding controls or cha
   try {
     expect(controller.read()).toContain("Target: 4 — Reached by Anna");
     expect(controller.read()).toContain("Anna, First: Bid 3 · Made: 4");
-    expect(controller.read()).not.toMatch(/Second|Reset scores|Share scores|\[c1[ /]/);
+    expect(controller.read()).not.toMatch(/Second|Reset scores|Share scores|\[c1[ /]|\br[34]\b/);
     expect(legacy.read()).toBe("screen home\nc1 ScoreSheet (success)");
   } finally {
     controller.dispose();

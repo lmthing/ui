@@ -60,7 +60,7 @@ export const en = {
     unplayed: "—",
     bid: (value: string) => `Bid ${value}`,
     made: "Made",
-    target: (value: string) => `Target: ${value}`,
+    target: "Target: ",
     reached: (names: readonly string[]) => `Reached by ${names.join(", ")}`,
     reset: "Reset scores",
     share: "Share scores",

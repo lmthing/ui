@@ -144,7 +144,7 @@ export function readComponent(
   const readable = sessionForRead(meta, session);
   const round = readable?.kind === "rounds" ? readable : undefined;
   const roundKey = round && meta.session?.items;
-  const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
+  const key = optedIn || meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
   const own = [
     ...(meta.read?.(

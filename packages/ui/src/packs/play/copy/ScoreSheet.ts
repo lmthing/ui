@@ -23,8 +23,11 @@ export function scoreGoalCopy({ goal, players, rounds, wins }: ScoreInput, lang?
     const total = scores.reduce((sum, score) => sum + score, 0);
     return scores.length && (wins === "high" ? total >= goal : total <= goal) ? [name] : [];
   });
+  const value = numberLine(goal, lang);
   return {
-    target: labels.target(numberLine(goal, lang)),
+    target: `${labels.target}${value}`,
+    prefix: labels.target,
+    value,
     reached: reached.length ? labels.reached(reached) : undefined,
   };
 }
@@ -77,7 +80,6 @@ export function scoreReading(input: ScoreInput, lang?: string, readonly = false)
   const goal = scoreGoalCopy(input, lang);
   const selected = Number(input.selectedRound ?? "1") - 1;
   const visible = input.overflow === "page" ? input.rounds.slice(selected, selected + 1) : input.rounds;
-  const showBids = visible.some(({ bids }) => bids !== undefined);
   const board = [
     labels.title,
     copy.progress,
@@ -93,9 +95,7 @@ export function scoreReading(input: ScoreInput, lang?: string, readonly = false)
   const cells = visible.flatMap(({ label, points, bids }) =>
     points.map((score, player) => {
       const value = score === null ? labels.unplayed : numberLine(score, lang);
-      const cell = showBids
-        ? `${scoreBidLine(bids?.[player] ?? null, lang)} · ${labels.made}: ${value}`
-        : value;
+      const cell = bids ? `${scoreBidLine(bids[player]!, lang)} · ${labels.made}: ${value}` : value;
       return scoreReadCell(input.players[player]!.name, label, cell);
     }),
   );

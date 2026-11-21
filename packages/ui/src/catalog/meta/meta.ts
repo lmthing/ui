@@ -77,7 +77,7 @@ export type Meta = {
   /** Part/action pairs from `actions` available only in `error`. */
   errorActions?: readonly `${string}.${ActionName}`[];
   readSuccess?: true; // Read visible content in success.
-  readInState?: (props: Readonly<Record<string, unknown>>, state: "empty" | "success") => boolean; // Content only.
+  readInState?: (props: Readonly<Record<string, unknown>>, state: "empty" | "success") => boolean; // Summary without item listings.
   /** Runtime-only chance control. Input keys refer to validated props, never to result props. */
   draw?: Draw;
   /** Runtime-only progress through a roster or deck; keys name seed props and declared press parts. */
