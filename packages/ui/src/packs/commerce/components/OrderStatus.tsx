@@ -14,7 +14,7 @@ export const meta = {
   writeHints: [
     "at is the zero-based current step index and must exist in the steps array. Use a real HH:MM time when known.",
     'If asked to suppress an authored secondary status sentence, write "detail":"brief","density":null,"surface":null unless a different density or surface was requested. Never emit "card" or "comfortable" to represent an unset axis. Keep the supplied line.',
-    'Use style "carrier" for parcel tracking: carrier, trackingNumber, optional proofPhoto; use steps with times for checkpoints. For collection use style "pickup" with pickupCode and bay (the bay or locker label). Leave these fields null on the original order track.',
+    'Use style "carrier" for parcel tracking: carrier, trackingNumber, optional proofPhoto; use steps with times for checkpoints. Use style "pickup" with pickupCode and bay (bay or locker label); write seller false for the buyer and the “I’m here” button.',
   ],
   region: "body",
   weight: 2,
@@ -113,7 +113,7 @@ export const probes = [
   },
   {
     ...write("Show a buyer's order for pickup at Locker 12 with a scannable pickup code FERN42 and an I'm here button. Show Received, Packed, then Ready as current."),
-    expectProps: { style: "pickup", bay: "Locker 12", pickupCode: "FERN42" },
+    expectProps: { style: "pickup", bay: "Locker 12", pickupCode: "FERN42", seller: false },
   },
   read("As the seller, advance the order to its next stage", { address: "o1/next", action: "press" }),
   read("Copy the Parcel Post tracking number", { address: "o1/tracking", action: "press" }, 1),
@@ -131,8 +131,8 @@ function FulfillmentDetails({ input, complete }: { input: OrderStatusProps; comp
     {trackingNumber && <kit.KitRow part="tracking" role="button" inline label={tracking.copy(trackingNumber)}
       leading={<kit.KitIcon name="clipboard" part="tracking_icon" tone="accent" scale="sm" />}>
       <kit.KitText part="tracking_label" role="label" tone="accent">{tracking.copy(trackingNumber)}</kit.KitText></kit.KitRow>}
-    {proofPhoto && <kit.KitContent lead={<kit.KitPhoto part="proof" photo={proofPhoto} shape="thumb" label={tracking.proof} />}
-      leadingAlign="row"><kit.KitText part="proof_label" role="label" tone="muted">{tracking.proof}</kit.KitText></kit.KitContent>}
+    {proofPhoto && <kit.KitGrid fitLast><kit.KitText part="proof_label" role="label" tone="muted">{tracking.proof}</kit.KitText>
+      <kit.KitPhoto part="proof" photo={proofPhoto} shape="thumb" label={tracking.proof} /></kit.KitGrid>}
   </>;
   if (input.style !== "pickup") return null;
   return <>

@@ -13,7 +13,7 @@ export const meta = {
   pick: "A shop discount or offer with optional copyable code, expiry and product photo. Not an urgent warning or service notice (Banner) or a headline fact (Hero).",
   writeHints: [
     'To keep a saved photo but hide the thumbnail, write the reference in photo and set media to "none". In that case write {"density":null,"surface":null,"emphasis":null} unless those axes were separately requested.',
-    'Use endsAt for the local closing time (HH:MM), with ends for the closing date if known. Use style "countdown" only when asked for time remaining.',
+    'Use endsAt for the local closing time (HH:MM). For time remaining set style "countdown" and supply ends, the local closing date. If only a time is known, set endsAt and leave style null.',
   ],
   region: "body",
   weight: 2,
@@ -59,6 +59,7 @@ export const props = z
     goto: c.screenId,
     ...c.variantProps(meta.variants),
   })
+  .refine(({ style, ends }) => style !== "countdown" || ends !== undefined, { path: ["ends"] })
   .overwrite((value) => ({
     ...value,
     ...(value.media === "none" ? { photo: undefined } : {}),

@@ -144,6 +144,7 @@ it("renders an optional Promo closing time without requiring a countdown", () =>
   expect(drawn.has(address("countdown"))).toBe(false);
   expect(read("Promo", input)).toContain("ends · 18:30");
   expect(Promo.props.safeParse({ ...input, endsAt: "24:01" }).success).toBe(false);
+  expect(Promo.props.safeParse({ ...input, style: "countdown" }).success).toBe(false);
 });
 
 it.each(["Promo", "ProductGrid"] as const)(
