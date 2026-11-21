@@ -57,6 +57,14 @@ function deviceDataFor(ctx: ControllerContext, component: string, data = ctx.opt
   return def ? selectDeviceData(def.meta, projectDeviceData(data, ctx.valuesOf())) : emptyDeviceData;
 }
 
+function hostCommandsAt(ctx: ControllerContext, component: string, part: string, item: boolean) {
+  const entry = ctx.sourceOf(component);
+  const commands = entry && ctx.defs[entry.c]?.meta.hostCommands;
+  return Object.keys((item ? commands?.items : commands?.parts) ?? {}).some((key) =>
+    key.startsWith(`${part}.`),
+  );
+}
+
 function lifecycle(
   ctx: ControllerContext,
   clock: ReturnType<typeof createClock>,
@@ -118,6 +126,8 @@ export function createScreenController(options: ControllerOptions & { currency?:
     bindParentGatePart: (address: string, destination: string) =>
       bindParentGatePart(ctx, address, destination),
     hostOperationVersion: ctx.hosts.version,
+    hasHostCommandsAt: (component: string, part: string, item: boolean) =>
+      hostCommandsAt(ctx, component, part, item),
     hostOperations: (id: string) => {
       const { operation } = ctx.hosts.policy(ctx.valuesOf());
       return ctx.subjects(id).flatMap((subject) => operation?.(subject) ?? []);

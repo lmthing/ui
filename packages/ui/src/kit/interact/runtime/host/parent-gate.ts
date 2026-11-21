@@ -46,7 +46,7 @@ export function createParentGate({ destinations, ttlMs, now = Date.now, verify }
   const gate: ParentGate & { revoke(destination: string): void } = {
     allows,
     submit(attempt) {
-      if (!restricted.has(attempt.destination) || attempt.destination === "sheet") return false;
+      if (!restricted.has(attempt.destination)) return false;
       if (!Number.isFinite(ttlMs) || ttlMs <= 0 || !validProof(attempt, verify)) return false;
       const until = now() + ttlMs;
       if (!Number.isFinite(until)) return false;
@@ -87,7 +87,7 @@ function validProof(attempt: Attempt, verify: Options["verify"]) {
 }
 
 export function allowsDestination(gate: ParentGate | undefined, destination: string) {
-  if (!gate || destination === "sheet") return true;
+  if (!gate) return true;
   try {
     return gate.allows(destination) === true;
   } catch {

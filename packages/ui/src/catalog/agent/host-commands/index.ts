@@ -48,10 +48,12 @@ export type CommandRequest = Readonly<Source & { kind: "command"; name: string; 
 export type ExternalRequest = Readonly<Source & { kind: "external"; uri: string }>;
 export type HostRequest = CommandRequest | ExternalRequest;
 export type HostIntent = {
+  part: string;
   subject: Subject;
   request: HostRequest | { kind: "cancel" };
 };
 export type HostActionPolicy = {
+  isDisabled?: (address: string) => boolean;
   allowsLink?: (destination: string) => boolean;
   allowsCommand?: (intent: HostIntent) => boolean;
   operation?: (subject: Subject) => HostOperation | undefined;
@@ -127,13 +129,13 @@ export function hostOffer(
   if (pending && (binding ? binding.kind !== "cancel" : !meta.loadingActions?.includes(pair))) return;
   if (!binding)
     return detail.startsWith("→") && policy?.allowsLink?.(detail.slice(1)) === false ? undefined : offer;
-  if (!subject || !policy?.allowsCommand) return;
+  if (!subject || !policy?.allowsCommand || policy.isDisabled?.(address)) return;
   const request = makeRequest(binding, { address, action, tier }, { props, row });
-  if (!request || !policy.allowsCommand({ subject, request })) return;
+  if (!request || !policy.allowsCommand({ part, subject, request })) return;
   return {
     ...offer,
     detail: request.kind === "external" ? " external" : "",
-    hostIntent: { subject, request },
+    hostIntent: { part, subject, request },
   };
 }
 

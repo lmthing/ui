@@ -54,7 +54,7 @@ export function confirmationAction(
   let sheet = state.sheet;
   const effects: (() => void)[] = [];
   if (accepting) {
-    if (pending.goto && !allowsDestination(ctx.options.parentGate, pending.goto))
+    if (pending.goto && pending.goto !== "sheet" && !allowsDestination(ctx.options.parentGate, pending.goto))
       return rejected(state, ctx.at, "not_actionable", "This destination requires admission");
     if (pending.goto === "sheet") {
       const sheets = ctx.screen.components.filter((entry) => entry.c === "Sheet");

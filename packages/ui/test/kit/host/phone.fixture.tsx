@@ -1,15 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { TamaguiProvider } from "tamagui";
 import { z } from "zod";
-import type { Definition } from "@lmthing/ui/catalog";
-import {
-  KitAction,
-  KitText,
-  PhoneScreen,
-  useHostOperations,
-  type HostCommandAdapter,
-} from "../../../src/kit";
+import type { Definition, ScreenLike } from "@lmthing/ui/catalog";
+import { KitAction, KitText, PhoneScreen, useHostOperations } from "../../../src/kit";
 import { config } from "../../render";
 
 const frame = {
@@ -28,8 +22,13 @@ const defs = {
     meta: {
       ...frame,
       id: "HandoffFixture",
-      actions: { parts: { root: ["press"] } },
-      hostCommands: { parts: { "root.press": { kind: "external", uri: () => "https://example.test" } } },
+      actions: { parts: { root: ["press"], blocked: ["press"] } },
+      hostCommands: {
+        parts: {
+          "root.press": { kind: "external", uri: () => "https://example.test" },
+          "blocked.press": { kind: "external", uri: () => "https://example.test" },
+        },
+      },
     },
   },
   LoadFixture: {
@@ -42,19 +41,12 @@ const defs = {
     },
   },
 } satisfies Record<string, Definition>;
-const hostCommands: HostCommandAdapter = {
-  external: {
-    allows: () => true,
-    run: (_request, { source }) => ({
-      status: source === "human" && navigator.userActivation.isActive ? "accepted" : "rejected",
-    }),
-  },
-};
 function HandoffFixture() {
   const [operation] = useHostOperations();
   return (
     <>
       <KitAction label="Open source" />
+      <KitAction label="Blocked source" part="blocked" disabled />
       {operation && <KitText>{`Handoff ${operation.status}`}</KitText>}
     </>
   );
@@ -67,20 +59,39 @@ function LoadFixture() {
     </>
   );
 }
-createRoot(document.getElementById("root")!).render(
-  <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
-    <PhoneScreen
-      defs={defs}
-      renderers={{ HandoffFixture, LoadFixture }}
-      screen={{
-        id: "home",
-        components: [
-          { id: "link", c: "HandoffFixture" },
-          { id: "loader", c: "LoadFixture", state: "loading" },
-        ],
-      }}
-      theme={{ preset: "calm", mode: "light", accent: "moss" }}
-      hostCommands={hostCommands}
-    />
-  </TamaguiProvider>,
-);
+const screen: ScreenLike = {
+  id: "home",
+  components: [
+    { id: "link", c: "HandoffFixture" },
+    { id: "loader", c: "LoadFixture", state: "loading" },
+  ],
+};
+const renderers = { HandoffFixture, LoadFixture };
+function Fixture() {
+  const [finish, setFinish] = useState<() => void>();
+  return (
+    <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
+      <button type="button" disabled={!finish} onClick={finish}>
+        Finish handoff
+      </button>
+      <PhoneScreen
+        defs={defs}
+        renderers={renderers}
+        screen={screen}
+        theme={{ preset: "calm", mode: "light", accent: "moss" }}
+        hostCommands={{
+          external: {
+            allows: () => true,
+            run: (_request, { signal, source }) => {
+              if (source !== "human" || !navigator.userActivation.isActive) return { status: "rejected" };
+              return new Promise((resolve) =>
+                setFinish(() => () => resolve({ status: signal.aborted ? "rejected" : "accepted" })),
+              );
+            },
+          },
+        }}
+      />
+    </TamaguiProvider>
+  );
+}
+createRoot(document.getElementById("root")!).render(<Fixture />);

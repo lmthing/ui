@@ -1,18 +1,10 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { useAnimatedValue } from "../../motion";
-import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import {
-  component,
-  radius,
-  size,
-  space,
-  type as typography,
-  type ActionName,
-  type IconName,
-} from "../../../catalog";
+import { component, motion, radius, size, space, type as typography } from "../../../catalog";
+import type { ActionName, IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
-import { useComponentState, usePart } from "../../part";
+import { useComponentState, usePart, usePartContext } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
 
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
@@ -134,12 +126,20 @@ function useActionPress(props: ActionProps, address: string, inactive: boolean) 
   return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
 }
 
-function useAvailability(address: string, action: ActionProps["action"], disabled: boolean) {
+function useAvailability(address: string, part: string, action: ActionProps["action"], disabled: boolean) {
   const { interactive, controller } = useKit();
+  const { component: id, item } = usePartContext();
+  const hostPart = controller?.hasHostCommandsAt(id, part, item !== undefined) === true;
+  useLayoutEffect(
+    () => (disabled && hostPart ? controller?.registerDisabledPart(address) : undefined),
+    [address, controller, disabled, hostPart],
+  );
   const offered =
     interactive &&
     controller &&
-    (action ? controller.actionsAt(address).includes(action) : controller.canPress(address));
+    (action
+      ? controller.actionsAt(address, { ignoreDisabledPart: hostPart }).includes(action)
+      : controller.canPress(address, { ignoreDisabledPart: hostPart }));
   const loading = useComponentState() === "loading" && !offered;
   return { loading, inactive: loading || disabled || Boolean(interactive && controller && !offered) };
 }
@@ -159,7 +159,7 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part);
-  const { loading, inactive } = useAvailability(address.testID, action, disabled);
+  const { loading, inactive } = useAvailability(address.testID, part, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const [pressed, setPressed] = useState(false);
   const pressScale = useAnimatedValue(

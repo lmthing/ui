@@ -40,13 +40,20 @@ it("lets a real human gesture confirm the handoff and leaves the declared loadin
       expect(await page.getByTestId("home/loader/another").getAttribute("aria-busy")).toBe("true");
       await page.getByRole("button", { name: "Refresh" }).click();
       await page.waitForFunction(() => window.__lmthingUI !== undefined);
+      const blocked = await page.evaluate(() => ({
+        offered: window.__lmthingUI!.read().includes("[link/blocked press"),
+        acted: window.__lmthingUI!.act({ address: "link/blocked", action: "press" }, { dryRun: true }).ok,
+      }));
+      expect.soft(blocked).toEqual({ offered: false, acted: false });
       const acceptedByAgent = await page.evaluate(() => {
         if (!window.__lmthingUI!.act({ address: "link", action: "press" }).ok) throw new Error("No request");
         return window.__lmthingUI!.act({ address: "confirm/confirm", action: "press" }).ok;
       });
       expect(acceptedByAgent).toBe(false);
       await page.getByRole("button", { name: "Confirm" }).click();
-      await page.getByText("Handoff accepted").waitFor();
+      await page.getByText("Handoff pending").waitFor({ timeout: 5000 });
+      await page.getByRole("button", { name: "Finish handoff" }).click();
+      await page.getByText("Handoff accepted").waitFor({ timeout: 5000 });
       expect(errors).toEqual([]);
     } finally {
       await browser.close();

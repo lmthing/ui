@@ -7,7 +7,6 @@ import {
   staleSession,
   migrateScreen,
   resolveDefinition,
-  withDisabledSelectionChecks,
   type ActStep,
   type Definition,
   type DeviceData,
@@ -22,15 +21,7 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
-import {
-  allowsDestination,
-  createHostCommands,
-  hostSubjectsOnScreen,
-  projectLive,
-  withHostPolicy,
-  type HostCommandAdapter,
-  type ParentGate,
-} from "./host";
+import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -148,11 +139,16 @@ export function createControllerContext(options: ControllerOptions, standalone =
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
   const { valuesOf, resetValues } = createValues(options, screen, store, now, standalone);
-  const subjects = (id: string) => hostSubjectsOnScreen(options, screen, id, valuesOf(), now());
   const changed = () => store.setMany({});
-  const hosts = createHostCommands(screen.id, () => options.hostCommands, subjects, changed);
-  const admitted = () => allowsDestination(options.parentGate, screen.id);
-  const withPolicy = (values: Values) => withHostPolicy(screen, options, hosts.policy(values), standalone);
+  const { withPolicy, ...host } = createHostProjection(
+    options,
+    screen,
+    standalone,
+    now,
+    valuesOf,
+    disabledParts,
+    changed,
+  );
   return {
     standalone,
     options,
@@ -162,14 +158,11 @@ export function createControllerContext(options: ControllerOptions, standalone =
     store,
     status,
     valuesOf,
-    hosts,
-    subjects,
-    admitted,
-    liveScreen: projectLive(options, screen, standalone, now, withPolicy),
+    ...host,
     confirmationFor: (data = options.deviceData, at = now()) =>
-      admitted()
+      host.admitted()
         ? visibleConfirmation(
-            withDisabledSelectionChecks(withPolicy(status.confirmation ? valuesOf(at) : {}), disabledParts),
+            withPolicy(status.confirmation ? valuesOf(at) : {}),
             defs,
             status.confirmation,
             data,
@@ -190,7 +183,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
       return defs[entry.c]!.props.parse(input) as Values;
     },
     notifyChange() {
-      if (!options.onChange || !admitted()) return;
+      if (!options.onChange || !host.admitted()) return;
       const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true);
       options.onChange(updated, store.snapshot());
     },

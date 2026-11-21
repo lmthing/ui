@@ -117,9 +117,13 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
-    canPress: (address: string) =>
-      actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
-      (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
+    canPress(address: string, options?: { ignoreDisabledPart?: boolean }) {
+      const offered = actionsAt(ctx, address, false, options?.ignoreDisabledPart);
+      return (
+        offered.some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
+        (address.endsWith("/play") && offered.includes("play"))
+      );
+    },
     edit(address: string, text: string) {
       const result = act({ address, action: "type", value: text });
       if (!result.ok && result.code === "invalid_value") {

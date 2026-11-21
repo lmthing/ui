@@ -9,6 +9,7 @@ import {
   projectDeviceData,
   projectSelectionBinding,
   selectionBindingFor,
+  withDisabledSelectionChecks,
   withRecordScreen,
   type HostActionPolicy,
   type ScreenLike,
@@ -16,6 +17,7 @@ import {
 } from "../../../../catalog";
 import { projectScreen } from "../../index";
 import type { ControllerContext, ControllerOptions } from "../index";
+import { createHostCommands } from "./commands";
 import { allowsDestination, type ParentGateProof } from "./parent-gate";
 
 export function bindParentGatePart(ctx: ControllerContext, address: string, destination: string) {
@@ -72,20 +74,59 @@ export function hostSubjectsOnScreen(
   return hostSubjects(def.meta, component, projectSelectionBinding(def.meta, live, selection?.view));
 }
 
-export function withHostPolicy(
+function withHostPolicy(
   screen: ScreenLike,
   options: ControllerOptions,
   policy: HostActionPolicy,
-  standalone: boolean,
+  enabled: boolean,
 ): ScreenLike {
-  if (standalone || (!options.hostCommands && !options.parentGate)) return screen;
+  if (!enabled) return screen;
   return {
     ...screen,
     [hostActionPolicy]: {
       ...policy,
       ...(options.interactive === false ? { allowsCommand: () => false } : {}),
-      ...(options.parentGate ? { allowsLink: (goto) => allowsDestination(options.parentGate, goto) } : {}),
+      ...(options.parentGate
+        ? { allowsLink: (goto) => goto === "sheet" || allowsDestination(options.parentGate, goto) }
+        : {}),
     },
+  };
+}
+
+export function createHostProjection(
+  options: ControllerOptions,
+  screen: ScreenLike,
+  standalone: boolean,
+  now: () => number,
+  valuesOf: (at?: number) => Values,
+  disabled: Map<string, symbol>,
+  changed: () => void,
+) {
+  const enabled =
+    !standalone &&
+    Boolean(options.parentGate || screen.components.some(({ c }) => options.defs[c]?.meta.hostCommands));
+  const subjects = (id: string): ReturnType<typeof hostSubjectsOnScreen> => {
+    const at = now();
+    const values = valuesOf(at);
+    return hostSubjectsOnScreen(options, withPolicy(values), id, values, at);
+  };
+  const hosts = createHostCommands(screen.id, () => options.hostCommands, subjects, changed);
+  const withPolicy = (values: Values): ScreenLike =>
+    withDisabledSelectionChecks(
+      withHostPolicy(
+        screen,
+        options,
+        { ...hosts.policy(values), isDisabled: (address) => disabled.has(address) },
+        enabled,
+      ),
+      disabled,
+    );
+  return {
+    hosts,
+    subjects,
+    withPolicy,
+    admitted: () => allowsDestination(options.parentGate, screen.id),
+    liveScreen: projectLive(options, screen, standalone, now, withPolicy),
   };
 }
 

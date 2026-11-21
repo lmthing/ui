@@ -57,7 +57,12 @@ export function actionsAt(
     const clock = recordClockOffer(def, raw, props, get, data, now, values);
     const wire = reportEditWire(def, raw, get);
     const state = (props.state as StateName | undefined) ?? entry.state;
-    const offerContext = { data, clock, wire, schema: def.props, host: screen[hostActionPolicy] };
+    const policy = screen[hostActionPolicy];
+    const host =
+      ignoreDisabledPart && policy?.isDisabled
+        ? { ...policy, isDisabled: (at: string) => at !== local && policy.isDisabled!(at) }
+        : policy;
+    const offerContext = { data, clock, wire, schema: def.props, host };
     const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
     if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);

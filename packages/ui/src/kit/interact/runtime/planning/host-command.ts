@@ -20,7 +20,7 @@ export function runHostCommand(
 ): ActionResult {
   const { at, selected: step } = context;
   const { request } = intent;
-  const normal = !confirmed ? confirmationFor(before, step, context) : undefined;
+  const normal = !confirmed ? confirmationFor(before, step, context, intent.part) : undefined;
   if (!confirmed && (request.kind === "external" || normal)) {
     if (request.kind === "external" && !ctx.mounted.has(step.address))
       return {

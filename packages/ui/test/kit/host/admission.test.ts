@@ -27,6 +27,35 @@ const screen = {
 };
 const protectedScreen = { ...screen, id: "restricted", title: "Private destination" };
 
+it("does not interpret a protected screen named sheet as the local overlay route", () => {
+  const gate = createParentGate({ destinations: ["sheet"], ttlMs: 100, verify: () => true });
+  const controller = createScreenController({
+    screen: { ...protectedScreen, id: "sheet" },
+    defs,
+    parentGate: gate,
+  });
+  expect(gate.allows("sheet")).toBe(false);
+  expect(controller.admitted).toBe(false);
+  expect(controller.read()).not.toContain("Private destination");
+  expect(controller.snapshotScreen().components).toEqual([]);
+  expect(controller.act({ address: "gate/enter", action: "press" }).ok).toBe(false);
+  const overlay = { ...def, meta: { ...def.meta, id: "Sheet" }, props: z.strictObject({}) };
+  const host = createScreenController({
+    screen: {
+      id: "home",
+      components: [
+        { ...screen.components[0]!, goto: "sheet" },
+        { id: "drawer", c: "Sheet" },
+      ],
+    },
+    defs: { ...defs, Sheet: overlay },
+    parentGate: gate,
+  });
+  expect(host.press("gate/enter").ok).toBe(true);
+  expect(host.openSheet).toBe("drawer");
+  expect(gate.allows("sheet")).toBe(false);
+});
+
 it("requires live mounted hold or host-verified math, and rechecks destination admission at expiry", () => {
   vi.useFakeTimers();
   try {
