@@ -1,11 +1,15 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { previewSignUp, projectSignUp, signUpClaim, signUpReading, signUpRecordKind } from "../copy";
+import { signUpRowCopy, signUpStatus, validSignUpClaims, type SignUpRow } from "../copy";
+import { communityWordsFor } from "../lang";
 import { distinct, ref, seedTitle } from "../seeds";
 
 // Core first: Checklist/default ticks jobs, not limited places with claim ownership and release.
 export const meta = {
   id: "SignUpSheet",
-  status: "draft",
+  status: "ready" as "ready" | "draft",
   group: "input",
   purpose: "Let group members claim or release a limited contribution place.",
   pick: "A shared contribution sheet with counted places, claimants and claim/release for an ongoing group. Not a private task list (Checklist), bookable times (Slots), gifts (Registry) or staff cover (OpenShift).",
@@ -21,19 +25,32 @@ export const meta = {
     "A shared app atomically reserves the remaining places and lets each member release only their own claim.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["claimants"] } },
-  parts: ["root", "title"],
+  parts: ["root", "title", "status"],
   items: {
     key: "slots",
-    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "release"],
+    // prettier-ignore
+    parts: ["root", "title", "meta", "capacity", "remaining", "claimants", "claim", "claim_label", "release", "release_label"],
   },
   states: ["filled", "empty", "loading", "success", "error"],
   actions: {
     items: { root: ["toggle"], claim: ["press"], release: ["press"] },
-    when: { root: { detail: "brief" }, claim: { can_claim: true }, release: { own_claim: true } },
+    when: {
+      root: { detail: "brief" },
+      claim: { can_claim: true },
+      release: { own_claim: true, has_own_claim: true },
+    },
   },
-  select: { prop: "expanded", value: "index", mode: "flags" },
+  select: { prop: "expanded", value: "index", mode: "flags", runtime: true },
   confirmParts: ["release"],
-  read: (input, _state, lang): string[] => slotsReading(input as SlotReading, lang),
+  deviceData: [signUpRecordKind],
+  previewDeviceData: previewSignUp,
+  live: { derive: projectSignUp },
+  // The controller rechecks live device gates before accepting a pending confirmation.
+  deviceDataFlags: {
+    has_own_claim: (_data, input) => (input.slots as SignUpRow[]).some((row) => row.own_claim),
+  },
+  readSuccess: true,
+  read: signUpReading,
 } as const satisfies c.Meta;
 
 const slot = z.strictObject({
@@ -42,43 +59,22 @@ const slot = z.strictObject({
   meta: c.text(36).optional(),
   capacity: z.int().min(1).max(12),
 });
-const claim = z.strictObject({ slotId: ref, memberId: ref });
 export const props = z
   .strictObject({
     ...c.variantProps(meta.variants),
     title: c.text(40),
     slots: z.array(slot).min(1).max(12),
-    claims: z.array(claim).min(0).max(48),
+    claims: z.array(signUpClaim).min(0).max(48),
   })
   .refine(({ slots }) => distinct(slots, (row) => row.id), { path: ["slots"] })
-  .refine(
-    ({ slots, claims }) =>
-      distinct(claims, ({ slotId, memberId }) => `${slotId}/${memberId}`) &&
-      claims.every((row) => slots.some(({ id }) => row.slotId === id)) &&
-      slots.every(({ id, capacity }) => claims.filter(({ slotId }) => slotId === id).length <= capacity),
-    { path: ["claims"] },
-  )
+  .refine(({ slots, claims }) => validSignUpClaims(slots, claims), { path: ["claims"] })
   .overwrite((input) => ({
     ...input,
     slots: input.slots.map((row) => ({
       ...row,
       slotId: row.id,
-      expanded: false,
     })),
   }));
-
-type SlotReading = Omit<z.output<typeof props>, "slots"> & {
-  slots: (z.output<typeof slot> & { slotId: string; expanded: boolean })[];
-};
-
-function slotsReading({ slots, claims, detail }: SlotReading, lang?: string): string[] {
-  return slots.map(({ id, slotId, capacity, expanded }) => {
-    const claimants = claims.filter((claim) => claim.slotId === slotId).map(({ memberId }) => memberId);
-    const counts = `${c.numberLine(claimants.length, lang)}/${c.numberLine(capacity, lang)}`;
-    const visible = detail !== "brief" || expanded ? claimants : [];
-    return `${id}: ${[counts, ...visible].join(" · ")}`;
-  });
-}
 
 export function fallback(input: c.FallbackInput): z.input<typeof props> {
   return {
@@ -101,10 +97,8 @@ export const examples: z.input<typeof props>[] = [
     ],
   },
   {
-    title: "Choir open evening",
+    title: "Dog club open morning",
     detail: "brief",
-    density: "compact",
-    surface: "outlined",
     slots: [{ id: "tea", title: "Bring refreshments", capacity: 3 }],
     claims: [{ slotId: "tea", memberId: "jo" }],
   },
@@ -130,3 +124,77 @@ export const probes = [
   },
   read("Expand the refreshments slot to see who has signed up.", { address: "s1/r1", action: "toggle" }, 1),
 ] satisfies c.Probe[];
+
+type SheetProps = c.Props<typeof props, typeof meta>;
+type Row = SheetProps["slots"][number] & SignUpRow;
+type Finish = { density: c.ThemeDensity; detail: SheetProps["detail"]; state: c.StateName };
+// prettier-ignore
+function SlotRow({ row, density, detail, state }: Finish & { row: Row }) {
+  const scope = kit.usePartContext();
+  const { lang, words: { signUp: words } } = kit.useWords(communityWordsFor);
+  const { capacity, remaining, claimants, action } = signUpRowCopy(row, detail, lang);
+  const control = action && (state === "filled" || state === "loading") ? action : undefined;
+  const kind = control === "release" ? "danger" : "secondary";
+  const disclosure = detail === "brief" && state === "filled";
+  if (state === "loading") return <kit.KitContent density={density}>
+    <kit.KitSkeleton shape="figure" inset="none" density={density}
+      content={[["heading", row.title], ["label", row.meta]]} />
+    <kit.KitGrid fitLast density={density}>
+      <kit.KitSkeleton shape="figure" inset="none" density={density}
+        content={[["label", `${capacity}${words.separator}${remaining}`], ["label", claimants]]} />
+      {control ? <kit.KitSkeleton shape="control" kind={kind} label={words[control]} /> : null}
+    </kit.KitGrid>
+  </kit.KitContent>;
+  return <kit.PartScope {...scope} item={row.id}>
+    <kit.KitContent density={density}>
+      <kit.KitRow item={row.id} part="root" label={row.title} inline density={density} lineRole="heading"
+        {...(disclosure ? { role: "button", expanded: row.expanded === true } as const : {})}
+        trailing={disclosure ? <kit.KitIcon name={row.expanded ? "minus" : "plus"} decorative /> : null}>
+        <kit.KitContent density={density}>
+          <kit.KitText part="title" role="heading" density={density}>{row.title}</kit.KitText>
+          {row.meta && <kit.KitText part="meta" role="label" tone="muted" density={density}>{row.meta}</kit.KitText>}
+        </kit.KitContent>
+      </kit.KitRow>
+      <kit.KitGrid fitLast density={density}>
+        <kit.KitContent density={density}>
+          <kit.KitText part={null} role="label" tone="muted" density={density}>
+            <kit.KitText part="capacity" role="number" numberScale="compact" tabular density={density}>{capacity}</kit.KitText>
+            {words.separator}
+            <kit.KitText part="remaining" role="label" tone="muted" density={density}>{remaining}</kit.KitText>
+          </kit.KitText>
+          {claimants && <kit.KitContent density={density} lineRole="body" lead={<kit.KitIcon name="user" scale="sm" decorative />}>
+            <kit.KitText part="claimants" role="label" tone="muted" density={density}>{claimants}</kit.KitText>
+          </kit.KitContent>}
+        </kit.KitContent>
+        {control ? <kit.KitAction part={control} action="press" kind={kind} label={words[control]} /> : null}
+      </kit.KitGrid>
+    </kit.KitContent>
+  </kit.PartScope>;
+}
+
+// prettier-ignore
+export function SignUpSheet(input: SheetProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const { lang } = kit.useWords(communityWordsFor);
+  const { slots } = kit.useLiveControls(meta, input) as { slots: Row[] };
+  const status = signUpStatus(state, lang);
+  return <kit.KitCard part="root" {...{ density, surface }}>
+    {state === "empty" ? <kit.KitEmpty part="title" decorativeIcon /> :
+      <kit.KitRow part={null} label={input.title} density={density}>
+        <kit.KitContent density={density}>
+          {state === "loading"
+            ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["title", input.title]]} />
+            : <kit.KitText part="title" role="title" density={density}>{input.title}</kit.KitText>}
+          {status && <kit.KitText part="status" role="label" tone={state === "error" ? "bad" : "good"} density={density}>{status}</kit.KitText>}
+          <kit.KitContent group="response" density={density}>
+            <kit.KitGrid list arrange="rows" listRowGap="cards" density={density}>
+              {slots.map((row) => <SlotRow key={row.id} {...{ row, density, detail, state }} />)}
+            </kit.KitGrid>
+          </kit.KitContent>
+        </kit.KitContent>
+      </kit.KitRow>}
+  </kit.KitCard>;
+}
