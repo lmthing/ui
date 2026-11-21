@@ -6,6 +6,7 @@ import {
   clip,
   text,
   thingOf,
+  variantProps,
   type FallbackInput,
   type Meta,
   type Probe,
@@ -25,23 +26,30 @@ export const meta = {
   partTiers: { send: "people" },
   realPath:
     "The text is saved to one record on the device. A reply goes through the shared app the conversation lives in.",
+  variants: { detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["count"] } },
+  writeHints: [
+    '“No character counter below the entry box” means detail "brief". Keep the limit in max; do not show the count or move the limit into label or hint. Otherwise use null, including for replies.',
+  ],
   parts: ["root", "label", "field", "count", "send"],
   states: ["filled"],
   actions: {
     parts: { field: ["type"], send: ["send"] },
     when: { send: { style: "reply", sendable: true } },
   },
-  read: (input, state, lang?: string) => {
+  read: (input, state, lang?: string): string[] => {
     const { sendLabel } = wordsFor(lang);
 
     if (state !== "filled") return [];
-    const { style, value, max } = input as z.output<typeof props>;
-    return [style === "reply" ? sendLabel : charLine(value?.length ?? 0, max, lang)];
+    const { style, detail, value, max } = input as z.output<typeof props>;
+    if (style === "reply") return [sendLabel];
+    return detail === "brief" ? [] : [charLine(value?.length ?? 0, max, lang)];
   },
 } as const satisfies Meta;
 
 export const props = z
   .strictObject({
+    ...variantProps(meta.variants),
     style: z.enum(["entry", "reply"]).default("entry"),
     label: text(24).optional(),
     hint: text(60),
@@ -63,6 +71,7 @@ export function fallback({ cast, lang }: FallbackInput): z.input<typeof props> {
 export const examples = [
   { style: "entry", label: "Today's note", hint: "How did the plants look today?", max: 400 },
   { style: "reply", hint: "Reply to Anna", value: "Thanks, see you at nine" },
+  { label: "Walk notes", hint: "How did Clover's walk go?", max: 400, detail: "brief" },
 ] satisfies z.input<typeof props>[];
 
 const { choose, write, read } = probesFor("Composer");
@@ -70,10 +79,16 @@ export const probes = [
   choose("Let me write a few paragraphs about how my plants did this week, in a big box"),
   choose("Let me type the name of a new plant on its form, just a short word or two", "Field"),
   write("A reply box under the chat saying Reply to Anna, already holding Thanks, see you at nine"),
+  {
+    ...write(
+      "Give me a multiline box for Walk notes. Keep the 400-character limit, but don't show a character counter like 0 / 400 below the box or mention the limit in the placeholder.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Send the reply", { address: "c1/send", action: "send" }, 1),
 ] satisfies Probe[];
 
-export function Composer({ style, label, hint, max, value }: Props<typeof props, typeof meta>) {
+export function Composer({ style, detail, label, hint, max, value }: Props<typeof props, typeof meta>) {
   const { lang, words } = useWords();
   const { sendLabel } = words;
   const reply = style === "reply";
@@ -87,11 +102,11 @@ export function Composer({ style, label, hint, max, value }: Props<typeof props,
       <KitTextArea hint={hint} value={value} maxLength={max} lines={reply ? 2 : 6} />
       {reply ? (
         <KitAction label={sendLabel} icon="send" kind="primary" part="send" full disabled={!value?.trim()} />
-      ) : (
+      ) : detail === "full" ? (
         <KitText role="caption" tone="muted" align="end" tabular part="count">
           {charLine(value?.length ?? 0, max, lang)}
         </KitText>
-      )}
+      ) : null}
     </KitCard>
   );
 }

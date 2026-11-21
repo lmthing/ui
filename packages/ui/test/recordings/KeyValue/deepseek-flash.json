@@ -959,8 +959,8 @@
     "reply": "List",
     "replies": [
       "List",
-      "List",
-      "Gallery"
+      "Gallery",
+      "List"
     ]
   },
   "aaf13e832982ad97": {
@@ -1641,10 +1641,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\",\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":\"sun\",\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":\"drop\",\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":\"flower\",\"tone\":null,\"mark\":null}]}",
+    "reply": "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\",\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":\"sun\",\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":\"drop\",\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":\"shopping_cart\",\"tone\":null,\"mark\":null}]}",
     "replies": [
-      "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\",\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":\"sun\",\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":\"drop\",\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":\"flower\",\"tone\":null,\"mark\":null}]}",
-      "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":null,\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\",\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":\"sun\",\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":\"drop\",\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":\"shopping_cart\",\"tone\":null,\"mark\":null}]}",
+      "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":\"home\",\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":\"sun\",\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":\"drop\",\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":null,\"tone\":null,\"mark\":null}]}",
       "{\"c\":\"KeyValue\",\"arrange\":\"grid\",\"density\":null,\"surface\":null,\"lead\":null,\"pairs\":[{\"label\":\"Room\",\"value\":\"Bathroom\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Light\",\"value\":\"Indirect\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Water\",\"value\":\"Weekly\",\"icon\":null,\"tone\":null,\"mark\":null},{\"label\":\"Pot\",\"value\":\"Ceramic\",\"icon\":null,\"tone\":null,\"mark\":null}]}"
     ]
   },
