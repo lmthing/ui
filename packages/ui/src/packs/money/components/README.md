@@ -1,8 +1,6 @@
 # packs/money/components
 
-Component files of the `money` pack.
-
-Built in step U3 (drafts), then U7. Read `docs/catalog/packs/money.md`, plan 4.2 and 4.4 first.
+Component files of the `money` pack. Read `docs/catalog/packs/money.md` and plan 4.2 and 4.4.
 
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `AccountCard.tsx`

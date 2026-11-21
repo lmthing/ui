@@ -14,7 +14,7 @@ export {
   type TransferInput,
 } from "./MoneyTransfer";
 export { payoffChoices, payoffCopy, payoffReading, payoffSelection, payoffStrategies } from "./Payoff";
-export { projectPayoff } from "./PayoffProjection";
+export { projectPayoff } from "./projections";
 export {
   priceChartCopy,
   priceChartPoints,
