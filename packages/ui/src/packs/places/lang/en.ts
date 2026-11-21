@@ -16,6 +16,12 @@ export const en = {
   hoursNoticeLine: (date: string, text: string, formattedDate?: string) =>
     `${date}: ${JSON.stringify(text)}${formattedDate ? ` (${formattedDate})` : ""}`,
   distanceAway: (value: string) => `${value} km away`,
+  mapListDistance: (value: string) => `${value} km`,
+  mapListView: "View places",
+  mapListMap: "With map",
+  mapListList: "Just the list",
+  mapListPin: (name: string) => `Select ${name} on the map`,
+  mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
   addressDirections: "Directions",
   addressCopy: "Copy address",
   addressCall: (phone: string) => `Call ${phone}`,
@@ -28,6 +34,14 @@ export const en = {
     `Line ${line} to ${to}, ${time}${delay ? `, ${delay}` : ""}`,
   departureReading: (line: string, to: string, time: string, delay?: string) =>
     `${JSON.stringify(line)} to ${JSON.stringify(to)}: ${time}${delay ? `, ${delay}` : ""}`,
+  deliveryEta: "Estimated arrival",
+  deliveryEtaMinutes: (minutes: string) => `${minutes} min`,
+  deliveryEtaNow: "Arriving now",
+  deliveryEtaUnknown: "Estimate unavailable",
+  deliveryCourier: "Courier",
+  deliveryCourierMarker: "Courier location",
+  deliveryDestinationMarker: "Delivery destination",
+  deliveryCall: "Call courier",
   deliveryStep: {
     preparing: "Preparing",
     picked_up: "Picked up",
