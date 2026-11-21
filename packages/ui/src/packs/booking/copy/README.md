@@ -7,6 +7,7 @@ Use `index.ts` as the folder's door.
 - `ClassRoster.ts`: localized session date and attendance counts.
 - `Availability.ts`: neutral working-week defaults, time-control labels and breaks.
 - `ServiceMenu.ts`: booking cue.
+- `SessionPack.ts`: session credit, expiry, and action copy.
 - `Slots.ts`: availability labels, local end times, subtitles and hidden loading text.
 - `StaffPicker.ts`: the no-preference provider label.
 - `Waitlist.ts`: queue labels, compact counts and exact accessible counts.

@@ -6,3 +6,4 @@
 {"id":"a2","c":"Availability","days":[{"day":"mon","on":true,"from":"09:00","to":"17:00"},{"day":"tue","on":true,"from":"09:00","to":"17:00"},{"day":"wed","on":true,"from":"09:00","to":"17:00"},{"day":"thu","on":true,"from":"09:00","to":"17:00"},{"day":"fri","on":true,"from":"09:00","to":"17:00"},{"day":"sat","on":false,"from":"09:00","to":"17:00"},{"day":"sun","on":false,"from":"09:00","to":"17:00"}]}
 {"id":"w1","c":"Waitlist","position":3,"ahead":2,"joined":true}
 {"id":"c1","c":"ClassRoster","sessionId":"leash_skills","title":"Loose-leash class","at":"2026-11-22T09:30:00-05:00","capacity":6,"attendees":[{"id":"sam","name":"Sam Morgan","status":"checked_in","photo":"lib:people"},{"id":"robin","name":"Robin Bell","status":"booked"}],"waitlistCount":1}
+{"id":"s4","c":"SessionPack","packId":"park_walks","title":"Park walk bundle","total":10,"used":7,"expires":"2026-12-20","service":"Park walks"}

@@ -27,6 +27,18 @@ export const en = {
     leave: "Leave waitlist",
   },
   slotLabels: { free: "free", taken: "taken", empty: "No free times" },
+  sessionPack: {
+    balance: "Credits remaining",
+    remaining: (count: string) => `${count} left`,
+    expiry: (date: string) => `Expires ${date}`,
+    expiring: (date: string) => `Expires soon · ${date}`,
+    expired: (date: string) => `Expired ${date}`,
+    redeem: "Redeem session",
+    renew: "Renew pack",
+    success: "Session redeemed",
+    exhausted: "No credits left",
+    error: "Couldn’t redeem session",
+  },
   roster: {
     status: { booked: "Booked", checked_in: "Checked in", no_show: "No-show" },
     paid: "Paid",

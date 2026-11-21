@@ -12,6 +12,7 @@ Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `Appointment.tsx`
 - `Waitlist.tsx`
 - `ClassRoster.tsx`
+- `SessionPack.tsx`
 
 Rules:
 - Same file shape as `src/components/`: exports `meta`, `props`, `fallback`, `examples`, `probes`, view.
