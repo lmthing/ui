@@ -25,6 +25,7 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
+export { itemMoveOffer } from "./action-input";
 export {
   isRecordJournal,
   isRecordPress,
