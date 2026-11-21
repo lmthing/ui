@@ -326,10 +326,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}",
+    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":null}",
     "replies": [
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":null}",
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks count\",\"value\":1200,\"unit\":null,\"step\":1}",
       "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Walks\",\"value\":1200,\"unit\":null,\"step\":1}"
     ]
   },
@@ -776,11 +776,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
+    "reply": "{\"c\":\"Counter\",\"density\":null,\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
     "replies": [
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
       "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}",
-      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"exact\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
+      "{\"c\":\"Counter\",\"density\":null,\"figures\":\"short\",\"label\":\"Dogs walked today\",\"value\":3,\"unit\":\"dogs\",\"step\":1}"
     ]
   },
   "bf5ca6fe5f1ebb78": {

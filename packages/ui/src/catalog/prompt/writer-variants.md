@@ -8,6 +8,10 @@ Keep requested content visible. Leave detail null when the default already shows
 
 Abbreviating numbers is a figures request, not a density request. Use figures for the requested number format. Keep density null unless the request separately asks to change spacing.
 
+## Item tone
+
+Before returning JSON, check every row: output "tone":null unless the brief asks for a status treatment that applies to that row. A measurement, a value below its target, or a request to abbreviate numbers does not ask for a warning. Never fill in a listed tone default.
+
 ## Composition
 
 If a list explains a chart, show the corresponding details in chart order. For a grouped or filtered list, make instructions and action destinations clear enough to follow without guessing.

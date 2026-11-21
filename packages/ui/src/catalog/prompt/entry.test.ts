@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 import { z } from "zod";
 import { archetypes, components, createRegistry } from "@lmthing/ui/catalog";
 import { choosePrompt, composePrompt, signature, writePrompt, type Definition } from "../probes";
-import { buildEntry, composeFlow, writerFigures, writerVariants } from "./index";
+import { buildEntry, composeFlow, writerFigures, writerItemTone, writerVariants } from "./index";
 import markdown from "./writer-variants.md?raw";
 
 const definitions: readonly Definition[] = createRegistry({ includeDrafts: true }).defs;
@@ -63,8 +63,8 @@ it("neutralizes existing component and row axes without changing other example f
 });
 
 it("uses the Markdown spacing rule for both Writer paths without leaking it into unrelated prompts", () => {
-  expect([writerVariants, writerFigures, composeFlow]).toEqual(
-    markdown.trimEnd().split(/\n\n## (?:Figures|Composition)\n\n/),
+  expect([writerVariants, writerFigures, writerItemTone, composeFlow]).toEqual(
+    markdown.trimEnd().split(/\n\n## (?:Figures|Item tone|Composition)\n\n/),
   );
   const brief = "Keep all rows, but show only the first two";
   expect(writePrompt(components.List, brief)).toContain(`${writerVariants}\nBrief: ${brief}`);
@@ -75,6 +75,13 @@ it("uses the Markdown spacing rule for both Writer paths without leaking it into
   expect(compose.split(writerVariants)).toHaveLength(2);
   expect(compose).toContain(composeFlow);
   expect(compose).toContain('effective trail of "toggle"');
+});
+
+it("adds the item-tone reminder only when the numbers Writer can author row tone", () => {
+  const brief = "Abbreviate the values";
+  expect(writePrompt(components.Progress, brief)).toContain(`${writerItemTone}\nBrief: ${brief}`);
+  expect(writePrompt(components.Counter, brief)).not.toContain(writerItemTone);
+  expect(writePrompt(components.List, brief)).not.toContain(writerItemTone);
 });
 
 it("preserves the complete recorded core choose prompt", () => {
