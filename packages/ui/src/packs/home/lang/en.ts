@@ -48,6 +48,7 @@ export const en = {
       `${id} ${label} · ${date} · ${clock}`,
   },
   careLabels: {
+    categorySeparator: " · ",
     last: "Last",
     next: "Next",
     today: "Due today",
@@ -95,6 +96,8 @@ export const en = {
     modes: { heat: "Heat", cool: "Cool", auto: "Auto", off: "Off" },
     mode: (value: string) => `Mode: ${value}`,
     heating: "Heating set point",
+    heatTarget: "Heat target",
+    coolTarget: "Cool target",
     cooling: (value: string) => `Cooling set point: ${value}`,
   },
   devicePanel: {

@@ -12,8 +12,11 @@ export function deviceValue(value: number, unit: NonNullable<DeviceEntry["unit"]
 
 export function thermostatCopy({ mode, coolTemp }: Pick<DeviceEntry, "mode" | "coolTemp">, lang?: string) {
   const { deviceLabels, thermostat } = homeWordsFor(lang);
+  const setPoint = mode === undefined && coolTemp === undefined ? deviceLabels.setPoint : thermostat.heating;
   return {
-    setPoint: mode === undefined && coolTemp === undefined ? deviceLabels.setPoint : thermostat.heating,
+    setPoint,
+    heatingCaption: coolTemp === undefined ? setPoint : thermostat.heatTarget,
+    coolingCaption: thermostat.coolTarget,
     mode: mode === undefined ? undefined : thermostat.mode(thermostat.modes[mode]),
     coolTemp: coolTemp === undefined ? undefined : thermostat.cooling(deviceValue(coolTemp, "celsius", lang)),
   };

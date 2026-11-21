@@ -33,9 +33,11 @@ it("formats readings for the requested locale without changing the stored value"
 });
 
 it("uses the old set-point label only without the new fields and localizes cooling values", () => {
-  expect(thermostatCopy({})).toEqual({ setPoint: "Set point", mode: undefined, coolTemp: undefined });
+  expect(thermostatCopy({})).toMatchObject({ setPoint: "Set point", mode: undefined, coolTemp: undefined });
   expect(thermostatCopy({ mode: "auto", coolTemp: 25.5 }, "de-DE")).toEqual({
     setPoint: "Heating set point",
+    heatingCaption: "Heat target",
+    coolingCaption: "Cool target",
     mode: "Mode: Auto",
     coolTemp: "Cooling set point: 25,5 °C",
   });

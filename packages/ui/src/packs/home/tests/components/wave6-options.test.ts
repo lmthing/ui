@@ -62,7 +62,8 @@ it.each([
   if (coolTemp === undefined) expect(html).not.toContain("home/c1/r1/cool_temp");
   else {
     const cooling = `Cooling set point: ${coolTemp} °C`;
-    expect(textAt(html, "home/c1/r1/cool_temp")).toEqual([cooling]);
+    expect(html).toContain("Cool target · °C");
+    expect(textAt(html, "home/c1/r1/cool_temp")).toEqual([String(coolTemp)]);
     expect(read).toContain(cooling);
   }
 });
@@ -70,7 +71,8 @@ it.each([
 it("renders cooling without mode and preserves existing output when neither is supplied", () => {
   const input = room({ ...heat, coolTemp: 25 });
   const html = renderInstance("Devices", { ...input, style: "focused" }, "filled", theme);
-  expect(textAt(html, "home/c1/r1/cool_temp")).toEqual(["Cooling set point: 25 °C"]);
+  expect(html).toContain("Cool target · °C");
+  expect(textAt(html, "home/c1/r1/cool_temp")).toEqual(["25"]);
   expect(html).not.toContain("home/c1/r1/mode");
   const old = renderInstance("Devices", room(heat), "filled", theme);
   expect(old).toContain("Set point · °C");
@@ -81,6 +83,6 @@ it("renders cooling without mode and preserves existing output when neither is s
 it("keeps the new thermostat values readable offline without enabling the old controls", () => {
   const html = renderInstance("Devices", room({ ...heat, mode: "auto", coolTemp: 25 }), "error", theme);
   expect(textAt(html, "home/c1/r1/mode")).toEqual(["Mode: Auto"]);
-  expect(textAt(html, "home/c1/r1/cool_temp")).toEqual(["Cooling set point: 25 °C"]);
+  expect(textAt(html, "home/c1/r1/cool_temp")).toEqual(["25"]);
   expect(elementAt(html, "home/c1/r1/temp").attributes).toContain('aria-disabled="true"');
 });

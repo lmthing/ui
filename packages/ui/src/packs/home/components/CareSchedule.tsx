@@ -2,21 +2,9 @@ import { z } from "zod";
 // prettier-ignore
 import { icon, isoDate, itemsOf, placeholderTitle, probesFor, repeatOptions, screenId, text,
   thingOf, titleOf, detailOf, variantProps, type FallbackInput, type Meta, type Probe, type Props } from "../../../catalog";
-import {
-  KitAction,
-  KitCard,
-  KitContent,
-  KitEmpty,
-  KitGrid,
-  KitIcon,
-  KitRow,
-  KitText,
-  KitTrack,
-  PartContext,
-  useComponentState,
-  usePartContext,
-  useWords,
-} from "../../../kit";
+// prettier-ignore
+import { KitAction, KitCard, KitContent, KitEmpty, KitGrid, KitIcon, KitRow, KitText, KitTrack,
+  PartContext, useComponentState, usePartContext, useWords } from "../../../kit";
 import { careCategories, careCategory, careLines, careReading, careTaskLabel, careToday } from "../copy";
 import { homeWordsFor } from "../lang";
 // Core first: Checklist/default cannot advance recurring care from the last completion date.
@@ -140,7 +128,6 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
   const category = careCategory(task.category, lang);
   const dates = (
     <KitContent key="dates">
-      {category && <KitText role="caption" tone="muted" part="category">{category}</KitText>}
       {(["repeat", "last", "next"] as const).map((part) => (
         <KitText key={part} role="caption" tone={part === "next" ? copy.tone : "muted"} part={part}>
           {copy[part]}
@@ -156,7 +143,7 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
         <KitRow
           goto={task.goto}
           part="root"
-          label={careTaskLabel(task)}
+          label={careTaskLabel(task, lang)}
           inline
           lineRole="heading"
           leading={<KitIcon name={task.icon} scale="sm" tone="muted" part="icon" />}
@@ -170,6 +157,7 @@ function CareTile({ task, today, wide, surface }: { task: CareTask; today: strin
               {task.for}
             </KitText>
           )}
+          {category && <KitText role="caption" tone="muted" part="category">{category}</KitText>}
         </KitRow>
         {wide ? <KitGrid fitLast>{summary}</KitGrid> : summary}
       </KitCard>

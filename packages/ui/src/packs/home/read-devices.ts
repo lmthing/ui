@@ -27,9 +27,12 @@ function readEntry(row: Entry, enlarged: boolean, grouped: boolean, lang?: strin
     row.temp === undefined ? undefined : `${thermostat.setPoint} ${deviceValue(row.temp, "celsius", lang)}`,
     thermostat.coolTemp,
     row.reading === undefined ? undefined : `${deviceLabels.reading} ${deviceValue(row.reading, unit, lang)}`,
-    enlarged && row.temp !== undefined
-      ? devicePanel.measure(thermostat.setPoint, deviceUnits.celsius)
+    (enlarged || row.coolTemp !== undefined) && row.temp !== undefined
+      ? devicePanel.measure(thermostat.heatingCaption, deviceUnits.celsius)
       : undefined,
+    row.coolTemp === undefined
+      ? undefined
+      : devicePanel.measure(thermostat.coolingCaption, deviceUnits.celsius),
     enlarged && row.reading !== undefined
       ? devicePanel.measure(deviceLabels.reading, deviceUnits[unit])
       : undefined,

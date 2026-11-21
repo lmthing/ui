@@ -67,22 +67,19 @@ export function careLines(seed: CareSeed, today = careToday(), lang?: string) {
   } as const;
 }
 
-type NamedTask = { title: string; for?: string | undefined };
+type NamedTask = { title: string; for?: string | undefined; category?: CareCategory | undefined };
 
-export function careTaskLabel(task: NamedTask): string {
-  return task.for ? `${task.title} · ${task.for}` : task.title;
+export function careTaskLabel(task: NamedTask, lang?: string): string {
+  return [task.title, task.for, careCategory(task.category, lang)]
+    .filter(Boolean)
+    .join(homeWordsFor(lang).careLabels.categorySeparator);
 }
 
-export function careReading(
-  tasks: readonly (CareSeed & NamedTask & { category?: CareCategory | undefined })[],
-  lang?: string,
-): string[] {
+export function careReading(tasks: readonly (CareSeed & NamedTask)[], lang?: string): string[] {
   const today = careToday();
   const { careLabels: labels } = homeWordsFor(lang);
   return tasks.map((task) => {
     const { repeat, last, next } = careLines(task, today, lang);
-    return [careTaskLabel(task), careCategory(task.category, lang), repeat, last, next, labels.done]
-      .filter(Boolean)
-      .join(" · ");
+    return [careTaskLabel(task, lang), repeat, last, next, labels.done].join(" · ");
   });
 }
