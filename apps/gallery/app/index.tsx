@@ -24,7 +24,14 @@ export function Gallery() {
     );
   }
   if (only && width) {
-    return <Screens id={only as ComponentName} width={width} mode={mode === "dark" ? "dark" : "light"} />;
+    return (
+      <Screens
+        id={only as ComponentName}
+        width={width}
+        mode={mode === "dark" ? "dark" : "light"}
+        presetIds={query.getAll("preset")}
+      />
+    );
   }
   return (
     <TamaguiProvider config={config} defaultTheme="kit_calm_light_moss">
