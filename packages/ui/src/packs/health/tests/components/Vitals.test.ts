@@ -149,14 +149,10 @@ describe("Vitals states, parts and read/act", () => {
       const label = "value2" in row ? "Systolic reference" : "Reference";
       expect(read).toContain(`${label} ${row.low}–${row.high}`);
     });
+    // prettier-ignore
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(example)), "v1")).toEqual([
       { address: "v1/add", action: "press", part: "add", detail: "→add_reading" },
-      ...example.readings.map((_, index) => ({
-        address: `v1/r${index + 1}`,
-        action: "press",
-        part: "root",
-        detail: "",
-      })),
+      ...example.readings.map((_, index) => ({ address: `v1/r${index + 1}`, action: "press", part: "root", detail: "" })),
     ]);
   });
 });
