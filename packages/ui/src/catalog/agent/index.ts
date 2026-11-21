@@ -58,6 +58,18 @@ export {
 } from "./validate-value";
 export { planAct, type ActStep, type ActResult, type SendDraft, type Values } from "./act";
 export {
+  attachmentKey,
+  attachmentOwner,
+  clipKey,
+  mediaHostKey,
+  mediaOffer,
+  validMediaReference,
+  type AttachmentStatus,
+  type MediaHostGate,
+  type MediaOffer,
+} from "./media";
+export { sequenceKey, sequenceState, type SequenceState } from "./media";
+export {
   controlValueKey,
   liveProps,
   parseControlProps,

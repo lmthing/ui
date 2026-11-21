@@ -24,6 +24,7 @@ import {
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
 export { drivenPartBlock } from "./introduced-part";
+export { actionsAt } from "./offers";
 
 type PreparedStep =
   | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
@@ -75,13 +76,13 @@ function prepareStep(
       selected,
       links: plan.links,
       send: plan.sends?.[0],
+      media: plan.media?.[0],
+      sequence: plan.sequence,
       at,
       now: ctx.now,
       key: ctx.key,
       options: ctx.options,
-      playMedia: media.playMedia,
-      seekMedia: media.seekMedia,
-      requestPhoto: media.requestPhoto,
+      ...mediaContext(media),
     },
   };
 }
@@ -183,4 +184,14 @@ export function planSteps(
     effects.push(...result.effects);
   }
   return { state, effects, ...execution };
+}
+
+function mediaContext(media: MediaRuntime) {
+  return {
+    playMedia: media.playMedia,
+    seekMedia: media.seekMedia,
+    requestPhoto: media.requestPhoto,
+    mediaEffect: media.effect,
+    attachmentReference: media.attachmentReference,
+  };
 }

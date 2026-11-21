@@ -1,8 +1,9 @@
 import { useWords, useKit } from "../../provider";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { usePartContext } from "../../part";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
-import { space } from "../../../catalog";
+import { formatAddress, space } from "../../../catalog";
+import type { MediaSession, ScreenController } from "../../interact";
 import { KitAction } from "../input";
 import { KitText } from "../text";
 
@@ -24,39 +25,33 @@ export function KitTimes({ elapsed, remaining }: { elapsed: string; remaining: s
 export function KitPlayback({
   children,
   style,
+  part,
 }: {
   children: ReactNode;
   style: "audio" | "video" | "compact";
+  part?: string;
 }) {
   const { controller } = useKit();
-  const { component } = usePartContext();
+  const { component, item, screen } = usePartContext();
+  const address =
+    part === undefined ? undefined : formatAddress({ screen, component, ...(item ? { item } : {}), part });
   const mount = useRef<TamaguiElement>(null);
-  const [content, setContent] = useState<ReactNode>(null);
-  const {
-    words: { mediaUnavailable },
-  } = useWords();
-  const [video, setVideo] = useState(false);
+  const legacy = useLegacyMedia(controller, component, part === undefined);
+  const addressed = useSyncExternalStore(
+    address && controller ? controller.store.subscribe : noSubscription,
+    () => (address ? controller?.activeMedia(address) : undefined),
+    () => undefined,
+  );
+  const session = address === undefined ? legacy : addressed;
+  const video = style === "video" && Boolean(session?.element || session?.content);
   useEffect(() => {
-    if (!controller) return;
-    try {
-      const session = controller.mountMedia(component);
-      setContent(session?.content ?? null);
-      const element = session?.element;
-      setVideo(style === "video" && Boolean(element || session?.content));
-      if (!element) return;
-      element.style.width = "100%";
-      if (style === "video") element.style.aspectRatio = "16 / 9";
-      (mount.current as HTMLElement | null)?.appendChild(element);
-      return () => {
-        element.remove();
-      };
-    } catch (error) {
-      controller.store.set(
-        `${controller.snapshotScreen().id}/${component}/error`,
-        error instanceof Error ? error.message : mediaUnavailable,
-      );
-    }
-  }, [controller, component, style, mediaUnavailable]);
+    const element = session?.element;
+    if (!element) return;
+    element.style.width = "100%";
+    if (style === "video") element.style.aspectRatio = "16 / 9";
+    (mount.current as HTMLElement | null)?.appendChild(element);
+    return () => element.remove();
+  }, [session, style]);
   return (
     <>
       {controller && (
@@ -64,12 +59,30 @@ export function KitPlayback({
           ref={mount}
           {...(video ? { aspectRatio: 16 / 9 } : { height: 0, overflow: "hidden" as const })}
         >
-          {content}
+          {session?.content}
         </YStack>
       )}
       {!video && children}
     </>
   );
+}
+
+const noSubscription = () => () => {};
+function useLegacyMedia(controller: ScreenController | undefined, component: string, enabled: boolean) {
+  const { mediaUnavailable } = useWords().words;
+  const [session, setSession] = useState<MediaSession>();
+  useEffect(() => {
+    if (!controller || !enabled) return;
+    try {
+      setSession(controller.mountMedia(component));
+    } catch (error) {
+      controller.store.set(
+        `${controller.snapshotScreen().id}/${component}/error`,
+        error instanceof Error ? error.message : mediaUnavailable,
+      );
+    }
+  }, [controller, component, enabled, mediaUnavailable]);
+  return session;
 }
 
 export function KitMediaControls({

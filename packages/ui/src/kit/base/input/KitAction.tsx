@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useAnimatedValue } from "../../motion";
 import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import {
+  component,
+  radius,
+  size,
+  space,
+  type as typography,
+  type IconName,
+  type ActionName,
+} from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
@@ -57,22 +65,7 @@ type ActionProps = {
   part?: string;
   a11y?: string;
   full?: boolean;
-  action?:
-    | "press"
-    | "dismiss"
-    | "play"
-    | "pause"
-    | "toggle"
-    | "select"
-    | "check"
-    | "set"
-    | "type"
-    | "increment"
-    | "decrement"
-    | "start"
-    | "stop"
-    | "send"
-    | "scan";
+  action?: Exclude<ActionName, "flip" | "move" | "swipe">;
   value?: string | number | boolean;
   disabled?: boolean;
 };

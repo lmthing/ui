@@ -6,6 +6,7 @@ export {
   type ScreenComponent,
 } from "./context";
 export { createClock } from "./clock";
+export { createSequenceClock } from "./sequence";
 export { createMediaRuntime, type MediaRuntime } from "./media";
 export { createAct, discardHiddenConfirmation } from "./dispatch";
 export { createAccess, createStandaloneAccess } from "./access";

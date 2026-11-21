@@ -1,30 +1,18 @@
 import {
   atDeviceTime,
   wordsFor,
-  affordancesOf,
   clockControlDeclared,
-  driveAffordances,
-  driveTarget,
-  hostOnlyAddresses,
+  clipKey,
   isPlaybackAction,
-  liveProps,
-  parseControlProps,
-  privateMarkKey,
-  projectDeviceData,
-  projectSelectionBinding,
-  recordClockOffer,
-  reportEditWire,
-  selectionBindingFor,
+  mediaOffer,
   sessionEvent,
-  withDisabledSelectionChecks,
-  withRecordScreen,
 } from "../../../catalog";
-import type { AppCurrency, StateName } from "../../../catalog";
+import type { AppCurrency } from "../../../catalog";
 import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
-import { drivenPartBlock } from "./planning";
+import { actionsAt, drivenPartBlock } from "./planning";
 import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
 type Act = ReturnType<typeof createAct>;
@@ -40,58 +28,6 @@ const pressActions = [
   "send",
   "dismiss",
 ];
-function actionsAt(
-  ctx: ControllerContext,
-  address: string,
-  includeBlocked = false,
-  ignoreDisabledPart = false,
-): string[] {
-  const local = ctx.relative(address),
-    id = local.split("/")[0]!;
-  if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
-  if (ctx.privateMarks.has(local) || ctx.store.get(privateMarkKey(ctx.screen.id, local))) return [];
-  if (ctx.confirmationFor()) {
-    if (local === "confirm/confirm") return ["press"];
-    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
-  }
-  const now = ctx.now();
-  const values = ctx.valuesOf(now);
-  const sheet = ctx.status.openSheet;
-  const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
-  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
-  const entry = screen.components.find((item) => item.id === id);
-  const def = entry && ctx.defs[entry.c];
-  if (!entry || !def) return [];
-  const { draw, emptyActions, errorActions, session, successActions } = def.meta;
-  const stateActions =
-    draw || emptyActions?.length || errorActions?.length || session || successActions?.length;
-  if (entry.state && entry.state !== "filled" && !stateActions) return [];
-  try {
-    const localValues = Object.fromEntries(
-      Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
-    );
-    const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const get = (part: string) => localValues[`${id}/${part}`];
-    const projected = projectDeviceData(ctx.options.deviceData, values);
-    const data = withRecordScreen(atDeviceTime(projected, now), ctx.screen);
-    const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
-    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
-    const props = projectSelectionBinding(def.meta, live, selection?.view);
-    const clock = recordClockOffer(def, raw, props, get, data, now, values);
-    const wire = reportEditWire(def, raw, get);
-    const state = (props.state as StateName | undefined) ?? entry.state;
-    const offerContext = { data, clock, wire, schema: def.props };
-    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, offerContext);
-    if (hostOnlyAddresses(def, id, offered)?.has(local)) return [];
-    const canDrive = (part: string) => !drivenPartBlock(ctx, part);
-    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
-    return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local)
-      .map((item) => item.action);
-  } catch {
-    return [];
-  }
-}
 function press(ctx: ControllerContext, act: Act, address: string) {
   const local = ctx.relative(address);
   if (!ctx.status.disposed && ctx.options.interactive !== false) discardHiddenConfirmation(ctx);
@@ -104,7 +40,7 @@ function press(ctx: ControllerContext, act: Act, address: string) {
     });
   }
   const offered = actionsAt(ctx, address, true);
-  const tap = offered.find((item) => isPressAction(ctx, local, item));
+  const tap = clipTap(ctx, local, offered) ?? offered.find((item) => isPressAction(ctx, local, item));
   const action =
     tap ??
     (local.endsWith("/play") && offered.includes("play")
@@ -118,15 +54,44 @@ function press(ctx: ControllerContext, act: Act, address: string) {
 }
 function isPressAction(ctx: ControllerContext, local: string, action: string) {
   if (pressActions.includes(action)) return true;
-  if (action !== "flip" && !isPlaybackAction(action)) return false;
   const [id, ...parts] = local.split("/");
   const entry = ctx.sourceOf(id!);
   const meta = entry && ctx.defs[entry.c]?.meta;
   const target = parts.join("/") || "root";
+  const part = parts.at(-1) ?? "root";
+  if (!meta) return false;
+  if (action === "scan")
+    return [part, "root"].some(
+      (name) => mediaOffer(meta, id!, { address: local, part: name, action })?.kind === "attachment",
+    );
+  if (action === "seek")
+    return (
+      target !== meta.sequence?.seek &&
+      (parts.length === 2
+        ? meta.sequence?.item === part
+        : meta.sequence?.item === "root" && parts.length === 1)
+    );
+  if ((action === "play" || action === "pause") && target === meta.sequence?.controls?.part) return true;
+  if (action !== "flip" && !isPlaybackAction(action)) return false;
   return Boolean(
-    meta &&
-    (action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action)),
+    action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action),
   );
+}
+function clipTap(ctx: ControllerContext, address: string, offered: string[]) {
+  const [id, ...parts] = address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  if (!meta || !offered.includes("play")) return;
+  const part = parts.at(-1) ?? "root";
+  const offer = { address, part, action: "play" };
+  if (
+    mediaOffer(meta, id!, offer)?.kind !== "playback" &&
+    mediaOffer(meta, id!, { ...offer, part: "root" })?.kind !== "playback"
+  )
+    return;
+  return offered.includes("pause") && ctx.store.get(ctx.key(id!, clipKey(parts.join("/") || "root"))) === true
+    ? "pause"
+    : "play";
 }
 function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { lang, deviceData } = ctx.options;
@@ -176,9 +141,7 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
     read: () => read(ctx, currency),
-    canPress: (address: string) =>
-      actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
-      (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
+    canPress: (address: string) => canPress(ctx, address),
     edit(address: string, text: string) {
       const result = act({ address, action: "type", value: text });
       if (!result.ok && result.code === "invalid_value") {
@@ -195,4 +158,14 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
     registerDisabledPart: (address: string) => registerPart(ctx.disabledParts, ctx.relative(address)),
     registerPrivateMarkPart: privateMarkRegistration(ctx, act),
   };
+}
+
+function canPress(ctx: ControllerContext, address: string) {
+  const offered = actionsAt(ctx, address);
+  const local = ctx.relative(address);
+  return (
+    Boolean(clipTap(ctx, local, offered)) ||
+    offered.some((action) => isPressAction(ctx, local, action)) ||
+    (address.endsWith("/play") && offered.includes("play"))
+  );
 }

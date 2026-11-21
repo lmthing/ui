@@ -77,6 +77,8 @@ export type Meta = {
   variants?: Variants;
   variantParts?: VariantParts;
   clocks?: readonly ClockMeta[];
+  media?: LiveMeta.MediaTargets;
+  sequence?: LiveMeta.SequenceMeta;
   adjust?: NumericAdjustments;
   /** Part/action pairs from `actions` that are also available in `empty`. */
   emptyActions?: readonly `${string}.${ActionName}`[];
@@ -115,6 +117,7 @@ export type Meta = {
     toggles?: Readonly<Record<string, string>>; // Named toggle part → live row boolean.
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
+    media?: LiveMeta.MediaTargets;
     adjust?: NumericAdjustments;
     /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
     reset?: string;

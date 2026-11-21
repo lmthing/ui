@@ -3,7 +3,7 @@ import type { Definition } from "../../probes";
 import { repairVariants } from "../../rules";
 import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
-export { stageRecord } from "./record-planning";
+export { stageRecord, stageStandaloneClock } from "./record-planning";
 export { stageProgress } from "./progress";
 export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { actionValueAddress, findAction } from "./offered-actions";
@@ -42,6 +42,14 @@ export function validateStep(
   key: string,
 ) {
   const edit = setStep(screen, defs, found.address, step.action, values);
+  if (found.sequence?.action === "seek") {
+    const { implicit, max } = found.sequence;
+    const result = validateActionValue(step.action, step.value, undefined, {
+      max,
+      ...(implicit === undefined ? {} : { implicit }),
+    });
+    return { result: result ?? { value: implicit ?? step.value }, edit, limits: undefined };
+  }
   const limits = found.move
     ? { type: "choice" as const, choices: found.move.choices }
     : (edit?.set?.spec ?? nestedSpec(screen, defs, found.address));

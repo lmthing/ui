@@ -19,7 +19,7 @@ import {
   type ActStep,
   type StateName,
 } from "../../../catalog";
-import { controlsAction, mediaAction, showConfirmation } from "./families";
+import { controlsAction, mediaAction, navigationAction, showConfirmation } from "./families";
 import { rejected, type ActionContext, type ActionHandler, type ActionState } from "./types";
 
 function confirmReportAction(state: ActionState, ctx: ActionContext, target: string) {
@@ -108,8 +108,16 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     ? showConfirmation(state, ctx.selected, ctx)
     : undefined;
 }
-const playbackAction: ActionHandler = (state, action, ctx) =>
-  ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
+const playbackAction: ActionHandler = (state, action, ctx) => {
+  if (ctx.media || ctx.sequence) {
+    const next = navigationAction(state, action, ctx);
+    const offer = ctx.media;
+    return offer
+      ? { ...next, effects: [() => ctx.mediaEffect(offer, action.action), ...next.effects] }
+      : next;
+  }
+  return ctx.entry.c === "Player" ? mediaAction(state, action, ctx) : controlsAction(state, action, ctx);
+};
 export const actionTable: Readonly<Record<ActStep["action"], ActionHandler>> = {
   press: playbackAction,
   play: playbackAction,

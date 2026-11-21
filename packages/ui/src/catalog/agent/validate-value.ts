@@ -6,6 +6,7 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { itemEditAt } from "./report-edits";
 import { pickerAt } from "./live-inputs";
+import { validateSequenceSeek, type SeekLimits } from "./media";
 
 export type ValueError = { code: "invalid_value"; hint: string };
 type SetSpec = NonNullable<Meta["set"]>[string];
@@ -97,7 +98,9 @@ export function validateActionValue(
   action: string,
   value: unknown,
   limits?: NumericLimits | StringLimits,
+  seek?: SeekLimits,
 ): ValueError | null {
+  if (action === "seek" && seek) return validateSequenceSeek(value, seek);
   const rule = rules[action];
   if (!rule) return { code: "invalid_value", hint: `unknown action ${action}` };
   if (!rule[0](value)) return { code: "invalid_value", hint: rule[1] };

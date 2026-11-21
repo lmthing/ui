@@ -1,6 +1,18 @@
-import { itemEditSpec, photo, planAct, stageReportEdit, type ActStep, type Values } from "../../../catalog";
-import type { MediaSession } from "../index";
-import type { ControllerContext } from "./context";
+import {
+  itemEditSpec,
+  mediaHostKey,
+  photo,
+  planAct,
+  stageReportEdit,
+  type ActStep,
+  type MediaOffer,
+  type Values,
+} from "../../../../catalog";
+import type { MediaSession } from "../../index";
+import type { ControllerContext } from "../index";
+import { createAttachments } from "./attachments";
+import { createClips } from "./clips";
+export { mediaHostGate } from "./media-host";
 function applyPhoto(ctx: ControllerContext, target: string, reference: string) {
   const step = { address: ctx.relative(target), action: "press" };
   const [id, ...parts] = step.address.split("/");
@@ -14,6 +26,7 @@ function applyPhoto(ctx: ControllerContext, target: string, reference: string) {
       !stageReportEdit(visible, ctx.defs, values, step, { kind: "photo", reference }, ctx.options.deviceData)
     )
       return;
+    delete values[mediaHostKey];
     ctx.store.setMany(values);
   } else {
     ctx.store.set(target, reference);
@@ -104,6 +117,8 @@ function finishPrepared(sessions: Map<string, Opened>, added: Map<string, Opened
 }
 
 export function createMediaRuntime(ctx: ControllerContext) {
+  const attachments = createAttachments(ctx);
+  const clips = createClips(ctx);
   const sessions = new Map<string, Opened>();
   let photoGeneration = 0;
   function mount(id: string, pending = false) {
@@ -116,39 +131,32 @@ export function createMediaRuntime(ctx: ControllerContext) {
     return opened;
   }
   const mountMedia = (id: string) => mount(id)?.session;
-  function prepare(steps: ActStep[], pending: boolean) {
-    const added = new Map<string, Opened>();
-    const finish = (commit: boolean) => finishPrepared(sessions, added, commit);
-    try {
-      for (const step of steps) {
-        const id = ctx.relative(step.address).split("/")[0]!;
-        if (sessions.has(id)) continue;
-        const opened = mount(id, pending);
-        if (opened && pending) added.set(id, opened);
-      }
-    } catch (error) {
-      finish(false);
-      throw error;
-    }
-    return finish;
-  }
   return {
     mountMedia,
+    activeMedia: clips.session,
+    attachmentReference: attachments.reference,
+    reconcile: clips.reconcile,
+    effect: (offer: MediaOffer, action: string) =>
+      offer.kind === "attachment" ? attachments.run(offer) : clips.act(offer, action),
     playMedia: (id: string, playing: boolean) => playMedia(ctx, mountMedia(id), id, playing),
     seekMedia: (id: string, target: number) => mountMedia(id)?.seek(target),
     requestPhoto: (id: string, target: string) => {
       const generation = photoGeneration;
       requestPhoto(ctx, id, target, () => !ctx.status.disposed && generation === photoGeneration);
     },
-    prepare,
+    prepare: (steps: ActStep[], pending: boolean) => prepareMedia(ctx, sessions, mount, steps, pending),
     reset: () => {
       photoGeneration++;
+      attachments.clear();
+      clips.dispose();
       for (const [id, { session }] of sessions) {
         session.pause();
         session.seek(Number(ctx.inputOf(ctx.sourceOf(id)!).at ?? 0));
       }
     },
     dispose: () => {
+      attachments.clear();
+      clips.dispose();
       for (const { session, gate } of sessions.values()) {
         gate.status = "closed";
         session.dispose();
@@ -158,3 +166,26 @@ export function createMediaRuntime(ctx: ControllerContext) {
   };
 }
 export type MediaRuntime = ReturnType<typeof createMediaRuntime>;
+
+function prepareMedia(
+  ctx: ControllerContext,
+  sessions: Map<string, Opened>,
+  mount: (id: string, pending: boolean) => Opened | undefined,
+  steps: ActStep[],
+  pending: boolean,
+) {
+  const added = new Map<string, Opened>();
+  const finish = (commit: boolean) => finishPrepared(sessions, added, commit);
+  try {
+    for (const step of steps) {
+      const id = ctx.relative(step.address).split("/")[0]!;
+      if (sessions.has(id)) continue;
+      const opened = mount(id, pending);
+      if (opened && pending) added.set(id, opened);
+    }
+  } catch (error) {
+    finish(false);
+    throw error;
+  }
+  return finish;
+}

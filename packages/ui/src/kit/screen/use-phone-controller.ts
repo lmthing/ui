@@ -58,16 +58,9 @@ export function usePhoneController(props: PhoneScreenProps) {
       store,
       interactive,
       requireMounted: true,
-      onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
-      onSend: (text, address) => callbacks.current.onSend?.(text, address),
-      ...(requestPhoto
-        ? {
-            requestPhoto: (address: string) =>
-              callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
-          }
-        : {}),
-      onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
-      onAction: (step) => callbacks.current.onAction?.(step),
+      ...phoneCallbacks(callbacks),
+      resolvePlayback: props.resolvePlayback,
+      attachments: props.attachments,
       media:
         media ??
         (hasMediaResolver
@@ -75,7 +68,37 @@ export function usePhoneController(props: PhoneScreenProps) {
           : undefined),
     });
     return { controller, committed };
-  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
+  }, [
+    screen,
+    defs,
+    media,
+    props.resolvePlayback,
+    props.attachments,
+    hasMediaResolver,
+    store,
+    interactive,
+    Boolean(requestPhoto),
+  ]);
   useCommittedDeviceData(source, props.deviceData);
   return source.controller;
+}
+
+function phoneCallbacks(callbacks: {
+  current: Pick<
+    PhoneScreenProps,
+    "onLink" | "onAction" | "resolveMedia" | "onChange" | "onSend" | "requestPhoto"
+  >;
+}): Pick<PhoneScreenProps, "onChange" | "onSend" | "requestPhoto" | "onLink" | "onAction"> {
+  return {
+    onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
+    onSend: (...args) => callbacks.current.onSend?.(...args),
+    ...(callbacks.current.requestPhoto
+      ? {
+          requestPhoto: (address: string) =>
+            callbacks.current.requestPhoto?.(address) ?? Promise.resolve(undefined),
+        }
+      : {}),
+    onLink: (goto, address) => callbacks.current.onLink?.(goto, address),
+    onAction: (step) => callbacks.current.onAction?.(step),
+  };
 }

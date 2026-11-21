@@ -1,4 +1,4 @@
-import type { ActStep, Definition, ScreenLike, SendDraft, Values } from "../../../catalog";
+import type { ActStep, Definition, MediaOffer, ScreenLike, SendDraft, Values } from "../../../catalog";
 import type { ActReply } from "../index";
 import type { Confirmation, ControllerContext } from "../runtime";
 export type ActionState = {
@@ -21,6 +21,8 @@ export type ActionContext = {
   selected: ActStep;
   links: { goto: string; address: string }[];
   send?: SendDraft | undefined;
+  media?: MediaOffer | undefined;
+  sequence?: true | undefined;
   at: number;
   now: () => number;
   key: ControllerContext["key"];
@@ -28,6 +30,8 @@ export type ActionContext = {
   playMedia(id: string, playing: boolean): void;
   seekMedia(id: string, target: number): void;
   requestPhoto(id: string, target: string): void;
+  mediaEffect(offer: MediaOffer, action: string): void;
+  attachmentReference(address: string): string | undefined;
 };
 export type ActionHandler = (state: ActionState, action: ActStep, ctx: ActionContext) => ActionResult;
 export type ActionEvent = ActStep & { delivery?: SendDraft };
@@ -35,9 +39,10 @@ export type ActionEvent = ActStep & { delivery?: SendDraft };
 export function actionDelivery(action: ActStep): SendDraft | undefined {
   return (action as ActionEvent).delivery;
 }
-export type SendHandler = (text: string, address: string, audience?: string) => void;
-export function deliverSend({ text, address, audience }: SendDraft, send?: SendHandler) {
-  if (audience === undefined) send?.(text, address);
+export type SendHandler = (text: string, address: string, audience?: string, attachment?: string) => void;
+export function deliverSend({ text, address, audience }: SendDraft, send?: SendHandler, reference?: string) {
+  if (reference !== undefined) send?.(text, address, audience, reference);
+  else if (audience === undefined) send?.(text, address);
   else send?.(text, address, audience);
 }
 export const actionFailure = (at: number, code: string, hint: string): Extract<ActReply, { ok: false }> => ({

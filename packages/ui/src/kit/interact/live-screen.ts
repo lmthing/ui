@@ -8,6 +8,8 @@ import {
   drawStatus,
   hasPlaybackClock,
   sessionStatus,
+  sequenceKey,
+  type SequenceState,
   type ClockState,
   type Definition,
   type ScreenLike,
@@ -123,8 +125,18 @@ function projectEntry(
   }
   if (entry.c === "Player" && typeof get("scrubber") === "number")
     result.at = Math.floor(Number(get("scrubber")));
+  if (clocks) projectSequenceCursor(def, result, get);
   if (entry.c === "Bubbles" && Array.isArray(get("$messages"))) result.messages = get("$messages");
   if (entry.c === "SwipeStack" && Number(get("$cursor") ?? 0) >= (entry.cards as unknown[]).length)
     result.state = "empty";
   return result;
+}
+
+function projectSequenceCursor(def: Definition, result: Entry, get: (part: string) => unknown) {
+  const cursor = def.meta.sequence?.cursor;
+  const index = (get(sequenceKey) as SequenceState | undefined)?.index;
+  if (cursor && index !== undefined && Object.hasOwn(def.props.shape, cursor)) {
+    const { id: _id, c: _c, state: _state, ...wire } = result;
+    if (def.props.safeParse({ ...wire, [cursor]: index }).success) result[cursor] = index;
+  }
 }

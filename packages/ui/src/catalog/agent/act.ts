@@ -12,11 +12,11 @@ import {
   stageProgress,
   stageRecord,
   stageValue,
+  stageStandaloneClock,
   validateStep,
 } from "./action-input";
 import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
 import { sessionKey, staleSession } from "./session";
-import { clockChanges, clockControlDeclared } from "./clocks";
 import {
   captureDeviceTime,
   deviceTimeOf,
@@ -28,9 +28,11 @@ import { stageLinkedEdit } from "./linked-edits";
 import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
+import { sequenceKey, stageSequence } from "./media";
+import type { MediaOffer } from "./media";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
-export type SendDraft = { address: string; text: string; audience?: string };
+export type SendDraft = { address: string; text: string; audience?: string; attachment?: string };
 type ActCode = "not_actionable" | "invalid_value" | "random_unavailable" | "max_active";
 export type ActResult =
   | {
@@ -40,35 +42,10 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      media?: MediaOffer[];
+      sequence?: true;
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
-
-/** A mounted controller already stages clocks through its action table. */
-function stageStandaloneClock(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  next: Values,
-  address: string,
-  step: ActStep,
-  data?: DeviceData,
-) {
-  const [id, ...parts] = address.split("/");
-  const { id: _id, c, state: _state, ...input } = screen.components.find((item) => item.id === id)!;
-  const def = defs[c]!;
-  const { meta } = def;
-  const legacy =
-    (meta.live?.derive || meta.recordRuntime?.actions) &&
-    (meta.clocks || meta.items?.clocks || meta.items?.nested?.clocks);
-  const target = parts.join("/") || "root";
-  if (!legacy && !clockControlDeclared(meta, target, step.action, true)) return;
-  const get = (part: string) => next[`${screen.id}/${id}/${part}`];
-  const props = legacy
-    ? liveInput(def, input, id!, localValues(screen.id, next), data)
-    : parseControlProps(def, input, get);
-  const now = Number(get("$now") ?? deviceTimeOf(data) ?? Date.now());
-  const changes = clockChanges(meta, props, get, target, step, now);
-  for (const [part, value] of Object.entries(changes)) next[`${screen.id}/${id}/${part}`] = value;
-}
 
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
@@ -125,9 +102,16 @@ function stageControl(
     limits,
     changes,
     declared,
-  }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string },
+    now,
+  }: ReturnType<typeof validateStep> & ReturnType<typeof selectStep> & { key: string; now: number },
 ): Omit<Extract<ActResult, { ok: false }>, "at"> | undefined {
   const { address, action, value } = resolved;
+  if (found.media) return;
+  if (found.sequence) {
+    const base = `${screen.id}/${address.split("/")[0]}`;
+    next[`${base}/${sequenceKey}`] = stageSequence(found.sequence, value, now);
+    return;
+  }
   const adjusted = edit ? undefined : stageItemAdjustment(screen, defs, address, action, next);
   if (clockOwner === "planner") stageStandaloneClock(screen, defs, next, address, resolved, snapshot);
   if (!(adjusted ?? stageValue(next, key, found, value, edit, screen.id, links)))
@@ -171,7 +155,7 @@ export function planAct(
     const { address, selected, found, drive, step } = action;
     if (drive) (plan.driven ??= []).push(drive);
     const key = `${screen.id}/${actionValueAddress(address, found)}`;
-    const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
+    const validated = { key, now, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
     const resolved = { ...step, address, value: result.value };
@@ -190,9 +174,15 @@ export function planAct(
     }
     const failure = stageControl(screen, defs, next, resolved, found, links, clockOwner, snapshot, validated);
     if (failure) return { ...failure, at };
+    if (found.media) (plan.media ??= []).push(found.media);
+    if (found.sequence) plan.sequence = true;
     expireProgress(screen, defs, next, snapshot);
     if (found.send)
-      (plan.sends ??= []).push({ ...found.send, address: `${screen.id}/${found.send.address}` });
+      (plan.sends ??= []).push({
+        ...found.send,
+        address: `${screen.id}/${found.send.address}`,
+        ...(found.send.attachment ? { attachment: `${screen.id}/${found.send.attachment}` } : {}),
+      });
     changed.push(`${address} ${step.action}${key in next ? ` = ${JSON.stringify(next[key])}` : ""}`);
   }
   return plan;

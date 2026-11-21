@@ -48,7 +48,11 @@ export function visibleConfirmation(
   const values = valuesOf(at);
   if (!isDeviceDataVisible(meta, projectDeviceData(data, values))) return;
   const bound = meta.selectionBinding || meta.drives;
-  if (entry && (bound || meta.deviceDataFlags) && confirmation.step) {
+  if (
+    entry &&
+    (bound || meta.deviceDataFlags || meta.media || meta.items?.media || meta.sequence) &&
+    confirmation.step
+  ) {
     const sourceScreen = bound ? screen : { ...screen, components: [entry] };
     const plan = planAct(
       sourceScreen,
@@ -67,7 +71,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (?:(type|set|increment|decrement)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?|(?:press|scan):(?:pick|scan|preview|export)(?::(?:pending|ready|error))?|(?:play|pause|stop):(?:playing|paused|stopped|error)|seek(?::\d+| = \d+; range 0\.\.\d+))(?: !needs-[a-z]+)?\]/g;
 
 function projectValue(input: Values, address: string, parts: readonly string[], values: Values): Values {
   for (const part of parts) {

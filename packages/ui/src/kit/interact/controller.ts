@@ -1,6 +1,7 @@
 import {
   createControllerContext,
   createClock,
+  createSequenceClock,
   createMediaRuntime,
   createAct,
   createAccess,
@@ -61,8 +62,14 @@ export function createScreenController(options: ControllerOptions & { currency?:
   const currency = parseAppCurrency(options.currency);
   const ctx = createControllerContext(options);
   const clock = createClock(ctx, () => discardHiddenConfirmation(ctx));
+  const sequence = createSequenceClock(ctx);
   const media = createMediaRuntime(ctx);
-  const act = createAct(ctx, media, clock.scheduleClock);
+  const schedule = () => {
+    clock.scheduleClock();
+    sequence.tick();
+  };
+  const act = createAct(ctx, media, schedule);
+  const access = createAccess(ctx, act, currency);
   return {
     defs: ctx.defs,
     store: ctx.store,
@@ -71,19 +78,45 @@ export function createScreenController(options: ControllerOptions & { currency?:
     },
     act,
     mountMedia: media.mountMedia,
-    tick: clock.tick,
-    ...createAccess(ctx, act, currency),
+    activeMedia: media.activeMedia,
+    attachmentReference: media.attachmentReference,
+    tick() {
+      clock.tick();
+      sequence.tick();
+    },
+    ...access,
+    registerPart(address: string) {
+      const unregister = access.registerPart(address);
+      return () => {
+        unregister();
+        queueMicrotask(media.reconcile);
+      };
+    },
     deviceDataFor: (component: string, data = options.deviceData) => deviceDataFor(ctx, component, data),
     get deviceData() {
       return options.deviceData;
     },
     liveControls: (meta: Meta, props: Values, component: string) => liveControls(ctx, meta, props, component),
+    ...lifecycle(ctx, clock, sequence, media, schedule),
+  };
+}
+export type ScreenController = ReturnType<typeof createScreenController>;
+
+function lifecycle(
+  ctx: ControllerContext,
+  clock: ReturnType<typeof createClock>,
+  sequence: ReturnType<typeof createSequenceClock>,
+  media: ReturnType<typeof createMediaRuntime>,
+  schedule: () => void,
+) {
+  return {
     mount() {
       const expired = ctx.expiredProgress(ctx.valuesOf());
       // A boundary may have passed between the initial render and the mount effect.
       const timeGated = ctx.screen.components.some(({ c }) => ctx.defs[c]?.meta.deviceDataWake);
       if (timeGated || Object.keys(expired).length) ctx.store.setMany(expired);
       clock.scheduleClock();
+      sequence.mount();
     },
     get openSheet() {
       return ctx.status.openSheet;
@@ -95,6 +128,8 @@ export function createScreenController(options: ControllerOptions & { currency?:
     discardHiddenConfirmation: () => {
       discardHiddenConfirmation(ctx);
       clock.scheduleDeviceWake();
+      media.reconcile();
+      sequence.tick();
     },
     snapshotScreen: () => {
       const values = ctx.valuesOf();
@@ -106,14 +141,14 @@ export function createScreenController(options: ControllerOptions & { currency?:
       media.reset();
       ctx.store.reset(ctx.screen.id);
       ctx.resetValues();
-      clock.scheduleClock();
+      schedule();
       ctx.notifyChange();
     },
     dispose() {
       ctx.status.disposed = true;
       clock.dispose();
+      sequence.dispose();
       media.dispose();
     },
   };
 }
-export type ScreenController = ReturnType<typeof createScreenController>;

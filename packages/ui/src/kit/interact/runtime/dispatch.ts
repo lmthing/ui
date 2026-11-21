@@ -5,6 +5,7 @@ import {
   projectDeviceRows,
   hasPlaybackClock,
   hasRecordClock,
+  mediaHostKey,
   withDisabledSelectionChecks,
   wordsFor,
   type ActStep,
@@ -95,8 +96,10 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     }
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
+    delete state.values[mediaHostKey];
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
     for (const effect of effects) effect();
+    media.reconcile();
     scheduleClock();
     ctx.notifyChange();
     return { ok: true, screen: ctx.screen.id, changed: state.changes.join("\n"), dryRun: false };

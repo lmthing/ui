@@ -12,7 +12,15 @@ import {
   type Issue,
 } from "../../catalog";
 import { KitProvider, useEnvironment, type NativeHost } from "../provider";
-import { createAgentAccess, DeviceDataContext, type InteractionStore, type MediaAdapter } from "../interact";
+import {
+  createAgentAccess,
+  DeviceDataContext,
+  type AttachmentHost,
+  type InteractionStore,
+  type MediaAdapter,
+  type PlaybackResolver,
+  type SendHandler,
+} from "../interact";
 import type { PartRegistry } from "../registry";
 import { Screen, type RendererMap } from "./Screen";
 
@@ -36,9 +44,11 @@ export type PhoneScreenProps = {
   resolvePhoto?: ((reference: string) => string | undefined) | undefined;
   resolveMedia?: ((reference: string) => string | undefined) | undefined;
   media?: MediaAdapter | undefined;
+  resolvePlayback?: PlaybackResolver | undefined;
+  attachments?: AttachmentHost | undefined;
   onReady?: ((agent: AgentAccess) => void) | undefined;
   onChange?: ((screen: ScreenLike, values: Values) => void) | undefined;
-  onSend?: ((text: string, address: string) => void) | undefined;
+  onSend?: SendHandler | undefined;
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interaction?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;

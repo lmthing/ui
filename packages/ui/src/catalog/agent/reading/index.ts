@@ -105,7 +105,7 @@ export function readItems(
     meta.items?.move?.derived ||
     meta.items?.visibleWhen ||
     (meta.deviceData?.length && meta.live?.derive);
-  const ids = exactIds && new Set(all.map(({ id }) => String(id)));
+  const ids = (exactIds || meta.sequence || meta.items?.media) && new Set(all.map(({ id }) => String(id)));
   const ownAff = affordances.filter(({ address }) => {
     if (!key) return true;
     const target = address.slice(instance.length);

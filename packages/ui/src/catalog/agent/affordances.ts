@@ -11,6 +11,8 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
+import { mediaAffordance, mediaOffer, type MediaOffer } from "./media";
+import { sequenceAffordance, stageSequence } from "./media";
 
 export type Affordance = {
   address: string;
@@ -24,6 +26,8 @@ export type Affordance = {
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
   move?: { current: string | null; choices: string[] };
+  media?: MediaOffer;
+  sequence?: Parameters<typeof stageSequence>[0];
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -86,7 +90,7 @@ export function affordancesOf(
   const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
     if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
       return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance, get) : undefined;
     if (send !== undefined) return send ? [{ ...a, send }] : [];
     const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
     return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
@@ -103,10 +107,39 @@ export function affordancesOf(
   const visibleNested = nested.filter(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
   );
+  return eligibleOffers(
+    meta,
+    props,
+    state,
+    get,
+    runtime,
+    session,
+    context,
+    [...own, ...visibleNested],
+    instance,
+  ).flatMap((offer) => {
+    const media = mediaOffer(meta, instance, offer);
+    return media
+      ? mediaAffordance(offer, media, instance, values)
+      : sequenceAffordance(meta, props, instance, offer, get);
+  });
+}
+
+function eligibleOffers(
+  meta: Meta,
+  props: Props,
+  state: StateName,
+  get: (part: string) => unknown,
+  runtime: unknown,
+  session: ReturnType<typeof sessionState>,
+  context: OfferContext,
+  offers: Affordance[],
+  instance: string,
+) {
   const now = Number(get("$now") ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  return offers.filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);

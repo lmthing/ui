@@ -6,6 +6,7 @@ import {
   sessionKey,
   staleSession,
   migrateScreen,
+  mediaHostKey,
   filterDeviceDataScreen,
   projectDeviceData,
   resolveDefinition,
@@ -19,11 +20,12 @@ import {
   type Values,
 } from "../../../catalog";
 import { createInteractionStore, projectScreen, valueKey } from "../index";
-import type { InteractionStore, MediaAdapter } from "../index";
+import type { AttachmentHost, InteractionStore, MediaAdapter, PlaybackResolver } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
+import { mediaHostGate } from "./media";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -37,6 +39,8 @@ export type ControllerOptions = {
   defs: Record<string, Definition>;
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
+  resolvePlayback?: PlaybackResolver | undefined;
+  attachments?: AttachmentHost | undefined;
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
@@ -133,7 +137,8 @@ export function createControllerContext(options: ControllerOptions, standalone =
     openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
     confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
   };
-  const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
+  const host = mediaHostGate(options, screen.id);
+  const localOnly = standalone && !host && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
       ? store.snapshot(screen.id)
@@ -141,6 +146,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
           ...initial,
           ...store.snapshot(),
           ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
+          ...(host ? { [mediaHostKey]: host } : {}),
         };
   return {
     standalone,
@@ -171,10 +177,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),
     sourceOf: (id: string) => screen.components.find((entry) => entry.id === id),
-    inputOf: (entry: ScreenComponent) => {
-      const { id: _id, c: _c, state: _state, ...input } = entry;
-      return defs[entry.c]!.props.parse(input) as Values;
-    },
+    inputOf: (entry: ScreenComponent) => entryInput(defs, entry),
     notifyChange: () =>
       options.onChange?.(
         projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true),
@@ -183,3 +186,10 @@ export function createControllerContext(options: ControllerOptions, standalone =
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;
+
+function entryInput(
+  defs: ControllerOptions["defs"],
+  { id: _id, c, state: _state, ...input }: ScreenComponent,
+) {
+  return defs[c]!.props.parse(input) as Values;
+}

@@ -3,6 +3,7 @@ import { projectRuntimeSets } from "../clocks";
 import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
+import { attachmentKey, type AttachmentStatus } from "../media";
 import { addressedItems } from "../visibility";
 import { itemToggleDetail, projectItemToggles } from "./item-toggles";
 import { projectPickers } from "./pickers";
@@ -17,17 +18,24 @@ export function sendDraft(
   props: Values,
   part: string,
   instance: string,
+  get: Get,
 ): SendDraft | null | undefined {
   const sends = meta.live?.send;
   if (!sends || !Object.hasOwn(sends, part)) return undefined;
-  const { field, audience: prop } = sends[part]!;
+  const { field, audience: prop, attachment } = sends[part]!;
   const spec = meta.live?.text?.[field];
   const text = spec && props[spec.prop];
-  if (typeof text !== "string" || !text.trim()) return null;
+  const present = attachment && (get(attachmentKey(attachment)) as AttachmentStatus | undefined)?.present;
+  if (!present && (typeof text !== "string" || !text.trim())) return null;
   const address = field === "root" ? instance : `${instance}/${field}`;
-  if (prop === undefined) return { address, text };
+  const draft = {
+    address,
+    text: typeof text === "string" ? text : "",
+    ...(present ? { attachment: attachment === "root" ? instance : `${instance}/${attachment}` } : {}),
+  };
+  if (prop === undefined) return draft;
   const audience = props[prop];
-  return typeof audience === "string" && audience ? { address, text, audience } : null;
+  return typeof audience === "string" && audience ? { ...draft, audience } : null;
 }
 
 export function projectNamedSelections(

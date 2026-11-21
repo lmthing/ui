@@ -37,7 +37,10 @@ export function controlsAction(state: ActionState, action: ActStep, ctx: ActionC
   const message = ctx.send ?? control.send;
   if (message) {
     if (control.send) appendMessage(values, message, ctx);
-    effects.push(() => deliverSend(message, ctx.options.onSend));
+    const attachment = ctx.send?.attachment;
+    const reference = attachment ? ctx.attachmentReference(attachment) : undefined;
+    if (!attachment || reference !== undefined)
+      effects.push(() => deliverSend(message, ctx.options.onSend, reference));
   }
   if (control.requestPhoto && ctx.options.requestPhoto) {
     const target = control.requestPhoto;
