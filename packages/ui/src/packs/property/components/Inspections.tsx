@@ -12,7 +12,7 @@ const recordRef = ref.meta({ kind: "ref" });
 // prettier-ignore
 export const meta = {
   id: "Inspections",
-  status: "draft",
+  status: "ready",
   group: "input",
   purpose: "Record and sign off dated room conditions and evidence for a unit.",
   pick: "Dated room-by-room condition report with feature notes, photos, prior-report comparison and sign-off. Not jobs to tick (Checklist), photos alone (Gallery), or a repair to request (RequestQueue).",
