@@ -75,7 +75,10 @@ function readingProps(
   if (!session) return projected;
   const current =
     session.kind === "rounds"
-      ? { [meta.session!.items]: session.recall && session.complete ? [] : [session.item] }
+      ? {
+          [meta.session!.items]:
+            session.complete && (session.recall || roundHide(meta)) ? [] : [session.item],
+        }
       : {};
   return { ...projected, ...current, [sessionKey]: session };
 }
@@ -87,9 +90,12 @@ function readProgress(session: SessionState | undefined, lang?: string): string[
   return [`correct ${assessment.correct}`, `score ${numberLine(right, lang)}/${numberLine(of, lang)}`];
 }
 
-/** A feedback view can use the solution without making it part of the agent's read. */
+const roundHide = (meta: Meta) => meta.session?.kind === "rounds" && meta.session.hide !== undefined;
+
+/** Visible feedback and private reveals can still omit fields from the agent's read. */
 function sessionForRead(meta: Meta, session: SessionState | undefined) {
-  const hidden = meta.session?.kind === "rounds" ? meta.session.assessment?.readHidden : undefined;
+  const mode = meta.session?.kind === "rounds" ? meta.session : undefined;
+  const hidden = roundHide(meta) ? mode?.hidden : mode?.assessment?.readHidden;
   if (!hidden?.length || session?.kind !== "rounds") return session;
   const item = Object.fromEntries(Object.entries(session.item).filter(([key]) => !hidden.includes(key)));
   return { ...session, item };

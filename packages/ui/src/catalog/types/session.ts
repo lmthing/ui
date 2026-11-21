@@ -8,8 +8,9 @@ type Assessment = {
   project: (item: RoundFields, answers: RoundFields) => RoundFields;
 };
 type RoundKind =
-  | { next: string; assessment?: Assessment; ratings?: never }
-  | { next?: never; assessment?: never; ratings: readonly string[]; front: readonly string[] };
+  | { next: string; assessment?: Assessment; ratings?: never; hide?: never }
+  | { next?: never; assessment?: never; ratings: readonly string[]; front: readonly string[]; hide?: never }
+  | { next?: never; assessment?: never; ratings?: never; hide: string };
 export type Session =
   | {
       kind: "turns";

@@ -2,6 +2,7 @@ import type { Meta } from "../meta";
 import type { Values } from "./act";
 import { choiceOptions, resolveChoice, selectionOffer } from "./validate-value";
 import { projectNamedSelections } from "./live-inputs";
+import { isNestedStep, nestedStepAt, nestedStepKey } from "./nested-step";
 
 type GetValue = (part: string) => unknown;
 const parentSlot = "$nested/parent";
@@ -147,7 +148,8 @@ export function nestedControls(meta: Meta, props: Values, get?: GetValue) {
             : undefined;
         const togglePeers = peers?.map(([peer]) => `${id}/${peer}_${at + 1}`);
         const enabled = (!nested.activeParent || id === activeParent) && matches;
-        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled };
+        const step = nestedStepAt(spec, item, id, at);
+        return { target: `${id}/${part}`, part, spec, item, togglePeers, enabled, step };
       }),
     );
   });
@@ -187,7 +189,7 @@ export function projectNested(meta: Meta, props: Values, get: GetValue): Values 
     const id = idOf(meta, row, index);
     const projected = (children as Values[]).map((item, at) => {
       for (const [part, spec] of Object.entries(nested.parts)) {
-        const value = get(`${id}/${part}_${at + 1}`);
+        const value = get(isNestedStep(spec) ? nestedStepKey(id, at, spec.prop) : `${id}/${part}_${at + 1}`);
         if (value !== undefined && value !== item[spec.prop]) item = { ...item, [spec.prop]: value };
       }
       return item;

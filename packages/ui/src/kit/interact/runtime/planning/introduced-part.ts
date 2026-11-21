@@ -90,6 +90,7 @@ export function introducedPart(
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
     (meta.live?.derive ||
+      (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
       meta.linkedEdits ||
       meta.items?.visibleWhen ||

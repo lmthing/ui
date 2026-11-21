@@ -63,7 +63,7 @@ function prepareStep(
   if (mustMount && !introducedPart(ctx, state, entry, action))
     return fail("not_mounted", "This control is not mounted");
   const values =
-    confirmed && !ctx.standalone
+    confirmed && (!ctx.standalone || def.meta.items?.reset !== undefined)
       ? stageConfirmedClear(ctx.screen.id, entry, input, def, selected, plan.values)
       : plan.values;
   if (!values) return fail("invalid_value", "Clear conflicts with component props");
@@ -96,6 +96,7 @@ function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionCo
   const meta = ctx.defs[entry.c]!.meta;
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
+  if (selected.action === "press" && meta.items?.reset === part) return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));

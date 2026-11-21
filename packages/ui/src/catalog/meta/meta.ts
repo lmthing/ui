@@ -7,6 +7,7 @@ import type { ItemVariants, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
 import type { Issue } from "../rules";
 import type * as LiveMeta from "./live";
+import type { NestedPart } from "./nested-part";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -108,6 +109,8 @@ export type Meta = {
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
+    reset?: string;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
     /** Confirmed edits of whole wire records in the item collection. */
@@ -127,20 +130,7 @@ export type Meta = {
       /** Maximum on toggles across all parent rows, including hidden ones. */
       maxActive?: number;
       clocks?: readonly ClockMeta[];
-      parts: Readonly<
-        Record<
-          string,
-          {
-            action: "toggle" | "set";
-            prop: string;
-            min?: number;
-            max?: number;
-            integer?: boolean;
-            /** A named control's true value, or a boolean property on the sub-item. */
-            when?: string | { prop: string; equals: boolean };
-          }
-        >
-      >;
+      parts: Readonly<Record<string, NestedPart>>;
     };
   };
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.

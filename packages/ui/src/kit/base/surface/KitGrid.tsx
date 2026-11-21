@@ -9,6 +9,8 @@ type GridProps = {
   columns?: 2 | 3;
   /** Let the final column fit a short label, leaving the remaining width to the main content. */
   fitLast?: boolean;
+  /** Zero-based column-grid cell indices, within each group if grouped. */
+  opposing?: readonly number[];
   density?: ThemeDensity | undefined;
   /** Cells are list items; headings and controls outside the cells are not. */
   list?: boolean;
@@ -72,7 +74,7 @@ export function KitGrid(props: GridProps) {
         {children}
       </KitStrip>
     );
-  return <ColumnGrid {...{ cells, columns, fitLast, spacing, listRole }} />;
+  return <ColumnGrid {...{ cells, columns, fitLast, spacing, listRole, opposing: props.opposing }} />;
 }
 
 function ColumnGrid({
@@ -81,12 +83,14 @@ function ColumnGrid({
   fitLast,
   spacing,
   listRole,
+  opposing,
 }: {
   cells: ReactNode[];
   columns: 2 | 3;
   fitLast: boolean;
   spacing: ReturnType<typeof useVariantDensity>;
   listRole: "list" | undefined;
+  opposing: GridProps["opposing"];
 }) {
   const rows = Array.from({ length: Math.ceil(cells.length / columns) }, (_, row) =>
     cells.slice(row * columns, row * columns + columns),
@@ -105,6 +109,9 @@ function ColumnGrid({
               key={column}
               accessibilityRole={listRole && row[column] !== undefined ? "listitem" : undefined}
               aria-hidden={listRole && row[column] === undefined ? true : undefined}
+              {...(row[column] !== undefined && opposing?.includes(index * columns + column)
+                ? { rotate: "180deg" }
+                : {})}
               {...(fitLast && column === columns - 1
                 ? { flexShrink: component.base.none }
                 : { flex: component.base.bodyFlex, flexBasis: component.base.none })}

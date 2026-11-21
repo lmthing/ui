@@ -1,7 +1,20 @@
 import type { Definition } from "../../probes";
-import { validateActionValue, type ActStep, type DeviceData, type ScreenLike, type Values } from "../index";
+import {
+  validateActionValue,
+  type ActStep,
+  type Affordance,
+  type DeviceData,
+  type ScreenLike,
+  type Values,
+} from "../index";
+import { moveKey } from "./move";
 import { affordancesOfScreen } from "./record-planning";
 import { selectStep } from "./select-step";
+
+export function actionValueAddress(address: string, found: Affordance) {
+  if (found.nestedStep) return `${address.split("/")[0]}/${found.nestedStep.key}`;
+  return found.move ? moveKey(address) : address;
+}
 
 export function findAction(
   screen: ScreenLike,

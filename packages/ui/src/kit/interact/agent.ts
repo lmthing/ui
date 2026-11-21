@@ -40,6 +40,7 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike, currency: A
       return (
         meta &&
         (meta.recordRuntime ||
+          meta.items?.reset ||
           hasReportConfirmation(meta) ||
           (meta.confirmParts?.length &&
             (meta.session ||
