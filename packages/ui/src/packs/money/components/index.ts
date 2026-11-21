@@ -8,3 +8,4 @@ export * as Loan from "./Loan";
 export * as Payoff from "./Payoff";
 export * as CardControls from "./CardControls";
 export * as MoneyTransfer from "./MoneyTransfer";
+export * as CreditScore from "./CreditScore";
