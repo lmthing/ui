@@ -4,8 +4,8 @@ import { wishCopy, wishReading } from "../../copy";
 describe("Wishlist copy", () => {
   it("distinguishes zero from missing amounts and formats the requested locale", () => {
     expect(wishCopy({ price: 0, target: 25.5, priority: 1 }, "full", "de-DE")).toEqual({
-      price: "Price 0\u00a0$",
-      target: "Target 25,50\u00a0$",
+      price: ["Price ", "0\u00a0$"],
+      target: ["Target ", "25,50\u00a0$"],
       priority: "High priority",
     });
     expect(wishCopy({ priority: 3 }, "full")).toEqual({
@@ -13,7 +13,10 @@ describe("Wishlist copy", () => {
       target: undefined,
       priority: "Low priority",
     });
-    expect(wishCopy({ target: Number.MAX_VALUE, priority: 2 }, "full").target).toBe("Target $1.8E308");
+    expect(wishCopy({ target: Number.MAX_VALUE, priority: 2 }, "full").target).toEqual([
+      "Target ",
+      "$1.8E308",
+    ]);
   });
 
   it("reads each row's visible figures with its stable ordinal", () => {

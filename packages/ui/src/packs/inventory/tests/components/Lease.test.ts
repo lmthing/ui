@@ -123,7 +123,8 @@ describe("Lease state and parts", () => {
     expect(parts.get(at("rent"))?.text).toEqual(["Rent ", "\u00a0/\u00a0month"]);
     expect(parts.get(at("rent"))?.children[0]?.text).toEqual(["$950"]);
     expect(parts.get(at("next_due"))?.text).toEqual(["Next due Feb 29, 2024"]);
-    expect(parts.get(at("deposit"))?.text).toEqual(["Deposit $0"]);
+    expect(parts.get(at("deposit"))?.text).toEqual(["Deposit "]);
+    expect(parts.get(at("deposit"))?.children[0]?.text).toEqual(["$0"]);
     expect(parts.get(at("renewal"))?.text).toEqual(["Renewal soon"]);
   });
 
