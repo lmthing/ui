@@ -7,7 +7,7 @@ import { sportsWordsFor } from "../lang";
 // Core first: List/lead:number ranks one value, not a table of played, wins, draws, losses and form.
 export const meta = {
   id: "Standings",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "Compare teams in a league and see our place in the season.",
   pick: "A league table with played, wins, draws, losses, goal difference, points and recent form. Not a ranking on one value (List) or a general records table (Table).",

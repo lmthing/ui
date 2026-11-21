@@ -1,4 +1,4 @@
-import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import {
   affordancesOf,
   components,
@@ -14,13 +14,6 @@ import {
   type StateName,
 } from "@lmthing/ui/catalog";
 import { addressedElements, renderInstance } from "../../../../../test/render";
-
-// The generated kit omits drafts; exercise the real view through the shared test host anyway.
-vi.mock("@lmthing/ui/kit", async (original) => {
-  const kit = await original<typeof import("@lmthing/ui/kit")>();
-  const { Standings } = await import("../../components");
-  return { ...kit, renderers: { ...kit.renderers, Standings: Standings.Standings } };
-});
 
 const def = components.Standings;
 const { meta, props, examples, fallback, probes } = def;
