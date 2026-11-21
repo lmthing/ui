@@ -108,9 +108,11 @@ function FeedReactions({ post, density }: { post: FeedPost; density: c.ThemeDens
     </kit.KitText>);
   const reaction = <kit.KitAction part="like" action="toggle" icon="heart" kind={liked ? "secondary" : "quiet"}
     a11y={feed.reaction(post.name, liked)} />;
-  return <kit.KitRow inline surface="plain" part={null} label="" leading={reaction} leadingAlign="row" density={density}>
-    <kit.KitRow inline surface="plain" part={null} label="" leading={likes} leadingAlign="row" density={density}>{comments}</kit.KitRow>
-  </kit.KitRow>;
+  return <kit.KitContent group="response" lead={reaction} leadingAlign="row" density={density}>
+    <kit.KitRow part={null} label="" inline density={density}>
+      <kit.KitContent lead={likes} leadingAlign="row" density={density}>{comments}</kit.KitContent>
+    </kit.KitRow>
+  </kit.KitContent>;
 }
 
 // prettier-ignore
@@ -120,14 +122,14 @@ function FeedPreview({ post, density }: { post: FeedPost; density: c.ThemeDensit
   const excerpt = <kit.KitText part="text" lines={3} density={density}>{text}</kit.KitText>;
   return <kit.KitRow part="root" inline surface="plain" label={feed.open(name)} goto={goto} density={density}>
     <kit.KitContent density={density}>
-      <kit.KitGrid fitLast density={density}>
+      <kit.KitRow part={null} inline label="" lineRole="label" density={density}
+        trailing={<kit.KitIcon name="chevron_right" tone="muted" decorative />}>
         <kit.KitContent density={density} leadingAlign="row"
           lead={<kit.KitPhoto photo={photo} part="photo" shape="round" label={name} />}>
           <kit.KitText part="name" role="label" tone="muted" lines={1} density={density}>{name}</kit.KitText>
           <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{time}</kit.KitText>
         </kit.KitContent>
-        <kit.KitIcon name="chevron_right" tone="muted" decorative />
-      </kit.KitGrid>
+      </kit.KitRow>
       <kit.KitContent group="response" density={density}>
         {image ? <kit.KitGrid fitLast density={density}>
           {excerpt}
@@ -150,18 +152,23 @@ function FeedLoading({ post, density }: { post: FeedPost; density: c.ThemeDensit
         content={[["label", skeleton.author], ["caption", skeleton.time]]} />
     </kit.KitContent>
     <kit.KitContent group="response" density={density}>
-      {post.image ? <kit.KitGrid fitLast density={density}>
-        {excerpt}
-        <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
-      </kit.KitGrid> : excerpt}
+      {post.image ? <kit.KitContent group="response" density={density}>
+        <kit.KitGrid fitLast density={density}>
+          {excerpt}
+          <kit.KitSkeleton shape="figure" lead="box" inset="none" content={[]} density={density} />
+        </kit.KitGrid>
+      </kit.KitContent> : excerpt}
     </kit.KitContent>
-    <kit.KitRow inline surface="plain" part={null} label="" density={density} leadingAlign="row"
-      leading={<kit.KitSkeleton shape="control" kind="secondary" />}>
-      <kit.KitRow inline surface="plain" part={null} label="" density={density} leadingAlign="row" leading={
-        <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
-        <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
-      </kit.KitRow>
-    </kit.KitRow>
+    <kit.KitContent group={post.image ? "response" : "content"} density={density}>
+      <kit.KitContent group="response" density={density} leadingAlign="row" lead={<kit.KitSkeleton shape="control" kind="secondary" />}>
+        <kit.KitRow part={null} label="" inline density={density}>
+          <kit.KitContent density={density} leadingAlign="row" lead={
+            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.likes]]} />}>
+            <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["caption", skeleton.comments]]} />
+          </kit.KitContent>
+        </kit.KitRow>
+      </kit.KitContent>
+    </kit.KitContent>
   </>;
 }
 
