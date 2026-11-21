@@ -23,7 +23,10 @@ export const schedule = {
       ],
     },
     class: {
-      writeHints: ['The capacity bars use Progress with density "compact"; leave figures null.'],
+      writeHints: [
+        'The capacity bars use Progress with density "compact"; leave figures null.',
+        "Each attendee needs its booking-record id in ClassRoster; these are data references, not UI item addresses.",
+      ],
       recipe: [
         { allow: ["Header"], required: true, variant: "back" },
         { allow: ["KeyValue"], required: true },

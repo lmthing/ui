@@ -1,5 +1,17 @@
 export { appointmentDetails, appointmentLabels, appointmentReading } from "./Appointment";
-export { rosterDate, rosterSummary } from "./ClassRoster";
+export {
+  rosterCheckable,
+  rosterCounts,
+  rosterDate,
+  rosterFeedback,
+  rosterInitials,
+  rosterLimit,
+  rosterLive,
+  rosterMetrics,
+  rosterReading,
+  rosterStatuses,
+  rosterSummary,
+} from "./ClassRoster";
 export { availabilityDefaults, availabilityLabels, breakLine } from "./Availability";
 export { bookLabel, servicePrice, serviceReading } from "./ServiceMenu";
 export { slotDetailLine, slotEndLine, slotLabels, slotLoadingLine } from "./Slots";
