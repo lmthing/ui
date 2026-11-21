@@ -21,5 +21,19 @@ export const clients = {
         { id: "b1", c: "Button" },
       ],
     },
+    queue: {
+      recipe: [
+        { allow: ["Header"], required: true },
+        { allow: ["Segmented"], required: true },
+        { allow: ["FollowUpQueue"], required: true },
+        { allow: ["Note"], required: true },
+      ],
+      defaults: [
+        { id: "h1", c: "Header" },
+        { id: "s1", c: "Segmented" },
+        { id: "f1", c: "FollowUpQueue" },
+        { id: "n1", c: "Note" },
+      ],
+    },
   },
 } as const satisfies ArchetypeMeta;
