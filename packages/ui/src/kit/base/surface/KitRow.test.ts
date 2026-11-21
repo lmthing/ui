@@ -3,7 +3,7 @@ import * as jsxRuntime from "react/jsx-dev-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { describe, expect, it, vi } from "vitest";
-import { components, presets, themeName, type as typography } from "@lmthing/ui/catalog";
+import { components, presets, space, themeName, type as typography } from "@lmthing/ui/catalog";
 import {
   createScreenController,
   KitProvider,
@@ -16,7 +16,6 @@ import * as parts from "../../part";
 import { config, elementAt, renderInstance, styleAt } from "../../../../test/render";
 
 vi.mock("react/jsx-dev-runtime", { spy: true });
-
 function renderRow(row: Parameters<typeof KitRow>[0], controller?: ScreenController) {
   const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
   return renderToStaticMarkup(
@@ -36,7 +35,13 @@ function renderRow(row: Parameters<typeof KitRow>[0], controller?: ScreenControl
   );
 }
 const label = createElement(KitText, { part: "name", children: "Choice" });
-
+it.each([0, 1] as const)("indents the addressed row's content at depth %s", (indent) => {
+  const html = renderRow({ label: "Choice", children: label, item: "r1", indent });
+  const content = elementAt(html, "home/s1/r1/root").children[0]!;
+  const inset = new RegExp(`padding-(left|inline-start):${space.xl}px`);
+  expect(inset.test(styleAt(html, content))).toBe(indent === 1);
+  expect(elementAt(html, "home/s1/r1/name")).toBeDefined();
+});
 describe("KitRow first-line geometry", () => {
   it.each(presets)("centres ranked content together in $id", ({ id: preset }) => {
     const html = renderInstance("List", components.List.examples[5], "filled", {
@@ -67,7 +72,6 @@ describe("KitRow first-line geometry", () => {
     if ("style" in variant) expect(styleAt(html, content.children[0]!)).toContain(`height:${line}px`);
   });
 });
-
 describe("KitRow named non-item controls", () => {
   it("keeps omitted-part rows static and item roots addressed without changing geometry", () => {
     const spy = vi.spyOn(parts, "usePart");
@@ -122,7 +126,6 @@ describe("KitRow named non-item controls", () => {
     controller.dispose();
   });
 });
-
 describe("KitRow avatar choice geometry", () => {
   it.each(presets)("uses the same avatar and primary label slots for Anyone and staff in $id", ({ id }) => {
     for (const mode of ["light", "dark"] as const) {
@@ -143,7 +146,6 @@ describe("KitRow avatar choice geometry", () => {
     }
   });
 });
-
 describe("KitRow status and selection", () => {
   it.each(["good", "bad"] as const)("shows %s on an explicitly plain row", (tone) => {
     const html = renderRow({ label: "Choice", children: label, item: "r1", surface: "plain", tone });
@@ -169,7 +171,6 @@ describe("KitRow status and selection", () => {
     expect(html).not.toContain('data-testid="home/s1/r1/root"');
   });
 });
-
 describe("KitRow inline static composition", () => {
   it.each([false, true])("keeps toast controls together, undo=%s", (undo) => {
     for (const title of ["Saved", "The requested changes have been saved"]) {
