@@ -37,7 +37,7 @@ The scope table is the full requirement, not a claim that each row is complete.
 3. **One file per component.** Each id has one file, named after it, holding its data (`meta`, `props`, `fallback`, `examples`) and its view. The view's prop types come from the file's own schema. A non-draft file without a view fails a test.
 4. **Host owns the world.** The kit never navigates or measures the stage. It keeps ephemeral interaction state and invokes host callbacks for links, photos and media. Hosts own persistence and outside effects; render issue detectors remain pending.
 5. **Peer dependencies, not bundled ones.** React, React Native Web, Tamagui, Lucide icons and SVG are current kit peers. React Native and Reanimated peers are **pending** (5.1). The catalog entry depends on `zod` only.
-6. **Small files, plain code.** At most 200 lines per code file and 60 per function. Lint enforcement is **pending**. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`.
+6. **Plain code, grouped by purpose.** At most 60 lines per function. No hard code file-size limit; `pnpm rules` warns above 400 lines per file or 12 files per non-exempt folder. Named exports only (default exports only in the gallery's route files), plain functions and plain data, no classes. Other folders import a folder only through its `index.ts`.
 7. **Agents read and act like people.** Every screen has a compact text form generated from the same data it is drawn from, and every part that people can touch has typed actions. An agent action runs exactly the code a human touch runs. Agents never need raw DOM or screenshots.
 8. **Generic where it costs nothing.** Nothing here mentions THING, takes, trailers or sessions. Tiers and `realPath` are required on every component because any app generator needs to know what a part depends on. Signature metadata is optional.
 9. **Developable alone.** The gallery host, runtime fixtures and probe runner work without lmthing. Worked pack apps and the model-text repair pipeline (4.14) remain pending. The app and harness depend on this repo and never the other way round.
@@ -879,6 +879,22 @@ No component sub-themes; studio tier tints belong to the host. **Pending enforce
 raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
 The current screenshot checker covers rendered contrast, not that complete runtime contract.
 
+### 5.4b Layout recipes and states
+
+Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
+footer. The outer frame owns its gutter, the group owns separation, and the row owns its rails
+and close spacing. Empty slots do not create gaps; reserve a rail only to align sibling rows.
+Figures and units share a baseline. There is one semantic type scale: title, body, meta, figure
+and caption. Legacy text roles are kit-owned treatments of those roles, not additional steps a
+component can set. Density, emphasis and theme mapping stay in the kit.
+
+Use the kit's default empty, loading, error and success treatments. Share slot geometry between
+filled and loading; loading draws no text or controls. Retain usable content when the state
+describes an operation on that content. Only override the treatment when the component's catalog
+doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
+change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
+filled/loading parity, and last-column reachability separately from gallery fixture quality.
+
 ### 5.5 Views
 
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
@@ -1121,6 +1137,15 @@ The separate theme-role, CSS and count checks always cover the full built theme 
 | Accessibility/native                         | Base roles and browser keyboard tests exist. **Pending:** axe-core no-violation suite, native RN testing/assistive-tech/device acceptance                                                                                                                                                         |
 | Performance                                  | **Pending:** reference-device and fresh-process import/reader/size/settle measurements before release                                                                                                                                                                                             |
 
+Run the pack acceptance look gate in calm light at 390px before visual review. Automate recurring
+rubric findings against the rendered parts: keep a label and its value closer than the next group,
+use at most three sizes per item, right-align numeric columns, keep negative actions off the
+positive accent, show complete text, keep the first item close to its heading, and use specific
+empty copy when the component brief calls for it. Give each detector both a failing and a passing
+browser fixture. Use existing part addresses or DOM semantics rather than changing the renderer just
+to make a check possible. Where the DOM cannot express intent, record the documented expectation in
+the checker instead of guessing from arbitrary text.
+
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those
 tests. `test/known/failures.json` lists existing failures by exact test file and full test name
@@ -1167,7 +1192,9 @@ measurement or an import-time gate. RAF animation support is not evidence of dev
   `UI_TEST_PACKS`; the merge runs the unfiltered suite.
 - **Build:** esbuild for catalog/kit ESM and TypeScript declarations (3). Both entry exports have
   `source` and built conditions; no `./kit/tamagui` subpath, tsup or catalog watch.
-- **Pending ESLint:** flat config with 200-line/60-line limits, no default exports except gallery
+- **Rules audit:** `pnpm rules` fails functions over 60 lines. It warns, without failing, on files
+  over 400 lines and folders over 12 immediate files outside the existing exemptions.
+- **Pending ESLint:** flat config with no default exports except gallery
   entry/route files, folder-door/import boundaries, no raw colours/pixels/z-index, no preset/accent
   comparisons in views, and no component handlers bypassing bases. Catalog only imports itself/Zod;
   kit imports catalog/peers; components/packs/surfaces import both; `node:*` only in scripts; no app
@@ -1221,7 +1248,7 @@ pack lists live in [docs/catalog/](catalog/README.md); build waves, prerequisite
 
 | Step                                  | Status                                                                                                                                                                                                                                                                                              | Remaining gate and phase                                                                                                                                                                          |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Lint rejects forbidden imports/201-line fixture; bundle rejects a React fixture; CI green. Phase 0                                                                                                |
+| **U0. Bootstrap**                     | **Partly done:** workspace, TS, Prettier, Vitest, generation, esbuild/bundle check and Vite skeleton exist; lint, Changesets and CI remain                                                                                                                                                          | Rules reject forbidden imports and 61-line functions; file and folder size findings warn only. Bundle rejects a React fixture; CI green. Phase 0                                                  |
 | **U1. Catalog foundations**           | **Partly done:** metadata, helpers, tokens, addresses, screen rules, core registry/defaults, readers and probes exist; full themes, repair lookups/R1/R2, version/deprecation and readApp/deltas/budgets remain                                                                                     | Unified catalog check, 288-theme contrast report, address properties, reader/action budgets. Phase 0                                                                                              |
 | **U2. Kit foundations**               | **Partly done:** views/bases/provider/parts, browser controller, environment hooks, shared motion and browser motion/reduced-motion acceptance exist; native host/device acceptance, complete revisions/settle/registry coverage, full theme load, axe and size gates remain                        | Web/iOS/Android render and action parity; all declared parts, all themes and web size measured. Phase 0                                                                                           |
 | **U3. Prompt entries for everything** | **Partly done:** core entries/probes/snapshots, estimated budgets, pack tooling and all 35 passing compose/rubric gates with test replay exist; real pack/surface drafts and aggregate/regression gates remain                                                                                      | All drafts have complete metadata/schema/actions/tiers/fallback/examples/probes, catalog check except draft views; real prompt budgets and required live gates. Phase 0 bake-off                  |

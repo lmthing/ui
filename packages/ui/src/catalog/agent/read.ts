@@ -144,18 +144,15 @@ export function readComponent(
   const roundKey = round && meta.session?.items;
   const key = meta.items?.key === roundKey ? undefined : meta.items?.key;
   const remaining = nestedRemaining(meta, props);
+  // prettier-ignore
   const own = [
-    ...(meta.read?.(
-      readingProps(meta, validated, instance, values, props, readable),
-      state,
-      lang,
-      selectDeviceData(meta, deviceData),
-      parseAppCurrency(currency),
-    ) ?? []),
+    ...(meta.read?.(readingProps(meta, validated, instance, values, props, readable),
+      state, lang, selectDeviceData(meta, deviceData), parseAppCurrency(currency), get) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
     ...(remaining === undefined ? [] : [`remaining ${numberLine(remaining, lang)}`]),
-    ...componentTexts(schema, props, key, roundKey, round?.item),
+    ...componentTexts(schema, meta.id === "Camera" && props.kind === "document_dual" && Number(get("$adjust/side") ?? 0) > 0
+      ? { ...props, hint: undefined } : props, key, roundKey, round?.item),
   ];
   const nested = visibleNestedProps(meta, props, get);
   return readItems(meta, schema, nested, instance, key, head, own, affordances, get("more") === true, lang);

@@ -144,14 +144,15 @@ it("sends every authored brief for a layout and keeps the old prompt for layouts
     samples: 1,
     callModel: async (prompt, _sample, format) => {
       expect(format?.json_schema.strict).toBe(true);
-      return JSON.stringify(
-        registry.defaultLines("shop", prompt.includes("Layout: shop/menu.") ? "menu" : "grid", empty),
-      );
+      const layout = Object.keys(shop.layouts).find((name) => prompt.includes(`Layout: shop/${name}.`));
+      if (!layout) throw new Error("Missing shop layout");
+      return JSON.stringify(registry.defaultLines("shop", layout, empty));
     },
   });
   expect(results.map(({ prompt, status, layout }) => [layout, status, prompt])).toEqual([
     ["grid", "pass", composePrompt(shop, "grid", empty, components)],
     ["menu", "pass", expect.stringContaining(`Brief: ${authored.brief}`)],
     ["menu", "pass", expect.stringContaining(`Brief: ${second.brief}`)],
+    ["saved", "pass", composePrompt(shop, "saved", empty, components)],
   ]);
 });
