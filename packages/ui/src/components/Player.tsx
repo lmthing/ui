@@ -57,7 +57,8 @@ export const meta = {
   read: (input, state, lang?: string): string[] => {
     if (state !== "filled") return [];
     const { at, seconds } = input as z.output<typeof props>;
-    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang), ...optionLines(input as PlayerProps, lang)];
+    const options = optionLines(input as PlayerProps, lang);
+    return [clockLine(at ?? 0, lang), remainingLine(seconds - (at ?? 0), lang), ...(options.length ? [options.join(" · ")] : [])];
   },
 } as const satisfies Meta;
 
@@ -126,7 +127,7 @@ export const probes = [
   choose("Show the ten meditations I can pick from, each with its length, to tap one", "List"),
   write("Play the recording Evening wind-down by Guided breathing, 12 minutes long, already 4 minutes in"),
   write(
-    "Play the Park walk recap podcast from lib:voice_note in a single compact audio row. It's 38 seconds long. Use 1.5× speed, mark it liked, and loop it. Leave shuffle and repeat off.",
+    "Play the 38-second Park walk recap from lib:voice_note explicitly as a podcast, with a single compact audio row. Use 1.5× speed, mark it liked and loop it. Leave shuffle and repeat off.",
   ),
   {
     ...write(
@@ -155,34 +156,37 @@ export function Player(input: PlayerProps) {
   const artwork = detail === "full" ? art : undefined;
   const aspect = style === "video" ? "wide" : "square";
   const { lang, words: { mediaLabels } } = useWords();
-  const state = useComponentState();
+  const loading = useComponentState() === "loading";
   const compact = style === "compact";
-  if (state === "loading") {
+  const lines = [{ text: title, role: "heading" as const }, ...(sub ? [{ text: sub, role: "body" as const }] : [])];
+  if (loading && style === "audio") {
     return <KitCard style="inset" padded density={density}>
-      {compact ? <KitSkeleton items={[{ title, sub, ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
-        <KitSkeleton shape="media" inset="none" playback aspect={artwork || style === "video" ? aspect : "none"} density={density}
-          lines={[{ text: title, role: "heading" }, ...(sub ? [{ text: sub, role: "body" as const }] : [])]} />}
+      <KitSkeleton shape="media" inset="none" playback aspect={artwork ? aspect : "none"} {...{ density, lines }} />
     </KitCard>;
   }
   const here = at ?? 0, info = optionLines(input, lang);
   const controls = <KitMediaControls labels={mediaLabels} compact={compact} />;
-  const titles = <>
+  const titles = loading ? (compact ?
+    <KitSkeleton items={[{ title, sub, ...(artwork ? { photo: artwork } : {}) }]} lead={artwork ? "box" : "none"} density={density} /> :
+    <KitSkeleton shape="media" aspect="none" inset="none" {...{ density, lines }} />) : <>
     <KitText role={compact ? "body" : "heading"} part="title" density={density}>{title}</KitText>
     {sub && <KitText role={compact ? "caption" : "body"} tone="muted" part="sub" density={density}>{sub}</KitText>}
     {info.length > 0 && <KitText role="caption" tone="muted" part="options">{info.join(" · ")}</KitText>}
   </>;
-  const position = <>
+  const position = loading ? <KitSkeleton shape="control" kind="quiet" full label={title} /> : <>
     <KitSlider value={here} min={0} max={seconds} label={title} part="scrubber" />
-    <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} />
+    <KitTimes elapsed={clockLine(here, lang)} remaining={remainingLine(seconds - here, lang)} prominent={style !== "audio"} />
   </>;
-  const cover = artwork && <KitPhoto photo={artwork} shape={compact ? "thumb" : aspect} part="artwork" label={title} />;
-  const playback = { style, speed, loop: loop ?? repeat };
+  const cover = loading ? (compact ? null : <KitSkeleton shape="media" aspect="wide" inset="none" lines={[]} />) :
+    artwork && <KitPhoto photo={artwork} shape={compact ? "thumb" : aspect} part="artwork" label={title} />;
+  const playback = { style, speed, loop: loop ?? repeat, loading };
   return (
     <KitCard style="inset" part="root" padded density={density}>
       {compact ? <KitPlayback {...playback}>
         <KitRow label={title} leading={cover} leadingAlign="row" trailing={controls} inset="none" density={density}>
-          <KitContent density={density} lineRole="body">{titles}{position}</KitContent>
+          <KitContent density={density} lineRole="body">{titles}</KitContent>
         </KitRow>
+        {position}
       </KitPlayback> : <>
         <KitPlayback {...playback} overlay={style === "video" ? controls : undefined}>{cover}</KitPlayback>
         <KitContent density={density}>{titles}</KitContent>

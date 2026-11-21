@@ -17,10 +17,13 @@ import {
   KitCard,
   KitContent,
   KitEmpty,
+  KitGrid,
+  KitIcon,
   KitPhoto,
-  KitRow,
   KitText,
+  PartScope,
   useComponentState,
+  usePartContext,
   useWords,
 } from "../kit";
 
@@ -44,6 +47,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["with"] } },
   parts: ["root", "with", "broadcast"],
   states: ["filled", "empty"],
+  read: (input, state, lang): string[] => state === "filled" ? messageDetails(input as BubblesProps, lang) : [],
 } as const satisfies Meta;
 
 // prettier-ignore
@@ -73,7 +77,7 @@ const walkThread = {
   with: "Anna",
   messages: [
     { from: "them", text: "Could Clover's walk start at 09:30 today?" },
-    { from: "me", text: "09:30 works. I'll meet you at the park gate." },
+    { from: "me", text: "09:30 works. Meet at the gate." },
     { from: "them", text: "Thanks! Clover will be ready." },
   ],
 } satisfies z.input<typeof props>;
@@ -129,60 +133,68 @@ type BubblesProps = Props<typeof props, typeof meta>;
 type Message = BubblesProps["messages"][number];
 
 // prettier-ignore
+function messageDetails({ messages, style }: BubblesProps, lang?: string): string[] {
+  const w = wordsFor(lang).bubbleLabels;
+  const lines = messages.flatMap(({ id, status, attachment, reactions, replyTo }, index) => {
+    const shown = [status && w.status[status], attachment && (attachment.label ?? w.attachment[attachment.kind]),
+      reactions?.join(" · "), replyTo && w.reply(replyTo)].filter(Boolean);
+    return shown.length ? [`${id ?? `r${index + 1}`} ${shown.join(" · ")}`] : [];
+  });
+  return style === "broadcast" ? [w.broadcast, ...lines] : lines;
+}
+
+// prettier-ignore
 function MessageDetails({ message, after }: { message: Message; after?: boolean }) {
-  const { bubbleLabels: w, placeholderLabel } = useWords().words;
+  const { bubbleLabels: w, placeholderLabel } = useWords().words, context = usePartContext();
   const { id, from, sender, avatar, time, status, attachment, replyTo, reactions } = message;
   const align = from === "me" ? "end" : "start";
-  if (after ? !(time || status || reactions) : !(sender || avatar || attachment || replyTo)) return null;
-  const label = sender ?? attachment?.label ?? placeholderLabel;
-  return <KitRow item={id} part={null} label={label} inline
-    leading={!after && avatar ? <KitPhoto photo={avatar} shape="round" part="avatar" label={label} /> : undefined}>
-    <KitContent>
-      {!after && sender && <KitText role="label" tone="muted" part="sender" align={align}>{sender}</KitText>}
+  if (after ? !(time || status || reactions || attachment) : !(sender || avatar || replyTo)) return null;
+  const image = attachment?.photo && <KitPhoto photo={attachment.photo} shape="wide" part="attachment_photo" label={attachment.label ?? w.attachment.photo} />;
+  const file = attachment && <KitContent lead={<KitIcon name={attachment.kind === "voice" ? "mic" : "file_text"} scale="sm" decorative />} lineRole="body">
+    <KitText role="label" tone="muted" part="attachment" align={align}>{attachment.label ?? w.attachment[attachment.kind]}</KitText>
+  </KitContent>;
+  const name = sender && <KitText role="label" part="sender" align={align}>{sender}</KitText>;
+  return <PartScope {...context} item={id}><KitContent inset="md">
+      {!after && avatar && <KitContent group="response"><KitPhoto photo={avatar} shape="round" part="avatar" label={sender ?? placeholderLabel} /></KitContent>}
+      {!after && name}
       {!after && replyTo && <KitText role="caption" tone="muted" part="reply" align={align}>{w.reply(replyTo)}</KitText>}
-      {!after && attachment?.photo && <KitPhoto photo={attachment.photo} shape="wide" part="attachment_photo" label={attachment.label ?? w.attachment.photo} />}
-      {!after && attachment && <KitText role="caption" tone="muted" part="attachment" align={align}>{attachment.label ?? w.attachment[attachment.kind]}</KitText>}
+      {after && image && <KitGrid>{align === "end" ? <></> : image}{align === "end" ? image : <></>}</KitGrid>}
+      {after && file && (align === "end" ? <KitGrid fitLast><></>{file}</KitGrid> : file)}
+      {after && reactions && <KitText role="caption" part="reactions" align={align}>{reactions.join(" · ")}</KitText>}
       {after && time && <KitText role="caption" tone="muted" part="time" align={align}>{time}</KitText>}
       {after && status && <KitText role="caption" tone="muted" part="status" align={align}>{w.status[status]}</KitText>}
-      {after && reactions && <KitText role="caption" part="reactions" align={align}>{reactions.join(" · ")}</KitText>}
-    </KitContent>
-  </KitRow>;
+  </KitContent></PartScope>;
 }
 
 // prettier-ignore
 export function Bubbles({ messages, with: person, style }: BubblesProps) {
   const state = useComponentState();
   const { bubbleLabels } = useWords().words;
-  if (state === "empty") {
-    return (
-      <KitCard style="inset" part="root">
-        <KitEmpty icon="message" />
-      </KitCard>
-    );
-  }
+  if (state === "empty") return <KitCard style="inset" part="root"><KitEmpty icon="message" /></KitCard>;
+  const rich = Boolean(style) || messages.some(({ sender, avatar, time, status, replyTo, attachment, reactions }) =>
+    sender || avatar || time || status || replyTo || attachment || reactions);
+  const thread = messages.map((message, index) =>
+    <MessageBubble key={message.id} message={message} previous={messages[index - 1]} group={style === "group"} />);
   return (
     <KitCard style="plain" part="root">
       {(person || style === "broadcast") && (
         <KitContent inset="md">
-          {person && <KitText role="caption" tone="muted" part="with">{person}</KitText>}
+          {person && <KitText role={style === "broadcast" ? "heading" : "caption"} tone={style === "broadcast" ? "text" : "muted"} part="with">{person}</KitText>}
           {style === "broadcast" && <KitText role="caption" tone="muted" part="broadcast">{bubbleLabels.broadcast}</KitText>}
         </KitContent>
       )}
-      {messages.map((message, index) => (
-        <MessageBubble key={message.id} message={message} previous={messages[index - 1]} group={style === "group"} />
-      ))}
+      {rich ? <KitGrid list arrange="rows" listRowGap="group">{thread}</KitGrid> : thread}
     </KitCard>
   );
 }
 
 // prettier-ignore
 function MessageBubble({ message, previous, group }: { message: Message; previous?: Message | undefined; group: boolean }) {
-  const grouped = previous?.from === message.from && (!group || previous?.sender === message.sender);
-  return (
-    <>
+  const grouped = Boolean(message.sender || message.replyTo || message.avatar) ||
+    (previous?.from === message.from && (!group || previous?.sender === message.sender));
+  return <>
       <MessageDetails message={message} />
       <KitBubble item={message.id} from={message.from} text={message.text} grouped={grouped} />
       <MessageDetails message={message} after />
-    </>
-  );
+  </>;
 }

@@ -2,19 +2,28 @@ import { useWords, useKit } from "../../provider";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { usePartContext } from "../../part";
 import { XStack, YStack, type TamaguiElement } from "tamagui";
-import { radius, space, variants } from "../../../catalog";
+import { component as layout, radius, space, variants } from "../../../catalog";
 import { useControlValue } from "../../interact";
 import { KitAction } from "../input";
 import { KitText } from "../text";
 
 /** Elapsed time on the left and what is left on the right, under a scrubber. */
-export function KitTimes({ elapsed, remaining }: { elapsed: string; remaining: string }) {
+export function KitTimes({
+  elapsed,
+  remaining,
+  prominent = false,
+}: {
+  elapsed: string;
+  remaining: string;
+  prominent?: boolean;
+}) {
+  const role = prominent ? "number" : "caption";
   return (
     <XStack justifyContent="space-between">
-      <KitText role="caption" tone="muted" tabular part="elapsed">
+      <KitText role={role} numberScale="compact" tone={prominent ? "text" : "muted"} tabular part="elapsed">
         {elapsed}
       </KitText>
-      <KitText role="caption" tone="muted" tabular part="remaining">
+      <KitText role={role} numberScale="compact" tone="muted" tabular part="remaining">
         {remaining}
       </KitText>
     </XStack>
@@ -27,9 +36,10 @@ type PlaybackProps = {
   overlay?: ReactNode;
   speed?: number | undefined;
   loop?: boolean | undefined;
+  loading?: boolean;
 };
 
-function usePlayback({ style, speed, loop, overlay }: Omit<PlaybackProps, "children">) {
+function usePlayback({ style, speed, loop, overlay, loading }: Omit<PlaybackProps, "children">) {
   const { controller } = useKit();
   const { component } = usePartContext();
   const mount = useRef<TamaguiElement>(null);
@@ -41,7 +51,7 @@ function usePlayback({ style, speed, loop, overlay }: Omit<PlaybackProps, "child
   const elementRef = useRef<HTMLMediaElement | null>(null);
   const framed = overlay !== undefined;
   useEffect(() => {
-    if (!controller) {
+    if (!controller || loading) {
       setVideo(false);
       return;
     }
@@ -53,8 +63,7 @@ function usePlayback({ style, speed, loop, overlay }: Omit<PlaybackProps, "child
       if (!element) return;
       element.style.width = "100%";
       if (style === "video") element.style.aspectRatio = String(variants.aspect.wide);
-      const media = typeof HTMLMediaElement !== "undefined" && element instanceof HTMLMediaElement;
-      if (media) elementRef.current = element;
+      elementRef.current = element;
       (mount.current as HTMLElement | null)?.appendChild(element);
       return () => {
         elementRef.current = null;
@@ -66,7 +75,7 @@ function usePlayback({ style, speed, loop, overlay }: Omit<PlaybackProps, "child
         error instanceof Error ? error.message : mediaUnavailable,
       );
     }
-  }, [controller, component, style, mediaUnavailable, framed]);
+  }, [controller, component, style, mediaUnavailable, framed, loading]);
   useEffect(() => {
     const element = elementRef.current;
     if (!element) return;
@@ -78,7 +87,7 @@ function usePlayback({ style, speed, loop, overlay }: Omit<PlaybackProps, "child
       if (speed !== undefined) element.playbackRate = previousRate;
       if (loop !== undefined) element.loop = previousLoop;
     };
-  }, [controller, component, style, mediaUnavailable, framed, speed, loop]);
+  }, [controller, component, style, mediaUnavailable, framed, loading, speed, loop]);
   return { controller, mount, video, content };
 }
 
@@ -95,7 +104,7 @@ export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
           {content}
         </YStack>
       )}
-      {!video && children}
+      {(!video || options.loading) && children}
     </>
   );
   if (overlay === undefined) return playback;
@@ -106,6 +115,7 @@ export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
       borderRadius={radius.md}
       backgroundColor="$raised"
       overflow="hidden"
+      paddingHorizontal={layout.base.none}
     >
       {playback}
       <YStack
@@ -114,6 +124,7 @@ export function KitPlayback({ children, overlay, ...options }: PlaybackProps) {
         alignSelf="center"
         borderRadius={radius.pill}
         paddingHorizontal={space.sm}
+        paddingVertical={space.xs}
         backgroundColor="$surface"
       >
         {overlay}

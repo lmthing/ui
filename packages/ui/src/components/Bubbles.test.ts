@@ -14,7 +14,6 @@ import { addressedElements, renderInstance } from "../../test/render";
 const { props, meta, examples, fallback, probes } = components.Bubbles;
 const message = { from: "them", text: "More details" };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
-
 describe("Bubbles schema", () => {
   it.each(examples)("accepts a real example", (example) =>
     expect(props.safeParse(example).success).toBe(true),
@@ -188,6 +187,7 @@ it("renders message details at the same item address without adding actions", ()
   const parts = addressedElements(renderInstance("Bubbles", rich, "filled", theme));
   for (const part of meta.items.parts) expect(parts.has(`home/c1/r1/${part}`)).toBe(true);
   expect(affordancesOf(meta, stampItemIds(meta, props.parse(rich)), "c1")).toEqual([]);
+  expect(readComponent(components.Bubbles, rich, "c1").join("\n")).toContain("r1 Read · Photo · 👍");
   expect(props.safeParse({ messages: [{ ...message, attachment: { kind: "photo" } }] }).success).toBe(false);
 });
 

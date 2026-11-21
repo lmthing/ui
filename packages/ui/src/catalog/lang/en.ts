@@ -87,6 +87,7 @@ export const en = {
     stop: "Stop recording",
     front: "Scan front",
     back: "Scan back",
+    backHint: "Turn it over and fit the back in the frame",
     complete: "Both sides scanned",
   },
   listLabels: { progress: "Progress", unread: "Unread", pinned: "Pinned" },

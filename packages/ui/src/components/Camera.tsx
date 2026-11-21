@@ -3,6 +3,7 @@ import {
   KitAction,
   KitCard,
   KitContent,
+  KitRow,
   KitShutter,
   KitViewfinder,
   useControlValue,
@@ -40,12 +41,12 @@ export const meta = {
   parts: ["root", "viewfinder", "hint", "shutter"],
   states: ["filled"],
   actions: {
-    parts: { shutter: ["press", "start", "stop", "scan"] },
+    parts: { shutter: ["press", "start", "stop", "increment"] },
     when: {
       "shutter.press": { still: true },
       "shutter.start": { kind: "video" },
       "shutter.stop": { kind: "video" },
-      "shutter.scan": { kind: "document_dual" },
+      "shutter.increment": { kind: "document_dual" },
     },
   },
   clocks: [
@@ -57,9 +58,11 @@ export const meta = {
       stop: { part: "shutter", action: "stop" },
     },
   ],
-  adjust: { "shutter.scan": { prop: "side", delta: 1, min: 0, max: 2 } },
+  adjust: { "shutter.increment": { prop: "side", delta: 1, min: 0, max: 2 } },
   read: (input, state, lang?: string): string[] => {
-    return state === "filled" ? [shutterLabel(input as CameraProps, lang)] : [];
+    const capture = input as CameraProps;
+    // The offered shutter action reports the current recording state without exposing the clock as wire data.
+    return state === "filled" && capture.kind !== "video" ? [shutterLabel(capture, lang)] : [];
   },
 } as const satisfies Meta;
 
@@ -116,7 +119,7 @@ function shutterLabel({ kind, recording, side }: CameraProps, lang?: string) {
 // prettier-ignore
 export function Camera(input: CameraProps) {
   const { kind, hint, surface } = input;
-  const { lang } = useWords();
+  const { lang, words: { captureLabels } } = useWords();
   const { screen, component } = usePartContext();
   const base = `${screen}/${component}`;
   const clock = useControlValue<ClockState | undefined>(`${base}/$recording`, undefined);
@@ -126,11 +129,11 @@ export function Camera(input: CameraProps) {
   const dual = kind === "document_dual", video = kind === "video";
   return (
     <KitCard style="plain" part="root" surface={surface} padded={surface === "card"}>
-      <KitViewfinder kind={dual || kind === "scan" ? "scan" : "photo"} hint={hint} part="viewfinder" hintPart="hint" />
-      {dual || video ? <KitContent align="center" group="response">
-        <KitAction label={label} part="shutter" action={dual ? "scan" : recording ? "stop" : "start"}
+      <KitViewfinder kind={dual || kind === "scan" ? "scan" : "photo"} hint={dual && side > 0 ? side === 1 ? captureLabels.backHint : captureLabels.complete : hint} part="viewfinder" hintPart="hint" />
+      {dual || video ? <KitRow part={null} label={label}><KitContent align="center"><KitContent>
+        <KitAction {...(video ? { a11y: label, icon: recording ? "square" as const : "video" as const } : { label })} part="shutter" action={dual ? "increment" : recording ? "stop" : "start"}
           kind={recording ? "danger" : "primary"} disabled={dual && side === 2} />
-      </KitContent> : <KitShutter label={label} part="shutter" />}
+      </KitContent></KitContent></KitRow> : <KitShutter label={label} part="shutter" />}
     </KitCard>
   );
 }

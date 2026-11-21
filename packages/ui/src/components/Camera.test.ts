@@ -17,7 +17,7 @@ const { props, meta, examples, fallback, probes } = components.Camera;
 // prettier-ignore
 it.each([
   ["video", ["start", "stop", "start"]],
-  ["document_dual", ["scan", "scan", undefined]],
+  ["document_dual", ["increment", "increment", undefined]],
 ] as const)("advances the %s shutter without leaking actions from other kinds", (kind, actions) => {
   const screen = { id: "home", components: [{ c: "Camera", id: "c1", kind, hint: "Aim here" }] };
   const controller = createScreenController({ screen, defs: components });
@@ -120,7 +120,7 @@ describe("Camera metadata and probes", () => {
       tier: "ok",
       parts: ["root", "viewfinder", "hint", "shutter"],
       states: ["filled"],
-      actions: { parts: { shutter: ["press", "start", "stop", "scan"] } },
+      actions: { parts: { shutter: ["press", "start", "stop", "increment"] } },
     });
     expect(meta.realPath).not.toBe("");
     expect(meta.purpose.split(/\s+/).length).toBeLessThanOrEqual(16);
@@ -189,6 +189,7 @@ describe("Camera rendering and reading", () => {
   ] as const)("renders the initial %s capture action", (kind, label) => {
     const input = { kind, hint: "Aim at the subject" };
     expect(renderInstance("Camera", input, "filled", theme)).toContain(`aria-label="${label}"`);
-    expect(readComponent(components.Camera, input, "c1").join("\n")).toContain(label);
+    const read = readComponent(components.Camera, input, "c1").join("\n");
+    expect(read).toContain(kind === "video" ? "c1/shutter start" : label);
   });
 });
