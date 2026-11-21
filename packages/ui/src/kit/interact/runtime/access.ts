@@ -16,6 +16,7 @@ import {
   selectionBindingFor,
   sessionEvent,
   withDisabledSelectionChecks,
+  withRecordScreen,
 } from "../../../catalog";
 import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
@@ -69,7 +70,8 @@ function actionsAt(
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const get = (part: string) => localValues[`${id}/${part}`];
-    const data = atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now);
+    const projected = projectDeviceData(ctx.options.deviceData, values);
+    const data = withRecordScreen(atDeviceTime(projected, now), ctx.screen);
     const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
     const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
     const props = projectSelectionBinding(def.meta, live, selection?.view);

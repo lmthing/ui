@@ -21,6 +21,7 @@ import {
   selectDeviceData,
   selectionBindingFor,
   withDisabledSelectionChecks,
+  withRecordScreen,
   type AppCurrency,
   type Meta,
   type Values,
@@ -36,7 +37,10 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
       .map(([key, value]) => [key.startsWith(prefix) ? key.slice(prefix.length) : key, value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  const data = atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now);
+  const data = withRecordScreen(
+    atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now),
+    ctx.screen,
+  );
   const live = liveProps(definition, props, component, local, true, data);
   if (!definition.selectionBinding) return live;
   const sheet = ctx.status.openSheet;

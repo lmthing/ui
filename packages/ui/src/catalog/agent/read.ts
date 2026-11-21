@@ -28,6 +28,7 @@ import {
   type DeviceData,
 } from "./device-data";
 import { reportEditWire } from "./report-edits";
+import { withRecordScreen } from "./record-runtime";
 
 type Props = Record<string, unknown>;
 
@@ -173,13 +174,13 @@ export function readScreen(
   canDrive?: CanDrive,
 ): string {
   const appCurrency = parseAppCurrency(currency);
-  deviceData = captureDeviceTime(defs, deviceData);
+  const migrated = migrateScreen(screen, { variantOnly: true });
+  deviceData = withRecordScreen(captureDeviceTime(defs, deviceData), migrated);
   const snapshot = projectDeviceData(deviceData, values);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
   const header = `screen ${screen.id}${screen.title ? ` ${quote(screen.title)}` : ""}`;
-  const migrated = migrateScreen(screen, { variantOnly: true });
   const lines = migrated.components.flatMap(({ id, c, state, ...props }) => {
     const def = defs[c];
     if (!def) return [`${id} ${c} (unknown)`];

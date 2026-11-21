@@ -173,7 +173,6 @@ export type Meta = {
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 };
-
 /** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 export type PackMeta = {
@@ -181,6 +180,7 @@ export type PackMeta = {
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
   screenValidators?: readonly PackScreenValidator[];
+  hostRecords?: LiveMeta.HostRecords;
 };
 export type Slot = {
   allow: readonly ComponentId[];
