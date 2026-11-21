@@ -20,16 +20,27 @@ import {
   type CastLike,
   type PackProbe,
 } from "@lmthing/ui/catalog";
-import { example, pack, Chores, Rewards, CareSchedule, Turns, Agenda, BabyLog, Devices } from "..";
+import {
+  example,
+  pack,
+  Chores,
+  Rewards,
+  CareSchedule,
+  Turns,
+  Agenda,
+  BabyLog,
+  Devices,
+  CameraFeed,
+} from "..";
 
-const ids = ["Chores", "Rewards", "CareSchedule", "Turns", "Agenda", "BabyLog", "Devices"];
+const ids = ["Chores", "Rewards", "CareSchedule", "Turns", "Agenda", "BabyLog", "Devices", "CameraFeed"];
 const cast: CastLike = { things: [], items: [] };
 
 it("exports every contract, metadata and the exact worked example through its root door", async () => {
   expect(pack.id).toBe("home");
-  expect([Chores, Rewards, CareSchedule, Turns, Agenda, BabyLog, Devices].map((def) => def.meta.id)).toEqual(
-    ids,
-  );
+  expect(
+    [Chores, Rewards, CareSchedule, Turns, Agenda, BabyLog, Devices, CameraFeed].map((def) => def.meta.id),
+  ).toEqual(ids);
   expect(example).toBe(await readFile(new URL("../example.jsonl", import.meta.url), "utf8"));
   expect(packExamples.home).toBe(example);
   const registry = createRegistry({ packs: ["home"], includeDrafts: true });
@@ -53,7 +64,9 @@ it("keeps an incomplete pack out of live registries and core prompts", () => {
   const core = createRegistry(),
     live = createRegistry({ packs: ["home"] });
   const draft = createRegistry({ packs: ["home"], includeDrafts: true });
-  expect(draft.ids.filter((id) => (packOf as Record<string, string>)[id] === "home")).toHaveLength(7);
+  expect(draft.ids.filter((id) => (packOf as Record<string, string>)[id] === "home")).toHaveLength(
+    ids.length,
+  );
   if (!ready) expect(live.ids).toEqual(core.ids);
   expect(core.ids.some((id) => ids.includes(id))).toBe(false);
   expect(core.archetypes).not.toHaveProperty("family");
@@ -87,7 +100,7 @@ it("validates all archetypes, their neutral defaults and core-first pack probes"
       expect(checkScreen(screen, registry)).toEqual([]);
     }
   }
-  expect(layouts).toBe(11);
+  expect(layouts).toBe(12);
   expect(
     pack.probes.filter((probe) => probe.kind === "pack" && (probe as PackProbe).expect.includes("home")),
   ).toHaveLength(2);
