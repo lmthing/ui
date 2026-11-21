@@ -1,7 +1,9 @@
 import {
   planAct,
   hasReportConfirmation,
+  parseAppCurrency,
   type ActStep,
+  type AppCurrency,
   type Definition,
   type DeviceData,
   type RandomSource,
@@ -20,6 +22,7 @@ export type ActLogEntry = { address: string; action: string; value?: unknown; at
 type AgentOptions = {
   defs: Record<string, Definition>;
   lang?: string | undefined;
+  currency?: AppCurrency | undefined;
   store: InteractionStore;
   random?: RandomSource | undefined;
   deviceData?: DeviceData | undefined;
@@ -30,7 +33,7 @@ type AgentOptions = {
 };
 
 /** Opted-in confirmations work without a mounted phone, keeping the agent's data-only dispatch. */
-function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
+function standaloneAccess(options: AgentOptions, screen: ScreenLike, currency: AppCurrency | undefined) {
   if (
     screen.components.some(({ c }) => {
       const meta = options.defs[c]?.meta;
@@ -47,25 +50,34 @@ function standaloneAccess(options: AgentOptions, screen: ScreenLike) {
       );
     })
   )
-    return createStandaloneAccess({ ...options, screen });
+    return createStandaloneAccess({ ...options, screen }, currency);
 }
 
 /** Every step is checked before commit. Dry runs and rejected batches leave the store untouched. */
 export function createAgentAccess(options: AgentOptions) {
   const { defs, store, current, onLink } = options;
+  const currency = parseAppCurrency(options.currency);
   const log: ActLogEntry[] = [];
   return {
     read: () => {
       if (options.runtime) return options.runtime.read();
       const screen = current();
       return (
-        standaloneAccess(options, screen)?.read() ??
-        readControls(screen, defs, store.snapshot(screen.id), options.lang, undefined, options.deviceData)
+        standaloneAccess(options, screen, currency)?.read() ??
+        readControls(
+          screen,
+          defs,
+          store.snapshot(screen.id),
+          options.lang,
+          undefined,
+          options.deviceData,
+          currency,
+        )
       );
     },
     act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
       const screen = options.runtime ? undefined : current();
-      const runtime = options.runtime ?? (screen && standaloneAccess(options, screen));
+      const runtime = options.runtime ?? (screen && standaloneAccess(options, screen, currency));
       if (runtime) {
         const reply = runtime.act(steps, { ...opts, agent: true });
         if (reply.ok && !opts.dryRun)

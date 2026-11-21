@@ -25,10 +25,17 @@ it("keeps currency defaults and money formatting unchanged", () => {
   expect(moneyLine(1240.5)).toBe("$1,240.50");
   expect(moneyLine(120, "EUR", "night")).toBe("€120 / night");
   expect(moneyLine(18, "GBP", "each")).toBe("£18 / each");
+  expect(moneyLine(15.5, "JPY", undefined, "en-US")).toBe("¥15.50");
   expect(changeLine(32, "money")).toBe("+$32");
   expect(changeLine(-4.5, "money", "EUR")).toBe("-€4.50");
   expect(changeLine(3.2, "percent")).toBe("+3.2%");
   expect(changeLine(0, "percent")).toBe("0%");
+});
+
+it("keeps the additional minor units of three- and four-place currencies", () => {
+  expect(moneyLine(12.345, "KWD", undefined, "en-GB")).toBe("KWD\u00a012.345");
+  expect(moneyLine(12, "KWD", undefined, "en-GB", "fixed")).toBe("KWD\u00a012.000");
+  expect(moneyLine(12.3456, "CLF", undefined, "en-GB")).toBe("CLF\u00a012.3456");
 });
 
 it("computes document totals independently from line quantities and rounds cents", () => {

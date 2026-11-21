@@ -4,7 +4,7 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { RecordEdits } from "./record-edits";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
-import type { DeviceData, ItemEditPath, ItemEdits, ScreenLike } from "../agent";
+import type { AppCurrency, DeviceData, ItemEditPath, ItemEdits, ScreenLike, Values } from "../agent";
 import type { Issue } from "../rules";
 import type { RecordRuntime } from "./record-runtime";
 export type NumericAdjustments = Readonly<
@@ -24,11 +24,7 @@ type LinkedEdits = {
   inputs: Readonly<Record<string, { prop: string; max: number }>>;
   swap: { part: string; sides: readonly [string, string] };
   /** Project display text and related props from the exact source edit and current order. */
-  project: (
-    props: Readonly<Record<string, unknown>>,
-    state: LinkedEditState,
-    data: DeviceData,
-  ) => Record<string, unknown>;
+  project: (props: Readonly<Values>, state: LinkedEditState, data: DeviceData) => Values;
 };
 type RowSelection = "index" | "position" | { field: string };
 type Choice = string | number | { value: string | number; label: string };
@@ -162,7 +158,14 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
+  /** Currency comes from the host, never from the component props. */
+  read?: (
+    props: unknown,
+    state: StateName,
+    lang?: string,
+    deviceData?: DeviceData,
+    currency?: AppCurrency,
+  ) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
