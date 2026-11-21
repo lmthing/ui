@@ -25,6 +25,7 @@ const fixture = {
         title: z.string().optional(),
         label: z.string().optional(),
         name: z.string().optional(),
+        limit: z.int().default(1),
       }),
     ),
   }),
@@ -61,4 +62,15 @@ it("continues to prefer titles and then labels", () => {
   expect(score([{ title: "Aloe", label: "Fern", name: "Fern" }, { title: "Basil" }])).toEqual(incorrect);
   expect(score([{ label: "Fern", name: "Aloe" }, { label: "Basil" }]).pass).toBe(true);
   expect(score([{ label: "Aloe", name: "Fern" }, { label: "Basil" }])).toEqual(incorrect);
+});
+
+it("checks requested values on authored rows, not schema defaults", () => {
+  const check = (options: unknown[]) =>
+    scoreWrite(JSON.stringify({ c: "Fixture", options }), fixture, undefined, { options: [{ limit: 1 }] });
+  expect(check([{ label: "Basil", limit: 1 }]).pass).toBe(true);
+  expect(check([{ label: "Basil" }])).toEqual({
+    pass: false,
+    detail: "missing or incorrect props.options.0.limit",
+  });
+  expect(check([{ limit: 1 }, { limit: 1 }]).pass).toBe(false);
 });

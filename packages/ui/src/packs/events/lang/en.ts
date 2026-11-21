@@ -1,6 +1,58 @@
 export type EventsWords = typeof en;
 
 export const en = {
+  door: {
+    arrivals: "Arrivals",
+    count: (arrived: string, expected: string) => `${arrived} of ${expected}`,
+    noTotals: "No ticket totals yet",
+    scan: "Scan ticket",
+    search: "Find a guest by name",
+    checkin: "Check in",
+    admitted: "Checked in",
+    recent: (names: readonly string[]) => `Recent: ${names.join(", ")}`,
+    success: "Guest checked in",
+    errors: { already_in: "Guest already checked in", not_found: "Ticket not found" },
+    noMatch: "No matching guests",
+    match: (id: string, name: string, status?: string) => `${id}: ${name}${status ? ` · ${status}` : ""}`,
+  },
+  findDate: {
+    people: "People",
+    answer: { yes: "Yes", maybe: "Maybe", no: "No", none: "No reply" },
+    reply: "Reply",
+    noVotes: "No date leads yet",
+    best: (slot: string) => `Best fit: ${slot}`,
+    guide: "Choose a reply for each date in your row.",
+    scroll: "Scroll across to see all dates.",
+    dateThing: "date",
+    count: (yes: string, maybe: string) => `${yes} yes · ${maybe} maybe`,
+    slot: (day: string, time?: string) => (time ? `${day} · ${time}` : day),
+    agenda: (slots: readonly string[]) => slots.join("; "),
+    person: (name: string, replies: readonly string[]) => `${name}: ${replies.join(" · ")}`,
+    cell: (id: string, name: string, slot: string, label?: string) =>
+      `${id}: ${name}, ${slot}${label ? ` · ${label}` : ""}`,
+  },
+  guestList: {
+    counts: "RSVP totals",
+    empty: "No guests yet",
+    status: { yes: "Coming", no: "Declined", maybe: "Maybe", waiting: "Waiting" },
+    stat: (count: string, label: string) => `${count} ${label}`,
+    plus: (count: string) => `+${count}`,
+    remind: "Remind waiting guests",
+    separator: " · ",
+    party: (name: string, guests: string[]) => `${name}: ${guests.join("; ")}`,
+    guest: (name: string, plus: string | undefined, status: string, diet: string | undefined) =>
+      [`${name}${plus ? ` ${plus}` : ""}`, status, diet].filter(Boolean).join(" · "),
+  },
+  rsvp: {
+    yes: "Attending",
+    no: "Can't attend",
+    plus: "Companions",
+    meal: "Meal choice",
+    note: "Note to the organiser (optional)",
+    send: "Send reply",
+    sent: "Reply sent",
+    none: "No reply yet",
+  },
   registry: {
     claim: "Claim",
     release: "Release",

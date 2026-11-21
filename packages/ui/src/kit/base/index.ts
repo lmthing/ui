@@ -1,9 +1,11 @@
 export { KitCard } from "./surface";
+export { KitSignaturePad } from "./drawing";
 export { KitNumberPad } from "./keys";
 export { KitSetRow, KitFlip, KitTicket } from "./composition";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";
 export { KitSeatMap, KitGantt } from "./planning";
+export { KitSeatGrid, KitCellGrid } from "./boards";
 export { KitJar } from "./data";
 export { KitDiceFace, KitWheel, KitOrbit, KitScore } from "./game";
 export { KitOverlay } from "./surface";

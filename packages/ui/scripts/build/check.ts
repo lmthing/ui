@@ -1,49 +1,33 @@
 import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
-import { execFileSync } from "node:child_process";
-import {
-  checkOptions,
-  changeSelection,
-  relatedIncludes,
-  nodeTests,
-  browserTests,
-  nodeTestOptions,
-} from "./check-options";
+import { knownFailureReporter } from "./known-failures";
+import { checkOptions, nodeTests, browserTests, nodeTestOptions } from "./check-options";
 
-function changedSince(base: string) {
-  const cwd = fileURLToPath(new URL("../../", import.meta.url));
-  const git = (...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8" }).trim();
-  const mergeBase = git("merge-base", base, "HEAD");
-  const paths = [
-    ...git("diff", "--name-only", mergeBase, "HEAD").split("\n"),
-    ...git("diff", "--name-only", "--cached").split("\n"),
-    ...git("diff", "--name-only").split("\n"),
-    ...git("ls-files", "--others", "--exclude-standard").split("\n"),
-  ].filter(Boolean);
-  return { mergeBase, ...changeSelection(paths) };
+function changedSummary(started: number, count: number) {
+  console.log(`Changed tests: ran ${count} tests in ${((performance.now() - started) / 1000).toFixed(2)}s.`);
 }
 
 export async function check() {
+  const started = performance.now();
   const options = checkOptions(process.argv.slice(2));
-  const selection = options.changed ? changedSince(options.changed) : undefined;
-  delete process.env.UI_TEST_COMPONENTS;
-  if (selection && !selection.full) process.env.UI_TEST_COMPONENTS = selection.ids.join(",");
-  console.log(
-    options.browser
-      ? "Browser tests: serial files"
-      : selection
-        ? `Changed tests: ${selection.full ? "full Node suite" : "component-related Node suite"}; components: ${selection.ids.join(", ") || "(none)"}`
-        : "Node tests: full suite",
-  );
+  for (const key of ["UI_TEST_COMPONENTS", "UI_TEST_PACKS", "UI_TEST_UNFILTERED"]) delete process.env[key];
+  const selection = options.changed
+    ? await (
+        await import("./changed")
+      ).prepareChangedRun(fileURLToPath(new URL("../../", import.meta.url)), options.changed)
+    : undefined;
+  if (selection?.empty) return changedSummary(started, 0);
+  if (!selection) console.log(options.browser ? "Browser tests: serial files" : "Node tests: full suite");
   const runner = await startVitest(
     "test",
     options.filters,
     {
       config: false,
       run: true,
+      reporters: ["default", knownFailureReporter()],
       passWithNoTests: Boolean(selection),
-      ...(selection && !selection.full ? { changed: selection.mergeBase } : {}),
+      ...(selection?.plan ? { related: selection.plan.related, forceRerunTriggers: [] } : {}),
       ...(options.browser
         ? { fileParallelism: false, maxWorkers: 1, testTimeout: 60000 }
         : nodeTestOptions(process.env)),
@@ -59,16 +43,21 @@ export async function check() {
         },
         ...webResolve.alias,
       ],
-      include: options.browser
-        ? browserTests
-        : selection && !selection.full
-          ? relatedIncludes(selection.ids, selection.packs)
-          : nodeTests,
+      include: options.browser ? browserTests : (selection?.plan?.tests ?? nodeTests),
       exclude: options.browser ? ["**/node_modules/**"] : ["**/node_modules/**", ...browserTests],
     },
     { resolve: webResolve },
   );
   if (!runner) throw new Error("Vitest did not start");
+  if (selection) {
+    const count = runner.state
+      .getTestModules()
+      .reduce(
+        (sum, { children }) => sum + [...children.allTests("passed"), ...children.allTests("failed")].length,
+        0,
+      );
+    changedSummary(started, count);
+  }
   await runner.close();
 }
 
