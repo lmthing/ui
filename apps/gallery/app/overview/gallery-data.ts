@@ -13,6 +13,10 @@ export type GalleryGroup = string;
 export type Cell = { id: ComponentName; example: unknown; index: number; state: StateName; drawn?: true };
 export const componentIds = (Object.keys(components) as ComponentName[]).sort();
 
+export function screenPresets(ids: readonly string[]) {
+  return ids.length ? presets.filter(({ id }) => ids.includes(id)) : presets;
+}
+
 // Keep existing frames in place, then append one drawn preview per playable example.
 export function cellsOf(id: ComponentName): Cell[] {
   const { meta, examples }: { meta: Meta; examples: readonly unknown[] } = components[id];
