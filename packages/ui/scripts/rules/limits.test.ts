@@ -35,3 +35,23 @@ it("counts immediate files only and exempts only the named folders", () => {
     ["/ui/src/components/nested", "13 immediate files > 12"],
   ]);
 });
+
+it.each([
+  ["src/packs/health/components", true],
+  ["src/packs/x/components", true],
+  ["src/packs/x/tests", true],
+  ["src/packs/x/tests/components", true],
+  ["src/packs/x", false],
+  ["src/packs/x/lang", false],
+  ["src/packs/x/components/nested", false],
+  ["src/packs/x/tests/copy", false],
+  ["src/packs/x/tests/components/nested", false],
+  ["src/packs/x/nested/components", false],
+  ["src/other/packs/x/components", false],
+])("applies the pack folder exemption to %s (exempt: %s)", (folder, exempt) => {
+  const path = `/ui/${folder}`;
+  const sources = Array.from({ length: 13 }, (_, i) => ({ file: `${path}/${i}.ts`, source: "" }));
+  expect(checkLimits("/ui", sources)).toEqual(
+    exempt ? [] : [{ rule: "folder-files", file: path, line: 1, detail: "13 immediate files > 12" }],
+  );
+});
