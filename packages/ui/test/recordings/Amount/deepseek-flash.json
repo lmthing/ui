@@ -237,7 +237,7 @@
     "reply": "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
     "replies": [
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
-      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":\"none\",\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}",
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":null,\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Weekly walks\",\"value\":72,\"currency\":\"GBP\",\"per\":null,\"was\":null,\"change\":null,\"changeIn\":null,\"sub\":\"Four morning walks\",\"goto\":null}"
     ]
   },
@@ -939,7 +939,7 @@
     "replies": [
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":\"this week\",\"goto\":null}",
-      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":null,\"sub\":null,\"goto\":null}"
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}"
     ]
   },
   "a99b271f25625d8b": {

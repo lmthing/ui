@@ -316,7 +316,7 @@
     "replies": [
       "Ring",
       "Ring",
-      "Ring"
+      "ring"
     ]
   },
   "7499d878159ceaf1": {
@@ -747,11 +747,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
+    "reply": "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
     "replies": [
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"plants fed this mon\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
-      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}"
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mont\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":null,\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":null,\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mon\",\"value\":1,\"of\":4,\"unit\":null,\"tone\":null,\"goto\":null}]}",
+      "{\"c\":\"Progress\",\"density\":null,\"figures\":\"exact\",\"bars\":[{\"label\":\"Plants watered this\",\"value\":3,\"of\":5,\"unit\":\"plants\",\"tone\":null,\"goto\":null},{\"label\":\"Plants fed this mon\",\"value\":1,\"of\":4,\"unit\":\"plants\",\"tone\":null,\"goto\":null}]}"
     ]
   },
   "ef8fffa5c108fe08": {

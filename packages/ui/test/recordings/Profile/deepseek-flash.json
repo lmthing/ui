@@ -947,11 +947,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
+    "reply": "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"full\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
     "replies": [
-      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
-      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
-      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":\"thumb\",\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}"
+      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":\"full\",\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:clover\"}",
+      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"lib:dog\"}",
+      "{\"c\":\"Profile\",\"align\":\"center\",\"density\":null,\"detail\":null,\"media\":null,\"name\":\"Clover\",\"meta\":\"Beagle · 4 years\",\"photo\":\"local:1\"}"
     ]
   },
   "f43dc9f70aefe65d": {

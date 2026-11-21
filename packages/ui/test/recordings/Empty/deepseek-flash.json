@@ -1246,7 +1246,7 @@
     "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}",
     "replies": [
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}",
-      "{\"c\":\"Empty\",\"detail\":null,\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}",
+      "{\"c\":\"Empty\",\"detail\":null,\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":\"none\"}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No plants yet\",\"sub\":\"Added plants will appear here.\",\"icon\":\"leaf\",\"kind\":null}"
     ]
   },
@@ -1499,11 +1499,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":\"calendar_days\",\"kind\":null}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":\"calendar_days\",\"kind\":null}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}",
       "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\",\"icon\":null,\"kind\":null}"
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"No walks booked\",\"sub\":\"New bookings will appear here.\" ,\"icon\":null,\"kind\":null}"
     ]
   },
   "6b8c2c36cfde11a9": {
@@ -1750,11 +1750,11 @@
         }
       }
     },
-    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"My walks could not be loaded\",\"sub\":\"Your walks could not be loaded.\",\"icon\":\"cloud_rain\",\"kind\":\"error\"}",
+    "reply": "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
     "replies": [
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"My walks could not be loaded\",\"sub\":\"Your walks could not be loaded.\",\"icon\":\"cloud_rain\",\"kind\":\"error\"}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"My walks could not be loaded\",\"sub\":\"Could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
-      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}"
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks couldn't load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Couldn't load walks\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}",
+      "{\"c\":\"Empty\",\"detail\":\"brief\",\"title\":\"Walks failed to load\",\"sub\":\"My walks could not be loaded.\",\"icon\":\"alert\",\"kind\":\"error\"}"
     ]
   },
   "82e5c0c236bba364": {

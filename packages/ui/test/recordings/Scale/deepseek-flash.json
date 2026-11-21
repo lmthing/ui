@@ -246,9 +246,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":\"brief\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
+    "reply": "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
     "replies": [
-      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":\"brief\",\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
+      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
       "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}",
       "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"stars\",\"label\":\"Dog park rating\",\"value\":4.5,\"readonly\":true,\"meta\":\"212 walkers\"}"
     ]
@@ -553,8 +553,8 @@
     "reply": "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"mood\",\"label\":\"How healthy does it look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
     "replies": [
       "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"mood\",\"label\":\"How healthy does it look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
-      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
-      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":\"brief\",\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}"
+      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"mood\",\"label\":\"How healthy does it look?\",\"value\":3,\"readonly\":false,\"meta\":null}",
+      "{\"c\":\"Scale\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":\"mood\",\"label\":\"How healthy does the plant look?\",\"value\":3,\"readonly\":false,\"meta\":null}"
     ]
   },
   "2a242cec299cb86d": {

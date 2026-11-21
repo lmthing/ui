@@ -694,10 +694,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+    "reply": "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
     "replies": [
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
-      "{\"c\":\"Steps\",\"density\":null,\"detail\":\"brief\",\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
+      "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}",
       "{\"c\":\"Steps\",\"density\":null,\"detail\":null,\"style\":\"dots\",\"count\":3,\"at\":2,\"label\":\"Add your first plant\"}"
     ]
   },

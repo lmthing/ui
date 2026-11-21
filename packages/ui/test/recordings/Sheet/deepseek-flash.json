@@ -2385,7 +2385,7 @@
     "reply": "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
     "replies": [
       "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
-      "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
+      "{\"c\":\"Sheet\",\"density\":\"compact\",\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
       "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}"
     ]
   },

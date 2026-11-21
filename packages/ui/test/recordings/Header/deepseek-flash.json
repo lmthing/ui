@@ -290,10 +290,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"add_plant\"}}",
+    "reply": "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}",
     "replies": [
-      "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"add_plant\"}}",
-      "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"add_plant\"}}",
+      "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}",
+      "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}",
       "{\"c\":\"Header\",\"density\":null,\"emphasis\":null,\"detail\":null,\"style\":null,\"title\":\"My plants\",\"sub\":null,\"action\":{\"icon\":\"plus\",\"label\":\"Add a plant\",\"goto\":\"new_plant\"}}"
     ]
   },

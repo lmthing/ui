@@ -939,9 +939,9 @@
         }
       }
     },
-    "reply": "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}",
+    "reply": "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
     "replies": [
-      "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":true,\"meta\":null}]}",
+      "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}",
       "{\"c\":\"Checklist\",\"density\":null,\"detail\":\"brief\",\"items\":[{\"mark\":null,\"text\":\"Water the fern\",\"done\":false,\"meta\":null},{\"mark\":null,\"text\":\"Mist the monstera\",\"done\":false,\"meta\":null}]}"
     ]
