@@ -1,19 +1,122 @@
 // What a model reads must match what a person sees, and every action it is offered must exist on
 // screen with an accessible role that accepts it. Runs for every ready component and example.
 import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { TamaguiProvider } from "tamagui";
+import { z } from "zod";
 import {
   affordancesOf,
   components,
   isDeviceDataVisible,
+  moneyLine,
   readComponent,
+  readScreen,
   stampItemIds,
+  themeName,
+  writerFormatFor,
+  type AppCurrency,
   type ComponentName,
+  type Definition,
+  type ScreenLike,
+  type ThemeChoice,
 } from "@lmthing/ui/catalog";
-import { renderers } from "@lmthing/ui/kit";
+import {
+  createAgentAccess,
+  createInteractionStore,
+  createScreenController,
+  KitProvider,
+  KitText,
+  renderers,
+  Screen,
+  useAppCurrency,
+  useWords,
+} from "@lmthing/ui/kit";
 import { existsSync } from "node:fs";
-import { addressedElements, hasStepTarget, renderExample } from "./render";
+import { addressedElements, config, hasStepTarget, renderExample } from "./render";
 import { selectedIds } from "../scripts/build";
 import { decode, peekForExample, visibleTexts } from "./variants";
+
+const props = z.strictObject({ value: z.number() });
+function Fixture({ value }: z.infer<typeof props>) {
+  const currency = useAppCurrency();
+  const { lang } = useWords();
+  return <KitText>{moneyLine(value, currency, "hour", lang)}</KitText>;
+}
+
+const def: Definition = {
+  ...components.Amount,
+  props,
+  meta: {
+    ...components.Amount.meta,
+    id: "Fixture",
+    read: (input, _state, lang, _data, currency) => [
+      moneyLine(props.parse(input).value, currency, "hour", lang),
+    ],
+  },
+};
+const defs = { Fixture: def };
+const input = { value: 1240.5 };
+const screen: ScreenLike = { id: "home", components: [{ id: "a1", c: "Fixture", ...input }] };
+const currencyTheme: ThemeChoice = { preset: "calm", mode: "light", accent: "moss" };
+const lang = "en-GB";
+
+function renderedAmount(controller: ReturnType<typeof createScreenController>) {
+  const html = renderToStaticMarkup(
+    <TamaguiProvider config={config} defaultTheme={themeName(currencyTheme)}>
+      <KitProvider theme={currencyTheme} lang={lang} controller={controller}>
+        <Screen controller={controller} renderers={{ Fixture }} />
+      </KitProvider>
+    </TamaguiProvider>,
+  );
+  return addressedElements(html).get("home/a1/root")?.text;
+}
+
+it.each([
+  { currency: "GBP", expected: "£1,240.50 / hr" },
+  { currency: "EUR", expected: "€1,240.50 / hr" },
+  { currency: undefined, expected: "US$1,240.50 / hr" },
+] as const)("uses the same $currency amount in the kit and both readers", ({ currency, expected }) => {
+  const controller = createScreenController({ screen, defs, lang, currency });
+  const agent = createAgentAccess({
+    current: () => screen,
+    defs,
+    store: createInteractionStore(),
+    lang,
+    currency,
+  });
+  try {
+    expect(renderedAmount(controller)).toEqual([expected]);
+    expect(controller.read()).toBe(`screen home\na1 Fixture ${expected}`);
+    expect(agent.read()).toBe(controller.read());
+    expect(readScreen(screen, defs, {}, lang, undefined, currency)).toBe(controller.read());
+    expect(readComponent(def, input, "a1", "filled", {}, lang, undefined, currency)).toEqual([
+      `a1 Fixture ${expected}`,
+    ]);
+  } finally {
+    controller.dispose();
+  }
+});
+
+it("rejects invalid host currency before reading or drawing", () => {
+  const currency = "ZZZ" as AppCurrency;
+  expect(() => createScreenController({ screen, defs, currency })).toThrow();
+  expect(() => readScreen(screen, defs, {}, lang, undefined, currency)).toThrow();
+  expect(() => readComponent(def, input, "a1", "filled", {}, lang, undefined, currency)).toThrow();
+  expect(() =>
+    createAgentAccess({ current: () => screen, defs, store: createInteractionStore(), currency }),
+  ).toThrow();
+});
+
+it("does not take the app currency from Writer props or interaction values", () => {
+  const schema = writerFormatFor(def).json_schema.schema;
+  expect(schema.additionalProperties).toBe(false);
+  expect(Object.keys(schema.properties ?? {})).toEqual(["c", "value"]);
+  expect(def.props.safeParse({ ...input, currency: "JPY" }).success).toBe(false);
+  const values = { "home/a1/currency": "JPY", "home/a1/$currency": "JPY" };
+  expect(readScreen(screen, defs, values, lang, undefined, "EUR")).toBe(
+    "screen home\na1 Fixture €1,240.50 / hr",
+  );
+});
 
 const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
 const theme = { preset: "calm", mode: "light", accent: "moss" } as never;

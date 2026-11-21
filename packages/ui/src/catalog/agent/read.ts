@@ -6,7 +6,7 @@ import type { StateName } from "../types";
 import { affordancesOf, formatAffordance } from "./affordances";
 import { projectLiveClocks } from "./clocks";
 import { nestedRemaining, visibleNestedProps } from "./selection";
-import type { Meta } from "../meta";
+import { parseAppCurrency, type AppCurrency, type Meta } from "../meta";
 import { drawState, drawStatus, projectDraw, readDraw } from "./draw";
 import { sessionKey, sessionState, sessionStatus, type SessionState } from "./session";
 import { migrateLine, migrateScreen } from "../migrations";
@@ -89,7 +89,9 @@ export function readComponent(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ): string[] {
+  const appCurrency = parseAppCurrency(currency);
   const { meta } = def;
   if (!isDeviceDataVisible(meta, deviceData)) return [];
   const get = (part: string) => values[`${instance}/${part}`];
@@ -119,6 +121,7 @@ export function readComponent(
       state,
       lang,
       selectDeviceData(meta, deviceData),
+      appCurrency,
     ) ?? []),
     ...readProgress(session, lang),
     ...readDraw(draw),
@@ -152,7 +155,9 @@ export function readScreen(
   values: Record<string, unknown> = {},
   lang?: string,
   deviceData?: DeviceData,
+  currency?: AppCurrency,
 ): string {
+  const appCurrency = parseAppCurrency(currency);
   const local = Object.fromEntries(
     Object.entries(values).map(([address, value]) => [address.replace(`${screen.id}/`, ""), value]),
   );
@@ -160,7 +165,9 @@ export function readScreen(
   const lines = migrateScreen(screen, { variantOnly: true }).components.flatMap(
     ({ id, c, state, ...props }) => {
       const def = defs[c];
-      return def ? readComponent(def, props, id, state, local, lang, deviceData) : [`${id} ${c} (unknown)`];
+      return def
+        ? readComponent(def, props, id, state, local, lang, deviceData, appCurrency)
+        : [`${id} ${c} (unknown)`];
     },
   );
   return [header, ...lines].join("\n");

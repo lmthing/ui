@@ -4,6 +4,7 @@ import type { PackId } from "./pack-ids";
 import type { ClockMeta } from "./clocks";
 import type { ItemVariants, LiveActionInputs, Session, VariantParts, Variants } from "../types";
 import type { DeviceData, ItemEditPath, ItemEdits } from "../agent";
+import type { AppCurrency } from "./app-currency";
 export type NumericAdjustments = Readonly<
   Partial<Record<`${string}.${ActionName}`, { prop: string; delta: number; min?: number; max?: number }>>
 >;
@@ -155,7 +156,14 @@ export type Meta = {
   parts?: readonly string[];
   states?: readonly StateName[];
   actions?: ActionSpec;
-  read?: (props: unknown, state: StateName, lang?: string, deviceData?: DeviceData) => string[];
+  /** Currency comes from the host, never from the component props. */
+  read?: (
+    props: unknown,
+    state: StateName,
+    lang?: string,
+    deviceData?: DeviceData,
+    currency?: AppCurrency,
+  ) => string[];
   signature?: string;
   status?: "draft" | "ready";
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */

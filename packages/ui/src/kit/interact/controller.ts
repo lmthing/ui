@@ -10,7 +10,15 @@ import {
 } from "./runtime";
 export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
-import { emptyDeviceData, liveProps, selectDeviceData, type Meta, type Values } from "../../catalog";
+import {
+  emptyDeviceData,
+  liveProps,
+  parseAppCurrency,
+  selectDeviceData,
+  type AppCurrency,
+  type Meta,
+  type Values,
+} from "../../catalog";
 
 function liveControls(ctx: ControllerContext, meta: Meta, props: Values, component: string) {
   const prefix = `${ctx.screen.id}/`;
@@ -24,7 +32,8 @@ function liveControls(ctx: ControllerContext, meta: Meta, props: Values, compone
 }
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
-export function createScreenController(options: ControllerOptions) {
+export function createScreenController(options: ControllerOptions & { currency?: AppCurrency | undefined }) {
+  const currency = parseAppCurrency(options.currency);
   const ctx = createControllerContext(options);
   const clock = createClock(ctx);
   const media = createMediaRuntime(ctx);
@@ -32,10 +41,13 @@ export function createScreenController(options: ControllerOptions) {
   return {
     defs: ctx.defs,
     store: ctx.store,
+    get currency() {
+      return currency;
+    },
     act,
     mountMedia: media.mountMedia,
     tick: clock.tick,
-    ...createAccess(ctx, act),
+    ...createAccess(ctx, act, currency),
     deviceDataFor(component: string, data = options.deviceData) {
       const source = ctx.sourceOf(component);
       const def = source && ctx.defs[source.c];

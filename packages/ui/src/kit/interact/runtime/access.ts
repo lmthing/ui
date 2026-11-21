@@ -8,7 +8,7 @@ import {
   parseControlProps,
   sessionEvent,
 } from "../../../catalog";
-import type { ActStep, StateName } from "../../../catalog";
+import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
 import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
@@ -118,7 +118,7 @@ function isPressAction(ctx: ControllerContext, local: string, action: string) {
     (action === "flip" ? sessionEvent(meta, target, action) : clockControlDeclared(meta, target, action)),
   );
 }
-function read(ctx: ControllerContext) {
+function read(ctx: ControllerContext, currency?: AppCurrency) {
   const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
   const confirmation = ctx.confirmationFor();
   if (confirmation)
@@ -131,6 +131,7 @@ function read(ctx: ControllerContext) {
     ctx.options.lang,
     ctx.disabledParts,
     ctx.options.deviceData,
+    currency,
   );
   if (ctx.standalone) return reading;
   return [
@@ -147,17 +148,17 @@ function isKeypad(ctx: ControllerContext, full: string) {
   return Array.isArray(parts) && parts.includes(address?.part ?? "root");
 }
 
-export function createStandaloneAccess(options: ControllerOptions) {
+export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
   const ctx = createControllerContext(options, true);
-  return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx) };
+  return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
 
-export function createAccess(ctx: ControllerContext, act: Act) {
+export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),
-    read: () => read(ctx),
+    read: () => read(ctx, currency),
     canPress: (address: string) =>
       actionsAt(ctx, address).some((action) => isPressAction(ctx, ctx.relative(address), action)) ||
       (address.endsWith("/play") && actionsAt(ctx, address).includes("play")),
