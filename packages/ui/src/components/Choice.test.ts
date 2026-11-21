@@ -20,7 +20,8 @@ describe("Choice schema", () => {
   );
   it("applies defaults, trims text and derives which option is chosen", () => {
     expect(props.parse({ options: [{ title: " Weekly " }, { title: "Monthly" }], at: 1 })).toEqual({
-      style: "cards",
+      surface: "card",
+      detail: "full",
       options: [
         { title: "Weekly", on: false },
         { title: "Monthly", on: true },
@@ -60,13 +61,16 @@ describe("Choice schema", () => {
     { options: two, at: -1 },
     { options: two, multi: true, at: 0 },
     { options: two, style: "grid" },
+    { options: two, style: "list" },
+    { options: two, surface: "tinted" },
+    { options: two, detail: "hidden" },
     { options: [{ title: "A", goto: "x" }, { title: "B" }] },
     { options: two, color: "red" },
   ])("rejects invalid input", (input) => expect(props.safeParse(input).success).toBe(false));
   it("types view props with item ids and a derived chosen flag", () => {
     type ViewProps = Props<typeof props, typeof meta>;
     expectTypeOf<ViewProps["options"][number]["id"]>().toEqualTypeOf<string>();
-    expectTypeOf<ViewProps["style"]>().toEqualTypeOf<"cards" | "list">();
+    expectTypeOf<ViewProps["surface"]>().toEqualTypeOf<"card" | "plain">();
     expectTypeOf<ViewProps>().not.toHaveProperty("color");
   });
 });
@@ -143,7 +147,7 @@ describe("Choice fallback, metadata and actions", () => {
 });
 
 describe("Choice rendering", () => {
-  it.each(examples.map((example) => [example.style, example] as const))(
+  it.each(examples.map((example) => [props.parse(example).surface, example] as const))(
     "draws %s options as radios or ticks",
     (_, example) => {
       const html = renderInstance("Choice", example, "filled", theme);
@@ -164,5 +168,19 @@ describe("Choice rendering", () => {
   });
   it("draws a skeleton while loading", () => {
     expect(renderInstance("Choice", examples[0]!, "loading", theme)).toContain('aria-busy="true"');
+  });
+  it("hides explanations in brief detail but keeps values, badges, ids and selection", () => {
+    const list = examples[1]!;
+    const baseline = renderInstance("Choice", list, "filled", theme);
+    const brief = { ...list, detail: "brief" };
+    const html = renderInstance("Choice", brief, "filled", theme);
+    expect(meta.variantParts["detail.brief"].hides).toEqual(["sub"]);
+    expect(baseline).toContain('data-testid="home/c1/r2/sub"');
+    expect(html).not.toContain('data-testid="home/c1/r2/sub"');
+    for (const part of ["root", "title", "badge", "value"])
+      expect(html).toContain(`data-testid="home/c1/r2/${part}"`);
+    expect(readComponent(components.Choice, brief, "c1").join("\n")).not.toContain("Five walks");
+    const actions = (wire: unknown) => affordancesOf(meta, stampItemIds(meta, props.parse(wire)), "c1");
+    expect(actions(brief)).toEqual(actions(list));
   });
 });
