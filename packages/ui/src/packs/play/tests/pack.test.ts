@@ -21,7 +21,7 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker"] as const;
+const ids = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker", "LifeCounter"] as const;
 const layouts = {
   game_night: ["play_teams", "play_turns", "play_chance"],
   score_round: ["play_scores", "play_results"],
@@ -30,7 +30,7 @@ const layouts = {
 const cast = { things: [], items: [] };
 const definitions = components as Record<string, Definition>;
 
-it("generates all six contracts and keeps the incomplete pack out of live registries", () => {
+it("generates the play contracts and gates live registry access on pack readiness", () => {
   const core = createRegistry();
   const live = createRegistry({ packs: ["play"] });
   const draft = createRegistry({ packs: ["play"], includeDrafts: true });
