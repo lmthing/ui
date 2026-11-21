@@ -2,6 +2,7 @@ import { startVitest } from "vitest/node";
 import { fileURLToPath, URL } from "node:url";
 import { webResolve } from "../look";
 import { execFileSync } from "node:child_process";
+import { knownFailureReporter } from "./known-failures";
 import {
   checkOptions,
   changeSelection,
@@ -42,6 +43,7 @@ export async function check() {
     {
       config: false,
       run: true,
+      reporters: ["default", knownFailureReporter()],
       passWithNoTests: Boolean(selection),
       ...(selection && !selection.full ? { changed: selection.mergeBase } : {}),
       ...(options.browser

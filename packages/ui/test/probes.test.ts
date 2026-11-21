@@ -14,11 +14,8 @@ import {
   type ComposeProbe,
 } from "@lmthing/ui/catalog";
 
-import { existsSync } from "node:fs";
 import { probeModels, replayCall } from "../scripts";
 import { selectedIds, selectedLayouts } from "../scripts/build";
-
-const known = (id: string) => existsSync(`${import.meta.dirname}/known/${id}.md`);
 
 const registry = createRegistry({ includeDrafts: true });
 const required = probeModels.filter((model) => model.required);
@@ -45,7 +42,6 @@ describe.each(required)("shared variant probes on $id", (model) => {
 
 describe.each(required)("probes on $id", (model) => {
   it.each(selectedIds(registry.ids))("%s passes its probes", async (id) => {
-    if (known(id)) return; // open problem in test/known/<Id>.md: llm:check shows it, the fixer clears it
     const results = await runProbes({
       defs: registry.defs,
       callModel: replayCall(id, model.id),
@@ -59,30 +55,15 @@ describe.each(required)("probes on $id", (model) => {
 });
 
 describe.each(required)("pack probes on $id", (model) => {
-  it("replays every pack probe with a passing majority", async () => {
-    const results = [];
-    for (const id of selectedPacks)
-      results.push(
-        ...(await runPackProbes({
-          packs,
-          only: [id],
-          samples: model.samples,
-          callModel: replayCall(`pack/${id}`, model.id),
-        })),
-      );
-    if (!results.length) return;
+  it.each(selectedPacks)("%s passes selection, component and composition probes", async (id) => {
+    const registry = createRegistry({ packs: [id], includeDrafts: true });
+    const callModel = replayCall(`pack/${id}`, model.id);
+    const selection = await runPackProbes({ packs, only: [id], samples: model.samples, callModel });
     expect(
-      results
+      selection
         .filter((result) => result.status !== "pass")
         .map((result) => `${result.component}: ${result.detail}`),
     ).toEqual([]);
-  });
-});
-
-describe.each(required)("pack component and composition probes on $id", (model) => {
-  it.each(selectedPacks)("%s passes every component and every layout", async (id) => {
-    const registry = createRegistry({ packs: [id], includeDrafts: true });
-    const callModel = replayCall(`pack/${id}`, model.id);
     const only = selectedIds(registry.ids.filter((name) => (packOf as Record<string, PackId>)[name] === id));
     const core = (packs as Partial<Record<PackId, import("@lmthing/ui/catalog").PackMeta>>)[
       id
