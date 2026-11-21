@@ -1,14 +1,21 @@
 import {
+  atDeviceTime,
   wordsFor,
   affordancesOf,
   clockControlDeclared,
+  driveAffordances,
+  driveTarget,
   isPlaybackAction,
   liveProps,
   parseAddress,
   parseControlProps,
   projectDeviceData,
+  projectSelectionBinding,
   recordClockOffer,
+  reportEditWire,
+  selectionBindingFor,
   sessionEvent,
+  withDisabledSelectionChecks,
 } from "../../../catalog";
 import type { ActStep, AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
@@ -16,6 +23,7 @@ import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
 const pressActions = [
@@ -39,49 +47,43 @@ function actionsAt(
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
-  if (ctx.confirmationFor())
-    return local === "confirm/confirm"
-      ? ["press"]
-      : ["confirm/cancel", "confirm/close"].includes(local)
-        ? ["dismiss"]
-        : [];
+  if (ctx.confirmationFor()) {
+    if (local === "confirm/confirm") return ["press"];
+    return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
+  }
   const now = ctx.now();
   const values = ctx.valuesOf(now);
-  const entry = ctx
-    .liveScreen(values, ctx.status.openSheet, Boolean(ctx.status.openSheet), now)
-    .components.find((item) => item.id === id);
+  const sheet = ctx.status.openSheet;
+  const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
+  const screen = withDisabledSelectionChecks(visible, ctx.disabledParts);
+  const entry = screen.components.find((item) => item.id === id);
   const def = entry && ctx.defs[entry.c];
   if (!entry || !def) return [];
   const { draw, emptyActions, errorActions, session, successActions } = def.meta;
-  if (
-    entry.state &&
-    entry.state !== "filled" &&
-    !draw &&
-    !emptyActions?.length &&
-    !errorActions?.length &&
-    !session &&
-    !successActions?.length
-  )
-    return [];
+  const stateActions =
+    draw || emptyActions?.length || errorActions?.length || session || successActions?.length;
+  if (entry.state && entry.state !== "filled" && !stateActions) return [];
   try {
     const localValues = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [key.replace(`${ctx.screen.id}/`, ""), value]),
     );
     const { id: _id, c: _c, state: _state, ...raw } = entry;
     const get = (part: string) => localValues[`${id}/${part}`];
-    const data = projectDeviceData(ctx.options.deviceData, values);
-    const props = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
+    const data = atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now);
+    const live = liveProps(def.meta, parseControlProps(def, raw, get), id, localValues, true, data);
+    const selection = selectionBindingFor(screen, ctx.defs, def.meta, id, localValues, data);
+    const props = projectSelectionBinding(def.meta, live, selection?.view);
     const clock = recordClockOffer(def, raw, props, get, data, now, values);
-    return affordancesOf(
-      def.meta,
-      props,
-      id,
-      localValues,
-      (props.state as StateName | undefined) ?? entry.state,
-      includeBlocked,
+    const wire = reportEditWire(def, raw, get);
+    const state = (props.state as StateName | undefined) ?? entry.state;
+    const offered = affordancesOf(def.meta, props, id, localValues, state, includeBlocked, {
       data,
       clock,
-    )
+      wire,
+    });
+    const canDrive = (part: string) => !drivenPartBlock(ctx, part);
+    const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
+    return driveAffordances(def.meta, props, id, offered, target)
       .filter((item) => item.address === local)
       .map((item) => item.action);
   } catch {
@@ -125,20 +127,18 @@ function isPressAction(ctx: ControllerContext, local: string, action: string) {
   );
 }
 function read(ctx: ControllerContext, currency?: AppCurrency) {
-  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(ctx.options.lang);
+  const { lang, deviceData } = ctx.options;
+  const { cancelLabel, confirmLabel, mediaUnavailable } = wordsFor(lang);
   const confirmation = ctx.confirmationFor();
   if (confirmation)
     return `screen ${ctx.screen.id}\nconfirm ${JSON.stringify(confirmation.message)} [confirm/confirm press] ${JSON.stringify(confirmLabel)} [confirm/cancel dismiss] ${JSON.stringify(cancelLabel)}`;
-  const visible = ctx.liveScreen(ctx.valuesOf(), ctx.status.openSheet, Boolean(ctx.status.openSheet));
-  const reading = readControls(
-    visible,
-    ctx.defs,
-    ctx.valuesOf(),
-    ctx.options.lang,
-    ctx.disabledParts,
-    ctx.options.deviceData,
-    currency,
-  );
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  const sheet = ctx.status.openSheet;
+  const visible = ctx.liveScreen(values, sheet, Boolean(sheet), now);
+  const data = atDeviceTime(deviceData, now);
+  const canDrive = ctx.standalone ? undefined : (part: string) => !drivenPartBlock(ctx, part);
+  const reading = readControls(visible, ctx.defs, values, lang, ctx.disabledParts, data, currency, canDrive);
   if (ctx.standalone) return reading;
   return [
     reading,

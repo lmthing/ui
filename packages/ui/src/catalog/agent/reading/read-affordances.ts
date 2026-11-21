@@ -12,7 +12,7 @@ import {
   type SessionState,
   type Values,
 } from "../index";
-import { setAt } from "../clocks";
+import { isRuntimeSet, setAt } from "../clocks";
 import { itemEditAt } from "../report-edits";
 
 const risks: Record<string, string> = {
@@ -64,9 +64,9 @@ export function readAffordances(
           : choices
             ? (choices.find(({ value }) => value === selected)?.offered ?? selected)
             : set
-              ? values[`${instance}/${controlValueKey(def, set.key)}`] === undefined
-                ? undefined
-                : set.value
+              ? isRuntimeSet(set.spec) || values[`${instance}/${controlValueKey(def, set.key)}`] !== undefined
+                ? set.value
+                : undefined
               : a.input?.kind === "text"
                 ? (answers?.[target] ?? values[`${instance}/${liveInputKey(target, "type")}`])
                 : (values[`${a.address}/$draft`] ?? answers?.[target] ?? values[a.address]);
@@ -76,9 +76,9 @@ export function readAffordances(
       detail = `:${value ? "done" : "todo"}`;
     if (value !== undefined && ["type", "set", "select"].includes(a.action))
       detail = ` = ${JSON.stringify(value)}`;
-    if (choices) {
+    if (choices)
       detail += `${detail ? ";" : ""} choices ${JSON.stringify(choices.map(({ offered }) => offered))}`;
-    }
+    if (a.move) detail = ` = ${JSON.stringify(a.move.current)}; choices ${JSON.stringify(a.move.choices)}`;
     return { ...a, detail: `${detail}${risk}` };
   });
 }

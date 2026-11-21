@@ -1,6 +1,7 @@
 import type { Definition } from "../../probes";
 import type { Meta } from "../../meta";
 import type { Values } from "../act";
+import { projectControlInput } from "../live-props";
 
 type Edit = { path: readonly (string | number)[]; value: unknown };
 type Edits = Readonly<Record<string, Edit>>;
@@ -53,6 +54,13 @@ export function applyReportEdits(meta: Meta, input: Values, get: (part: string) 
     (wire, { path, value }) => replace(wire, path, value) as Values,
     input,
   );
+}
+
+export function reportEditWire(def: Definition, input: unknown, get: (part: string) => unknown) {
+  const items = def.meta.items;
+  if (!items?.deviceData || !items.edits || !input || typeof input !== "object" || Array.isArray(input))
+    return;
+  return projectControlInput(def, input as Values, get);
 }
 
 export function applyRecordWire(meta: Meta, input: Values, get: (part: string) => unknown) {

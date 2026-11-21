@@ -1,6 +1,6 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
-import { selectDeviceData, type DeviceData } from "../device-data";
+import { deviceTimeOf, selectDeviceData, type DeviceData } from "../device-data";
 import { liveProps, parseControlProps } from "../live-props";
 import { addressedItems } from "../visibility";
 import type { ActStep, ScreenLike, Values } from "../index";
@@ -28,13 +28,14 @@ function context(meta: Meta, props: Values, values: Values, now: number, data?: 
 export function projectRecordRuntime(
   meta: Meta,
   props: Values,
+  instance: string,
   values: Values,
-  now: number,
   data?: DeviceData,
+  now?: number,
 ) {
-  return meta.recordRuntime
-    ? { ...props, ...meta.recordRuntime.project(context(meta, props, values, now, data).input) }
-    : props;
+  if (!meta.recordRuntime) return props;
+  const at = Number(values[`${instance}/$now`] ?? now ?? deviceTimeOf(data) ?? Date.now());
+  return { ...props, ...meta.recordRuntime.project(context(meta, props, values, at, data).input) };
 }
 
 function pressAt(meta: Meta, address: string, action: string) {
