@@ -5,6 +5,7 @@ import { hasColumnTarget } from "../column-target";
 
 const roles: Record<string, string[]> = {
   press: ["button", "link"],
+  copy: ["button"],
   toggle: ["switch", "checkbox", "button"],
   check: ["checkbox"],
   select: ["radio", "tab", "button", "option", "radiogroup"],

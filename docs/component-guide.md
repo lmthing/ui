@@ -19,6 +19,22 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
 
 ## The file, in order
 
+For a new catalog entry, start with `pnpm gen:component <pack|core> <Name>` from `packages/ui`
+(or `pnpm --filter @lmthing/ui gen:component <pack|core> <Name>` from the workspace root).
+It reads the named section of `docs/catalog/`, writes a `draft` component and test, and
+creates component-specific copy and English label keys. It leaves existing components,
+including their probes, alone. For a pack, it also wires the component through the pack door.
+Use explicit types (`text(n)`, `number`, `integer`, `boolean`, dates and references),
+backticked enum choices, and explicit array bounds (`items` of fields, `1–6`). Name
+shared axes in `Styles`, for example `density: comfortable, compact` with the values
+in backticks. Ambiguous shorthand, nested repeated collections, conditional schemas
+and custom runtime state names may need to be scaffolded by hand.
+
+Check the draft against the full entry before building the view: supply real examples,
+replace the probe prompts and check the read address, implement conditional actions and
+variant part changes, and move the label keys into the owning `lang/en.ts` dictionary.
+The generated view is only a placeholder, not evidence for the model or visual gates.
+
 1. **Imports.** Only `zod`, `../catalog` and `../kit`. Never `tamagui`, `react-native` or lucide
    directly: those live behind kit bases.
 2. **`meta`**: a plain object, `as const satisfies Meta`.
@@ -33,6 +49,7 @@ the file up from the folder. `<Id>` is the PascalCase id from the lists in `docs
      (the 2026-11-18 design). Renamed or merged ids keep migration aliases through `legacyTarget`.
    - `select` declares the selected prop, row value (`index`, `position`, or `{ field }`), optional row `flags` mode and fixed named `parts` values.
    - `items.toggles: { save: "saved" }` maps a named item toggle at `rN/save` to a boolean row field. Also declare `save: ["toggle"]` in `actions.items`. The store value overlays the addressed row before `live.derive` and `items.visibleWhen`; it does not change wire props. Use `useLiveControls` to draw from the same live rows.
+   - For a masked credential, declare the value with `kind: "secret"` and bind the named component toggle with `actions.credentialToggles: { reveal: "memberId" }`. Use `credentialToggleOn` with the control value and current credential; an old or serialized grant does not disclose a different credential. The read exposes the action and its state, never the full credential.
    - `clocks` on meta, items or items.nested declares time sources, live props, start/stop/reset and zero behavior. `adjust` on meta or items maps `"part.action"` to `{ prop, delta, min?, max? }` for a numeric prop or live clock; see `src/catalog/meta/README.md` and keep projected values inside the prop schema's bounds.
    - `items.nested: { key, parts: { [part]: { action: "toggle" | "set", prop, min?, max?, integer?, when? } } }` declares `rN/<part>_M` controls projected into sub-items; `when` names a boolean part on the same sub-item.
    - `read` may use its optional final argument to read the current instance's control values. Keep those values out of Writer props and wire snapshots.
