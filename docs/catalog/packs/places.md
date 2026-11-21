@@ -21,7 +21,7 @@ small business, a dog-friendly places finder, a commute departures board, a club
   its rating: `Scale` with `readonly`.
 - A list of places with a short line each: `List`; a featured place: `Card`.
 
-## Components (6)
+## Components (7)
 
 ### `PlaceCard` · planned · content · ok
 A venue summarised: photo, name, category, rating, price level, distance from the person, and "Open now" or
@@ -82,6 +82,15 @@ The next departures from one stop: line badge, destination, minutes to go (live 
 - Parts → actions: items `root press`. · States: filled, empty, loading.
 - Real path: live times from a transit data service.
 
+### `StationRates` · planned · data · service
+Displays live fuel grade prices (Regular, Midgrade, Premium, Diesel) or EV charger port availability (connector type, kW rating, open versus total stalls) for a local station, paired with a distance badge and an optional per-unit cashback offer. Tapping Claim activates the station's cashback offer, while updated timestamps mark stale station feeds.
+- Pick: comparing fuel prices, EV charging stalls, or local station cashback offers. Not venue cards (`PlaceCard`), retail product catalogs (commerce `ProductGrid`), or active fuel pumps or EV charge sessions (auto `ChargePump`).
+- Writes: `name` text(32), `brand` text(20) optional, `kind` (`fuel`, `ev`), `distance` text(10) optional, `updatedAt` text(12) optional, `grades` of `label` text(16), `price` number > 0, `unit` text(6) optional, 1–5 (fuel or kWh pricing); `chargers` of `connector` text(12), `kw` number > 0, `available` integer ≥ 0, `total` integer ≥ 1, 0–4 (EV stalls); `offer` (`cashback` text(20), `claimed` boolean) optional, `goto` optional, `style`. Stall availability tones and formatted per-unit price lines are computed by code.
+- Styles: `rows` (default, grade prices or EV connector rows with distance and offer card), `compact` (headline primary grade or available stalls with offer badge).
+- Parts → actions: `claim press` (activates cashback offer), `directions press` (opens device maps), `root press` (opens station details via `goto`).
+- States: filled, empty (no rates reported), loading, success (offer claimed), error (station feed unavailable).
+- Real path: station prices, EV stall availability, and cashback claims fetched from a live fuel/EV pricing service; distance uses device location (`ok`) when computed locally.
+
 ## Archetypes (3)
 
 | Archetype | Job | Layouts | Recipe |
@@ -103,8 +112,10 @@ service; `Address` directions and calls are `service` parts. `Hours` works on th
 
 ## Build notes
 
-- Order: `PlaceCard`, `Hours`, `Address`, `MapList`, `DeliveryTracker`, `Departures`.
+- Order: `PlaceCard`, `Hours`, `Address`, `MapList`, `DeliveryTracker`, `Departures`, then Wave 6 `StationRates`.
 - Maps share `KitMapTile` styling, so `MapPins`, `MapList` and `DeliveryTracker` look like one family.
+- Wave 6 option upgrades on existing components: `PlaceCard` adds optional `badge` text(14) (e.g. `"Cashback 15¢/gal"`), `saved` boolean toggle, and `mi` / `km` unit toggle; `Departures` adds optional `alerts` (`line`, `severity`, `text`) and `crowding` (`low` / `medium` / `high`) badges; `Address` adds optional `coords` / `plusCode` text(24) and `hoursSummary` text(28); `MapList` adds `style: "split" | "map" | "list"` and per-pin category icons on `KitMapTile`.
+- Wave 6 boundaries: turn-by-turn navigation, route comparisons, ride-hailing, trail elevation, and offline maps move to `navigation`; lodging stays in `stays`; standalone weather moves to `weather`; venue reviews leverage proposed Core `Review` promotion.
 
 ## Open questions
 

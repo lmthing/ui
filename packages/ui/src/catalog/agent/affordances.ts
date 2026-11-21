@@ -1,4 +1,5 @@
 import type { Meta } from "../meta";
+import type { Definition } from "../probes";
 import type { StateName, Tier } from "../types";
 import { choiceValues } from "./validate-value";
 import { adjustmentAt, clockActionValid, clockControlDeclared, hasNumericRoom } from "./clocks";
@@ -21,12 +22,13 @@ export type Affordance = {
   send?: SendDraft;
   blocked?: "max_active";
   togglePeers?: readonly string[];
-  move?: { current: string; choices: string[] };
+  move?: { current: string | null; choices: string[] };
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
   data?: DeviceData | undefined;
   wire?: Props | undefined;
+  schema?: Definition["props"];
   clock?: ((target: string, action: string) => boolean) | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
@@ -49,7 +51,7 @@ function actionsForItem(
   item: Props,
   instance: string,
   first: boolean,
-  { data, wire }: OfferContext,
+  { data, wire, schema }: OfferContext,
 ) {
   const { items, when } = meta.actions ?? {};
   const id = String(item.id);
@@ -61,7 +63,7 @@ function actionsForItem(
         (action === "select" && (picker || meta.items?.edits?.[part]?.action === "select"));
       return !needsChoices || Boolean(choiceValues(meta, props, `${id}/${part}`)?.length);
     })
-    .flatMap((offer) => itemActionOffer(meta, props, item, offer));
+    .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
@@ -101,6 +103,7 @@ export function affordancesOf(
     ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
   );
   const now = Number(get("$now") ?? Date.now());
+  const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
   return [...own, ...visibleNested].filter((offer) => {
     const { address, action, part } = offer;
@@ -113,7 +116,7 @@ export function affordancesOf(
     if (event && !sessionAvailable(session, event)) return false;
     if (role && !drawAvailable(meta, props, get, target, role)) return false;
     if (
-      (runtime || meta.live?.derive || clockControlDeclared(meta, target, action, true)) &&
+      (liveClock || clockControlDeclared(meta, target, action, true)) &&
       !clockActionValid(meta, props, target, action, get, now)
     )
       return false;

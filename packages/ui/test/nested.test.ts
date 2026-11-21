@@ -179,7 +179,7 @@ it("gives nested declarations ownership over duplicate indexed actions and their
 });
 
 it("keeps core read prompts identical because core components have no nested declaration", () => {
-  for (const [id, def] of selectedEntries<Definition>(components)) {
+  for (const [id, def] of selectedEntries<Definition>(components, import.meta.url)) {
     if (id in packOf) continue; // pack components may declare nested items (SymptomLog)
     expect(def.meta.items?.nested).toBeUndefined();
     for (const probe of def.probes) {

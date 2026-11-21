@@ -16,6 +16,13 @@ function threshold(quote: Quote, lang?: string) {
   const words = investWordsFor(lang).watchlist;
   const met = direction === "at_or_below" ? price <= target : price >= target;
   const ratio = (price - target) / target;
+  const side = !Number.isFinite(ratio)
+    ? "unknown"
+    : price > target
+      ? "above"
+      : price < target
+        ? "below"
+        : "equal";
   const change = Number.isFinite(ratio)
     ? new Intl.NumberFormat(localeOf(lang), {
         style: "percent",
@@ -24,11 +31,12 @@ function threshold(quote: Quote, lang?: string) {
         ...(Math.abs(ratio) >= 100 ? { notation: "scientific", maximumSignificantDigits: 3 } : {}),
       }).format(ratio)
     : words.unknown;
-  return {
-    target: words.target(words.direction[direction], compactMoneyLine(target, undefined, lang)),
-    gap: words.gap(change, met),
-    met,
-  };
+  const [lead, amount, tail] = [
+    words.targetLead(words.direction[direction]),
+    compactMoneyLine(target, undefined, lang),
+    words.gapTail(side, met),
+  ];
+  return { target: lead + amount, gap: change + tail, lead, amount, change, tail, met };
 }
 
 export function watchlistQuote(quote: Quote, detail: "brief" | "full", lang?: string) {

@@ -1,4 +1,21 @@
 export const en = {
+  bracket: {
+    title: "Knockout bracket",
+    winner: (team: string) => `${team} wins`,
+    side: (team: string, score: string) => `${team} ${score}`,
+    tie: (id: string, round: string, a: string, b: string) => `${id}: ${round}, ${a} · ${b}`,
+    outcome: (tie: string, winner: string) => `${tie} · ${winner}`,
+  },
+  matchGoal: "Goal",
+  scoreboard: {
+    status: { upcoming: "Not started", live: "Live", break: "Half time", final: "Full time" },
+    score: (home: string, homeScore: string, awayScore: string, away: string) =>
+      `${home} ${homeScore}–${awayScore} ${away}`,
+    add: (team: string) => `Add a goal for ${team}`,
+    undo: (team: string) => `Undo a goal for ${team}`,
+    start: "Start clock",
+    stop: "Stop clock",
+  },
   fixtureHome: "Home",
   fixtureAway: "Away",
   fixtureMeet: (time: string) => `Meet at ${time}`,
@@ -6,6 +23,22 @@ export const en = {
   fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
   fixtureScore: (us: string, them: string) => `${us}–${them}`,
   fixtureSeparator: " · ",
+  lineup: {
+    title: "Starting lineup",
+    bench: "Substitutes",
+    separator: "–",
+    player: (name: string, number: string) => `${name}, shirt ${number}`,
+    read: (id: string, name: string, number: string) => `${id}: ${name} #${number}`,
+  },
+  matchFeed: {
+    title: "Match events",
+    add: "Add event",
+    sides: { home: "Home", away: "Away" },
+    kinds: { goal: "Goal", card_yellow: "Yellow card", card_red: "Red card", sub: "Sub", note: "Note" },
+    minute: (value: string) => `${value}′`,
+    event: (minute: string, side: string, kind: string, text: string) =>
+      `${minute} ${side} · ${kind}: ${text}`,
+  },
   squad: {
     available: "Available to play",
     reply: "Your availability",

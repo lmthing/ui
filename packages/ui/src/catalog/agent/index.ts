@@ -7,6 +7,7 @@ export {
 } from "./affordances";
 export { checkDriveDeclaration, driveAffordances, driveTarget, type CanDrive } from "./drives";
 export { readComponent, readScreen, type ScreenLike } from "./read";
+export { hostOnlyParts, hostOnlyAddresses, privateMarkKey, redactPrivateMarks } from "./action-input";
 export { appCurrencySchema, moneyFractionDigits, parseAppCurrency, type AppCurrency } from "./app-currency";
 export {
   atDeviceTime,
@@ -24,7 +25,14 @@ export {
 export { visibleItems } from "./visibility";
 export { pickerAt, pickerKey, projectLiveInputs } from "./live-inputs";
 export { linkedEditKey } from "./linked-edits";
-export { isRecordJournal, isRecordPress, recordTargetAt } from "./record-runtime";
+export { itemMoveOffer } from "./action-input";
+export {
+  isRecordJournal,
+  isRecordPress,
+  recordActionAt,
+  recordTargetAt,
+  withRecordScreen,
+} from "./record-runtime";
 export {
   hasReportConfirmation,
   itemEditSpec,

@@ -10,7 +10,7 @@ import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
 import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
-import { projectMoves } from "./action-input";
+import { projectDerivedMoves, projectMoves } from "./action-input";
 import { projectRecordRuntime } from "./record-runtime";
 import {
   adjustmentAt,
@@ -135,7 +135,8 @@ export function liveProps(
   now?: number,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
-  const addressed = projectRecordIds(meta, projectDeviceRows(meta, validated, data), get);
+  const moved = projectDerivedMoves(meta, validated, get);
+  const addressed = projectRecordIds(meta, projectDeviceRows(meta, moved, data), get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   let props = wireApplied
@@ -143,7 +144,7 @@ export function liveProps(
     : projectControls(meta, addressed, get);
   if (!wireApplied && (meta.items?.set || meta.items?.adjust || runtime))
     props = projectAdjustments(meta, props, get);
-  const timed = projectLiveClocks(meta, props, get, runtime || Boolean(meta.live));
+  const timed = projectLiveClocks(meta, props, get, runtime || !!(meta.live || meta.recordRuntime?.actions));
   if (timed !== props) props = timed;
   else if (draw || emptyActions?.length || errorActions?.length || successActions?.length || session) {
     const state = get("$state");

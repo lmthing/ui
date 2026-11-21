@@ -2,14 +2,16 @@ import { expect, it, vi } from "vitest";
 import type { z } from "zod";
 import { parseControlProps, planAct, readScreen, type Definition } from "@lmthing/ui/catalog";
 import { createAgentAccess, createInteractionStore, createScreenController } from "@lmthing/ui/kit";
-import { Inspections as draft } from "../../../../packs/property";
+import { Inspections } from "../../../../packs/property";
 
+// This runtime fixture exercises edits across both rooms without switching rooms.
+const { visibleWhen: _visibleWhen, ...items } = Inspections.meta.items;
 const def: Definition = {
-  ...draft,
+  ...Inspections,
   meta: {
-    ...draft.meta,
+    ...Inspections.meta,
     items: {
-      ...draft.meta.items,
+      ...items,
       edits: {
         condition: {
           action: "select",
@@ -27,7 +29,7 @@ const def: Definition = {
         remove_photo: { action: "remove", photo: "photo" },
       },
       editPath: (item, wire) => {
-        const rooms = wire.rooms as (typeof draft.examples)[number]["rooms"];
+        const rooms = wire.rooms as (typeof Inspections.examples)[number]["rooms"];
         const room = rooms.findIndex(({ roomRef }) => roomRef === item.roomRef);
         const check = rooms[room]?.checks.findIndex(({ checkRef }) => checkRef === item.checkRef);
         return check !== undefined && check >= 0 ? ["rooms", room, "checks", check] : undefined;
@@ -36,7 +38,7 @@ const def: Definition = {
     signOff: { finalise: "finalisedAt" },
   },
 };
-const seed: z.input<typeof draft.props> = draft.examples[0]!;
+const seed: z.input<typeof Inspections.props> = Inspections.examples[0]!;
 const room = seed.rooms[0]!;
 const check = room.checks[0]!;
 const input = {

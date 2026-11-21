@@ -1,4 +1,5 @@
 export { KitCard } from "./surface";
+export { KitSignaturePad } from "./drawing";
 export { KitNumberPad } from "./keys";
 export { KitSetRow, KitFlip, KitTicket } from "./composition";
 export { KitCode } from "./codes";

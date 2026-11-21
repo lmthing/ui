@@ -5,8 +5,19 @@ import { adjustmentAt, projectAdjustments, setAt } from "../clocks";
 export { localValues, selectStep } from "./select-step";
 export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
-export { itemActionOffer, moveKey, projectMoves } from "./move";
+export { itemActionOffer, itemMoveOffer, moveKey, projectDerivedMoves, projectMoves } from "./move";
 export { findAction } from "./offered-actions";
+export {
+  createPrivateMarks,
+  hostOnlyParts,
+  hostOnlyAddresses,
+  isPrivateMark,
+  planHostAct,
+  privateMarkKey,
+  redactPrivateMarks,
+  registerPrivateMark,
+  type PrivateMarks,
+} from "./host-actions";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,

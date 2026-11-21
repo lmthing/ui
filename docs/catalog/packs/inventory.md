@@ -36,9 +36,11 @@ the quantity is at or under its minimum, and an optional value.
 - Writes: `items` of `name` text(28), `photo` optional, `qty` number, `min` number optional, `where`
   text(24) optional, `value` number optional, `goto`, 1–12; `filter` (`all`, `low`); `style`. Low stock is
   computed from `min`.
-- Styles: `grid` (default), `rows`. · Parts → actions: items `root press`, items `qty increment`, items
+- Styles: `grid` (default), `rows`, `audit` (Wave 6: expected vs counted stocktake reconciliation).
+- Parts → actions: items `root press`, items `qty increment`, items
   `qty decrement`. · States: filled, empty, loading. · Dense.
 - Real path: records on the device.
+- Wave 6 options: add `filter: "missing"` (collection checklist gap mode), plus optional `serial` text(24) and `condition` (`new`, `good`, `worn`, `damaged`).
 
 ### `Storage` · planned · content · phone
 Places within places: a breadcrumb at the top (Garage › Shelf 2), then the spots inside this one with how
@@ -49,6 +51,7 @@ many things each holds, and the things kept right here.
   each, 0–6. How many things each spot holds is computed.
 - Parts → actions: path items `root press`, spots `root press`. · States: filled, empty.
 - Real path: a tree of spots on the device.
+- Wave 6 options: add `code` text(24) (box QR/label), `fragile` boolean, and `status` (`packing`, `sealed`, `in_transit`, `unpacked`) for moving trackers.
 
 ### `Loans` · planned · data · phone
 What is lent and borrowed: each thing with its photo, the person, since when, due back, overdue in `bad`,
@@ -59,6 +62,7 @@ and "Returned".
   `since` date, `due` date optional, 1–6. Overdue is computed.
 - Parts → actions: items `returned press` (in `confirmParts`), items `remind press` (`partTiers`: `service`).
 - States: filled, empty. · Real path: records on the device.
+- Wave 6 options: add optional `conditionOut` and `conditionIn` notes for tool and equipment lending.
 
 ### `Warranties` · planned · data · phone
 Receipts and warranties: each thing with where and when it was bought, the price, a receipt thumbnail, and
@@ -79,6 +83,7 @@ after which the host adds a `Things` record and removes the wish.
   `priority` 1–3, `where` text(24) optional, 1–6.
 - Parts → actions: items `got press` (in `confirmParts`), items `root press`. · States: filled, empty.
 - Real path: records on the device; price tracking would be a `service`.
+- Wave 6 options: add optional `targetAlert` boolean (`meta.partTiers: { alert: "service" }`) for price-drop alerts.
 
 ### `Listing` · planned · content · phone
 A place to rent or buy: price per month or the asking price, beds, baths and area as icon facts, the
@@ -102,6 +107,7 @@ who is on it, and brief updates. Any request workflow (queue, triage, thread, wo
   text(36), 0–4.
 - Parts → actions: `status select` (landlord), `update type`. · States: filled, success (fixed).
 - Real path: requests in a shared app between tenant and landlord.
+- Wave 6 note: flagged for retirement in favor of the `requests` pack; keep `Listing` and `Lease` strictly for single-landlord item or property records (`realestate` and `property` handle full home-buying search and multi-unit rent ledgers).
 
 ### `Lease` · planned · data · phone
 One lease: the tenant and the place, start and end dates with the time left as a bar, rent and when it is
@@ -142,6 +148,10 @@ renewal is in 40 days; a tenant's leaking-tap `Request` moves from new to booked
 - Order: `Things`, `Storage`, `Loans`, `Warranties`, `Wishlist`, `Listing`, `Lease`, `Request`.
 - Moving a thing between locations is its detail screen's `Field` kind `choice` or a `Sheet` style
   `picker` of spots; no drag.
+- **Wave 6 additions & options:**
+  - `+0` new components: Wave 6 extends existing inventory components via options rather than adding new IDs.
+  - Option/style upgrades: `Things` gains `style: "audit"` (stocktake expected vs counted), `filter: "missing"`, optional `serial` text(24) and `condition` (`new`, `good`, `worn`, `damaged`); `Storage` gains `code` text(24), `fragile` boolean and `status` (`packing`, `sealed`, `in_transit`, `unpacked`); `Loans` gains `conditionOut` / `conditionIn` notes; `Wishlist` gains `targetAlert` (`meta.partTiers: { alert: "service" }`).
+  - Boundary note: flag `inventory/Request` for retirement in favor of `requests`; keep `Listing` and `Lease` strictly for single-landlord item/property records.
 
 ## Open questions
 

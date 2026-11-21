@@ -116,8 +116,8 @@ export type Meta = {
     pickers?: Readonly<Record<string, { prop: string; choices: ChoiceSource }>>;
     /** Locate the row's wire owner; required for host row edits, otherwise defaults to the stamped index. */
     editPath?: ItemEditPath;
-    /** Item-root move: the row's column index and the component's array of { label } columns. */
-    move?: { column: string; columns: string };
+    /** Item-root move by index into { label } columns, or by ordered values of a wire row enum. */
+    move?: LiveMeta.ItemMove;
     /** Item parts with a numeric `set`; adjustments to the same prop share its value and bounds. */
     set?: Readonly<Record<string, ItemNumericSet>>;
     nested?: {
@@ -173,7 +173,6 @@ export type Meta = {
   /** Built by code (e.g. TabBar); stays readable but has no choose/write prompts or probes. */
   codeOwned?: boolean;
 };
-
 /** Pure check over canonical entries with parsed props. Report stable `S.*` codes. */
 export type PackScreenValidator = (screen: ScreenLike) => readonly Issue[];
 export type PackMeta = {
@@ -181,6 +180,7 @@ export type PackMeta = {
   example: string;
   probes: readonly (PackProbe | ChooseProbe)[];
   screenValidators?: readonly PackScreenValidator[];
+  hostRecords?: LiveMeta.HostRecords;
 };
 export type Slot = {
   allow: readonly ComponentId[];

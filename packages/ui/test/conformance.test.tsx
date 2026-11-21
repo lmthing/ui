@@ -29,7 +29,7 @@ import {
   visibleTexts,
 } from "./variants";
 
-const ready = selectedIds(Object.keys(renderers) as ComponentName[]);
+const ready = selectedIds(Object.keys(renderers) as ComponentName[], import.meta.url);
 const modes = ["light", "dark"] as const;
 
 function stampExampleItems(meta: Meta, props: Record<string, unknown>) {
@@ -48,6 +48,10 @@ function expectEmptyCopy(meta: Meta, input: Record<string, unknown>, html: strin
   if (!lines?.length) return expect(html).toContain(emptyLine(meta.deviceDataVisible ? undefined : "walk"));
   const visible = visibleTexts(html).join(" ");
   for (const line of lines) expect(visible).toContain(line);
+}
+
+function isExampleHidden(meta: Meta, state: StateName, data?: DeviceData) {
+  return (meta.selectionBinding?.requireSelection && state === "empty") || !isDeviceDataVisible(meta, data);
 }
 
 it("stamps runtime faces from the declared count without a Writer item array", () => {
@@ -131,8 +135,8 @@ describe.each(ready)("%s conformance", (id) => {
             html,
             props: parsed,
             deviceData,
-          } = renderExample(id, example, state, theme, { thing: "walk" });
-          if (!isDeviceDataVisible(meta, deviceData)) {
+          } = renderExample(id, example, state, theme, { thing: "walk", previewSelection: true });
+          if (isExampleHidden(meta, state, deviceData)) {
             expect(addressedElements(html).size).toBe(0);
             continue;
           }

@@ -7,9 +7,9 @@ point here.
 
 | File                                       | Holds                                                                                               |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| [core.md](core.md)                         | The core: 45 components available to every app, 44 model choices, 17 archetypes, build order        |
-| [packs/README.md](packs/README.md)         | The pack index: all 27 packs, the one-line pick for each, common combinations                       |
-| [packs/build-plan.md](packs/build-plan.md) | Pack build order, shared prerequisites, per-pack workflow and gates                                 |
+| [core.md](core.md)                         | The core: 45 built components (+ 2 Wave 6 planned: `PassCard`, `FileList`), 44 built model choices, 17 archetypes, build order |
+| [packs/README.md](packs/README.md)         | The pack index: all 57 packs (27 Waves 1–5 + 30 Wave 6), the one-line pick for each, combinations |
+| [packs/build-plan.md](packs/build-plan.md) | Pack build order (Waves 0–6), shared prerequisites, per-pack workflow and gates                   |
 | `packs/<pack>.md`                          | One pack in full: purpose, apps it serves, every component, archetypes, worked example, build notes |
 
 ## Where this came from
@@ -17,7 +17,10 @@ point here.
 Four research passes on 2026-11-17: design-system inventories (Apple HIG, Material 3, Ant Mobile, Polaris,
 Carbon, shadcn, Tamagui and others), the main screens of top apps in 16 store categories, vocabularies built
 for models (A2UI, Adaptive Cards, Block Kit, json-render, OpenAI Apps SDK, no-code builders), and what people
-ask AI app builders to make. Sources were thin: most frequencies are informed judgment, not counts. The one
+ask AI app builders to make. In Wave 6 (2026-11-21), a follow-up audit checked the top 10 Google Play Store
+apps across all 32 standard app categories, 17 game categories, Kids, and Wear OS, adding 59 components to the
+27 existing packs and specifying 30 new packs (196 components, 110 archetypes) plus 2 core additions.
+Sources were thin on early passes: most frequencies are informed judgment, not counts. The one
 sourced finding that shaped everything is that **overlap between choices hurts a model more than their
 number**, so every entry here names its nearest neighbours and how to tell them apart, and a gap is closed
 with an option on an existing component before a new id is added.
@@ -76,6 +79,7 @@ Every action name below is new to the vocabulary in plan 4.12 (each is a minor c
 | `move`          | A column or table label | data `Board`, events `Seating`                                         |
 | `send`          | None                    | `Composer` (reply)                                                     |
 | `scan`          | None                    | events `Door` (returns a code; tier `ok`)                              |
+| `copy`          | None (copies value to clipboard) | `PassCard`, `KeyValue[masked]`, code blocks, coupon/promo codes, vault secrets, invite links |
 
 Countdowns in packs (`KitchenTimers`, `CookSteps` step timers, `BabyLog` feed and sleep timers) use the
 existing `start` and `stop`, like core `Timer`. Everything else uses the existing `press`, `toggle`, `check`, `select`, `type`, `set`, `increment`,
