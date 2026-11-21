@@ -25,8 +25,8 @@ Layout rule: This is a daily mood check-in for the person, not a rating of objec
 Layout rule: Header title is "Daily mood"; its subtitle is "Rate how you feel, then tap Save mood". Scale asks how the person feels today. Title Bars "Recent ratings out of 5", set detail "brief" to hide the meaningless sum of separate ratings, and leave density null. Keep every supplied prior rating unchanged as context, not a second task. Use one primary Button labelled "Save mood".
 
 Layout: journal/photos. Job: Entries over time and room to write.
-Layout rule: Name the subject and photo journal in the Header. Its subtitle tells the person to open a photo to see the entry. Set Header action to literal null; never put a camera or New entry shortcut there. The final Button, labeled Write entry, is the only creation action and goes to new_entry.
-Layout rule: Use each supplied photo with a distinct caption and a goto to its entry. When photos share a reference, make their captions useful with the record name and a short supplied fact, such as its care interval. Keep the fact readable and the full caption within 24 characters; do not use a clipped word or invent a photo or date.
+Layout rule: Name the subject and photo journal in the Header. Use the subtitle “Tap a photo to read its entry”. Header action and axes are null. The final Button says Write entry and goes to new_entry; its axes, kind, icon and confirm are null.
+Layout rule: Use each supplied photo with a distinct caption and a goto to its entry, such as entry_fern. When photos share a reference, use the record name and an exact, plain-language fact from the cast. With care intervals, use “Fern · every 7 days” within the 24-character limit, never abbreviate days to d. Leave Gallery axes null.
 
 Layout: onboarding/single. Job: The first few steps in the app.
 Layout rule: Welcome a first-time person into setup, not into an urgent status report. Hero welcomes them; Note explains the first setup task; Steps shows step one of three with that task's label; Button starts it and navigates to setup. All four components describe the same first-time flow, not activity that has already been logged.

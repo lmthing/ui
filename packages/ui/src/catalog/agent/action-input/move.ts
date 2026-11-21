@@ -1,6 +1,6 @@
 import type { Meta } from "../../meta";
 import type { Definition } from "../../probes";
-import { choiceValues, type Affordance, type Values } from "../index";
+import type { Affordance, Values } from "../index";
 
 export const moveKey = (item: string) => `${item}/$move`;
 
@@ -32,12 +32,6 @@ export function itemActionOffer(meta: Meta, props: Values, row: Values, offer: A
     const move = part === "root" && moveOffer(meta, props, row);
     return move ? [{ ...offer, move }] : [];
   }
-  if (
-    action === "select" &&
-    meta.items?.edits?.[part]?.action === "select" &&
-    !choiceValues(meta, props, `${String(row.id)}/${part}`)?.length
-  )
-    return [];
   return [offer];
 }
 

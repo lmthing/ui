@@ -8,7 +8,7 @@ import { isAdjustOnlyItem } from "./affordances";
 import { projectDraw } from "./draw";
 import { projectLiveInputs, projectNamedSelections } from "./live-inputs";
 import { projectLegacySelection, projectNested, projectSelection } from "./selection";
-import { applyReportEdits } from "./report-edits";
+import { applyRecordWire, applyReportEdits, projectRecordIds } from "./report-edits";
 import { projectMoves } from "./action-input";
 import {
   adjustmentAt,
@@ -40,7 +40,6 @@ function wireAdjustmentKey(def: Definition, key: string) {
   const prop = key.slice(key.lastIndexOf("/") + 1);
   return rows instanceof z.ZodArray && fieldOf(unwrapField(rows.element, true), prop) ? `$wire/${key}` : key;
 }
-
 function projectWireAdjustments(def: Definition, input: Values, get: (part: string) => unknown): Values {
   const items = def.meta.items;
   if (!items?.adjust || !Array.isArray(input[items.key])) return input;
@@ -74,6 +73,7 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   let source = projectComponentSets(meta, applyReportEdits(meta, input, get), get);
   if (meta.select?.choices) source = projectLegacySelection(meta, source, get);
   source = projectNamedSelections(meta, source, get, "wire");
+  source = applyRecordWire(meta, source, get);
   source = projectMoves(def, source, get);
   const items = meta.items;
   if (!items || (!items.set && !items.adjust && !(items.nested && (meta.select || meta.set)))) return source;
@@ -101,7 +101,6 @@ export function projectControlInput(def: Definition, input: Values, get: (part: 
   }
   return source;
 }
-
 /** Recompute derived props from the wire after applying staged edits, never from draft input. */
 export function parseControlProps(def: Definition, input: unknown, get?: (part: string) => unknown): Values {
   const repaired = repairVariants(def, input).props;
@@ -111,13 +110,11 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
       : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
-
 /** Shared schema-prop projection for the planner, reader and kit screen. */
 export function projectControls(meta: Meta, props: Values, get: (part: string) => unknown): Values {
   const projected = projectNested(meta, projectSelection(meta, props, get), get);
   return projectComponentSets(meta, projected, get);
 }
-
 /** Preserve parsed values for component setters already applied to the wire. */
 export function projectParsedControls(
   meta: Meta,
@@ -129,7 +126,6 @@ export function projectParsedControls(
   const nested = projectNested(meta, selected, get);
   return runtime || meta.items?.set || meta.items?.adjust ? projectAdjustments(meta, nested, get) : nested;
 }
-
 /** Runtime-only presentation keeps the validated wire data and stable item ids intact. */
 export function liveProps(
   meta: Meta,
@@ -140,6 +136,7 @@ export function liveProps(
   data?: DeviceData,
 ): Values {
   const get = (part: string) => values[`${instance}/${part}`];
+  props = projectRecordIds(meta, props, get);
   const { draw, emptyActions, errorActions, successActions, session } = meta;
   const runtime = Boolean(get("$runtime"));
   if (wireApplied) props = projectParsedControls(meta, props, get, runtime);
@@ -172,7 +169,6 @@ export function liveProps(
     );
   return { ...props, [key]: items };
 }
-
 export function stageItemAdjustment(
   screen: ScreenLike,
   defs: Record<string, Definition>,

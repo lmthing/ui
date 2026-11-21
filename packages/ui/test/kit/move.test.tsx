@@ -6,7 +6,7 @@ import { TamaguiProvider } from "tamagui";
 import { PhoneScreen } from "../../src/kit/screen";
 import { config, elementAt } from "../render";
 import { hasColumnTarget } from "./column-target";
-import { moveDef, moveDefs, moveScreen, MoveFixture } from "./move.fixture";
+import { moveDef, moveDefs, moveScreen, MoveFixture } from "./move";
 
 const address = "home/c1/r1/root";
 const move = (value: unknown) => ({ address, action: "move", value });
