@@ -1,9 +1,28 @@
 import type { Definition } from "../../probes";
 import type { DeviceData } from "../device-data";
-import { drawKey, drawRole, holdIndex, performDraw, storeDraw, type RandomSource } from "../draw";
-import { advanceSession, sessionEvent, sessionKey } from "../session";
+import { drawKey, drawRole, holdIndex, performDraw, staleDraw, storeDraw, type RandomSource } from "../draw";
+import { advanceSession, sessionEvent, sessionKey, staleSession } from "../session";
 import { liveProps, parseControlProps, type ActStep, type ScreenLike, type Values } from "../index";
 import { localValues } from "./select-step";
+
+export function expireProgress(
+  screen: ScreenLike,
+  defs: Record<string, Definition>,
+  values: Values,
+  data?: DeviceData,
+) {
+  for (const { id, c, state: _state, ...raw } of screen.components) {
+    const def = defs[c];
+    const draw = `${screen.id}/${id}/${drawKey}`;
+    const session = `${screen.id}/${id}/${sessionKey}`;
+    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
+    const local = localValues(screen.id, values);
+    const parsed = parseControlProps(def, raw, (part) => local[`${id}/${part}`]);
+    const props = liveProps(def.meta, parsed, id, local, true, data);
+    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
+    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
+  }
+}
 
 export function stageProgress(
   screen: ScreenLike,

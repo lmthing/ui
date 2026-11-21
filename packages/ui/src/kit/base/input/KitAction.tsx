@@ -14,8 +14,10 @@ import {
   type IconName,
 } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
-import { useComponentState, usePart } from "../../part";
+import { usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
+import { useActionAvailability } from "./use-action-availability";
+
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
 const Frame = styled(XStack, {
   alignItems: "center",
@@ -156,16 +158,10 @@ export function KitAction({
   const kit = useKit();
   const ks = useKitStyle();
   const address = usePart(part ?? undefined, part !== null);
-  const loading = useComponentState() === "loading";
+  const { loading, inactive: unavailable } = useActionAvailability(address.testID, part, action, disabled);
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
-  const blocked =
-    kit.interactive &&
-    kit.controller &&
-    !(action
-      ? kit.controller.actionsAt(address.testID).includes(action)
-      : kit.controller.canPress(address.testID));
   const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
-  const inactive = part === null || loading || disabled || noCopyValue || Boolean(blocked);
+  const inactive = part === null || unavailable || noCopyValue;
   const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
   const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
   const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";

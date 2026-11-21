@@ -3,6 +3,7 @@ import type { Definition } from "../../probes";
 import type { StateName } from "../../types";
 import {
   affordancesOf,
+  hostActionPolicy,
   isDeviceDataVisible,
   liveProps,
   parseControlProps,
@@ -54,9 +55,10 @@ export function driveTarget(
     const props = projectSelectionBinding(def.meta, live, selection?.view);
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
       data,
+      host: screen[hostActionPolicy],
     });
     if (hostOnlyAddresses(def, id, offered)?.has(address)) continue;
-    if (offered.some((a) => a.address === address && a.action === "seek"))
+    if (offered.some((a) => a.address === address && a.action === "seek" && !a.hostIntent))
       return !canDrive || canDrive(address)
         ? { address, screen: screen.id, seconds: props.seconds }
         : undefined;
@@ -74,6 +76,7 @@ export function driveAffordances(
   if (meta.drives === undefined) return offered;
   const rows = new Map(addressedItems(meta, props).map((row) => [`${id}/${String(row.id)}`, row]));
   return offered.flatMap((a) => {
+    if (a.hostIntent) return [a];
     const row = a.action === "press" && a.part === "root" && rows.get(a.address);
     if (!row) return [a];
     const value = row.at;

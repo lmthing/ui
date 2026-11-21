@@ -22,6 +22,7 @@ import {
 import { isRuntimeSet, recordClockOffer, setAt } from "../clocks";
 import { itemEditAt, reportEditWire } from "../report-edits";
 import { credentialToggleOn } from "../credential-toggle";
+import type { HostActionPolicy } from "../host-commands";
 
 const risks: Record<string, string> = {
   ok: " !needs-ok",
@@ -43,9 +44,17 @@ export function readOffers(
   props: Values,
   state: StateName,
   values: Values,
-  addresses: ReadonlySet<string>,
-  data?: DeviceData,
-  target?: ReturnType<typeof driveTarget>,
+  {
+    addresses,
+    deviceData: data,
+    target,
+    host,
+  }: {
+    addresses: ReadonlySet<string>;
+    deviceData?: DeviceData | undefined;
+    target?: ReturnType<typeof driveTarget>;
+    host?: HostActionPolicy | undefined;
+  },
 ) {
   const get = (part: string) => values[`${instance}/${part}`];
   const offered = affordancesOf(def.meta, props, instance, values, state, false, {
@@ -53,6 +62,7 @@ export function readOffers(
     clock: recordClockOffer(def, wire as Values, props, get, data, undefined, values),
     wire: reportEditWire(def, wire, get),
     schema: def.props,
+    host,
   });
   const hostOnly = hostOnlyAddresses(def, instance, offered);
   const visible = offered.filter(({ address }) => !hostOnly?.has(address) && !addresses.has(address));

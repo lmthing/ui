@@ -35,6 +35,7 @@ function tickInput(
 }
 
 function needsClock(ctx: ControllerContext) {
+  if (!ctx.admitted()) return false;
   const values = ctx.valuesOf();
   return ctx.screen.components.some((entry) => {
     if (!ctx.defs[entry.c]) return false;
@@ -113,7 +114,7 @@ export function createClock(ctx: ControllerContext, expireConfirmation?: () => v
   function scheduleDeviceWake() {
     if (wake !== undefined) clearTimeout(wake);
     wake = undefined;
-    if (ctx.status.disposed) return;
+    if (ctx.status.disposed || !ctx.admitted()) return;
     const now = ctx.now();
     const next = nextDeviceWake(ctx, now);
     if (next === undefined) return;
@@ -137,7 +138,7 @@ export function createClock(ctx: ControllerContext, expireConfirmation?: () => v
     }
   }
   function tick() {
-    if (ctx.status.disposed) return;
+    if (ctx.status.disposed || !ctx.admitted()) return;
     tickValues(ctx);
     scheduleClock();
   }

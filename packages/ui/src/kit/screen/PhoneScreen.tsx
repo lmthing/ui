@@ -12,7 +12,14 @@ import {
   type Issue,
 } from "../../catalog";
 import { KitProvider, useEnvironment, type NativeHost } from "../provider";
-import { createAgentAccess, DeviceDataContext, type InteractionStore, type MediaAdapter } from "../interact";
+import {
+  createAgentAccess,
+  DeviceDataContext,
+  type HostCommandAdapter,
+  type InteractionStore,
+  type MediaAdapter,
+  type ParentGate,
+} from "../interact";
 import type { PartRegistry } from "../registry";
 import { Screen, type RendererMap } from "./Screen";
 
@@ -42,6 +49,8 @@ export type PhoneScreenProps = {
   requestPhoto?: ((address: string) => Promise<string | undefined>) | undefined;
   interaction?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
+  hostCommands?: HostCommandAdapter | undefined;
+  parentGate?: ParentGate | undefined;
   interactive?: boolean | undefined;
   onReport?: ((issues: Issue[]) => void) | undefined;
   nativeHost?: NativeHost | undefined;

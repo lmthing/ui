@@ -6,6 +6,7 @@ import type { ScreenLike } from "./read";
 import {
   actionValueAddress,
   controlsAreValid,
+  expireProgress,
   findAction,
   localValues,
   type selectStep,
@@ -14,8 +15,7 @@ import {
   stageValue,
   validateStep,
 } from "./action-input";
-import { deviceRandom, drawKey, staleDraw, type RandomSource } from "./draw";
-import { sessionKey, staleSession } from "./session";
+import { deviceRandom, type RandomSource } from "./draw";
 import { clockChanges, clockControlDeclared } from "./clocks";
 import {
   captureDeviceTime,
@@ -29,6 +29,7 @@ import { stageReportEdit } from "./report-edits";
 import { stageInlinePress } from "./live-inputs";
 import { stageRecordAction, withRecordScreen } from "./record-runtime";
 import { stageCredentialToggle } from "./credential-toggle";
+import type { HostIntent } from "./host-commands";
 export type ActStep = { address: string; action: string; value?: unknown; recordTarget?: string };
 export type Values = Record<string, unknown>;
 export type SendDraft = { address: string; text: string; audience?: string };
@@ -41,6 +42,7 @@ export type ActResult =
       links: { goto: string; address: string }[];
       sends?: SendDraft[];
       driven?: ActStep[];
+      hostCommands?: HostIntent[];
     }
   | { ok: false; code: ActCode; at: number; hint?: string };
 /** A mounted controller already stages clocks through its action table. */
@@ -72,23 +74,6 @@ function stageStandaloneClock(
 function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
   return liveProps(def.meta, parsed, id, local, true, data);
-}
-
-function expireProgress(
-  screen: ScreenLike,
-  defs: Record<string, Definition>,
-  values: Values,
-  data?: DeviceData,
-) {
-  for (const { id, c, state: _state, ...raw } of screen.components) {
-    const def = defs[c];
-    const draw = `${screen.id}/${id}/${drawKey}`;
-    const session = `${screen.id}/${id}/${sessionKey}`;
-    if (!def || (values[draw] === undefined && values[session] === undefined)) continue;
-    const props = liveInput(def, raw, id, localValues(screen.id, values), data);
-    if (def.meta.draw && staleDraw(def.meta, props, values[draw])) values[draw] = undefined;
-    if (staleSession(def.meta, props, values[session])) values[session] = undefined;
-  }
 }
 
 function stepProgress(
@@ -170,6 +155,11 @@ export function planAct(
     const validated = { key, ...selected, ...validateStep(screen, defs, found, step, next, key) };
     const { result } = validated;
     if ("code" in result) return { ok: false, at, ...result };
+    if (found.hostIntent) {
+      (plan.hostCommands ??= []).push(found.hostIntent);
+      changed.push(`${address} ${step.action}`);
+      continue;
+    }
     // Clipboard text is a host effect, not a value to persist or echo back.
     if (step.action === "copy") {
       changed.push(`${address} copy`);

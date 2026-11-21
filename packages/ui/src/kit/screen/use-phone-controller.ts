@@ -7,55 +7,48 @@ import {
 } from "../interact";
 import type { PhoneScreenProps } from "./PhoneScreen";
 
-function useCommittedDeviceData(
-  source: { controller: ScreenController; committed: { deviceData: PhoneScreenProps["deviceData"] } },
-  deviceData: PhoneScreenProps["deviceData"],
+type HostSnapshot = Pick<PhoneScreenProps, "deviceData" | "hostCommands">;
+function useCommittedHost(
+  source: { controller: ScreenController; committed: { snapshot: HostSnapshot } },
+  snapshot: HostSnapshot,
 ) {
-  const [, refreshWithCommittedData] = useState(deviceData);
+  const [, refreshWithCommittedHost] = useState(snapshot);
   // Publish only on commit, before a child's layout effect can read the controller.
   useInsertionEffect(() => {
-    source.committed.deviceData = deviceData;
-  }, [source, deviceData]);
+    source.committed.snapshot = snapshot;
+  }, [source, snapshot]);
   useLayoutEffect(() => {
     source.controller.discardHiddenConfirmation();
     // Render-time control availability calls the controller, which just received the new snapshot.
-    refreshWithCommittedData(deviceData);
-  }, [source, deviceData]);
+    refreshWithCommittedHost(snapshot);
+  }, [source, snapshot]);
 }
 
 export function usePhoneController(props: PhoneScreenProps) {
-  const {
-    screen,
-    defs,
-    interaction,
-    interactive = true,
-    media,
-    resolveMedia,
-    onLink,
-    onAction,
-    onChange,
-    onSend,
-    requestPhoto,
-  } = props;
-  const language = useRef(props.lang);
-  language.current = props.lang;
-  const callbacks = useRef({ onLink, onAction, resolveMedia, onChange, onSend, requestPhoto });
-  callbacks.current = { onLink, onAction, resolveMedia, onChange, onSend, requestPhoto };
+  const { screen, defs, interaction, interactive = true, media } = props;
+  const { requestPhoto, deviceData, hostCommands, parentGate } = props;
+  const callbacks = useRef(props);
+  callbacks.current = props;
   const localStore = useMemo(() => createInteractionStore(), [screen.id]);
   const store = interaction ?? localStore;
-  const hasMediaResolver = Boolean(resolveMedia);
+  const hasMediaResolver = Boolean(props.resolveMedia);
+  const snapshot = useMemo(() => ({ deviceData, hostCommands }), [deviceData, hostCommands]);
   const source = useMemo(() => {
-    const committed = { deviceData: props.deviceData };
+    const committed = { snapshot };
     const controller = createScreenController({
       screen,
       defs,
       get lang() {
-        return language.current;
+        return callbacks.current.lang;
       },
       get deviceData() {
-        return committed.deviceData;
+        return committed.snapshot.deviceData;
+      },
+      get hostCommands() {
+        return committed.snapshot.hostCommands;
       },
       store,
+      parentGate,
       interactive,
       requireMounted: true,
       onChange: (changed, values) => callbacks.current.onChange?.(changed, values),
@@ -75,7 +68,7 @@ export function usePhoneController(props: PhoneScreenProps) {
           : undefined),
     });
     return { controller, committed };
-  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto)]);
-  useCommittedDeviceData(source, props.deviceData);
+  }, [screen, defs, media, hasMediaResolver, store, interactive, Boolean(requestPhoto), parentGate]);
+  useCommittedHost(source, snapshot);
   return source.controller;
 }

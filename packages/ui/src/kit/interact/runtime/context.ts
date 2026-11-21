@@ -6,10 +6,7 @@ import {
   sessionKey,
   staleSession,
   migrateScreen,
-  filterDeviceDataScreen,
-  projectDeviceData,
   resolveDefinition,
-  withDisabledSelectionChecks,
   type ActStep,
   type Definition,
   type DeviceData,
@@ -24,6 +21,7 @@ import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
 import { visibleConfirmation } from "./read-controls";
 import { createPrivateMarks } from "./private-mark";
+import { createHostProjection, type HostCommandAdapter, type ParentGate } from "./host";
 export type Confirmation = {
   message: string;
   kind: "primary" | "secondary" | "quiet" | "danger";
@@ -31,6 +29,7 @@ export type Confirmation = {
   goto?: string;
   step?: ActStep;
   removal?: ReportRemoval;
+  host?: true;
 };
 export type ControllerOptions = {
   screen: ScreenLike;
@@ -50,6 +49,8 @@ export type ControllerOptions = {
   requireMounted?: boolean | undefined;
   onLink?: ((goto: string, address: string) => void) | undefined;
   onAction?: ((step: ActionEvent) => void) | undefined;
+  hostCommands?: HostCommandAdapter | undefined;
+  parentGate?: ParentGate | undefined;
 };
 export type ScreenComponent = ScreenLike["components"][number];
 function initialValues(screen: ScreenLike, defs: Record<string, Definition>, now: () => number): Values {
@@ -104,27 +105,6 @@ function relativeAddress(screen: string, address: string) {
   const local = address.startsWith(`${screen}/`) ? address.slice(screen.length + 1) : address;
   return local.replace(/\/root$/, "");
 }
-function hostHidesSheet(screen: ScreenLike, visible: ScreenLike, sheet: string | undefined) {
-  return (
-    visible !== screen &&
-    screen.components.some(({ id }) => id === sheet) &&
-    !visible.components.some(({ id }) => id === sheet)
-  );
-}
-function projectLive(options: ControllerOptions, screen: ScreenLike, standalone: boolean, now: () => number) {
-  return (values: Values, sheet: string | undefined, covered = false, at = now()) => {
-    const visible = filterDeviceDataScreen(
-      screen,
-      options.defs,
-      projectDeviceData(options.deviceData, values),
-    );
-    if (standalone) return visible;
-    const projected = projectScreen(visible, options.defs, values, at, sheet, false, false);
-    return covered && !hostHidesSheet(screen, visible, sheet)
-      ? { ...projected, components: projected.components.filter((entry) => entry.id === sheet) }
-      : projected;
-  };
-}
 function createClipboard(
   { writeClipboard, resolveClipboardText }: ControllerOptions,
   store: InteractionStore,
@@ -133,16 +113,15 @@ function createClipboard(
   return clipboardRuntime(store, () => status.disposed, writeClipboard, resolveClipboardText);
 }
 type RuntimeOptions = ControllerOptions & { clipboard?: ReturnType<typeof clipboardRuntime> };
-export function createControllerContext(options: RuntimeOptions, standalone = false) {
-  const { defs, now = Date.now, store = createInteractionStore() } = options;
-  const screen = controllerScreen(options, standalone);
-  const disabledParts = new Map<string, symbol>();
+function createValues(
+  options: ControllerOptions,
+  screen: ScreenLike,
+  store: InteractionStore,
+  now: () => number,
+  standalone: boolean,
+) {
+  const { defs } = options;
   let initial = standalone ? {} : initialValues(screen, defs, now);
-  const status = {
-    disposed: false,
-    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
-    confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
-  };
   const localOnly = standalone && !screen.components.some(({ c }) => defs[c]?.meta.recordRuntime);
   const valuesOf = (at = now()) =>
     localOnly
@@ -153,6 +132,34 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
           ...Object.fromEntries(screen.components.map(({ id }) => [valueKey(screen.id, id, "$now"), at])),
         };
   return {
+    valuesOf,
+    resetValues: () => {
+      initial = initialValues(screen, defs, now);
+    },
+  };
+}
+
+export function createControllerContext(options: RuntimeOptions, standalone = false) {
+  const { defs, now = Date.now, store = createInteractionStore() } = options;
+  const screen = controllerScreen(options, standalone);
+  const disabledParts = new Map<string, symbol>();
+  const status = {
+    disposed: false,
+    openSheet: standalone ? undefined : (store.get(`${screen.id}/$sheet`) as string | undefined),
+    confirmation: store.get(`${screen.id}/$confirmation`) as Confirmation | undefined,
+  };
+  const { valuesOf, resetValues } = createValues(options, screen, store, now, standalone);
+  const changed = () => store.setMany({});
+  const { withPolicy, ...host } = createHostProjection(
+    options,
+    screen,
+    standalone,
+    now,
+    valuesOf,
+    disabledParts,
+    changed,
+  );
+  return {
     standalone,
     options,
     screen,
@@ -162,20 +169,20 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
     clipboard: createClipboard(options, store, status),
     status,
     valuesOf,
-    liveScreen: projectLive(options, screen, standalone, now),
+    ...host,
     confirmationFor: (data = options.deviceData, at = now()) =>
-      visibleConfirmation(
-        withDisabledSelectionChecks(screen, disabledParts),
-        defs,
-        status.confirmation,
-        data,
-        at,
-        valuesOf,
-      ),
+      host.admitted()
+        ? visibleConfirmation(
+            withPolicy(status.confirmation ? valuesOf(at) : {}),
+            defs,
+            status.confirmation,
+            data,
+            at,
+            valuesOf,
+          )
+        : undefined,
     expiredProgress: (values: Values, at = now()) => expiredProgress(screen, defs, values, at),
-    resetValues: () => {
-      initial = initialValues(screen, defs, now);
-    },
+    resetValues,
     mounted: new Map<string, symbol>(),
     disabledParts,
     privateMarks: createPrivateMarks(),
@@ -186,11 +193,11 @@ export function createControllerContext(options: RuntimeOptions, standalone = fa
       const { id: _id, c: _c, state: _state, ...input } = entry;
       return defs[entry.c]!.props.parse(input) as Values;
     },
-    notifyChange: () =>
-      options.onChange?.(
-        projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true),
-        store.snapshot(),
-      ),
+    notifyChange() {
+      if (!options.onChange || !host.admitted()) return;
+      const updated = projectScreen(screen, defs, valuesOf(), now(), status.openSheet, true);
+      options.onChange(updated, store.snapshot());
+    },
   };
 }
 export type ControllerContext = ReturnType<typeof createControllerContext>;

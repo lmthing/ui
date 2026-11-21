@@ -11,6 +11,7 @@ import type { SendDraft } from "./act";
 import { boundActionAvailable, isItemOffer } from "./selection-binding";
 import { itemActionOffer, partsOf } from "./action-input";
 import type { DeviceData } from "./device-data";
+import { hostOffer, type HostActionPolicy, type HostIntent } from "./host-commands";
 
 export type Affordance = {
   address: string;
@@ -24,6 +25,7 @@ export type Affordance = {
   togglePeers?: readonly string[];
   nestedStep?: { key: string; next: number };
   move?: { current: string | null; choices: string[] };
+  hostIntent?: HostIntent;
 };
 type Props = Record<string, unknown>;
 type OfferContext = {
@@ -31,6 +33,7 @@ type OfferContext = {
   wire?: Props | undefined;
   schema?: Definition["props"];
   clock?: ((target: string, action: string) => boolean) | undefined;
+  host?: HostActionPolicy | undefined;
 };
 type Adjustment = NonNullable<ReturnType<typeof adjustmentAt>>;
 /** Item increments without a numeric setter or a clock are owned by the pure action planner. */
@@ -67,6 +70,38 @@ function actionsForItem(
     .flatMap((offer) => itemActionOffer(meta, props, item, offer, schema));
 }
 
+function ownActions(meta: Meta, props: Props, instance: string) {
+  const { parts, when } = meta.actions ?? {};
+  return partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
+    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
+      return [];
+    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
+    if (send !== undefined) return send ? [{ ...a, send }] : [];
+    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
+    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
+  });
+}
+
+function itemActionsOf(
+  meta: Meta,
+  props: Props,
+  instance: string,
+  items: Props[],
+  context: OfferContext,
+  get: (part: string) => unknown,
+  includeBlocked: boolean,
+) {
+  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
+  // `$first` in a rule is true only for the first item (the top card of a stack).
+  const actions = items.flatMap((item, index) =>
+    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
+  );
+  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
+  return nestedActions(meta, props, instance, actions, get, includeBlocked).filter(
+    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
+  );
+}
+
 /** Every offered action, addressed relative to the screen (`l1/r1/trail`). */
 export function affordancesOf(
   meta: Meta,
@@ -82,31 +117,14 @@ export function affordancesOf(
   const session = sessionState(meta, props, get);
   props = sessionActionProps(meta, props, session);
   if (meta.errorActions) props = { ...props, state };
-  const { parts, when } = meta.actions ?? {};
-  const own = partsOf(parts, props, instance, when, props, meta).flatMap((a) => {
-    if ((a.action === "move" && meta.items?.move) || !hasNumericRoom(meta, props, a.part, a.action))
-      return [];
-    const send = a.action === "send" ? sendDraft(meta, props, a.part, instance) : undefined;
-    if (send !== undefined) return send ? [{ ...a, send }] : [];
-    const choices = a.action === "select" ? choiceValues(meta, props, a.part) : undefined;
-    return choices === undefined ? [a] : choices.length ? [{ ...a, detail: "" }] : [];
-  });
   const items = addressedItems(meta, props);
-  const visible = (meta.items?.visibleWhen || meta.items?.records) && new Set(visibleItems(meta, props));
-  // `$first` in a rule is true only for the first item (the top card of a stack).
-  const itemActions = items.flatMap((item, index) =>
-    visible && !visible.has(item) ? [] : actionsForItem(meta, props, item, instance, index === 0, context),
-  );
+  const nested = itemActionsOf(meta, props, instance, items, context, get, includeBlocked);
   const runtime = values[`${instance}/$runtime`];
-  const nested = nestedActions(meta, props, instance, itemActions, get, includeBlocked);
-  const hidden = visible && new Set(items.filter((item) => !visible.has(item)).map(({ id }) => id));
-  const visibleNested = nested.filter(
-    ({ address }) => !hidden || !hidden.has(address.slice(instance.length + 1).split("/")[0]),
-  );
   const now = Number(get("$now") ?? Date.now());
   const liveClock = runtime || meta.live?.derive || meta.recordRuntime?.actions;
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  return [...own, ...visibleNested].filter((offer) => {
+  const rows = meta.hostCommands ? new Map(items.map((item) => [String(item.id), item])) : undefined;
+  const offered = [...ownActions(meta, props, instance), ...nested].filter((offer) => {
     const { address, action, part } = offer;
     if (!boundActionAvailable(meta, props, part, action, isItemOffer(instance, offer))) return false;
     const target = address === instance ? "root" : address.slice(instance.length + 1);
@@ -127,6 +145,19 @@ export function affordancesOf(
       return (!adjustment?.atSet && !isAdjustOnlyItem(adjustment, action)) || adjustment?.next !== undefined;
     return !adjustment || adjustment.next !== undefined;
   });
+  if (!meta.hostCommands && !context.host) return offered;
+  return offered.flatMap((offer) => {
+    const allowed = hostOffer(
+      meta,
+      props,
+      instance,
+      offer,
+      partTierAt(meta, props, offer.part),
+      context.host,
+      rows,
+    );
+    return allowed ? [allowed] : [];
+  });
 }
 
 function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, feedback: boolean) {
@@ -134,6 +165,7 @@ function allowedIn(meta: Meta, state: StateName, pair: string, draw: boolean, fe
   if (errorOnly) return state === "error";
   if (state === "filled") return true;
   if (state === "empty") return meta.emptyActions?.some((allowed) => allowed === pair);
+  if (state === "loading") return meta.loadingActions?.some((allowed) => allowed === pair);
   return (
     (state === "success" || feedback) && (draw || meta.successActions?.some((allowed) => allowed === pair))
   );

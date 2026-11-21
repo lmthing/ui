@@ -1,5 +1,6 @@
 import {
   affordancesOf,
+  hostActionPolicy,
   isRecordPress,
   itemEditSpec,
   isRecordAction,
@@ -71,7 +72,12 @@ function confirmRecordAction(state: ActionState, action: ActStep, ctx: ActionCon
     : showConfirmation(state, { ...ctx.selected, recordTarget }, ctx);
 }
 
-export function confirmationFor(state: ActionState, action: ActStep, ctx: ActionContext) {
+export function confirmationFor(
+  state: ActionState,
+  action: ActStep,
+  ctx: ActionContext,
+  admittedPart?: string,
+) {
   const { id, c, state: entryState, ...raw } = ctx.entry;
   const def = ctx.defs[c]!;
   const { meta } = def;
@@ -86,6 +92,12 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
       (Object.hasOwn(meta.clearItems ?? {}, target) && meta.confirmParts?.includes(target)))
   )
     return showConfirmation(state, ctx.selected, ctx);
+  if (admittedPart !== undefined) {
+    return meta.confirmParts?.includes(admittedPart) ||
+      (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
+      ? showConfirmation(state, ctx.selected, ctx)
+      : undefined;
+  }
   const local = Object.fromEntries(
     Object.entries(state.values).map(([address, value]) => [address.replace(`${ctx.screen.id}/`, ""), value]),
   );
@@ -101,7 +113,7 @@ export function confirmationFor(state: ActionState, action: ActStep, ctx: Action
     local,
     (props.state as StateName | undefined) ?? entryState,
     false,
-    { data, wire, schema: def.props },
+    { data, wire, schema: def.props, host: ctx.active[hostActionPolicy] },
   ).find((offered) => offered.address === action.address && offered.action === action.action)?.part;
   return (part && meta.confirmParts?.includes(part)) ||
     (ctx.entry.c === "Button" && action.action === "press" && ctx.input.confirm)
