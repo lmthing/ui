@@ -1,12 +1,25 @@
 import {
   attachmentKey,
+  attachmentRowIdentity,
   attachmentSource,
+  atDeviceTime,
+  isDeviceDataVisible,
+  liveProps,
+  parseControlProps,
   planAct,
+  projectDeviceData,
   validMediaReference,
   withDisabledSelectionChecks,
+  withRecordScreen,
 } from "../../../../catalog";
 import type { ControllerContext } from "../index";
-import { attachmentCommand, sameAttachment, type AttachmentEntry, type AttachmentOffer } from "./media-host";
+import {
+  attachmentCommand,
+  registeredAttachment,
+  sameAttachment,
+  type AttachmentEntry,
+  type AttachmentOffer,
+} from "./media-host";
 
 type Job = { abort: AbortController; token: symbol | undefined; before?: AttachmentEntry | undefined };
 
@@ -53,6 +66,52 @@ function storeEntry(ctx: ControllerContext, address: string, entry?: AttachmentE
   mirror(ctx, address, entry);
 }
 
+function currentOwner(ctx: ControllerContext, offer: AttachmentOffer) {
+  if (offer.identity === undefined) return true;
+  const id = offer.address.split("/")[0]!;
+  const entry = ctx.sourceOf(id);
+  const def = entry && ctx.defs[entry.c];
+  if (!entry || !def) return false;
+  const now = ctx.now();
+  const values = ctx.valuesOf(now);
+  if (values[ctx.key(id, "$dismissed")]) return false;
+  const data = withRecordScreen(
+    atDeviceTime(projectDeviceData(ctx.options.deviceData, values), now),
+    ctx.screen,
+  );
+  if (!isDeviceDataVisible(def.meta, data)) return false;
+  const { id: _id, c: _c, state: _state, ...wire } = entry;
+  const prefix = `${ctx.screen.id}/`;
+  const local = Object.fromEntries(
+    Object.entries(values).map(([key, value]) => [key.replace(prefix, ""), value]),
+  );
+  try {
+    const parsed = parseControlProps(def, wire, (part) => local[`${id}/${part}`]);
+    const props = liveProps(def.meta, parsed, id, local, true, data, now);
+    return offer.identity === attachmentRowIdentity(def.meta, props, id, offer);
+  } catch {
+    return false;
+  }
+}
+
+function restoreEntry(ctx: ControllerContext, address: string, before?: AttachmentEntry) {
+  storeEntry(ctx, address, before && currentOwner(ctx, before.offer) ? before : undefined);
+}
+
+function reconcile(ctx: ControllerContext, jobs: Map<string, Job>) {
+  for (const [address, job] of jobs) {
+    const entry = ctx.attachmentEntries.get(address);
+    if (!entry || !admitted(ctx, entry.offer, job)) {
+      jobs.delete(address);
+      restoreEntry(ctx, address, job.before);
+      job.abort.abort();
+    }
+  }
+  for (const [address, { offer }] of ctx.attachmentEntries)
+    if (!currentOwner(ctx, offer) || !registeredAttachment(ctx.attachmentEntries, address, offer.identity))
+      storeEntry(ctx, address);
+}
+
 async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: AttachmentOffer) {
   const host = ctx.options.attachments;
   if (!host || ctx.status.disposed) return;
@@ -84,7 +143,7 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   }
   if (!current()) return;
   jobs.delete(address);
-  if (!admitted(ctx, offer, job)) storeEntry(ctx, address, before);
+  if (!admitted(ctx, offer, job)) restoreEntry(ctx, address, before);
   else if (
     output?.status !== "accepted" ||
     (output.reference !== undefined && !validMediaReference(output.reference)) ||
@@ -92,6 +151,7 @@ async function run(ctx: ControllerContext, jobs: Map<string, Job>, offer: Attach
   )
     storeEntry(ctx, address, { ...pending, phase: "error" });
   else storeEntry(ctx, address, { offer, phase: "ready", reference: output.reference, revision: Symbol() });
+  reconcile(ctx, jobs);
   ctx.notifyChange();
 }
 
@@ -100,19 +160,12 @@ export function createAttachments(ctx: ControllerContext) {
   return {
     run: (offer: AttachmentOffer) => void run(ctx, jobs, offer),
     reference(address: string) {
-      const stored = ctx.attachmentEntries.get(ctx.relative(address));
-      if (stored?.reference && admitted(ctx, stored.offer)) return stored.reference;
+      const local = ctx.relative(address);
+      const stored = ctx.attachmentEntries.get(local);
+      if (stored && !ctx.status.disposed && currentOwner(ctx, stored.offer))
+        return registeredAttachment(ctx.attachmentEntries, local, stored.offer.identity)?.reference;
     },
-    reconcile() {
-      for (const [address, job] of jobs) {
-        const entry = ctx.attachmentEntries.get(address);
-        if (!entry || !admitted(ctx, entry.offer, job)) {
-          jobs.delete(address);
-          storeEntry(ctx, address, job.before);
-          job.abort.abort();
-        }
-      }
-    },
+    reconcile: () => reconcile(ctx, jobs),
     clear() {
       const pending = [...jobs.values()];
       jobs.clear();

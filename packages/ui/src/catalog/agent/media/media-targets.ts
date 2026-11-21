@@ -35,6 +35,22 @@ export function attachmentSource(media: Extract<MediaOffer, { kind: "attachment"
   const owner = attachmentOwner(media);
   return source === "root" ? owner : `${owner}/${source}`;
 }
+export function attachmentRowIdentity(
+  meta: Meta,
+  props: Values,
+  instance: string,
+  media: Extract<MediaOffer, { kind: "attachment" }>,
+) {
+  const owner = attachmentOwner(media);
+  if (owner === instance) return;
+  const row = addressedItems(meta, props).find(({ id }) => String(id) === owner.slice(instance.length + 1));
+  const field = meta.items?.media?.identity;
+  try {
+    return row && JSON.stringify(field && row[field] !== undefined ? row[field] : row);
+  } catch {
+    return;
+  }
+}
 
 const slot = <T>(map: Readonly<Partial<Record<string, T>>> | undefined, part: string) =>
   map && Object.hasOwn(map, part) ? map[part] : undefined;
@@ -72,13 +88,8 @@ export function mediaAffordance(
       { ...offer, detail: state === "error" ? ":error" : state === true ? ":playing" : ":stopped", media },
     ];
   }
-  const owner = attachmentOwner(media);
-  const row =
-    owner === instance
-      ? undefined
-      : addressedItems(meta, props).find(({ id }) => id === owner.slice(instance.length + 1));
-  const field = meta.items?.media?.identity;
-  const identity = row && JSON.stringify(field && row[field] !== undefined ? row[field] : row);
+  const identity = attachmentRowIdentity(meta, props, instance, media);
+  if (attachmentOwner(media) !== instance && identity === undefined) return [];
   const source = attachmentSource(media);
   const sourceStatus = source ? gate.attachment(source, identity) : undefined;
   if (source && !sourceStatus?.present) return [];

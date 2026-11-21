@@ -17,6 +17,26 @@ export type AttachmentEntry = {
 };
 export type AttachmentEntries = Map<string, AttachmentEntry>;
 
+export function registeredAttachment(entries: AttachmentEntries, address: string, identity?: string) {
+  const entry = entries.get(address);
+  if (!entry || entry.offer.identity !== identity) return;
+  let current = entry;
+  const seen = new Set([address]);
+  for (let source = attachmentSource(current.offer); source; source = attachmentSource(current.offer)) {
+    const input = entries.get(source);
+    if (
+      !input ||
+      input.offer.identity !== identity ||
+      input.revision !== current.offer.sourceRevision ||
+      seen.has(source)
+    )
+      return;
+    seen.add(source);
+    current = input;
+  }
+  return entry;
+}
+
 const confirmedAttachments = new WeakMap<Confirmation, AttachmentOffer>();
 export function bindMediaConfirmation(confirmation: Confirmation, offer?: MediaOffer) {
   if (offer?.kind !== "attachment") return confirmation;
@@ -71,11 +91,10 @@ export function mediaHostGate(
       }
     },
     attachment(address, identity) {
-      const entry = entries.get(address);
-      if (!entry || entry.offer.identity !== identity) return;
-      const source = attachmentSource(entry.offer);
-      if (source && entries.get(source)?.revision !== entry.offer.sourceRevision) return;
-      return { phase: entry.phase, present: entry.reference !== undefined, revision: entry.revision };
+      const entry = registeredAttachment(entries, address, identity);
+      return (
+        entry && { phase: entry.phase, present: entry.reference !== undefined, revision: entry.revision }
+      );
     },
   };
 }

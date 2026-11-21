@@ -50,7 +50,13 @@ function commands() {
 it("invalidates the export confirmation if its accepted source is replaced", async () => {
   const { run, host, accept } = commands();
   const send = vi.fn();
-  const controller = createScreenController({ defs, screen, attachments: host, onSend: send });
+  let canPick = true;
+  const controller = createScreenController({
+    defs,
+    screen,
+    onSend: send,
+    attachments: { ...host, canRun: ({ address }) => canPick || !address.endsWith("/pick") },
+  });
   try {
     expect(controller.press("m/pick")).toMatchObject({ ok: true });
     await accept(0, "first");
@@ -66,6 +72,11 @@ it("invalidates the export confirmation if its accepted source is replaced", asy
     expect(run).toHaveBeenCalledTimes(2);
     controller.press("m/photo");
     await accept(2, "photo");
+    canPick = false;
+    controller.discardHiddenConfirmation();
+    expect(controller.read()).not.toContain("[m/pick press");
+    expect(controller.read()).toContain("[m/send send]");
+    expect(controller.attachmentReference("m/pick")).toBe("replacement");
     expect(controller.press("m/send").ok).toBe(true);
     expect(send).toHaveBeenCalledExactlyOnceWith("", "s/m", undefined, ["replacement", "photo"]);
     controller.press("m/export");
@@ -94,6 +105,12 @@ it("never exposes a previous row's ready result or admits its late result at a r
     controller.press("m/r1/scan");
     await accept(0, "first_scan");
     expect(controller.attachmentReference("m/r1/scan")).toBe("first_scan");
+    label = "Second entry";
+    controller.discardHiddenConfirmation();
+    expect(controller.store.get("s/m/$attachment/r1/scan")).toBeUndefined();
+    label = "First entry";
+    controller.discardHiddenConfirmation();
+    expect(controller.attachmentReference("m/r1/scan")).toBeUndefined();
     controller.press("m/r1/scan");
     label = "Second entry";
     controller.discardHiddenConfirmation();
