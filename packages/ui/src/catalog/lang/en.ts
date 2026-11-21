@@ -124,7 +124,6 @@ export const en = {
     copied: "Code copied",
     reveal: "Show member ID",
     hide: "Hide member ID",
-    brighten: "Scanner view",
     mask: (tail: string) => `••••${tail ? ` ${tail}` : ""}`,
     expiry: (date: string) => `Expires ${date}`,
     balance: "Balance",

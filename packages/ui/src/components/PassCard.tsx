@@ -21,13 +21,13 @@ export const meta = {
   // prettier-ignore
   parts: [
     "root", "frame", "issuer", "title", "member_name", "member_id", "reveal", "reveal_icon", "reveal_label",
-    "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "bright", "bright_label", "message",
+    "balance", "expiry", "status", "code", "code_icon", "code_label", "qr", "message",
   ],
   items: { key: "facts", parts: ["root", "label", "value"], visibleWhen: { detail: "full" } },
   states: ["filled", "empty", "loading", "error"],
   actions: {
-    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"], bright: ["toggle"] },
-    when: { reveal: { canReveal: true }, code: { scannable: true }, bright: { scannable: true } },
+    parts: { root: ["press"], reveal: ["toggle"], code: ["copy"] },
+    when: { reveal: { canReveal: true }, code: { scannable: true } },
     credentialToggles: { reveal: "memberId" },
   },
   read: (value, _state, lang): string[] => {
@@ -40,7 +40,7 @@ export const meta = {
       ...(expiresAt ? [c.passExpiryLine(expiresAt, lang)] : []),
       ...(used ? [words.used] : style === "transit" && scannable ? [words.ready] : []),
       ...(canReveal && memberId ? [c.maskedPassId(memberId, lang), words.reveal] : []),
-      ...(scannable ? [words.copy, words.brighten] : []),
+      ...(scannable ? [words.copy] : []),
     ];
   },
 } as const satisfies c.Meta;
@@ -57,7 +57,7 @@ export const props = z.strictObject({
   style: z.enum(["card", "coupon", "code", "transit"]).default("card"),
 }).overwrite((value) => ({
   ...value, ...passControls(value),
-  reveal: { value: "off" }, bright: { value: "off" },
+  reveal: { value: "off" },
   pointsLabel: value.balance === undefined ? undefined : value.pointsLabel,
 }));
 
@@ -151,22 +151,11 @@ function PassDetails({ input, layout, revealed }: { input: PassProps; layout: La
 }
 
 // prettier-ignore
-function ScannerSwitch({ label, density, align }: Layout & { label: string }) {
-  const loading = kit.useComponentState() === "loading";
-  const text = loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} centered={align === "center"}
-    content={[["label", label]]} /> : <kit.KitText part="bright_label" role="label" {...{ density, align }}>{label}</kit.KitText>;
-  const toggle = <kit.KitTrail kind="toggle" part="bright" label={label} />;
-  return align === "center" ? <kit.KitContent align={align} density={density}>{text}{toggle}</kit.KitContent>
-    : <kit.KitRow part={null} label={label} inline density={density} trailing={toggle}>{text}</kit.KitRow>;
-}
-
-// prettier-ignore
 export function PassCard(input: PassProps) {
   const { screen, component } = kit.usePartContext();
   const state = kit.useComponentState();
   const { scannable, state: invalid } = passControls(input);
   const reveal = kit.useControlValue<unknown>(`${screen}/${component}/reveal`, undefined);
-  const bright = kit.useControlValue(`${screen}/${component}/bright`, false) && scannable;
   const { words: { passCard: words } } = kit.useWords();
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const align = input.style === "code" ? "center" : "start";
@@ -178,23 +167,18 @@ export function PassCard(input: PassProps) {
     <kit.KitSkeleton shape="figure" content={[["label", input.issuer], ["heading", input.title]]} inset="none" centered={align === "center"} density={density} />
     <PassDetails input={input} layout={layout} revealed={false} />
     {scannable && <><kit.KitCode part={null} loading label={words.qr} />
-      <kit.KitSkeleton shape="control" kind="quiet" {...(align === "center" && { label: words.copy, full: true })} />
-      <ScannerSwitch label={words.brighten} {...layout} /></>}
+      <kit.KitSkeleton shape="control" kind="quiet" {...(align === "center" && { label: words.copy, full: true })} /></>}
   </kit.KitCard>;
-  const qr = scannable && <kit.KitContent group={bright ? "content" : "response"} align="center" density={density}>
-    <kit.KitCode part="qr" value={input.code!} label={words.qr} />
-    <kit.KitAction part="code" action="copy" value={input.code!} copiedLabel={words.copied} kind="quiet"
-      {...(align === "center" ? { label: words.copy, full: true } : { icon: "clipboard", a11y: words.copy })} />
-  </kit.KitContent>;
-  return <kit.KitCard part="frame" padded density={density} look={input.style === "coupon" && !input.used ? "tinted" : "surface"}
-    {...(bright ? { swatch: "white" as const } : {})}>
-    {bright && qr}
+  return <kit.KitCard part="frame" padded density={density} look={input.style === "coupon" && !input.used ? "tinted" : "surface"}>
     <kit.KitRow part="root" role="button" label={input.title} inline density={density}>
       <kit.KitText part="issuer" role="label" tone="muted" {...layout}>{input.issuer}</kit.KitText>
       <kit.KitText part="title" role="heading" {...layout}>{input.title}</kit.KitText>
     </kit.KitRow>
     <PassDetails input={input} layout={layout} revealed={c.credentialToggleOn(reveal, input.memberId)} />
-    {!bright && qr}
-    {scannable && <ScannerSwitch label={words.brighten} {...layout} />}
+    {scannable && <kit.KitContent group="response" align="center" density={density}>
+      <kit.KitCode part="qr" value={input.code!} label={words.qr} />
+      <kit.KitAction part="code" action="copy" value={input.code!} copiedLabel={words.copied} kind="quiet"
+        {...(align === "center" ? { label: words.copy, full: true } : { icon: "clipboard", a11y: words.copy })} />
+    </kit.KitContent>}
   </kit.KitCard>;
 }

@@ -39,6 +39,7 @@ describe("PassCard schema", () => {
     { memberId: "a".repeat(25) },
     { code: "a".repeat(65) },
     { codeKind: "barcode" },
+    { bright: true },
     { balance: Infinity },
     { pointsLabel: "a".repeat(21) },
     { expiresAt: "2027-02-29" },
@@ -71,14 +72,14 @@ describe("PassCard actions and states", () => {
     expect(draw(seed).get("home/c1/member_id")?.text).toEqual(["•••• 0642"]);
     expect(draw({ ...seed, masked: false }).get("home/c1/member_id")?.text).toEqual(["DEMO-0642"]);
     expect(draw(seed).get("home/c1/qr")?.attributes).toContain('role="img"');
-    expect(actions(seed)).toEqual(["root", "reveal", "code", "bright"]);
+    expect(actions(seed)).toEqual(["root", "reveal", "code"]);
     const read = readComponent(def, seed, "c1").join("\n");
     expect(read).toContain("[c1/code copy]");
     expect(read).not.toMatch(/DEMO-0642|DEMO:LEDGE-MEMBER/);
     expect(readComponent(def, { ...seed, detail: "brief" }, "c1").join("\n")).not.toContain("Seedling");
   });
 
-  it("copies the exact QR string and keeps the two switches independent", () => {
+  it("copies the exact QR string without revealing the ID or offering brightness", () => {
     const code = "  DEMO: COPY  ";
     const screen = { id: "home", components: [{ id: "c1", c: "PassCard", ...seed, code }] };
     const writeClipboard = vi.fn();
@@ -88,10 +89,13 @@ describe("PassCard actions and states", () => {
       runtime.registerCopyTarget(address, code);
       expect(runtime.act({ address, action: "copy" })).toMatchObject({ ok: true });
       expect(writeClipboard).toHaveBeenCalledExactlyOnceWith(code);
-      for (const part of ["reveal", "bright", "reveal"])
-        expect(runtime.act({ address: `c1/${part}`, action: "toggle" })).toMatchObject({ ok: true });
       expect(runtime.read()).toContain("[c1/reveal toggle:off]");
-      expect(runtime.read()).toContain("[c1/bright toggle:on]");
+      expect(runtime.act({ address: "c1/bright", action: "toggle" })).toMatchObject({
+        ok: false,
+        code: "not_actionable",
+      });
+      expect(draw(seed).has("home/c1/bright")).toBe(false);
+      expect(runtime.read()).not.toContain("c1/bright");
       expect(runtime.read()).not.toContain(code);
     } finally {
       runtime.dispose();
