@@ -100,7 +100,7 @@ it("generates scoped drafts, ready renderers, pack data and inlined examples", a
   expect(Object.keys(catalog.packs.booking)).toEqual(["id", "example", "probes"]);
   expect(catalog.packReady("booking")).toBe(false);
   expect(catalog.buildPackIndex()).toBe("");
-  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(57);
   expect(catalog.packArchetypes.booking[0].id).toBe("visit-detail");
   expect(catalog.packExamples.booking).toBe('{"c":"Ready"}\n');
   const renderers = await build({
@@ -164,7 +164,7 @@ it.each([
     "Draft",
     "Ready",
   ]);
-  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(27);
+  expect(catalog.buildPackIndex({ includeDrafts: true }).split("\n")).toHaveLength(57);
   expect(catalog.packReady("commerce")).toBe(false);
 });
 
