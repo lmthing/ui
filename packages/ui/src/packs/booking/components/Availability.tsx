@@ -137,35 +137,23 @@ export const probes = [
 ] satisfies Probe[];
 // prettier-ignore
 function DayFields({ day, enhanced }: { day: Props<typeof props, typeof meta>["days"][number]; enhanced: boolean }) {
-  const {
-    lang,
-    words: { weekdayNames },
-  } = useWords();
+  const { lang, words: { weekdayNames } } = useWords();
+  const weekday = weekdayNames[weekdays.indexOf(day.day)]!;
   const { availabilityLabels } = bookingWordsFor(lang);
   const toggle = usePart("toggle", false);
   const on = useControlValue(toggle.testID, day.on);
   return (
     <>
-      <KitRow
-        inline
-        label={weekdayNames[weekdays.indexOf(day.day)]!}
-        trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}
-      >
-        <KitText role={enhanced ? "heading" : "label"} part="day">
-          {weekdayNames[weekdays.indexOf(day.day)]}
-        </KitText>
+      <KitRow inline label={weekday} trailing={<KitTrail kind="toggle" on={day.on} part="toggle" />}>
+        <KitText role={enhanced ? "heading" : "label"} part="day">{weekday}</KitText>
       </KitRow>
       <KitGrid columns={2}>
         <KitRow inline label={availabilityLabels.from}>
-          <KitText role="caption" tone="muted" part={null}>
-            {availabilityLabels.from}
-          </KitText>
+          <KitText role="caption" tone="muted" part={null}>{availabilityLabels.from}</KitText>
           <KitInput compact inactive={!on} kind="time" part="from" hint={availabilityLabels.from} value={day.from} />
         </KitRow>
         <KitRow inline label={availabilityLabels.to}>
-          <KitText role="caption" tone="muted" part={null}>
-            {availabilityLabels.to}
-          </KitText>
+          <KitText role="caption" tone="muted" part={null}>{availabilityLabels.to}</KitText>
           <KitInput compact inactive={!on} kind="time" part="to" hint={availabilityLabels.to} value={day.to} />
         </KitRow>
       </KitGrid>
