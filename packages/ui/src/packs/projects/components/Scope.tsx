@@ -136,7 +136,8 @@ function Deliverable({ copy, density, w, loading, editable, removable }: {
   </kit.PartScope>;
   return <kit.KitRow label={row.title} part={null} density={density} inline leading={check} trailing={remove}>
     <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} inline density={density}
-      trailing={!loading && row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative />}>
+      trailing={row.goto && (loading ? <kit.KitText part={null} role="body" emphasis="strong">{w.openMark}</kit.KitText> :
+        <kit.KitIcon name="chevron_right" scale="sm" decorative />)}>
       {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
         content={[["body", row.title], ["body", row.acceptance], ["label", due], ["label", acceptedAt]]} /> :
         <kit.KitContent density={density}>

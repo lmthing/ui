@@ -15,7 +15,7 @@ export const meta = {
   pick: "A saved work log of individual project or task time entries, billable marks, and totals. Not a single unsaved elapsed clock (Timer), staff clock-in (TimeClock), or payroll approval (Timesheet).",
   writeHints: [
     "Week is a Monday. Use ISO date-times expressed in the log's local time with its UTC offset (Z only for UTC), with end after start and no overlap. Entries must fit the selected local week. Use projectRef on each entry and when setting a current taskRef. Do not write durations, totals or running states.",
-    'Use style "single_day" for one selected day in the week and give that day as day; supply at most six entries and leave day null for style "days". To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested, even when detail or style is set.',
+    'For a week view, set style to "days" and day to null, even if there is only one entry. Use "single_day" only when the view is explicitly filtered to one day; supply its ISO date in day and at most six entries. To hide notes, set only detail to "brief" and retain notes in the data. Leave density null unless tighter rows are explicitly requested.',
   ],
   region: "body", weight: 3, dense: true, tier: "phone",
   realPath: "Timestamped work entries are stored on the device; export opens the phone share sheet without submitting payroll.",
@@ -139,27 +139,29 @@ function Entry({ copy, density, w, loading }: { copy: Row; density: Input["densi
     <kit.KitAction part="remove" kind="quiet" icon="trash" a11y={w.remove(row.title)} />
   </kit.PartScope>;
   return <kit.KitRow part={null} label={row.title} density={density} inset="none" trailing={remove}>
-    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline
-      trailing={!loading && row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative />}>
-      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density}
-        content={[["body", row.title], ["label", `${start}${w.range}${end}${w.separator}${duration}${w.separator}${billable}`],
-          ["label", note]]} /> : <kit.KitContent density={density}>
-      <kit.KitText part="title" role="body" emphasis="strong">{row.title}</kit.KitText>
-      <kit.KitText role="label" tone="muted" tabular part={null}>
+    <kit.KitRow {...(loading ? { part: null } : { item: row.id, goto: row.goto })} label={row.title} density={density} inline>
+      <kit.KitContent density={density}>
+      {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["body", row.title]]} /> :
+        <kit.KitContent lineRole="body" lead={row.goto && <kit.KitIcon name="chevron_right" scale="sm" decorative />}>
+          <kit.KitText part="title" role="body" emphasis="strong">{row.title}</kit.KitText>
+        </kit.KitContent>}
+      <kit.KitGrid columns={3} density={density}>{loading ? [`${start}${w.range}${end}`, duration, billable].map((value, index) =>
+          <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[["label", value]]} />) : [
+      <kit.KitText key="range" role="label" tone="muted" tabular part={null}>
         <kit.KitText part="start" role="label" tone="muted" tabular>{start}</kit.KitText>{w.range}
-        <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>{w.separator}
-        <kit.KitText part="duration" role="label" emphasis="strong" tabular>{duration}</kit.KitText>{w.separator}
-        <kit.KitText part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>
-      </kit.KitText>
-      {note && <kit.KitText part="note" role="label" tone="muted">{note}</kit.KitText>}
-      </kit.KitContent>}
-    </kit.KitRow>
-  </kit.KitRow>;
+        <kit.KitText part="end" role="label" tone="muted" tabular>{end}</kit.KitText>
+      </kit.KitText>,
+      <kit.KitText key="duration" part="duration" role="label" emphasis="strong" tabular>{duration}</kit.KitText>,
+      <kit.KitText key="billable" part="billable" role="label" tone={row.billable ? "good" : "muted"}>{billable}</kit.KitText>,
+      ]}</kit.KitGrid>
+      {note && (loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", note]]} /> :
+        <kit.KitText part="note" role="label" tone="muted">{note}</kit.KitText>)}
+      </kit.KitContent></kit.KitRow></kit.KitRow>;
 }
 // prettier-ignore
 export function TimeLog(seed: Input) {
-  const input = kit.useLiveControls(meta, seed) as View;
-  const state = kit.useComponentState(), { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
+  const input = kit.useLiveControls(meta, seed) as View, state = kit.useComponentState();
+  const { lang, words: { timeLog: w } } = kit.useWords(projectsWordsFor);
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
   const copy = log.timeLogCopy({ ...input, detail }, lang, kit.useDeviceData());
@@ -182,8 +184,7 @@ export function TimeLog(seed: Input) {
             <kit.KitText part={i ? null : "day"} role="label" emphasis="strong">{date}</kit.KitText>}
           {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["number", total, "start", "compact"]]} /> :
             <kit.KitText part={i ? null : "day_total"} role="number" numberScale="compact" tabular>{total}</kit.KitText>}
-        </kit.KitGrid>
-        {rows.map((row) => <Entry key={row.row.id} copy={row} {...{ density, w, loading }} />)}
+        </kit.KitGrid>{rows.map((row) => <Entry key={row.row.id} copy={row} {...{ density, w, loading }} />)}
       </kit.KitContent>)}
     {(copy.timer || input.projectRef || input.addGoto || exportable) && <kit.KitContent group="response" density={density}>
       {copy.timer && !loading && <kit.KitText part="elapsed" role="number" tabular>{copy.timer}</kit.KitText>}

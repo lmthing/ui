@@ -158,12 +158,12 @@ function TaskRow({ row, density, lang, indent, loading, choices }: {
   row: ViewRow; density: View["density"]; lang: string; indent: boolean; loading: boolean; choices: readonly string[];
 }) {
   const words = projectsWordsFor(lang).tasks, { state, due, overdue, priority, blockers } = taskCopy(row, lang);
-  const controls = row.done !== undefined
-    ? loading ? <kit.KitSkeleton shape="control" kind="quiet" />
-      : <kit.KitCheck part="done" done={row.done} label={words.done(row.title)} /> : undefined;
-  return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} density={density} indent={indent ? 1 : 0}>
-    {loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[
-      ["body", row.title], ["caption", due], ["caption", [state, row.assignee, priority].filter(Boolean).join(words.separator)], ["caption", blockers]]} /> :
+  const controls = loading ? row.done !== undefined && <kit.KitSkeleton lead="box" inset="none" items={[{}]} density={density} /> :
+    (row.done !== undefined || row.checked) && <kit.KitCheck part="done" readonly={row.done === undefined} done={!!row.checked} label={words.done(row.title)} />;
+  const captions = [due, [state, row.assignee, priority].filter(Boolean).join(words.separator), blockers];
+  return <kit.KitRow item={row.id} part={null} label={row.title} trailing={controls} lineRole={due || blockers ? "body" : "heading"} density={density} indent={indent ? 1 : 0}>
+    {loading ? [row.title, ...captions].map((text, index) => text &&
+      <kit.KitSkeleton key={index} shape="figure" inset="none" density={density} content={[[index ? "caption" : "body", text]]} />) :
     <kit.KitRow part="root" label={row.title} goto={row.goto} inline density={density}><kit.KitText part="title" role="body">{row.title}</kit.KitText>
       {due && <kit.KitText part="due" role="caption" tone={overdue ? "bad" : "muted"}>{due}</kit.KitText>}
       <kit.KitText part={null} role="caption" tone="muted">
@@ -188,13 +188,13 @@ export function Tasks(input: View) {
   const groups = group === "sections" ? taskGroups(rows) : [{ project: undefined, tasks: rows }];
   return <kit.KitCard part="root" density={density}>
     {state === "empty" ? <kit.KitEmpty part="empty" decorativeIcon /> :
-      <kit.KitContent>{groups.map(({ project, tasks }, groupIndex) => <kit.KitContent key={project ?? tasks[0]?.id} group={groupIndex ? "response" : "content"}>
+      <kit.KitContent>{groups.map(({ project, tasks }) => <kit.KitContent key={project ?? tasks[0]?.id} group={project ? "response" : "content"}>
         {project && <kit.KitContent inset="md">
           {loading ? <kit.KitSkeleton shape="figure" inset="none" content={[["label", words.project(project)]]} /> :
             <kit.KitText role="label" tone="muted" item={tasks[0]?.id} part="project">{words.project(project)}</kit.KitText>}
         </kit.KitContent>}<kit.KitGrid arrange="rows" list density={density}>
-          {tasks.map((row, index) => <TaskRow key={row.id} {...{ row, lang, loading }}
+          {tasks.map((row, index) => <kit.KitContent key={row.id} group={!row.parentRef && project && tasks[index - 1]?.parentRef ? "response" : "content"}><TaskRow {...{ row, lang, loading }}
             density={project && (row.parentRef || tasks[index + 1]?.parentRef === row.taskRef) ? "compact" : density}
-            indent={Boolean(project && row.parentRef)} choices={assigneeChoices} />)}
+            indent={Boolean(project && row.parentRef)} choices={assigneeChoices} /></kit.KitContent>)}
         </kit.KitGrid></kit.KitContent>)}</kit.KitContent>}</kit.KitCard>;
 }
