@@ -1,5 +1,5 @@
-import { useControlValue } from "../../interact";
-import { Input, XStack, YStack } from "tamagui";
+import { useControlValue, useDateEdit } from "../../interact";
+import { Input, isWeb, XStack, YStack } from "tamagui";
 import { component, fontFamilies, size, space, type as typography, type IconName } from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
@@ -75,12 +75,8 @@ function TextControl({
   value,
   kind = "text",
   label,
-  compact = false,
-  inactive = false,
   ...options
-}: InputProps & {
-  address: ReturnType<typeof usePart>;
-}) {
+}: InputProps & { address: ReturnType<typeof usePart> }) {
   const kit = useKit();
   const ks = useKitStyle();
   const stored = useControlValue(address.testID, value ?? "");
@@ -89,7 +85,9 @@ function TextControl({
   const edit = useInputEdit({ hint, kind, ...options }, address.testID);
   const editable = kit.interactive && !options.disabled && !loading;
   const numericSet = kind === "number" && options.action === "set";
+  const dateSet = kind === "date" && options.action === "set";
   const shown = options.projected ? (value ?? "") : editable && kit.controller ? (draft ?? stored) : value;
+  const dateEdit = useDateEdit(address.testID, shown, dateSet && editable);
   const role = loading ? undefined : numericSet ? "spinbutton" : kind === "search" ? "searchbox" : "textbox";
   return (
     <Input
@@ -101,28 +99,31 @@ function TextControl({
       aria-label={label ?? hint}
       placeholder={hint}
       placeholderTextColor="$muted"
-      color={inactive ? "$muted" : "$text"}
+      color={options.inactive ? "$muted" : "$text"}
       fontFamily={fontFamilies[ks.fonts.text]}
       fontSize={typography.body.size}
       lineHeight={typography.body.lineHeight}
       minHeight={size.control.md}
-      {...(compact ? { width: component.base.none, minWidth: size.control.md } : {})}
+      {...(options.compact ? { width: component.base.none, minWidth: size.control.md } : {})}
       readOnly={!editable}
       editable={editable}
       {...(options.disabled || loading ? { disabled: true } : {})}
       aria-disabled={options.disabled || undefined}
       onFocus={() => kit.nativeHost?.ensureVisible?.(address.ref.current)}
-      {...(editable && kit.controller ? { onChangeText: edit } : {})}
-      value={shown}
+      {...(dateSet
+        ? dateEdit
+        : { value: shown, onChangeText: editable && kit.controller ? edit : undefined })}
       {...({
         type: kind === "search" ? "search" : kind === "date" || kind === "time" ? kind : "text",
         inputMode: kind === "number" ? "decimal" : undefined,
         keyboardType: kind === "number" ? "decimal-pad" : "default",
         ...(numericSet ? { type: "number" } : {}),
+        ...(dateSet ? { type: "text", autoCorrect: false, autoCapitalize: "none" } : {}),
         min: options.min,
         max: options.max,
         step: options.step,
       } as object)}
+      {...(isWeb && dateSet && !loading ? { "data-set-kind": "date" } : {})}
       {...(loading ? ({ opacity: component.base.none, pointerEvents: "none" } as object) : {})}
     />
   );
@@ -130,6 +131,7 @@ function TextControl({
 
 /**
  * A one-line input with textbox, searchbox, or numeric set spinbutton semantics.
+ * Date set textboxes commit only complete calendar dates in YYYY-MM-DD.
  * It can show a leading icon and placeholder and is at least 44px tall (default part `field`).
  * Read-only unless the host is interactive.
  */
