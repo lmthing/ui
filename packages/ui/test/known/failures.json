@@ -1,0 +1,152 @@
+[
+  {
+    "file": "test/probes.test.ts",
+    "test": "shared variant probes on deepseek-flash > replays every requested and plain brief with a passing majority",
+    "reason": "The current shared variant prompts are missing from the DeepSeek Flash recording.",
+    "owner": "ui-fix-variant-probes"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "probes on deepseek-flash > List passes its probes",
+    "reason": "The recorded write chooses an unrequested density variant.",
+    "owner": "ui-fix-list-probes"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "probes on deepseek-flash > Scale passes its probes",
+    "reason": "The recorded write chooses an unrequested density variant.",
+    "owner": "ui-fix-scale-probes"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > booking passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-booking"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > commerce passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-commerce"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > community passes selection, component and composition probes",
+    "reason": "The recorded pack selection adds money to community, and component replay lacks a recording.",
+    "owner": "ui-refresh-pack-community"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > customers passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-customers"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > data passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-data"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > events passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-events"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > health passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-health"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > hiring passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-hiring"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > home passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-home"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > inventory passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-inventory"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > invest passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-invest"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > kitchen passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-kitchen"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > learning passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-learning"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > media passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-media"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > mind passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-mind"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > money passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-money"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > paperwork passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-paperwork"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > play passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-play"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > property passes selection, component and composition probes",
+    "reason": "Two recorded pack selections add inventory to property, and component replay lacks a recording.",
+    "owner": "ui-refresh-pack-property"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > requests passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-requests"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > sports passes selection, component and composition probes",
+    "reason": "Missing current pack recording.",
+    "owner": "ui-refresh-pack-sports"
+  },
+  {
+    "file": "test/probes.test.ts",
+    "test": "pack probes on deepseek-flash > trips passes selection, component and composition probes",
+    "reason": "The recorded pack selection adds paperwork and places to trips, and component replay lacks a recording.",
+    "owner": "ui-refresh-pack-trips"
+  }
+]

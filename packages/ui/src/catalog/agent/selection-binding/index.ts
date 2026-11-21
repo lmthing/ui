@@ -11,6 +11,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
+import { hostOnlyAddresses, isPrivateMark } from "../action-input";
 
 export type BoundSelection = Readonly<{
   source: string;
@@ -33,6 +34,7 @@ export function selectionBindingFor(
   instance: string,
   local: Values,
   data?: DeviceData,
+  privateAddresses?: ReadonlySet<string>,
 ) {
   const binding = meta.selectionBinding;
   if (!binding) return;
@@ -52,7 +54,7 @@ export function selectionBindingFor(
   const get = (part: string) => local[`${id}/${part}`];
   const props = liveProps(def.meta, parseControlProps(def, wire, get), id, local, true, data);
   const length = binding.check === "root" ? 2 : 3;
-  const checks = affordancesOf(
+  const offered = affordancesOf(
     def.meta,
     props,
     id,
@@ -60,12 +62,17 @@ export function selectionBindingFor(
     (props.state as StateName | undefined) ?? state,
     false,
     { data },
-  ).filter(
+  );
+  const hostOnly = hostOnlyAddresses(def, id, offered);
+  const checks = offered.filter(
     ({ address, action, part }) =>
       action === "check" &&
       part === binding.check &&
       address.split("/").length === length &&
-      !screen[disabledSelectionChecks]?.has(address),
+      !screen[disabledSelectionChecks]?.has(address) &&
+      !hostOnly?.has(address) &&
+      !privateAddresses?.has(address) &&
+      !isPrivateMark(local, address),
   );
   if (!checks.length) return;
   const selected = checks

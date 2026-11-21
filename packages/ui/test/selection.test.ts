@@ -112,7 +112,8 @@ describe.each([true, false])("selection with controller: %s", (mounted) => {
 });
 
 it("keeps every core read probe prompt identical when selection metadata is present", () => {
-  for (const id of selectedIds(["Calendar", "Choice", "Segmented", "TabBar", "Sheet", "Chips"] as const)) {
+  const ids = ["Calendar", "Choice", "Segmented", "TabBar", "Sheet", "Chips"] as const;
+  for (const id of selectedIds(ids, import.meta.url)) {
     const def = components[id];
     const { select: _select, ...meta } = def.meta;
     for (const probe of def.probes) {

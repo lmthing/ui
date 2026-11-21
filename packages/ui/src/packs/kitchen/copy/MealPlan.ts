@@ -1,5 +1,6 @@
 import { appointmentDate, wordsFor } from "../../../catalog";
 import { kitchenWordsFor } from "../lang";
+import { kcalLine } from "./FoodLog";
 
 export const { mealPlanLabels } = kitchenWordsFor();
 export function mealPlanDaysFor(lang?: string) {
@@ -7,18 +8,47 @@ export function mealPlanDaysFor(lang?: string) {
   return weekdayNames.map((label, day) => ({ id: String(day), label, short: weekdayShort[day]! }));
 }
 export const mealPlanDays = mealPlanDaysFor();
-type MealCell = { id?: string; day: number; meal: keyof Omit<typeof mealPlanLabels, "add">; title?: string };
+type MealCell = {
+  id?: string;
+  day: number;
+  meal: keyof Omit<typeof mealPlanLabels, "add">;
+  title?: string;
+  kcal?: number | undefined;
+};
+export function mealPlanTotals(cells: readonly { day: number; kcal?: number | undefined }[], lang?: string) {
+  const sums = new Map<number, number>();
+  const incomplete = new Set<number>();
+  for (const { day, kcal } of cells) {
+    if (kcal === undefined) incomplete.add(day);
+    else sums.set(day, (sums.get(day) ?? 0) + kcal);
+  }
+  for (const day of incomplete) sums.delete(day);
+  return new Map([...sums].map(([day, sum]) => [day, kcalLine(sum, lang)]));
+}
 export const mealPlanWeek = (week: string, lang?: string): string =>
   kitchenWordsFor(lang).mealPlanWeek(appointmentDate(week, lang));
-export function mealPlanReading(week: string, cells: readonly MealCell[], lang?: string): string[] {
-  const { mealPlanLabels } = kitchenWordsFor(lang);
+export function mealPlanReading(
+  week: string,
+  cells: readonly MealCell[],
+  lang?: string,
+  agenda = false,
+): string[] {
+  const { mealPlanLabels, mealPlanAdd } = kitchenWordsFor(lang);
   const { weekdayNames } = wordsFor(lang);
+  const totals = week
+    ? mealPlanTotals(
+        cells.filter((cell) => cell.title !== undefined),
+        lang,
+      )
+    : new Map();
   return [
     ...(week ? [mealPlanWeek(week, lang)] : []),
-    ...cells.map(
-      (cell, index) =>
-        `${cell.id ?? `r${index + 1}`}: ${weekdayNames[cell.day]} ${mealPlanLabels[cell.meal]} · ${cell.title ?? mealPlanLabels.add}`,
-    ),
+    ...weekdayNames.flatMap((day, index) => (totals.has(index) ? [`${day}: ${totals.get(index)}`] : [])),
+    ...cells.map((cell, index) => {
+      const meal = mealPlanLabels[cell.meal];
+      const title = cell.title ?? (agenda ? mealPlanAdd(meal) : mealPlanLabels.add);
+      return `${cell.id ?? `r${index + 1}`}: ${weekdayNames[cell.day]} ${meal} · ${title}`;
+    }),
   ];
 }
 /** Highlight only a local calendar date that belongs to the supplied Monday-first week. */

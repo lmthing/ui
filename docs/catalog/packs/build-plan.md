@@ -31,8 +31,11 @@ Each pack goes through four steps. Components inside one pack run in parallel.
 A wave's base task budgets tests, `index.ts` doors and READMEs as files, and provides tokens and shared
 copy for new drawing labels.
 
-1. **Scaffold** (one Droid): `pack.ts` (pick line, components in `draft` with full meta and props, its
-   archetypes as data without status), visible while components are built only with `includeDrafts`.
+1. **Scaffold** (one Droid): `pack.ts`, components in `draft` with full meta and props, and archetypes
+   as data without status. Director purpose, pick and near misses live in the shared index. An indexed
+   pack can run Director probes with no ready components, even before its scaffold exists if selected
+   explicitly. `checkPacks` counts shared Director probes together with any authored in `pack.ts`.
+   This does not make drafts visible to live Director or Writer calls; those still require pack readiness.
 2. **Components** (one Droid per component, as for the core): schema, examples, fallback, probes, view
    from kit bases, tests, `pnpm look` with no issues, `ui-reviewer` approval, `pnpm rules`. A component
    needing a missing base stops and names it; the base is built first.
@@ -71,7 +74,9 @@ Before scaffolding any of the 30 Wave 6 packs in TypeScript, complete these shar
 2. **Pack folder scaffolds:** Add `packages/ui/src/packs/<pack>/README.md` scaffolds for all 30 Wave 6 packs (`scan-entries.ts` requires every folder under `src/packs/` to be registered in `packIds`).
 3. **`copy` action vocabulary:** Add `copy` to `ActionName`, `validateActionValue`, and the browser/runtime action dispatcher.
 4. **Core promotions & Wave 6 Core additions:** Build `PassCard` and `FileList`, promote `FilterBar` (from `data`), `Review` (from `customers`), and `Article` (from `media`) into Core, apply the 15 targeted Core option upgrades documented in [core.md](../core.md), and migrate `trips/Weather` standalone weather usage to `weather`.
-5. **Director pack-pick re-recording:** Re-record the Director pack-pick probes once when Wave 6 enters the pack index.
+5. **Director pack-pick re-recording:** Add the Wave 6 descriptions and shared probes to the Director
+   index before component scaffolding. Re-record just the selection probes with `pnpm llm:check --director`
+   against all 57 choices, then replay them with `pnpm llm:check --director --replay`.
 6. **12 new shared kit bases:** Build `KitMicCapture`, `KitCodeBlock`, `KitVoiceOrb`, `KitCalcPad`, `KitDialGauge`, `KitMasonry`, `KitHoldButton`, `KitPanelStrip`, `KitRemotePad`, `KitSeatGrid`, `KitCellGrid`, and `KitLetterKeys` (plus minor `KitMapTile`, `KitLinePlot`, and `KitPhoto` option extensions) as mapped in [bases.md](bases.md).
 
 ### Wave 6 extensions to existing packs and core

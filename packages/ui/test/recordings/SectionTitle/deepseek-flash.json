@@ -289,6 +289,108 @@
       "{\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}"
     ]
   },
+  "860712ebd4c7a318": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Label the group Needs water. Save its See all link to plants, but hide that link for now.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SectionTitle",
+              "enum": [
+                "SectionTitle"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "link": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 16
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "text",
+            "link"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+    "replies": [
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}"
+    ]
+  },
   "860f370d8d7e7b6b": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nLeave out an optional prop (name?) when you have nothing for it: never write an empty string.\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { text: text≤32, link?: { label: text≤16, goto?: id } }\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\n\nBrief: Label the plants needing water Needs water, with a See all link to plants\nReply with only the JSON line, starting with {\"c\":\"SectionTitle\".",
     "reply": "{\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
@@ -741,6 +843,108 @@
       "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
       "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
       "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":\"brief\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}"
+    ]
+  },
+  "fc7a0259f3824055": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSectionTitle: Label a group of content and offer one optional link to more.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", text: text≤32, link?: { label: text≤16, goto?: id snake_case } }\nRule: A request for a See all link means show it: write link and keep detail null. Only a request to hide the link uses detail \"brief\", keeping the link label and target in link. Keep density null unless explicitly asked to change spacing.\nexample: {\"c\":\"SectionTitle\",\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: Label the plants needing water Needs water, with a See all link to plants",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "SectionTitle",
+              "enum": [
+                "SectionTitle"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32
+            },
+            "link": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 16
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "text",
+            "link"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":null,\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+    "replies": [
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":null,\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":null,\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}",
+      "{\"c\":\"SectionTitle\",\"density\":null,\"detail\":null,\"text\":\"Needs water\",\"link\":{\"label\":\"See all\",\"goto\":\"plants\"}}"
     ]
   },
   "fe96db1937765cc2": {
