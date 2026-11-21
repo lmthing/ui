@@ -5,7 +5,8 @@ import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { meta, props, examples, fallback, probes } = components.TrainingPlan;
 const ready = String(meta.status) === "ready";
-const [week, list] = examples;
+const week = examples[0]!,
+  list = examples[1]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const at = (part: string) => `home/p1/${part}`;
 const html = (input: object = week, state: "filled" | "empty" | "loading" | "success" | "error" = "filled") =>

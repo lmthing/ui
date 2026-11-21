@@ -11,7 +11,9 @@ import { createScreenController } from "@lmthing/ui/kit";
 import { elementAt, renderInstance } from "../../../../../test/render";
 
 const { meta, props, examples, fallback, probes } = components.CardioSession;
-const [summary, active, idle] = examples;
+const summary = examples[0]!,
+  active = examples[1]!,
+  idle = examples[2]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const at = (part: string) => `home/c1/${part}`;
 const emptyCast = { things: [], items: [] };

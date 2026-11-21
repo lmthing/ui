@@ -65,6 +65,9 @@ export function planReading(
   return [
     ...(state === "success" ? [w.success] : []),
     w.line([w.program, planCount(p.programProgress, lang)]),
+    ...(p.style === "week" && p.weeks > 1
+      ? Array.from({ length: p.weeks }, (_, index) => w.week(numberLine(index + 1, lang)))
+      : []),
     ...weeks.flatMap((week) => [
       w.line([w.week(numberLine(week, lang)), planCount(p.weeklyProgress[week - 1]!, lang)]),
       ...visible

@@ -41,8 +41,8 @@ export const meta = {
   items: { key: "splits", parts: ["root", "label", "amount", "elevation_delta", "bar"] },
   states: ["filled", "empty", "loading", "success", "error"],
   clocks: [
-    { ...liveClock, start: { part: "start", action: "start" } },
-    { ...liveClock, runningProp: "running", start: { part: "resume", action: "play" }, stop: { part: "pause", action: "pause" } },
+    { ...liveClock, runningProp: "live", start: { part: "start", action: "start" } },
+    { ...liveClock, start: { part: "resume", action: "play" }, stop: { part: "pause", action: "pause" } },
     { ...liveClock, when: { style: "live", live: true } }, // Seed an already-live clock after declaring its triggers.
     // The save trigger stays available while the elapsed clock is paused.
     { id: "save", kind: "up", when: { style: "live" }, stop: { part: "finish", action: "stop", state: "success" } },
@@ -116,14 +116,14 @@ export const probes = [
   read("Start tracking this ride now", { address: "c1/start", action: "start" }, 2),
 ] satisfies c.Probe[];
 
-type View = c.Props<typeof props, typeof meta> & { running?: boolean };
+type View = c.Props<typeof props, typeof meta>;
 type Words = ReturnType<typeof healthWordsFor>["cardio"];
 
 // prettier-ignore
 function Metrics({ p, lang, loading }: { p: View; lang: string; loading: boolean }) {
   return <kit.KitGrid density={p.density}>
     {cardioMetrics(p, lang).map(({ part, label, value }) => loading
-      ? <kit.KitSkeleton key={part} shape="figure" inset="none" content={[["label", label], ["number", value, undefined, "compact"]]} />
+      ? <kit.KitSkeleton key={part} shape="figure" inset="none" content={[["label", label], ["number", value, "start", "compact"]]} />
       : <kit.KitContent key={part}><kit.KitText part={null} role="label" tone="muted">{label}</kit.KitText>
           <kit.KitText part={part} role="number" numberScale="compact" tabular>{value}</kit.KitText></kit.KitContent>)}
   </kit.KitGrid>;

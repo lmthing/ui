@@ -31,6 +31,9 @@ it("reads only the chosen week or all list weeks, and hides only duration in bri
   const view = { ...seed, ...planView(seed) };
   expect(planReading(view, "filled")).toEqual([
     "Plan progress · 1 of 2 completed",
+    "Week 1",
+    "Week 2",
+    "Week 3",
     "Week 1 · 1 of 1 completed",
     "Mon · Easy walk · 20 min · Complete",
     "Sun · Recovery · Rest",

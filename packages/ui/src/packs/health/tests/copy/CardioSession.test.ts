@@ -42,6 +42,7 @@ it("formats locale-sensitive figures and reads only the detail shown", () => {
     "Avg heart rate: 151 bpm",
     "Heart-rate zone: 3",
     "Elevation gain: 42 m",
+    "Pace splits",
     "Km 1: 5:30",
     "Km 2: 5:00 · -12 m",
   ]);
@@ -52,6 +53,7 @@ it("formats locale-sensitive figures and reads only the detail shown", () => {
     "Distance: 5 km",
     "Avg pace: 5:10 /km",
     "Avg heart rate: 151 bpm",
+    "Pace splits",
     "Km 1: 5:30",
     "Km 2: 5:00",
   ]);

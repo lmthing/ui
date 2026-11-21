@@ -15,14 +15,13 @@ type Session = {
   splits: readonly Split[];
   style: "summary" | "live";
   live: boolean;
-  running?: boolean;
 };
 type MetricPart = "distance" | "pace" | "elevation" | "heart" | "zone";
 
-export function cardioControls(p: Pick<Session, "style" | "live" | "elapsedSeconds" | "running">) {
+export function cardioControls(p: Pick<Session, "style" | "live" | "elapsedSeconds">) {
   const enabled = p.style === "live",
-    running = p.running ?? p.live;
-  const started = p.live || running || p.elapsedSeconds > 0;
+    running = p.live;
+  const started = running || p.elapsedSeconds > 0;
   return {
     canStart: enabled && !started,
     canPause: enabled && running,
@@ -75,11 +74,24 @@ export function cardioReading(p: Session, state: StateName, lang?: string): stri
   const w = healthWordsFor(lang).cardio;
   if (state === "error") return [w.error, w.errorDetail];
   if (state !== "filled" && state !== "success") return [];
+  const gates = cardioControls(p);
+  const controls =
+    state === "filled"
+      ? [
+          ...(gates.canStart ? [w.start] : []),
+          ...(gates.canPause ? [w.pause] : []),
+          ...(gates.canResume ? [w.resume] : []),
+          ...(gates.canLap ? [w.lap] : []),
+          ...(gates.canFinish ? [w.finish] : []),
+        ]
+      : [];
   return [
     ...(state === "success" ? [w.saved] : []),
     w.activity[p.activity],
     w.line(w.elapsed, clockLine(p.elapsedSeconds, lang)),
     ...cardioMetrics(p, lang).map(({ label, value }) => w.line(label, value)),
+    ...controls,
+    ...(p.splits.length ? [w.splits] : []),
     ...cardioSplits(p, lang).map(({ label, duration, delta }) => w.splitLine(label, duration, delta)),
   ];
 }
