@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { XStack, styled, isWeb } from "tamagui";
 import { useAnimatedValue } from "../../motion";
 import { useCopyFeedback } from "../../interact";
-import { XStack, styled, isWeb } from "tamagui";
 import {
   component,
+  layoutType,
   motion,
   radius,
   size,
@@ -51,18 +52,12 @@ const inactiveSurface = {
   quiet: "transparent",
   danger: "$badSoft",
 } as const;
-const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
-  primary: "text",
-  secondary: "muted",
-  quiet: "muted",
-  danger: "bad",
-};
 type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
   kind?: ActionKind;
   goto?: string | undefined;
-  part?: string;
+  part?: string | null;
   a11y?: string;
   full?: boolean;
   action?: Exclude<ActionName, "swipe" | "seek" | "flip" | "move">;
@@ -95,11 +90,15 @@ function ActionContent({
             tone={tone}
             scale={label ? "sm" : "md"}
             part={`${part}_icon`}
-            decorative={loading}
+            decorative={loading || part === null}
           />
         )}
         {label && (
-          <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
+          <KitText
+            role={layoutType.meta}
+            tone={tone}
+            part={loading || part === null ? null : `${part}_label`}
+          >
             {label}
           </KitText>
         )}
@@ -108,7 +107,7 @@ function ActionContent({
         <XStack
           position="absolute"
           width="100%"
-          height={typography.label.size * 0.6}
+          height={typography[layoutType.meta].size * 0.6}
           backgroundColor="$line"
           borderRadius={radius.sm}
         />
@@ -156,7 +155,7 @@ export function KitAction({
 }: ActionProps) {
   const kit = useKit();
   const ks = useKitStyle();
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const loading = useComponentState() === "loading";
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
   const blocked =
@@ -166,15 +165,16 @@ export function KitAction({
       ? kit.controller.actionsAt(address.testID).includes(action)
       : kit.controller.canPress(address.testID));
   const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
-  const inactive = loading || disabled || noCopyValue || Boolean(blocked);
-  const copied =
-    useCopyFeedback(action === "copy" ? address.testID : undefined, value, loading || disabled) && !inactive;
-  const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : copied ? "good" : tone;
+  const inactive = part === null || loading || disabled || noCopyValue || Boolean(blocked);
+  const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
+  const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
+  const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
+  const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
   return (
     <Frame
-      {...address}
+      {...(part === null ? {} : address)}
       kind={kind}
       backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
       loading={loading}
@@ -184,8 +184,7 @@ export function KitAction({
       accessibilityRole={loading ? undefined : "button"}
       aria-busy={loading || undefined}
       {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
-      aria-disabled={inactive || undefined}
-      {...(inactive ? { tabIndex: -1 } : {})}
+      {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
       accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
       aria-live={action === "copy" ? "polite" : undefined}
       {...handlers}

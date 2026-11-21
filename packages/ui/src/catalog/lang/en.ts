@@ -26,6 +26,7 @@ export const en = {
   swipeCard: "swipe card",
   thisMonth: "This month",
   saved: "Saved",
+  operationFailed: "Something went wrong",
   checkValue: "Check this value",
   fieldToggle: { on: "on", off: "off" },
   fieldChoiceError: "Choose an available field option",

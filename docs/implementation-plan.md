@@ -879,6 +879,22 @@ No component sub-themes; studio tier tints belong to the host. **Pending enforce
 raw values, preset comparisons and view handlers, and runtime contrast guards cover role/tone pairs.
 The current screenshot checker covers rendered contrast, not that complete runtime contract.
 
+### 5.4b Layout recipes and states
+
+Compose the kit's header, title-and-meta line, separated row group, captioned figure and action
+footer. The outer frame owns its gutter, the group owns separation, and the row owns its rails
+and close spacing. Empty slots do not create gaps; reserve a rail only to align sibling rows.
+Figures and units share a baseline. There is one semantic type scale: title, body, meta, figure
+and caption. Legacy text roles are kit-owned treatments of those roles, not additional steps a
+component can set. Density, emphasis and theme mapping stay in the kit.
+
+Use the kit's default empty, loading, error and success treatments. Share slot geometry between
+filled and loading; loading draws no text or controls. Retain usable content when the state
+describes an operation on that content. Only override the treatment when the component's catalog
+doc specifies it, and only show retry when an enabled action is declared. Layout is not a wire
+change: preserve reading, addresses and actions. Test missing metadata, retained error and success,
+filled/loading parity, and last-column reachability separately from gallery fixture quality.
+
 ### 5.5 Views
 
 Views are named React functions typed from their own schema through `Props<typeof props, typeof meta>`.
