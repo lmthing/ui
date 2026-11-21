@@ -1,14 +1,8 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
 import * as kit from "../../../kit";
-import {
-  cameraControls,
-  cameraEventRows,
-  cameraFrame,
-  cameraReading,
-  cameraStatus,
-  homeTimestamp,
-} from "../copy";
+// prettier-ignore
+import { cameraControls, cameraEventRows, cameraFrame, cameraReading, cameraStatus, homeTimestamp } from "../copy";
 import { homeWordsFor } from "../lang";
 
 const modes = ["home", "away", "disarmed", "privacy"] as const;
@@ -44,7 +38,7 @@ export const meta = {
     when: { mode: { style: "live" }, audio: { liveControls: true },
       talk: { liveControls: true }, siren: { liveControls: true } },
   },
-  selections: { mode: { prop: "mode", choices: modes } },
+  selections: { mode: { prop: "mode", choices: modes.map((value) => ({ value, label: homeWordsFor().cameraFeed.modes[value] })) } },
   emptyActions: ["mode.select", "audio.toggle", "talk.press", "siren.press"],
   successActions: ["mode.select", "audio.toggle", "talk.press", "siren.press", "root.press"],
   readSuccess: true,

@@ -8,6 +8,7 @@ type Camera = {
   mode: keyof Words["modes"];
   style: "live" | "events";
   live: boolean;
+  audioOn: boolean;
   preview?: string | undefined;
   events: Event[];
 };
@@ -42,11 +43,14 @@ export function cameraReading(raw: unknown, state: StateName, lang?: string): st
   const status = [words.modes[input.mode], cameraStatus(input, lang)];
   if (state === "success") status.push(words.success);
   if (input.style === "live" && input.mode !== "privacy" && !cameraFrame(input)) status.push(words.noFrame);
+  if (input.style === "live") status.push(words.mode);
+  if (cameraControls(input))
+    status.push(input.audioOn ? words.audioOn : words.audioOff, words.talk, words.siren);
   const rows = cameraEventRows(input.events, lang);
   return [
     ...status,
     ...(rows.length
       ? [words.events, ...rows.map(({ id, label, date, clock }) => words.eventLine(id, label, date, clock))]
-      : [words.empty]),
+      : [words.events, words.empty]),
   ];
 }
