@@ -11,7 +11,7 @@ export const meta = {
   pick: "A private life-admin file register with owners, identifiers and expiry dates. Not ordinary links (List), documents checked against a trip (TravelDocs), purchase warranties (Warranties) or rental terms (Lease).",
   writeHints: [
     "Never invent a document number or expiry warning. Copy dates only if known. File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL or file content.",
-    'Use style "cards" only for separate file-type tiles, never readable previews. For a normal register, write style:null. Do not set density or surface unless requested.',
+    'Use style "cards" only for separate file-type tiles, never readable previews; otherwise write style:null. A plain background with no enclosing card requests surface:"plain". Without an explicit spacing change, always write JSON density:null, never "comfortable", even when a plain surface is requested. Write surface:null if no surface is requested.',
   ],
   region: "body",
   weight: 2,
@@ -128,7 +128,7 @@ export const probes = [
   ),
   {
     ...write(
-      "File Mina’s greenhouse permit, a certificate expiring 2027-04-10 with tag permits. Put it in an unboxed register, with the rows directly on the screen and no enclosing card.",
+      "File Mina's greenhouse permit, a certificate expiring 2027-04-10 with tag permits. Give the register a plain background with the rows directly on the screen and no enclosing card.",
     ),
     variant: { axis: "surface", value: "plain" },
   },

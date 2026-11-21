@@ -12,7 +12,7 @@ export const meta = {
   writeHints: [
     "Write from and to in YYYY-MM-DD, in ascending order. Omit due unless supplied; never infer statutory dates.",
     'Each requirement asks for "documents" or "receipts" using a tag and a needed count. Do not write matches, totals, tax owed, or filed status.',
-    "Use compact density for tighter summary rows, retaining all category links. Leave density and surface null otherwise.",
+    'Tighter summary rows request density:"compact", retaining all category links. More categories fitting on screen does not request a different surface: write surface:null unless the surface is explicitly requested. Without a spacing request write density:null.',
   ],
   region: "body",
   weight: 3,

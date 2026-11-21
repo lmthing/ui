@@ -11,7 +11,8 @@ export const meta = {
   pick: "Receipt evidence with private scans, amounts, review ticks and optionally allocated shares. Not one standalone amount (Amount), purchase warranties (Warranties), bank movements (Transactions), store orders (OrderSummary) or client bills (Invoice).",
   writeHints: [
     "Write the amount as a number with no currency. allocation is the assigned percentage (0–100), not a deduction or an amount. Never write allocated amounts or totals.",
-    'File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL. Write style "cards" for separate receipt tiles only; leave style, density and surface null by default.',
+    'File is an opaque local:<id> or supplied synthetic lib:<id>, never a URL. Write style "cards" for separate receipt tiles only; otherwise style:null.',
+    'Receipt rows shown directly on the screen without an enclosing card explicitly request surface:"plain". Write surface:null when no surface is requested, and density:null unless spacing changes are requested.',
   ],
   region: "body",
   weight: 2,
