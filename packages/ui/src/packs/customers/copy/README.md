@@ -7,6 +7,8 @@ Use `index.ts` as the folder's door.
 - `ClientCard.ts`: client summary, contact labels and reading.
 - `PaymentStatus.ts`: payment labels, dates, settlement, reading and fallback.
 - `Review.ts`: review labels, counts, stars and reading.
+- `FollowUpQueue.ts`: local due-date priority and formatted follow-up details.
+- `SavedItems.ts`: localized billing rates and stable category groups.
 - Tests live in `../tests/copy/<Id>.test.ts`.
 - Shared currencies and money formatting stay in `catalog/copy`.
 
