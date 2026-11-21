@@ -1137,6 +1137,15 @@ The separate theme-role, CSS and count checks always cover the full built theme 
 | Accessibility/native                         | Base roles and browser keyboard tests exist. **Pending:** axe-core no-violation suite, native RN testing/assistive-tech/device acceptance                                                                                                                                                         |
 | Performance                                  | **Pending:** reference-device and fresh-process import/reader/size/settle measurements before release                                                                                                                                                                                             |
 
+Run the pack acceptance look gate in calm light at 390px before visual review. Automate recurring
+rubric findings against the rendered parts: keep a label and its value closer than the next group,
+use at most three sizes per item, right-align numeric columns, keep negative actions off the
+positive accent, show complete text, keep the first item close to its heading, and use specific
+empty copy when the component brief calls for it. Give each detector both a failing and a passing
+browser fixture. Use existing part addresses or DOM semantics rather than changing the renderer just
+to make a check possible. Where the DOM cannot express intent, record the documented expectation in
+the checker instead of guessing from arbitrary text.
+
 There is no Jest, `jest-expo` or React Native Testing Library setup. Vitest with static HTML is the
 current kit test tool; native behavioural coverage remains a requirement, not a claim made by those
 tests. `test/known/failures.json` lists existing failures by exact test file and full test name
