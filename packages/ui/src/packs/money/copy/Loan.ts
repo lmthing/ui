@@ -51,13 +51,8 @@ function loanStatus(
   return state === "error" ? { headline: labels.forecastError, notice: labels.forecastHelp } : {};
 }
 
-export function loanCopy(
-  input: LoanInput,
-  state: string,
-  lang?: string,
-  today = loanToday(),
-  currency?: Currency,
-) {
+// prettier-ignore
+export function loanCopy(input: LoanInput, state: string, lang?: string, today = loanToday(), currency?: Currency) {
   const words = moneyWordsFor(lang);
   const labels = words.loanLabels;
   const { balance, rows, finish, status } = projectLoan(input, today, currency);
@@ -77,10 +72,7 @@ export function loanCopy(
   const terms = [
     { part: "principal", text: words.loanField(labels.principal, money(input.principal)) },
     { part: "rate", text: words.loanField(labels.rate, rate) },
-    {
-      part: "payment",
-      text: words.loanField(cadence === "monthly" ? labels.payment : labels[cadence], money(input.payment)),
-    },
+    { part: "payment", text: words.loanField(cadence === "monthly" ? labels.payment : labels[cadence], money(input.payment)) },
   ];
   const next = rows[0];
   const more = rows.length - rowLimit;
@@ -91,13 +83,10 @@ export function loanCopy(
     notice,
     installments,
     balance: balance === undefined || headline ? undefined : money(balance),
-    next:
-      next && !installments
-        ? {
-            headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
-            split: words.loanSplit(money(next.principal), money(next.interest)),
-          }
-        : undefined,
+    next: next && !installments ? {
+      headline: words.loanNext(labels.next, date(next.due), money(next.principal + next.interest)),
+      split: words.loanSplit(money(next.principal), money(next.interest)),
+    } : undefined,
     finish: finish ? words.loanField(labels.finish, date(finish)) : labels.unavailable,
     scheduleLabel: installments ? labels.installments : labels.schedule,
     schedule: showSchedule

@@ -4,7 +4,7 @@ import { loanCopy, loanToday, projectLoan } from "../../copy";
 const terms = { principal: 100, rate: 12, payment: 40, firstDue: "2028-01-31", payments: [] };
 const today = "2028-01-31";
 
-describe("repayment projection", () => {
+describe("non-monthly repayment projection", () => {
   it.each([
     ["weekly", 52, "2028-02-07", "2028-02-14"],
     ["biweekly", 26, "2028-02-14", "2028-02-28"],
@@ -42,6 +42,9 @@ describe("repayment projection", () => {
     ]);
     expect(projectLoan({ ...terms, cadence: "monthly" }, today)).toEqual(projectLoan(terms, today));
   });
+});
+
+describe("monthly repayment projection", () => {
   it("rounds each instalment's interest, caps the last payment and preserves the due day", () => {
     expect(projectLoan(terms, today)).toEqual({
       balance: 100,

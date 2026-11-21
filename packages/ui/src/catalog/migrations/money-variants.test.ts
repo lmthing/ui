@@ -40,11 +40,12 @@ it.each(cases)("migrates %s %s to %s and keeps the original targets", (c, style,
 
 it("accepts the AccountCard stacked spelling and keeps explicit arrangements and links", () => {
   const { meta, props, examples } = components.AccountCard;
-  const source = { c: "AccountCard", id: "wallet", ...examples[0], style: "stacked" };
+  const first = examples[0]!;
+  const source = { c: "AccountCard", id: "wallet", ...first, style: "stacked" };
   const { c: _c, id, ...input } = migrateLine(source);
   expect(id).toBe("wallet");
   expect(input).not.toHaveProperty("style");
-  expect(input).toMatchObject({ arrange: "rows", accounts: examples[0].accounts });
+  expect(input).toMatchObject({ arrange: "rows", accounts: first.accounts });
   const parsed = stampItemIds(meta, props.parse(input));
   expect(affordancesOf(meta, parsed, id as string).map(({ address, detail }) => [address, detail])).toEqual([
     ["wallet/r1", "→supplies"],

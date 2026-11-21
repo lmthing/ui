@@ -137,7 +137,7 @@ function TransactionRow({ entry, density, lead, framed, mixed }:
     <kit.KitRow part={null} inline={!framed} label="" trailing={<kit.KitSkeleton shape="figure" inset="none" density={density}
       content={[["number", amount, "end", "compact"]]} />}>
       <kit.KitSkeleton shape="figure" inset="none" density={density} lead={mixed ? "box" : lead === "icon" ? "dot" : "none"}
-        content={[["body", entry.payee], ["caption", entry.category], ...[status, entry.note].flatMap((text) => text ? [["caption", text] as const] : [])]} />
+        content={[["body", entry.payee], ["caption", entry.category], ...[status, entry.note].flatMap((text): ["caption", string][] => text ? [["caption", text]] : [])]} />
     </kit.KitRow>
   );
   const receipt = lead === "icon" && entry.receipt;

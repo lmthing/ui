@@ -121,6 +121,7 @@ function AccountTile({ account, copy, loading, numberScale, finish, stacked }: {
   const scope = kit.usePartContext();
   const { name, id, swatch, goto } = account;
   const { kind, suffix, balance, label, details } = copy;
+  type SkeletonContent = NonNullable<Parameters<typeof kit.KitSkeleton>[0]["content"]>;
   const { density } = finish, nameRole = numberScale === "compact" ? "label" : "heading";
   const headline = <>
     <kit.KitText density={density} role={nameRole} part="name">{name}</kit.KitText>
@@ -134,8 +135,10 @@ function AccountTile({ account, copy, loading, numberScale, finish, stacked }: {
       {label}{" "}<kit.KitText part={null} density={density} role="number" numberScale="compact" tabular>{amount}</kit.KitText>
     </kit.KitText>
   ));
-  const headingBars = [[nameRole, name], ["number", balance, "start", numberScale]] as const;
-  const detailBars = [["caption", kind + (suffix ?? "")], ...details.map(({ text }) => ["caption", text] as const)] as const;
+  const headingBars: SkeletonContent = [[nameRole, name], ["number", balance, "start", numberScale]];
+  const detailBars: SkeletonContent = [
+    ["caption", kind + (suffix ?? "")], ...details.map(({ text }): ["caption", string] => ["caption", text]),
+  ];
   return (
     <kit.PartContext.Provider value={{ ...scope, item: id }}>
       <kit.KitCard padded {...finish} {...(loading ? {} : { part: "root", goto, label })}>
@@ -170,7 +173,7 @@ export function AccountCard({ accounts, density: requested, surface, arrange }: 
   const currency = kit.useAppCurrency(), stacked = arrange === "rows";
   const cards = accounts.map((account) => ({ account, copy: accountCopy(account, lang, words, currency) }));
   const numberScale =
-    (!stacked && cards.length > 1) || cards.some(({ copy }) => copy.balance.length > (stacked ? 8 : 9))
+    (!stacked && cards.length > 1) || cards.some(({ copy }) => copy.balance.length > (stacked ? 6 : 9))
       ? "compact"
       : "display";
   const tiles = cards.map(({ account, copy }) => (
