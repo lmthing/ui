@@ -114,8 +114,10 @@ describe("books report contracts", () => {
     );
     expect(VatReturn.props.safeParse({ ...input, schemeRef: "Domestic Cash" }).success).toBe(false);
   });
+});
 
-  it("validates payroll basis, finalisation and payment against the correct actions", () => {
+describe("books payroll contracts", () => {
+  it("validates payroll basis, finalisation and payment seeds", () => {
     const draft = Payroll.examples[0]!;
     const paid = Payroll.examples[1]!;
     const row = draft.payees[0]!;
@@ -130,15 +132,64 @@ describe("books report contracts", () => {
       expect(Payroll.props.safeParse(input).success).toBe(false);
     const zeroGross = { ...row, rate: 0.3, hours: 3, adjustments: [{ label: "Correction", amount: -0.9 }] };
     expect(Payroll.props.safeParse({ ...draft, payees: [zeroGross] }).success).toBe(true);
-    const before = c.readComponent(Payroll, draft, "p1").join("\n");
+  });
+});
+
+describe("books payroll host actions", () => {
+  it("offers payroll actions only for the matching host run and its payment state", () => {
+    const draft = Payroll.examples[0]!;
+    const run = { runRef: "nov_care", from: "2026-11-01", to: "2026-11-30", payDate: "2026-12-01" };
+    const jo = {
+      employeeRef: "jo",
+      name: "Jo Lin",
+      basis: "hourly",
+      hours: 10,
+      rate: 12,
+      adjustments: [],
+      ruleRef: "sample_pay",
+    };
+    const rules = [{ currency: "GBP", rates: { sample_pay: { deductionRate: 0.1, employerRate: 0.05 } } }];
+    const paid = {
+      ...run,
+      finalizedAt: "2026-12-01T09:00:00Z",
+      payees: [
+        {
+          ...jo,
+          paidAt: "2026-12-01T12:00:00Z",
+          frozen: {
+            runRef: run.runRef,
+            employeeRef: jo.employeeRef,
+            ruleRef: jo.ruleRef,
+            currency: "GBP",
+            figures: { gross: 12000, deductions: 1200, net_pay: 10800, employer_cost: 12600 },
+          },
+        },
+      ],
+    };
+    const read = (record: object) =>
+      c
+        .readComponent(Payroll, draft, "p1", "filled", {}, undefined, {
+          books_payroll_runs: [record],
+          books_payroll_rules: rules,
+        })
+        .join("\n");
+    const before = read({ ...run, payees: [jo] });
     expect(before).toContain("[p1/finalize press]");
     expect(before).toContain("[p1/void press]");
     expect(before).not.toContain("/record press");
-    const after = c.readComponent(Payroll, paid, "p1").join("\n");
+    expect(before).not.toContain("/send press");
+    const after = read(paid);
     expect(after).toContain("[p1/r1/send press !needs-service]");
-    expect(after).not.toContain("/record press");
-    expect(after).not.toContain("/void press");
+    expect(after).not.toMatch(/\/(?:finalize|record|void) press/);
     expect(Payroll.meta.confirmParts).toEqual(["finalize", "void"]);
     expect(Payroll.meta.partTiers).toEqual({ send: "service" });
+  });
+
+  it("does not offer payroll mutations or sending for detached seeds", () => {
+    const [draft, paid] = Payroll.examples;
+    for (const input of [draft!, { ...paid!, style: "run" }]) {
+      const read = c.readComponent(Payroll, input, "p1").join("\n");
+      expect(read).not.toMatch(/\/(?:finalize|void|record|send) press/);
+    }
   });
 });
