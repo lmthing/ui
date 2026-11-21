@@ -3,12 +3,16 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TamaguiProvider } from "tamagui";
 import { expect, it } from "vitest";
 import { components, planAct, readScreen, themeName } from "@lmthing/ui/catalog";
-import { createScreenController, KitProvider, Screen, type ScreenController } from "@lmthing/ui/kit";
+import {
+  createScreenController,
+  KitProvider,
+  renderers,
+  Screen,
+  type ScreenController,
+} from "@lmthing/ui/kit";
 import { addressedElements, config, type AddressedElement } from "../../../../../test/render";
-import { Units as unitsModule } from "../..";
 
 const thumbnail = components.Units.examples[1]!;
-const renderers = { Units: unitsModule.Units };
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 function textOf(part?: AddressedElement): string {

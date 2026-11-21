@@ -9,10 +9,10 @@ import { distinct, ref, seedDate, seedLabels } from "../seeds";
 // Core first: List/rows cannot derive occupancy and agreed rent from dated, mutually exclusive lets.
 export const meta = {
   id: "Units",
-  status: "draft",
+  status: "ready",
   group: "data",
   purpose: "See who occupies each rental unit and the agreed rent on a chosen date.",
-  pick: "Requires dated let records and a request to calculate occupancy or agreed rent as of a date. Never choose for name and profile links alone (List). Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
+  pick: "A tenant directory of names and profile links is List, not Units. Choose Units only to calculate rental-unit occupancy or agreed rent on a date from tenancy or stay records. Not owned stock (Things), an advertised place (Listing), or one agreement (Lease).",
   writeHints: [
     "Use snake_case references. Every let must reference a unit in this line. Active lets for one unit must not overlap; the end date is exclusive, and cancelled lets do not count.",
     'A stay requires an end date and per "night"; a tenancy uses "week" or "month". Supply askingRent and askingPer together, or omit both. Do not write occupancy or totals.',
@@ -133,37 +133,45 @@ export const probes = [
 type UnitsProps = c.Props<typeof props, typeof meta>;
 type Unit = UnitsProps["units"][number];
 const statusTone = { occupied: "good", reserved: "warn", vacant: "muted" } as const;
-
 // prettier-ignore
-function UnitRow({ unit, snapshot, media, density }: {
+function UnitRow({ unit, snapshot, media, density, loading }: {
   unit: Unit;
   snapshot: ReturnType<typeof unitSnapshot>;
   media: UnitsProps["media"];
   density: NonNullable<UnitsProps["density"]>;
+  loading: boolean;
 }) {
   const { words } = useWords(propertyWordsFor);
   const { status, occupant, rent } = snapshot;
+  const photo = media === "thumb" && unit.photo;
+  const lines = [
+    { part: "title", text: unit.title, role: "heading", tone: unit.goto ? "accent" : "text" },
+    { part: "address", text: unit.address, role: "caption", tone: "muted" },
+    { part: "occupant", text: occupant, role: "body", tone: "text" },
+    { part: "rent", text: rent, role: "number", tone: "text" },
+  ] as const;
   return (
-    <KitRow item={unit.id} label={unit.title} goto={unit.goto} density={density}
-      inset="none" leadingAlign="row" lineRole="heading"
-      leading={media === "thumb" && unit.photo ? <KitPhoto photo={unit.photo} label={unit.title} part="photo" /> : undefined}
+    <KitRow item={unit.id} label={loading ? "" : unit.title} goto={loading ? undefined : unit.goto} density={density}
+      part={loading ? null : "root"} inset="none" leadingAlign="row" lineRole="heading"
+      leading={photo ? loading ? <KitSkeleton shape="figure" inset="none" lead="box" density={density} />
+        : <KitPhoto photo={photo} label={unit.title} part="photo" /> : undefined}
     >
       <KitGrid fitLast density={density}>
-        <KitContent density={density}>
-          <KitText role="heading" part="title" density={density} tone={unit.goto ? "accent" : "text"}>{unit.title}</KitText>
-          {unit.address && <KitText role="caption" tone="muted" part="address" density={density}>{unit.address}</KitText>}
-          {occupant && <KitText role="body" part="occupant" density={density}>{occupant}</KitText>}
-          {rent && <KitText role="number" numberScale="compact" tabular part="rent" density={density}>{rent}</KitText>}
-        </KitContent>
+        <KitGrid arrange="rows">
+          {lines.map(({ part, text, role, tone }) => text && (loading
+            ? <KitSkeleton key={part} shape="figure" inset="none" density={density} content={[[role, text, "start", "compact"]]} />
+            : <KitText key={part} {...{ part, role, tone, density }} numberScale="compact" tabular={role === "number"}>{text}</KitText>
+          ))}
+        </KitGrid>
         <KitTrail kind="badge" part="occupancy" value={words.units.status[status]} tone={statusTone[status]} density={density} />
       </KitGrid>
     </KitRow>
   );
 }
-
 // prettier-ignore
 export function Units({ units, lets, on, ...input }: UnitsProps) {
   const state = useComponentState();
+  const loading = state === "loading";
   const { words, lang } = useWords(propertyWordsFor);
   const currency = useAppCurrency();
   const density = useVariant("density", meta.variants.density, input.density);
@@ -171,28 +179,20 @@ export function Units({ units, lets, on, ...input }: UnitsProps) {
   const media = useVariant("media", meta.variants.media, input.media);
   const items = units.map((unit) => ({ unit, snapshot: unitSnapshot(unit, lets, on, lang, currency) }));
   return (
-    <KitCard part="root" padded surface={surface} density={density}>
+    <KitCard part="root" padded surface={state === "filled" ? surface : "card"} density={density}>
       {state === "empty" || state === "error" ? (
         <KitEmpty part="message" decorativeIcon icon={state === "error" ? "alert" : "home"}
           {...(state === "error" ? { title: words.units.error } : {})} />
       ) : <>
         <KitContent density={density}>
-          {state === "loading" ? <KitSkeleton shape="figure" inset="none" density={density} content={[["label", words.units.date]]} />
+          {loading ? <KitSkeleton shape="figure" inset="none" density={density} content={[["label", words.units.date]]} />
             : <KitText part={null} role="label" tone="muted" density={density}>{words.units.date}</KitText>}
-          {state === "loading" ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full />
-            : <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.date} value={on} projected />}
+          {loading ? <KitSkeleton shape="control" kind="secondary" label={words.units.date} full />
+            : <KitInput part="date" kind="date" icon="calendar" action="set" label={words.units.date} hint={words.units.dateFormat} value={on} projected />}
         </KitContent>
-        {state === "loading" ? <KitSkeleton inset="none" rows={items.length} lead="none" density={density}
-          items={items.map(({ unit, snapshot: { occupant, rent } }) => ({
-            lines: [{ text: unit.title, role: "heading" },
-              ...(unit.address ? [{ text: unit.address, role: "caption" as const }] : []),
-              ...(occupant ? [{ text: occupant, role: "body" as const }] : []),
-              ...(rent ? [{ text: rent, role: "number" as const, numberScale: "compact" as const }] : [])],
-            trail: "badge", ...(media === "thumb" ? { photo: unit.photo } : {}),
-          }))} />
-          : <KitGrid arrange="rows" list density={density}>
-            {items.map(({ unit, snapshot }) => <UnitRow key={unit.id} {...{ unit, snapshot, media, density }} />)}
-          </KitGrid>}
+        <KitGrid arrange="rows" list={!loading} density={density}>
+          {items.map(({ unit, snapshot }) => <UnitRow key={unit.id} {...{ unit, snapshot, media, density, loading }} />)}
+        </KitGrid>
       </>}
     </KitCard>
   );

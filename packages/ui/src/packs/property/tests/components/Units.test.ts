@@ -1,12 +1,8 @@
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { TamaguiProvider } from "tamagui";
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 // prettier-ignore
-import { affordancesOf, components, createRegistry, packReady, readComponent, stampItemIds, themeName, type CastLike, type Props, type StateName } from "@lmthing/ui/catalog";
-import { createScreenController, KitProvider, PartScope } from "@lmthing/ui/kit";
-import { addressedElements, config } from "../../../../../test/render";
-import { Units as unitsModule } from "../..";
+import { affordancesOf, components, createRegistry, packReady, readComponent, stampItemIds, type CastLike, type Props, type StateName } from "@lmthing/ui/catalog";
+import { createScreenController } from "@lmthing/ui/kit";
+import { addressedElements, renderInstance } from "../../../../../test/render";
 
 const { examples, fallback, meta, probes, props } = components.Units;
 const register = examples[0]!;
@@ -15,23 +11,8 @@ const unit = register.units[0]!;
 const letRecord = register.lets[0]!;
 const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
-// The generated renderer map omits the draft, so mount its actual view with the shared config.
 function draw(input: unknown, state: StateName = "filled") {
-  const stamped = stampItemIds(meta, props.parse(input)) as Props<typeof props, typeof meta>;
-  const scope = createElement(PartScope, {
-    screen: "home",
-    component: "u1",
-    rev: 1,
-    state,
-    children: createElement(unitsModule.Units, stamped),
-  });
-  return renderToStaticMarkup(
-    createElement(
-      TamaguiProvider,
-      { config, defaultTheme: themeName(theme) },
-      createElement(KitProvider, { theme, children: scope }),
-    ),
-  );
+  return renderInstance("Units", input, state, theme, { component: "u1" });
 }
 
 describe("Units schema", () => {
@@ -128,7 +109,7 @@ describe("Units fallback and metadata", () => {
     expect(fallback({ cast: cast("Unit from cast") }).units[0]!.title).toBe("Unit from cast");
   });
   it("retains the core-first miss, shared variants and on-device tier", () => {
-    expect(meta).toMatchObject({ tier: "phone", dense: true, weight: 3 });
+    expect(meta).toMatchObject({ status: "ready", tier: "phone", dense: true, weight: 3 });
     expect(meta.realPath).toContain("on the device");
     expect(createRegistry({ packs: ["property"] }).ids.includes("Units")).toBe(packReady("property"));
     expect(probes).toEqual(
@@ -146,6 +127,7 @@ describe("Units states, parts and actions", () => {
   it("shows the addressed date field, links and occupancy readings, but hides unrequested photos", () => {
     const parts = addressedElements(draw(register));
     expect(parts.get("home/u1/date")?.attributes).toMatch(/aria-label="Occupancy date".*value="2026-11-18"/);
+    expect(parts.get("home/u1/date")?.attributes).toContain('placeholder="YYYY-MM-DD"');
     expect(parts.get("home/u1/r1/root")?.attributes).toContain('role="link"');
     expect(parts.get("home/u1/r2/root")?.attributes).not.toContain('role="link"');
     expect(parts.get("home/u1/r1/occupant")?.text).toEqual(["Asha"]);
@@ -167,6 +149,8 @@ describe("Units states, parts and actions", () => {
     expect(html).not.toContain('data-testid="home/u1/date"');
     expect(html).not.toContain('data-testid="home/u1/r1/root"');
     if (state !== "loading") expect(addressedElements(html).has("home/u1/message")).toBe(true);
+    else
+      expect(addressedElements(html).get("home/u1/r1/occupancy")?.attributes).toContain('aria-hidden="true"');
     expect(affordancesOf(meta, stampItemIds(meta, props.parse(register)), "u1", {}, state)).toEqual([]);
   });
   it("dispatches only linked row presses through the shared controller", () => {
