@@ -87,8 +87,9 @@ export function deliveryPreview({ step, courier }: Delivery): DeviceData {
         step,
         courier,
         etaMinutes: nearby ? 2 : 8,
-        position: nearby ? { x: 0.55, y: 0.52 } : { x: 0.28, y: 0.64 },
-        destination: { x: 0.74, y: 0.36 },
+        // Place the sample markers along the kit tile's schematic streets.
+        position: nearby ? { x: 0.55, y: 0.45 } : { x: 0.28, y: 0.43 },
+        destination: { x: 0.7, y: 0.28 },
       },
     ],
   };

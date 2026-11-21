@@ -124,19 +124,11 @@ export function taskCopy(row: ProjectedTask, lang?: string, now = new Date()) {
   };
 }
 
-export function taskLoading(rows: readonly ProjectedTask[], lang?: string) {
-  const { separator } = projectsWordsFor(lang).tasks;
-  return rows.map((row) => {
-    const { due, state, priority, blockers } = taskCopy(row, lang);
-    const captions = [due, [state, row.assignee, priority].filter(Boolean).join(separator), blockers];
-    return {
-      lines: [
-        { role: "body" as const, text: row.title },
-        ...captions.flatMap((text) => (text ? [{ role: "caption" as const, text }] : [])),
-      ],
-      done: row.done !== undefined,
-    };
-  });
+// Standalone success previews have no controller to check their example tasks.
+export function taskPreviewComplete<T extends ProjectedTask>(rows: readonly T[]) {
+  const refs = new Set(rows.map(({ taskRef }) => taskRef));
+  if (rows.some(({ after }) => after.some((ref) => !refs.has(ref)))) return rows;
+  return projectTasks(rows.map((row) => ({ ...row, checked: row.state === undefined ? undefined : true })));
 }
 
 export function taskReading(input: unknown, state: StateName, lang?: string) {

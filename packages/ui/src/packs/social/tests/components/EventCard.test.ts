@@ -8,7 +8,7 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { createScreenController } from "@lmthing/ui/kit";
-import { addressedElements, renderInstance } from "../../../../../test/render";
+import { addressedElements, renderInstance, type AddressedElement } from "../../../../../test/render";
 
 const def = components.EventCard;
 const { props, meta, fallback, examples, probes } = def;
@@ -17,6 +17,8 @@ const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 const parts = (input: unknown, state: "filled" | "loading" = "filled") =>
   addressedElements(renderInstance("EventCard", input, state, theme, { component: "e1" }));
 const address = (part: string) => `home/e1/${part}`;
+const attendance = (part?: AddressedElement) =>
+  [...(part?.children[0]?.text ?? []), ...(part?.text ?? [])].join("");
 describe("EventCard schema", () => {
   it.each(examples)("accepts the domain example", (input) => {
     expect(props.safeParse(input).success).toBe(true);
@@ -127,9 +129,9 @@ describe("EventCard states, parts, and read", () => {
       month: "Nov",
       time: "14:00",
       place: example.place,
-      count: "14 going",
     }))
       expect(drawn.get(address(part))?.text).toEqual([value]);
+    expect(attendance(drawn.get(address("count")))).toBe("14 going");
     example.attendees?.forEach((name, index) =>
       expect(drawn.get(address(`r${index + 1}/root`))?.attributes).toContain(`aria-label="${name}"`),
     );
@@ -152,10 +154,9 @@ describe("EventCard states, parts, and read", () => {
     for (const action of ["going", "interested"])
       expect(drawn.has(address(`${action}_icon`))).toBe(status === action);
   });
-
   it("retains the exact count without attendees, and cover is optional", () => {
     const drawn = parts({ ...example, photo: undefined, going: 0, attendees: undefined });
-    expect(drawn.get(address("count"))?.text).toEqual(["0 going"]);
+    expect(attendance(drawn.get(address("count")))).toBe("0 going");
     expect(drawn.has(address("photo"))).toBe(false);
     expect(drawn.has(address("r1/root"))).toBe(false);
   });

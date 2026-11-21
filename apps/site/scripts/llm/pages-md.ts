@@ -140,7 +140,7 @@ export function indexMd(data: Data): string {
   return [
     "# lmthing/ui: components a model can't misuse",
     "",
-    `> The component catalog behind lmthing. A model picks from ${s.core} core components and up to three of ${data.packs.length} domain packs and writes each as a JSON line. Code checks the line and the kit draws it. There is no code, colour or size in a line to get wrong.`,
+    `> The component catalog behind lmthing. A model picks from ${s.core} core components and up to three live domain packs and writes each as a JSON line. Code checks the line and the kit draws it. There is no code, colour or size in a line to get wrong.`,
     "",
     `${s.shipped} components are ready (${s.built} exist as code of ${s.plannedTotal} planned). ${s.packsReady} of ${data.packs.length} packs are live, ${s.packsInProgress} in progress, ${s.packsPlanned} planned. ${s.themesBuilt} themes are built.`,
     "",

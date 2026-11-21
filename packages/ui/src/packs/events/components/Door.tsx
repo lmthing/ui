@@ -1,28 +1,52 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { doorReading, doorSearchMax, doorSummary, projectDoor } from "../copy";
+import { eventsWordsFor } from "../lang";
 import { seedTitles } from "../seeds";
 
 // Core first: Camera/scan cannot reconcile arrivals or manually check in a named guest.
 export const meta = {
   id: "Door",
-  status: "draft",
+  status: "ready",
   group: "action",
   purpose: "Admit people by scanning tickets or finding names, and track arrivals.",
   pick: "Admission at an event entrance: scan tickets to check people in, look up a guest for manual check-in and see arrivals. Not a standalone photo or code capture (Camera), a guest's own pass (Ticket) or pre-event replies (GuestList).",
   writeHints: [
     "Write only the instruction hint. Expected arrivals, scans and search results are host data, not props.",
+    'Set detail to "brief" only if asked to hide recent arrivals. Leave other axes null unless explicitly requested.',
   ],
   region: "body",
   weight: 2,
   tier: "ok",
   realPath: "The camera scans codes with permission; multiple doors need a shared app.",
-  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"] },
-  parts: ["root", "hint", "scan", "arrivals", "recent", "search", "feedback"],
-  items: { key: "results", parts: ["root", "name", "checkin"] },
+  variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
+  variantParts: { "detail.brief": { hides: ["recent"] } },
+  parts: [
+    "root",
+    "viewfinder",
+    "hint",
+    "scan",
+    "scan_label",
+    "arrivals",
+    "recent",
+    "search",
+    "feedback",
+    "no_match",
+  ],
+  items: { key: "results", parts: ["root", "name", "checkin", "checkin_label", "admitted"] },
   states: ["filled", "success", "error"],
-  actions: { parts: { scan: ["scan"], search: ["type"] }, items: { checkin: ["press"] } },
-  live: { text: { search: { prop: "search", max: 40 } } },
-  successActions: ["scan.scan", "search.type"],
+  actions: {
+    parts: { scan: ["scan"], search: ["type"] },
+    items: { checkin: ["press"] },
+    when: { scan: { scannerReady: true }, "checkin.press": { available: true } },
+  },
+  deviceData: ["doorTickets", "doorScanner", "doorFeedback"],
+  previewDeviceData: previewDoor,
+  live: { text: { search: { prop: "query", max: doorSearchMax } }, derive: projectDoor },
+  successActions: ["scan.scan", "search.type", "checkin.press"],
+  readSuccess: true,
+  read: (input, state, lang) => doorReading(input as DoorReading, state, lang),
 } as const satisfies c.Meta;
 
 export const props = z.strictObject({ ...c.variantProps(meta.variants), hint: c.text(40) });
@@ -33,8 +57,30 @@ export function fallback(input: c.FallbackInput): z.input<typeof props> {
 
 export const examples = [
   { hint: "Scan a Harbour Benefit pass" },
-  { hint: "Scan or find a reunion guest", density: "compact", surface: "outlined" },
+  { hint: "Scan a Harbour Reunion pass" },
 ] satisfies z.input<typeof props>[];
+
+function previewDoor({ input, state }: { input: Readonly<c.Values>; state: c.StateName }): c.DeviceData {
+  const guests =
+    input.hint === examples[0]!.hint
+      ? ["Imani Cole", "Hugo Wells", "Rae Price", "Ruth Shah"]
+      : ["Mara Chen", "Lee Ortiz", "Dev Malik"];
+  return {
+    doorScanner: ["c1", "d1"],
+    doorTickets: ["c1", "d1"].flatMap((instance) =>
+      guests.map((name, index) => ({
+        instance,
+        id: `r${index + 1}`,
+        name,
+        ...(state === "success" && index === 2
+          ? { arrivedAt: 3 }
+          : index < 2
+            ? { arrivedAt: 2 - index }
+            : {}),
+      })),
+    ),
+  };
+}
 
 const { choose, write, read } = c.probesFor("Door");
 export const probes = [
@@ -46,5 +92,65 @@ export const probes = [
     "Camera",
   ),
   write("Set up check-in for a benefit gala, with the instruction 'Scan a Harbour Benefit pass'."),
+  {
+    ...write(
+      "Set up check-in for the benefit gala. Say 'Scan a Harbour Benefit pass'. Keep the scan and manual lookup, but do not show recent arrivals.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
   read("Scan the next guest's ticket at the entrance.", { address: "d1/scan", action: "scan" }),
 ] satisfies c.Probe[];
+
+type DoorReading = ReturnType<typeof projectDoor> & { detail?: c.AxisValue<"detail"> | undefined };
+type View = c.Props<typeof props, typeof meta>;
+type Density = c.AxisValue<"density">;
+
+// prettier-ignore
+function ManualCheckIn({ live, density }: { live: DoorReading; density: Density }) {
+  const { words: { door } } = kit.useWords(eventsWordsFor);
+  return <kit.KitContent group="response" density={density}>
+    <kit.KitInput part="search" kind="search" hint={door.search} value={live.query} />
+    {live.results.map(({ id, name, available }) => (
+      <kit.KitRow item={id} key={id} label={name} inline density={density}
+        trailing={available ? <kit.KitAction part="checkin" kind="quiet" label={door.checkin} />
+          : <kit.KitText part="admitted" role="label" tone="muted">{door.admitted}</kit.KitText>}>
+        <kit.KitText role="body" part="name" density={density}>{name}</kit.KitText>
+      </kit.KitRow>
+    ))}
+    {Boolean(live.query.trim()) && !live.results.length &&
+      <kit.KitText part="no_match" role="label" tone="muted">{door.noMatch}</kit.KitText>}
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+export function Door(input: View) {
+  const { lang, words: { door } } = kit.useWords(eventsWordsFor);
+  const state = kit.useComponentState();
+  const { screen, component } = kit.usePartContext();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const query = kit.useControlValue(`${screen}/${component}/$type/search`, "");
+  const live = projectDoor({ query }, component, kit.useDeviceData());
+  const summary = doorSummary({ ...live, detail }, state, lang);
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {summary.feedback && <kit.KitText part="feedback" role="body" emphasis="strong"
+      density={density} tone={state === "error" ? "bad" : "good"}>
+      {summary.feedback}
+    </kit.KitText>}
+    <kit.KitContent lineRole="title" density={density}>
+      <kit.KitText part="arrivals" role="number" tabular density={density}>{summary.arrivals}</kit.KitText>
+      <kit.KitText part={null} role="label" tone="muted">{door.arrivals}</kit.KitText>
+      {summary.recent && <kit.KitText part="recent" role="label" tone="muted">{summary.recent}</kit.KitText>}
+    </kit.KitContent>
+    {state !== "error" && <>
+      <kit.KitContent group="response" density={density}>
+        <kit.KitViewfinder kind="scan" hint={input.hint} hintPart="hint" />
+        <kit.KitContent group="response">
+          <kit.KitAction part="scan" action="scan" label={door.scan} disabled={!live.scannerReady} full />
+        </kit.KitContent>
+      </kit.KitContent>
+      <ManualCheckIn {...{ live, density }} />
+    </>}
+  </kit.KitCard>;
+}
