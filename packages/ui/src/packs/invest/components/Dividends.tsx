@@ -44,6 +44,10 @@ export const meta = {
     when: { root: { linked: true }, receive: { received: false }, void: { received: true } },
     noGoto: { items: ["receive", "void"] },
   },
+  read: (input, state): string[] =>
+    state === "filled"
+      ? (input as z.output<typeof props>).distributions.map(({ id, payOn }) => `${id}: ${payOn}`)
+      : [],
 } as const satisfies c.Meta;
 
 const distribution = z
@@ -51,7 +55,7 @@ const distribution = z
     id: recordId,
     assetId: recordId,
     entitledAt: dateTime.meta({ kind: "text" }),
-    payOn: c.isoDate.meta({ kind: "text" }),
+    payOn: c.isoDate,
     perUnit: z.number().positive(),
     withheld: z.number().nonnegative().default(0),
     receivedAt: dateTime.optional(),
