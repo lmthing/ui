@@ -10,17 +10,32 @@ import {
 } from "./runtime";
 export type { Confirmation } from "./runtime";
 import { projectScreen } from "./live-screen";
-import { emptyDeviceData, liveProps, selectDeviceData, type Meta, type Values } from "../../catalog";
+import {
+  emptyDeviceData,
+  liveProps,
+  projectDeviceData,
+  selectDeviceData,
+  type Meta,
+  type Values,
+} from "../../catalog";
 
 function liveControls(ctx: ControllerContext, meta: Meta, props: Values, component: string) {
   const prefix = `${ctx.screen.id}/`;
+  const values = ctx.valuesOf();
   const local = Object.fromEntries(
-    Object.entries(ctx.valuesOf())
+    Object.entries(values)
       .filter(([key]) => key.startsWith(prefix))
       .map(([key, value]) => [key.slice(prefix.length), value]),
   );
   const definition = ctx.defs[meta.id]?.meta ?? meta;
-  return liveProps(definition, props, component, local, true, ctx.options.deviceData);
+  return liveProps(
+    definition,
+    props,
+    component,
+    local,
+    true,
+    projectDeviceData(ctx.options.deviceData, values),
+  );
 }
 
 /** One dispatcher for human taps and agent steps. Hidden sheets and covered controls are not actionable. */
@@ -39,7 +54,7 @@ export function createScreenController(options: ControllerOptions) {
     deviceDataFor(component: string, data = options.deviceData) {
       const source = ctx.sourceOf(component);
       const def = source && ctx.defs[source.c];
-      return def ? selectDeviceData(def.meta, data) : emptyDeviceData;
+      return def ? selectDeviceData(def.meta, projectDeviceData(data, ctx.valuesOf())) : emptyDeviceData;
     },
     get deviceData() {
       return options.deviceData;

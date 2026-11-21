@@ -41,6 +41,14 @@ const lines = [
     ],
   },
 ];
+const addressedLines = lines.map((line) => ({
+  ...line,
+  players: line.players.map((player) => ({
+    ...player,
+    numberPart: player.id === "r3" ? null : "number",
+    namePart: "name",
+  })),
+}));
 const substitutes = createElement(KitAction, { key: "bench", label: "Bench details", part: "bench" });
 
 it.each(["pitch", "list"] as const)("draws player items and substitutes in %s", (style) => {
@@ -62,8 +70,24 @@ it.each(["pitch", "list"] as const)("draws player items and substitutes in %s", 
   expect(elementAt(html, "home/c1/r3/root").attributes).not.toContain('role="button"');
 });
 
+it.each(["pitch", "list"] as const)("addresses starter text in the same items in %s", (style) => {
+  const html = renderDiagram(createElement(KitPitch, { lines: addressedLines, style }));
+  const parts = addressedElements(html);
+  expect(parts.get("home/c1/r1/number")?.text).toEqual(["1"]);
+  expect(parts.get("home/c1/r1/name")?.text).toEqual(["Price"]);
+  expect(parts.get("home/c1/r4/number")?.text).toEqual(["07"]);
+  expect(parts.get("home/c1/r4/name")?.text).toEqual(["Liu"]);
+  expect(parts.get("home/c1/r3/name")?.text).toEqual(["Shah"]);
+  expect(parts.has("home/c1/r3/number")).toBe(false);
+  expect(html.replace(/ data-testid="home\/c1\/r[134]\/(?:name|number)"/g, "")).toBe(
+    renderDiagram(createElement(KitPitch, { lines, style })),
+  );
+});
+
 it.each(["pitch", "list"] as const)("does not expose names or targets while %s loads", (style) => {
-  const html = renderDiagram(createElement(KitPitch, { lines, substitutes, style, loading: true }));
+  const html = renderDiagram(
+    createElement(KitPitch, { lines: addressedLines, substitutes, style, loading: true }),
+  );
   expect(html).toContain('aria-busy="true"');
   expect(html.includes('vector-effect="non-scaling-stroke"')).toBe(style === "pitch");
   expect([...addressedElements(html).keys()]).toEqual(["home/c1/root"]);
@@ -113,7 +137,7 @@ it("uses the shared controller for player press and activation keys", async () =
     return jsxDEV(...args);
   });
   try {
-    renderDiagram(createElement(KitPitch, { lines }), controller);
+    renderDiagram(createElement(KitPitch, { lines: addressedLines }), controller);
     const preventDefault = vi.fn();
     const stopPropagation = vi.fn();
     target.onPress!({ stopPropagation });
