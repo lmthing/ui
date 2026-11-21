@@ -7,6 +7,14 @@ export { stageRecord } from "./record-planning";
 export { stageProgress } from "./progress";
 export { itemActionOffer, moveKey, projectMoves } from "./move";
 export { findAction } from "./offered-actions";
+export {
+  hostOnlyParts,
+  hostOnlyAddresses,
+  isPrivateMark,
+  privateMarkKey,
+  redactPrivateMarks,
+} from "./host-actions";
+export { createPrivateMarks, planHostAct, registerPrivateMark, type PrivateMarks } from "./host-marks";
 import { storeLiveInput } from "../live-inputs";
 import {
   controlValueKey,

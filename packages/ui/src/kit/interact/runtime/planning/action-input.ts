@@ -2,6 +2,14 @@ import { parseControlProps, projectAdjustments, type Values } from "../../../../
 import type { ControllerContext, ScreenComponent } from "../index";
 
 export function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
+  try {
+    return parseActionInput(ctx, entry, values);
+  } catch {
+    return undefined;
+  }
+}
+
+function parseActionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
   const def = ctx.defs[entry.c]!;
   const get = (part: string) => values[ctx.key(entry.id, part)];
   if (ctx.standalone) {

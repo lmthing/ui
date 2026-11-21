@@ -15,6 +15,7 @@ import {
   type ScreenLike,
   type Values,
 } from "../index";
+import { hostOnlyAddresses, isPrivateMark } from "../action-input";
 import { addressedItems } from "../visibility";
 import { driveSeekPart } from "./declaration";
 export { checkDriveDeclaration } from "./declaration";
@@ -52,6 +53,7 @@ export function driveTarget(
     const offered = affordancesOf(def.meta, props, id, values, (props.state as StateName) ?? state, false, {
       data,
     });
+    if (hostOnlyAddresses(def, id, offered)?.has(address) || isPrivateMark(values, address)) continue;
     if (offered.some((a) => a.address === address && a.action === "seek"))
       return !canDrive || canDrive(address)
         ? { address, screen: screen.id, seconds: props.seconds }
