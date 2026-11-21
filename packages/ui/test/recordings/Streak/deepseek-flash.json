@@ -367,8 +367,8 @@
     "reply": "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"days training recall\",\"days\":[true,true,true,true,true,true,false]}",
     "replies": [
       "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"days training recall\",\"days\":[true,true,true,true,true,true,false]}",
-      "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"training recall\",\"days\":[true,true,true,true,true,true,false]}",
-      "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"training recall\",\"days\":[true,true,true,true,true,true,false]}"
+      "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"days training recall\",\"days\":[true,true,true,true,true,true,false]}",
+      "{\"c\":\"Streak\",\"density\":null,\"detail\":\"brief\",\"count\":6,\"label\":\"days training recall\",\"days\":[true,true,true,true,true,true,false]}"
     ]
   },
   "bca8d607f136897f": {

@@ -1,9 +1,7 @@
 import {
   drawRole,
   reportConfirmation,
-  projectAdjustments,
   sessionEvent,
-  parseControlProps,
   type ActStep,
   type RandomSource,
   type Values,
@@ -18,30 +16,21 @@ import {
   type ActionResult,
   type ActionState,
 } from "../../actions";
-import type { ControllerContext, ScreenComponent, MediaRuntime } from "../index";
-import { confirmReport, dispatchPlan, inactive, introducedPart, standaloneEffects } from "./introduced-part";
-function actionInput(ctx: ControllerContext, entry: ScreenComponent, values: Values) {
-  const def = ctx.defs[entry.c]!;
-  const get = (part: string) => values[ctx.key(entry.id, part)];
-  if (ctx.standalone) {
-    const { meta } = def;
-    const { id: _id, c: _c, state: _state, ...raw } = entry;
-    const { session, successActions, errorActions, live } = meta;
-    const useParsed =
-      meta.confirmParts?.length &&
-      (session || successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits);
-    return useParsed ? parseControlProps(def, raw, get) : raw;
-  }
-  const input = ctx.inputOf(entry);
-  return def.meta.items?.set ? projectAdjustments(def.meta, input, get) : input;
-}
+import type { ControllerContext, MediaRuntime } from "../index";
+import {
+  confirmReport,
+  dispatchPlan,
+  drivenPartBlock,
+  inactive,
+  introducedPart,
+  standaloneEffects,
+} from "./introduced-part";
+import { actionInput, disabledHint } from "./action-input";
+export { drivenPartBlock } from "./introduced-part";
 
-function disabledHint(component: string, action: string, input: Values) {
-  if (component === "Composer" && action === "send" && !String(input.value ?? "").trim())
-    return "Write a reply before sending";
-  if (component === "Counter" && action === "decrement" && Number(input.value) < Number(input.step))
-    return "The counter cannot go below zero";
-}
+type PreparedStep =
+  | { state: ActionState; context: ActionContext; drive: ActStep | undefined }
+  | { error: Extract<ActReply, { ok: false }> };
 function prepareStep(
   state: ActionState,
   action: ActStep,
@@ -49,7 +38,7 @@ function prepareStep(
   media: MediaRuntime,
   at: number,
   confirmed?: ActionState["confirmation"],
-): { state: ActionState; context: ActionContext } | { error: Extract<ActReply, { ok: false }> } {
+): PreparedStep {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
   const entry = active.components.find((item) => item.id === id);
@@ -57,8 +46,7 @@ function prepareStep(
   if (!entry || !ctx.defs[entry.c]) return fail("not_actionable", "No component at this address");
   if (inactive(ctx, entry)) return fail("not_actionable", "This component is not filled");
   const def = ctx.defs[entry.c]!;
-  const disabled = ctx.disabledParts.has(action.address);
-  if (disabled && !introducedPart(ctx, state, entry, action, true))
+  if (ctx.disabledParts.has(action.address) && !introducedPart(ctx, state, entry, action, true))
     return fail("disabled", "This control is disabled");
   let input: Values;
   try {
@@ -83,6 +71,7 @@ function prepareStep(
     return fail("invalid_value", "Confirmation conflicts with report props");
   return {
     state: { ...state, values, changes: [...state.changes, ...plan.changed] },
+    drive: plan.driven?.[0],
     context: {
       screen: ctx.screen,
       active,
@@ -137,7 +126,12 @@ function stepRunner(
       needsConfirmation(ctx, prepared.context) &&
       confirmationFor(before, selected, prepared.context);
     if (pending) return pending;
-    execution.performed.push(selected);
+    if (!ctx.standalone && prepared.drive) {
+      const block = drivenPartBlock(ctx, prepared.drive.address);
+      if (block) return { state: before, effects: [], error: actionFailure(at, block.code, block.hint) };
+      return run(before, { ...prepared.drive, address: `${ctx.screen.id}/${prepared.drive.address}` });
+    }
+    execution.performed.push({ ...selected, address: `${ctx.screen.id}/${selected.address}` });
     if (isDraw(prepared.context)) {
       execution.drew = true;
       if (random !== null) {

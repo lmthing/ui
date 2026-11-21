@@ -10,12 +10,14 @@ export const meta = createMeta(
   {
     week: [
       ...timelineHint,
-      'Name the task in Header.title, e.g. "Weekly agenda". Use Header.sub to state when the named visits happen, e.g. "Nov 2026 · Check-in & Follow-up" (40 characters max). Leave all Header and Timeline axes null. List the supplied events in date and time order; open each meta with the recognizable date, then the supplied purpose. This is an agenda, not a checklist, so done is null.',
+      'Use "Appointments this week" for the Header title and the actual date span and appointment count in its subtitle, e.g. "Nov 18–20 · 2 appointments". Give each marked appointment day tone good so the dates with an agenda stand out.',
+      'List the appointments in date and time order, retaining their names and times. Put a readable date first and the supplied purpose second in each meta, e.g. "Nov 18 · Routine review". This is an agenda: done is null.',
+      "The subtitle and every event's date and purpose must stay visible. Emit literal null for Header.density, Header.emphasis, Header.detail, Timeline.density and Timeline.detail.",
     ],
     month: [
       ...timelineHint,
-      "Name the displayed month and purpose in Header.title. Header.sub names the selected day's agenda and tells the person where to tap in at most 40 characters, e.g. “Nov 18 agenda · Tap marked dates”. Use the real selected date and leave all Header axes null.",
-      "Dots guide the person to visits: mark each supplied appointment date with tone good. Keep the supplied selection. The Timeline is that selected day's agenda: exclude every appointment on a different date, even when marked on the Calendar. Copy selected-day titles and times and put the purpose first and date second in meta. Leave Timeline density and detail null.",
+      'Use "Monthly appointments" for the Header title and "Tap a marked day for its agenda" as its subtitle. The Calendar itself shows the month and selected day. Keep all Header axes null.',
+      'Mark the supplied appointment dates with tone good. The Timeline is only the agenda for the supplied selected day: exclude every other day even when marked on the Calendar. Retain each title and time, put a readable date first and purpose second in meta (e.g. "Nov 18 · Routine review"), and leave done and all Timeline axes null.',
     ],
   },
 ) satisfies ArchetypeMeta;

@@ -1369,10 +1369,10 @@
         }
       }
     },
-    "reply": "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
+    "reply": "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
     "replies": [
-      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
-      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":\"brief\",\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
+      "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":\"full\",\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":\"week\",\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}",
       "{\"c\":\"Amount\",\"density\":null,\"emphasis\":\"hero\",\"surface\":null,\"detail\":null,\"style\":null,\"label\":\"Savings\",\"value\":1240.5,\"currency\":\"EUR\",\"per\":null,\"was\":null,\"change\":-32,\"changeIn\":\"money\",\"sub\":null,\"goto\":null}"
     ]
   },

@@ -96,16 +96,17 @@ it("migrates saved variant lines when a keypad draft is present", () => {
   expect(read).toContain('[entry/r1/amount type = "3."]');
 });
 
-it("keeps the device records in the read callback when projecting keypad drafts", () => {
+it("keeps the device records and app currency when projecting keypad drafts", () => {
   const readings = [{ value: 9 }];
   const withData: Definition = {
     ...def,
     meta: {
       ...def.meta,
       deviceData: ["readings"],
-      read: (input, state, lang, data) => {
+      read: (input, state, lang, data, currency) => {
         expect(data?.readings).toBe(readings);
         expect(Object.keys(data ?? {})).toEqual(["readings"]);
+        expect(currency).toBe("EUR");
         return def.meta.read!(input, state, lang);
       },
     },
@@ -121,6 +122,7 @@ it("keeps the device records in the read callback when projecting keypad drafts"
       readings,
       other: [],
     },
+    "EUR",
   );
   expect(read).toContain("entry Fixture 7.");
 });
