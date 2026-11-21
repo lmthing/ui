@@ -9,3 +9,4 @@
 {"id":"l1","c":"List","lead":"number","trail":"value","rows":[{"title":"Leaves","value":"4"},{"title":"Seeds","value":"4"},{"title":"Roots","value":"3"}]}
 {"id":"n1","c":"Note","text":"Leaves and Seeds tie on four points. The host records awards after revealing each answer."}
 {"id":"l2","c":"LifeCounter","players":[{"name":"Leaves","swatch":"green"},{"name":"Roots"},{"name":"Seeds"}]}
+{"id":"p1","c":"PassReveal","players":[{"name":"Leaves","role":"Clue keeper"},{"name":"Roots","role":"Time keeper"},{"name":"Seeds","role":"Word keeper"}]}

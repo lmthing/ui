@@ -7,7 +7,7 @@ Built in step U7 (drafts in U3), wave to be decided. Read `docs/catalog/packs/pl
 Files (exactly these, plus `index.ts` as the folder's door unless it is listed):
 - `pack.ts`, `example.jsonl` (a worked example app as JSON Lines, every line validates)
 - `components/`: `ScoreSheet.tsx` `Dice.tsx` `Spinner.tsx` `Trivia.tsx` `TurnOrder.tsx` `TeamPicker.tsx`
-- Wave 6 draft: `LifeCounter.tsx`.
+- Wave 6 drafts: `LifeCounter.tsx` `PassReveal.tsx`.
 - `archetypes/`: `game_night.ts` `score_round.ts` `trivia_round.ts`
 
 Rules:

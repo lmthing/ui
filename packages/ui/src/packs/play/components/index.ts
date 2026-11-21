@@ -5,3 +5,4 @@ export * as Trivia from "./Trivia";
 export * as TurnOrder from "./TurnOrder";
 export * as TeamPicker from "./TeamPicker";
 export * as LifeCounter from "./LifeCounter";
+export * as PassReveal from "./PassReveal";

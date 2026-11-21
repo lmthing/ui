@@ -4,6 +4,14 @@ export const en = {
     counterLine: (label: string, value: string) => `${label}: ${value}`,
     reset: "Reset life totals",
   },
+  passReveal: {
+    prompt: "Pass the phone to this player",
+    reveal: "Reveal your role",
+    hold: "Hold to reveal",
+    hide: "Hide and pass",
+    ready: "Round ready",
+    restart: "Restart round",
+  },
   teamPicker: {
     ready: "Ready to split",
     empty: "No teams drawn yet",

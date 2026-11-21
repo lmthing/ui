@@ -21,7 +21,16 @@ import {
 } from "@lmthing/ui/catalog";
 import { example } from "../index";
 
-const ids = ["ScoreSheet", "Dice", "Spinner", "Trivia", "TurnOrder", "TeamPicker", "LifeCounter"] as const;
+const ids = [
+  "ScoreSheet",
+  "Dice",
+  "Spinner",
+  "Trivia",
+  "TurnOrder",
+  "TeamPicker",
+  "LifeCounter",
+  "PassReveal",
+] as const;
 const layouts = {
   game_night: ["play_teams", "play_turns", "play_chance"],
   score_round: ["play_scores", "play_results"],
