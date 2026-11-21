@@ -30,7 +30,7 @@ Household vault, freelancer tax prep, insurance and licence renewals, small-offi
 links evidence to allocations; `TaxYear` matches a period's records, not model-written completion.
 `Signature` captures a drawn mark, which a typed-name `Field` cannot do.
 
-## Components (5)
+## Components (7)
 
 ### `Documents` · planned · data · phone
 
@@ -128,6 +128,26 @@ allocation totals. Up to eight categories open their evidence; a task tick canno
   entered by the person or their accountant; official tax rules, filing and tax advice remain outside.
 - Density: `meta.dense: true`, weight 3; 1–8 categories with row meta text(36), never embedded receipt rows.
 
+### `ScanBatch` · planned · input · ok
+A multi-page capture staging tray displaying ordered scanned page thumbnails, total page count, per-page reorder, retake, and remove actions, an Add page button opening the camera scanner, and a Save PDF action. Removing a page confirms first, while code maintains sequential 1-based page numbers across reorders and additions.
+- Pick: staging, reordering, and assembling multiple scanned pages into one local document. Not capturing a single image (`Camera[scan]`), viewing read-only photos (`Gallery`), or browsing saved files (`Documents`).
+- Writes: `title` text(32) optional, `pages` of `file` (private attachment reference text(120)), `label` text(16) optional, 0–24; `captureGoto` optional, `style`. Page count and sequential numbering are computed by code.
+- Styles: `tray` (default, ordered page thumbnail grid with add and save controls), `review` (large preview of the active page above the thumbnail strip).
+- Parts → actions: `add scan` (captures another page or opens `captureGoto`), pages `root move` (reorders page to target slot), pages `retake scan`, pages `remove press`, `save press`. `meta.confirmParts: ["remove"]`.
+- States: empty (no pages scanned yet), filled, loading (assembling PDF), success (PDF saved), error (camera denied or save failed).
+- Real path: device camera permission (`ok`) captures local scanned pages through host scanner adapters and combines them into one local PDF file without cloud uploads.
+- Density: `meta.dense: true`, weight 3; multi-page capture batches stage up to 24 ordered pages.
+
+### `FormFiller` · planned · input · phone
+A field-by-field local PDF or administrative form completion panel displaying named inputs, validation hints, a completion meter, a link to preview the underlying document, and a Save copy button. Saving exports a filled local copy without mutating the original blank template or sending it to an outside service.
+- Pick: filling named fields tied to a personal administrative PDF or form document. Not standalone generic inputs (`Field`), capturing a drawn signature mark (`Signature`), or signing client waivers (customers `Agreement`).
+- Writes: `title` text(32), `document` (private attachment reference text(120)), `fields` of `label` text(28), `kind` (`text`, `date`, `number`, `check`), `value` text(80) optional (or boolean for `check`), `required` boolean (default false), 1–16; `style`. Completed count and completion percentage are computed by code from the fields.
+- Styles: `form` (default, completion meter, preview link, and all named fields), `compact` (required fields only).
+- Parts → actions: `preview press` (opens local document preview), fields `field type` (for text, date, or number fields), fields `check check` (for `check` fields), `save press`, `clear press`. `meta.confirmParts: ["clear"]`.
+- States: filled, empty (no template fields loaded), loading, success (filled local copy saved), error (missing required field or save failed).
+- Real path: form definitions and entered values stored locally on the device; the host viewer previews the document and writes a filled copy locally without coordinate-space ink editing.
+- Density: `meta.dense: true`, weight 3; administrative forms hold up to sixteen named fields bound to one document.
+
 ## Archetypes (4)
 
 | Archetype  | Job                                  | Layouts                                      | Recipe                                                                                                                                                                |
@@ -162,8 +182,10 @@ OCR and filing need `service` and are outside the default plan.
 
 ## Build notes
 
-- Order: `Documents`, `Renewals`, `Receipts`, `TaxYear`, then `Signature` after its drawing-base prototype.
+- Order: `Documents`, `Renewals`, `Receipts`, `TaxYear`, then `Signature` after its drawing-base prototype; Wave 6 additions follow in order: `ScanBatch`, `FormFiller`.
   All are planned; no component enters live prompts before the complete pack passes the pack gates.
+- Wave 6 option upgrades on existing components: `Documents` adds `folder` text(24) + `style: "folders"`, `pages` int, and `share press` (`meta.partTiers: { share: "service" }`); `Signature` adds `style: "initials"` and `datedStamp` boolean; `Renewals` adds `autoRenews` boolean warning flag before `noticeBy`; `Receipts` adds optional `taxAmount` and `status` (`pending`, `reviewed`, `flagged`).
+- Wave 6 boundaries: collaborative cloud folders and ACLs belong in `workspace`, coordinate-space PDF ink markup stays in `Canvas`, business P&L/VAT stays in `books`, and travel IDs stay in `trips`. Also pair `Documents` / `Receipts` attachments with proposed Core `FileList`.
 - Use strict `writerFormat(registry)` for core plus selected packs only; no aliases or off-pack fallbacks.
   Each component needs two domain examples, probes and a renderer composed only from kit bases; the pack
   needs `example.jsonl` rendered in three presets. Fallbacks use cast records or shared neutral placeholders.

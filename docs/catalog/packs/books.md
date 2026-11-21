@@ -31,7 +31,7 @@ for a reconciled accounting document and taxable-profit bridge, not a few figure
 `VatReturn` maps records to period boxes; `Payroll` computes pay runs, not staff hours (team `Timesheet`).
 These packs are neighbours, never dependencies; invoices and sales become source records only when money moves.
 
-## Components (5)
+## Components (8)
 
 ### `Ledger` · planned · data · phone
 Dated accounting lines with money in and out, account, category and receipt or payment source. Transfers
@@ -42,7 +42,7 @@ and owner movements remain visible but do not inflate income or profit; opening 
   text(32), `categoryRef` text(32), `direction` (`in`, `out`), `net` number > 0, `vatCode` text(32)
   optional, `sourceRef` text(32) optional, `transferRef` text(32) optional, `goto` optional, 1–24; `style`.
   VAT, gross cash, period totals and running balances are computed; no model-written balance.
-- Styles: `lines` (default, in/out columns), `accounts` (grouped by account).
+- Styles: `lines` (default, in/out columns), `accounts` (grouped by account), `unreconciled` (Wave 6: highlights rows missing `sourceRef` or receipt, with optional `taxTag`).
 - Parts → actions: entries `root press` (linked); `export press`.
   `meta.partTiers: { export: "service" }` for sharing the file outside the app.
 - States: filled, empty, loading, error (unresolved source or mismatched transfer).
@@ -66,6 +66,7 @@ and VAT treatment. A draft can be corrected before posting; voiding a posted rec
 - States: filled, empty, loading, success (posted or voided), error (invalid split or save failed).
 - Real path: local receipt records; core `Camera` captures evidence with consent, never silently posts OCR guesses.
 - Density: `meta.dense: true`, weight 3; one receipt may contain eight classified accounting lines.
+- Wave 6 options: add `businessUsePresets` (`100%`, `50%`, `25%`) quick chips and `paymentMethod` (`cash`, `card`, `owner_paid`).
 
 ### `ProfitLoss` · planned · data · phone
 A period report with income and cost sections, category subtotals, profit or loss, and a bridge from
@@ -74,7 +75,7 @@ bookkeeping profit to taxable profit. Each category opens the underlying lines; 
   independent summary figures (`Stats`), an unstructured report (data `LineChart`), or VAT boxes (`VatReturn`).
 - Writes: `from`, `to` dates; `compareFrom`, `compareTo` dates optional (both together); `ledgerGoto`
   optional; `style`. All section values, profit, allowable-cost adjustments and changes come from records.
-- Styles: `statement` (default, income and costs), `tax_bridge` (adds disallowed costs and taxable profit).
+- Styles: `statement` (default, income and costs), `tax_bridge` (adds disallowed costs and taxable profit), `monthly` (Wave 6: monthly revenue versus cost comparison).
 - Parts → actions: categories `root press` (with `ledgerGoto`, filtered to that category and period).
 - States: filled, empty, loading, error (missing classification or unsupported accounting rule).
 - Real path: the host aggregates the full local ledger under the brief's accounting and deductibility rules.
@@ -111,12 +112,42 @@ employer costs. Finalising freezes the calculation; recording an actual payment 
 - Real path: local pay records and rule-driven calculations; payslip sending needs a messaging service, not a bank.
 - Density: `meta.dense: true`, weight 3; pay lines, deductions and employer-cost reconciliation form one document.
 
+### `Reconcile` · planned · input · phone
+Imported bank or card statement lines paired beside suggested ledger categories, existing matches or receipt thumbnails with a running discrepancy readout. Bookkeepers can match, split across categories, exclude personal items or save a categorization rule for future imports.
+- Pick: reconciling imported bank or card statement entries against bookkeeping lines. Not viewing posted entries (`Ledger`), splitting one paper receipt (`Expenses`), or personal spending (money `Transactions`).
+- Writes: `accountRef` text(32), `statementEnding` number, `lines` of `id` text(24), `date`, `description` text(36), `amount` signed number, `direction` (`in`, `out`), `suggestedCategory` text(24) optional, `matchedEntryRef` text(32) optional, `receipt` photo optional, `status` (`unmatched`, `matched`, `excluded`), 1–20; `style`. Reconciled balance, unmatched count and statement discrepancy are computed by code.
+- Styles: `match` (default, statement lines with suggested category chips and match, split and exclude actions), `rules` (imported payee patterns and saved matching rules).
+- Parts → actions: lines `match press`, lines `split press`, lines `exclude press`, lines `category select`, lines `rule press`, `sync press`. `meta.confirmParts: ["exclude"]`; `meta.partTiers: { sync: "service" }`.
+- States: filled, empty, loading, success (statement reconciled), error (discrepancy unresolved or bank feed sync failed).
+- Real path: statement lines imported locally from file or synced via an optional bank-feed service (`service`), matched against the device's canonical ledger.
+- Density: `meta.dense: true`, weight 3; statement reconciliation batches require up to 20 imported lines.
+
+### `MileageLog` · planned · data · phone
+Business and personal trip rows displaying date, route or business purpose, start and end odometer readings and computed distance. Code calculates the business mileage total and tax deduction under the brief's rate, with an optional live trip start and stop tracker.
+- Pick: recording trips for business tax mileage deductions. Not personal fuel economy (auto `FuelLog`), expense receipt lines (`Expenses`), or holiday itineraries (trips `Itinerary`).
+- Writes: `unit` (`mi`, `km`), `ratePerUnit` number > 0, `trips` of `id` text(24), `date`, `purpose` text(32), `kind` (`business`, `personal`), `startOdo` number ≥ 0 optional, `endOdo` number ≥ 0 optional, `distance` number > 0 optional, `goto` optional, 1–20; `tracking` boolean (default false); `style`. Trip distances from odometer readings, business distance and tax deduction totals are computed by code.
+- Styles: `trips` (default, dated trip list with business or personal tags and computed deduction), `summary` (period business distance, deduction total and live trip start/stop controls).
+- Parts → actions: trips `root press` (linked), trips `kind select`, `track start`, `track stop`, `add press`. `meta.partTiers: { track: "ok" }`.
+- States: filled, empty, loading, success (trip saved), error (location permission denied or invalid odometer range).
+- Real path: trip records stored on the device; optional live distance tracking uses location permission (`ok`).
+- Density: `meta.dense: true`, weight 3; mileage logs track up to 20 trips per period.
+
+### `CashForecast` · planned · data · phone
+A short-horizon thirty, sixty or ninety day business cash projection combining cash on hand, expected client receivables and scheduled bills or payroll. Below the projection curve, summary rows flag the lowest expected balance, its date and projected cash runway days.
+- Pick: projecting short-term business cash runway from receivables and scheduled bills. Not historical profit and loss (`ProfitLoss`), personal debt payoff (money `Payoff`), or generic charts (data `LineChart`).
+- Writes: `horizonDays` (`30`, `60`, `90`), `cashOnHand` number, `items` of `id` text(24), `date`, `title` text(28), `direction` (`in`, `out`), `amount` number > 0, `certainty` (`scheduled`, `expected`), 1–20; `style`. Daily projected balances, lowest balance, lowest date and runway days are computed by code.
+- Styles: `chart` (default, daily balance curve with lowest-balance marker and upcoming cash items), `table` (chronological cash inflows and outflows with running projected balance).
+- Parts → actions: `horizon select`, points `root select` (reads date and projected balance), items `root press` (linked).
+- States: filled, empty, loading, error (projected cash shortfall warning or missing records).
+- Real path: cash projections calculated locally on the device from ledger cash balances, open receivables and scheduled bills.
+- Density: `meta.dense: true`, weight 3; 90-day cash projections include up to 20 scheduled inflows and outflows.
+
 ## Archetypes (4)
 
 | Archetype | Job | Layouts | Recipe |
 | --- | --- | --- | --- |
-| `books_home` | Business cash and recent entries | `books_overview`, `books_ledger` | `books_overview`: Header, Amount[large], Actions, Ledger · `books_ledger`: Header, Search, Chips, Ledger, Button |
-| `expenses` | Receipts and classification | `books_receipts`, `books_receipt_edit` | `books_receipts`: Header, Search, Chips, Expenses[register], Button · `books_receipt_edit`: Header[back], Expenses[receipt], Note, Button |
+| `books_home` | Business cash and recent entries | `books_overview`, `books_ledger`, `books_reconcile`, `books_forecast` | `books_overview`: Header, Amount[large], Actions, Ledger · `books_ledger`: Header, Search, Chips, Ledger, Button · `books_reconcile`: Header, Reconcile, Note · `books_forecast`: Header, CashForecast, Note |
+| `expenses` | Receipts and classification | `books_receipts`, `books_receipt_edit`, `books_mileage` | `books_receipts`: Header, Search, Chips, Expenses[register], Button · `books_receipt_edit`: Header[back], Expenses[receipt], Note, Button · `books_mileage`: Header, MileageLog, Button |
 | `period_report` | Close a period or run payroll | `books_statement`, `books_pay_run` | `books_statement`: Header, Segmented, ProfitLoss, Bars, Note, Button · `books_pay_run`: Header, Payroll, Note, Button |
 | `tax` | Tax provision and VAT preview | `books_tax_reserve`, `books_vat_period` | `books_tax_reserve`: Header, Amount[large], Progress, Note, Button · `books_vat_period`: Header, VatReturn, Note, Button |
 
@@ -147,9 +178,12 @@ a shared `people` screen; a payee name alone does not. No bank link, payment or 
 
 ## Build notes
 
-- Order: `Ledger`, `Expenses`, `ProfitLoss`, `VatReturn`, `Payroll`; all remain planned. Build two domain
+- Order: `Ledger`, `Expenses`, `ProfitLoss`, `VatReturn`, `Payroll`, then Wave 6 additions `Reconcile`, `MileageLog` and `CashForecast`; all remain planned. Build two domain
   examples and choose/write/read probes per component, pack positives and near misses, then `example.jsonl`
   validating and rendering in three presets. Use kit bases, shared copy and `moneyLine`; no new signature.
+- **Wave 6 additions & options:**
+  - Added `Reconcile` (`input`, `phone` with `sync` in `service`) for matching imported bank/card statement lines, `MileageLog` (`data`, `phone` with `track` in `ok`) for business trip tax mileage deductions, and `CashForecast` (`data`, `phone`) for 30/60/90-day cash runway projection.
+  - Option/style upgrades: `Ledger` gains `style: "unreconciled"` and optional `taxTag`; `Expenses` gains `businessUsePresets` (`100%`, `50%`, `25%`) and `paymentMethod` (`cash`, `card`, `owner_paid`); `ProfitLoss` gains `style: "monthly"`.
 - Strict `writerFormat(registry)` allows only core plus selected packs. References are host-issued
   snake_case ids, narrowed to the brief's allowed records/rules; repeated seeds must agree. One canonical
   ledger backs every view even without sibling components; posted receipt lines resolve to it exactly once.

@@ -128,11 +128,15 @@ function StoryCell({ person, density, detail }: StoryFinish & { person: StoriesP
 // prettier-ignore
 function StoryRail({ people, mine, density, detail }: StoryFinish & Pick<StoriesProps, "people" | "mine">) {
   const { words: { stories } } = kit.useWords(socialWordsFor);
+  const short = people.length + Number(mine) <= shortRailLimit;
+  const cells = [
+    ...(mine ? [<AddStory key="add" {...{ density, detail }} />] : []),
+    ...people.map((person) => <StoryCell key={person.id} {...{ person, density, detail }} />),
+  ];
   const rail = <kit.KitTrack part="rail" label={stories.rail}>
-    {mine && <AddStory {...{ density, detail }} />}
-    {people.map((person) => <StoryCell key={person.id} {...{ person, density, detail }} />)}
+    {short ? <kit.KitGrid columns={shortRailLimit} density={density}>{cells}</kit.KitGrid> : cells}
   </kit.KitTrack>;
-  return people.length + Number(mine) <= shortRailLimit ? rail :
+  return short ? rail :
     <kit.KitScroll part="scroll" axis="horizontal" bounded={false} label={stories.rail}>{rail}</kit.KitScroll>;
 }
 
