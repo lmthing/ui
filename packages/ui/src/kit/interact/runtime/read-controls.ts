@@ -68,7 +68,7 @@ export function visibleConfirmation(
 
 // Match quoted content as one token so a label cannot be mistaken for an affordance.
 const controlTokens =
-  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type(?: = "(?:\\.|[^"\\])*")?|increment|decrement|press|set(?: = "(?:\\.|[^"\\])*")?)(?: !needs-[a-z]+)?\]/g;
+  /"(?:\\.|[^"\\])*"| \[([\w/-]+) (type|set|increment|decrement|press)(?: = (?:"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?(?:e[+-]?\d+)?))?(?: !needs-[a-z]+)?\]/g;
 
 function isBuzzOffer(screen: ScreenLike, defs: Record<string, Definition>, address: string) {
   const [id, ...parts] = address.split("/");
@@ -137,7 +137,7 @@ export function readControls(
     : readScreen(source, defs, values, lang, deviceData, currency, canDrive);
   return disabled?.size || privateMarks?.size
     ? read.replace(controlTokens, (token, address, action) => {
-        if (action?.startsWith("set") && privateMarks?.has(address)) return "";
+        if (action === "set" && privateMarks?.has(address)) return "";
         if (disabled?.has(address) && (action !== "press" || isBuzzOffer(migrated, defs, address))) return "";
         return token;
       })

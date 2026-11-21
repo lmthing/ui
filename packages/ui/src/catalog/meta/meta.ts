@@ -15,6 +15,14 @@ type ItemNumericSet = NumericSet & {
   /** Addressed items flatten this wire matrix in row-major order. */
   matrix?: { rows: string; values: string };
 };
+type NestedPart = {
+  prop: string;
+  /** A named control's true value, or a boolean property on the sub-item. */
+  when?: string | { prop: string; equals: boolean };
+} & (
+  | { action: "toggle" | "set"; min?: number; max?: number; integer?: boolean }
+  | { action: "increment" | "decrement"; min: number | string; max: number | string; step: number | string }
+);
 type ComponentSet =
   | (NumericSet & { type?: "number" } & (
         { runtime?: false } | { runtime: true; maxProp: string; initial: number }
@@ -106,6 +114,8 @@ export type Meta = {
     variants?: ItemVariants;
     clocks?: readonly ClockMeta[];
     adjust?: NumericAdjustments;
+    /** Confirmed component press part that restores item adjustments and nested step values to their seeds. */
+    reset?: string;
     /** Item parts backed by wire props. Photo and remove use the declared press actions. */
     edits?: ItemEdits;
     /** Confirmed edits of whole wire records in the item collection. */
@@ -125,20 +135,7 @@ export type Meta = {
       /** Maximum on toggles across all parent rows, including hidden ones. */
       maxActive?: number;
       clocks?: readonly ClockMeta[];
-      parts: Readonly<
-        Record<
-          string,
-          {
-            action: "toggle" | "set";
-            prop: string;
-            min?: number;
-            max?: number;
-            integer?: boolean;
-            /** A named control's true value, or a boolean property on the sub-item. */
-            when?: string | { prop: string; equals: boolean };
-          }
-        >
-      >;
+      parts: Readonly<Record<string, NestedPart>>;
     };
   };
   select?: SelectMeta; // Flags with runtime: true never enter wire snapshots.

@@ -35,7 +35,7 @@ function snapshotPlanning(ctx: ControllerContext, touchNow: () => number): Contr
   const disabledParts = new Map(ctx.disabledParts);
   return {
     ...ctx,
-    options: { ...ctx.options, deviceData: data },
+    options: { ...ctx.options, deviceData: data, clipboard: ctx.clipboard },
     screen: filterDeviceDataScreen(ctx.screen, ctx.defs, projected),
     now: () => at,
     touchNow,

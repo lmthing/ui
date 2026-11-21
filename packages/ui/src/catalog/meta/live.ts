@@ -66,6 +66,8 @@ export type ReadSummary = (
   lang?: string,
   deviceData?: DeviceData,
   currency?: AppCurrency,
+  /** Reads an instance-local control value without adding it to the Writer schema or snapshot. */
+  liveValue?: (part: string) => unknown,
 ) => string[];
 
 export type RecordContext = {

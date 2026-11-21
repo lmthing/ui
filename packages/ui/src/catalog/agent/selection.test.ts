@@ -93,7 +93,7 @@ it("resolves explicit values from a prop list without accepting indexes or infer
   expect(selectionAt(fromProps, options, "r1", "one")).toBeUndefined();
 });
 
-const nestedMeta: Meta = {
+const nestedMeta = {
   ...meta,
   items: {
     key: "rows",
@@ -106,7 +106,7 @@ const nestedMeta: Meta = {
       },
     },
   },
-};
+} satisfies Meta;
 const nestedProps = {
   rows: [
     {
@@ -167,7 +167,9 @@ describe("nested declarations", () => {
       expect(validateActionValue("set", value, limits)?.code).toBe("invalid_value");
     expect(validateActionValue("set", 0.5, { min: 0 })).toBeNull();
     expect(validateActionValue("set", 5.5, { max: 5 })?.code).toBe("invalid_value");
-    expect(validateActionValue("toggle", undefined, nestedMeta.items!.nested!.parts.active!)).toBeNull();
+    const active = nestedAt(nestedMeta, nestedProps, "r1/active_1")?.spec;
+    if (active?.action !== "toggle") throw new Error("Expected a nested toggle");
+    expect(validateActionValue("toggle", undefined, active)).toBeNull();
   });
 });
 

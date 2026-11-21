@@ -119,7 +119,8 @@ describe("Bills fallback", () => {
 describe("Bills states and parts", () => {
   it("renders declared parts, stable item addresses and sibling pointer targets", () => {
     const html = render("filled");
-    for (const p of meta.items.parts) expect(elementAt(html, part(`r2/${p}`))).toBeDefined();
+    for (const p of ["root", "name", "amount", "due", "repeat", "paid", "icon"])
+      expect(elementAt(html, part(`r2/${p}`))).toBeDefined();
     const root = elementAt(html, part("r2/root"));
     const paid = elementAt(html, part("r2/paid"));
     expect(root.attributes).toContain('role="button"');

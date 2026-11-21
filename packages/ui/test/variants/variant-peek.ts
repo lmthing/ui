@@ -43,8 +43,8 @@ export function peekForExample(meta: Meta, props: Props, html: string) {
 }
 
 function setValue(meta: Meta, props: Props, { address, detail }: Affordance) {
-  const nested = nestedAt(meta, props, address.slice(component.length + 1));
-  const { min = -Infinity, max = Infinity, integer } = nested?.spec ?? {};
+  const spec = nestedAt(meta, props, address.slice(component.length + 1))?.spec;
+  const { min = -Infinity, max = Infinity, integer } = spec?.action === "set" ? spec : {};
   const value = Number(detail.split(" = ")[1] ?? 0);
   const sample = Number.isFinite(value) ? value : 0;
   return integer

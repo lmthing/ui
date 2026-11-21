@@ -1,12 +1,21 @@
 import { useState } from "react";
-import { useAnimatedValue } from "../../motion";
-import { motion } from "../../../catalog";
 import { XStack, styled, isWeb } from "tamagui";
-import { component, radius, size, space, type as typography, type IconName } from "../../../catalog";
+import { useAnimatedValue } from "../../motion";
+import { useCopyFeedback } from "../../interact";
+import {
+  component,
+  layoutType,
+  motion,
+  radius,
+  size,
+  space,
+  type as typography,
+  type ActionName,
+  type IconName,
+} from "../../../catalog";
 import { useKit, useKitStyle } from "../../provider";
 import { useComponentState, usePart } from "../../part";
 import { KitIcon, KitText, shifted, type IconTone, type TextTone } from "../text";
-
 export type ActionKind = "primary" | "secondary" | "quiet" | "danger";
 const Frame = styled(XStack, {
   alignItems: "center",
@@ -43,40 +52,19 @@ const inactiveSurface = {
   quiet: "transparent",
   danger: "$badSoft",
 } as const;
-const inactiveTone: Record<ActionKind, TextTone & IconTone> = {
-  primary: "text",
-  secondary: "muted",
-  quiet: "muted",
-  danger: "bad",
-};
 type ActionProps = {
   label?: string | undefined;
   icon?: IconName | undefined;
   kind?: ActionKind;
   goto?: string | undefined;
-  part?: string;
+  part?: string | null;
   a11y?: string;
   full?: boolean;
-  action?:
-    | "press"
-    | "dismiss"
-    | "play"
-    | "pause"
-    | "toggle"
-    | "select"
-    | "check"
-    | "set"
-    | "type"
-    | "increment"
-    | "decrement"
-    | "start"
-    | "stop"
-    | "send"
-    | "scan";
+  action?: Exclude<ActionName, "swipe" | "seek" | "flip" | "move">;
   value?: string | number | boolean;
   disabled?: boolean;
+  copiedLabel?: string;
 };
-
 function ActionContent({
   label,
   icon,
@@ -102,11 +90,15 @@ function ActionContent({
             tone={tone}
             scale={label ? "sm" : "md"}
             part={`${part}_icon`}
-            decorative={loading}
+            decorative={loading || part === null}
           />
         )}
         {label && (
-          <KitText role="label" tone={tone} part={loading ? null : `${part}_label`}>
+          <KitText
+            role={layoutType.meta}
+            tone={tone}
+            part={loading || part === null ? null : `${part}_label`}
+          >
             {label}
           </KitText>
         )}
@@ -115,7 +107,7 @@ function ActionContent({
         <XStack
           position="absolute"
           width="100%"
-          height={typography.label.size * 0.6}
+          height={typography[layoutType.meta].size * 0.6}
           backgroundColor="$line"
           borderRadius={radius.sm}
         />
@@ -126,19 +118,26 @@ function ActionContent({
 
 function useActionPress(props: ActionProps, address: string, inactive: boolean) {
   const kit = useKit();
-  if (!kit.interactive || inactive) return {};
+  const [pressed, setPressed] = useState(false);
+  const still = kit.environment.reduceMotion || kit.environment.agentMode;
+  const scale = useAnimatedValue(pressed && !still ? motion.pressScale : 1, still);
+  if (!kit.interactive || inactive) return { scale };
+  const feedback = { scale, onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) };
   if (kit.controller)
     return {
+      ...feedback,
       onPress: () =>
         props.action
           ? kit.controller!.act({
               address,
               action: props.action,
-              ...(props.value === undefined ? {} : { value: props.value }),
+              ...(props.value === undefined || props.action === "copy" ? {} : { value: props.value }),
             })
           : kit.controller!.press(address),
     };
-  return props.goto ? { onPress: () => kit.onLink?.(props.goto!, address) } : {};
+  return props.goto && props.action !== "copy"
+    ? { ...feedback, onPress: () => kit.onLink?.(props.goto!, address) }
+    : feedback;
 }
 
 export function KitAction({
@@ -152,49 +151,49 @@ export function KitAction({
   action,
   value,
   disabled = false,
+  copiedLabel,
 }: ActionProps) {
   const kit = useKit();
   const ks = useKitStyle();
-  const address = usePart(part);
+  const address = usePart(part ?? undefined, part !== null);
   const loading = useComponentState() === "loading";
   const tone = kind === "quiet" && icon === "close" ? "muted" : toneOf[kind];
-  const [pressed, setPressed] = useState(false);
-  const pressScale = useAnimatedValue(
-    pressed && !kit.environment.reduceMotion && !kit.environment.agentMode ? motion.pressScale : 1,
-    kit.environment.reduceMotion || kit.environment.agentMode,
-  );
   const blocked =
     kit.interactive &&
     kit.controller &&
     !(action
       ? kit.controller.actionsAt(address.testID).includes(action)
       : kit.controller.canPress(address.testID));
-  const inactive = loading || disabled || Boolean(blocked);
-  const captionTone = loading ? "text" : inactive ? inactiveTone[kind] : tone;
+  const noCopyValue = action === "copy" && (typeof value !== "string" || value.length === 0);
+  const inactive = part === null || loading || disabled || noCopyValue || Boolean(blocked);
+  const copyAddress = action === "copy" && part !== null ? address.testID : undefined;
+  const copied = useCopyFeedback(copyAddress, value, loading || disabled) && !inactive;
+  const inactiveTone = kind === "primary" ? "text" : kind === "danger" ? "bad" : "muted";
+  const captionTone = loading ? "text" : inactive ? inactiveTone : copied ? "good" : tone;
   const fill = loading ? (kind === "quiet" ? "transparent" : "$line") : inactiveSurface[kind];
   const handlers = useActionPress({ action, value, goto } as ActionProps, address.testID, inactive);
   return (
     <Frame
-      {...address}
+      {...(part === null ? {} : address)}
       kind={kind}
-      backgroundColor={inactive ? fill : undefined}
+      backgroundColor={inactive ? fill : copied ? "$goodSoft" : undefined}
       loading={loading}
-      scale={pressScale}
-      {...(kit.interactive && !inactive
-        ? { onPressIn: () => setPressed(true), onPressOut: () => setPressed(false) }
-        : {})}
       iconOnly={!label}
       borderRadius={label ? shifted("md", ks.radiusShift) : radius.pill}
       {...(full ? { alignSelf: "stretch" } : { alignSelf: "flex-start" })}
       accessibilityRole={loading ? undefined : "button"}
       aria-busy={loading || undefined}
       {...(!isWeb ? { accessibilityState: { disabled: inactive } } : {})}
-      aria-disabled={inactive || undefined}
-      {...(inactive ? { tabIndex: -1 } : {})}
-      accessibilityLabel={label ?? a11y}
+      {...(inactive ? { "aria-disabled": true, tabIndex: -1 } : {})}
+      accessibilityLabel={(copied ? copiedLabel : undefined) ?? label ?? a11y}
+      aria-live={action === "copy" ? "polite" : undefined}
       {...handlers}
     >
-      <ActionContent {...{ label, icon, part, tone: captionTone, loading, quiet: kind === "quiet" }} />
+      <ActionContent
+        label={copied && label ? (copiedLabel ?? label) : label}
+        icon={copied && icon ? "check" : icon}
+        {...{ part, tone: captionTone, loading, quiet: kind === "quiet" }}
+      />
     </Frame>
   );
 }

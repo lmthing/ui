@@ -24,6 +24,7 @@ import { actionFailure } from "../actions";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { registerPart } from "./part-registration";
 import { drivenPartBlock } from "./planning";
 import { privateMarkRegistration } from "./private-mark";
 import { isKeypad, readControls } from "./read-controls";
@@ -38,6 +39,7 @@ const pressActions = [
   "start",
   "stop",
   "send",
+  "copy",
   "dismiss",
 ];
 function actionsAt(
@@ -86,7 +88,7 @@ function actionsAt(
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local)
+      .filter((item) => item.address === local && (item.action !== "copy" || ctx.clipboard.available()))
       .map((item) => item.action);
   } catch {
     return [];
@@ -159,19 +161,14 @@ function read(ctx: ControllerContext, currency?: AppCurrency) {
       .map((entry) => `${entry.id} ${mediaUnavailable}`),
   ].join("\n");
 }
-function registerPart(parts: Map<string, symbol>, local: string) {
-  const token = Symbol(local);
-  parts.set(local, token);
-  return () => {
-    if (parts.get(local) === token) parts.delete(local);
-  };
-}
-export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency) {
-  const ctx = createControllerContext(options, true);
+export function createStandaloneAccess(options: ControllerOptions, currency?: AppCurrency, full = false) {
+  const ctx = createControllerContext(options, !full);
   return { act: createAct(ctx, createMediaRuntime(ctx), () => {}), read: () => read(ctx, currency) };
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
+    registerCopyTarget: ctx.clipboard.register,
+    copiedAt: ctx.clipboard.copiedAt,
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),

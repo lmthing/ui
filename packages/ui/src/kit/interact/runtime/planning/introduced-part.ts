@@ -48,6 +48,7 @@ export function needsConfirmation(ctx: ControllerContext, { entry, selected }: A
   const { successActions, errorActions, live } = meta;
   const part = selected.address.split("/").slice(1).join("/") || "root";
   if (meta.draw?.kind === "deck" && drawRole(meta, part, selected.action) === "reset") return true;
+  if (selected.action === "press" && meta.items?.reset === part) return true;
   if (reportConfirmation(meta, part, selected.action)) return true;
   if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
   return Boolean(sessionEvent(meta, part, selected.action));
@@ -105,6 +106,15 @@ export function inactive(ctx: ControllerContext, entry: ScreenComponent) {
   return !draw && !emptyActions?.length && !errorActions?.length && !session && !successActions?.length;
 }
 
+/** Releasing a private hold cannot be blocked by an unrelated confirmation. */
+export function isRevealRelease(ctx: ControllerContext, action: ActStep) {
+  if (action.action !== "stop") return false;
+  const [id, ...parts] = action.address.split("/");
+  const entry = ctx.sourceOf(id!);
+  const meta = entry && ctx.defs[entry.c]?.meta;
+  return !!meta && sessionEvent(meta, parts.join("/") || "root", action.action) === "hide";
+}
+
 /** Check whether an earlier step introduced the part before the view could update. */
 export function introducedPart(
   ctx: ControllerContext,
@@ -125,6 +135,7 @@ export function introducedPart(
   const prefix = `${ctx.screen.id}/${entry.id}/`;
   const gated =
     (meta.live?.derive ||
+      (isNestedTarget(meta, target) && (action.action === "increment" || action.action === "decrement")) ||
       meta.select?.runtime ||
       meta.linkedEdits ||
       meta.items?.visibleWhen ||

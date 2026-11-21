@@ -23,6 +23,9 @@ export const wallet = {
       ],
     },
     goal: {
+      writeHints: [
+        "The Ring is the main savings-goal figure. Leave Amount emphasis null so the screen has at most one hero.",
+      ],
       recipe: [
         { allow: ["Header"], required: true },
         { allow: ["Ring"], required: true },
