@@ -6,6 +6,15 @@ export const en = {
   fixtureResults: { win: "Win", draw: "Draw", loss: "Loss" },
   fixtureScore: (us: string, them: string) => `${us}–${them}`,
   fixtureSeparator: " · ",
+  squad: {
+    available: "Available to play",
+    reply: "Your availability",
+    answers: { yes: "Yes", maybe: "Maybe", no: "No", none: "No reply" },
+    selection: (name: string) => `Pick ${name}`,
+    picked: "Picked",
+    separator: " · ",
+    row: (name: string, answer: string) => `${name}: ${answer}`,
+  },
   standings: {
     title: "League table",
     scroll: "Scroll for more stats",
