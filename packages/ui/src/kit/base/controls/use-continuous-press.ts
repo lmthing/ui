@@ -4,7 +4,7 @@ import { isWeb } from "tamagui";
 type Press = { begin(): void; end(released: boolean): void };
 type Input = { type: "pointer"; pointer: number } | { type: "keyboard"; key: string } | { type: "native" };
 type Key = {
-  key: string;
+  key?: string;
   repeat?: boolean;
   preventDefault(): void;
   stopPropagation(): void;
@@ -16,9 +16,8 @@ type Move = Pointer & {
   currentTarget: { getBoundingClientRect(): { left: number; right: number; top: number; bottom: number } };
 };
 
-const holdKey = (key: string) => key === " " || key === "Enter";
-function stopKey(e: Key) {
-  if (!holdKey(e.key)) return false;
+function stopKey(e: Key): e is Key & { key: " " | "Enter" } {
+  if (e.key !== " " && e.key !== "Enter") return false;
   e.preventDefault();
   e.stopPropagation();
   return true;
