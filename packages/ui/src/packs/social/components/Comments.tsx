@@ -1,15 +1,19 @@
 import { z } from "zod";
 import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { commentLikeCopy, commentReading } from "../copy";
+import { socialWordsFor } from "../lang";
 
 // Core first: Bubbles/default cannot display public post replies nested under a parent comment.
 export const meta = {
   id: "Comments",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Read and respond to replies under a shared post.",
   pick: "Public replies beneath a post, with author avatars, like and reply controls, and one level of indentation. Not a two-person private conversation (Bubbles) or a business review (Review).",
   writeHints: [
-    "The first comment must have reply false. A reply true is indented under the preceding top-level comment.",
+    'Use "reply":false for each top-level comment (including the first) and "reply":true for answers under it. Consecutive answers share that same parent. Use zero for unknown likes.',
+    'Use JSON null for each unrequested variant, never an explicit default such as "surface":"card". When the only presentation request is to hide timestamps, write "density":null, "surface":null, "detail":"brief"; retain every comment’s time value.',
   ],
   region: "body",
   weight: 3,
@@ -18,14 +22,28 @@ export const meta = {
   realPath: "Replies in a shared app; new replies come from a reply Composer below.",
   variants: { density: ["comfortable", "compact"], surface: ["card", "outlined"], detail: ["full", "brief"] },
   variantParts: { "detail.brief": { hides: ["time"] } },
-  parts: ["root"],
+  parts: ["root", "empty"],
   items: {
     key: "comments",
-    parts: ["root", "name", "photo", "time", "text", "like", "likes", "reply", "more"],
+    parts: [
+      "root",
+      "name",
+      "photo",
+      "time",
+      "text",
+      "like",
+      "like_icon",
+      "likes",
+      "reply",
+      "reply_label",
+      "more",
+      "more_icon",
+    ],
   },
   states: ["filled", "empty"],
   actions: { items: { like: ["toggle"], reply: ["press"], more: ["press"] } },
   live: { derive: commentControls },
+  read: commentReading,
 } as const satisfies c.Meta;
 
 const comment = z.strictObject({
@@ -74,12 +92,12 @@ export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props>
 // prettier-ignore
 export const examples = [
   { comments: [
-    { name: "Sam", photo: "lib:people", time: "4 min ago", text: "How bright is the bathroom shelf?", likes: 2, reply: false },
-    { name: "Maya", photo: "lib:people", time: "Just now", text: "It gets indirect light from an east window.", likes: 1, reply: true },
+    { name: "Sam", photo: "lib:people_sam", time: "4 min ago", text: "How bright is the bathroom shelf?", likes: 2, reply: false },
+    { name: "Maya", photo: "lib:people_maya", time: "Just now", text: "It gets indirect light from an east window.", likes: 1, reply: true },
   ] },
-  { density: "compact", surface: "outlined", detail: "brief", comments: [
-    { name: "Ben", photo: "lib:people", time: "1 hr ago", text: "What time do you usually pass the bridge with Clover?", likes: 3, reply: false },
-    { name: "Anna", photo: "lib:people", time: "15 min ago", text: "Around eight, before the cycle path gets busy.", likes: 0, reply: true },
+  { detail: "brief", comments: [
+    { name: "Ben", photo: "lib:people_ben", time: "1 hr ago", text: "What time do you usually pass the bridge with Clover?", likes: 3, reply: false },
+    { name: "Anna", photo: "lib:people_anna", time: "15 min ago", text: "Around eight, before the cycle path gets busy.", likes: 0, reply: true },
   ] },
 ] satisfies z.input<typeof props>[];
 
@@ -103,3 +121,73 @@ export const probes = [
   },
   read("Reply to Sam’s question about how bright the shelf is.", { address: "c1/r1/reply", action: "press" }),
 ] satisfies c.Probe[];
+
+type CommentsProps = c.Props<typeof props, typeof meta>;
+type CommentRow = CommentsProps["comments"][number];
+type Finish = { density: c.ThemeDensity };
+
+// prettier-ignore
+function CommentToolbarIcon({ part, label, on, density }: Finish & {
+  part: "like" | "more"; label: string; on?: boolean;
+}) {
+  const icon = <kit.KitIcon name={part === "like" ? "heart" : "more"} part={`${part}_icon`}
+    tone={on ? "accent" : "muted"} />;
+  return <kit.KitRow part={part} role="button" label={label} inline density={density}
+    leadingWidth="avatar" leadingAlign="row" leading={icon}>{null}</kit.KitRow>;
+}
+
+// prettier-ignore
+function CommentActions({ row, density }: Finish & { row: CommentRow }) {
+  const { lang, words: { comments } } = kit.useWords(socialWordsFor);
+  const liked = kit.useControlValue(kit.usePart("like", false).testID, false);
+  const { count, line } = commentLikeCopy(row.likes, lang);
+  const like = <CommentToolbarIcon part="like" label={comments.reaction(row.name, liked, line)}
+    on={liked} density={density} />;
+  const likes = <kit.KitText part="likes" role="number" numberScale="compact" tone="muted" tabular lines={1} density={density}>{count}</kit.KitText>;
+  return <kit.KitContent density={density} leadingAlign="row" lead={like}>
+    <kit.KitRow part={null} label="" inline density={density} leadingAlign="row" leading={likes}>
+      <kit.KitAction part="reply" label={comments.reply} kind="quiet" />
+    </kit.KitRow>
+  </kit.KitContent>;
+}
+
+// prettier-ignore
+function Comment({ row, density, parent, detail }: Finish & {
+  row: CommentRow; parent: string | undefined; detail: CommentsProps["detail"];
+}) {
+  const { words: { comments } } = kit.useWords(socialWordsFor);
+  const label = parent ? comments.replyAuthor(row.name, parent) : row.name;
+  const avatar = <kit.KitPhoto part="photo" photo={row.photo} label={row.name} shape="round" />;
+  const cue = row.reply ? <kit.KitIcon name="chevron_right" scale="sm" decorative /> : undefined;
+  return <kit.KitRow item={row.id} label={label} inline density={density}>
+    <kit.KitContent density={density}>
+      <kit.KitContent lead={avatar} leadingAlign="row" density={density}>
+        <kit.KitContent lead={cue} lineRole="body" density={density}>
+          <kit.KitText part="name" role="label" lines={1} density={density}>{row.name}</kit.KitText>
+          {detail !== "brief" && <kit.KitText part="time" role="caption" tone="muted" lines={1} density={density}>{row.time}</kit.KitText>}
+          <kit.KitText part="text" density={density}>{row.text}</kit.KitText>
+        </kit.KitContent>
+      </kit.KitContent>
+      <kit.KitGrid fitLast density={density}>
+        <CommentActions {...{ row, density }} />
+        <CommentToolbarIcon part="more" label={comments.more(row.name)} density={density} />
+      </kit.KitGrid>
+    </kit.KitContent>
+  </kit.KitRow>;
+}
+
+// prettier-ignore
+export function Comments(input: CommentsProps) {
+  const state = kit.useComponentState();
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  let parent: string | undefined;
+  return <kit.KitCard part="root" padded {...{ density, surface }}>
+    {state === "empty" ? <kit.KitEmpty part="empty" icon="message" decorativeIcon /> :
+      input.comments.map((row) => {
+        if (!row.reply) parent = row.name;
+        return <Comment key={row.id} parent={row.reply ? parent : undefined} {...{ row, density, detail }} />;
+      })}
+  </kit.KitCard>;
+}
