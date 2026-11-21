@@ -12,6 +12,8 @@ export type ReadProbe = {
   kind: "read";
   screen: number;
   task: string;
+  /** Fixed host time in epoch milliseconds for a time-gated example. */
+  at?: number;
   expect: { address: string; action: string };
 };
 export type PackProbe = {

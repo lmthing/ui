@@ -1,8 +1,11 @@
 import type { Meta } from "../../meta";
-import type { DeviceData } from "../device-data";
+import { projectRuntimeSets } from "../clocks";
+import { selectDeviceData, type DeviceData } from "../device-data";
 import type { Affordance, SendDraft, Values } from "../index";
 import { linkedInput, projectLinkedEdits } from "../linked-edits";
 import { addressedItems } from "../visibility";
+import { projectPickers } from "./pickers";
+export { pickerAt, pickerKey, pickerSelectionChanges, stageInlinePress } from "./pickers";
 
 export type LiveInput = { kind: "check" } | { kind: "text"; max: number };
 type Get = (part: string) => unknown;
@@ -78,17 +81,24 @@ export function projectLiveInputs(
   instance: string,
   get: Get,
   data?: DeviceData,
+  validated = props,
 ): Values {
-  const selected = projectNamedSelections(meta, props, get, "runtime");
+  const seeded = projectRuntimeSets(meta, props, get, validated);
+  const selected = projectNamedSelections(meta, seeded, get, "runtime");
   const edited = applyChecks(meta, applyText(meta, selected, get), get);
-  const projected = projectLinkedEdits(meta, edited, get, data);
-  const derived = meta.live?.derive?.(projected, instance);
-  return derived ? { ...projected, ...derived } : projected;
+  const projected = projectLinkedEdits(meta, projectPickers(meta, edited, get), get, data);
+  const derived = meta.live?.derive?.(projected, instance, selectDeviceData(meta, data));
+  const live = derived ? { ...projected, ...derived } : projected;
+  return live === seeded ? live : projectRuntimeSets(meta, live, get, validated);
 }
 
 /** Annotate declared inputs with their exact value/limits, not an item's first boolean. */
 export function withLiveInput(meta: Meta, part: string, action: string, holder: Values, row: boolean) {
-  if (!row && action === "type") {
+  if (action === "type" && row && Object.hasOwn(meta.items?.edits ?? {}, part)) {
+    const spec = meta.items!.edits![part];
+    if (spec?.action === "type") return { input: { kind: "text", max: spec.max } as const };
+  }
+  if (action === "type" && !row) {
     const text = meta.live?.text;
     const spec = linkedInput(meta, part) ?? (text && Object.hasOwn(text, part) ? text[part] : undefined);
     if (spec) return { input: { kind: "text", max: spec.max } as const };

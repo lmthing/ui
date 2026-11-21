@@ -1,4 +1,13 @@
 export const en = {
+  soundscape: {
+    sleep: "Sleep timer",
+    off: "Off",
+    minutes: (value: string) => `${value} min`,
+    play: "Play mix",
+    pause: "Pause mix",
+    volume: (label: string) => `${label} volume`,
+    volumeReading: (label: string, value: string) => `${label}: ${value}`,
+  },
   feelings: {
     title: "Name what you feel",
     hint: "Choose a family, then pick words that fit.",
@@ -8,6 +17,17 @@ export const en = {
     placeholder: (item: string, option: string) => `${item} · ${option}`,
   },
   editSleep: "Edit sleep times",
+  breathe: {
+    phase: { inhale: "Breathe in", hold: "Hold", exhale: "Breathe out", rest: "Rest" },
+    complete: "Complete",
+    play: "Play",
+    pause: "Pause",
+    controlLabel: (action: string, phase: string) => `${action} breathing · ${phase}`,
+    roundsLeft: (plural: Intl.LDMLPluralRule) => ({
+      before: "",
+      after: ` ${plural === "one" ? "round" : "rounds"} left`,
+    }),
+  },
   sleep: {
     log: "Log sleep",
     duration: "Time asleep",
@@ -34,6 +54,20 @@ export const en = {
     date: "Date of entry",
     excerpt: "The text of a journal entry will appear here.",
     tags: "Tags for this entry",
+  },
+  patterns: {
+    title: "Mood patterns",
+    withFactor: "With factor",
+    withoutFactor: "Without factor",
+    daysLeft: (count: string, plural: Intl.LDMLPluralRule) =>
+      `Log ${count} more ${plural === "one" ? "day" : "days"}.`,
+    noComparison: "Not enough days with and without the same factor yet.",
+    finding: {
+      higher: (factor: string) => `Higher mood with ${factor}`,
+      lower: (factor: string) => `Lower mood with ${factor}`,
+      same: (factor: string) => `Similar mood with ${factor}`,
+    },
+    reading: (label: string, value: string) => `${label}: ${value}`,
   },
 };
 

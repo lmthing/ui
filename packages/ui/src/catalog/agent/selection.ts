@@ -1,6 +1,6 @@
 import type { Meta } from "../meta";
 import type { Values } from "./act";
-import { choiceValues, selectionOffer } from "./validate-value";
+import { choiceOptions, resolveChoice, selectionOffer } from "./validate-value";
 import { projectNamedSelections } from "./live-inputs";
 
 type GetValue = (part: string) => unknown;
@@ -14,8 +14,8 @@ const rowValue = (value: NonNullable<NonNullable<Meta["select"]>["value"]>, row:
 
 /** Resolve a row or a named part without knowing which component owns it. */
 export function selectionAt(meta: Meta, props: Values, target: string, explicit?: unknown) {
-  const choices = choiceValues(meta, props, target);
-  if (choices) return choices.includes(explicit) ? { value: explicit } : undefined;
+  const choices = choiceOptions(meta, props, target);
+  if (choices) return resolveChoice(choices, explicit);
   const select = meta.select;
   if (!select) return undefined;
   if (Object.hasOwn(select.parts ?? {}, target)) return { value: select.parts![target] };
@@ -57,7 +57,8 @@ export function selectionChanges(meta: Meta, props: Values, target: string, expl
     if (select.mode === "flags") values[id] = index === found.index;
     else
       Object.entries(meta.actions?.items ?? {}).forEach(([part, actions]) => {
-        if (actions.includes("select")) values[part === "root" ? id : `${id}/${part}`] = undefined;
+        if (actions.includes("select") && meta.items?.edits?.[part]?.action !== "select")
+          values[part === "root" ? id : `${id}/${part}`] = undefined;
       });
   });
   [...Object.keys(select.parts ?? {}), ...Object.keys(select.choices ?? {})].forEach((part) => {
@@ -78,6 +79,7 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   const select = meta.select;
   if (!select) return props;
   if (select.mode === "flags" && meta.items?.key) {
+    if (select.runtime && !Array.isArray(props[meta.items.key])) return props;
     const rows = rowsOf(meta, props).map((row, index) => ({
       ...row,
       [select.prop]: get(idOf(meta, row, index)) ?? row[select.prop] ?? false,
@@ -88,8 +90,9 @@ export function projectLegacySelection(meta: Meta, props: Values, get: GetValue)
   return value === undefined ? props : { ...props, [select.prop]: value };
 }
 
-export function projectSelection(meta: Meta, props: Values, get: GetValue): Values {
-  return projectNamedSelections(meta, projectLegacySelection(meta, props, get), get, "wire");
+export function projectSelection(meta: Meta, props: Values, get: GetValue, mode?: "live" | "wire"): Values {
+  const selected = mode === "wire" && meta.select?.runtime ? props : projectLegacySelection(meta, props, get);
+  return projectNamedSelections(meta, selected, get, "wire");
 }
 
 /** Resolve the visible parent from projected props, without removing or renumbering any rows. */

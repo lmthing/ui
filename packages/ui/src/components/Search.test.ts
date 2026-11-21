@@ -8,9 +8,9 @@ import {
   type Props,
 } from "@lmthing/ui/catalog";
 import { renderInstance } from "../../test/render";
-import { Search } from "./Search";
 
 const { props, meta, examples, fallback, probes } = components.Search;
+const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
 
 describe("Search schema", () => {
   it.each(examples)("accepts a real example", (example) =>
@@ -18,6 +18,10 @@ describe("Search schema", () => {
   );
   it("trims the placeholder", () => {
     expect(props.parse({ hint: "  Search records  " })).toEqual({ hint: "Search records" });
+  });
+  it("leaves omitted density unset for the app", () => {
+    expect(props.parse({ hint: "Search records" })).not.toHaveProperty("density");
+    expect(props.parse({ hint: "Search records", density: "compact" }).density).toBe("compact");
   });
   it.each([
     {},
@@ -29,6 +33,8 @@ describe("Search schema", () => {
     { hint: "Search", color: "red" },
     { hint: "Search", pixels: 4 },
     { hint: "Search", style: "large" },
+    { hint: "Search", density: "tight" },
+    { hint: "Search", detail: "brief" },
     { hint: "Search", value: "record" },
     { hint: "Search", icon: "search" },
     { hint: "Search", id: "s1" },
@@ -123,20 +129,23 @@ describe("Search fallback and metadata", () => {
 });
 
 describe("Search view", () => {
-  it("keeps the surface-free root flush with the screen gutter", () => {
-    expect(Search({ hint: "Search records" }).props).toMatchObject({
-      label: "Search records",
-      inset: "none",
-    });
+  it("inherits compact density and lets a wire choice override it", () => {
+    const input = { hint: "Search records" };
+    const render = (props: unknown, density: "comfortable" | "compact") =>
+      renderInstance("Search", props, "filled", { ...theme, density }).replace(
+        /<style[\s\S]*?<\/style>/g,
+        "",
+      );
+    const comfortable = render(input, "comfortable");
+    const compact = render(input, "compact");
+    expect(compact).not.toBe(comfortable);
+    expect(render({ ...input, density: "compact" }, "comfortable")).toBe(compact);
+    expect(render({ ...input, density: "comfortable" }, "compact")).toBe(comfortable);
   });
   it.each([...examples, { hint: "a".repeat(40) }])(
     "offers type only on the rendered search field",
     (input) => {
-      const html = renderInstance("Search", input, "filled", {
-        preset: "calm",
-        mode: "light",
-        accent: "moss",
-      });
+      const html = renderInstance("Search", input, "filled", theme);
       const read = readComponent(components.Search, input, "c1").join("\n");
       expect(
         affordancesOf(meta, props.parse(input), "c1").map(({ address, part, action }) => ({

@@ -1,0 +1,11 @@
+{"id":"h1","c":"Header","title":"Fernpost","action":{"icon":"flag","label":"More actions","goto":"sheet"}}
+{"id":"s1","c":"Stories","people":[{"name":"Maya","photo":"lib:people","seen":false,"goto":"fern_story"},{"name":"Sam","photo":"lib:people","seen":true,"goto":"basil_story"}],"mine":true}
+{"id":"f1","c":"Feed","posts":[{"name":"Maya","photo":"lib:people","time":"5 min ago","text":"I have two rooted fern cuttings to swap.","image":"lib:fern","likes":7,"comments":2,"liked":false,"goto":"fern_post"},{"name":"Sam","photo":"lib:people","time":"1 hr ago","text":"Basil cuttings ready for Saturday.","likes":3,"comments":0,"liked":true,"goto":"basil_post"}]}
+{"id":"p1","c":"Poll","question":"Which day suits the next cutting swap?","options":[{"label":"Saturday","votes":8},{"label":"Sunday","votes":4}],"closes":"2026-11-25"}
+{"id":"p2","c":"Post","name":"Maya","photo":"lib:people","time":"5 min ago","text":"I have two rooted fern cuttings to swap. Both have fresh fronds and can travel in small pots. I can bring them to the greenhouse.","images":["lib:fern","lib:plants"],"likes":7,"comments":2,"liked":false}
+{"id":"c1","c":"Comments","comments":[{"name":"Sam","photo":"lib:people","time":"4 min ago","text":"Would you trade one for basil?","likes":2,"reply":false},{"name":"Maya","photo":"lib:people","time":"Just now","text":"Yes, I can set one aside for you.","likes":1,"reply":true}]}
+{"id":"e1","c":"EventCard","title":"November cutting swap","date":"2026-11-28","time":"14:00","place":"Community greenhouse","photo":"lib:plants","going":14,"status":"none","goto":"swap_meet","attendees":["Maya","Sam","Jo"]}
+{"id":"c2","c":"Challenge","title":"Root 30 cuttings in November","goal":30,"unit":"plants","total":18,"mine":4,"ends":"2026-11-30","top":[{"name":"Maya","value":8},{"name":"Sam","value":6},{"name":"Jo","value":4}],"joined":true,"goto":"log_cuttings"}
+{"id":"s2","c":"SwipeStack","cards":[{"title":"Fern cutting","photo":"lib:fern","meta":"Two new fronds"},{"title":"Basil cutting","photo":"lib:basil","meta":"Rooted in water"}]}
+{"id":"i1","c":"Invite","title":"Invite to Fernpost","code":"FERN28","joined":6,"qr":true}
+{"id":"s3","c":"Sheet","style":"menu","title":"Post actions","items":[{"label":"Report post","tone":"bad"},{"label":"Block author","tone":"bad"}]}

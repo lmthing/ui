@@ -8,6 +8,7 @@ import {
   type CastLike,
   type Props,
 } from "@lmthing/ui/catalog";
+import { renderInstance } from "../../test/render";
 
 const { props, meta, examples, fallback, probes } = components.Segmented;
 const options = [{ label: "Today" }, { label: "Week" }];
@@ -20,6 +21,7 @@ describe("Segmented examples", () => {
     expect(props.parse({ options: [{ label: "  Today  " }, { label: " Week " }] })).toEqual({
       options,
       at: 0,
+      surface: "plain",
     });
   });
 });
@@ -42,6 +44,7 @@ describe("Segmented schema", () => {
     { options, at: NaN },
     { options, at: Infinity },
     { options, style: "pills" },
+    { options, surface: "tinted" },
     { options, color: "red" },
     { options, pixels: 4 },
     { options: [{ label: "Today", color: "red" }, { label: "Week" }] },
@@ -65,6 +68,17 @@ describe("Segmented schema", () => {
       { label: "Week", id: "r2" },
     ]);
   });
+});
+
+it("keeps the same tablist and selection targets with or without a framed surface", () => {
+  const theme = { preset: "calm", mode: "light", accent: "moss" } as const;
+  for (const surface of meta.variants.surface) {
+    const html = renderInstance("Segmented", { options, at: 1, surface }, "filled", theme);
+    expect(html.match(/data-testid="home\/c1\/root"/g)).toHaveLength(1);
+    expect(html).toContain('role="tablist"');
+    expect(html).toMatch(/<[^>]+data-testid="home\/c1\/r2\/root"[^>]+aria-selected="true"/);
+  }
+  expect(meta).not.toHaveProperty("variantParts");
 });
 
 describe("Segmented fallback", () => {
