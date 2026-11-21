@@ -713,11 +713,13 @@ across a full app belongs to harness evals. Visual craft requires screenshots, n
 SDK. Transient transport failures retry at most four attempts with exponential backoff; these are
 not extra sampled model answers. Offline replay keys each model's evidence by probe id and a
 fingerprint of the probe and its own definition (schema, metadata and model-facing text), not the
-shared catalog listing. Replay prefers the exact prompt and reports prompt drift once per probe
-when it uses evidence from a different listing. A changed probe or own definition still needs new
-evidence. Recordings retain the exact prompt, sent format and all sample replies. Legacy books use
-a fixed offline index that binds compatible evidence without rewriting the books. Live calls and
-exact-request pack resumption are unchanged.
+shared catalog listing. The definition includes local validation rules not expressible in JSON
+Schema, but not the draft/ready flag. Replay prefers a complete recording of the exact prompt and
+reports prompt drift once per probe when it uses evidence from a different listing. A changed
+probe or own definition still needs new evidence. Recordings retain the exact prompt, sent format
+and all sample replies. A fixed offline index binds compatible legacy evidence without rewriting
+the books, checking component definitions at the recording commits. Live calls and exact-request
+pack resumption are unchanged.
 
 | Command                           | Gate                                                                              |
 | --------------------------------- | --------------------------------------------------------------------------------- |

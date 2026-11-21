@@ -44,7 +44,7 @@ export async function runPackProbes(options: {
   for (const id of index.ids.filter((id) => (only?.length ? only.includes(id) : packs[id]))) {
     for (const probe of packSelectionProbes(id, packs[id])) {
       const prompt = selectionPrompt(index.prompt, probe.idea);
-      const replayProbe = selectionReplayProbe(id, index.prompt, probe);
+      const replayProbe = { ...selectionReplayProbe(id, index.prompt, probe), samples };
       const runs = [];
       for (let sample = 0; sample < samples; sample++) {
         const reply = await callModel(prompt, sample, undefined, replayProbe);

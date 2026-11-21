@@ -4,11 +4,12 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import type { WriterFormat, CallModel, ProbeCall, ReplayProbe } from "@lmthing/ui/catalog";
+import { currentDefinitionSource } from "./component-definition";
 
 export const recordingRoot = fileURLToPath(new URL("../../test/recordings/", import.meta.url));
-export const legacyIndexFile = fileURLToPath(new URL("./legacy-replay-keys.json", import.meta.url));
+export const legacyIndexFile = fileURLToPath(new URL("./migration/legacy-replay-keys.json", import.meta.url));
 /** `reply` is the first sample; `replies` holds every sample when a probe is run more than once. */
-export type Evidence = { prompt: string; format?: WriterFormat; reply: string; replies?: string[] };
+export type Evidence = { prompt: string; format?: WriterFormat; reply?: string; replies?: (string | null)[] };
 export type Book = Record<string, Evidence>;
 export type LegacyIndex = Record<string, Record<string, string>>;
 
@@ -17,8 +18,10 @@ const digest = (value: string) => createHash("sha256").update(value).digest("hex
 export const keyOf = (model: string, prompt: string, format?: WriterFormat) =>
   digest(`${model}\n${prompt}${format ? `\n${JSON.stringify(format)}` : ""}`);
 
-const probeKey = (probe: ReplayProbe, format?: WriterFormat) =>
-  `${encodeURIComponent(probe.id)}/${digest(JSON.stringify([probe.definition, probe.localPrompt, format]))}`;
+function probeKey(probe: ReplayProbe, format?: WriterFormat) {
+  const source = probe.sourceComponent ? currentDefinitionSource(probe.sourceComponent) : undefined;
+  return `${encodeURIComponent(probe.id)}/${digest(JSON.stringify([probe.definition, probe.localPrompt, format, source]))}`;
+}
 
 export const recordingKey = (
   model: string,
@@ -32,20 +35,40 @@ function sampleReply(hit: Evidence | undefined, sample: number) {
 }
 
 /** Changed pack prompts get new samples; unchanged prompts keep their original evidence. */
-export function recordingCall(model: string, book: Book, live: CallModel, resume?: string): ProbeCall {
-  const legacy = resume ? legacyKeys(resume, model) : {};
+export function recordingCall(model: string, book: Book, live: CallModel, resume = false): ProbeCall {
+  const exact = new Map<string, string[]>();
+  if (resume)
+    for (const key of Object.keys(book)) {
+      const hash = key.slice(key.lastIndexOf("/") + 1);
+      const versions = exact.get(hash) ?? [];
+      versions.push(key);
+      exact.set(hash, versions);
+    }
   return async (prompt, sample, format, probe) => {
     const key = recordingKey(model, prompt, format, probe);
-    const archived = legacy[key];
-    const previous = book[key] ?? (archived ? book[archived] : undefined);
-    const cached = sampleReply(previous, sample);
-    if (resume && cached !== undefined) return cached;
+    const request = key.slice(key.lastIndexOf("/") + 1);
+    const previous = book[key];
+    const versions = exact.get(request) ?? [];
+    if (resume) {
+      const cached =
+        sampleReply(previous, sample) ??
+        versions.map((version) => sampleReply(book[version], sample)).find((reply) => reply !== undefined);
+      if (cached !== undefined) return cached;
+    }
     const reply = await live(prompt, sample, format);
     const replies = [
-      ...(!resume && sample === 0 ? [] : (previous?.replies ?? (previous ? [previous.reply] : []))),
+      ...(!resume && sample === 0
+        ? []
+        : (previous?.replies ?? (previous?.reply === undefined ? [] : [previous.reply]))),
     ];
     replies[sample] = reply;
-    book[key] = { prompt, ...(format ? { format } : {}), reply: replies[0] ?? reply, replies };
+    book[key] = {
+      prompt,
+      ...(format ? { format } : {}),
+      ...(replies[0] != null ? { reply: replies[0] } : {}),
+      replies,
+    };
+    if (resume && !previous) exact.set(request, [...versions, key]);
     return reply;
   };
 }
@@ -61,9 +84,8 @@ export function readLegacyBook(component: string, model: string): Book {
 export function readBook(component: string, model: string): Book {
   try {
     return readLegacyBook(component, model);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
-    throw error;
+  } catch {
+    return {};
   }
 }
 
@@ -87,11 +109,18 @@ function byProbe(book: Book) {
   return index;
 }
 
-function nearest(evidence: Evidence[], prompt: string): Evidence | undefined {
+function allSamples(evidence: Evidence, samples: number) {
+  return Array.from({ length: samples }, (_, sample) => sampleReply(evidence, sample)).every(
+    (reply) => reply !== undefined,
+  );
+}
+
+function nearest(evidence: Evidence[], prompt: string, samples: number): Evidence | undefined {
   const lines = new Set(prompt.split("\n"));
   let best: Evidence | undefined;
   let fewest = Infinity;
   for (const entry of evidence) {
+    if (!allSamples(entry, samples)) continue;
     const archived = entry.prompt.split("\n");
     const diff = archived.length + lines.size - 2 * archived.filter((line) => lines.has(line)).length;
     if (diff < fewest) {
@@ -123,13 +152,22 @@ export function replayBook(component: string, model: string, book: Book): ProbeC
   const drift = new Set<string>();
   return async (prompt, sample, format, probe) => {
     const key = recordingKey(model, prompt, format, probe);
-    if (!chosen.has(key))
-      chosen.set(key, book[key] ?? nearest(index.get(probeKey(probe, format)) ?? [], prompt));
-    const hit = chosen.get(key);
+    const samples = probe.samples ?? 1;
+    const session = `${key}/${samples}`;
+    if (!chosen.has(session)) {
+      const exact = book[key];
+      chosen.set(
+        session,
+        exact && allSamples(exact, samples)
+          ? exact
+          : nearest(index.get(probeKey(probe, format)) ?? [], prompt, samples),
+      );
+    }
+    const hit = chosen.get(session);
     const reply = sampleReply(hit, sample);
     if (reply === undefined)
       throw new Error(
-        `No recording for ${component} on ${model}. Run: pnpm llm:check ${component.startsWith("pack/") ? `--pack ${component.slice(5)}` : `--component ${component}`}`,
+        `No recording for ${component} on ${model} (${probe.id}). Run: pnpm llm:check ${replayFlag(component)}`,
       );
     if (hit?.prompt !== prompt && !drift.has(key)) {
       drift.add(key);
@@ -137,4 +175,10 @@ export function replayBook(component: string, model: string, book: Book): ProbeC
     }
     return reply;
   };
+}
+
+function replayFlag(component: string) {
+  if (component === "Archetypes") return "--compose";
+  if (component === "CoreMerges") return "--merges";
+  return component.startsWith("pack/") ? `--pack ${component.slice(5)}` : `--component ${component}`;
 }

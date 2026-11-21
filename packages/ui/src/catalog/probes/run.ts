@@ -58,11 +58,16 @@ async function sampled(
   defs: readonly Definition[],
   callModel: ProbeCall,
   samples: number,
+  component = true,
 ): Promise<ProbeResult> {
   const runs: ProbeResult[] = [];
   for (let sample = 0; sample < samples; sample++) {
     const run = await runOne(def, probe, defs, (prompt, _sample, format, replayProbe) =>
-      callModel(prompt, sample, format, replayProbe),
+      callModel(prompt, sample, format, {
+        ...replayProbe,
+        samples,
+        ...(component ? { sourceComponent: def.meta.id } : {}),
+      }),
     );
     if (run.status === "skipped") return run;
     runs.push(run);
@@ -99,6 +104,6 @@ export async function runProbes(options: {
   if (only?.includes("variants"))
     for (const def of variantProbeDefinitions)
       for (const probe of def.probes)
-        results.push(await sampled(def, probe, variantProbeDefinitions, callModel, samples));
+        results.push(await sampled(def, probe, variantProbeDefinitions, callModel, samples, false));
   return results;
 }

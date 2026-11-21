@@ -1,11 +1,12 @@
-// After building the catalog: pnpm --filter @lmthing/ui exec tsx scripts/llm/migrate-recordings.ts
+// After building the catalog: pnpm --filter @lmthing/ui exec tsx scripts/llm/migration/index.ts
 // Make an index, not new samples. Original books are owned by their component and pack tasks.
 import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import type * as Catalog from "@lmthing/ui/catalog";
-import { packProbes } from "./cli/pack-probes";
-import { compositionHistoryCast } from "./casts";
+import { packProbes } from "../pack-probes";
+import { compositionHistoryCast } from "../casts";
 import { legacyLocalPrompt } from "./legacy-recordings";
-import { probeModels } from "./llm.config";
+import { probeModels } from "../llm.config";
+import { matchesRecordedDefinition, recordedAt } from "./recording-history";
 import {
   legacyIndexFile,
   recordingKey,
@@ -13,7 +14,8 @@ import {
   readLegacyBook,
   type LegacyIndex,
   type Book,
-} from "./recordings";
+  type Evidence,
+} from "../recordings";
 
 const {
   archetypes,
@@ -25,7 +27,7 @@ const {
   runComposeProbes,
   runPackProbes,
   runProbes,
-} = (await import(new URL("../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
+} = (await import(new URL("../../../dist/catalog.js", import.meta.url).href)) as typeof Catalog;
 
 async function visitBook(component: string, samples: number, callModel: Catalog.ProbeCall) {
   const registry = createRegistry({ includeDrafts: true });
@@ -61,7 +63,12 @@ async function visitBook(component: string, samples: number, callModel: Catalog.
   }
 }
 
-function indexBook(model: string, book: Book, keys: Record<string, string>): Catalog.ProbeCall {
+function indexBook(
+  model: string,
+  book: Book,
+  keys: Record<string, string>,
+  hasDefinition: (key: string, component: string, entry: Evidence) => boolean,
+): Catalog.ProbeCall {
   const requests = Object.entries(book).filter(([key]) => !key.includes("/"));
   const cached = new Map<string, (typeof requests)[number][]>();
   return async (prompt, sample, format, probe) => {
@@ -69,10 +76,11 @@ function indexBook(model: string, book: Book, keys: Record<string, string>): Cat
     const listing = probe.listing;
     if (!cached.has(current)) {
       const matches = requests.filter(
-        ([, entry]) =>
+        ([key, entry]) =>
           JSON.stringify(entry.format) === JSON.stringify(format) &&
           (entry.prompt === prompt ||
-            (listing && legacyLocalPrompt(entry.prompt, listing) === probe.localPrompt)),
+            (listing && legacyLocalPrompt(entry.prompt, listing) === probe.localPrompt)) &&
+          (!probe.sourceComponent || hasDefinition(key, probe.sourceComponent, entry)),
       );
       for (const [legacy, entry] of matches) keys[recordingKey(model, entry.prompt, format, probe)] = legacy;
       cached.set(current, matches);
@@ -95,9 +103,10 @@ function saveIndex(index: LegacyIndex) {
 }
 
 const index: LegacyIndex = {};
+const hasDefinition = matchesRecordedDefinition(await recordedAt());
 let total = 0,
   migrated = 0;
-for (const path of readdirSync(recordingRoot, { recursive: true }).sort()) {
+for (const path of readdirSync(recordingRoot, { encoding: "utf8", recursive: true }).sort()) {
   if (!path.endsWith(".json")) continue;
   const separator = path.lastIndexOf("/");
   const component = path.slice(0, separator);
@@ -107,7 +116,7 @@ for (const path of readdirSync(recordingRoot, { recursive: true }).sort()) {
   await visitBook(
     component,
     probeModels.find(({ id }) => id === model)?.samples ?? 3,
-    indexBook(model, book, keys),
+    indexBook(model, book, keys, (key, id, entry) => hasDefinition(`${component}/${model}`, key, id, entry)),
   );
   const aliases = Object.entries(keys).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
   if (aliases.length) index[`${component}/${model}`] = Object.fromEntries(aliases);

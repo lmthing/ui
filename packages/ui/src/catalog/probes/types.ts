@@ -52,6 +52,9 @@ export type ReplayProbe = {
   id: string;
   definition: unknown;
   localPrompt: string;
+  /** Real component definitions can contain refinements and metadata functions. */
+  sourceComponent?: string;
+  samples?: number;
   /** When present, the other entries in this listing do not affect replay identity. */
   listing?: { ids: readonly string[] };
 };

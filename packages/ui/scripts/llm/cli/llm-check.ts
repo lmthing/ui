@@ -1,6 +1,6 @@
 import { checkCoreComposition } from "../core-compose";
 import { checkCoreMerges } from "../core-merges";
-import { packProbes } from "./pack-probes";
+import { packProbes } from "../pack-probes";
 import { checkDirector } from "./director-probes";
 import { directorMode } from "./director-mode";
 // pnpm llm:check [--component List,Header | --director] [--replay]
@@ -66,7 +66,7 @@ async function runModel(model: ProbeModel, only: string[], replay: boolean, pack
       model.id,
       book,
       (prompt, _sample, format) => azure(model, prompt, format),
-      packMode ? recording : undefined,
+      packMode,
     );
     try {
       const callModel = replay ? replayCall(recording, model.id) : live;

@@ -2,7 +2,10 @@ import { createHash } from "node:crypto";
 import { expect, it, vi, afterEach } from "vitest";
 import { z } from "zod";
 import {
+  archetypes,
   components,
+  defaultLines,
+  runComposeProbes,
   runProbes,
   writerFormatFor,
   type Definition,
@@ -21,7 +24,7 @@ it("resumes unchanged pack samples, including failures, and calls changed prompt
       replies: ["failed"],
     },
   };
-  const call = recordingCall("model", book, live, "pack/example");
+  const call = recordingCall("model", book, live, true);
   expect(await call("same", 0, undefined, probe)).toBe("failed");
   expect(live).not.toHaveBeenCalled();
   expect(await call("same", 1, undefined, probe)).toBe("fresh");
@@ -31,8 +34,14 @@ it("resumes unchanged pack samples, including failures, and calls changed prompt
   expect(await call("same", 0, undefined, probe)).toBe("failed");
   expect(await call("same", 1, undefined, probe)).toBe("fresh");
   expect(live).toHaveBeenCalledTimes(3);
-  expect(await call("same", 0, undefined, { ...probe, definition: { changed: true } })).toBe("fresh");
-  expect(live).toHaveBeenCalledTimes(4);
+  const changed = { ...probe, definition: { changed: true } };
+  expect(await call("same", 0, undefined, changed)).toBe("failed");
+  expect(await call("changed", 0, undefined, changed)).toBe("fresh");
+  expect(live).toHaveBeenCalledTimes(3);
+  expect(await call("same", 2, undefined, changed)).toBe("fresh");
+  await expect(replayBook("List", "model", book)("same", 0, undefined, changed)).rejects.toThrow(
+    "No recording",
+  );
 });
 it("hashes the sent format and preserves unformatted choose/read keys", () => {
   const format = writerFormatFor(components.List),
@@ -47,6 +56,16 @@ it("hashes the sent format and preserves unformatted choose/read keys", () => {
   expect(keyOf(model, prompt)).not.toBe(keyOf(model, prompt, format));
   expect(keyOf(model, prompt, format)).not.toBe(keyOf(model, prompt, writerFormatFor(components.Header)));
 });
+
+it("resumes a legacy exact request without stamping today's offline identity onto the reply", async () => {
+  const book = { [keyOf("model", "same")]: { prompt: "same", reply: "old" } };
+  const live = vi.fn(async () => "fresh");
+  expect(await recordingCall("model", book, live, true)("same", 0, undefined, probe)).toBe("old");
+  expect(live).not.toHaveBeenCalled();
+  await expect(replayBook("List", "model", book)("same", 0, undefined, probe)).rejects.toThrow(
+    "No recording",
+  );
+});
 it("replays only the exact format and sample that were recorded", async () => {
   const format = writerFormatFor(components.List);
   const call = replayBook("List", "model", {
@@ -60,6 +79,26 @@ it("replays only the exact format and sample that were recorded", async () => {
   expect(await call("prompt", 1, format, probe)).toBe("second");
   await expect(call("prompt", 0, undefined, probe)).rejects.toThrow("No recording");
   await expect(call("prompt", 2, format, probe)).rejects.toThrow("No recording");
+});
+
+it("uses one complete recording rather than a closer request with partial samples", async () => {
+  vi.spyOn(console, "log").mockImplementation(() => {});
+  const partial = "same\nCatalog A";
+  const original = "same\nCatalog B";
+  const book = {
+    [recordingKey("model", partial, undefined, probe)]: { prompt: partial, reply: "partial" },
+    [recordingKey("model", original, undefined, probe)]: {
+      prompt: original,
+      replies: ["first", "second", "third"],
+    },
+  };
+  const replay = replayBook("List", "model", book);
+  for (const prompt of [partial, `${partial}\nCatalog C`])
+    expect(
+      await Promise.all(
+        [0, 1, 2].map((sample) => replay(prompt, sample, undefined, { ...probe, samples: 3 })),
+      ),
+    ).toEqual(["first", "second", "third"]);
 });
 
 const list: Definition = {
@@ -87,6 +126,10 @@ it("replays an unchanged choose probe across catalog drift and counts it once", 
 
 it.each([
   ["schema", { props: list.props.extend({ extra: z.string().max(12) }) }],
+  [
+    "schema refinement",
+    { props: list.props.refine((value) => Array.isArray(value.rows) && value.rows.length < 4) },
+  ],
   ["metadata", { meta: { ...list.meta, weight: 3 as const } }],
   ["model-facing text", { meta: { ...list.meta, writeHints: ["Changed Writer instruction."] } }],
   ["probe text", { probes: [{ kind: "choose", need: "Find my plants", expect: "List" }] as const }],
@@ -94,5 +137,37 @@ it.each([
   const callModel = await recordedChoice();
   await expect(
     runProbes({ defs: [{ ...list, ...changes }, components.Card], only: ["List"], callModel }),
+  ).rejects.toThrow("No recording");
+});
+
+it("does not invalidate evidence when the component is promoted to ready", async () => {
+  const callModel = await recordedChoice();
+  const ready: Definition = { ...list, meta: { ...list.meta, status: "ready" } };
+  expect(await runProbes({ defs: [ready, components.Card], only: ["List"], callModel })).toMatchObject([
+    { status: "pass" },
+  ]);
+});
+
+it("tolerates composition catalog drift but misses when the layout's own instructions change", async () => {
+  const log = vi.spyOn(console, "log").mockImplementation(() => {});
+  const meta = archetypes.detail.meta;
+  const layout = "facts";
+  const cast = { things: [], items: [] };
+  const options = { archetypes: [meta], only: [`${meta.id}/${layout}`], cast, samples: 1 };
+  const reply = JSON.stringify(defaultLines(meta, layout, cast, components));
+  const book: Book = {};
+  const live = recordingCall("model", book, async () => reply);
+  expect(await runComposeProbes({ ...options, defs: components, callModel: live })).toMatchObject([
+    { status: "pass" },
+  ]);
+  const callModel = replayBook("Archetypes", "model", book);
+  const defs = {
+    ...components,
+    Header: { ...components.Header, meta: { ...components.Header.meta, purpose: "Name the page." } },
+  };
+  expect(await runComposeProbes({ ...options, defs, callModel })).toMatchObject([{ status: "pass" }]);
+  expect(log).toHaveBeenCalledOnce();
+  await expect(
+    runComposeProbes({ ...options, archetypes: [{ ...meta, purpose: "New layout job." }], defs, callModel }),
   ).rejects.toThrow("No recording");
 });
