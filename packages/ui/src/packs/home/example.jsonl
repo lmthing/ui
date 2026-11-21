@@ -21,3 +21,6 @@
 {"id":"h6","c":"Header","title":"Greenhouse camera"}
 {"id":"cf1","c":"CameraFeed","cameraId":"greenhouse","room":"Greenhouse","mode":"home","preview":"lib:plants","events":[{"id":"evt_1","kind":"motion","at":"2026-11-20T07:15:00+00:00"}]}
 {"id":"n3","c":"Note","text":"Camera preview only. Live video and commands need a connected camera service."}
+{"id":"h7","c":"Header","title":"Greenhouse automations"}
+{"id":"rt1","c":"Routines","routines":[{"id":"grow_lights","name":"Morning grow lights","triggerKind":"schedule","triggerSummary":"Every day at 07:00","actionsSummary":"Switch on the plant shelf lights","enabled":true}]}
+{"id":"n4","c":"Note","text":"Routine controls are a preview until a smart-home automation service is connected."}

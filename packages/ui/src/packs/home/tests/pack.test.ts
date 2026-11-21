@@ -31,15 +31,28 @@ import {
   BabyLog,
   Devices,
   CameraFeed,
+  Routines,
 } from "..";
 
-const ids = ["Chores", "Rewards", "CareSchedule", "Turns", "Agenda", "BabyLog", "Devices", "CameraFeed"];
+const ids = [
+  "Chores",
+  "Rewards",
+  "CareSchedule",
+  "Turns",
+  "Agenda",
+  "BabyLog",
+  "Devices",
+  "CameraFeed",
+  "Routines",
+];
 const cast: CastLike = { things: [], items: [] };
 
 it("exports every contract, metadata and the exact worked example through its root door", async () => {
   expect(pack.id).toBe("home");
   expect(
-    [Chores, Rewards, CareSchedule, Turns, Agenda, BabyLog, Devices, CameraFeed].map((def) => def.meta.id),
+    [Chores, Rewards, CareSchedule, Turns, Agenda, BabyLog, Devices, CameraFeed, Routines].map(
+      (def) => def.meta.id,
+    ),
   ).toEqual(ids);
   expect(example).toBe(await readFile(new URL("../example.jsonl", import.meta.url), "utf8"));
   expect(packExamples.home).toBe(example);
@@ -100,7 +113,7 @@ it("validates all archetypes, their neutral defaults and core-first pack probes"
       expect(checkScreen(screen, registry)).toEqual([]);
     }
   }
-  expect(layouts).toBe(12);
+  expect(layouts).toBe(13);
   expect(
     pack.probes.filter((probe) => probe.kind === "pack" && (probe as PackProbe).expect.includes("home")),
   ).toHaveLength(2);

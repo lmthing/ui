@@ -31,7 +31,7 @@ const casts: CastLike[] = [
 ];
 
 it("accepts examples, bounded neutral/matching/malformed cast fallbacks and full metadata", () => {
-  expect(defs).toHaveLength(8);
+  expect(defs).toHaveLength(9);
   for (const def of defs.filter((def) => selectedIds([def.meta.id]).length)) {
     expect(def.examples.length).toBeGreaterThanOrEqual(2);
     for (const example of def.examples) expect(def.props.safeParse(example).success).toBe(true);
