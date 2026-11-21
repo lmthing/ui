@@ -1,4 +1,20 @@
 export const en = {
+  signature: {
+    signer: (name: string) => `Signer: ${name}`,
+    open: "Open original",
+    review: "I’ve reviewed the original",
+    locked: "Review the original to unlock signing",
+    draw: "Draw your signature here",
+    draft: "Draft signature",
+    clear: "Clear",
+    save: "Save signed copy",
+    saved: "Signed copy saved",
+    savedOn: (date: string) => `Saved on this device · ${date}`,
+    unavailable: "Couldn’t open or save this form",
+    originalSafe: "The original hasn’t changed.",
+    privateFile: "(private file)",
+    privateMark: "(private mark)",
+  },
   taxYear: {
     from: (date: string) => `From ${date}`,
     to: (date: string) => `To ${date}`,
