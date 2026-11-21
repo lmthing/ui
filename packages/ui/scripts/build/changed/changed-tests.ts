@@ -6,7 +6,7 @@ import { nodeTests } from "../check-options";
 
 const workspaceConfig =
   /^(?:package\.json|pnpm-(?:lock|workspace)\.yaml|tsconfig(?:\.[^/]+)?\.json|vitest(?:\.[^/]+)*\.[cm]?[jt]s)$/;
-const runnerFile = /^scripts\/build\/(?:check(?:-options)?|(?:changed|cache)\/[^/.]+)\.ts$/;
+const runnerFile = /^scripts\/build\/(?:index|check(?:-options)?|(?:changed|cache)\/[^/.]+)\.ts$/;
 const componentSource =
   /^src\/(?:components|surfaces|packs\/[^/]+\/(?:components|copy))\/([A-Z]\w*)\.[jt]sx?$/;
 const componentTest = /\/([A-Z]\w*)(?:\.[^/]+)?\.test\.tsx?$/;
@@ -133,7 +133,7 @@ export function relatedSelection(root: string, files: readonly string[]) {
     // Keep true registry-wide assertions, even without a literal component name.
     return (
       !pack &&
-      /\b(?:createRegistry|buildPackIndex|import\.meta\.glob|Object\.(?:keys|values|entries)\((?:components|renderers))\b/.test(
+      /\b(?:createRegistry|registryOf|buildPackIndex|import\.meta\.glob|Object\.(?:keys|values|entries)\((?:components|renderers))\b/.test(
         source,
       )
     );
