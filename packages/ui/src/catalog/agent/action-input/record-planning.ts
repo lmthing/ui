@@ -14,9 +14,16 @@ import type { ScreenLike } from "../read";
 import { isRecordAction, recordRequestAllowed } from "../report-edits";
 import { localValues } from "./select-step";
 
-function liveInput(def: Definition, input: Values, id: string, local: Values, data?: DeviceData) {
+function liveInput(
+  def: Definition,
+  input: Values,
+  id: string,
+  local: Values,
+  data?: DeviceData,
+  now?: number,
+) {
   const parsed = parseControlProps(def, input, (part) => local[`${id}/${part}`]);
-  return liveProps(def.meta, parsed, id, local, true, data);
+  return liveProps(def.meta, parsed, id, local, true, data, now);
 }
 
 export function affordancesOfScreen(
@@ -30,7 +37,7 @@ export function affordancesOfScreen(
   return screen.components.flatMap(({ id, c, state, ...input }) => {
     const def = defs[c];
     if (!def) return [];
-    const props = liveInput(def, input, id, local, data);
+    const props = liveInput(def, input, id, local, data, now);
     const { draw, emptyActions, errorActions, session, successActions, readSuccess, items, live } = def.meta;
     const policy = items?.nested?.activeParent || items?.nested?.maxActive !== undefined;
     // Keep the legacy data-only planner's state fallback for definitions without a state opt-in.
@@ -44,6 +51,7 @@ export function affordancesOfScreen(
       readSuccess ||
       policy ||
       live ||
+      def.meta.recordRuntime ||
       def.meta.linkedEdits ||
       items?.edits ||
       items?.records ||
@@ -76,7 +84,7 @@ export function stageRecord(
   if (!record && !hasRecordClock(def.meta)) return;
   const base = `${screen.id}/${id}`;
   const get = (part: string) => next[`${base}/${part}`];
-  const props = liveInput(def, raw, id!, localValues(screen.id, next), data);
+  const props = liveInput(def, raw, id!, localValues(screen.id, next), data, now);
   if (record) return recordRequestAllowed(def.meta, props, target, step); // Intent only until confirmation.
   return stageRecordClock(
     recordClockInput(def, raw, props, get, data, now, next),

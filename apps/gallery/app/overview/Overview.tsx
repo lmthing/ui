@@ -3,15 +3,17 @@ import { Text, XStack, YStack } from "tamagui";
 import { component, space, type ComponentName } from "@lmthing/ui/catalog";
 import { ComponentCard } from "./ComponentCard";
 import { GalleryHeader } from "./GalleryHeader";
-import { componentIds, groupedIds, type GalleryGroup } from "./gallery-data";
+import { componentIds, groupAnchor, groupedIds } from "./gallery-data";
 
 function ComponentGroup({
   group,
+  anchor,
   ids,
   expanded,
   toggle,
 }: {
-  group: GalleryGroup;
+  group: string;
+  anchor: string;
   ids: ComponentName[];
   expanded: ReadonlySet<ComponentName>;
   toggle: (id: ComponentName) => void;
@@ -19,14 +21,14 @@ function ComponentGroup({
   return (
     <YStack gap={space.lg}>
       <YStack
-        id={group}
+        id={anchor}
         position="absolute"
         top={-component.Gallery.anchorOffset}
         height={component.base.none}
       />
       <Text
         tag="a"
-        href={`#${group}`}
+        href={`#${anchor}`}
         accessibilityRole="header"
         fontFamily="$humanist"
         fontSize="$title"
@@ -49,7 +51,7 @@ function ComponentGroup({
 export function Overview() {
   const [filter, setFilter] = useState("");
   const [expanded, setExpanded] = useState<ReadonlySet<ComponentName>>(new Set());
-  const sections = groupedIds(filter, new URLSearchParams(globalThis.location?.search ?? "").get("pack"));
+  const sections = groupedIds(filter, new URLSearchParams(globalThis.location?.search ?? ""));
   const toggle = (id: ComponentName) =>
     setExpanded((current) => {
       const next = new Set(current);
@@ -73,9 +75,19 @@ export function Overview() {
         padding={space.lg}
         gap={space["2xl"]}
       >
-        {sections.map(({ group, ids }) => (
-          <ComponentGroup key={group} group={group} ids={ids} expanded={expanded} toggle={toggle} />
-        ))}
+        {sections.map((section) => {
+          const anchor = groupAnchor(section);
+          return (
+            <ComponentGroup
+              key={anchor}
+              anchor={anchor}
+              group={section.group}
+              ids={section.ids}
+              expanded={expanded}
+              toggle={toggle}
+            />
+          );
+        })}
         {!sections.length && (
           <Text fontFamily="$humanist" color="$muted" fontSize="$body">
             No components match this filter.
