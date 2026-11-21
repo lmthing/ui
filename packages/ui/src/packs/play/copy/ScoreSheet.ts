@@ -71,38 +71,33 @@ export function scoreCopy(input: ScoreInput, lang?: string) {
   };
 }
 
-export function scoreReading(input: ScoreInput, lang?: string) {
+export function scoreReading(input: ScoreInput, lang?: string, readonly = false) {
   const { scoreLabels: labels, scoreReadCell } = playWordsFor(lang);
   const copy = scoreCopy(input, lang);
   const goal = scoreGoalCopy(input, lang);
+  const selected = Number(input.selectedRound ?? "1") - 1;
+  const visible = input.overflow === "page" ? input.rounds.slice(selected, selected + 1) : input.rounds;
+  const showBids = visible.some(({ bids }) => bids !== undefined);
   const board = [
     labels.title,
     copy.progress,
     ...(goal ? [goal.target, ...(goal.reached ? [goal.reached] : [])] : []),
     labels.player,
     labels.total,
-    ...input.rounds.map(({ label }) => label),
+    ...(readonly ? visible : input.rounds).map(({ label }) => label),
     ...copy.players.map(({ name, total, standing }) =>
       [name, `${labels.total}: ${total}`, standing].filter(Boolean).join(" · "),
     ),
-    labels.reset,
-    ...(input.share ? [labels.share] : []),
+    ...(readonly ? [] : [labels.reset, ...(input.share ? [labels.share] : [])]),
   ];
-  const selected = Number(input.selectedRound ?? "1") - 1;
-  const cells = input.rounds.flatMap(({ label, points, bids }, round) =>
-    input.overflow === "page" && round !== selected
-      ? []
-      : points.map((score, player) =>
-          scoreReadCell(
-            input.players[player]!.name,
-            label,
-            bids
-              ? `${scoreBidLine(bids[player]!, lang)} · ${labels.made}: ${score === null ? labels.unplayed : numberLine(score, lang)}`
-              : score === null
-                ? labels.unplayed
-                : numberLine(score, lang),
-          ),
-        ),
+  const cells = visible.flatMap(({ label, points, bids }) =>
+    points.map((score, player) => {
+      const value = score === null ? labels.unplayed : numberLine(score, lang);
+      const cell = showBids
+        ? `${scoreBidLine(bids?.[player] ?? null, lang)} · ${labels.made}: ${value}`
+        : value;
+      return scoreReadCell(input.players[player]!.name, label, cell);
+    }),
   );
   return [...board, ...cells];
 }

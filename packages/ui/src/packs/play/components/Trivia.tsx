@@ -85,6 +85,7 @@ const gardenDeck = { questions: [
   { question: "What draws water?", answer: "Roots", explain: "Roots absorb water from the soil.", photo: "lib:plants", points: 2 },
   { question: "What gives leaves their green colour?", answer: "Chlorophyll" },
 ] };
+// prettier-ignore
 export const examples = [
   gardenDeck,
   // Trot's walkers host a question aloud after their round.
@@ -92,7 +93,7 @@ export const examples = [
   { questions: [{ question: "Why do dogs pant?", answer: "To cool down", points: 1 }] },
   { ...gardenDeck, media: "none" },
   { ...gardenDeck, density: "compact" },
-  { questions: [{ ...gardenDeck.questions[0]!, choices: ["Leaves", "Roots", "Flowers"] }] },
+  { questions: [{ question: "What draws water?", answer: "Roots", points: 2, choices: ["Leaves", "Roots", "Flowers"] }] },
 ] satisfies z.input<typeof props>[];
 const { choose, write, read } = probesFor("Trivia");
 // prettier-ignore
@@ -169,7 +170,7 @@ export function Trivia(input: TriviaProps) {
         content={[["heading", item.question], ["number", points.line, "start", "compact"]]} />
     </KitContent>
     {choices && <KitSkeleton shape="figure" inset="none"
-      content={[["label", trivia.choices], ...choices.map((choice) => ["body", choice] as const)]} />}
+      content={[["caption", trivia.choices], ...choices.map((choice): ["body", string] => ["body", choice])]} />}
     <TriviaActions primary="reveal" loading grouped={Boolean(item.photo)} />
   </KitCard>;
   const primary = primaryAction(current);
@@ -184,7 +185,7 @@ export function Trivia(input: TriviaProps) {
         </KitText>
       </KitContent>
       {choices && <KitContent group="response" density={density}>
-        <KitText role="label" part="choices">{trivia.choices}</KitText>
+        <KitText role="caption" tone="muted" part="choices">{trivia.choices}</KitText>
         {choices.map((choice, index) =>
           <KitText key={index} role="body" part={`choice_${index + 1}`}>{choice}</KitText>)}
       </KitContent>}

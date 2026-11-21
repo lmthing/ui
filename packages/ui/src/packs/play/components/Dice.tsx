@@ -37,24 +37,28 @@ export const meta = {
   actions: { parts: { roll: ["press"] }, items: { hold: ["toggle"] } },
   emptyActions: ["roll.press"],
   draw: { kind: "faces", press: "roll", count: "count", sides: "sides", hold: "hold" },
-  read: (input, _state, lang): string[] => {
+  readInState: ({ mod, drop, style }, state) =>
+    state === "empty" && (mod !== undefined || drop === "low" || drop === "high" || style === "pool"),
+  read: (input, state, lang): string[] => {
     const setup = input as z.output<typeof props> & { [drawKey]?: DrawState };
     const { count, sides, detail, style, [drawKey]: result } = setup;
     const faces = result?.kind === "faces" ? result.faces : [];
     const sum = diceSumLine(faces, lang, setup), rules = diceRulesLine(setup, lang), words = playWordsFor(lang).dice;
     const dropped = diceDroppedIndex(faces, setup.drop);
+    const settings = [...(rules ? [rules] : []), ...(style === "pool" ? [words.pool] : [])];
     return [
       ...(detail === "brief" ? [] : [diceSetupLine(count, sides, lang)]),
-      ...(rules ? [rules] : []),
-      ...(style === "pool" ? [words.pool] : []),
-      ...(style === "pool" || (setup.drop && setup.drop !== "none")
-        ? faces.map((value, index) => diceFaceLabel(
-            index + 1, value, result?.kind === "faces" && !!result.held[index], lang,
-            index === dropped ? words.dropped : words.counted,
-          ))
-        : []),
-      sum ?? words.unrolled,
-      sum ? words.reroll : words.roll,
+      ...settings,
+      ...(state === "empty" ? [] : [
+        ...(style === "pool" || (setup.drop && setup.drop !== "none")
+          ? faces.map((value, index) => diceFaceLabel(
+              index + 1, value, result?.kind === "faces" && !!result.held[index], lang,
+              index === dropped ? words.dropped : words.counted,
+            ))
+          : []),
+        sum ?? words.unrolled,
+        sum ? words.reroll : words.roll,
+      ]),
     ];
   },
 } as const satisfies Meta;
@@ -133,11 +137,13 @@ function DiceFaces({ setup, result, loading }: {
   });
   return (
     <KitContent align="center" group="response" density={setup.density}>
-      {Array.from({ length: Math.ceil(count / 2) }, (_, index) => (
-        <KitTrack key={index} part={`dice_${index + 1}`}>
-          {dice.slice(index * 2, index * 2 + 2)}
-        </KitTrack>
-      ))}
+      {Array.from({ length: Math.ceil(count / 2) }, (_, index) => {
+        const track = <KitTrack key={index} part={`dice_${index + 1}`}>
+          {dice.slice(index * 2, index * 2 + 2)}</KitTrack>;
+        return index > 0 && showStatus
+          ? <KitContent key={index} group="response" align="center">{track}</KitContent>
+          : track;
+      })}
     </KitContent>
   );
 }

@@ -17,12 +17,16 @@ it("rolls a numbered pool, drops exactly one tied extreme and adds the modifier 
   expect(dice.props.safeParse(input).success).toBe(true);
   for (const invalid of [{ mod: -21 }, { mod: 21 }, { mod: 1.5 }, { drop: "all" }])
     expect(dice.props.safeParse({ ...input, ...invalid }).success).toBe(false);
-  const html = renderInstance("Dice", input, "filled", theme);
+  const html = renderInstance("Dice", input, "empty", theme);
   expect(addressedElements(html).get(part("pool"))?.text).toEqual(["Dice pool"]);
   expect(addressedElements(html).get(part("rules"))?.text).toEqual(["Modifier -3 · Drop lowest"]);
   const random = [0, 0, 7, 5, 4, 5, 7];
-  const controller = game("Dice", input, () => random.shift()!);
+  const controller = game("Dice", { ...input, state: "empty" }, () => random.shift()!);
   try {
+    expect(controller.read()).toContain(
+      "Dice[pool] (empty) 4 dice · 8 sides — Modifier -3 · Drop lowest — Dice pool",
+    );
+    expect(controller.read()).toContain("[c1/roll press]");
     expect(controller.read()).not.toContain("Total");
     expect(controller.press("c1/roll").ok).toBe(true);
     expect(controller.read()).toContain("Total 12");
@@ -101,6 +105,25 @@ it("treats a low-score goal as a ceiling without counting an unplayed row", () =
   const input = { ...bidding, wins: "low", goal: 4 };
   const view = addressedElements(renderInstance("ScoreSheet", input, "filled", theme));
   expect(view.get(part("goal_reached"))?.text).toEqual(["Reached by Anna"]);
+});
+
+it("reads visible goal and bid results in success without adding controls or changing the old read", () => {
+  const input = { ...bidding, overflow: "page", share: true, state: "success", goal: 4 };
+  const controller = game("ScoreSheet", input);
+  const legacy = game("ScoreSheet", {
+    ...input,
+    goal: undefined,
+    rounds: bidding.rounds.map(({ label, points }) => ({ label, points })),
+  });
+  try {
+    expect(controller.read()).toContain("Target: 4 — Reached by Anna");
+    expect(controller.read()).toContain("Anna, First: Bid 3 · Made: 4");
+    expect(controller.read()).not.toMatch(/Second|Reset scores|Share scores|\[c1[ /]/);
+    expect(legacy.read()).toBe("screen home\nc1 ScoreSheet (success)");
+  } finally {
+    controller.dispose();
+    legacy.dispose();
+  }
 });
 
 it("renders and reads only the current unrevealed trivia choices without offering a selection", () => {

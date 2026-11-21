@@ -135,7 +135,9 @@ export function readComponent(
   const offered = readOffers(def, migrated, instance, props, state, values, addresses, deviceData, target);
   const affordances = readAffordances(offered, values, def, props, instance, session);
   const feedback = state === "error" && session?.kind === "rounds" && session.assessment?.correct === false;
-  if (state !== "filled" && !feedback && !(state === "success" && (draw || session || meta.readSuccess)))
+  const optedIn = (state === "empty" || state === "success") && meta.readInState?.(props, state);
+  const successContent = state === "success" && (draw || session || meta.readSuccess);
+  if (state !== "filled" && !feedback && !optedIn && !successContent)
     return [
       [head, ...(state === "empty" ? readDraw(draw) : []), ...affordances.map(formatAffordance)].join(" "),
     ];
