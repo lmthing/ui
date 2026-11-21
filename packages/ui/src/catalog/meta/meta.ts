@@ -36,10 +36,17 @@ type SelectMeta = {
   prop: string;
   parts?: Readonly<Record<string, unknown>>;
 } & (
-  | { value: RowSelection; mode: "flags"; choices?: never }
+  | {
+      value: RowSelection;
+      mode: "flags";
+      choices?: never;
+      /** Project the row flag only on live props, never into the wire snapshot. */
+      runtime?: true;
+    }
   | {
       value?: RowSelection;
       mode?: "one";
+      runtime?: never;
       /** Named parts that require an explicit value from a closed list or an array prop. */
       choices?: Readonly<Record<string, ChoiceSource>>;
     }

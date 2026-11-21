@@ -112,9 +112,14 @@ export function parseControlProps(def: Definition, input: unknown, get?: (part: 
       : repaired;
   return stampItemIds(def.meta, def.props.parse(source) as Values);
 }
-/** Shared schema-prop projection for the planner, reader and kit screen. */
-export function projectControls(meta: Meta, props: Values, get: (part: string) => unknown): Values {
-  const projected = projectNested(meta, projectSelection(meta, props, get), get);
+/** Keep runtime-only selection flags out of the kit screen's wire projection. */
+export function projectControls(
+  meta: Meta,
+  props: Values,
+  get: (part: string) => unknown,
+  target: "live" | "wire" = "live",
+): Values {
+  const projected = projectNested(meta, projectSelection(meta, props, get, target), get);
   return projectComponentSets(meta, projected, get);
 }
 /** Preserve parsed values for component setters already applied to the wire. */
@@ -154,8 +159,12 @@ export function liveProps(
     if (state !== undefined) props = { ...props, state };
   }
   props = projectDraw(meta, props, get);
+  const key = meta.items?.key;
+  const rows = key && props[key];
   props = projectLiveInputs(meta, props, instance, get, data, validated);
   props = projectDeviceFlags(meta, projectRecordRuntime(meta, props, instance, values, data, now), data);
+  if (meta.select?.runtime && key && Array.isArray(props[key]) && props[key] !== rows)
+    props = projectLegacySelection(meta, props, get);
   if (runtime && meta.id === "Counter" && Number(props.value) < Number(props.step ?? 1))
     props = { ...props, minus: undefined };
   if (meta.id === "Field" || meta.id === "Search") {
@@ -163,7 +172,6 @@ export function liveProps(
     if (value !== undefined && props.kind !== "repeat" && props.kind !== "photo")
       props = { ...props, value: String(value) };
   }
-  const key = meta.items?.key;
   if (!key || !Array.isArray(props[key])) return props;
   let items = props[key] as Values[];
   if (meta.items?.visible === "first") items = items.slice(Number(values[`${instance}/$cursor`] ?? 0));
