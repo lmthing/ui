@@ -8,7 +8,7 @@ const resolve = (...forms: unknown[]) => signatureHost(input, "c1", { signatureF
 
 describe("Signature host projection", () => {
   it("holds the draft and date only for the opened and reviewed current version", () => {
-    expect(resolve({ ...reviewed, draft, saved: { version: "v1", date: "2026-10-04" } })).toEqual({
+    expect(resolve({ ...reviewed, draft, saved: { version: "v1", date: "2026-10-04" } })).toMatchObject({
       opened: true,
       reviewed: true,
       draft,
@@ -51,11 +51,25 @@ describe("Signature host projection", () => {
     expect(signatureDisplay(input.signer, "error", resolve()).feedback?.sub).toBe(
       "The original hasn’t changed.",
     );
+    const error = (action: "open" | "save") =>
+      signatureDisplay(input.signer, "error", resolve({ ...reviewed, failure: { version: "v1", action } }))
+        .feedback?.title;
+    expect(error("open")).toBe("Couldn’t open the original");
+    expect(error("save")).toBe("Couldn’t save the signed copy");
   });
 
   it("summarizes the existence of private content without its reference", () => {
     expect(
       signatureReading({ signer: input.signer, document: input.document, has_mark: true, draft }, "filled"),
-    ).toEqual(["(private file)", "Signer: Test signer", "(private mark)"]);
+    ).toEqual([
+      "(private file)",
+      "Signer: Test signer",
+      "(private mark)",
+      "Open original",
+      "I’ve reviewed the original",
+      "Save signed copy",
+      "Clear",
+      "Draft signature",
+    ]);
   });
 });

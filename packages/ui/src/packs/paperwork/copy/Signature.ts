@@ -30,6 +30,7 @@ const hostForm = z.strictObject({
     })
     .optional(),
   saved: z.strictObject({ version: revision, date: isoDate }).optional(),
+  failure: z.strictObject({ version: revision, action: z.enum(["open", "save"]) }).optional(),
 });
 
 /** Match the current component and form. The host must supply one authoritative snapshot. */
@@ -43,14 +44,22 @@ export function signatureHost(input: Readonly<Values>, instance: string, data: D
       : [];
   });
   const form = matches.length === 1 ? matches[0] : undefined;
-  const opened = Boolean(form && form.openedVersion === form.version);
-  const reviewed = opened && form!.reviewedVersion === form!.version;
-  const draft = reviewed && form!.draft?.version === form!.version ? form!.draft : undefined;
-  const savedOn = reviewed && form!.saved?.version === form!.version ? form!.saved?.date : undefined;
-  return { opened, reviewed, draft, savedOn };
+  if (!form)
+    return { opened: false, reviewed: false, draft: undefined, savedOn: undefined, failure: undefined };
+  const opened = form.openedVersion === form.version;
+  const reviewed = opened && form.reviewedVersion === form.version;
+  const draft = reviewed && form.draft?.version === form.version ? form.draft : undefined;
+  const savedOn = reviewed && form.saved?.version === form.version ? form.saved.date : undefined;
+  const failure = form.failure?.version === form.version ? form.failure.action : undefined;
+  return { opened, reviewed, draft, savedOn, failure };
 }
 
 type SignatureHost = ReturnType<typeof signatureHost>;
+type SignatureWords = ReturnType<typeof paperworkWordsFor>["signature"];
+
+function padLabel(w: SignatureWords, reviewed: boolean, hasDraft: boolean) {
+  return hasDraft ? w.draft : reviewed ? w.draw : w.locked;
+}
 
 function signatureProjection(input: Readonly<Values>, instance: string, data: DeviceData) {
   const { opened, reviewed, draft, savedOn } = signatureHost(input, instance, data);
@@ -103,19 +112,21 @@ export function previewSignature({
       ...(active ? { openedVersion: version, reviewedVersion: version } : {}),
       ...(state === "filled" ? { draft: { version, revision: "demo-draft", mark: "local:synthetic" } } : {}),
       ...(state === "success" ? { saved: { version, date: seedDate } } : {}),
+      ...(state === "error" ? { failure: { version, action: "open" } } : {}),
     })),
   };
 }
 
 export function signatureDisplay(signer: string, state: StateName, host: SignatureHost, lang?: string) {
   const w = paperworkWordsFor(lang).signature;
-  const { draft, reviewed, opened, savedOn } = host;
+  const { draft, reviewed, opened, savedOn, failure } = host;
+  const activeDraft = state === "filled" && !savedOn ? draft : undefined;
   const feedback =
     state === "error" || (state === "success" && !savedOn)
       ? ({
           part: "error",
-          title: w.unavailable,
-          sub: w.originalSafe,
+          title: failure ? w.failed[failure] : w.unavailable,
+          sub: failure === "open" ? w.checkOriginal : w.originalSafe,
           icon: "alert",
           tone: "neutral",
         } as const)
@@ -135,27 +146,35 @@ export function signatureDisplay(signer: string, state: StateName, host: Signatu
     review: w.review,
     save: w.save,
     clear: w.clear,
-    pad: draft && state === "filled" ? w.draft : reviewed ? w.draw : w.locked,
+    pad: padLabel(w, reviewed, Boolean(activeDraft)),
     loading,
     feedback,
     reviewed,
-    mark: state === "filled" ? draft?.mark : undefined,
+    mark: activeDraft?.mark,
     canReview: !loading && opened && !reviewed,
     canDraw: !loading && reviewed && !savedOn,
-    canSave: state === "filled" && Boolean(draft && !savedOn),
-    canClear: state === "filled" && Boolean(draft && !savedOn),
+    canSave: Boolean(activeDraft),
+    canClear: Boolean(activeDraft),
   };
 }
 
 export function signatureReading(input: unknown, state: StateName, lang?: string): string[] {
   const w = paperworkWordsFor(lang).signature;
-  const { signer, has_mark, savedOn } = input as Values;
+  const { signer, reviewed, has_mark, savedOn } = input as Values;
+  const identity = typeof signer === "string" ? [w.signer(signer)] : [];
+  const controls = [w.open, w.review, w.save, w.clear];
+  if (state === "empty") return [...identity, ...controls, w.locked];
+  if (state === "success")
+    return [
+      w.privateFile,
+      ...identity,
+      ...(typeof savedOn === "string" ? [w.saved, w.savedOn(appointmentDate(savedOn, lang))] : []),
+    ];
   return [
     w.privateFile,
-    ...(typeof signer === "string" ? [w.signer(signer)] : []),
+    ...identity,
     ...(has_mark ? [w.privateMark] : []),
-    ...(state === "success" && typeof savedOn === "string"
-      ? [w.saved, w.savedOn(appointmentDate(savedOn, lang))]
-      : []),
+    ...controls,
+    padLabel(w, reviewed === true, has_mark === true),
   ];
 }

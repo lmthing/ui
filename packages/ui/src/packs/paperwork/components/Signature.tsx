@@ -21,8 +21,8 @@ export const meta = {
   writeHints: [
     "document must be an opaque local:<id> or supplied synthetic lib:<id>. Do not write strokes, marks, version, timestamp, review or saved state; those belong to the host.",
     "Never claim verified identity, legal validity or remote signing. Omit hint unless supplied or useful.",
-    'Use surface:"plain" (not null) for a drawing pad on a plain background with no surrounding card. For that request alone write density:null, never "comfortable". Use surface:null if no surface is requested.',
-    'Use detail:"brief" only if asked to hide the optional hint. Keep supplied hint text in hint; use null for unrequested axes.',
+    'Exact axis defaults are {"density":null,"surface":null,"detail":null}. Override only the one axis explicitly requested: tighter spacing changes density to "compact"; a plain background with no surrounding card changes surface to "plain"; hiding the optional hint changes detail to "brief".',
+    'For hiding the hint alone use {"density":null,"surface":null,"detail":"brief"} and keep the supplied hint text in hint. For a plain background alone use {"density":null,"surface":"plain","detail":null}. Never write "plain" merely because the brief asks for fewer words, nor "full" for an unrequested detail axis.',
   ],
   region: "body",
   weight: 3,
@@ -33,7 +33,7 @@ export const meta = {
   variantParts: { "detail.brief": { hides: ["hint"] } },
   // prettier-ignore
   parts: ["root", "title", "signer", "hint", "document", "document_label", "document_icon",
-    "review", "review_label", "pad", "pad_frame", "clear", "clear_label", "save", "save_label", "success", "error"],
+    "review", "review_label", "pad", "pad_frame", "clear", "clear_label", "save", "save_label", "success", "error", "sub"],
   states: ["empty", "filled", "loading", "success", "error"],
   confirmParts: ["clear"],
   emptyActions: ["document.press", "review.check", "pad.set"],
@@ -81,8 +81,6 @@ export const examples = [
     title: "Trot office access form",
     document: "lib:trot_access",
     signer: "Alex",
-    density: "compact",
-    surface: "plain",
   },
 ] satisfies z.input<typeof props>[];
 
@@ -124,16 +122,18 @@ type Display = ReturnType<typeof signatureDisplay>;
 function SignatureWorkflow({ copy, density }: { copy: Display; density: Density }) {
   return <>
     <kit.KitAction part="document" label={copy.open} icon="file_text" kind="secondary" full />
-    {copy.loading ? <kit.KitSkeleton shape="control" kind="quiet" label={copy.review} /> :
-    <kit.KitRow part={null} label="" inline density={density} leadingAlign="row"
-      leading={<kit.KitCheck part="review" label={copy.review} done={copy.reviewed}
+    <kit.KitRow part={null} label="" inline density={density} lineRole="label"
+      trailing={copy.loading ? <kit.KitSkeleton shape="control" kind="quiet" /> :
+        <kit.KitCheck part="review" label={copy.review} done={copy.reviewed}
         readonly={copy.reviewed} disabled={!copy.canReview && !copy.reviewed} />}>
-      <kit.KitText part="review_label" role="label" density={density}>{copy.review}</kit.KitText>
-    </kit.KitRow>}
+      {copy.loading ? <kit.KitSkeleton shape="figure" inset="none" density={density} content={[["label", copy.review]]} /> :
+        <kit.KitText part="review_label" role="label" density={density}>{copy.review}</kit.KitText>}
+    </kit.KitRow>
     <kit.KitSignaturePad part="pad_frame" target={{ part: "pad" }} label={copy.pad}
       loading={copy.loading} disabled={!copy.canDraw} {...(copy.mark ? { mark: copy.mark } : {})} />
     <kit.KitGrid fitLast density={density}>
-      <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave} />
+      <kit.KitAction part="save" label={copy.save} full disabled={!copy.canSave}
+        kind={copy.loading || copy.canSave ? "primary" : "quiet"} />
       <kit.KitAction part="clear" label={copy.clear} kind="quiet" disabled={!copy.canClear} />
     </kit.KitGrid>
   </>;
@@ -157,8 +157,11 @@ export function Signature(input: View) {
         <kit.KitText part="signer" role="label" tone="muted" density={density}>{copy.signer}</kit.KitText>
         {hint && <kit.KitText part="hint" role="label" tone="muted" density={density}>{hint}</kit.KitText>}
       </kit.KitContent>}
-    {copy.feedback ? <kit.KitEmpty part={copy.feedback.part} title={copy.feedback.title}
-      sub={copy.feedback.sub} icon={copy.feedback.icon} tone={copy.feedback.tone} decorativeIcon />
+    {copy.feedback ? <kit.KitContent lineRole="body" group="response" density={density}
+      lead={<kit.KitIcon name={copy.feedback.icon} tone={copy.feedback.tone === "good" ? "good" : "muted"} decorative />}>
+      <kit.KitText part={copy.feedback.part} role="body" emphasis="strong" density={density}>{copy.feedback.title}</kit.KitText>
+      <kit.KitText part="sub" role="label" tone="muted" density={density}>{copy.feedback.sub}</kit.KitText>
+    </kit.KitContent>
       : <SignatureWorkflow {...{ copy, density }} />}
   </kit.KitCard>;
 }
