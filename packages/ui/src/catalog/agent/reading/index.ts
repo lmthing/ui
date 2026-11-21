@@ -5,7 +5,7 @@ import { peekLimit, wordsFor } from "../../lang";
 import { migrateLine } from "../../migrations";
 import { formatAffordance, visibleItems, type Affordance } from "../index";
 import { groupItemLines } from "./group-item-lines";
-export { readAffordances } from "./read-affordances";
+export { readAffordances, readOffers } from "./read-affordances";
 
 type Props = Record<string, unknown>;
 export type ReadSchema = {

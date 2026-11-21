@@ -1,11 +1,4 @@
-import {
-  drawRole,
-  reportConfirmation,
-  sessionEvent,
-  type ActStep,
-  type RandomSource,
-  type Values,
-} from "../../../../catalog";
+import type { ActStep, RandomSource } from "../../../../catalog";
 import { selectedStep, stageConfirmedClear, type ActReply } from "../../index";
 import {
   actionFailure,
@@ -21,8 +14,11 @@ import {
   confirmReport,
   dispatchPlan,
   drivenPartBlock,
+  hostCaptureEffects,
   inactive,
   introducedPart,
+  isDraw,
+  needsConfirmation,
   standaloneEffects,
 } from "./introduced-part";
 import { actionInput, disabledHint } from "./action-input";
@@ -38,6 +34,7 @@ function prepareStep(
   media: MediaRuntime,
   at: number,
   confirmed?: ActionState["confirmation"],
+  markToken?: symbol,
 ): PreparedStep {
   const active = ctx.liveScreen(state.values, state.sheet, Boolean(state.sheet));
   const id = action.address.split("/")[0]!;
@@ -48,16 +45,12 @@ function prepareStep(
   const def = ctx.defs[entry.c]!;
   if (ctx.disabledParts.has(action.address) && !introducedPart(ctx, state, entry, action, true))
     return fail("disabled", "This control is disabled");
-  let input: Values;
-  try {
-    input = actionInput(ctx, entry, state.values);
-  } catch {
-    return fail("invalid_value", "This component has invalid props");
-  }
+  const input = actionInput(ctx, entry, state.values);
+  if (!input) return fail("invalid_value", "This component has invalid props");
   const hint = !ctx.standalone && disabledHint(entry.c, action.action, input);
   if (hint) return fail("disabled", hint);
   const selected = ctx.standalone ? action : selectedStep(action, entry, input, def);
-  const plan = dispatchPlan(ctx, active, state.values, selected, null);
+  const plan = dispatchPlan(ctx, active, state.values, selected, null, markToken);
   if (!plan.ok) return { error: { ...plan, at } };
   const mustMount = ctx.options.requireMounted && !confirmed && !ctx.mounted.has(action.address);
   if (mustMount && !introducedPart(ctx, state, entry, action))
@@ -91,19 +84,18 @@ function prepareStep(
     },
   };
 }
-function needsConfirmation(ctx: ControllerContext, { entry, selected }: ActionContext) {
-  if (!ctx.standalone) return true;
-  const meta = ctx.defs[entry.c]!.meta;
-  const { successActions, errorActions, live } = meta;
-  const part = selected.address.split("/").slice(1).join("/") || "root";
-  if (reportConfirmation(meta, part, selected.action)) return true;
-  if (successActions?.length || errorActions?.length || live?.derive || meta.linkedEdits) return true;
-  return Boolean(sessionEvent(meta, part, selected.action));
-}
-function isDraw({ entry, defs, selected }: ActionContext) {
-  const target = selected.address.split("/").slice(1).join("/") || "root";
-  const role = drawRole(defs[entry.c]!.meta, target, selected.action);
-  return role === "draw" || role === "redraw";
+
+function runControl(
+  { state, context }: Extract<PreparedStep, { context: ActionContext }>,
+  selected: ActStep,
+  address: string,
+) {
+  const { links, screen } = context;
+  return handlerFor(selected.action)(
+    state,
+    { ...selected, address },
+    { ...context, links: links.map((link) => ({ ...link, address: `${screen.id}/${address}` })) },
+  );
 }
 
 function stepRunner(
@@ -112,19 +104,27 @@ function stepRunner(
   random: RandomSource | null | undefined,
   at: number,
   execution: { performed: ActStep[]; drew: boolean },
+  markToken: symbol | undefined,
 ) {
   const run = (
     before: ActionState,
     original: ActStep,
     confirmed?: ActionState["confirmation"],
   ): ActionResult => {
-    const selected = { ...original, address: ctx.relative(original.address) };
-    const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
+    const selected = markToken ? original : { ...original, address: ctx.relative(original.address) };
+    if (!markToken && ctx.privateMarks.has(selected.address))
+      return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
+    const prepared = prepareStep(before, selected, ctx, media, at, confirmed, markToken);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     const pending =
       !confirmed &&
       needsConfirmation(ctx, prepared.context) &&
       confirmationFor(before, selected, prepared.context);
+    if (markToken) {
+      if (pending)
+        return { state: before, effects: [], error: actionFailure(at, "not_actionable", "Private control") };
+      return { state: prepared.state, effects: hostCaptureEffects(prepared.context) };
+    }
     if (pending) return pending;
     if (!ctx.standalone && prepared.drive) {
       const block = drivenPartBlock(ctx, prepared.drive.address);
@@ -149,15 +149,7 @@ function stepRunner(
         effects: standaloneEffects(prepared.context),
       };
     const address = confirmed ? original.address.replace(`${ctx.screen.id}/`, "") : selected.address;
-    const links = prepared.context.links.map((link) => ({
-      ...link,
-      address: `${ctx.screen.id}/${address}`,
-    }));
-    return handlerFor(selected.action)(
-      prepared.state,
-      { ...selected, address },
-      { ...prepared.context, links },
-    );
+    return runControl(prepared, selected, address);
   };
   return run;
 }
@@ -167,6 +159,7 @@ export function planSteps(
   ctx: ControllerContext,
   media: MediaRuntime,
   random: RandomSource | null | undefined,
+  markToken?: symbol,
 ): ActionResult & { performed: ActStep[]; drew?: boolean } {
   let state: ActionState = {
     values: { ...ctx.valuesOf() },
@@ -177,8 +170,8 @@ export function planSteps(
   const effects: (() => void)[] = [];
   const execution = { performed: [] as ActStep[], drew: false };
   for (const [at, step] of list.entries()) {
-    const action = { ...step, address: ctx.relative(step.address) };
-    const run = stepRunner(ctx, media, random, at, execution);
+    const action = markToken ? step : { ...step, address: ctx.relative(step.address) };
+    const run = stepRunner(ctx, media, random, at, execution, markToken);
     let result: ActionResult;
     if (state.confirmation)
       result = confirmationAction(state, action, { screen: ctx.screen, at, options: ctx.options }, run);
