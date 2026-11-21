@@ -5,11 +5,13 @@ import { runPackProbes } from "./index";
 
 const unscaffolded: Partial<Record<PackId, PackMeta>> = {};
 
-it("includes every planned pack even when none is scaffolded", () => {
+it("offers and scores only indexed packs even when none is scaffolded", () => {
   const index = probePackIndex(unscaffolded);
-  expect(index.ids).toEqual(packIds);
+  expect(index.ids).toEqual(packIds.slice(0, 27));
   expect(index.prompt).toContain("Pick: Selling things for money:");
-  expect(index.prompt.split("\n")).toHaveLength(packIds.length);
+  expect(index.prompt.split("\n").map((line) => line.split(":")[0])).toEqual(
+    [...index.ids].sort().map((id) => `- ${id}`),
+  );
 });
 
 it.each(packIds)("adding a %s scaffold leaves the index byte for byte unchanged", (id) => {
