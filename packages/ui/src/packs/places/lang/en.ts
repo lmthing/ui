@@ -16,6 +16,12 @@ export const en = {
   hoursNoticeLine: (date: string, text: string, formattedDate?: string) =>
     `${date}: ${JSON.stringify(text)}${formattedDate ? ` (${formattedDate})` : ""}`,
   distanceAway: (value: string) => `${value} km away`,
+  mapListDistance: (value: string) => `${value} km`,
+  mapListView: "View places",
+  mapListMap: "With map",
+  mapListList: "Just the list",
+  mapListPin: (name: string) => `Select ${name} on the map`,
+  mapListReading: (name: string, distance: string) => `${JSON.stringify(name)}: ${distance}`,
   addressDirections: "Directions",
   addressCopy: "Copy address",
   addressCall: (phone: string) => `Call ${phone}`,
