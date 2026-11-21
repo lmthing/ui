@@ -115,7 +115,6 @@ type VisibleQuestion = Omit<TriviaProps["questions"][number], "answer"> & { answ
 function visibleChoices(current: Extract<SessionState, { kind: "rounds" }>) {
   return current.revealed ? undefined : (current.item as VisibleQuestion).choices;
 }
-
 function primaryAction(current: Extract<SessionState, { kind: "rounds" }>) {
   if (sessionAvailable(current, "reveal")) return "reveal";
   if (sessionAvailable(current, "next")) return "next";
