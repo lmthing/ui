@@ -61,8 +61,9 @@ const inputFingerprint = (root: string) =>
   );
 
 async function outputFingerprint(root: string) {
-  const doors = await Array.fromAsync(glob(doorPaths, { cwd: root }));
-  return fingerprint(root, ["src/entry", ...doors], (name) => name.endsWith(".ts"));
+  const paths = ["src/entry"];
+  for await (const door of glob(doorPaths, { cwd: root })) paths.push(door);
+  return fingerprint(root, paths, (name) => name.endsWith(".ts"));
 }
 
 async function publishStamp(folder: string, target: string, value: string) {
