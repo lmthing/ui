@@ -50,7 +50,7 @@ export function useActionPress(
     onPress,
     tabIndex: 0,
     onKeyDown: (event: {
-      key: string;
+      key?: string;
       repeat?: boolean;
       preventDefault(): void;
       stopPropagation(): void;

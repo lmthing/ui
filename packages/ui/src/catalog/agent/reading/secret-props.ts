@@ -9,7 +9,8 @@ function matchesLiterals(schema: ReadSchema, value: unknown) {
   if (!value || typeof value !== "object" || !schema.properties) return true;
   const props = value as Record<string, unknown>;
   return Object.entries(schema.properties).every(
-    ([key, field]) => !Object.hasOwn(field, "const") || field.const === props[key],
+    ([key, field]) =>
+      !Object.hasOwn(field, "const") || !Object.hasOwn(props, key) || field.const === props[key],
   );
 }
 

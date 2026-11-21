@@ -71,3 +71,33 @@ it("protects both copies of the active session row seen by custom readings", () 
   expect(lines).toContain('"rounds":[{"code":"(secret)"');
   expect(lines).toMatch(/"\$session":\{[^]*?"item":\{"code":"\(secret\)"/);
 });
+
+it("keeps a private branch eligible when the active session hides the union tag", () => {
+  const def = {
+    ...components.Header,
+    meta: {
+      ...customReader,
+      session: {
+        kind: "rounds",
+        items: "rounds",
+        hidden: [],
+        reveal: "answer",
+        next: "next",
+        assessment: { inputs: {}, readHidden: ["kind"], grade: () => undefined, project: (item) => item },
+      },
+    },
+    props: z.strictObject({
+      rounds: z.array(
+        z.union([
+          z.strictObject({ kind: z.literal("private"), code: secret(32) }),
+          z.strictObject({ code: z.string() }),
+        ]),
+      ),
+    }),
+  } satisfies Definition;
+  const rows = { rounds: [{ kind: "private", code: "synthetic-hidden-tag" }] };
+  const lines = readComponent(def, rows, "f1").join("\n");
+  expect(lines).not.toMatch(/synthetic-hidden-tag|"kind":"private"/);
+  expect(lines).toContain('"rounds":[{"code":"(secret)"');
+  expect(lines).toMatch(/"\$session":\{[^]*?"item":\{"code":"\(secret\)"/);
+});
