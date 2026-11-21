@@ -17,30 +17,37 @@ type NativeTarget = {
   onAccessibilityAction?: (event: { nativeEvent: { actionName: string } }) => void;
 };
 
-it("dispatches a native accessibility action with the guest address and exact destination label", async () => {
-  const controller = createScreenController({ screen: seatMoveScreen, defs: seatMoveDefs });
-  const act = vi.spyOn(controller, "act");
-  const address = "home/c1/r1/root";
-  const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
-  let guest: NativeTarget | undefined;
-  const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
-    const target = args[1] as NativeTarget;
-    if (target.testID === address && target.accessible) guest = target;
-    return jsxDEV(...args);
-  });
-  try {
-    renderSeatMoves(controller);
-    expect(guest?.accessibilityActions?.map(({ label }) => label)).toEqual([
-      "Move Ari Shah to Birch",
-      "Move Ari Shah to Cherry",
-    ]);
-    guest!.onAccessibilityAction!({ nativeEvent: { actionName: "unknown" } });
-    expect(act).not.toHaveBeenCalled();
-    guest!.onAccessibilityAction!({ nativeEvent: { actionName: guest!.accessibilityActions![1]!.name } });
-    expect(act).toHaveBeenCalledExactlyOnceWith({ address, action: "move", value: "Cherry" });
-    expect(controller.read()).toContain('[c1/r1 move = "Cherry"; choices ["Oak","Birch"]]');
-  } finally {
-    spy.mockRestore();
-    controller.dispose();
-  }
-});
+it.each([
+  ["r1", "Ari Shah", "Cherry", ["Birch", "Cherry"], ["Oak", "Birch"]],
+  ["r3", "Cam Cole", "Birch", ["Oak", "Birch", "Cherry"], ["Oak", "Cherry"]],
+] as const)(
+  "dispatches the native move action at %s with the exact destination label",
+  async (row, name, destination, choices, next) => {
+    const controller = createScreenController({ screen: seatMoveScreen, defs: seatMoveDefs });
+    const act = vi.spyOn(controller, "act");
+    const address = `home/c1/${row}/root`;
+    const { jsxDEV } = await vi.importActual<typeof jsxRuntime>("react/jsx-dev-runtime");
+    let guest: NativeTarget | undefined;
+    const spy = vi.spyOn(jsxRuntime, "jsxDEV").mockImplementation((...args) => {
+      const target = args[1] as NativeTarget;
+      if (target.testID === address && target.accessible) guest = target;
+      return jsxDEV(...args);
+    });
+    try {
+      renderSeatMoves(controller);
+      expect(guest?.accessibilityActions?.map(({ label }) => label)).toEqual(
+        choices.map((label) => `Move ${name} to ${label}`),
+      );
+      guest!.onAccessibilityAction!({ nativeEvent: { actionName: "unknown" } });
+      expect(act).not.toHaveBeenCalled();
+      guest!.onAccessibilityAction!({ nativeEvent: { actionName: guest!.accessibilityActions![1]!.name } });
+      expect(act).toHaveBeenCalledExactlyOnceWith({ address, action: "move", value: destination });
+      expect(controller.read()).toContain(
+        `[c1/${row} move = "${destination}"; choices ${JSON.stringify(next)}]`,
+      );
+    } finally {
+      spy.mockRestore();
+      controller.dispose();
+    }
+  },
+);

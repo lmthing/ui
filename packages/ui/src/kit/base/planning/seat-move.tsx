@@ -7,12 +7,17 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import { XStack, isWeb, type TamaguiElement } from "tamagui";
-import { size, space } from "../../../catalog";
+import { XStack, YStack, isWeb, type TamaguiElement } from "tamagui";
+import { radius, size, space, type as typography } from "../../../catalog";
 import { useMoveFocus } from "../../interact";
 import { useKit, useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
-import { planningButtonEvents, usePlanningAddress, type Target } from "./usePlanningTarget";
+import {
+  planningButtonEvents,
+  planningNativeChoices,
+  usePlanningAddress,
+  type Target,
+} from "./usePlanningTarget";
 
 export type Seat = {
   id: string;
@@ -74,10 +79,6 @@ export function useSeatMoveTarget(address: Address, seat: Seat) {
   if (!destinations.length)
     return { ...address, accessibilityRole: "image" as const, accessibilityLabel: seat.label };
   const press = active ? toggle : undefined;
-  const actions = destinations.map((destination, index) => ({
-    name: `move_${index}`,
-    label: label(destination),
-  }));
   return {
     ...address,
     accessibilityRole: "button" as const,
@@ -90,18 +91,36 @@ export function useSeatMoveTarget(address: Address, seat: Seat) {
           accessibilityState: { disabled: !active, expanded, selected: seat.selected },
           onAccessibilityTap: press,
           ...(active
-            ? {
-                accessibilityActions: actions,
-                onAccessibilityAction: ({ nativeEvent }: { nativeEvent: { actionName: string } }) => {
-                  const destination =
-                    destinations[actions.findIndex(({ name }) => name === nativeEvent.actionName)];
-                  if (destination !== undefined && choose(destination).ok) close();
-                },
-              }
+            ? planningNativeChoices("move", destinations, label, (destination) => {
+                if (choose(destination).ok) close();
+              })
             : {}),
         }),
     ...planningButtonEvents(press),
   };
+}
+
+type SeatTrayProps = { children: ReactNode; loading: boolean; maxWidth: number; gap: number };
+export function SeatTray({ children, loading, maxWidth, gap }: SeatTrayProps) {
+  const [height, setHeight] = useState<number>(typography.label.lineHeight);
+  return (
+    <YStack
+      minHeight={loading ? height : typography.label.lineHeight}
+      width="100%"
+      maxWidth={maxWidth}
+      alignSelf="center"
+      justifyContent="center"
+      gap={gap}
+      aria-hidden={loading || undefined}
+      onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}
+    >
+      {loading ? (
+        <YStack width="50%" height={space.md} backgroundColor="$line" borderRadius={radius.pill} />
+      ) : (
+        children
+      )}
+    </YStack>
+  );
 }
 
 export function SeatMoveChoices({ seat }: { seat: Seat }) {
@@ -120,16 +139,10 @@ export function SeatMoveChoices({ seat }: { seat: Seat }) {
     if (isWeb) focus.current = address.testID;
     close();
   };
-  return (
-    <SeatDestinations
-      seat={seat}
-      first={first}
-      dismiss={returnFocus}
-      choose={(destination) => {
-        if (choose(destination).ok) returnFocus();
-      }}
-    />
-  );
+  const chooseDestination = (destination: string) => {
+    if (choose(destination).ok) returnFocus();
+  };
+  return <SeatDestinations seat={seat} first={first} dismiss={returnFocus} choose={chooseDestination} />;
 }
 
 function SeatDestinations({

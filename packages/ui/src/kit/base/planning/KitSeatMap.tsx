@@ -1,11 +1,11 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { LayoutGrid } from "@tamagui/lucide-icons";
 import { XStack, YStack } from "tamagui";
-import { component, radius, size, space, type as typography } from "../../../catalog";
+import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
-import { SeatMoveChoices, SeatMoveScope, useSeatMoveTarget, type Seat } from "./seat-move";
+import { SeatMoveChoices, SeatMoveScope, SeatTray, useSeatMoveTarget, type Seat } from "./seat-move";
 import {
   PlanningTargetScope,
   usePlanningAddress,
@@ -21,10 +21,16 @@ type Table = {
   seats: readonly Seat[];
   target?: Target;
 };
-type SeatMapProps = { part?: string; loading?: boolean; tables: readonly Table[]; tray?: ReactNode };
+type SeatMapProps = {
+  part?: string;
+  loading?: boolean;
+  tables: readonly Table[];
+  tray?: ReactNode;
+  trayGuests?: readonly (Pick<Seat, "id" | "label" | "target"> & { move: NonNullable<Seat["move"]> })[];
+};
 const mapWidth = component.base.emptyMinHeight + 2 * (space.md + component.base.borderWidth);
 
-function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
+function SeatMark({ seat, loading, tray }: { seat: Seat; loading: boolean; tray: boolean }) {
   const address = usePlanningAddress(seat.target, loading);
   const press = usePlanningPress(seat.move ? undefined : address, seat.label, Boolean(seat.selected));
   const move = useSeatMoveTarget(seat.move ? address : undefined, seat);
@@ -34,19 +40,22 @@ function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
       {...press}
       {...move}
       {...(!loading && !address ? { accessibilityRole: "image", accessibilityLabel: seat.label } : {})}
-      width={size.control.md}
+      width={tray ? "100%" : size.control.md}
       height={size.control.md}
-      alignItems="center"
+      alignItems={tray ? "flex-start" : "center"}
       justifyContent="center"
-      borderRadius={radius.pill}
+      paddingHorizontal={tray ? space.md : undefined}
+      borderRadius={tray ? radius.md : radius.pill}
       borderWidth={selected ? component.base.strongBorder : component.base.borderWidth}
       borderColor={selected ? "$accent" : "$line"}
-      backgroundColor={loading ? "$line" : selected ? "$accentSoft" : seat.initials ? "$raised" : "$surface"}
+      backgroundColor={
+        loading ? "$line" : selected ? "$accentSoft" : tray || seat.initials ? "$raised" : "$surface"
+      }
     >
       {!loading &&
-        (seat.initials ? (
-          <KitText role="label" part={null} align="center" lines={1}>
-            {seat.initials}
+        (tray || seat.initials ? (
+          <KitText role="label" part={null} align={tray ? "left" : "center"} lines={1}>
+            {tray ? seat.label : seat.initials}
           </KitText>
         ) : (
           <YStack width={space.sm} height={space.sm} borderRadius={radius.pill} backgroundColor="$muted" />
@@ -55,10 +64,12 @@ function SeatMark({ seat, loading }: { seat: Seat; loading: boolean }) {
   );
 }
 
-function ScopedSeat({ seat, loading }: { seat: Seat; loading: boolean }) {
+type ScopedSeatProps = { seat: Seat; loading?: boolean; tray?: boolean };
+function ScopedSeat({ seat, loading = false, tray = false }: ScopedSeatProps) {
   return (
     <PlanningTargetScope id={seat.id} target={seat.target}>
-      <SeatMark seat={seat} loading={loading} />
+      <SeatMark seat={seat} loading={loading} tray={tray} />
+      {tray && <SeatMoveChoices seat={seat} />}
     </PlanningTargetScope>
   );
 }
@@ -145,29 +156,8 @@ function TableDrawing({ table, loading }: { table: Table; loading: boolean }) {
 
 const loadingTables: readonly Table[] = [{ id: "placeholder", label: "", shape: "long", seats: [] }];
 
-function SeatTray({ tray, loading }: { tray: ReactNode; loading: boolean }) {
-  const [height, setHeight] = useState<number>(typography.label.lineHeight);
-  return (
-    <YStack
-      minHeight={loading ? height : typography.label.lineHeight}
-      width="100%"
-      maxWidth={mapWidth}
-      alignSelf="center"
-      justifyContent="center"
-      aria-hidden={loading || undefined}
-      onLayout={loading ? undefined : (event) => setHeight(event.nativeEvent.layout.height)}
-    >
-      {loading ? (
-        <YStack width="50%" height={space.md} backgroundColor="$line" borderRadius={radius.pill} />
-      ) : (
-        tray
-      )}
-    </YStack>
-  );
-}
-
 /** Tables and their seats are separate targets, never nested controls. */
-export function KitSeatMap({ part = "root", loading = false, tables, tray }: SeatMapProps) {
+export function KitSeatMap({ part = "root", loading = false, tables, tray, trayGuests = [] }: SeatMapProps) {
   const ks = useKitStyle();
   const address = usePart(part);
   const drawings = loading && !tables.length ? loadingTables : tables;
@@ -190,8 +180,15 @@ export function KitSeatMap({ part = "root", loading = false, tables, tray }: Sea
             <TableDrawing table={table} loading={loading} />
           </PlanningTargetScope>
         ))}
+        {(tray != null || trayGuests.length > 0) && (
+          <SeatTray loading={loading} maxWidth={mapWidth} gap={trayGuests.length ? space.xs : 0}>
+            {tray}
+            {trayGuests.map((guest) => (
+              <ScopedSeat key={guest.id} seat={guest} tray />
+            ))}
+          </SeatTray>
+        )}
       </SeatMoveScope>
-      {tray != null && <SeatTray tray={tray} loading={loading} />}
     </YStack>
   );
 }

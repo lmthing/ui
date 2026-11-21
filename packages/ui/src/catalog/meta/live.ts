@@ -38,6 +38,12 @@ export type DeviceRows = {
   schema: z.ZodObject;
 };
 
+export type ItemMove = { column: string; columns: string } & (
+  | { derived?: never; capacity?: never }
+  // The parsed rows own assignment (null means unassigned); the destination owns the limit.
+  | { derived: true; capacity: string }
+);
+
 export type DeviceDataFlags = Readonly<
   Record<string, (data: DeviceData, props: ProjectionProps, now: number) => boolean>
 >;

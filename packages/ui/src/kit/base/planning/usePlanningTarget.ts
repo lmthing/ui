@@ -52,6 +52,22 @@ export function planningButtonEvents(press: (() => void) | undefined) {
     : {};
 }
 
+export function planningNativeChoices(
+  action: string,
+  values: readonly string[],
+  label: (value: string) => string,
+  choose: (value: string) => void,
+) {
+  const actions = values.map((value, index) => ({ name: `${action}_${index}`, label: label(value) }));
+  return {
+    accessibilityActions: actions,
+    onAccessibilityAction: ({ nativeEvent }: { nativeEvent: { actionName: string } }) => {
+      const value = values[actions.findIndex(({ name }) => name === nativeEvent.actionName)];
+      if (value !== undefined) choose(value);
+    },
+  };
+}
+
 type Address = ReturnType<typeof usePlanningAddress>;
 export function usePlanningPress(address: Address, label: string, selected?: boolean) {
   const kit = useKit();

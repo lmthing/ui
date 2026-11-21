@@ -94,3 +94,36 @@ it("does not steal focus when an agent moves a guest with an open chooser", asyn
     await page.close();
   }
 });
+
+it("seats a tray guest by keyboard, preserves its address and hides the newly full table", async () => {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.addInitScript("globalThis.process ??= { env: {} }; globalThis.__name = (fn) => fn");
+  try {
+    await page.goto(new URL(route, server.resolvedUrls!.local[0]).href);
+    const guest = page.getByTestId("home/c1/r3/root");
+    const next = page.getByTestId("home/c1/r4/root");
+    const option = (name: string) => page.getByRole("button", { name, exact: true });
+    expect(await guest.textContent()).toBe("Cam Cole");
+    await guest.press("Space");
+    expect(await option("Move Cam Cole to Oak").evaluate((node) => node === document.activeElement)).toBe(
+      true,
+    );
+    await page.keyboard.press("Tab");
+    await page.keyboard.press("Enter");
+    expect(await guest.textContent()).toBe("CC");
+    expect(await guest.count()).toBe(1);
+    expect(await guest.evaluate((node) => node === document.activeElement)).toBe(true);
+    await next.click();
+    expect(await option("Move Dee Park to Birch").count()).toBe(0);
+    expect(await option("Move Dee Park to Cherry").count()).toBe(1);
+    const act = await page.evaluate(() =>
+      window.__lmthingUI!.act({ address: "c1/r4", action: "move", value: "Birch" }),
+    );
+    expect(act).toMatchObject({ ok: false, code: "invalid_value" });
+    await option("Move Dee Park to Cherry").click();
+    expect(await next.textContent()).toBe("DP");
+    expect(await page.getByTestId("home/c1/tray").count()).toBe(0);
+  } finally {
+    await page.close();
+  }
+});
