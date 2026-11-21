@@ -1,0 +1,126 @@
+import { z } from "zod";
+import * as c from "../../../catalog";
+import * as kit from "../../../kit";
+import { inviteJoinedLine, inviteReading } from "../copy";
+import { socialWordsFor } from "../lang";
+
+// Core first: People/default draws a current roster, not a copyable, shareable QR invite and its join count.
+export const meta = {
+  id: "Invite",
+  status: "ready",
+  group: "action",
+  purpose: "Bring new members in with a code they can share or scan.",
+  pick: "Invite people to join an app or group using a copyable, shareable code and optional QR. Not sharing a post (Post) or listing existing members (People).",
+  writeHints: [
+    "Set qr to true to show a scannable version of code. joined is the number of people who used the code to join, or null if unknown.",
+    'Use detail "brief" only when asked to hide the joined count; keep the count in joined. Otherwise use null. Leave density, surface and align null unless requested.',
+  ],
+  region: "body",
+  weight: 2,
+  tier: "people",
+  realPath: "An invite code from a shared app; sharing uses the phone’s share sheet.",
+  variants: {
+    density: ["comfortable", "compact"],
+    surface: ["card", "outlined"],
+    align: ["start", "center"],
+    detail: ["full", "brief"],
+  },
+  variantParts: { "detail.brief": { hides: ["joined"] } },
+  parts: ["root", "title", "code", "qr", "joined", "copy", "copy_label", "share", "share_label"],
+  states: ["filled"],
+  actions: { parts: { copy: ["press"], share: ["press"] } },
+  read: inviteReading,
+} as const satisfies c.Meta;
+
+export const props = z.strictObject({
+  ...c.variantProps(meta.variants),
+  title: c.text(32),
+  code: c.text(12),
+  joined: z.int().min(0).max(999999).optional(),
+  qr: z.boolean(),
+});
+
+export function fallback({ cast, lang }: c.FallbackInput): z.input<typeof props> {
+  const thing = c.thingOf(cast);
+  const item = c.itemsOf(cast, 1)[0];
+  return {
+    title: (item && c.titleOf(item, 32, thing)) || c.placeholderTitle(0, lang),
+    code: c.wordsFor(lang).placeholderValue,
+    qr: false,
+  };
+}
+
+export const examples = [
+  { title: "Invite to Fernpost", code: "FERN28", joined: 6, qr: true },
+  { title: "Invite a walking buddy", code: "TROT9", qr: false },
+] satisfies z.input<typeof props>[];
+
+const { choose, write, read } = c.probesFor("Invite");
+export const probes = [
+  choose(
+    "Let members bring friends in with a join code they can copy or share. Also show a QR and how many people joined using it.",
+  ),
+  choose(
+    "Show the existing walking group members, with their names and avatars. No join code or invitations.",
+    "People",
+  ),
+  write(
+    "Invite people to Fernpost with the code FERN28, a scannable QR, and a count of six who already joined.",
+  ),
+  {
+    ...write(
+      "Invite Trot walkers with code TROT9 and a scannable QR. Three people have already joined using it. Keep their count in the data without displaying it. Leave spacing, framing and alignment at their defaults.",
+    ),
+    variant: { axis: "detail", value: "brief" },
+  },
+  read("Copy the Fernpost invite code.", { address: "i1/copy", action: "press" }),
+  read("Share the Fernpost invite code.", { address: "i1/share", action: "press" }),
+] satisfies c.Probe[];
+
+type InviteProps = c.Props<typeof props, typeof meta>;
+
+export function Invite(input: InviteProps) {
+  const { title, code, qr, joined } = input;
+  const { lang, words } = kit.useWords(socialWordsFor);
+  const density = kit.useVariant("density", meta.variants.density, input.density);
+  const surface = kit.useVariant("surface", meta.variants.surface, input.surface);
+  const align = kit.useVariant("align", meta.variants.align, input.align);
+  const detail = kit.useVariant("detail", meta.variants.detail, input.detail);
+  const joinedLine = inviteJoinedLine({ joined, detail }, lang);
+  const group = density === "compact" ? "content" : "response";
+  return (
+    <kit.KitCard part="root" padded {...{ density, surface }}>
+      <kit.KitContent {...{ align, density }}>
+        <kit.KitText part="title" role="heading" emphasis="quiet" {...{ align, density }}>
+          {title}
+        </kit.KitText>
+        <kit.KitText
+          part="code"
+          role="number"
+          numberScale="compact"
+          emphasis="hero"
+          tabular
+          {...{ align, density }}
+        >
+          {code}
+        </kit.KitText>
+        {joinedLine !== undefined && (
+          <kit.KitText part="joined" role="label" tone="muted" align={align}>
+            {joinedLine}
+          </kit.KitText>
+        )}
+      </kit.KitContent>
+      {qr && (
+        <kit.KitContent {...{ group, density }}>
+          <kit.KitCode part="qr" value={code} label={words.invite.qr} />
+        </kit.KitContent>
+      )}
+      <kit.KitContent group={qr ? "response" : group} density={density}>
+        <kit.KitGrid density={density}>
+          <kit.KitAction part="copy" action="press" kind="secondary" label={words.invite.copy} full />
+          <kit.KitAction part="share" action="press" label={words.invite.share} full />
+        </kit.KitGrid>
+      </kit.KitContent>
+    </kit.KitCard>
+  );
+}
