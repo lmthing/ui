@@ -168,6 +168,12 @@ Hosts can carry those fields, but the current kit and reader do not consume them
 One file per component, `src/components/<Id>.tsx`, holds its data and view. Pack components follow
 the same shape. [The component guide](component-guide.md) and `List.tsx` / `List.test.ts` are binding.
 
+Start a new catalog definition with `pnpm gen:component <pack|core> <Id>` in `packages/ui`.
+The generator reads the component's catalog entry and scaffolds the routine contract:
+bounded props, metadata and the core-first distinction, copy and language keys, tests,
+and probe skeletons. It never replaces an existing component. The catalog docs drive the
+draft; the finished component still owns its behavior, wording, probes, and view.
+
 Core and pack component folders (`src/components` and `src/packs/<pack>/components`) are exempt from
 the 12-file folder limit. So are the pack per-component test folders, `src/packs/<pack>/tests` and
 `src/packs/<pack>/tests/components`. These exemptions do not extend to other subfolders.
