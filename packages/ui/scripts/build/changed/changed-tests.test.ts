@@ -74,6 +74,7 @@ function sample() {
       'import { components } from "@lmthing/ui/catalog"; components.Waitlist;',
     "src/packs/other/tests/pack.test.ts": 'import { components } from "@lmthing/ui/catalog";',
     "src/packs/other/tests/Standalone.test.ts": 'import { KitInput } from "@lmthing/ui/kit";',
+    "src/kit/controller.test.ts": 'import { components } from "@lmthing/ui/catalog"; components.Card;',
     "test/probes.test.ts": "",
   });
 }
@@ -96,6 +97,21 @@ it("keeps a foreign pack's real import while excluding noise from an aggregate r
   expect(selected.tests).toContain("src/packs/booking/tests/Waitlist.test.ts");
   expect(selected.tests).toContain("src/packs/other/tests/Standalone.test.ts");
   expect(selected.tests).not.toContain("src/packs/other/tests/pack.test.ts");
+  expect(selected.tests).not.toContain("src/kit/controller.test.ts");
+});
+
+it("runs all reading cases when the shared reader under test changes", () => {
+  const root = fixture({
+    "src/catalog/index.ts": 'export { readComponent } from "./agent/read";',
+    "src/catalog/agent/read.ts": "export const readComponent = () => [];",
+    "src/components/List.tsx": "",
+    "test/reading.test.tsx": 'import { readComponent } from "@lmthing/ui/catalog";',
+  });
+  expect(relatedSelection(root, ["src/catalog/agent/read.ts"])).toMatchObject({
+    ids: [],
+    unfiltered: ["test/reading.test.tsx"],
+    related: ["src/catalog/agent/read.ts"],
+  });
 });
 
 it("adds related edges for recordings and inlined worked examples", () => {

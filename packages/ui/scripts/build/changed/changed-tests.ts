@@ -13,6 +13,7 @@ const componentTest = /\/([A-Z]\w*)(?:\.[^/]+)?\.test\.tsx?$/;
 const packPath = /^src\/packs\/([^/]+)\//;
 const packData = /^src\/packs\/([^/]+)\/(?:example\.jsonl|pack\.ts|index\.ts|archetypes\/.*)$/;
 const recordings = /^test\/(?:recordings\/([^/]+)|known\/([^/]+)\.md)/;
+const sharedRuntime = /^src\/(?:catalog\/(?:agent|registry)\/|kit\/(?:interact|part|screen)\/)/;
 
 export function changedPaths(root: string, base: string) {
   const git = (...args: string[]) => execFileSync("git", args, { cwd: root, encoding: "utf8" });
@@ -116,17 +117,31 @@ export function relatedSelection(root: string, files: readonly string[]) {
   const changed = new Set(files);
   const reached = (test: string) => [...graph.dependencies(test)].filter((file) => changed.has(file));
   const touchedPacks = new Set([...packs, ...ids.map((id) => owners.get(id))]);
-  const idReference = ids.length ? new RegExp(`\\b(?:${ids.join("|")})\\b`) : undefined;
+  const names = ids.join("|");
+  const idReference = names
+    ? new RegExp(`(?:\\.\\s*(?:${names})\\b|["'\x60](?:${names})["'\x60])`)
+    : undefined;
+  const narrowRegistries = ids.length && files.every((file) => file.startsWith("src/"));
   const tests = globSync(nodeTests, { cwd: root, exclude: ["**/*.browser.test.{ts,tsx}"] }).filter((test) => {
-    // Pack files that import the shared registry/render fixture otherwise appear related to every component.
     const pack = test.match(packPath)?.[1];
-    if (!pack && !test.startsWith("src/components/")) return true;
-    const id = test.match(componentTest)?.[1];
-    if (id && owners.has(id) ? ids.includes(id) : pack && touchedPacks.has(pack)) return true;
-    return Boolean(reached(test).length || idReference?.test(graph.source(test)));
+    if (pack || test.startsWith("src/components/")) {
+      const id = test.match(componentTest)?.[1];
+      if (id && owners.has(id) ? ids.includes(id) : pack && touchedPacks.has(pack)) return true;
+    } else if (!narrowRegistries || caseSuites.includes(test)) return true;
+    const source = graph.source(test);
+    if (reached(test).length || idReference?.test(source)) return true;
+    // Keep true registry-wide assertions, even without a literal component name.
+    return (
+      !pack &&
+      /\b(?:createRegistry|buildPackIndex|import\.meta\.glob|Object\.(?:keys|values|entries)\((?:components|renderers))\b/.test(
+        source,
+      )
+    );
   });
   const unfiltered = caseSuites.filter((test) =>
-    reached(test).some((file) => !file.startsWith("src/") && !recordings.test(file)),
+    reached(test).some(
+      (file) => sharedRuntime.test(file) || (!file.startsWith("src/") && !recordings.test(file)),
+    ),
   );
   if (
     files.some(
