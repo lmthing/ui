@@ -61,8 +61,8 @@ describe("PassCard fallback", () => {
 
 describe("PassCard actions and states", () => {
   it("veils the ID and both secrets in agent reads, and draws an addressed QR when scannable", () => {
-    expect(draw(seed).get("home/c1/memberId")?.text).toEqual(["•••• 0642"]);
-    expect(draw({ ...seed, masked: false }).get("home/c1/memberId")?.text).toEqual(["DEMO-0642"]);
+    expect(draw(seed).get("home/c1/member_id")?.text).toEqual(["•••• 0642"]);
+    expect(draw({ ...seed, masked: false }).get("home/c1/member_id")?.text).toEqual(["DEMO-0642"]);
     expect(draw(seed).get("home/c1/qr")?.attributes).toContain('role="img"');
     expect(actions(seed)).toEqual(["root", "reveal", "code", "bright"]);
     const read = readComponent(def, seed, "c1").join("\n");

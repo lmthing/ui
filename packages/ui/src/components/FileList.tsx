@@ -4,7 +4,7 @@ import * as kit from "../kit";
 
 export const meta = {
   id: "FileList",
-  status: "draft",
+  status: "ready",
   group: "content",
   purpose: "Show attached files and let people preview, download, or remove them.",
   pick: "One to six non-image file attachments with names, formats and sizes, for example PDFs, contracts, spreadsheets, ZIPs or audio files. Not photos (Gallery or Photo), general list records (List), a file explorer (DriveTree or FileBrowser), or an ID vault (Documents).",
@@ -135,7 +135,7 @@ function FileRow({ row, density, cards, removable, showPages }: {
     {ready && <kit.KitAction part="download" icon="download" kind="quiet" a11y={words.download(row.name)} />}
     {removable && <kit.KitAction part="remove" icon="trash" kind="quiet" a11y={words.remove(row.name)} />}
   </>;
-  const preview = <kit.KitRow part="root" label={row.name} inset="none" density={density}
+  const preview = <kit.KitRow part="root" label={row.name} inline density={density} surface="plain"
     {...(ready && (row.goto ? { goto: row.goto } : { role: "button" as const }))}
     leading={<kit.KitTrail kind="badge" tone="muted" part="format" value={format} density={density} />}>
     <kit.KitText part="name" density={density} lines={2}>{row.name}</kit.KitText>
@@ -148,22 +148,21 @@ function FileRow({ row, density, cards, removable, showPages }: {
   return <kit.KitRow item={row.id} part={null} label={row.name} density={density} lineRole="heading"
     leadingAlign="row" trailing={!cards && controls}>
     {preview}
-    {cards && (pages || controls) && <kit.KitRow part={null} label={row.name} inline density={density} lineRole="heading"
-      trailing={controls}>
-      {pages && <kit.KitTrail kind="badge" tone="muted" part="pages" value={pages} density={density} />}
-    </kit.KitRow>}
+    {cards && (pages || controls) && <kit.KitRow part={null} label={row.name} inline density={density} lineRole="heading" surface="plain"
+      leading={pages && <kit.KitTrail kind="badge" tone="muted" part="pages" value={pages} density={density} />}
+      trailing={controls}>{null}</kit.KitRow>}
   </kit.KitRow>;
 }
 
 // prettier-ignore
 export function FileList(input: FileListProps) {
   const state = kit.useComponentState();
-  const { words: { fileList: words } } = kit.useWords();
+  const { lang, words: { fileList: words } } = kit.useWords();
   const density = kit.useVariant("density", meta.variants.density, input.density);
   const cards = input.style === "cards";
   return <kit.KitCard part="root" style={cards && state === "filled" ? "cards" : "inset"} density={density}>
     {state === "loading" ? <kit.KitSkeleton lead="box" rows={input.files.length} density={density}
-      items={input.files.map((file) => ({ title: file.name }))} /> :
+      items={input.files.map((file) => ({ title: file.name, sub: c.fileSizeLine(file.sizeBytes, lang) }))} /> :
       state === "empty" || state === "error" ? <kit.KitEmpty icon={state === "empty" ? "paperclip" : "alert"} part="message"
         title={state === "empty" ? words.empty : words.error} decorativeIcon /> :
         <kit.KitGrid arrange="rows" list listRowGap={cards ? "cards" : "group"} density={density}>
