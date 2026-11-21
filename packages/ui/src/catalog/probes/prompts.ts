@@ -40,6 +40,9 @@ export function choosePrompt(defs: readonly Definition[], need: string): string 
 export function writePrompt(def: Definition, brief: string): string {
   const hasVariants = def.meta.variants || def.meta.items?.variants;
   const hasFiguresAndDensity = def.meta.variants?.density && def.meta.variants.figures;
+  const guidance = def.meta.variants?.density
+    ? writerVariants
+    : "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.";
   return [
     "You write one UI component of a phone app as a single JSON line.",
     "Use only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).",
@@ -47,13 +50,7 @@ export function writePrompt(def: Definition, brief: string): string {
     ...(hasVariants ? [variantVocabulary] : []),
     buildEntry(def),
     "",
-    ...(hasVariants
-      ? [
-          def.meta.variants?.density
-            ? writerVariants
-            : "Each variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.",
-        ]
-      : []),
+    ...(hasVariants ? [guidance] : []),
     ...(hasFiguresAndDensity ? [writerFigures] : []),
     ...(hasFiguresAndDensity && def.meta.items?.variants?.tone ? [writerItemTone] : []),
     `Brief: ${brief}`,
