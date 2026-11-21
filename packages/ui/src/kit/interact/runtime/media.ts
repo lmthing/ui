@@ -142,6 +142,7 @@ export function createMediaRuntime(ctx: ControllerContext) {
     },
     prepare,
     reset: () => {
+      ctx.micCapture.reset();
       photoGeneration++;
       for (const [id, { session }] of sessions) {
         session.pause();
@@ -149,6 +150,7 @@ export function createMediaRuntime(ctx: ControllerContext) {
       }
     },
     dispose: () => {
+      ctx.micCapture.reset();
       for (const { session, gate } of sessions.values()) {
         gate.status = "closed";
         session.dispose();

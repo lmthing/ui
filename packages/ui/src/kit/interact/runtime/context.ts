@@ -22,6 +22,7 @@ import { createInteractionStore, projectScreen, valueKey } from "../index";
 import type { InteractionStore, MediaAdapter } from "../index";
 import { initialClocks } from "../controls";
 import type { ActionEvent, SendHandler } from "../actions";
+import { createMicCapture, type MicCaptureAdapter } from "./capture";
 import { visibleConfirmation } from "./read-controls";
 export type Confirmation = {
   message: string;
@@ -36,6 +37,7 @@ export type ControllerOptions = {
   defs: Record<string, Definition>;
   lang?: string | undefined;
   media?: MediaAdapter | undefined;
+  micCapture?: MicCaptureAdapter | undefined;
   store?: InteractionStore | undefined;
   deviceData?: DeviceData | undefined;
   now?: (() => number) | undefined;
@@ -148,6 +150,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
     defs,
     now,
     store,
+    micCapture: createMicCapture(options.micCapture),
     status,
     valuesOf,
     liveScreen: projectLive(options, screen, standalone, now),

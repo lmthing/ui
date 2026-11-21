@@ -1,5 +1,7 @@
 export { KitCard } from "./surface";
 export { KitNumberPad } from "./keys";
+export { KitHoldButton, KitRemotePad } from "./controls";
+export { KitMicCapture } from "./audio";
 export { KitSetRow, KitFlip, KitTicket } from "./composition";
 export { KitCode } from "./codes";
 export { KitPath, KitPitch, KitBracket } from "./diagram";

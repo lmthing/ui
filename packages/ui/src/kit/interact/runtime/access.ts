@@ -9,6 +9,7 @@ import {
   liveProps,
   parseAddress,
   parseControlProps,
+  partTierAt,
   projectDeviceData,
   projectSelectionBinding,
   recordClockOffer,
@@ -24,31 +25,23 @@ import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
+import { captureAccess } from "./capture";
 import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
 type Act = (step: ActStep) => ActReply;
-const pressActions = [
-  "press",
-  "select",
-  "toggle",
-  "check",
-  "increment",
-  "decrement",
-  "start",
-  "stop",
-  "send",
-  "dismiss",
-];
+const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
 function actionsAt(
   ctx: ControllerContext,
   address: string,
   includeBlocked = false,
   ignoreDisabledPart = false,
+  tier?: "ok",
 ): string[] {
   const local = ctx.relative(address),
     id = local.split("/")[0]!;
   if (ctx.status.disposed || (!ignoreDisabledPart && ctx.disabledParts.has(local))) return [];
   if (ctx.confirmationFor()) {
+    if (tier) return [];
     if (local === "confirm/confirm") return ["press"];
     return ["confirm/cancel", "confirm/close"].includes(local) ? ["dismiss"] : [];
   }
@@ -83,7 +76,11 @@ function actionsAt(
     const canDrive = (part: string) => !drivenPartBlock(ctx, part);
     const target = driveTarget(def.meta, screen, ctx.defs, localValues, data, canDrive);
     return driveAffordances(def.meta, props, id, offered, target)
-      .filter((item) => item.address === local)
+      .filter(
+        ({ address, part }) =>
+          address === local &&
+          (!tier || (partTierAt(def.meta, props, part) === tier && !def.meta.confirmParts?.includes(part))),
+      )
       .map((item) => item.action);
   } catch {
     return [];
@@ -158,6 +155,9 @@ export function createStandaloneAccess(options: ControllerOptions, currency?: Ap
 }
 export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCurrency) {
   return {
+    ...captureAccess(ctx, act, (address, ignore) =>
+      actionsAt(ctx, address, false, ignore, "ok").includes("start"),
+    ),
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),

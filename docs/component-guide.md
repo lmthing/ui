@@ -218,6 +218,10 @@ Folder names below are under `src/kit/base/`; each has an `index.ts` door.
 | `text` | `KitContent` | A response group starts a larger token gap after preceding content; normal content spacing stays unchanged. | `group` content/response (default content; response adds `space.md - space.xs` before the group, making a parent's `space.xs` gap `space.md`) |
 | `helpers` | `KitSkeleton` | Media captions can match the filled content's small gap. Neutral control frames draw a visible, role-coloured child bar. | `contentGap` xs/sm (media only, default sm); Gallery uses xs |
 
+| `controls` | `KitHoldButton` | Radial countdown with one addressed `press` after a continuous three-second pointer, keyboard or native hold. An early release or cancellation never dispatches. Supplied progress is a drawing only; reduced motion steps the ring. | `part?`, `loading?`, `label`, `progress` (0–1), `holding`, `armedLabel?`, `disabled?`, `target: { item?, part }`. |
+| `controls` | `KitRemotePad` | Named D-pad, transport and volume controls in a group. Offline and loading keep the key layout. | `part?`, `loading?`, `label`, `hasMic?`, `disabled?`, `target: { item?, part }` sets the center; sibling keys use `up`, `down`, `left`, `right`, `back`, `home`, `voice` (all `press`), `volume_up` (`increment`), `volume_down` (`decrement`), `mute` (`toggle`), and `play` (`play` / `pause`). |
+| `audio` | `KitMicCapture` | Addressed `ok`-tier start/stop microphone control, with level and elapsed time. A controller's optional `micCapture` adapter owns consent and audio; without it the control is unavailable. Use elapsed time with `recording: false` to show a paused take. | `part?`, `loading?`, `label`, `recording`, `level` (0–1), `elapsedSeconds?`, `disabled?`, `target: { item?, part }`, `style?: "hold" \| "toggle"` (default toggle). |
+
 If the view needs something no base does, the task
 says which new base to add under `src/kit/base/` (or `helpers/`) and its exact props. Never draw it
 inside the component file. A new base is themed only through tokens, roles and `useKitStyle()`.

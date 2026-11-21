@@ -10,3 +10,4 @@ export { createMediaRuntime, type MediaRuntime } from "./media";
 export { createAct, discardHiddenConfirmation } from "./dispatch";
 export { createAccess, createStandaloneAccess } from "./access";
 export { readControls } from "./read-controls";
+export type { MicCaptureAdapter, MicCaptureSession } from "./capture";
