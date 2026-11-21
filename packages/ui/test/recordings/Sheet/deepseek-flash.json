@@ -1996,8 +1996,794 @@
       "{\"address\": \"s1/r3\", \"action\": \"select\"}"
     ]
   },
+  "a60ac34cb3dbda29": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSheet: A panel over the screen for more detail, a longer pick or a few extra actions.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", lead?: icon|none=\"icon\", style?: detail|picker|menu=\"detail\", title: text≤40, sub?: text≤100, items: [1..12 { label: text≤28, meta?: text≤36, value?: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, tone?: neutral|bad=\"neutral\" }], at?: int 0..9007199254740991, action?: { label: text≤24, goto?: id snake_case } }\nRule: Extra actions use style \"menu\", with 2 to 6 items. A dangerous action has item tone \"bad\". Do not use style \"detail\" for a menu.\nRule: Detail requires a value on every fact and is the only style with action. Picker needs 6 to 12 options; only picker may use at.\nRule: For ordinary facts, choices and actions, write density:null, detail:null, lead:null, and item tone:null. Do not invent row icons. Hiding notes is not a request for tighter spacing or accessories: use detail \"brief\" with density:null and lead:null.\nRule: With detail \"brief\", keep the supplied subtitle in sub and each supplied fact note verbatim in that item’s meta. Never replace these strings with null; the renderer hides them.\nexample: {\"c\":\"Sheet\",\"style\":\"detail\",\"title\":\"Morning park walk\",\"sub\":\"With Clover and Pip\",\"items\":[{\"label\":\"When\",\"value\":\"Tomorrow, 09:00\"},{\"label\":\"Where\",\"value\":\"Hyde Park\",\"meta\":\"Meet by the south gate\"},{\"label\":\"Length\",\"value\":\"45 minutes\"}],\"action\":{\"label\":\"Open booking\",\"goto\":\"booking\"}}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: On tap, show a panel for Fern care with the fact Water: Friday. Keep \"Next visit\" as its subtitle and \"Use the small watering can\" as the note on Water, but hide both notes from the panel.",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sheet",
+              "enum": [
+                "Sheet"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "icon",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "detail",
+                    "picker",
+                    "menu"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "meta": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "dot",
+                          "leaf",
+                          "drop",
+                          "dog",
+                          "cat",
+                          "calendar",
+                          "calendar_days",
+                          "clock",
+                          "check",
+                          "chevron_right",
+                          "plus",
+                          "minus",
+                          "close",
+                          "search",
+                          "settings",
+                          "bell",
+                          "bell_off",
+                          "heart",
+                          "star",
+                          "bookmark",
+                          "share",
+                          "send",
+                          "message",
+                          "mail",
+                          "phone",
+                          "camera",
+                          "image",
+                          "video",
+                          "mic",
+                          "music",
+                          "play",
+                          "pause",
+                          "square",
+                          "undo",
+                          "timer",
+                          "alarm_clock",
+                          "sun",
+                          "moon",
+                          "cloud",
+                          "cloud_rain",
+                          "thermometer",
+                          "wind",
+                          "flame",
+                          "zap",
+                          "battery",
+                          "wifi",
+                          "pin",
+                          "map",
+                          "navigation",
+                          "compass",
+                          "home",
+                          "building",
+                          "store",
+                          "shopping_cart",
+                          "shopping_bag",
+                          "tag",
+                          "gift",
+                          "credit_card",
+                          "wallet",
+                          "banknote",
+                          "piggy_bank",
+                          "receipt",
+                          "trending_up",
+                          "trending_down",
+                          "bar_chart",
+                          "pie_chart",
+                          "activity",
+                          "target",
+                          "trophy",
+                          "medal",
+                          "award",
+                          "flag",
+                          "user",
+                          "users",
+                          "user_plus",
+                          "baby",
+                          "smile",
+                          "dumbbell",
+                          "bike",
+                          "footprints",
+                          "heart_pulse",
+                          "pill",
+                          "stethoscope",
+                          "apple",
+                          "coffee",
+                          "utensils",
+                          "wine",
+                          "pizza",
+                          "carrot",
+                          "sprout",
+                          "flower",
+                          "tree",
+                          "mountain",
+                          "waves",
+                          "car",
+                          "bus",
+                          "plane",
+                          "train",
+                          "briefcase",
+                          "graduation_cap",
+                          "book_open",
+                          "book",
+                          "pencil",
+                          "file_text",
+                          "clipboard",
+                          "clipboard_list",
+                          "checklist",
+                          "lock",
+                          "unlock",
+                          "key",
+                          "shield",
+                          "eye",
+                          "link",
+                          "paperclip",
+                          "download",
+                          "upload",
+                          "trash",
+                          "edit",
+                          "filter",
+                          "sliders",
+                          "info",
+                          "alert",
+                          "help",
+                          "sparkles",
+                          "lightbulb",
+                          "palette",
+                          "scissors",
+                          "wrench",
+                          "hammer",
+                          "package",
+                          "truck",
+                          "recycle",
+                          "globe",
+                          "languages",
+                          "gamepad",
+                          "ticket",
+                          "paw",
+                          "shirt",
+                          "bed",
+                          "bath",
+                          "sofa",
+                          "lamp",
+                          "chevron_left",
+                          "arrow_left",
+                          "more",
+                          "external_link",
+                          "quote",
+                          "circle_check"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "meta",
+                  "value",
+                  "icon",
+                  "goto",
+                  "tone"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "action": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "lead",
+            "style",
+            "title",
+            "sub",
+            "items",
+            "at",
+            "action"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
+    "replies": [
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}",
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":\"brief\",\"lead\":null,\"style\":\"detail\",\"title\":\"Fern care\",\"sub\":\"Next visit\",\"items\":[{\"label\":\"Water\",\"meta\":\"Use the small watering can\",\"value\":\"Friday\",\"icon\":null,\"goto\":null,\"tone\":null}],\"at\":null,\"action\":null}"
+    ]
+  },
   "b425c9bfef734f59": {
     "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSheet: A panel over the screen for more detail, a longer pick or a few extra actions.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", lead?: icon|none=\"icon\", style?: detail|picker|menu=\"detail\", title: text≤40, sub?: text≤100, items: [1..12 { label: text≤28, meta?: text≤36, value?: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, tone?: neutral|bad=\"neutral\" }], at?: int 0..9007199254740991, action?: { label: text≤24, goto?: id snake_case } }\nRule: Extra actions use style \"menu\", with 2 to 6 items. A dangerous action has item tone \"bad\". Do not use style \"detail\" for a menu.\nRule: Detail requires a value on every fact and is the only style with action. Picker needs 6 to 12 options; only picker may use at.\nRule: For ordinary facts, choices and actions, write density:null, detail:null, lead:null, and item tone:null. Do not invent row icons. Hiding notes is not a request for tighter spacing or accessories: use detail \"brief\" with density:null and lead:null.\nRule: With detail \"brief\", keep the supplied subtitle in sub and each supplied fact note verbatim in that item’s meta. Never replace these strings with null; the renderer hides them.\nexample: {\"c\":\"Sheet\",\"style\":\"detail\",\"title\":\"Morning park walk\",\"sub\":\"With Clover and Pip\",\"items\":[{\"label\":\"When\",\"value\":\"Tomorrow, 09:00\"},{\"label\":\"Where\",\"value\":\"Hyde Park\",\"meta\":\"Meet by the south gate\"},{\"label\":\"Length\",\"value\":\"45 minutes\"}],\"action\":{\"label\":\"Open booking\",\"goto\":\"booking\"}}\n\nEach variant is independent. Use JSON null for every unrequested component or row variant, even if a different variant was requested. Do not fill in defaults.\nBrief: A panel titled Fern offering three actions: Edit, Share and Remove, with Remove marked as dangerous",
+    "format": {
+      "type": "json_schema",
+      "json_schema": {
+        "name": "writer_line",
+        "strict": true,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "c": {
+              "type": "string",
+              "const": "Sheet",
+              "enum": [
+                "Sheet"
+              ]
+            },
+            "density": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "comfortable",
+                    "compact"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "detail": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "full",
+                    "brief"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "lead": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "icon",
+                    "none"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "style": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "detail",
+                    "picker",
+                    "menu"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "sub": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "items": {
+              "minItems": 1,
+              "maxItems": 12,
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 28
+                  },
+                  "meta": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 36
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 28
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "icon": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "dot",
+                          "leaf",
+                          "drop",
+                          "dog",
+                          "cat",
+                          "calendar",
+                          "calendar_days",
+                          "clock",
+                          "check",
+                          "chevron_right",
+                          "plus",
+                          "minus",
+                          "close",
+                          "search",
+                          "settings",
+                          "bell",
+                          "bell_off",
+                          "heart",
+                          "star",
+                          "bookmark",
+                          "share",
+                          "send",
+                          "message",
+                          "mail",
+                          "phone",
+                          "camera",
+                          "image",
+                          "video",
+                          "mic",
+                          "music",
+                          "play",
+                          "pause",
+                          "square",
+                          "undo",
+                          "timer",
+                          "alarm_clock",
+                          "sun",
+                          "moon",
+                          "cloud",
+                          "cloud_rain",
+                          "thermometer",
+                          "wind",
+                          "flame",
+                          "zap",
+                          "battery",
+                          "wifi",
+                          "pin",
+                          "map",
+                          "navigation",
+                          "compass",
+                          "home",
+                          "building",
+                          "store",
+                          "shopping_cart",
+                          "shopping_bag",
+                          "tag",
+                          "gift",
+                          "credit_card",
+                          "wallet",
+                          "banknote",
+                          "piggy_bank",
+                          "receipt",
+                          "trending_up",
+                          "trending_down",
+                          "bar_chart",
+                          "pie_chart",
+                          "activity",
+                          "target",
+                          "trophy",
+                          "medal",
+                          "award",
+                          "flag",
+                          "user",
+                          "users",
+                          "user_plus",
+                          "baby",
+                          "smile",
+                          "dumbbell",
+                          "bike",
+                          "footprints",
+                          "heart_pulse",
+                          "pill",
+                          "stethoscope",
+                          "apple",
+                          "coffee",
+                          "utensils",
+                          "wine",
+                          "pizza",
+                          "carrot",
+                          "sprout",
+                          "flower",
+                          "tree",
+                          "mountain",
+                          "waves",
+                          "car",
+                          "bus",
+                          "plane",
+                          "train",
+                          "briefcase",
+                          "graduation_cap",
+                          "book_open",
+                          "book",
+                          "pencil",
+                          "file_text",
+                          "clipboard",
+                          "clipboard_list",
+                          "checklist",
+                          "lock",
+                          "unlock",
+                          "key",
+                          "shield",
+                          "eye",
+                          "link",
+                          "paperclip",
+                          "download",
+                          "upload",
+                          "trash",
+                          "edit",
+                          "filter",
+                          "sliders",
+                          "info",
+                          "alert",
+                          "help",
+                          "sparkles",
+                          "lightbulb",
+                          "palette",
+                          "scissors",
+                          "wrench",
+                          "hammer",
+                          "package",
+                          "truck",
+                          "recycle",
+                          "globe",
+                          "languages",
+                          "gamepad",
+                          "ticket",
+                          "paw",
+                          "shirt",
+                          "bed",
+                          "bath",
+                          "sofa",
+                          "lamp",
+                          "chevron_left",
+                          "arrow_left",
+                          "more",
+                          "external_link",
+                          "quote",
+                          "circle_check"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "goto": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]*$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "tone": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "enum": [
+                          "neutral",
+                          "bad"
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "label",
+                  "meta",
+                  "value",
+                  "icon",
+                  "goto",
+                  "tone"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "at": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "action": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 24
+                    },
+                    "goto": {
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "goto"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "c",
+            "density",
+            "detail",
+            "lead",
+            "style",
+            "title",
+            "sub",
+            "items",
+            "at",
+            "action"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "reply": "{\"c\":\"Sheet\",\"density\":null,\"detail\":null,\"lead\":null,\"style\":\"menu\",\"title\":\"Fern\",\"sub\":null,\"items\":[{\"label\":\"Edit\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Share\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Remove\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":\"bad\"}],\"at\":null,\"action\":null}",
+    "replies": [
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":null,\"lead\":null,\"style\":\"menu\",\"title\":\"Fern\",\"sub\":null,\"items\":[{\"label\":\"Edit\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Share\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Remove\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":\"bad\"}],\"at\":null,\"action\":null}",
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":null,\"lead\":null,\"style\":\"menu\",\"title\":\"Fern\",\"sub\":null,\"items\":[{\"label\":\"Edit\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Share\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Remove\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":\"bad\"}],\"at\":null,\"action\":null}",
+      "{\"c\":\"Sheet\",\"density\":null,\"detail\":null,\"lead\":null,\"style\":\"menu\",\"title\":\"Fern\",\"sub\":null,\"items\":[{\"label\":\"Edit\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Share\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":null},{\"label\":\"Remove\",\"meta\":null,\"value\":null,\"icon\":null,\"goto\":null,\"tone\":\"bad\"}],\"at\":null,\"action\":null}"
+    ]
+  },
+  "b5a89ad0e3548142": {
+    "prompt": "You write one UI component of a phone app as a single JSON line.\nUse only the listed props. Respect every limit (≤N is a maximum length, [a..b] an item count).\nUse null for an optional prop (name?) when you have nothing for it: never write an empty string.\nSet shared axes, including item axes, only when explicitly requested; otherwise use null. At most one third of items per component get mark \"highlight\" (round down).\ndensity: comfortable|compact\nemphasis: quiet|normal|hero\nsurface: plain|card|tinted|outlined\nalign: start|center\nbleed: inset|edge\naspect: auto|square|wide|tall\ndetail: full|brief\nmedia: none|icon|thumb|cover\nfigures: exact|short\nlabels: key|none|all\narrange: rows|grid|strip\ngroup: none|sections|dates\noverflow: all|peek|page\nlead: none|icon|avatar|thumb|number|check\ntrail: none|chevron|value|badge|toggle|check\ntone: neutral|good|warn|bad\nmark: none|highlight|muted|new\nSheet: A panel over the screen for more detail, a longer pick or a few extra actions.\nprops: { density?: comfortable|compact, detail?: full|brief=\"full\", lead?: icon|none=\"icon\", style?: detail|picker|menu=\"detail\", title: text≤40, sub?: text≤100, items: [1..12 { label: text≤28, meta?: text≤36, value?: text≤28, icon?: dot|leaf|drop|dog|cat|calendar|calendar_days|clock|check|chevron_right|plus|minus|close|search|settings|bell|bell_off|heart|star|bookmark|share|send|message|mail|phone|camera|image|video|mic|music|play|pause|square|undo|timer|alarm_clock|sun|moon|cloud|cloud_rain|thermometer|wind|flame|zap|battery|wifi|pin|map|navigation|compass|home|building|store|shopping_cart|shopping_bag|tag|gift|credit_card|wallet|banknote|piggy_bank|receipt|trending_up|trending_down|bar_chart|pie_chart|activity|target|trophy|medal|award|flag|user|users|user_plus|baby|smile|dumbbell|bike|footprints|heart_pulse|pill|stethoscope|apple|coffee|utensils|wine|pizza|carrot|sprout|flower|tree|mountain|waves|car|bus|plane|train|briefcase|graduation_cap|book_open|book|pencil|file_text|clipboard|clipboard_list|checklist|lock|unlock|key|shield|eye|link|paperclip|download|upload|trash|edit|filter|sliders|info|alert|help|sparkles|lightbulb|palette|scissors|wrench|hammer|package|truck|recycle|globe|languages|gamepad|ticket|paw|shirt|bed|bath|sofa|lamp|chevron_left|arrow_left|more|external_link|quote|circle_check, goto?: id snake_case, tone?: neutral|bad=\"neutral\" }], at?: int 0..9007199254740991, action?: { label: text≤24, goto?: id snake_case } }\nRule: Extra actions use style \"menu\", with 2 to 6 items. A dangerous action has item tone \"bad\". Do not use style \"detail\" for a menu.\nRule: Detail requires a value on every fact and is the only style with action. Picker needs 6 to 12 options; only picker may use at.\nRule: For ordinary facts, choices and actions, write density:null, detail:null, lead:null, and item tone:null. Do not invent row icons. Hiding notes is not a request for tighter spacing or accessories: use detail \"brief\" with density:null and lead:null.\nRule: With detail \"brief\", keep the supplied subtitle in sub and each supplied fact note verbatim in that item’s meta. Never replace these strings with null; the renderer hides them.\nexample: {\"c\":\"Sheet\",\"style\":\"detail\",\"title\":\"Morning park walk\",\"sub\":\"With Clover and Pip\",\"items\":[{\"label\":\"When\",\"value\":\"Tomorrow, 09:00\"},{\"label\":\"Where\",\"value\":\"Hyde Park\",\"meta\":\"Meet by the south gate\"},{\"label\":\"Length\",\"value\":\"45 minutes\"}],\"action\":{\"label\":\"Open booking\",\"goto\":\"booking\"}}\n\nStart every shared variant on the component and its rows at JSON null. Set only the axes needed for the presentation the request calls for. An \"=value\" in the props list is a render default, not a value to output. Never copy a variant from an example. Leave emphasis null unless the request asks to change prominence, even if \"normal\" is listed.\n\nDensity changes spacing only. Use null to inherit app spacing unless the request asks for tighter or roomier spacing. Showing fewer rows, hiding details, and shortening text do not change spacing.\n\nKeep requested content visible. Leave detail null when the default already shows the requested content, or when there is no extra content to hide. Set detail only if the request asks to hide or reveal existing content and the default does not do that. Read-only changes actions, not visibility.\nBrief: A panel titled Fern offering three actions: Edit, Share and Remove, with Remove marked as dangerous",
     "format": {
       "type": "json_schema",
       "json_schema": {
