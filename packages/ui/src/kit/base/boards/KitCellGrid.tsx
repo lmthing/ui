@@ -4,8 +4,10 @@ import { component, size, space, type as typography } from "../../../catalog";
 import { usePart } from "../../part";
 import { KitText, type TextTone } from "../text";
 import { BoardCell, BoardGrid, type Target } from "./board-navigation";
+import { AxisClue, ColumnClues, axisClues, type AxisClues } from "./axis-clues";
+import { BoardGlyph, type BoardMark } from "./board-mark";
 
-type CellState = "empty" | "given" | "draft" | "correct" | "present" | "absent" | "conflict";
+type CellState = "empty" | "given" | "draft" | "correct" | "present" | "absent" | "conflict" | "blocked";
 type Cell = {
   id: string;
   row: number;
@@ -13,6 +15,7 @@ type Cell = {
   value?: string;
   notes?: readonly string[];
   clue?: string;
+  mark?: BoardMark;
   state: CellState;
   selected?: boolean;
   target?: Target;
@@ -23,6 +26,7 @@ type CellGridProps = {
   rows: number;
   cols: number;
   cells: readonly Cell[];
+  clues?: AxisClues;
 };
 
 const fills = {
@@ -33,6 +37,7 @@ const fills = {
   present: "$warnSoft",
   absent: "$raised",
   conflict: "$badSoft",
+  blocked: "$line",
 } as const;
 
 const tones: Record<CellState, TextTone> = {
@@ -43,6 +48,7 @@ const tones: Record<CellState, TextTone> = {
   present: "warn",
   absent: "muted",
   conflict: "bad",
+  blocked: "muted",
 };
 const marks = { correct: Check, present: Circle, absent: Minus, conflict: X };
 const noteColumns = 3;
@@ -88,7 +94,13 @@ function CellHeading({ cell }: { cell?: Cell | undefined }) {
 }
 
 function puzzleLabel(row: number, col: number, cell?: Cell) {
-  return [`${row + 1}, ${col + 1}`, cell?.state, cell?.clue, cell?.value || cell?.notes?.join(", ")]
+  return [
+    `${row + 1}, ${col + 1}`,
+    cell?.state,
+    cell?.clue,
+    cell?.value || cell?.notes?.join(", "),
+    cell?.mark?.label,
+  ]
     .filter(Boolean)
     .join(", ");
 }
@@ -100,21 +112,23 @@ type PuzzleTileProps = {
   loading: boolean;
   height: number;
   header: boolean;
+  rowOffset: number;
+  colOffset: number;
 };
-function PuzzleTile({ row, col, cell, loading, height, header }: PuzzleTileProps) {
+function PuzzleTile({ row, col, cell, loading, height, header, rowOffset, colOffset }: PuzzleTileProps) {
   const state = cell?.state ?? "empty";
   const selected = !loading && Boolean(cell?.selected);
   return (
     <BoardCell
       cell={{
-        row,
-        col,
+        row: row + rowOffset,
+        col: col + colOffset,
         id: cell?.id,
         target: cell?.target,
         label: loading ? "" : puzzleLabel(row, col, cell),
         loading,
         selected,
-        disabled: state === "given" || undefined,
+        disabled: state === "given" || state === "blocked" || undefined,
         invalid: state === "conflict" || undefined,
       }}
       width={size.control.md}
@@ -141,6 +155,7 @@ function PuzzleTile({ row, col, cell, loading, height, header }: PuzzleTileProps
         ) : cell?.notes?.length ? (
           <CellNotes notes={cell.notes} />
         ) : null)}
+      {!loading && cell?.mark && <BoardGlyph mark={cell.mark} />}
     </BoardCell>
   );
 }
@@ -155,10 +170,12 @@ function puzzleRows(rows: number, cols: number, cells: readonly Cell[]) {
 function puzzleGeometry(cells: readonly (readonly (Cell | undefined)[])[]) {
   let header = false;
   let notes = 0;
+  let mark = false;
   for (const row of cells)
     for (const cell of row) {
       if (!cell) continue;
       header ||= Boolean(cell.clue || cell.state in marks);
+      mark ||= Boolean(cell.mark);
       if (!cell.value) notes = Math.max(notes, cell.notes?.length ?? 0);
     }
   const content = Math.max(
@@ -167,25 +184,33 @@ function puzzleGeometry(cells: readonly (readonly (Cell | undefined)[])[]) {
   );
   const height = Math.max(
     size.control.md,
-    content + (header ? headerHeight : 0) + component.base.strongBorder * 2,
+    content + (header ? headerHeight : 0) + (mark ? size.icon.sm : 0) + component.base.strongBorder * 2,
   );
   return { height, header };
 }
 
 /** Draws a coordinate grid; the caller evaluates and updates its contents. */
-export function KitCellGrid({ part = "root", rows, cols, cells, loading = false }: CellGridProps) {
+export function KitCellGrid({ part = "root", rows, cols, cells, clues, loading = false }: CellGridProps) {
   const address = usePart(part);
   const drawing = puzzleRows(rows, cols, cells);
   const geometry = puzzleGeometry(drawing);
-  const positions = drawing.flatMap((line, row) => line.map((_, col) => ({ row, col })));
+  const left = axisClues(clues?.rows, rows);
+  const top = axisClues(clues?.columns, cols);
+  const colOffset = Number(Boolean(left));
+  const rowOffset = Number(Boolean(top));
+  const positions = drawing.flatMap((line, row) =>
+    line.map((_, col) => ({ row: row + rowOffset, col: col + colOffset })),
+  );
   return (
     <YStack {...address} width="100%" minWidth={component.base.none} aria-busy={loading || undefined}>
       {rows > 0 && cols > 0 && (
-        <BoardGrid rows={rows} cols={cols} positions={positions} loading={loading}>
+        <BoardGrid rows={rows + rowOffset} cols={cols + colOffset} positions={positions} loading={loading}>
+          {top && <ColumnClues clues={top} corner={Boolean(left)} loading={loading} />}
           {drawing.map((line, row) => (
             <XStack key={row} {...(isWeb && !loading ? { role: "row" } : {})}>
+              {left && <AxisClue label={left[row] ?? null} height={geometry.height} loading={loading} />}
               {line.map((cell, col) => (
-                <PuzzleTile key={col} {...{ row, col, cell, loading, ...geometry }} />
+                <PuzzleTile key={col} {...{ row, col, cell, loading, rowOffset, colOffset, ...geometry }} />
               ))}
             </XStack>
           ))}

@@ -1,14 +1,23 @@
 import { useMemo } from "react";
 import { Svg, Path, Rect } from "react-native-svg";
 import { YStack } from "tamagui";
-import { QrCode } from "@tamagui/lucide-icons";
+import { Barcode, QrCode } from "@tamagui/lucide-icons";
 import qrcode from "qrcode-generator";
 import { component, radius, size, space } from "../../../catalog";
 import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitIcon, KitText, shifted, surfaceOf } from "../text";
+import { barcodeDrawing } from "./barcode";
 
-type CodeProps = { part?: string | null; loading?: boolean; value?: string; label: string; used?: boolean };
+type CodeProps = {
+  part?: string | null;
+  loading?: boolean;
+  value?: string;
+  label: string;
+  used?: boolean;
+  unavailable?: boolean;
+  kind?: "qr" | "barcode";
+};
 
 // QR uses a four-module quiet zone on all sides, independent of the theme and the matrix size.
 const quiet = 4;
@@ -52,11 +61,27 @@ export function codeDrawing(value: string | undefined) {
   return { path: runs.join(" "), side: count + quiet * 2 };
 }
 
-/** A fixed-contrast QR drawing. An unavailable or used code never exposes a scannable matrix. */
-export function KitCode({ part = "root", loading = false, value, label, used = false }: CodeProps) {
+/** Draw only the supplied payload, on a fixed-contrast plate with a symbology-specific quiet zone. */
+export function KitCode({
+  part = "root",
+  loading = false,
+  value,
+  label,
+  used = false,
+  unavailable = false,
+  kind = "qr",
+}: CodeProps) {
   const address = usePart(part ?? "root", part !== null);
   const ks = useKitStyle();
-  const drawing = useMemo(() => codeDrawing(loading || used ? undefined : value), [loading, used, value]);
+  const payload = loading || used || unavailable ? undefined : value;
+  const drawing = useMemo(
+    () => (kind === "barcode" ? barcodeDrawing(payload, edge) : codeDrawing(payload)),
+    [kind, payload],
+  );
+  const linear = drawing && "height" in drawing ? (drawing.height as number) : undefined;
+  const width = linear && drawing ? Math.floor(edge / drawing.side) * drawing.side : edge;
+  const height = linear ? size.control.lg : edge;
+  const Glyph = kind === "barcode" ? Barcode : QrCode;
   return (
     <YStack
       {...(part === null ? {} : address)}
@@ -73,8 +98,14 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
       accessibilityLabel={drawing ? label : undefined}
     >
       {drawing ? (
-        <Svg width={edge} height={edge} viewBox={`0 0 ${drawing.side} ${drawing.side}`} aria-hidden>
-          <Rect width={drawing.side} height={drawing.side} fill={component.swatch.white} />
+        <Svg
+          width={width}
+          height={height}
+          viewBox={`0 0 ${drawing.side} ${linear ?? drawing.side}`}
+          preserveAspectRatio={linear ? "none" : undefined}
+          aria-hidden
+        >
+          <Rect width={drawing.side} height={linear ?? drawing.side} fill={component.swatch.white} />
           <Path d={drawing.path} fill={component.swatch.black} />
         </Svg>
       ) : loading ? (
@@ -93,7 +124,7 @@ export function KitCode({ part = "root", loading = false, value, label, used = f
             {used ? (
               <KitIcon name="circle_check" tone="good" scale="lg" decorative />
             ) : (
-              <QrCode size={size.icon.lg} color="$muted" aria-hidden />
+              <Glyph size={size.icon.lg} color="$muted" aria-hidden />
             )}
           </YStack>
           <KitText part={null} align="center" role="label">

@@ -4,14 +4,20 @@ import { usePart } from "../../part";
 import { useKitStyle } from "../../provider";
 import { KitText, shifted } from "../text";
 import { BoardCell, BoardGrid, type Target } from "./board-navigation";
+import { BoardGlyph, type BoardMark } from "./board-mark";
 
 type Seat = {
   id: string;
   label: string;
   kind: "free" | "taken" | "selected" | "aisle";
+  seatClass?: BoardMark;
   target?: Target;
 };
-type Section = { id: string; label: string; rows: readonly { label: string; seats: readonly Seat[] }[] };
+type Section = {
+  id: string;
+  label: string;
+  rows: readonly { label: string; mark?: BoardMark; seats: readonly Seat[] }[];
+};
 type SeatGridProps = {
   part?: string;
   loading?: boolean;
@@ -80,7 +86,7 @@ function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: n
         col,
         id: seat.id,
         target: seat.target,
-        label: seat.label,
+        label: seat.seatClass ? `${seat.label}, ${seat.seatClass.label}` : seat.label,
         loading,
         selected,
         disabled: taken || undefined,
@@ -106,6 +112,7 @@ function SeatTile({ seat, row, col, loading }: { seat: Seat; row: number; col: n
           {seat.label}
         </KitText>
       )}
+      {!loading && seat.seatClass && <BoardGlyph mark={seat.seatClass} />}
     </BoardCell>
   );
 }
@@ -127,6 +134,9 @@ function SeatRow({
         width={size.control.md}
         height={size.control.md}
         justifyContent="center"
+        aria-label={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessibilityLabel={!loading && row.mark ? `${row.label}, ${row.mark.label}` : undefined}
+        accessible={!loading && row.mark ? true : undefined}
         {...(isWeb && !loading ? { role: "rowheader", "aria-colindex": 1 } : {})}
       >
         {loading ? (
@@ -136,6 +146,7 @@ function SeatRow({
             {row.label}
           </KitText>
         )}
+        {!loading && row.mark && <BoardGlyph mark={row.mark} />}
       </YStack>
       {columns.map((width, col) => {
         const seat = row.seats[col];
