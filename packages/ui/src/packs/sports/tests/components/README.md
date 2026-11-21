@@ -6,3 +6,5 @@
 - `MatchFeed.test.ts` covers incident bounds, sided rows, states and the add-event picker.
 - `Bracket.test.ts` covers round bounds, tie addresses, variants, loading and press actions.
 - `Lineup.test.ts` covers formation and bench bounds, player addresses, variants and press actions.
+- `Scoreboard.test.ts` covers score bounds, display and keeper states, and clock controls.
+- `Scoreboard.record.test.tsx` checks both views before and after goal confirmation and cancellation.

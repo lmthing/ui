@@ -32,6 +32,10 @@ export const meta = {
   emptyActions: ["add.press"],
   live: { derive: () => ({ add: { goto: "sheet" } }) },
   ...matchFeedRecord,
+  recordRuntime: {
+    ...matchFeedRecord.recordRuntime,
+    project: (context) => (context.screen ? matchFeedRecord.recordRuntime.project(context) : {}),
+  },
   read: (input, _state, lang): string[] => {
     const { matchFeed } = sportsWordsFor(lang);
     return [
