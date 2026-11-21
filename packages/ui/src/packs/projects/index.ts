@@ -1,0 +1,25 @@
+export { pack } from "./pack";
+export * from "./components";
+export * from "./archetypes";
+
+export const example = `{"id":"h1","c":"Header","style":"back","title":"Folio website"}
+{"id":"s1","c":"Scope","projectRef":"folio","revision":1,"style":"baseline","deliverables":[{"deliverableRef":"sitemap","title":"Sitemap","acceptance":"Links all three pages and names their order.","due":"2026-11-18"},{"deliverableRef":"home_design","title":"Home page design","acceptance":"Includes mobile and desktop layouts.","due":"2026-11-24"},{"deliverableRef":"about_design","title":"About page design","acceptance":"Includes mobile and desktop layouts.","due":"2026-11-24"},{"deliverableRef":"contact_design","title":"Contact page design","acceptance":"Shows a form and submission confirmation.","due":"2026-11-24"},{"deliverableRef":"handoff","title":"Handoff file","acceptance":"Includes editable sources and an export for each page.","due":"2026-11-27"}],"excluded":["Copywriting"]}
+{"id":"n1","c":"Note","text":"Changes to scope need a new revision."}
+{"id":"b1","c":"Button","label":"Review gates","goto":"projects_gates"}
+{"id":"h2","c":"Header","title":"My work"}
+{"id":"c1","c":"Chips","items":[{"label":"All","on":true},{"label":"Due soon"}]}
+{"id":"t1","c":"Tasks","group":"sections","items":[{"taskRef":"draft_sitemap","projectRef":"folio","title":"Draft sitemap","assignee":"Jo","due":"2026-11-18","state":"todo","after":[],"priority":"high","goto":"projects_task_edit"},{"taskRef":"design_pages","projectRef":"folio","title":"Design pages","assignee":"Jo","due":"2026-11-24","state":"todo","after":["draft_sitemap"],"goto":"projects_task_edit"},{"taskRef":"prep_images","projectRef":"folio","title":"Prepare images","assignee":"Jo","due":"2026-11-24","state":"todo","after":[]},{"taskRef":"pack_handoff","projectRef":"folio","title":"Pack handoff","assignee":"Jo","due":"2026-11-27","state":"todo","after":["design_pages","prep_images"]}]}
+{"id":"b2","c":"Button","label":"New task","goto":"projects_task_edit"}
+{"id":"h3","c":"Header","title":"Website schedule"}
+{"id":"g1","c":"Gantt","projectRef":"folio","from":"2026-11-16","to":"2026-11-29","tasks":[{"taskRef":"draft_sitemap","title":"Draft sitemap","start":"2026-11-16","end":"2026-11-18","after":[],"goto":"projects_task_edit"},{"taskRef":"design_pages","title":"Design pages","start":"2026-11-19","end":"2026-11-24","after":["draft_sitemap"],"goto":"projects_task_edit"},{"taskRef":"prep_images","title":"Prepare images","start":"2026-11-20","end":"2026-11-24","after":[]},{"taskRef":"pack_handoff","title":"Pack handoff","start":"2026-11-25","end":"2026-11-27","after":["design_pages","prep_images"]}],"gates":[{"title":"Plan sign-off","due":"2026-11-18","goto":"projects_scope"},{"title":"Design ready","due":"2026-11-24","goto":"projects_scope"},{"title":"Send files","due":"2026-11-27","goto":"projects_scope"}]}
+{"id":"n2","c":"Note","text":"Open a linked bar to review its task."}
+{"id":"b3","c":"Button","label":"See gates","goto":"projects_gates"}
+{"id":"h4","c":"Header","title":"This week"}
+{"id":"t2","c":"TimeLog","week":"2026-11-16","projectRef":"folio","taskRef":"draft_sitemap","addGoto":"projects_time_entry","entries":[{"projectRef":"folio","taskRef":"draft_sitemap","title":"Draft sitemap","start":"2026-11-16T09:00:00Z","end":"2026-11-16T10:30:00Z","billable":true},{"projectRef":"folio","taskRef":"prep_images","title":"Prepare images","start":"2026-11-20T09:00:00Z","end":"2026-11-20T09:30:00Z","billable":false}]}
+{"id":"b4","c":"Bars","title":"Hours by day","unit":"h","points":[{"label":"Mon","value":1.5},{"label":"Tue","value":0},{"label":"Wed","value":0},{"label":"Thu","value":0},{"label":"Fri","value":0.5},{"label":"Sat","value":0},{"label":"Sun","value":0}]}
+{"id":"n3","c":"Note","text":"Work time only. This is not a payroll report."}
+{"id":"h5","c":"Header","title":"Delivery gates"}
+{"id":"m1","c":"Milestones","projectRef":"folio","style":"cards","gates":[{"title":"Plan sign-off","due":"2026-11-18","requires":["sitemap"],"goto":"projects_scope"},{"title":"Design ready","due":"2026-11-24","requires":["home_design","about_design","contact_design"],"goto":"projects_scope"},{"title":"Send files","due":"2026-11-27","requires":["handoff"],"goto":"projects_scope"}]}
+{"id":"n4","c":"Note","text":"A gate is reached when every required output is accepted."}
+{"id":"b5","c":"Button","label":"See schedule","goto":"projects_ranges"}
+`;
