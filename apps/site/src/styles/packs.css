@@ -159,6 +159,13 @@
   margin-top: 32px;
 }
 
+/* One worked example can contain several layouts' pinned regions. Keep each
+   stack scrollable when it grows, leaving at least half the phone for the body. */
+.worked-example .phone-screen :has(> :nth-child(2) > .is_ScrollView) > :is(:first-child, :last-child) {
+  max-height: 25%;
+  overflow-y: auto;
+}
+
 .mini-pack {
   display: block;
   width: 172px;
