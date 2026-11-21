@@ -1,8 +1,8 @@
 import { useLayoutEffect, useRef } from "react";
 import { isWeb } from "tamagui";
 
-type Press = { begin(): void; end(): void };
-type Input = "pointer" | "keyboard" | "native";
+type Press = { begin(): void; end(released: boolean): void };
+type Input = { type: "pointer"; pointer: number } | { type: "keyboard"; key: string } | { type: "native" };
 type Key = {
   key: string;
   repeat?: boolean;
@@ -41,15 +41,31 @@ function outside({ clientX, clientY, currentTarget }: Move) {
   return clientX < left || clientX > right || clientY < top || clientY > bottom;
 }
 
-export function useContinuousPress(enabled: boolean, scope: unknown, address: string, press: Press) {
-  const source = useRef<{ type: Input; pointer?: number; key?: string } | null>(null);
-  const latest = useRef(press);
-  latest.current = press;
-  const cancel = () => {
-    if (!source.current) return;
-    source.current = null;
-    latest.current.end();
+function pointerEvents(
+  begin: (input: Input) => void,
+  isPointer: (e: Pointer) => boolean,
+  finish: (released: boolean) => void,
+) {
+  const cancel = (e: Pointer) => {
+    if (isPointer(e)) finish(false);
   };
+  return {
+    onPointerDown: (e: Pointer) => {
+      if (e.isPrimary !== false && e.button === 0) begin({ type: "pointer", pointer: e.pointerId });
+    },
+    onPointerUp: (e: Move) => {
+      if (isPointer(e)) finish(!outside(e));
+    },
+    // Touch can implicitly capture the pointer, suppressing pointerleave.
+    onPointerMove: (e: Move) => {
+      if (outside(e)) cancel(e);
+    },
+    onPointerLeave: cancel,
+    onPointerCancel: cancel,
+  } as object; // Tamagui declares native event types even for its DOM-only handlers.
+}
+
+function useCancelPress(enabled: boolean, scope: unknown, address: string, cancel: () => void) {
   useLayoutEffect(() => {
     if (isWeb && enabled) {
       window.addEventListener("blur", cancel);
@@ -63,7 +79,20 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
       cancel();
     };
   }, [enabled, scope, address]);
-  const begin = (input: NonNullable<typeof source.current>) => {
+}
+
+export function useContinuousPress(enabled: boolean, scope: unknown, address: string, press: Press) {
+  const source = useRef<Input | null>(null);
+  const latest = useRef(press);
+  latest.current = press;
+  const finish = (released: boolean) => {
+    if (!source.current) return;
+    source.current = null;
+    latest.current.end(released);
+  };
+  const cancel = () => finish(false);
+  useCancelPress(enabled, scope, address, cancel);
+  const begin = (input: Input) => {
     if (!enabled || source.current) return;
     source.current = input;
     latest.current.begin();
@@ -72,33 +101,29 @@ export function useContinuousPress(enabled: boolean, scope: unknown, address: st
     source.current?.type === "pointer" && source.current.pointer === e.pointerId;
   return enabled
     ? isWeb
-      ? ({
-          onPointerDown: (e: Pointer) => {
-            if (e.isPrimary !== false && e.button === 0) begin({ type: "pointer", pointer: e.pointerId });
-          },
-          onPointerUp: (e: Pointer) => {
-            if (isPointer(e)) cancel();
-          },
-          onPointerMove: (e: Move) => {
-            // Touch can implicitly capture the pointer, suppressing pointerleave.
-            if (isPointer(e) && outside(e)) cancel();
-          },
-          onPointerLeave: (e: Pointer) => {
-            if (isPointer(e)) cancel();
-          },
-          onPointerCancel: (e: Pointer) => {
-            if (isPointer(e)) cancel();
-          },
+      ? {
+          ...pointerEvents(begin, isPointer, finish),
           onBlur: cancel,
           onContextMenu: (event: { preventDefault(): void }) => event.preventDefault(),
           onKeyDown: (e: Key) => {
             if (stopKey(e) && !e.repeat) begin({ type: "keyboard", key: e.key });
           },
           onKeyUp: (e: Key) => {
-            if (stopKey(e) && source.current?.type === "keyboard" && source.current.key === e.key) cancel();
+            if (stopKey(e) && source.current?.type === "keyboard" && source.current.key === e.key)
+              finish(true);
           },
-          // Tamagui declares native event types even for its DOM-only handlers.
-        } as object)
-      : { onPressIn: () => begin({ type: "native" }), onPressOut: cancel, onPress: () => {}, onBlur: cancel }
+        }
+      : {
+          onPressIn: () => begin({ type: "native" }),
+          onPressOut: () => {
+            const input = source.current;
+            // Native Pressability emits onPress for release, but only onPressOut for cancellation.
+            queueMicrotask(() => {
+              if (input === source.current) cancel();
+            });
+          },
+          onPress: () => finish(true),
+          onBlur: cancel,
+        }
     : {};
 }

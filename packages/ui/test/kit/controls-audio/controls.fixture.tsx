@@ -35,9 +35,15 @@ declare global {
   interface Window {
     controlLog: string[];
     allowMic(): void;
+    attemptHold(agent: boolean): string;
   }
 }
 window.controlLog = log;
+window.attemptHold = (agent) => {
+  const address = "test/hold/hold";
+  const reply = agent ? controller.act({ address, action: "press" }, { agent }) : controller.press(address);
+  return reply.ok ? "ok" : reply.code;
+};
 window.allowMic = () => allow?.({ close: (reason) => log.push(`closed ${reason}`) });
 
 const env = {

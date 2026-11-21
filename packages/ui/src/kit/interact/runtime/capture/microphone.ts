@@ -8,6 +8,7 @@ export type MicCaptureAdapter = {
 };
 type Phase = "idle" | "pending" | "recording" | "unavailable";
 type Capture = { address: string; request: AbortController; session?: MicCaptureSession };
+const localRoot = (address: string) => address.replace(/\/root$/, "");
 
 function close(session: MicCaptureSession | undefined, reason: "stop" | "cancel") {
   try {
@@ -31,13 +32,12 @@ export function createMicCapture(adapter: MicCaptureAdapter | undefined) {
   let capture: Capture | undefined;
   const notify = () => listeners.forEach((listener) => listener());
   const release = (address: string, reason: "stop" | "cancel") => {
-    if (capture?.address !== address) return false;
+    if (!capture || localRoot(capture.address) !== localRoot(address)) return;
     const current = capture;
     capture = undefined;
     if (!current.session) current.request.abort();
     close(current.session, reason);
     notify();
-    return Boolean(current.session);
   };
   async function start(address: string, admit: () => boolean) {
     if (!adapter || capture) return;

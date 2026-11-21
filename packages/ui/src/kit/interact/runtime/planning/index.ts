@@ -119,6 +119,13 @@ function stepRunner(
     confirmed?: ActionState["confirmation"],
   ): ActionResult => {
     const selected = { ...original, address: ctx.relative(original.address) };
+    const hold = selected.action === "press" && ctx.hold.parts.get(selected.address);
+    if (hold && !confirmed && ctx.hold.approval !== hold)
+      return {
+        state: before,
+        effects: [],
+        error: actionFailure(at, "hold_required", "Hold the button on the screen"),
+      };
     const prepared = prepareStep(before, selected, ctx, media, at, confirmed);
     if ("error" in prepared) return { state: before, effects: [], error: prepared.error };
     const pending =

@@ -27,7 +27,12 @@ export function captureAccess(
         );
     },
     stopMicCapture(address: string) {
-      if (micCapture.release(address, "stop")) act({ address, action: "stop" });
+      try {
+        if (micCapture.phase(address) === "recording") act({ address, action: "stop" });
+      } finally {
+        // Physical release must close capture even if the logical stop is no longer offered.
+        micCapture.release(address, "cancel");
+      }
     },
     cancelMicCapture: (address: string) => {
       micCapture.release(address, "cancel");

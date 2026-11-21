@@ -168,6 +168,7 @@ export function createControllerContext(options: ControllerOptions, standalone =
       initial = initialValues(screen, defs, now);
     },
     mounted: new Map<string, symbol>(),
+    hold: { parts: new Map<string, symbol>(), approval: undefined as symbol | undefined },
     disabledParts,
     key: (id: string, part: string) => valueKey(screen.id, id, part),
     relative: (address: string) => relativeAddress(screen.id, address),

@@ -5,6 +5,16 @@ import { buttonEvents, useContinuousPress } from "../controls";
 
 const noSubscribe = () => () => {};
 
+export function nativeMicEvents(toggle: () => void) {
+  return {
+    accessibilityActions: [{ name: "activate" }],
+    onAccessibilityAction: ({ nativeEvent }: { nativeEvent: { actionName: string } }) => {
+      if (nativeEvent.actionName === "activate") toggle();
+    },
+    onAccessibilityTap: toggle,
+  };
+}
+
 export function useMicCapture(address: string, inactive: boolean, style: "hold" | "toggle") {
   const { interactive, controller } = useKit();
   const phase = useSyncExternalStore(
@@ -45,6 +55,6 @@ export function useMicCapture(address: string, inactive: boolean, style: "hold" 
       ? buttonEvents(toggle)
       : isWeb
         ? hold
-        : { ...hold, onAccessibilityTap: toggle };
+        : { ...hold, ...nativeMicEvents(toggle) };
   return { events, phase, enabled, unavailable: phase === "unavailable" };
 }

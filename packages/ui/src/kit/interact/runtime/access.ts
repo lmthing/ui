@@ -19,16 +19,16 @@ import {
   withDisabledSelectionChecks,
   withRecordScreen,
 } from "../../../catalog";
-import type { ActStep, AppCurrency, StateName } from "../../../catalog";
+import type { AppCurrency, StateName } from "../../../catalog";
 import { actionFailure } from "../actions";
-import type { ActReply } from "../index";
 import { createControllerContext, type ControllerContext, type ControllerOptions } from "./context";
 import { createAct, discardHiddenConfirmation } from "./dispatch";
 import { createMediaRuntime } from "./media";
 import { captureAccess } from "./capture";
+import { registerHoldPart } from "./hold";
 import { drivenPartBlock } from "./planning";
 import { readControls } from "./read-controls";
-type Act = (step: ActStep) => ActReply;
+type Act = ReturnType<typeof createAct>;
 const pressActions = "press select toggle check increment decrement start stop send dismiss".split(" ");
 function actionsAt(
   ctx: ControllerContext,
@@ -158,6 +158,7 @@ export function createAccess(ctx: ControllerContext, act: Act, currency?: AppCur
     ...captureAccess(ctx, act, (address, ignore) =>
       actionsAt(ctx, address, false, ignore, "ok").includes("start"),
     ),
+    registerHoldPart: (address: string) => registerHoldPart(ctx, act, address),
     actionsAt: (address: string, options?: { ignoreDisabledPart?: boolean }) =>
       actionsAt(ctx, address, false, options?.ignoreDisabledPart),
     press: (address: string) => press(ctx, act, address),

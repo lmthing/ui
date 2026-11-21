@@ -18,7 +18,7 @@ it("cancels a pending open and discards late permission without disturbing a lat
   const admit = vi.fn(() => true);
   const pending = capture.start("first", admit);
   expect(capture.phase("first")).toBe("pending");
-  expect(capture.release("first", "stop")).toBe(false);
+  capture.release("first", "stop");
   expect(open.mock.calls[0]?.[1].aborted).toBe(true);
   await capture.start("second", admit);
   resolve(old);
@@ -26,7 +26,7 @@ it("cancels a pending open and discards late permission without disturbing a lat
   expect(admit).toHaveBeenCalledOnce();
   expect(old.close).toHaveBeenCalledExactlyOnceWith("cancel");
   expect(capture.phase("second")).toBe("recording");
-  expect(capture.release("second", "stop")).toBe(true);
+  capture.release("second", "stop");
   expect(next.close).toHaveBeenCalledExactlyOnceWith("stop");
 });
 

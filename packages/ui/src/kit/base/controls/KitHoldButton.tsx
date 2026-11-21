@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Circle, Svg } from "react-native-svg";
 import { YStack, isWeb, useTheme } from "tamagui";
 import { component, radius, space } from "../../../catalog";
@@ -49,15 +49,32 @@ function Countdown({ ratio, disabled }: { ratio: number; disabled: boolean }) {
 }
 
 function useCountdown(enabled: boolean, address: string) {
-  const { controller, environment, motion } = useKit();
+  const { controller, environment, motion, interactive } = useKit();
   const [local, setLocal] = useState<number>();
   const frame = useRef<number | undefined>(undefined);
+  const start = useRef<number | undefined>(undefined);
+  const complete = useRef<(() => unknown) | undefined>(undefined);
+  useLayoutEffect(() => {
+    if (!controller || !interactive) return;
+    const hold = controller.registerHoldPart(address);
+    complete.current = hold.complete;
+    return () => {
+      hold.unregister();
+      complete.current = undefined;
+    };
+  }, [address, controller, interactive]);
+  const finish = () => {
+    if (start.current === undefined) return;
+    start.current = undefined;
+    complete.current?.();
+  };
   const settled = environment.reduceMotion || environment.agentMode || motion === "calm";
   const events = useContinuousPress(enabled, controller, address, {
     begin() {
-      const start = performance.now();
+      const began = performance.now();
+      start.current = began;
       const step = (at: number) => {
-        const ratio = ratioOf((at - start) / holdMs);
+        const ratio = ratioOf((at - began) / holdMs);
         if (ratio < 1) {
           setLocal(settled ? Math.floor(ratio * (holdMs / 1000)) / (holdMs / 1000) : ratio);
           frame.current = requestAnimationFrame(step);
@@ -65,14 +82,16 @@ function useCountdown(enabled: boolean, address: string) {
         }
         frame.current = undefined;
         setLocal(1);
-        controller?.act({ address, action: "press" });
+        finish();
       };
       setLocal(0);
       frame.current = requestAnimationFrame(step);
     },
-    end() {
+    end(released) {
       if (frame.current !== undefined) cancelAnimationFrame(frame.current);
       frame.current = undefined;
+      if (released && start.current !== undefined && performance.now() - start.current >= holdMs) finish();
+      start.current = undefined;
       setLocal(undefined);
     },
   });

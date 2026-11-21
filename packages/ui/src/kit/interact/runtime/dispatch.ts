@@ -16,7 +16,7 @@ import type { ControllerContext } from "./context";
 import type { MediaRuntime } from "./media";
 import { planSteps } from "./planning";
 
-function snapshotPlanning(ctx: ControllerContext): ControllerContext {
+function snapshotPlanning(ctx: ControllerContext, holdApproval?: symbol): ControllerContext {
   const at = ctx.now();
   const values = ctx.valuesOf(at);
   const data = atDeviceTime(ctx.options.deviceData, at);
@@ -33,6 +33,7 @@ function snapshotPlanning(ctx: ControllerContext): ControllerContext {
     valuesOf: () => values,
     status: { ...ctx.status, confirmation: ctx.confirmationFor(data, at) },
     mounted: new Map(ctx.mounted),
+    hold: { parts: new Map(ctx.hold.parts), approval: holdApproval },
     disabledParts,
     liveScreen: (next, sheet, covered) =>
       withDisabledSelectionChecks(ctx.liveScreen(next, sheet, covered, at), disabledParts),
@@ -49,7 +50,7 @@ export function discardHiddenConfirmation(ctx: ControllerContext) {
 }
 
 export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleClock: () => void) {
-  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}): ActReply {
+  return function act(steps: ActStep | ActStep[], opts: ActOptions = {}, holdApproval?: symbol): ActReply {
     if (ctx.status.disposed) return actionFailure(0, "not_actionable", "This screen is no longer mounted");
     if (ctx.options.interactive === false)
       return actionFailure(0, "not_interactive", "This screen is a preview");
@@ -57,7 +58,7 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!list.length) return { ok: true, screen: ctx.screen.id, changed: "", dryRun: Boolean(opts.dryRun) };
     // A host snapshot change invalidates the confirmation independently of this action's result.
     if (!opts.dryRun) discardHiddenConfirmation(ctx);
-    const planning = snapshotPlanning(ctx);
+    const planning = snapshotPlanning(ctx, holdApproval);
     const preview = planSteps(list, planning, media, null);
     if (preview.error) return preview.error;
     if (opts.dryRun)
@@ -94,6 +95,8 @@ export function createAct(ctx: ControllerContext, media: MediaRuntime, scheduleC
     if (!ctx.standalone || state.confirmation || planning.status.confirmation)
       state.values[`${ctx.screen.id}/$confirmation`] = state.confirmation;
     ctx.store.setMany({ ...settleMedia(true), ...state.values });
+    for (const step of result.performed)
+      if (step.action === "stop") ctx.micCapture.release(step.address, "stop");
     for (const effect of effects) effect();
     scheduleClock();
     ctx.notifyChange();

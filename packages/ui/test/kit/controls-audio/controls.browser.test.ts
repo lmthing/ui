@@ -55,6 +55,10 @@ afterAll(async () => {
 
 it("cancels taps and pointer exit, then fires exactly once for a full hold", async () => {
   const hold = page.getByTestId("test/hold/hold");
+  expect(await page.evaluate(() => [window.attemptHold(false), window.attemptHold(true)])).toEqual([
+    "hold_required",
+    "hold_required",
+  ]);
   await hold.click();
   await hold.hover();
   await page.mouse.down();
@@ -67,6 +71,28 @@ it("cancels taps and pointer exit, then fires exactly once for a full hold", asy
   await page.clock.runFor(3100);
   await expect.poll(() => hold.getAttribute("aria-label")).toBe("Ready");
   await page.clock.runFor(3100);
+  await page.mouse.up();
+  expect(await log()).toEqual(["test/hold/hold press"]);
+});
+
+it("uses the release timestamp when no frame runs at the hold boundary", async () => {
+  const hold = page.getByTestId("test/hold/hold");
+  await page.evaluate(() => {
+    window.requestAnimationFrame = () => 1;
+  });
+  await hold.hover();
+  await page.mouse.down();
+  await page.clock.runFor(2900);
+  await page.mouse.up();
+  expect(await log()).toEqual([]);
+  await page.mouse.down();
+  await page.clock.runFor(3005);
+  await page.mouse.move(1, 1);
+  await page.mouse.up();
+  expect(await log()).toEqual([]);
+  await hold.hover();
+  await page.mouse.down();
+  await page.clock.runFor(3005);
   await page.mouse.up();
   expect(await log()).toEqual(["test/hold/hold press"]);
 });

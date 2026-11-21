@@ -27,8 +27,12 @@ it("requires a mounted ok-tier part and never opens audio through the agent acti
   await controller.startMicCapture(address);
   expect(controller.micCapturePhase(address)).toBe("recording");
   expect(onAction).toHaveBeenCalledExactlyOnceWith({ address, action: "start" });
+  expect(controller.act({ address, action: "stop" }, { dryRun: true }).ok).toBe(true);
+  expect(session.close).not.toHaveBeenCalled();
+  expect(controller.act({ address, action: "stop" }, { agent: true }).ok).toBe(true);
+  expect(controller.micCapturePhase(address)).toBe("idle");
   controller.dispose();
-  expect(session.close).toHaveBeenCalledExactlyOnceWith("cancel");
+  expect(session.close).toHaveBeenCalledExactlyOnceWith("stop");
 });
 
 it("does not activate a microphone whose target was disabled while permission was pending", async () => {
